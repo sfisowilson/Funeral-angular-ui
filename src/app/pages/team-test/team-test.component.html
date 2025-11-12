@@ -1,0 +1,123 @@
+<div class="team-test-page">
+    <div class="page-header mb-8">
+        <div class="section-header">
+            <i class="pi pi-users text-purple-600"></i>
+            <h1 class="text-3xl font-bold text-gray-800">Team Component Test Page</h1>
+        </div>
+        <p class="text-gray-600 mt-2">Testing different team widget configurations and interactions</p>
+    </div>
+
+    <div class="test-sections space-y-8">
+        <!-- Team Display Widget Section -->
+        <div class="test-section">
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <i class="pi pi-eye text-blue-600"></i>
+                        <h2 class="text-xl font-semibold">Team Display Widget (Read-Only)</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-2">Displays team information in a read-only format</p>
+                </div>
+
+                <div class="card-body">
+                    <div class="widget-container">
+                        <app-team-editor-widget [config]="displayConfig"></app-team-editor-widget>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Editor Widget Section -->
+        <div class="test-section">
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <i class="pi pi-pencil text-green-600"></i>
+                        <h2 class="text-xl font-semibold">Team Editor Widget (Interactive)</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-2">Full interactive team management with add, edit, and delete capabilities</p>
+                </div>
+
+                <div class="card-body">
+                    <div class="widget-container">
+                        <app-team-editor [config]="editorConfig"></app-team-editor>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty Team Widget Section -->
+        <div class="test-section">
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <i class="pi pi-plus-circle text-orange-600"></i>
+                        <h2 class="text-xl font-semibold">Empty Team Widget</h2>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-2">Demonstrates the empty state when no team members are present</p>
+                </div>
+
+                <div class="card-body">
+                    <div class="widget-container">
+                        <app-team-editor-widget [config]="emptyConfig"></app-team-editor-widget>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Test Information -->
+        <div class="test-section">
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="section-header">
+                        <i class="pi pi-info-circle text-indigo-600"></i>
+                        <h2 class="text-xl font-semibold">Testing Information</h2>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="info-card">
+                            <div class="info-header">
+                                <i class="pi pi-check-circle text-green-500"></i>
+                                <h3 class="font-semibold">Features Tested</h3>
+                            </div>
+                            <ul class="info-list">
+                                <li>Team member display</li>
+                                <li>Interactive editing</li>
+                                <li>Empty state handling</li>
+                                <li>Responsive design</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-header">
+                                <i class="pi pi-cog text-blue-500"></i>
+                                <h3 class="font-semibold">Widget Configuration</h3>
+                            </div>
+                            <ul class="info-list">
+                                <li>Customizable titles</li>
+                                <li>Team member arrays</li>
+                                <li>Unique widget IDs</li>
+                                <li>Settings objects</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-header">
+                                <i class="pi pi-users text-purple-500"></i>
+                                <h3 class="font-semibold">Team Data</h3>
+                            </div>
+                            <ul class="info-list">
+                                <li>Member names</li>
+                                <li>Email addresses</li>
+                                <li>Role assignments</li>
+                                <li>Unique identifiers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

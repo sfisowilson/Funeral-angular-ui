@@ -1,0 +1,30 @@
+<div class="modern-card">
+    <div class="card-header">
+        <i class="pi pi-file"></i>
+        <span>Recent Claims</span>
+    </div>
+    <div class="card-content">
+        <p-table [value]="claims()" [loading]="loading()" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Claim ID</th>
+                    <th>Member</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-claim>
+                <tr>
+                    <td>{{ claim.id }}</td>
+                    <td>{{ claim.memberName }}</td>
+                    <td>R {{ claim.amount.toLocaleString() }}</td>
+                    <td>
+                        <p-tag [value]="claim.status" [severity]="getStatusSeverity(claim.status)"></p-tag>
+                    </td>
+                    <td>{{ claim.date | date:'MMM d, y' }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

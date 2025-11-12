@@ -1,0 +1,15 @@
+<div class="stats-grid">
+    <div *ngFor="let stat of stats()" class="stat-card" [style.border-left-color]="stat.color">
+        <div class="stat-icon" [style.background-color]="stat.color + '20'">
+            <i [class]="'pi ' + stat.icon" [style.color]="stat.color"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-title">{{ stat.title }}</div>
+            <div class="stat-value">{{ stat.value }}</div>
+            <div class="stat-trend" [class.trend-up]="stat.trendUp" [class.trend-down]="!stat.trendUp">
+                <i [class]="stat.trendUp ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
+                {{ stat.trend }} from last month
+            </div>
+        </div>
+    </div>
+</div>

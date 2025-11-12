@@ -1,0 +1,164 @@
+<div class="identity-verification-form">
+    <p-card [header]="title">
+        <ng-template pTemplate="subtitle">
+            <p class="text-muted-color">{{ subtitle }}</p>
+        </ng-template>
+
+        <ng-template pTemplate="content">
+            <!-- Loading State -->
+            <div *ngIf="featuresLoading()" class="flex justify-content-center align-items-center py-4">
+                <p-progressSpinner [style]="{ width: '30px', height: '30px' }"></p-progressSpinner>
+                <span class="ml-2 text-muted-color">Loading subscription features...</span>
+            </div>
+
+            <!-- Feature Information -->
+            <div *ngIf="!featuresLoading() && tenantFeatures()" class="mb-4">
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="flex align-items-center gap-2 mb-2">
+                            <i class="pi pi-info-circle text-blue-500"></i>
+                            <span class="font-medium">Subscription Features</span>
+                        </div>
+                        <div class="text-sm text-muted-color">
+                            <div *ngIf="tenantFeatures()!.identityVerification" class="flex align-items-center gap-1 mb-1">
+                                <i class="pi pi-check text-green-500"></i>
+                                <span>Identity Verification Available</span>
+                            </div>
+                            <div *ngIf="tenantFeatures()!.enhancedVerification" class="flex align-items-center gap-1 mb-1">
+                                <i class="pi pi-check text-green-500"></i>
+                                <span>Enhanced Verification</span>
+                            </div>
+                            <div *ngIf="tenantFeatures()!.quickIdCheck" class="flex align-items-center gap-1 mb-1">
+                                <i class="pi pi-check text-green-500"></i>
+                                <span>Quick ID Check</span>
+                            </div>
+                            <div *ngIf="tenantFeatures()!.verificationHistory" class="flex align-items-center gap-1 mb-1">
+                                <i class="pi pi-check text-green-500"></i>
+                                <span>Verification History</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 md:col-6" *ngIf="tenantFeatures()!.maxVerificationsPerMonth > 0">
+                        <div class="flex align-items-center gap-2 mb-2">
+                            <i class="pi pi-chart-bar text-orange-500"></i>
+                            <span class="font-medium">Usage This Month</span>
+                        </div>
+                        <div class="text-sm">
+                            <div class="flex justify-content-between mb-1">
+                                <span>Used:</span>
+                                <span>{{ tenantFeatures()!.verificationsUsedThisMonth }} / {{ tenantFeatures()!.maxVerificationsPerMonth }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 border-round" style="height: 6px">
+                                <div class="bg-primary border-round" style="height: 6px" [style.width.%]="(tenantFeatures()!.verificationsUsedThisMonth / tenantFeatures()!.maxVerificationsPerMonth) * 100"></div>
+                            </div>
+                            <div class="text-xs text-muted-color mt-1">Remaining: {{ tenantFeatures()!.maxVerificationsPerMonth - tenantFeatures()!.verificationsUsedThisMonth }}</div>
+                        </div>
+                    </div>
+                </div>
+                <p-divider></p-divider>
+            </div>
+
+            <form [formGroup]="verificationForm" (ngSubmit)="submitVerification()" *ngIf="!featuresLoading()">
+                <!-- ID Number Field -->
+                <div class="field mb-4">
+                    <label for="idNumber" class="block text-900 font-medium mb-2"> ID Number <span class="text-red-500">*</span> </label>
+                    <input type="text" pInputText id="idNumber" formControlName="idNumber" placeholder="Enter 13-digit ID number" class="w-full" [class.ng-invalid]="isFieldInvalid('idNumber')" maxlength="13" />
+                    <small class="text-red-500" *ngIf="isFieldInvalid('idNumber')">
+                        {{ getFieldError('idNumber') }}
+                    </small>
+                </div>
+
+                <!-- First Name Field -->
+                <div class="field mb-4">
+                    <label for="firstName" class="block text-900 font-medium mb-2"> First Name <span class="text-red-500">*</span> </label>
+                    <input type="text" pInputText id="firstName" formControlName="firstName" placeholder="Enter first name" class="w-full" [class.ng-invalid]="isFieldInvalid('firstName')" />
+                    <small class="text-red-500" *ngIf="isFieldInvalid('firstName')">
+                        {{ getFieldError('firstName') }}
+                    </small>
+                </div>
+
+                <!-- Last Name Field -->
+                <div class="field mb-4">
+                    <label for="lastName" class="block text-900 font-medium mb-2"> Last Name <span class="text-red-500">*</span> </label>
+                    <input type="text" pInputText id="lastName" formControlName="lastName" placeholder="Enter last name" class="w-full" [class.ng-invalid]="isFieldInvalid('lastName')" />
+                    <small class="text-red-500" *ngIf="isFieldInvalid('lastName')">
+                        {{ getFieldError('lastName') }}
+                    </small>
+                </div>
+
+                <!-- Date of Birth Field -->
+                <div class="field mb-4">
+                    <label for="dateOfBirth" class="block text-900 font-medium mb-2"> Date of Birth <span class="text-red-500">*</span> </label>
+                    <p-calendar formControlName="dateOfBirth" [showIcon]="true" dateFormat="dd/mm/yy" placeholder="Select date of birth" class="w-full" [class.ng-invalid]="isFieldInvalid('dateOfBirth')" [maxDate]="maxDate"></p-calendar>
+                    <small class="text-red-500" *ngIf="isFieldInvalid('dateOfBirth')">
+                        {{ getFieldError('dateOfBirth') }}
+                    </small>
+                </div>
+
+                <!-- Verification Type Field -->
+                <div class="field mb-4">
+                    <label for="verificationType" class="block text-900 font-medium mb-2"> Verification Type <span class="text-red-500">*</span> </label>
+                    <p-dropdown formControlName="verificationType" [options]="verificationTypes" optionLabel="label" optionValue="value" placeholder="Select verification type" class="w-full" [class.ng-invalid]="isFieldInvalid('verificationType')" appendTo="body">
+                        <ng-template pTemplate="selectedItem" let-selectedOption>
+                            <div class="flex align-items-center gap-2" *ngIf="selectedOption">
+                                <i [class]="selectedOption.icon" class="text-blue-500"></i>
+                                <span>{{ selectedOption.label }}</span>
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="item" let-option>
+                            <div class="flex align-items-center gap-2">
+                                <i [class]="option.icon" class="text-blue-500"></i>
+                                <div>
+                                    <div>{{ option.label }}</div>
+                                    <small class="text-muted-color">{{ option.description }}</small>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                    <small class="text-red-500" *ngIf="isFieldInvalid('verificationType')">
+                        {{ getFieldError('verificationType') }}
+                    </small>
+                </div>
+
+                <p-divider></p-divider>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-content-between gap-3">
+                    <!-- Quick Verify Button -->
+                    <button 
+                        *ngIf="showQuickVerify"
+                        type="button" 
+                        class="btn btn-outline-secondary flex-1"
+                        [disabled]="quickVerifying()"
+                        (click)="performQuickVerification()">
+                        <i class="pi pi-bolt me-2"></i>
+                        @if (quickVerifying()) {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        }
+                        Quick Verify
+                    </button>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        class="btn btn-primary flex-1"
+                        [disabled]="verificationForm.invalid || submitting()">
+                        <i class="pi pi-shield me-2"></i>
+                        @if (submitting()) {
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        }
+                        Verify Identity
+                    </button>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div class="flex justify-content-center mt-3" *ngIf="submitting() || quickVerifying()">
+                    <p-progressSpinner [style]="{ width: '30px', height: '30px' }"></p-progressSpinner>
+                    <span class="ml-2 text-muted-color">
+                        {{ submitting() ? 'Verifying identity...' : 'Performing quick check...' }}
+                    </span>
+                </div>
+            </form>
+        </ng-template>
+    </p-card>
+</div>

@@ -1,0 +1,179 @@
+<div class="modern-card">
+    <div class="card-header">
+        <h2>Dashboard Widget Configuration</h2>
+        <p>Configure which widgets are visible on the dashboard and for which roles</p>
+    </div>
+
+    <div class="card-content">
+        <div class="action-bar">
+            <button 
+                pButton 
+                label="Add Widget" 
+                icon="pi pi-plus" 
+                class="p-button-primary"
+                (click)="openNewDialog()">
+            </button>
+            <button 
+                pButton 
+                label="Initialize Defaults" 
+                icon="pi pi-refresh" 
+                class="p-button-secondary"
+                (click)="initializeDefaults()">
+            </button>
+        </div>
+
+        <p-table 
+            [value]="widgets()" 
+            [loading]="loading()"
+            styleClass="p-datatable-gridlines"
+            [paginator]="true"
+            [rows]="10"
+            [rowsPerPageOptions]="[5, 10, 20]"
+            responsiveLayout="scroll">
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Order</th>
+                    <th>Widget Name</th>
+                    <th>Widget Key</th>
+                    <th>Visible</th>
+                    <th>Allowed Roles</th>
+                    <th style="width: 150px">Actions</th>
+                </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-widget>
+                <tr>
+                    <td>{{ widget.displayOrder }}</td>
+                    <td>{{ widget.widgetName }}</td>
+                    <td><code>{{ widget.widgetKey }}</code></td>
+                    <td>
+                        <span [class]="widget.isVisible ? 'status-badge visible' : 'status-badge hidden'">
+                            {{ widget.isVisible ? 'Visible' : 'Hidden' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="roles-container">
+                            <span *ngFor="let role of widget.allowedRoles" class="role-badge">
+                                {{ role }}
+                            </span>
+                            <span *ngIf="widget.allowedRoles.length === 0" class="text-muted">All roles</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button 
+                            pButton 
+                            icon="pi pi-pencil" 
+                            class="p-button-text p-button-info"
+                            pTooltip="Edit"
+                            (click)="editWidget(widget)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center">
+                        No dashboard widgets configured. Click "Initialize Defaults" to add default widgets.
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>
+
+<p-dialog 
+    [(visible)]="showDialog" 
+    [header]="isEditMode() ? 'Edit Dashboard Widget' : 'Add Dashboard Widget'"
+    [modal]="true" 
+    [style]="{width: '600px'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <div class="dialog-content">
+        <div class="form-grid">
+            <div class="form-field full-width">
+                <label for="widgetKey">Widget Type *</label>
+                <select 
+                    id="widgetKey" 
+                    class="form-select"
+                    [(ngModel)]="currentWidget.widgetKey"
+                    (ngModelChange)="onWidgetKeyChange()"
+                    [disabled]="isEditMode()">
+                    <option value="">Select a widget</option>
+                    <option *ngFor="let widget of availableWidgets" [value]="widget.value">
+                        {{ widget.label }}
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-field full-width">
+                <label for="widgetName">Widget Name *</label>
+                <input 
+                    id="widgetName" 
+                    type="text" 
+                    pInputText 
+                    [(ngModel)]="currentWidget.widgetName"
+                    [disabled]="isEditMode()"
+                    placeholder="Enter widget name">
+            </div>
+
+            <div class="form-field full-width">
+                <label for="allowedRoles">Allowed Roles</label>
+                <p-multiSelect 
+                    id="allowedRoles"
+                    [(ngModel)]="currentWidget.allowedRoles"
+                    [options]="availableRoles()"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select roles (leave empty for all)"
+                    display="chip"
+                    appendTo="body"
+                    [style]="{'width': '100%'}">
+                </p-multiSelect>
+                <small class="help-text">Leave empty to show for all roles</small>
+            </div>
+
+            <div class="form-field">
+                <label for="displayOrder">Display Order</label>
+                <p-inputNumber
+                    id="displayOrder"
+                    [(ngModel)]="currentWidget.displayOrder"
+                    [min]="0"
+                    [step]="1"
+                    placeholder="0">
+                </p-inputNumber>
+            </div>
+
+            <div class="form-field">
+                <div class="switch-field">
+                    <label for="isVisible">Visible on Dashboard</label>
+                    <p-inputSwitch 
+                        [(ngModel)]="currentWidget.isVisible"
+                        inputId="isVisible">
+                    </p-inputSwitch>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <button 
+            pButton 
+            label="Cancel" 
+            icon="pi pi-times" 
+            class="p-button-text"
+            (click)="cancel()">
+        </button>
+        <button 
+            pButton 
+            label="Save" 
+            icon="pi pi-check" 
+            class="p-button-primary"
+            (click)="saveWidget()">
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

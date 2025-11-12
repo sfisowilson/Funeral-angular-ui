@@ -1,0 +1,127 @@
+<p-toolbar styleClass="mb-6">
+    <ng-template #start>
+        <button type="button" class="btn btn-primary me-2" (click)="openNew()">
+            <i class="pi pi-plus me-2"></i>
+            New Subscription Plan
+        </button>
+        <button type="button" class="btn btn-outline-danger" (click)="deleteSelectedSubscriptionPlans()" [disabled]="!selectedSubscriptionPlans || !selectedSubscriptionPlans.length">
+            <i class="pi pi-trash me-2"></i>
+            Delete
+        </button>
+    </ng-template>
+
+    <ng-template #end>
+        <button type="button" class="btn btn-secondary" (click)="exportCSV()">
+            <i class="pi pi-upload me-2"></i>
+            Export
+        </button>
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt
+    [value]="subscriptionPlans()"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedSubscriptionPlans"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} subscription plans"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <h5 class="m-0">Manage Subscription Plans</h5>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+            </p-iconfield>
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="name" style="min-width: 16rem">
+                Name
+                <p-sortIcon field="name" />
+            </th>
+            <th pSortableColumn="description" style="min-width: 16rem">
+                Description
+                <p-sortIcon field="description" />
+            </th>
+            <th pSortableColumn="monthlyPrice" style="min-width: 10rem">
+                Monthly Price
+                <p-sortIcon field="monthlyPrice" />
+            </th>
+            <th pSortableColumn="allowedTenantType" style="min-width: 10rem">
+                Allowed Tenant Type
+                <p-sortIcon field="allowedTenantType" />
+            </th>
+            <th style="min-width: 12rem"></th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-plan>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="plan" />
+            </td>
+            <td>{{ plan.name }}</td>
+            <td>{{ plan.description }}</td>
+            <td>{{ plan.monthlyPrice | currency }}</td>
+            <td>{{ getTenantTypeName(plan.allowedTenantType) }}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editSubscriptionPlan(plan)">
+                    <i class="pi pi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deleteSubscriptionPlan(plan)">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="subscriptionPlanDialog" [style]="{ width: '450px' }" header="Subscription Plan Details" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-6">
+            <div>
+                <label for="name" class="block font-bold mb-3">Name</label>
+                <input type="text" pInputText id="name" [(ngModel)]="subscriptionPlan.name" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !subscriptionPlan.name">Name is required.</small>
+            </div>
+            <div>
+                <label for="description" class="block font-bold mb-3">Description</label>
+                <textarea id="description" pInputTextarea [(ngModel)]="subscriptionPlan.description" rows="3" cols="20" fluid></textarea>
+                <small class="text-red-500" *ngIf="submitted && !subscriptionPlan.description">Description is required.</small>
+            </div>
+            <div>
+                <label for="monthlyPrice" class="block font-bold mb-3">Monthly Price</label>
+                <p-inputNumber id="monthlyPrice" [(ngModel)]="subscriptionPlan.monthlyPrice" mode="currency" currency="USD" locale="en-US" required fluid></p-inputNumber>
+                <small class="text-red-500" *ngIf="submitted && subscriptionPlan.monthlyPrice === undefined">Monthly Price is required.</small>
+            </div>
+            <div>
+                <label for="allowedTenantType" class="block font-bold mb-3">Allowed Tenant Type</label>
+                <p-dropdown id="allowedTenantType" [(ngModel)]="subscriptionPlan.allowedTenantType" [options]="tenantTypes" optionLabel="label" optionValue="value" placeholder="Select a Type" required fluid appendTo="body"></p-dropdown>
+                <small class="text-red-500" *ngIf="submitted && subscriptionPlan.allowedTenantType === undefined">Allowed Tenant Type is required.</small>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+            <i class="pi pi-times me-2"></i>
+            Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveSubscriptionPlan()">
+            <i class="pi pi-check me-2"></i>
+            Save
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }" />

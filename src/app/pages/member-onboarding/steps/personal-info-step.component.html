@@ -1,0 +1,366 @@
+<div class="personal-info-step">
+    <p-tabView>
+        <!-- Personal Information Tab -->
+        <p-tabPanel header="Personal Information">
+            <!-- Loading Spinner -->
+            <div *ngIf="loading()" class="loading-container">
+                <p-progressSpinner></p-progressSpinner>
+                <p>Loading form configuration...</p>
+            </div>
+
+            <!-- Dynamic Form -->
+            <div *ngIf="!loading() && formGroup()" class="form-container">
+                <form [formGroup]="formGroup()!" (ngSubmit)="onSubmit()">
+            
+            <!-- Basic Member Information Section (always shown) -->
+            <div class="category-section" *ngIf="memberData()">
+                <p-card header="Basic Information" class="category-card">
+                    <div class="info-banner">
+                        <i class="pi pi-info-circle"></i>
+                        <span>Your core contact information. If your ID number was entered incorrectly during registration, you can update it here.</span>
+                    </div>
+                    
+                    <div class="fields-grid">
+                        <div class="field-group">
+                            <label for="identificationNumber" class="field-label">
+                                ID Number
+                                <span class="required-asterisk">*</span>
+                            </label>
+                            <input 
+                                pInputText
+                                id="identificationNumber"
+                                [(ngModel)]="memberData()!.identificationNumber"
+                                (ngModelChange)="onIdNumberChange()"
+                                [ngModelOptions]="{standalone: true}"
+                                placeholder="Enter South African ID number"
+                                maxlength="13"
+                                class="form-control"
+                                [class.ng-invalid]="idInfo() && !idInfo()!.isValid"
+                                [class.ng-valid]="idInfo() && idInfo()!.isValid"
+                            />
+                            
+                            <small *ngIf="idInfo() && !idInfo()!.isValid" class="error-message">
+                                <i class="pi pi-times-circle"></i> {{ idInfo()!.errorMessage }}
+                            </small>
+                            
+                            <small *ngIf="idInfo() && idInfo()!.isValid" class="success-message">
+                                <i class="pi pi-check-circle"></i> Valid SA ID Number
+                            </small>
+                            
+                            <small *ngIf="!idInfo()" class="help-text">
+                                South African ID number (13 digits)
+                            </small>
+                        </div>
+                        
+                        <!-- Auto-populated Date of Birth -->
+                        <div class="field-group" *ngIf="parsedDateOfBirth()">
+                            <label for="dateOfBirth" class="field-label">
+                                Date of Birth (from ID)
+                            </label>
+                            <input 
+                                pInputText
+                                id="dateOfBirth"
+                                [value]="parsedDateOfBirth()! | date:'dd/MM/yyyy'"
+                                readonly
+                                class="form-control readonly-field"
+                            />
+                            <small class="help-text">
+                                Age: {{ idInfo()?.age }} years
+                            </small>
+                        </div>
+                        
+                        <!-- Auto-populated Gender -->
+                        <div class="field-group" *ngIf="parsedGender()">
+                            <label for="gender" class="field-label">
+                                Gender (from ID)
+                            </label>
+                            <input 
+                                pInputText
+                                id="gender"
+                                [value]="parsedGender()"
+                                readonly
+                                class="form-control readonly-field"
+                            />
+                        </div>
+
+                        <div class="field-group">
+                            <label for="email" class="field-label">
+                                Email Address
+                                <span class="required-asterisk">*</span>
+                            </label>
+                            <input 
+                                pInputText
+                                id="email"
+                                type="email"
+                                [(ngModel)]="memberData()!.email"
+                                [ngModelOptions]="{standalone: true}"
+                                placeholder="Enter email address"
+                                class="form-control"
+                            />
+                        </div>
+
+                        <div class="field-group">
+                            <label for="phone1" class="field-label">
+                                Primary Phone
+                                <span class="required-asterisk">*</span>
+                            </label>
+                            <p-inputMask
+                                id="phone1"
+                                [(ngModel)]="memberData()!.phone1"
+                                [ngModelOptions]="{standalone: true}"
+                                mask="(999) 999-9999"
+                                placeholder="(012) 345-6789"
+                                styleClass="form-control"
+                            ></p-inputMask>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="phone2" class="field-label">
+                                Secondary Phone
+                            </label>
+                            <p-inputMask
+                                id="phone2"
+                                [(ngModel)]="memberData()!.phone2"
+                                [ngModelOptions]="{standalone: true}"
+                                mask="(999) 999-9999"
+                                placeholder="(012) 345-6789"
+                                styleClass="form-control"
+                            ></p-inputMask>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+
+            <!-- Loop through categories -->
+            <div *ngFor="let category of categories()" class="category-section">
+                <p-card [header]="getCategoryDisplayName(category.name)" class="category-card">
+                    <div class="fields-grid">
+                        <!-- Loop through fields in category -->
+                        <div *ngFor="let field of category.fields" class="field-group">
+                            <label [for]="field.config.fieldKey!" class="field-label">
+                                {{ field.config.fieldLabel }}
+                                <span *ngIf="isFieldRequired(field)" class="required-asterisk">*</span>
+                            </label>
+
+                            <!-- Text Input (text, email, tel) -->
+                            <input 
+                                *ngIf="field.config.fieldType === 'text' || field.config.fieldType === 'email' || field.config.fieldType === 'tel'"
+                                pInputText
+                                [id]="field.config.fieldKey!"
+                                [formControlName]="field.config.fieldKey!"
+                                [type]="field.config.fieldType"
+                                [placeholder]="field.config.placeholder || ''"
+                                class="form-control"
+                            />
+
+                            <!-- Date Input -->
+                            <p-calendar 
+                                *ngIf="field.config.fieldType === 'date'"
+                                [id]="field.config.fieldKey!"
+                                [formControlName]="field.config.fieldKey!"
+                                [placeholder]="field.config.placeholder || 'Select date'"
+                                dateFormat="yy-mm-dd"
+                                [showIcon]="true"
+                                class="form-control"
+                            ></p-calendar>
+
+                            <!-- Dropdown (select) -->
+                            <p-dropdown 
+                                *ngIf="field.config.fieldType === 'select'"
+                                [id]="field.config.fieldKey!"
+                                [formControlName]="field.config.fieldKey!"
+                                [options]="getFieldOptions(field)"
+                                [placeholder]="field.config.placeholder || 'Select an option'"
+                                [showClear]="!isFieldRequired(field)"
+                                class="form-control"
+                            ></p-dropdown>
+
+                            <!-- Radio Buttons -->
+                            <div *ngIf="field.config.fieldType === 'radio'" class="radio-group">
+                                <div *ngFor="let option of field.options; let i = index" class="radio-option">
+                                    <p-radioButton 
+                                        [inputId]="field.config.fieldKey! + '_' + i"
+                                        [formControlName]="field.config.fieldKey!"
+                                        [value]="option"
+                                    ></p-radioButton>
+                                    <label [for]="field.config.fieldKey! + '_' + i" class="ms-2">{{ option }}</label>
+                                </div>
+                            </div>
+
+                            <!-- Checkbox -->
+                            <div *ngIf="field.config.fieldType === 'checkbox'" class="checkbox-group">
+                                <p-checkbox 
+                                    [inputId]="field.config.fieldKey!"
+                                    [formControlName]="field.config.fieldKey!"
+                                    [binary]="true"
+                                ></p-checkbox>
+                                <label [for]="field.config.fieldKey!" class="ms-2">{{ field.config.fieldLabel }}</label>
+                            </div>
+
+                            <!-- Textarea -->
+                            <textarea 
+                                *ngIf="field.config.fieldType === 'textarea'"
+                                pInputTextarea
+                                [id]="field.config.fieldKey!"
+                                [formControlName]="field.config.fieldKey!"
+                                [placeholder]="field.config.placeholder || ''"
+                                [rows]="3"
+                                class="form-control"
+                            ></textarea>
+
+                            <!-- Validation Error Message -->
+                            <small 
+                                *ngIf="shouldShowError(field)" 
+                                class="error-message"
+                            >
+                                {{ getFieldError(field) }}
+                            </small>
+
+                            <!-- Help Text -->
+                            <small *ngIf="field.config.helpText" class="help-text">
+                                {{ field.config.helpText }}
+                            </small>
+                        </div>
+                    </div>
+                </p-card>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <button 
+                    pButton 
+                    type="submit"
+                    label="Save & Continue"
+                    icon="pi pi-check"
+                    [loading]="saving()"
+                    [disabled]="saving() || loading()"
+                    class="submit-button"
+                ></button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading() && categories().length === 0" class="empty-state">
+        <p-card>
+            <p>No form configuration found. Please contact your administrator.</p>
+        </p-card>
+    </div>
+        </p-tabPanel>
+
+        <!-- Documents Tab -->
+        <p-tabPanel header="Documents">
+            <div class="documents-section">
+                <div class="upload-form">
+                    <div class="upload-header">
+                        <h4>Upload Documents</h4>
+                        <p>Upload your required identity documents and any supporting documents.</p>
+                    </div>
+
+                    <div class="upload-controls">
+                        <div class="document-type-selector">
+                            <label for="documentType">Document Type</label>
+                            <p-dropdown
+                                id="documentType"
+                                [(ngModel)]="selectedDocumentType"
+                                [options]="documentTypes"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Select document type"
+                                styleClass="w-full"
+                            ></p-dropdown>
+                        </div>
+
+                        <div class="file-selector">
+                            <label>Select File</label>
+                            <p-fileUpload
+                                mode="basic"
+                                [auto]="false"
+                                chooseLabel="Choose File"
+                                [maxFileSize]="10000000"
+                                (onSelect)="onFileSelect($event)"
+                                accept="image/*,application/pdf"
+                            ></p-fileUpload>
+                            <small *ngIf="selectedFile" class="success-message">
+                                <i class="pi pi-check"></i> Selected: {{ selectedFile.name }}
+                            </small>
+                        </div>
+
+                        <button
+                            pButton
+                            type="button"
+                            label="Upload Document"
+                            icon="pi pi-upload"
+                            [loading]="uploading()"
+                            [disabled]="!selectedFile || !selectedDocumentType || uploading()"
+                            (click)="uploadMemberDocument()"
+                            class="upload-button"
+                        ></button>
+                    </div>
+                </div>
+
+                <!-- Uploaded Documents List -->
+                <div class="uploaded-docs-list" *ngIf="uploadedDocuments().length > 0">
+                    <h4>Uploaded Documents</h4>
+                    <p-table [value]="uploadedDocuments()" styleClass="p-datatable-sm">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Document Type</th>
+                                <th>File Name</th>
+                                <th>Upload Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-doc>
+                            <tr>
+                                <td>{{ getDocumentTypeLabel(doc.memberDocumentType!) }}</td>
+                                <td>{{ doc.fileName }}</td>
+                                <td>{{ doc.uploadedAt | date:'short' }}</td>
+                                <td>
+                                    <p-tag
+                                        [value]="doc.isVerified ? 'Verified' : 'Pending'"
+                                        [severity]="doc.isVerified ? 'success' : 'warning'"
+                                    ></p-tag>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button
+                                            pButton
+                                            type="button"
+                                            icon="pi pi-download"
+                                            class="p-button-rounded p-button-text p-button-sm"
+                                            pTooltip="Download"
+                                            tooltipPosition="top"
+                                            (click)="downloadDocument(doc.fileUrl)"
+                                        ></button>
+                                        <button
+                                            pButton
+                                            type="button"
+                                            icon="pi pi-trash"
+                                            class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                                            pTooltip="Delete"
+                                            tooltipPosition="top"
+                                            (click)="deleteMemberDocument(doc.id)"
+                                            [disabled]="viewMode"
+                                        ></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-docs-state" *ngIf="uploadedDocuments().length === 0">
+                    <i class="pi pi-file" style="font-size: 3rem; color: var(--text-color-secondary);"></i>
+                    <p>No documents uploaded yet</p>
+                    <small>Upload your ID document and other required documents above</small>
+                </div>
+            </div>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+
+<!-- Toast for notifications -->
+<p-toast></p-toast>

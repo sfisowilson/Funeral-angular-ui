@@ -1,0 +1,228 @@
+<div class="registration-container">
+    <p-toast></p-toast>
+    
+    <div class="registration-card">
+        <!-- Header -->
+        <div class="registration-header">
+            <div class="tenant-branding" *ngIf="tenantLogo">
+                <img [src]="tenantLogo" alt="{{tenantName}}" class="tenant-logo">
+            </div>
+            <h1 class="registration-title">Member Registration</h1>
+            <p class="registration-subtitle">{{tenantName}}</p>
+        </div>
+
+        <!-- Step 1: ID Number Entry -->
+        <div class="step-content" *ngIf="currentStep() === 1">
+            <div class="step-header">
+                <h2>Enter Your ID Number</h2>
+                <p>We'll check if you're already in our system</p>
+            </div>
+
+            <form [formGroup]="idCheckForm" (ngSubmit)="checkIdNumber()">
+                <div class="form-field">
+                    <label for="idNumber">South African ID Number</label>
+                    <input 
+                        type="text" 
+                        id="idNumber"
+                        pInputText 
+                        formControlName="idNumber"
+                        placeholder="8501015800080"
+                        maxlength="13"
+                        (input)="onIdNumberChange()"
+                        [class.invalid]="idCheckForm.get('idNumber')?.invalid && idCheckForm.get('idNumber')?.touched">
+                    <small class="help-text">Enter your 13-digit South African ID number</small>
+                    
+                    <div *ngIf="idInfo() && idInfo()!.isValid" class="id-info">
+                        <i class="pi pi-check-circle"></i>
+                        <span>Valid ID - DOB: {{idInfo()!.dateOfBirth?.toLocaleDateString()}}, Gender: {{idInfo()!.gender}}</span>
+                    </div>
+                    <div *ngIf="idInfo() && !idInfo()!.isValid && idCheckForm.get('idNumber')?.value?.length === 13" class="id-error">
+                        <i class="pi pi-times-circle"></i>
+                        <span>Invalid ID number</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button pButton type="submit" label="Continue" icon="pi pi-arrow-right" iconPos="right" 
+                            [disabled]="idCheckForm.invalid || isProcessing()" [loading]="isProcessing()"></button>
+                    <button pButton type="button" label="Back to Login" icon="pi pi-arrow-left" 
+                            class="p-button-text" (click)="goToLogin()"></button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 2: Policy Selection & New Member Registration -->
+        <div class="step-content" *ngIf="currentStep() === 2">
+            <div class="step-header">
+                <h2>Select Your Funeral Cover</h2>
+                <p>Choose the coverage amount that suits your needs</p>
+            </div>
+
+            <!-- Policy Selection -->
+            <div class="policy-grid">
+                <div *ngFor="let policy of policyOptions()" 
+                     class="policy-card" 
+                     [class.selected]="selectedPolicy() === policy"
+                     [class.recommended]="policy.isRecommended"
+                     (click)="selectPolicy(policy)">
+                    <div class="policy-badge" *ngIf="policy.isRecommended">
+                        <i class="pi pi-star-fill"></i> Recommended
+                    </div>
+                    <div class="policy-amount">R{{policy.coverAmount | number}}</div>
+                    <div class="policy-premium">R{{policy.monthlyPremium | number}} / month</div>
+                    <div class="policy-description">{{policy.description}}</div>
+                    <i class="pi pi-check-circle policy-check" *ngIf="selectedPolicy() === policy"></i>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <form [formGroup]="newMemberForm" (ngSubmit)="registerNewMember()" class="registration-form">
+                <h3>Your Details</h3>
+                
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="firstNames">First Names *</label>
+                        <input type="text" id="firstNames" pInputText formControlName="firstNames" placeholder="John">
+                    </div>
+                    <div class="form-field">
+                        <label for="surname">Surname *</label>
+                        <input type="text" id="surname" pInputText formControlName="surname" placeholder="Doe">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" pInputText formControlName="email" placeholder="john.doe@example.com">
+                    </div>
+                    <div class="form-field">
+                        <label for="phoneNumber">Phone Number *</label>
+                        <input type="tel" id="phoneNumber" pInputText formControlName="phoneNumber" placeholder="+27821234567">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="password">Password *</label>
+                        <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" placeholder="Create a password"></p-password>
+                    </div>
+                    <div class="form-field">
+                        <label for="confirmPassword">Confirm Password *</label>
+                        <p-password id="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" [feedback]="false" placeholder="Confirm password"></p-password>
+                    </div>
+                </div>
+
+                <div *ngIf="newMemberForm.errors?.['passwordMismatch'] && newMemberForm.get('confirmPassword')?.touched" class="error-message">
+                    <i class="pi pi-exclamation-triangle"></i> Passwords do not match
+                </div>
+
+                <div class="form-actions">
+                    <button pButton type="submit" label="Register" icon="pi pi-check" 
+                            [disabled]="newMemberForm.invalid || !selectedPolicy() || isProcessing()" 
+                            [loading]="isProcessing()"></button>
+                    <button pButton type="button" label="Back" icon="pi pi-arrow-left" 
+                            class="p-button-secondary" (click)="goBack()"></button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 3: OTP Request (for existing members) -->
+        <div class="step-content" *ngIf="currentStep() === 3">
+            <div class="step-header">
+                <h2>Verify Your Identity</h2>
+                <p>We'll send you a verification code to create your account</p>
+            </div>
+
+            <div class="member-info" *ngIf="idCheckResponse()">
+                <i class="pi pi-user"></i>
+                <div>
+                    <strong>{{idCheckResponse()!.memberName}}</strong>
+                    <p>Member ID: {{idCheckForm.value.idNumber}}</p>
+                </div>
+            </div>
+
+            <form [formGroup]="otpForm" (ngSubmit)="sendOtp()">
+                <div class="form-field">
+                    <label>How would you like to receive your verification code?</label>
+                    <div class="contact-options">
+                        <div class="contact-option" *ngIf="idCheckResponse()?.contactEmail">
+                            <input type="radio" id="email" formControlName="contactMethod" value="email">
+                            <label for="email">
+                                <i class="pi pi-envelope"></i>
+                                <span>Email: {{idCheckResponse()!.contactEmail}}</span>
+                            </label>
+                        </div>
+                        <div class="contact-option" *ngIf="idCheckResponse()?.contactPhone">
+                            <input type="radio" id="sms" formControlName="contactMethod" value="sms">
+                            <label for="sms">
+                                <i class="pi pi-mobile"></i>
+                                <span>SMS: {{idCheckResponse()!.contactPhone}}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button pButton type="submit" label="Send Code" icon="pi pi-send" 
+                            [disabled]="otpForm.invalid || isProcessing()" [loading]="isProcessing()"></button>
+                    <button pButton type="button" label="Back" icon="pi pi-arrow-left" 
+                            class="p-button-secondary" (click)="goBack()"></button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 4: OTP Verification & Account Creation -->
+        <div class="step-content" *ngIf="currentStep() === 4">
+            <div class="step-header">
+                <h2>Enter Verification Code</h2>
+                <p>We've sent a 6-digit code to {{otpSentTo()}}</p>
+            </div>
+
+            <form [formGroup]="accountForm" (ngSubmit)="verifyOtpAndCreateAccount()">
+                <div class="form-field">
+                    <label for="otpCode">Verification Code *</label>
+                    <input type="text" id="otpCode" pInputText formControlName="otpCode" 
+                           placeholder="000000" maxlength="6" class="otp-input">
+                    <small class="help-text">Enter the 6-digit code sent to you</small>
+                </div>
+
+                <h3>Create Your Account</h3>
+
+                <div class="form-field">
+                    <label for="accountEmail">Email Address *</label>
+                    <input type="email" id="accountEmail" pInputText formControlName="email" 
+                           placeholder="your.email@example.com">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="accountPassword">Password *</label>
+                        <p-password id="accountPassword" formControlName="password" [toggleMask]="true" 
+                                    [feedback]="false" placeholder="Create a password"></p-password>
+                    </div>
+                    <div class="form-field">
+                        <label for="accountConfirmPassword">Confirm Password *</label>
+                        <p-password id="accountConfirmPassword" formControlName="confirmPassword" 
+                                    [toggleMask]="true" [feedback]="false" placeholder="Confirm password"></p-password>
+                    </div>
+                </div>
+
+                <div *ngIf="accountForm.errors?.['passwordMismatch'] && accountForm.get('confirmPassword')?.touched" class="error-message">
+                    <i class="pi pi-exclamation-triangle"></i> Passwords do not match
+                </div>
+
+                <div class="form-actions">
+                    <button pButton type="submit" label="Create Account" icon="pi pi-check" 
+                            [disabled]="accountForm.invalid || isProcessing()" [loading]="isProcessing()"></button>
+                    <button pButton type="button" label="Resend Code" icon="pi pi-refresh" 
+                            class="p-button-text" (click)="sendOtp()"></button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" *ngIf="isProcessing()">
+            <p-progressSpinner></p-progressSpinner>
+        </div>
+    </div>
+</div>

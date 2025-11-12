@@ -1,0 +1,741 @@
+// ============================================
+// Mixins - Funeral Management System
+// ============================================
+// Reusable SCSS mixins for consistent component styling
+// Import design tokens first: @import 'design-tokens';
+
+@import 'design-tokens';
+
+// ============================================
+// Responsive Design Mixins
+// ============================================
+
+@mixin responsive($breakpoint) {
+  @if $breakpoint == xs {
+    @media (max-width: $breakpoint-xs) { @content; }
+  }
+  @else if $breakpoint == sm {
+    @media (max-width: $breakpoint-sm) { @content; }
+  }
+  @else if $breakpoint == md {
+    @media (max-width: $breakpoint-md) { @content; }
+  }
+  @else if $breakpoint == lg {
+    @media (max-width: $breakpoint-lg) { @content; }
+  }
+  @else if $breakpoint == xl {
+    @media (max-width: $breakpoint-xl) { @content; }
+  }
+  @else if $breakpoint == 2xl {
+    @media (max-width: $breakpoint-2xl) { @content; }
+  }
+  @else {
+    @media (max-width: $breakpoint) { @content; }
+  }
+}
+
+@mixin responsive-min($breakpoint) {
+  @if $breakpoint == xs {
+    @media (min-width: $breakpoint-xs) { @content; }
+  }
+  @else if $breakpoint == sm {
+    @media (min-width: $breakpoint-sm) { @content; }
+  }
+  @else if $breakpoint == md {
+    @media (min-width: $breakpoint-md) { @content; }
+  }
+  @else if $breakpoint == lg {
+    @media (min-width: $breakpoint-lg) { @content; }
+  }
+  @else if $breakpoint == xl {
+    @media (min-width: $breakpoint-xl) { @content; }
+  }
+  @else if $breakpoint == 2xl {
+    @media (min-width: $breakpoint-2xl) { @content; }
+  }
+  @else {
+    @media (min-width: $breakpoint) { @content; }
+  }
+}
+
+// ============================================
+// Input/Form Mixins
+// ============================================
+
+@mixin input-base {
+  width: 100%;
+  padding: $spacing-input-padding-y $spacing-input-padding-x;
+  font-size: $font-size-base;
+  font-family: $font-family-base;
+  color: $input-text-color;
+  background-color: $input-bg;
+  border: $input-border-width solid $input-border-color;
+  border-radius: $radius-input;
+  transition: $transition-base;
+  outline: none;
+
+  &::placeholder {
+    color: $input-placeholder-color;
+  }
+
+  &:hover:not(:focus):not(:disabled) {
+    border-color: $color-border-dark;
+  }
+
+  &:focus {
+    border-color: $input-border-color-focus;
+    box-shadow: $shadow-focus-primary;
+  }
+
+  &:disabled {
+    background-color: $color-gray-100;
+    color: $color-text-disabled;
+    cursor: not-allowed;
+    opacity: $opacity-disabled;
+  }
+
+  &.error {
+    border-color: $color-error-500;
+    
+    &:focus {
+      box-shadow: $shadow-focus-error;
+    }
+  }
+}
+
+@mixin input-icon-left($icon-size: 1rem, $icon-padding: 2.5rem) {
+  padding-left: $icon-padding;
+  
+  & + .input-icon,
+  & + i {
+    position: absolute;
+    left: $spacing-input-padding-x;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: $icon-size;
+    color: $color-text-tertiary;
+    pointer-events: none;
+  }
+}
+
+@mixin textarea-base {
+  @include input-base;
+  min-height: 100px;
+  resize: vertical;
+  line-height: $line-height-normal;
+}
+
+@mixin form-label {
+  display: block;
+  margin-bottom: $spacing-2;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+
+  .required {
+    color: $color-error-500;
+    margin-left: 2px;
+  }
+
+  .optional {
+    color: $color-text-tertiary;
+    font-weight: $font-weight-normal;
+    margin-left: $spacing-2;
+  }
+}
+
+@mixin form-group {
+  margin-bottom: $spacing-section-gap;
+  transition: $transition-base;
+}
+
+@mixin form-error-message {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+  margin-top: $spacing-2;
+  font-size: $font-size-xs;
+  color: $color-error-500;
+}
+
+@mixin form-help-text {
+  margin-top: $spacing-2;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+// ============================================
+// Button Mixins
+// ============================================
+
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-button-padding-y $spacing-button-padding-x;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $button-font-weight;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: $radius-button;
+  border: none;
+  cursor: pointer;
+  transition: $transition-base;
+  outline: none;
+  user-select: none;
+
+  &:disabled {
+    opacity: $opacity-disabled;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary-500;
+    outline-offset: 2px;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background: $gradient-primary;
+  color: $color-text-inverse;
+  border: none;
+
+  &:hover:not(:disabled) {
+    background: $gradient-primary-hover;
+    transform: translateY(-1px);
+    box-shadow: $shadow-button-primary;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background: $color-transparent;
+  color: $color-text-primary;
+  border: $button-border-width solid $color-border-light;
+
+  &:hover:not(:disabled) {
+    background: $color-gray-100;
+    border-color: $color-border-medium;
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+@mixin button-outlined {
+  @include button-base;
+  background: $color-transparent;
+  color: $color-primary-500;
+  border: $button-border-width solid rgba(102, 126, 234, 0.15);
+
+  &:hover:not(:disabled) {
+    background: rgba(102, 126, 234, 0.06);
+    border-color: rgba(102, 126, 234, 0.25);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+@mixin button-success {
+  @include button-base;
+  background: $gradient-success;
+  color: $color-text-inverse;
+  border: none;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $color-success-600 0%, $color-success-700 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+@mixin button-danger {
+  @include button-base;
+  background: $gradient-error;
+  color: $color-text-inverse;
+  border: none;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $color-error-600 0%, $color-error-700 100%);
+    transform: translateY(-1px);
+    box-shadow: $shadow-button-danger;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+@mixin button-icon-only($size: 2.4rem) {
+  @include button-base;
+  padding: $spacing-2;
+  width: $size;
+  height: $size;
+  border-radius: $radius-md;
+}
+
+@mixin button-loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1rem;
+    height: 1rem;
+    margin: -0.5rem 0 0 -0.5rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: $radius-full;
+    animation: $animation-spin;
+  }
+}
+
+// ============================================
+// Card Mixins
+// ============================================
+
+@mixin card-base {
+  background: $card-bg;
+  border: $card-border-width solid $card-border-color;
+  border-radius: $radius-card;
+  box-shadow: $shadow-base;
+  overflow: hidden;
+  transition: $transition-base;
+}
+
+@mixin card-hover {
+  &:hover {
+    box-shadow: $shadow-lg;
+    transform: translateY(-2px);
+  }
+}
+
+@mixin card-header {
+  padding: $spacing-card-padding;
+  background: $gradient-header;
+  border-bottom: 1px solid $card-border-color;
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    color: $color-text-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+@mixin card-body {
+  padding: $spacing-card-padding;
+}
+
+@mixin card-footer {
+  padding: $spacing-card-padding;
+  background: $color-bg-footer;
+  border-top: 1px solid $card-border-color;
+}
+
+// ============================================
+// Layout Mixins
+// ============================================
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin grid-auto-fit($min-width: 250px, $gap: $spacing-md) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  gap: $gap;
+}
+
+@mixin grid-auto-fill($min-width: 250px, $gap: $spacing-md) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($min-width, 1fr));
+  gap: $gap;
+}
+
+@mixin container($max-width: 1280px) {
+  width: 100%;
+  max-width: $max-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+}
+
+// ============================================
+// Typography Mixins
+// ============================================
+
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin line-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin heading-base {
+  font-family: $font-family-heading;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $color-text-primary;
+  margin: 0;
+}
+
+@mixin h1 {
+  @include heading-base;
+  font-size: $font-size-4xl;
+}
+
+@mixin h2 {
+  @include heading-base;
+  font-size: $font-size-3xl;
+}
+
+@mixin h3 {
+  @include heading-base;
+  font-size: $font-size-2xl;
+}
+
+@mixin h4 {
+  @include heading-base;
+  font-size: $font-size-xl;
+}
+
+@mixin h5 {
+  @include heading-base;
+  font-size: $font-size-lg;
+}
+
+@mixin h6 {
+  @include heading-base;
+  font-size: $font-size-base;
+}
+
+// ============================================
+// Badge/Status Mixins
+// ============================================
+
+@mixin badge-base {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $spacing-1 $spacing-3;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-badge;
+  white-space: nowrap;
+}
+
+@mixin badge-active {
+  @include badge-base;
+  background: $status-active-bg;
+  color: $status-active-text;
+}
+
+@mixin badge-inactive {
+  @include badge-base;
+  background: $status-inactive-bg;
+  color: $status-inactive-text;
+}
+
+@mixin badge-pending {
+  @include badge-base;
+  background: $status-pending-bg;
+  color: $status-pending-text;
+}
+
+@mixin badge-completed {
+  @include badge-base;
+  background: $status-completed-bg;
+  color: $status-completed-text;
+}
+
+// ============================================
+// PrimeNG Override Mixins
+// ============================================
+
+@mixin primeng-input-override {
+  :ng-deep {
+    .p-inputtext,
+    .p-password input,
+    .p-inputtextarea {
+      @include input-base;
+    }
+  }
+}
+
+@mixin primeng-dropdown-override {
+  :ng-deep {
+    .p-dropdown {
+      border: $input-border-width solid $input-border-color;
+      border-radius: $radius-input;
+      transition: $transition-base;
+
+      &:hover:not(.p-disabled) {
+        border-color: $color-border-dark;
+      }
+
+      &.p-focus {
+        border-color: $input-border-color-focus;
+        box-shadow: $shadow-focus-primary;
+      }
+
+      .p-dropdown-label {
+        padding: $spacing-input-padding-y $spacing-input-padding-x;
+        color: $input-text-color;
+        font-size: $font-size-base;
+
+        &.p-placeholder {
+          color: $input-placeholder-color;
+        }
+      }
+
+      .p-dropdown-trigger {
+        width: 2.5rem;
+        color: $color-text-tertiary;
+      }
+    }
+  }
+}
+
+@mixin primeng-calendar-override {
+  :ng-deep {
+    .p-calendar .p-inputtext {
+      @include input-base;
+    }
+  }
+}
+
+@mixin primeng-checkbox-override {
+  :ng-deep {
+    .p-checkbox {
+      .p-checkbox-box {
+        border: 2px solid $input-border-color;
+        border-radius: $radius-sm;
+        width: 1.25rem;
+        height: 1.25rem;
+        transition: $transition-base;
+
+        &:hover {
+          border-color: $color-primary-500;
+        }
+
+        &.p-highlight {
+          background: $gradient-primary;
+          border-color: $color-primary-500;
+        }
+
+        .p-checkbox-icon {
+          font-size: 0.875rem;
+          color: $color-white;
+        }
+      }
+    }
+  }
+}
+
+@mixin primeng-button-override {
+  :ng-deep {
+    .p-button {
+      @include button-base;
+      border-radius: $radius-button !important;
+      padding: $spacing-button-padding-y $spacing-button-padding-x !important;
+      font-weight: $button-font-weight !important;
+
+      &.p-button-primary,
+      &.p-button-success,
+      &.p-button-info {
+        @include button-primary;
+        padding: $spacing-button-padding-y 1.1rem !important;
+        border: none !important;
+        color: $color-white !important;
+      }
+
+      &.p-button-secondary,
+      &.p-button-outlined {
+        @include button-outlined;
+      }
+
+      &.p-button-danger {
+        @include button-danger;
+      }
+
+      &.p-button-icon-only {
+        @include button-icon-only;
+      }
+
+      &:hover {
+        transform: translateY(-1px) !important;
+      }
+
+      &:disabled {
+        opacity: $opacity-disabled !important;
+        cursor: not-allowed !important;
+      }
+    }
+  }
+}
+
+// ============================================
+// Dialog Mixins
+// ============================================
+
+@mixin dialog-header {
+  background: $dialog-header-bg;
+  color: $color-text-inverse;
+  padding: $spacing-card-padding $spacing-8;
+  border-radius: $radius-dialog $radius-dialog 0 0;
+  border-bottom: none;
+
+  .p-dialog-title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+  }
+
+  .p-dialog-header-close {
+    color: $color-white;
+    background: rgba(255, 255, 255, $opacity-10);
+    border-radius: $radius-full;
+    width: 2.5rem;
+    height: 2.5rem;
+    transition: $transition-base;
+
+    &:hover {
+      background: rgba(255, 255, 255, $opacity-20);
+      transform: scale(1.1);
+    }
+  }
+}
+
+@mixin dialog-content {
+  padding: 0;
+  border-radius: 0 0 $radius-dialog $radius-dialog;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+@mixin dialog-footer {
+  border-top: 1px solid $card-border-color;
+  background: $color-bg-footer;
+  border-radius: 0 0 $radius-dialog $radius-dialog;
+  padding: 0;
+}
+
+// ============================================
+// Scrollbar Mixins
+// ============================================
+
+@mixin custom-scrollbar($width: $scrollbar-width) {
+  &::-webkit-scrollbar {
+    width: $width;
+    height: $width;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $scrollbar-track-bg;
+    border-radius: $scrollbar-border-radius;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $scrollbar-thumb-bg;
+    border-radius: $scrollbar-border-radius;
+
+    &:hover {
+      background: $scrollbar-thumb-hover-bg;
+    }
+  }
+}
+
+// ============================================
+// Utility Mixins
+// ============================================
+
+@mixin gradient-background($from: $color-primary-500, $to: $color-secondary-500) {
+  background: linear-gradient(135deg, $from 0%, $to 100%);
+}
+
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin overlay($opacity: $opacity-50) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, $opacity);
+  z-index: $z-index-modal-backdrop;
+}
+
+@mixin loading-spinner($size: 1rem, $border-width: 2px, $color: $color-primary-500) {
+  display: inline-block;
+  width: $size;
+  height: $size;
+  border: $border-width solid $color-gray-100;
+  border-top-color: $color;
+  border-radius: $radius-full;
+  animation: $animation-spin;
+}
+
+@mixin focus-ring($color: $color-primary-500) {
+  outline: 2px solid $color;
+  outline-offset: 2px;
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

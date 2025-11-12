@@ -1,0 +1,380 @@
+<div class="field-configuration-container">
+    <p-toast />
+    <p-confirmDialog />
+
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <h3 class="m-0">Dynamic Form Fields</h3>
+        </ng-template>
+        <ng-template pTemplate="right">
+            <button
+                pButton
+                label="Initialize Defaults"
+                icon="pi pi-cog"
+                class="p-button-secondary mr-2"
+                [disabled]="loading()"
+                (click)="openInitializeDialog()"
+            ></button>
+            <button
+                pButton
+                label="Add Field"
+                icon="pi pi-plus"
+                class="p-button-success"
+                [disabled]="loading()"
+                (click)="openNewDialog()"
+            ></button>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table
+        #dt
+        [value]="fields()"
+        [loading]="loading()"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [globalFilterFields]="['fieldLabel', 'fieldKey', 'category', 'fieldType']"
+        dataKey="id"
+        styleClass="p-datatable-striped"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <span class="p-input-icon-left ml-auto">
+                    <i class="pi pi-search"></i>
+                    <input
+                        pInputText
+                        type="text"
+                        placeholder="Search fields..."
+                        (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                    />
+                </span>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th pSortableColumn="displayOrder" style="width: 5rem">Order <p-sortIcon field="displayOrder" /></th>
+                <th pSortableColumn="fieldLabel" style="width: 15rem">Field Label <p-sortIcon field="fieldLabel" /></th>
+                <th pSortableColumn="fieldKey" style="width: 12rem">Field Key <p-sortIcon field="fieldKey" /></th>
+                <th pSortableColumn="fieldType" style="width: 10rem">Type <p-sortIcon field="fieldType" /></th>
+                <th pSortableColumn="category" style="width: 12rem">Category <p-sortIcon field="category" /></th>
+                <th style="width: 8rem">Required</th>
+                <th style="width: 8rem">Enabled</th>
+                <th style="width: 10rem">Actions</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-field>
+            <tr>
+                <td>{{ field.displayOrder }}</td>
+                <td>
+                    <div class="field-label-cell">
+                        <strong>{{ field.fieldLabel }}</strong>
+                        @if (field.helpText) {
+                            <small class="text-muted d-block">{{ field.helpText }}</small>
+                        }
+                    </div>
+                </td>
+                <td><code>{{ field.fieldKey }}</code></td>
+                <td>
+                    <span class="badge badge-info">{{ getFieldTypeName(field.fieldType) }}</span>
+                </td>
+                <td>{{ getCategoryName(field.category) }}</td>
+                <td class="text-center">
+                    <p-checkbox
+                        [binary]="true"
+                        [(ngModel)]="field.isRequired"
+                        (onChange)="toggleFieldRequired(field)"
+                        [disabled]="loading()"
+                    />
+                </td>
+                <td class="text-center">
+                    <p-checkbox
+                        [binary]="true"
+                        [(ngModel)]="field.isEnabled"
+                        (onChange)="toggleFieldEnabled(field)"
+                        [disabled]="loading()"
+                    />
+                </td>
+                <td>
+                    <button
+                        pButton
+                        icon="pi pi-pencil"
+                        class="p-button-rounded p-button-success p-button-text mr-2"
+                        (click)="editField(field)"
+                        pTooltip="Edit"
+                        tooltipPosition="top"
+                    ></button>
+                    <button
+                        pButton
+                        icon="pi pi-trash"
+                        class="p-button-rounded p-button-danger p-button-text"
+                        (click)="deleteField(field)"
+                        pTooltip="Delete"
+                        tooltipPosition="top"
+                    ></button>
+                </td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="8" class="text-center">
+                    <div class="empty-state">
+                        <i class="pi pi-inbox empty-icon"></i>
+                        <p>No field configurations found.</p>
+                        <button pButton label="Initialize Defaults" icon="pi pi-cog" class="p-button-secondary mt-2" (click)="openInitializeDialog()"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <!-- Add/Edit Field Dialog -->
+    <p-dialog
+        [(visible)]="showDialog"
+        [header]="isEditMode() ? 'Edit Field Configuration' : 'Add New Field Configuration'"
+        [modal]="true"
+        [style]="{ width: '50rem' }"
+        [draggable]="false"
+        [resizable]="false"
+        styleClass="p-fluid"
+    >
+        <div class="field-form">
+            <div class="field mb-3">
+                <label for="fieldKey" class="font-bold">Field Key *</label>
+                <input
+                    pInputText
+                    id="fieldKey"
+                    [(ngModel)]="currentField.fieldKey"
+                    [disabled]="isEditMode()"
+                    placeholder="e.g., employerName, phoneNumber"
+                />
+                <small class="text-muted">Unique identifier (letters, numbers, underscores only). Cannot be changed after creation.</small>
+            </div>
+
+            <div class="field mb-3">
+                <label for="fieldLabel" class="font-bold">Field Label *</label>
+                <input
+                    pInputText
+                    id="fieldLabel"
+                    [(ngModel)]="currentField.fieldLabel"
+                    placeholder="e.g., Employer Name, Phone Number"
+                />
+                <small class="text-muted">Display label shown to users</small>
+            </div>
+
+            <div class="grid">
+                <div class="col-6">
+                    <div class="field">
+                        <label for="fieldType" class="font-bold">Field Type *</label>
+                        <p-dropdown
+                            id="fieldType"
+                            [options]="fieldTypes"
+                            [(ngModel)]="currentField.fieldType"
+                            [disabled]="isEditMode()"
+                            placeholder="Select field type"
+                            optionLabel="label"
+                            optionValue="value"
+                        />
+                        <small class="text-muted">Cannot be changed after creation</small>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="field">
+                        <label for="category" class="font-bold">Category *</label>
+                        <p-dropdown
+                            id="category"
+                            [options]="categories"
+                            [(ngModel)]="currentField.category"
+                            [disabled]="isEditMode()"
+                            placeholder="Select category"
+                            optionLabel="label"
+                            optionValue="value"
+                        />
+                        <small class="text-muted">Cannot be changed after creation</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="col-6">
+                    <div class="field-checkbox mb-3">
+                        <p-checkbox
+                            [(ngModel)]="currentField.isRequired"
+                            [binary]="true"
+                            inputId="isRequired"
+                        />
+                        <label for="isRequired" class="ml-2">Required Field</label>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="field-checkbox mb-3">
+                        <p-checkbox
+                            [(ngModel)]="currentField.isEnabled"
+                            [binary]="true"
+                            inputId="isEnabled"
+                        />
+                        <label for="isEnabled" class="ml-2">Enabled</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field mb-3">
+                <label for="displayOrder" class="font-bold">Display Order *</label>
+                <p-inputNumber
+                    id="displayOrder"
+                    [(ngModel)]="currentField.displayOrder"
+                    [showButtons]="true"
+                    [min]="0"
+                />
+                <small class="text-muted">Order in which field appears in the form</small>
+            </div>
+
+            <div class="field mb-3">
+                <label for="placeholder" class="font-bold">Placeholder Text</label>
+                <input
+                    pInputText
+                    id="placeholder"
+                    [(ngModel)]="currentField.placeholder"
+                    placeholder="e.g., Enter your employer name"
+                />
+                <small class="text-muted">Optional hint text shown in empty field</small>
+            </div>
+
+            <div class="field mb-3">
+                <label for="helpText" class="font-bold">Help Text</label>
+                <input
+                    pInputText
+                    id="helpText"
+                    [(ngModel)]="currentField.helpText"
+                    placeholder="e.g., Your current employer's official name"
+                />
+                <small class="text-muted">Optional help text shown below field</small>
+            </div>
+
+            <div class="field mb-3">
+                <label for="defaultValue" class="font-bold">Default Value</label>
+                <input
+                    pInputText
+                    id="defaultValue"
+                    [(ngModel)]="currentField.defaultValue"
+                    placeholder="Optional default value"
+                />
+            </div>
+
+            <div class="grid">
+                <div class="col-6">
+                    <div class="field">
+                        <label for="minLength" class="font-bold">Min Length</label>
+                        <p-inputNumber
+                            id="minLength"
+                            [(ngModel)]="currentField.minLength"
+                            [showButtons]="true"
+                            [min]="0"
+                        />
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="field">
+                        <label for="maxLength" class="font-bold">Max Length</label>
+                        <p-inputNumber
+                            id="maxLength"
+                            [(ngModel)]="currentField.maxLength"
+                            [showButtons]="true"
+                            [min]="0"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            @if (currentField.fieldType === 'select' || currentField.fieldType === 'radio') {
+                <div class="field mb-3">
+                    <label for="optionsJson" class="font-bold">Options (JSON Array) *</label>
+                    <textarea
+                        pInputTextarea
+                        id="optionsJson"
+                        [(ngModel)]="currentField.optionsJson"
+                        [rows]="3"
+                        placeholder='["Option 1", "Option 2", "Option 3"]'
+                    ></textarea>
+                    <small class="text-muted">JSON array of options for select/radio fields</small>
+                </div>
+            }
+
+            <div class="field mb-3">
+                <label for="validationRulesJson" class="font-bold">Validation Rules (JSON)</label>
+                <textarea
+                    pInputTextarea
+                    id="validationRulesJson"
+                    [(ngModel)]="currentField.validationRulesJson"
+                    [rows]="3"
+                    placeholder='{"pattern": "^[A-Za-z]+$", "message": "Letters only"}'
+                ></textarea>
+                <small class="text-muted">Optional custom validation rules in JSON format</small>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <button
+                pButton
+                label="Cancel"
+                icon="pi pi-times"
+                class="p-button-text"
+                (click)="hideDialog()"
+            ></button>
+            <button
+                pButton
+                [label]="isEditMode() ? 'Update' : 'Create'"
+                icon="pi pi-check"
+                [loading]="loading()"
+                (click)="saveField()"
+            ></button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Initialize Defaults Confirmation Dialog -->
+    <p-dialog
+        [(visible)]="showInitializeDialog"
+        header="Initialize Default Field Configurations"
+        [modal]="true"
+        [style]="{ width: '30rem' }"
+        [draggable]="false"
+        [resizable]="false"
+    >
+        <div class="confirmation-content">
+            <i class="pi pi-exclamation-triangle" style="font-size: 2rem; color: var(--orange-500)"></i>
+            <p>This will create the following default fields if they don't already exist:</p>
+            <ul>
+                <li>Marital Status (Personal Info)</li>
+                <li>Gender (Personal Info)</li>
+                <li>Employer Name (Employment)</li>
+                <li>Job Title (Employment)</li>
+                <li>Emergency Contact Name (Emergency Contact)</li>
+                <li>Emergency Contact Phone (Emergency Contact)</li>
+            </ul>
+            <p>Do you want to continue?</p>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <button
+                pButton
+                label="Cancel"
+                icon="pi pi-times"
+                class="p-button-text"
+                (click)="hideInitializeDialog()"
+            ></button>
+            <button
+                pButton
+                label="Initialize"
+                icon="pi pi-check"
+                [loading]="loading()"
+                (click)="initializeDefaults()"
+            ></button>
+        </ng-template>
+    </p-dialog>
+</div>

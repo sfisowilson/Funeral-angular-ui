@@ -1,0 +1,240 @@
+<!-- Modern Page Header -->
+<div class="page-header">
+    <div class="section-header">
+        <div class="header-content">
+            <i class="pi pi-list section-icon"></i>
+            <div>
+                <h1 class="section-title">Policy Attributes</h1>
+                <p class="section-subtitle">Manage policy attributes and their configurations</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modern Toolbar -->
+<div class="modern-toolbar">
+    <div class="toolbar-section">
+        <p-button label="New Policy Attribute" icon="pi pi-plus" styleClass="modern-primary-button" (onClick)="openNew()" />
+        <p-button
+            label="Delete Selected"
+            icon="pi pi-trash"
+            severity="danger"
+            styleClass="modern-danger-button"
+            [outlined]="true"
+            (onClick)="deleteSelectedPolicyAttributes()"
+            [disabled]="!selectedPolicyAttributes || !selectedPolicyAttributes.length"
+        />
+    </div>
+
+    <div class="toolbar-section">
+        <p-button label="Export" icon="pi pi-upload" styleClass="modern-secondary-button" [outlined]="true" (onClick)="exportCSV()" />
+    </div>
+</div>
+
+<!-- Modern Data Table -->
+<div class="modern-card">
+    <p-table
+        #dt
+        [value]="policyAttributes()"
+        [rows]="10"
+        [columns]="cols"
+        [paginator]="true"
+        [tableStyle]="{ 'min-width': '75rem' }"
+        [(selection)]="selectedPolicyAttributes"
+        [rowHover]="true"
+        dataKey="id"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} policy attributes"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 20, 30]"
+        styleClass="modern-table"
+    >
+        <ng-template #caption>
+            <div class="table-header">
+                <div class="table-title">
+                    <i class="pi pi-database"></i>
+                    <span>Policy Attributes Management</span>
+                </div>
+                <div class="search-container">
+                    <p-iconfield>
+                        <p-inputicon styleClass="pi pi-search" />
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search policy attributes..." class="search-input" />
+                    </p-iconfield>
+                </div>
+            </div>
+        </ng-template>
+
+        <ng-template #header>
+            <tr>
+                <th style="width: 3rem" class="checkbox-column">
+                    <p-tableHeaderCheckbox />
+                </th>
+                <th pSortableColumn="policyId" style="min-width: 16rem">
+                    <div class="column-header">
+                        <i class="pi pi-id-card"></i>
+                        <span>Policy ID</span>
+                    </div>
+                    <p-sortIcon field="policyId" />
+                </th>
+                <th pSortableColumn="property" style="min-width: 16rem">
+                    <div class="column-header">
+                        <i class="pi pi-cog"></i>
+                        <span>Property</span>
+                    </div>
+                    <p-sortIcon field="property" />
+                </th>
+                <th pSortableColumn="value" style="min-width: 10rem">
+                    <div class="column-header">
+                        <i class="pi pi-info-circle"></i>
+                        <span>Value</span>
+                    </div>
+                    <p-sortIcon field="value" />
+                </th>
+                <th pSortableColumn="dataType" style="min-width: 10rem">
+                    <div class="column-header">
+                        <i class="pi pi-code"></i>
+                        <span>Data Type</span>
+                    </div>
+                    <p-sortIcon field="dataType" />
+                </th>
+                <th pSortableColumn="description" style="min-width: 10rem">
+                    <div class="column-header">
+                        <i class="pi pi-file-edit"></i>
+                        <span>Description</span>
+                    </div>
+                    <p-sortIcon field="description" />
+                </th>
+                <th pSortableColumn="isIncluded" style="min-width: 10rem">
+                    <div class="column-header">
+                        <i class="pi pi-check-square"></i>
+                        <span>Is Included</span>
+                    </div>
+                    <p-sortIcon field="isIncluded" />
+                </th>
+                <th style="min-width: 12rem" class="actions-column">
+                    <div class="column-header">
+                        <i class="pi pi-cog"></i>
+                        <span>Actions</span>
+                    </div>
+                </th>
+            </tr>
+        </ng-template>
+
+        <ng-template #body let-attribute>
+            <tr class="table-row">
+                <td style="width: 3rem">
+                    <p-tableCheckbox [value]="attribute" />
+                </td>
+                <td class="policy-id-cell">
+                    <span class="cell-content">{{ attribute.policyId }}</span>
+                </td>
+                <td class="property-cell">
+                    <span class="cell-content">{{ attribute.property }}</span>
+                </td>
+                <td class="value-cell">
+                    <span class="cell-content">{{ attribute.value }}</span>
+                </td>
+                <td class="datatype-cell">
+                    <span class="cell-content">{{ attribute.dataType }}</span>
+                </td>
+                <td class="description-cell">
+                    <span class="cell-content" [title]="attribute.description">
+                        {{ attribute.description }}
+                    </span>
+                </td>
+                <td class="status-cell">
+                    <span class="status-badge" [ngClass]="attribute.isIncluded ? 'status-included' : 'status-excluded'">
+                        <i class="pi" [ngClass]="attribute.isIncluded ? 'pi-check-circle' : 'pi-times-circle'"></i>
+                        <span>{{ attribute.isIncluded ? 'Included' : 'Excluded' }}</span>
+                    </span>
+                </td>
+                <td class="actions-cell">
+                    <div class="action-buttons">
+                        <p-button icon="pi pi-pencil" styleClass="action-button edit-button" [rounded]="true" [outlined]="true" size="small" pTooltip="Edit policy attribute" (click)="editPolicyAttribute(attribute)" />
+                        <p-button icon="pi pi-trash" severity="danger" styleClass="action-button delete-button" [rounded]="true" [outlined]="true" size="small" pTooltip="Delete policy attribute" (click)="deletePolicyAttribute(attribute)" />
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<!-- Modern Dialog -->
+<p-dialog [(visible)]="policyAttributeDialog" [style]="{ width: '600px' }" header="Policy Attribute Details" [modal]="true" styleClass="modern-dialog" [closable]="true" [draggable]="false" [resizable]="false">
+    <ng-template #content>
+        <div class="dialog-content">
+            <!-- Dialog Header Info -->
+            <div class="dialog-info">
+                <i class="pi pi-info-circle"></i>
+                <span>{{ policyAttribute.id ? 'Edit existing policy attribute' : 'Create new policy attribute' }}</span>
+            </div>
+
+            <!-- Form Fields -->
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="policyId" class="form-label">
+                        <i class="pi pi-id-card"></i>
+                        Policy ID
+                    </label>
+                    <input type="text" pInputText id="policyId" [(ngModel)]="policyAttribute.policyId" required autofocus class="form-input" placeholder="Enter policy ID" />
+                    <small class="field-error" *ngIf="submitted && !policyAttribute.policyId"> Policy ID is required. </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="property" class="form-label">
+                        <i class="pi pi-cog"></i>
+                        Property
+                    </label>
+                    <input type="text" pInputText id="property" [(ngModel)]="policyAttribute.property" required class="form-input" placeholder="Enter property name" />
+                    <small class="field-error" *ngIf="submitted && !policyAttribute.property"> Property is required. </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="value" class="form-label">
+                        <i class="pi pi-info-circle"></i>
+                        Value
+                    </label>
+                    <input type="text" pInputText id="value" [(ngModel)]="policyAttribute.value" required class="form-input" placeholder="Enter property value" />
+                    <small class="field-error" *ngIf="submitted && !policyAttribute.value"> Value is required. </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="dataType" class="form-label">
+                        <i class="pi pi-code"></i>
+                        Data Type
+                    </label>
+                    <input type="text" pInputText id="dataType" [(ngModel)]="policyAttribute.dataType" required class="form-input" placeholder="Enter data type (e.g., string, number)" />
+                    <small class="field-error" *ngIf="submitted && !policyAttribute.dataType"> Data Type is required. </small>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="description" class="form-label">
+                        <i class="pi pi-file-edit"></i>
+                        Description
+                    </label>
+                    <textarea id="description" pInputTextarea [(ngModel)]="policyAttribute.description" rows="4" class="form-input" placeholder="Enter description for this policy attribute"></textarea>
+                    <small class="field-error" *ngIf="submitted && !policyAttribute.description"> Description is required. </small>
+                </div>
+
+                <div class="form-group full-width">
+                    <div class="checkbox-group">
+                        <p-checkbox [(ngModel)]="policyAttribute.isIncluded" inputId="isIncluded" />
+                        <label for="isIncluded" class="checkbox-label">
+                            <i class="pi pi-check-square"></i>
+                            Include this attribute in policy processing
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <div class="dialog-actions">
+            <p-button label="Cancel" icon="pi pi-times" styleClass="cancel-button" [outlined]="true" (click)="hideDialog()" />
+            <p-button label="Save Policy Attribute" icon="pi pi-check" styleClass="save-button" (click)="savePolicyAttribute()" />
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Modern Confirmation Dialog -->
+<p-confirmdialog [style]="{ width: '450px' }" styleClass="modern-confirm-dialog" />

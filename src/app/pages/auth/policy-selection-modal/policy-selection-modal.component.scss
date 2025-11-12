@@ -1,0 +1,456 @@
+@import '../../../shared/styles/modern-ui.scss';
+
+:host ::ng-deep .p-dialog .p-dialog-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border-radius: 0 0 16px 16px;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+    display: none;
+}
+
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.policy-selection-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.policy-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+  
+  .header-content {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    
+    .brand-logo-section {
+      margin-bottom: 1rem;
+      
+      .header-logo {
+        width: 48px;
+        height: auto;
+        filter: brightness(0) invert(1);
+        margin: 0 auto;
+      }
+    }
+    
+    .header-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      color: white;
+      
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
+    }
+    
+    .header-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 0;
+      font-weight: 400;
+    }
+  }
+}
+
+.policies-grid {
+  flex: 1;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  /* Custom scrollbar */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+.policy-card {
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+    border-color: #667eea;
+  }
+  
+  &.selected {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
+  }
+}
+
+.policy-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  
+  .policy-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+  }
+  
+  .selection-indicator {
+    color: #059669;
+    font-size: 1.5rem;
+    animation: checkmark-appear 0.3s ease-out;
+  }
+}
+
+.pricing-section {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  
+  .price-row {
+    margin-bottom: 1rem;
+    
+    .price-container {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      
+      .price-amount {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .price-period {
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .payout-row {
+    .payout-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      
+      .payout-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .payout-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #059669;
+      }
+    }
+  }
+}
+
+.features-section {
+  flex: 1;
+  margin-bottom: 1.5rem;
+  
+  .features-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 1rem 0;
+    
+    i {
+      color: #f59e0b;
+      font-size: 1.1rem;
+    }
+  }
+  
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .feature-check {
+        color: #059669;
+        font-size: 1rem;
+        margin-top: 0.1rem;
+        flex-shrink: 0;
+      }
+      
+      .feature-text {
+        color: #374151;
+        line-height: 1.5;
+        font-size: 0.95rem;
+      }
+    }
+  }
+}
+
+.card-action {
+  :deep(.select-policy-button) {
+    width: 100%;
+    
+    .p-button {
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      
+      &:not(.p-button-outlined) {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        
+        &:hover {
+          background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+      }
+      
+      &.p-button-outlined {
+        border: 2px solid #e2e8f0;
+        color: #64748b;
+        background: white;
+        
+        &:hover {
+          border-color: #667eea;
+          color: #667eea;
+          background: #f8fafc;
+          transform: translateY(-1px);
+        }
+      }
+      
+      .p-button-icon {
+        margin-left: 0.5rem;
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+.no-policies-message {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  
+  .empty-state {
+    text-align: center;
+    max-width: 400px;
+    
+    .empty-icon {
+      font-size: 4rem;
+      color: #cbd5e1;
+      margin-bottom: 1rem;
+    }
+    
+    .empty-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #374151;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .empty-description {
+      color: #64748b;
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+}
+
+.loading-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  
+  .loading-content {
+    text-align: center;
+    max-width: 400px;
+    
+    .loading-spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e2e8f0;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem auto;
+    }
+    
+    .loading-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #374151;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .loading-description {
+      color: #64748b;
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+}
+
+// Animations
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes checkmark-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.policy-card {
+  animation: card-enter 0.5s ease-out;
+  
+  @for $i from 1 through 6 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+      animation-fill-mode: both;
+    }
+  }
+}
+
+// Dark mode support
+.dark {
+  .policy-selection-container {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  }
+  
+  .policy-card {
+    background: #1e293b;
+    border-color: #334155;
+    
+    &.selected {
+      background: linear-gradient(135deg, #1e293b 0%, #1e40af 20%);
+      border-color: #667eea;
+    }
+    
+    &:hover {
+      background: #334155;
+    }
+  }
+  
+  .policy-name {
+    color: #f1f5f9;
+  }
+  
+  .pricing-section {
+    background: linear-gradient(135deg, #334155 0%, #475569 100%);
+    border-color: #475569;
+  }
+  
+  .feature-text {
+    color: #cbd5e1;
+  }
+  
+  .features-title {
+    color: #f1f5f9;
+  }
+  
+  .empty-title {
+    color: #f1f5f9;
+  }
+  
+  .empty-description {
+    color: #94a3b8;
+  }
+}

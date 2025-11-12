@@ -1,0 +1,472 @@
+<div class="card">
+    <p-toast></p-toast>
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <div class="my-2">
+                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedMembers()" [disabled]="!selectedMembers || !selectedMembers.length"></button>
+            </div>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table
+        #dt
+        [value]="members"
+        [columns]="cols"
+        responsiveLayout="scroll"
+        [rows]="10"
+        [globalFilterFields]="['name', 'email', 'identificationNumber']"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 20, 30]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [(selection)]="selectedMembers"
+        selectionMode="multiple"
+        [rowHover]="true"
+        dataKey="id"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                <h5 class="m-0">Manage Members</h5>
+                <span class="block mt-2 md:mt-0 p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                <th pSortableColumn="identificationNumber">ID Number <p-sortIcon field="identificationNumber"></p-sortIcon></th>
+                <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-member>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="member"></p-tableCheckbox>
+                </td>
+                <td><span class="p-column-title">Name</span>{{ member.name }}</td>
+                <td><span class="p-column-title">Email</span>{{ member.email }}</td>
+                <td><span class="p-column-title">ID Number</span>{{ member.identificationNumber }}</td>
+                <td>
+                    <span class="p-column-title">Status</span>
+                    <p-tag [value]="getMemberStatusText(member.status)" [severity]="getMemberStatusSeverity(member.status)"></p-tag>
+                </td>
+                <td>
+                    <div class="flex">
+                        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editMember(member)" pTooltip="Edit Member" tooltipPosition="top"></button>
+                        <button pButton pRipple icon="pi pi-eye" class="p-button-rounded p-button-info mr-2" (click)="viewOnboarding(member)" pTooltip="View Onboarding" tooltipPosition="top"></button>
+                        <button pButton pRipple icon="pi pi-users" class="p-button-rounded p-button-info mr-2" (click)="manageDependents(member)" pTooltip="Manage Dependents" tooltipPosition="top"></button>
+                        <button pButton pRipple icon="pi pi-user-plus" class="p-button-rounded p-button-help mr-2" (click)="manageBeneficiaries(member)" pTooltip="Manage Beneficiaries" tooltipPosition="top"></button>
+                        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteMember(member)" pTooltip="Delete Member" tooltipPosition="top"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="memberDialog" [style]="{ width: '800px', maxHeight: '90vh' }" header="Member Details" [modal]="true" class="p-fluid member-dialog">
+    <ng-template pTemplate="content">
+        <div class="member-form-grid">
+            <!-- Section 1: Personal Information -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="pi pi-user"></i> Personal Information</h3>
+                
+                <div class="field">
+                    <label for="title">Title</label>
+                    <p-dropdown 
+                        id="title" 
+                        [(ngModel)]="member.title" 
+                        [options]="titleOptions"
+                        placeholder="Select title"
+                        optionLabel="label"
+                        optionValue="value">
+                    </p-dropdown>
+                </div>
+
+                <div class="field-group">
+                    <div class="field">
+                        <label for="firstName">First Names *</label>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            id="firstName" 
+                            [(ngModel)]="member.firstNames" 
+                            required 
+                            [ngClass]="{ 'ng-invalid ng-dirty': submitted && !member.firstNames }" />
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !member.firstNames">First names are required.</small>
+                    </div>
+
+                    <div class="field">
+                        <label for="surname">Surname *</label>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            id="surname" 
+                            [(ngModel)]="member.surname" 
+                            required 
+                            [ngClass]="{ 'ng-invalid ng-dirty': submitted && !member.surname }" />
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !member.surname">Surname is required.</small>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field">
+                        <label for="identificationNumber">ID Number *</label>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            id="identificationNumber" 
+                            [(ngModel)]="member.identificationNumber" 
+                            required 
+                            maxlength="13"
+                            [ngClass]="{ 'ng-invalid ng-dirty': submitted && !member.identificationNumber }" />
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !member.identificationNumber">ID Number is required.</small>
+                    </div>
+
+                    <div class="field">
+                        <label for="dateOfBirth">Date of Birth</label>
+                        <p-calendar 
+                            id="dateOfBirth" 
+                            [(ngModel)]="member.dateOfBirth" 
+                            dateFormat="dd/mm/yy"
+                            [showIcon]="true"
+                            placeholder="Select date">
+                        </p-calendar>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Contact Information -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="pi pi-phone"></i> Contact Information</h3>
+                
+                <div class="field">
+                    <label for="email">Email *</label>
+                    <input 
+                        type="email" 
+                        pInputText 
+                        id="email" 
+                        [(ngModel)]="member.email" 
+                        required 
+                        [ngClass]="{ 'ng-invalid ng-dirty': submitted && !member.email }" />
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !member.email">Email is required.</small>
+                </div>
+
+                <div class="field-group">
+                    <div class="field">
+                        <label for="phone1">Phone 1</label>
+                        <p-inputMask 
+                            id="phone1" 
+                            [(ngModel)]="member.phone1"
+                            mask="(999) 999-9999"
+                            placeholder="(012) 345-6789">
+                        </p-inputMask>
+                    </div>
+
+                    <div class="field">
+                        <label for="phone2">Phone 2</label>
+                        <p-inputMask 
+                            id="phone2" 
+                            [(ngModel)]="member.phone2"
+                            mask="(999) 999-9999"
+                            placeholder="(012) 345-6789">
+                        </p-inputMask>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Income Information -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="pi pi-money-bill"></i> Income Information</h3>
+                
+                <div class="field">
+                    <label for="sourceOfIncome">Source of Income</label>
+                    <p-dropdown 
+                        id="sourceOfIncome" 
+                        [(ngModel)]="member.sourceOfIncome" 
+                        [options]="sourceOfIncomeOptions"
+                        placeholder="Select source of income"
+                        optionLabel="label"
+                        optionValue="value">
+                    </p-dropdown>
+                </div>
+
+                <div class="field" *ngIf="member.sourceOfIncome === 4">
+                    <label for="sourceOfIncomeOther">Other Source of Income</label>
+                    <input 
+                        type="text" 
+                        pInputText 
+                        id="sourceOfIncomeOther" 
+                        [(ngModel)]="member.sourceOfIncomeOther"
+                        placeholder="Please specify" />
+                </div>
+            </div>
+
+            <!-- Section 4: Address Information -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="pi pi-map-marker"></i> Address Information</h3>
+                
+                <div class="field">
+                    <label for="streetAddress">Street Address</label>
+                    <input 
+                        type="text" 
+                        pInputText 
+                        id="streetAddress" 
+                        [(ngModel)]="member.streetAddress"
+                        placeholder="Street name and number" />
+                </div>
+
+                <div class="field-group">
+                    <div class="field">
+                        <label for="city">City</label>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            id="city" 
+                            [(ngModel)]="member.city"
+                            placeholder="City" />
+                    </div>
+
+                    <div class="field">
+                        <label for="province">Province</label>
+                        <p-dropdown 
+                            id="province" 
+                            [(ngModel)]="member.province" 
+                            [options]="provinceOptions"
+                            placeholder="Select province"
+                            optionLabel="label"
+                            optionValue="value">
+                        </p-dropdown>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="postalCode">Postal Code</label>
+                    <input 
+                        type="text" 
+                        pInputText 
+                        id="postalCode" 
+                        [(ngModel)]="member.postalCode"
+                        maxlength="10"
+                        placeholder="Postal code" />
+                </div>
+            </div>
+
+            <!-- Section 6: Employment Information (Phase 2) -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="pi pi-briefcase"></i> Employment Information</h3>
+                
+                <div class="field-group">
+                    <div class="field">
+                        <label for="occupation">Occupation</label>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            id="occupation" 
+                            [(ngModel)]="member.occupation"
+                            maxlength="100"
+                            placeholder="Occupation or job title" />
+                    </div>
+
+                    <div class="field">
+                        <label for="workPhoneNumber">Work Phone</label>
+                        <p-inputMask 
+                            id="workPhoneNumber" 
+                            [(ngModel)]="member.workPhoneNumber"
+                            mask="(999) 999-9999"
+                            placeholder="(012) 345-6789">
+                        </p-inputMask>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 7: Nationality & Residency (Phase 2) -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="pi pi-globe"></i> Nationality & Residency</h3>
+                
+                <div class="field-group">
+                    <div class="field">
+                        <label for="passportNumber">Passport Number</label>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            id="passportNumber" 
+                            [(ngModel)]="member.passportNumber"
+                            maxlength="50"
+                            placeholder="Passport number" />
+                    </div>
+
+                    <div class="field">
+                        <label for="countryOfBirth">Country of Birth</label>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            id="countryOfBirth" 
+                            [(ngModel)]="member.countryOfBirth"
+                            maxlength="100"
+                            placeholder="Country of birth" />
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field">
+                        <label for="countryOfResidence">Country of Residence</label>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            id="countryOfResidence" 
+                            [(ngModel)]="member.countryOfResidence"
+                            maxlength="100"
+                            placeholder="Country of residence" />
+                    </div>
+
+                    <div class="field">
+                        <label for="citizenship">Citizenship</label>
+                        <input 
+                            type="text" 
+                            pInputText 
+                            id="citizenship" 
+                            [(ngModel)]="member.citizenship"
+                            maxlength="100"
+                            placeholder="Citizenship" />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="nationality">Nationality</label>
+                    <input 
+                        type="text" 
+                        pInputText 
+                        id="nationality" 
+                        [(ngModel)]="member.nationality"
+                        maxlength="100"
+                        placeholder="Nationality" />
+                </div>
+
+                <div class="field-checkbox">
+                    <p-checkbox 
+                        [(ngModel)]="member.isForeigner" 
+                        [binary]="true" 
+                        inputId="isForeigner">
+                    </p-checkbox>
+                    <label for="isForeigner">Foreign national?</label>
+                </div>
+
+                <div class="field" *ngIf="member.isForeigner">
+                    <label for="workPermitNumber">Work Permit Number</label>
+                    <input 
+                        type="text" 
+                        pInputText 
+                        id="workPermitNumber" 
+                        [(ngModel)]="member.workPermitNumber"
+                        maxlength="50"
+                        placeholder="Work permit number" />
+                    <small class="text-muted">Required for foreign nationals</small>
+                </div>
+            </div>
+
+            <!-- Section 8: Policy Replacement (Optional) -->
+            <div class="form-section">
+                <h3 class="section-title"><i class="pi pi-file"></i> Policy Replacement (Optional)</h3>
+                
+                <div class="field-checkbox">
+                    <p-checkbox 
+                        [(ngModel)]="member.isReplacingExistingPolicy" 
+                        [binary]="true" 
+                        inputId="isReplacingPolicy">
+                    </p-checkbox>
+                    <label for="isReplacingPolicy">Replacing an existing policy?</label>
+                </div>
+
+                <div *ngIf="member.isReplacingExistingPolicy" class="policy-replacement-fields">
+                    <div class="field-group">
+                        <div class="field">
+                            <label for="existingPolicyNumber">Existing Policy Number</label>
+                            <input 
+                                type="text" 
+                                pInputText 
+                                id="existingPolicyNumber" 
+                                [(ngModel)]="member.existingPolicyNumber"
+                                placeholder="Policy number" />
+                        </div>
+
+                        <div class="field">
+                            <label for="existingInsurerName">Existing Insurer Name</label>
+                            <input 
+                                type="text" 
+                                pInputText 
+                                id="existingInsurerName" 
+                                [(ngModel)]="member.existingInsurerName"
+                                placeholder="Insurer name" />
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field-checkbox">
+                            <p-checkbox 
+                                [(ngModel)]="member.existingPolicyPaidUpToDate" 
+                                [binary]="true" 
+                                inputId="policyPaidUpToDate">
+                            </p-checkbox>
+                            <label for="policyPaidUpToDate">Policy paid up to date?</label>
+                        </div>
+
+                        <div class="field-checkbox">
+                            <p-checkbox 
+                                [(ngModel)]="member.existingPolicyWaitingPeriodExpired" 
+                                [binary]="true" 
+                                inputId="waitingPeriodExpired">
+                            </p-checkbox>
+                            <label for="waitingPeriodExpired">Waiting period expired?</label>
+                        </div>
+                    </div>
+
+                    <div class="field-checkbox">
+                        <p-checkbox 
+                            [(ngModel)]="member.sameBenefitAsExistingPolicy" 
+                            [binary]="true" 
+                            inputId="sameBenefit">
+                        </p-checkbox>
+                        <label for="sameBenefit">Same benefit as existing policy?</label>
+                    </div>
+
+                    <div class="field" *ngIf="!member.sameBenefitAsExistingPolicy">
+                        <label for="benefitDifferenceNotes">Benefit Difference Notes</label>
+                        <textarea 
+                            id="benefitDifferenceNotes" 
+                            pInputTextarea 
+                            [(ngModel)]="member.benefitDifferenceNotes" 
+                            rows="3"
+                            placeholder="Describe the benefit differences"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legacy Address Field (Hidden but kept for backward compatibility) -->
+            <input type="hidden" [(ngModel)]="member.address" />
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveMember()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+
+<p-dialog [(visible)]="dependentsDialog" [style]="{ width: '750px' }" header="Dependents" [modal]="true" class="p-fluid">
+    <app-dependents [memberId]="member.id"></app-dependents>
+</p-dialog>
+
+<p-dialog [(visible)]="beneficiariesDialog" [style]="{ width: '750px' }" header="Beneficiaries" [modal]="true" class="p-fluid">
+    <app-beneficiaries [memberId]="member.id"></app-beneficiaries>
+</p-dialog>

@@ -1,0 +1,162 @@
+/* Team Test Page Styling */
+.team-test-page {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    
+    h1 {
+        margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    p {
+        margin: 0.5rem 0 0 0;
+        font-size: 1.1rem;
+    }
+}
+
+.test-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.test-section {
+    width: 100%;
+}
+
+.widget-container {
+    background: #fafbfc;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+        background: #f1f5f9;
+        border-color: #667eea;
+    }
+}
+
+.info-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+}
+
+.info-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    i {
+        font-size: 1.25rem;
+        margin-right: 0.75rem;
+    }
+    
+    h3 {
+        margin: 0;
+        color: #374151;
+        font-size: 1rem;
+    }
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    li {
+        padding: 0.5rem 0;
+        color: #6b7280;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        
+        &:last-child {
+            border-bottom: none;
+        }
+        
+        &:before {
+            content: '•';
+            color: #667eea;
+            font-weight: bold;
+            width: 1rem;
+            margin-right: 0.5rem;
+        }
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .team-test-page {
+        padding: 1rem;
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+        
+        h1 {
+            font-size: 2rem;
+        }
+        
+        p {
+            font-size: 1rem;
+        }
+    }
+    
+    .test-sections {
+        gap: 1.5rem;
+    }
+    
+    .widget-container {
+        padding: 1rem;
+    }
+    
+    .info-card {
+        padding: 1rem;
+    }
+    
+    .grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .team-test-page {
+        padding: 0.5rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        
+        i {
+            margin-right: 0;
+            margin-bottom: 0.25rem;
+        }
+    }
+}

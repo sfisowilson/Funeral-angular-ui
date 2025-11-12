@@ -1,0 +1,299 @@
+<div class="documents-step">
+    <p-toast></p-toast>
+    
+    <div class="step-header">
+        <p-button 
+            label="Upload Document" 
+            icon="pi pi-upload"
+            (onClick)="showUploadDialog()"
+            styleClass="p-button-success">
+        </p-button>
+    </div>
+
+    @if (loading()) {
+        <div class="loading-message">
+            <i class="pi pi-spin pi-spinner"></i>
+            Loading documents...
+        </div>
+    }
+
+    <!-- Phase 4: Compliance Status Widget -->
+    @if (!loading() && complianceStatus()) {
+        <div class="compliance-widget">
+            <div class="compliance-header">
+                <div class="compliance-title">
+                    <i [class]="complianceStatus()!.isCompliant ? 'pi pi-check-circle' : 'pi pi-exclamation-triangle'"></i>
+                    <h3>Document Compliance Status</h3>
+                </div>
+                <span 
+                    class="compliance-badge"
+                    [class.compliant]="complianceStatus()!.isCompliant"
+                    [class.non-compliant]="!complianceStatus()!.isCompliant">
+                    {{ complianceStatus()!.isCompliant ? 'COMPLIANT' : 'MISSING DOCUMENTS' }}
+                </span>
+            </div>
+            
+            <div class="compliance-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ complianceStatus()!.totalUploaded }}</span>
+                    <span class="stat-label">Uploaded</span>
+                </div>
+                <div class="stat-divider">/</div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ complianceStatus()!.totalRequired }}</span>
+                    <span class="stat-label">Required</span>
+                </div>
+                <div class="stat-item approved">
+                    <span class="stat-value">{{ complianceStatus()!.totalApproved }}</span>
+                    <span class="stat-label">Approved</span>
+                </div>
+            </div>
+
+            @if (complianceStatus()!.totalRequired > 0) {
+                <div class="progress-bar">
+                    <div 
+                        class="progress-fill" 
+                        [style.width.%]="(complianceStatus()!.totalUploaded / complianceStatus()!.totalRequired) * 100">
+                    </div>
+                </div>
+                <small class="progress-text">
+                    {{ ((complianceStatus()!.totalUploaded / complianceStatus()!.totalRequired) * 100).toFixed(0) }}% of required documents uploaded
+                </small>
+            }
+
+            @if (complianceStatus()!.missingDocuments && complianceStatus()!.missingDocuments!.length > 0) {
+                <div class="missing-alert">
+                    <i class="pi pi-exclamation-circle"></i>
+                    <span>{{ complianceStatus()!.missingDocuments!.length }} required document(s) missing</span>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Phase 4: Required Documents Section with Conditional Requirements -->
+    @if (!loading() && requiredDocuments().length > 0) {
+        <div class="section">
+            <h3>Document Requirements</h3>
+            <p class="section-description">
+                Based on your profile, the following documents are required or optional:
+            </p>
+            
+            <div class="required-documents-grid">
+                @for (requirement of requiredDocuments(); track requirement.documentType) {
+                    <div class="document-card" 
+                         [class.uploaded]="requirement.isUploaded"
+                         [class.required]="requirement.isRequired"
+                         [class.optional]="!requirement.isRequired">
+                        <div class="document-icon">
+                            <i [class]="getDocumentTypeInfo(requirement.documentType)?.icon || 'pi-file'"></i>
+                        </div>
+                        <div class="document-info">
+                            <div class="document-header">
+                                <h4>{{ requirement.documentName }}</h4>
+                                @if (requirement.isRequired) {
+                                    <span class="badge badge-required">REQUIRED</span>
+                                } @else {
+                                    <span class="badge badge-optional">OPTIONAL</span>
+                                }
+                            </div>
+                            
+                            <!-- Phase 4: Requirement Reason -->
+                            <p class="requirement-reason">
+                                <i class="pi pi-info-circle"></i>
+                                {{ requirement.requirementReason }}
+                            </p>
+                            
+                            <!-- Phase 4: Upload Status -->
+                            @if (requirement.isUploaded) {
+                                <div class="upload-status">
+                                    <i class="pi pi-check"></i>
+                                    <span>Uploaded</span>
+                                    
+                                    <!-- Phase 4: Verification Status Badge -->
+                                    @if (requirement.verificationStatus !== undefined) {
+                                        <span 
+                                            class="verification-badge"
+                                            [class.pending]="requirement.verificationStatus === 0"
+                                            [class.approved]="requirement.verificationStatus === 1"
+                                            [class.rejected]="requirement.verificationStatus === 2"
+                                            [class.resubmit]="requirement.verificationStatus === 3">
+                                            <i [class]="getVerificationStatusInfo(requirement.verificationStatus).icon"></i>
+                                            {{ getVerificationStatusInfo(requirement.verificationStatus).label }}
+                                        </span>
+                                    }
+                                </div>
+                            } @else {
+                                <div class="upload-status not-uploaded">
+                                    <i class="pi pi-times"></i>
+                                    <span>Not Uploaded</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Uploaded Documents Section -->
+    @if (uploadedDocuments().length > 0) {
+        <div class="section">
+            <h3>My Uploaded Documents</h3>
+            <p-table [value]="uploadedDocuments()" [tableStyle]="{'min-width': '50rem'}">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>File Name</th>
+                        <th>Document Type</th>
+                        <th>Size</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-file>
+                    <tr>
+                        <td>{{ file.fileName }}</td>
+                        <td>
+                            @if (file.memberDocumentType) {
+                                <div class="doc-type-cell">
+                                    <i [class]="getDocumentTypeInfo(file.memberDocumentType)?.icon || 'pi-file'"></i>
+                                    {{ getDocumentTypeLabel(file.memberDocumentType) }}
+                                    @if (file.isRequired) {
+                                        <span class="badge-mini badge-required">REQ</span>
+                                    }
+                                </div>
+                            } @else {
+                                {{ getDocumentTypeLabel(file.entityType || 'Other') }}
+                            }
+                        </td>
+                        <td>{{ (file.size / 1024).toFixed(2) }} KB</td>
+                        <td>
+                            <!-- Phase 4: Verification Status -->
+                            @if (file.verificationStatus !== undefined) {
+                                <span 
+                                    class="verification-badge"
+                                    [class.pending]="file.verificationStatus === 0"
+                                    [class.approved]="file.verificationStatus === 1"
+                                    [class.rejected]="file.verificationStatus === 2"
+                                    [class.resubmit]="file.verificationStatus === 3">
+                                    <i [class]="getVerificationStatusInfo(file.verificationStatus).icon"></i>
+                                    {{ getVerificationStatusInfo(file.verificationStatus).label }}
+                                </span>
+                            } @else {
+                                <span class="text-muted">-</span>
+                            }
+                        </td>
+                        <td>
+                            <a [href]="'/api/FileUpload/File_DownloadFile/' + file.id" 
+                               target="_blank"
+                               class="p-button p-button-rounded p-button-text p-button-icon-only">
+                                <i class="pi pi-download"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    }
+
+    @if (!loading() && requiredDocuments().length === 0) {
+        <div class="empty-state">
+            <i class="pi pi-file" style="font-size: 3rem; color: var(--text-color-secondary)"></i>
+            <h4>No required documents</h4>
+            <p>You can still upload documents using the "Upload Document" button above.</p>
+        </div>
+    }
+
+    <!-- Phase 4: Enhanced Upload Dialog -->
+    <p-dialog 
+        [(visible)]="displayDialog" 
+        header="Upload Document"
+        [modal]="true" 
+        [style]="{width: '600px'}"
+        [draggable]="false"
+        [resizable]="false">
+        <div class="p-fluid">
+            <div class="field">
+                <label for="documentType">Document Type *</label>
+                <p-dropdown 
+                    id="documentType"
+                    [(ngModel)]="currentUpload.documentType"
+                    [options]="documentTypes"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select document type"
+                    class="w-full">
+                    <ng-template pTemplate="item" let-option>
+                        <div class="dropdown-item-content">
+                            <i [class]="option.icon"></i>
+                            <div class="dropdown-item-text">
+                                <div class="dropdown-item-label">{{ option.label }}</div>
+                                <small class="dropdown-item-description">{{ option.description }}</small>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-dropdown>
+                
+                <!-- Phase 4: Show requirement info for selected document -->
+                @if (currentUpload.documentType && getSelectedDocumentRequirement()) {
+                    <div class="requirement-info">
+                        @if (getSelectedDocumentRequirement()!.isRequired) {
+                            <div class="requirement-alert required">
+                                <i class="pi pi-exclamation-circle"></i>
+                                <span>
+                                    <strong>Required:</strong> {{ getSelectedDocumentRequirement()!.requirementReason }}
+                                </span>
+                            </div>
+                        } @else {
+                            <div class="requirement-alert optional">
+                                <i class="pi pi-info-circle"></i>
+                                <span>
+                                    <strong>Optional:</strong> {{ getSelectedDocumentRequirement()!.requirementReason }}
+                                </span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            
+            <div class="field">
+                <label>File *</label>
+                <p-fileUpload 
+                    mode="basic" 
+                    chooseLabel="Choose File"
+                    [auto]="false"
+                    (onSelect)="onFileSelect($event)"
+                    [maxFileSize]="10000000"
+                    accept="image/*,application/pdf">
+                </p-fileUpload>
+                <small class="file-hint">
+                    <i class="pi pi-info-circle"></i>
+                    Maximum file size: 10MB. Accepted formats: PDF, Images
+                </small>
+            </div>
+
+            @if (currentUpload.file) {
+                <div class="file-preview">
+                    <i class="pi pi-file"></i>
+                    <span class="file-name">{{ currentUpload.file.name }}</span>
+                    <span class="file-size">{{ (currentUpload.file.size / 1024).toFixed(2) }} KB</span>
+                </div>
+            }
+        </div>
+        
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Cancel" 
+                icon="pi pi-times" 
+                (onClick)="displayDialog = false" 
+                styleClass="p-button-text"
+                [disabled]="uploading()">
+            </p-button>
+            <p-button 
+                label="Upload & Submit for Verification" 
+                icon="pi pi-upload" 
+                (onClick)="uploadDocument()"
+                [loading]="uploading()">
+            </p-button>
+        </ng-template>
+    </p-dialog>
+</div>

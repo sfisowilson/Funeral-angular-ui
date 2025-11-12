@@ -1,0 +1,345 @@
+// ============================================
+// Design Tokens - Funeral Management System
+// ============================================
+// Centralized design system tokens for consistent styling
+// Use these variables instead of hardcoded values
+
+// ============================================
+// Color Palette
+// ============================================
+
+// Primary - Purple gradient theme
+$color-primary-50: #f5f3ff;
+$color-primary-100: #ede9fe;
+$color-primary-200: #ddd6fe;
+$color-primary-300: #c4b5fd;
+$color-primary-400: #a78bfa;
+$color-primary-500: #667eea;  // Main brand color
+$color-primary-600: #5a6fd8;
+$color-primary-700: #4c5ac9;
+$color-primary-800: #4338ca;
+$color-primary-900: #3730a3;
+
+// Secondary - Deep purple
+$color-secondary-50: #faf5ff;
+$color-secondary-100: #f3e8ff;
+$color-secondary-200: #e9d5ff;
+$color-secondary-300: #d8b4fe;
+$color-secondary-400: #c084fc;
+$color-secondary-500: #764ba2;  // Secondary brand color
+$color-secondary-600: #6a4190;
+$color-secondary-700: #5e377e;
+$color-secondary-800: #522d6c;
+$color-secondary-900: #46235a;
+
+// Gray scale - Neutral colors
+$color-gray-50: #f9fafb;
+$color-gray-100: #f3f4f6;
+$color-gray-150: #f8fafc;
+$color-gray-200: #e5e7eb;
+$color-gray-250: #e2e8f0;
+$color-gray-300: #d1d5db;
+$color-gray-400: #9ca3af;
+$color-gray-500: #6b7280;
+$color-gray-600: #4b5563;
+$color-gray-700: #374151;
+$color-gray-800: #1f2937;
+$color-gray-900: #111827;
+$color-gray-950: #1e293b;
+
+// Success - Green
+$color-success-50: #f0fdf4;
+$color-success-100: #dcfce7;
+$color-success-500: #10b981;
+$color-success-600: #059669;
+$color-success-700: #047857;
+$color-success-900: #166534;
+
+// Error/Danger - Red
+$color-error-50: #fef2f2;
+$color-error-100: #fee2e2;
+$color-error-500: #ef4444;
+$color-error-600: #dc2626;
+$color-error-700: #b91c1c;
+$color-error-900: #991b1b;
+
+// Warning - Orange
+$color-warning-50: #fffbeb;
+$color-warning-100: #fef3c7;
+$color-warning-500: #f59e0b;
+$color-warning-600: #d97706;
+$color-warning-900: #92400e;
+
+// Info - Blue
+$color-info-50: #eff6ff;
+$color-info-100: #dbeafe;
+$color-info-500: #3b82f6;
+$color-info-600: #2563eb;
+$color-info-900: #1e40af;
+
+// Base colors
+$color-white: #ffffff;
+$color-black: #000000;
+$color-transparent: transparent;
+
+// Background colors (semantic naming)
+$color-bg-page: $color-gray-50;
+$color-bg-card: $color-white;
+$color-bg-header: $color-gray-150;
+$color-bg-footer: $color-gray-100;
+$color-bg-overlay: rgba(0, 0, 0, 0.5);
+
+// Border colors
+$color-border-light: $color-gray-200;
+$color-border-medium: $color-gray-300;
+$color-border-dark: $color-gray-400;
+$color-border-focus: $color-primary-500;
+
+// Text colors (semantic naming)
+$color-text-primary: $color-gray-900;
+$color-text-secondary: $color-gray-700;
+$color-text-tertiary: $color-gray-500;
+$color-text-disabled: $color-gray-400;
+$color-text-inverse: $color-white;
+$color-text-link: $color-primary-500;
+
+// ============================================
+// Spacing Scale (based on 4px/0.25rem)
+// ============================================
+$spacing-0: 0;
+$spacing-1: 0.25rem;   // 4px
+$spacing-2: 0.5rem;    // 8px
+$spacing-3: 0.75rem;   // 12px
+$spacing-4: 1rem;      // 16px
+$spacing-5: 1.25rem;   // 20px
+$spacing-6: 1.5rem;    // 24px
+$spacing-7: 1.75rem;   // 28px
+$spacing-8: 2rem;      // 32px
+$spacing-10: 2.5rem;   // 40px
+$spacing-12: 3rem;     // 48px
+$spacing-16: 4rem;     // 64px
+$spacing-20: 5rem;     // 80px
+$spacing-24: 6rem;     // 96px
+
+// Common semantic spacing
+$spacing-xs: $spacing-2;   // 8px
+$spacing-sm: $spacing-3;   // 12px
+$spacing-md: $spacing-4;   // 16px
+$spacing-lg: $spacing-6;   // 24px
+$spacing-xl: $spacing-8;   // 32px
+$spacing-2xl: $spacing-12; // 48px
+
+// Component-specific spacing
+$spacing-input-padding-y: $spacing-3;       // 0.75rem vertical
+$spacing-input-padding-x: $spacing-4;       // 1rem horizontal
+$spacing-button-padding-y: 0.65rem;         // Button vertical
+$spacing-button-padding-x: $spacing-4;      // Button horizontal
+$spacing-card-padding: $spacing-6;          // Card padding
+$spacing-section-gap: $spacing-6;           // Gap between sections
+
+// ============================================
+// Typography
+// ============================================
+
+// Font families
+$font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+$font-family-heading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+$font-family-mono: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+
+// Font sizes
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.875rem;   // 14px
+$font-size-base: 0.95rem;  // 15.2px (slightly larger for readability)
+$font-size-md: 1rem;       // 16px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.5rem;    // 24px
+$font-size-3xl: 1.875rem;  // 30px
+$font-size-4xl: 2rem;      // 32px
+$font-size-5xl: 2.5rem;    // 40px
+
+// Font weights
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Line heights
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// Letter spacing
+$letter-spacing-tight: -0.025em;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.025em;
+
+// ============================================
+// Border Radius
+// ============================================
+$radius-none: 0;
+$radius-sm: 4px;
+$radius-base: 6px;
+$radius-md: 8px;
+$radius-lg: 10px;
+$radius-xl: 12px;
+$radius-2xl: 16px;
+$radius-3xl: 24px;
+$radius-full: 9999px;  // Perfect circle
+
+// Component-specific radius
+$radius-button: $radius-lg;      // 10px for buttons
+$radius-input: $radius-md;       // 8px for inputs
+$radius-card: $radius-xl;        // 12px for cards
+$radius-dialog: $radius-xl;      // 12px for dialogs
+$radius-badge: $radius-full;     // Pill shape for badges
+
+// ============================================
+// Shadows
+// ============================================
+$shadow-none: none;
+$shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+$shadow-base: 0 4px 6px rgba(0, 0, 0, 0.07);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.15);
+
+// Focus shadows (with color)
+$shadow-focus-primary: 0 0 0 3px rgba(102, 126, 234, 0.1);
+$shadow-focus-info: 0 0 0 3px rgba(59, 130, 246, 0.1);
+$shadow-focus-error: 0 0 0 3px rgba(239, 68, 68, 0.1);
+
+// Button hover shadows (with color)
+$shadow-button-primary: 0 4px 12px rgba(102, 126, 234, 0.3);
+$shadow-button-danger: 0 4px 12px rgba(239, 68, 68, 0.3);
+
+// ============================================
+// Transitions
+// ============================================
+$transition-duration-fast: 0.15s;
+$transition-duration-base: 0.2s;
+$transition-duration-slow: 0.3s;
+
+$transition-easing-default: ease;
+$transition-easing-in: ease-in;
+$transition-easing-out: ease-out;
+$transition-easing-in-out: ease-in-out;
+
+// Combined transition properties (most commonly used)
+$transition-fast: all $transition-duration-fast $transition-easing-default;
+$transition-base: all $transition-duration-base $transition-easing-default;
+$transition-slow: all $transition-duration-slow $transition-easing-default;
+
+// Specific transitions
+$transition-colors: background-color, border-color, color, fill, stroke;
+$transition-opacity: opacity $transition-duration-base $transition-easing-default;
+$transition-transform: transform $transition-duration-base $transition-easing-default;
+$transition-shadow: box-shadow $transition-duration-base $transition-easing-default;
+
+// ============================================
+// Breakpoints (for responsive design)
+// ============================================
+$breakpoint-xs: 480px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// ============================================
+// Z-index layers
+// ============================================
+$z-index-base: 1;
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// ============================================
+// Opacity values
+// ============================================
+$opacity-0: 0;
+$opacity-10: 0.1;
+$opacity-20: 0.2;
+$opacity-30: 0.3;
+$opacity-40: 0.4;
+$opacity-50: 0.5;
+$opacity-60: 0.6;
+$opacity-70: 0.7;
+$opacity-80: 0.8;
+$opacity-90: 0.9;
+$opacity-100: 1;
+
+$opacity-disabled: $opacity-60;
+$opacity-hover: $opacity-80;
+
+// ============================================
+// Gradients (commonly used)
+// ============================================
+$gradient-primary: linear-gradient(135deg, $color-primary-500 0%, $color-secondary-500 100%);
+$gradient-primary-hover: linear-gradient(135deg, $color-primary-600 0%, $color-secondary-600 100%);
+$gradient-success: linear-gradient(135deg, $color-success-500 0%, $color-success-600 100%);
+$gradient-error: linear-gradient(135deg, $color-error-500 0%, $color-error-600 100%);
+$gradient-warning: linear-gradient(135deg, $color-warning-500 0%, $color-warning-600 100%);
+$gradient-info: linear-gradient(135deg, $color-info-500 0%, $color-info-600 100%);
+$gradient-header: linear-gradient(135deg, $color-gray-150 0%, $color-gray-250 100%);
+
+// ============================================
+// Animation/Keyframes
+// ============================================
+$animation-spin: spin 1s linear infinite;
+$animation-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+$animation-bounce: bounce 1s infinite;
+
+// ============================================
+// Component-specific tokens
+// ============================================
+
+// Input fields
+$input-border-width: 1px;
+$input-border-color: $color-border-medium;
+$input-border-color-focus: $color-border-focus;
+$input-bg: $color-white;
+$input-text-color: $color-text-primary;
+$input-placeholder-color: $color-text-tertiary;
+
+// Buttons
+$button-border-width: 2px;
+$button-font-weight: $font-weight-semibold;
+$button-min-width: 100px;
+
+// Cards
+$card-bg: $color-bg-card;
+$card-border-color: $color-border-light;
+$card-border-width: 1px;
+
+// Dialogs
+$dialog-header-bg: $gradient-primary;
+$dialog-overlay-bg: $color-bg-overlay;
+
+// Tables
+$table-header-bg: $color-bg-header;
+$table-border-color: $color-border-light;
+$table-row-hover-bg: $color-gray-150;
+$table-row-stripe-bg: #fafbfc;
+
+// Scrollbar
+$scrollbar-width: 6px;
+$scrollbar-track-bg: $color-gray-100;
+$scrollbar-thumb-bg: #c1c1c1;
+$scrollbar-thumb-hover-bg: #a1a1a1;
+$scrollbar-border-radius: 3px;
+
+// Status colors (semantic)
+$status-active-bg: $color-success-100;
+$status-active-text: $color-success-900;
+$status-inactive-bg: $color-error-100;
+$status-inactive-text: $color-error-900;
+$status-pending-bg: $color-warning-100;
+$status-pending-text: $color-warning-900;
+$status-completed-bg: $color-info-100;
+$status-completed-text: $color-info-900;

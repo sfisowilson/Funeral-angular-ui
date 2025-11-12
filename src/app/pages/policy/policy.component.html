@@ -1,0 +1,108 @@
+<div class="card">
+    <div class="flex flex-col gap-6">
+        <div>
+            <label for="name" class="block font-bold mb-3">Name</label>
+            <input type="text" pInputText id="name" [(ngModel)]="policy.name" required autofocus fluid />
+            <small class="text-red-500" *ngIf="submitted && !policy.name">Name is required.</small>
+        </div>
+        <div>
+            <label for="price" class="block font-bold mb-3">Price</label>
+            <p-inputNumber id="price" [(ngModel)]="policy.price" mode="currency" [currency]="currency" [locale]="currency" required fluid></p-inputNumber>
+            <small class="text-red-500" *ngIf="submitted && policy.price === undefined">Price is required.</small>
+        </div>
+        <div>
+            <label for="payoutAmount" class="block font-bold mb-3">Payout Amount</label>
+            <p-inputNumber id="payoutAmount" [(ngModel)]="policy.payoutAmount" mode="currency" [currency]="currency" [locale]="currency" required fluid></p-inputNumber>
+            <small class="text-red-500" *ngIf="submitted && policy.payoutAmount === undefined">Payout Amount is required.</small>
+        </div>
+
+        <div class="mt-6" *ngIf="policy.id">
+            <h5 class="mb-3">Policy Attributes</h5>
+            <p-toolbar styleClass="mb-3">
+                <ng-template #start>
+                    <p-button *ngIf="policy.id" label="Add Attribute" icon="pi pi-plus" severity="secondary" (onClick)="openNewAttribute()" />
+                </ng-template>
+            </p-toolbar>
+            <p-table
+                [value]="policyAttributes()"
+                [rows]="5"
+                [paginator]="true"
+                [tableStyle]="{ 'min-width': '50rem' }"
+                dataKey="id"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} attributes"
+                [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[5, 10, 20]"
+            >
+                <ng-template #header>
+                    <tr>
+                        <th pSortableColumn="property">Property <p-sortIcon field="property" /></th>
+                        <th pSortableColumn="value">Value <p-sortIcon field="value" /></th>
+                        <th pSortableColumn="dataType">Data Type <p-sortIcon field="dataType" /></th>
+                        <th pSortableColumn="description">Description <p-sortIcon field="description" /></th>
+                        <th pSortableColumn="isIncluded">Included <p-sortIcon field="isIncluded" /></th>
+                        <th style="width: 8rem"></th>
+                    </tr>
+                </ng-template>
+                <ng-template #body let-attribute>
+                    <tr>
+                        <td>{{ attribute.property }}</td>
+                        <td>{{ attribute.value }}</td>
+                        <td>{{ attribute.dataType }}</td>
+                        <td>{{ attribute.description }}</td>
+                        <td>
+                            <i class="pi" [ngClass]="{ 'true-icon pi-check-circle': attribute.isIncluded, 'false-icon pi-times-circle': !attribute.isIncluded }"></i>
+                        </td>
+                        <td>
+                            <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editPolicyAttribute(attribute)" />
+                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deletePolicyAttribute(attribute)" />
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template #emptyMessage>
+                    <tr>
+                        <td colspan="6">No attributes found for this policy.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <div class="flex justify-end mt-6">
+        <p-button label="Save" icon="pi pi-check" (click)="savePolicy()" />
+    </div>
+</div>
+
+<p-dialog [(visible)]="policyAttributeDialog" [style]="{ width: '450px' }" header="Policy Attribute Details" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-6">
+            <div>
+                <label for="property" class="block font-bold mb-3">Property</label>
+                <input type="text" pInputText id="property" [(ngModel)]="policyAttribute.property" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !policyAttribute.property">Property is required.</small>
+            </div>
+            <div>
+                <label for="value" class="block font-bold mb-3">Value</label>
+                <input type="text" pInputText id="value" [(ngModel)]="policyAttribute.value" required fluid />
+                <small class="text-red-500" *ngIf="submitted && !policyAttribute.value">Value is required.</small>
+            </div>
+
+            <div>
+                <label for="description" class="block font-bold mb-3">Description</label>
+                <textarea id="description" pInputTextarea [(ngModel)]="policyAttribute.description" rows="3" cols="20" fluid></textarea>
+                <small class="text-red-500" *ngIf="submitted && !policyAttribute.description">Description is required.</small>
+            </div>
+            <div class="flex items-center">
+                <p-checkbox [(ngModel)]="policyAttribute.isIncluded" [binary]="true" inputId="isIncluded"></p-checkbox>
+                <label for="isIncluded" class="ml-2">Is Included</label>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <p-button label="Cancel" icon="pi pi-times" text (click)="hideAttributeDialog()" />
+        <p-button label="Save" icon="pi pi-check" (click)="savePolicyAttribute()" />
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }" />
+<p-toast></p-toast>

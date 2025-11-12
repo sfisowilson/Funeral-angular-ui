@@ -1,0 +1,9 @@
+<div class="about-us-widget">
+    <h2>{{ config.settings.title }}</h2>
+    <div class="content-section">
+        <p>{{ config.settings.content }}</p>
+        <div *ngIf="config.settings.imageUrl" class="image-container">
+            <img [src]="getDownloadUrl(config.settings.imageUrl)" alt="About Us Image" />
+        </div>
+    </div>
+</div>

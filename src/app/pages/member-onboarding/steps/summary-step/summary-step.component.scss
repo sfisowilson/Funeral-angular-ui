@@ -1,0 +1,274 @@
+@import '../../../../shared/styles/modern-ui.scss';
+
+// Local color variables matching modern-ui theme
+$primary-color: #667eea;
+$primary-dark: #5a67d8;
+$success-color: #10b981;
+$text-primary: #1f2937;
+$text-secondary: #6b7280;
+$border-color: #e5e7eb;
+$background-light: #f9fafb;
+
+.summary-step {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+
+  .modern-card {
+    .card-header {
+      background: linear-gradient(135deg, $primary-color 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 16px 16px 0 0;
+
+      h3 {
+        margin: 0 0 10px 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 14px;
+      }
+    }
+
+    .card-body {
+      padding: 30px;
+      background: white;
+
+      h4 {
+        color: $text-primary;
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 10px 0;
+      }
+
+      .section-description {
+        color: $text-secondary;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+
+      // PDF Section
+      .pdf-section {
+        margin-bottom: 40px;
+        padding-bottom: 40px;
+        border-bottom: 2px solid $border-color;
+
+        .loading-container {
+          text-align: center;
+          padding: 60px 20px;
+          background: $background-light;
+          border-radius: 12px;
+
+          p {
+            margin-top: 15px;
+            color: $text-secondary;
+          }
+        }
+
+        .pdf-preview {
+          margin: 20px 0;
+        }
+
+        .pdf-placeholder {
+          text-align: center;
+          padding: 80px 20px;
+          background: $background-light;
+          border-radius: 12px;
+          border: 2px dashed $border-color;
+
+          p {
+            margin: 20px 0 10px 0;
+            color: $text-primary;
+            font-size: 16px;
+            font-weight: 500;
+          }
+
+          small {
+            color: $text-secondary;
+            font-size: 13px;
+          }
+        }
+
+        .pdf-actions {
+          margin-top: 20px;
+          display: flex;
+          justify-content: center;
+        }
+      }
+
+      // Signature Section
+      .signature-section {
+        margin-bottom: 30px;
+
+        .signature-container {
+          margin: 20px 0;
+        }
+
+        .signature-instructions {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 16px;
+          background: #eff6ff;
+          border: 1px solid #bfdbfe;
+          border-radius: 8px;
+          margin-bottom: 15px;
+          color: #1e40af;
+          font-size: 14px;
+
+          i {
+            font-size: 18px;
+          }
+        }
+
+        .signature-canvas {
+          border: 2px solid $border-color;
+          border-radius: 12px;
+          cursor: crosshair;
+          background: white;
+          display: block;
+          width: 100%;
+          max-width: 600px;
+          margin: 0 auto;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          transition: border-color 0.2s ease;
+
+          &:hover {
+            border-color: $primary-color;
+          }
+        }
+
+        .signature-canvas-readonly {
+          border: 2px solid $border-color;
+          border-radius: 12px;
+          cursor: default;
+          background: $background-light;
+          display: block;
+          width: 100%;
+          max-width: 600px;
+          margin: 0 auto;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          pointer-events: none;
+        }
+
+        .signature-actions {
+          margin-top: 15px;
+          text-align: center;
+        }
+
+        .signature-confirmation {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 12px 16px;
+          background: #f0fdf4;
+          border: 1px solid #bbf7d0;
+          border-radius: 8px;
+          margin-top: 15px;
+          color: #15803d;
+          font-size: 14px;
+          font-weight: 500;
+
+          i {
+            font-size: 20px;
+          }
+        }
+      }
+
+      // Confirmation Section
+      .confirmation-section {
+        margin-top: 30px;
+
+        .confirmation-text {
+          background: $background-light;
+          padding: 24px;
+          border-radius: 12px;
+          border-left: 4px solid $primary-color;
+
+          i {
+            font-size: 24px;
+            margin-bottom: 12px;
+          }
+
+          p {
+            color: $text-primary;
+            font-size: 15px;
+            font-weight: 600;
+            margin: 8px 0;
+          }
+
+          ul {
+            margin: 12px 0 0 20px;
+            padding: 0;
+            color: $text-secondary;
+            font-size: 14px;
+            line-height: 1.8;
+
+            li {
+              margin-bottom: 8px;
+            }
+          }
+        }
+      }
+    }
+
+    .card-footer {
+      padding: 25px 30px;
+      background: $background-light;
+      border-radius: 0 0 16px 16px;
+      text-align: center;
+
+      button {
+        min-width: 280px;
+        padding: 12px 32px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .summary-step {
+    padding: 10px;
+
+    .modern-card {
+      .card-header {
+        padding: 20px;
+
+        h3 {
+          font-size: 20px;
+        }
+      }
+
+      .card-body {
+        padding: 20px;
+
+        .signature-canvas {
+          width: 100%;
+        }
+
+        .pdf-section {
+          .pdf-preview iframe {
+            height: 400px;
+          }
+        }
+      }
+
+      .card-footer {
+        padding: 20px;
+
+        button {
+          min-width: auto;
+          width: 100%;
+        }
+      }
+    }
+  }
+}

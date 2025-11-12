@@ -1,0 +1,151 @@
+@import '../../../shared/styles/modern-ui.scss';
+
+.field-configuration-container {
+    padding: 1rem;
+
+    h3 {
+        color: var(--text-color);
+        font-weight: 600;
+    }
+
+    .field-label-cell {
+        strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        small {
+            color: var(--text-color-secondary);
+            font-size: 0.875rem;
+        }
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+
+        &.badge-info {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+    }
+
+    code {
+        background-color: #f5f5f5;
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.875rem;
+        color: #d32f2f;
+    }
+
+    .empty-state {
+        padding: 3rem 1rem;
+        text-align: center;
+        color: var(--text-color-secondary);
+
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--text-color-secondary);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.125rem;
+            margin: 0;
+        }
+    }
+
+    .field-form {
+        .field {
+            margin-bottom: 1.5rem;
+
+            label {
+                display: block;
+                margin-bottom: 0.5rem;
+                color: var(--text-color);
+            }
+
+            small {
+                display: block;
+                margin-top: 0.25rem;
+                color: var(--text-color-secondary);
+                font-size: 0.875rem;
+            }
+        }
+
+        .field-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            label {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    .confirmation-content {
+        padding: 1rem;
+
+        i {
+            display: block;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        ul {
+            text-align: left;
+            margin: 1rem 0;
+            padding-left: 2rem;
+
+            li {
+                margin-bottom: 0.5rem;
+            }
+        }
+    }
+
+    ::ng-deep {
+        .p-datatable {
+            .p-datatable-tbody > tr > td {
+                vertical-align: middle;
+            }
+        }
+
+        .p-toolbar {
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .p-dialog {
+            .p-dialog-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+
+                .p-dialog-title {
+                    color: white;
+                    font-weight: 600;
+                }
+
+                .p-dialog-header-icons {
+                    button {
+                        color: white;
+
+                        &:hover {
+                            background-color: rgba(255, 255, 255, 0.1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

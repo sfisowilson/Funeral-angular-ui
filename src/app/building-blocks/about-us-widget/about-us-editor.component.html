@@ -1,0 +1,24 @@
+<div class="about-us-editor">
+    <p-toast></p-toast>
+
+    <div class="p-fluid">
+        <div class="p-field">
+            <label for="title">Widget Title</label>
+            <input id="title" type="text" pInputText [(ngModel)]="config.settings.title" />
+        </div>
+
+        <div class="p-field">
+            <label for="content">Content</label>
+            <textarea id="content" pInputTextarea [(ngModel)]="config.settings.content" rows="5"></textarea>
+        </div>
+
+        <div class="p-field">
+            <label for="image">Image</label>
+            <p-fileUpload mode="basic" name="aboutUsImage" accept="image/*" [maxFileSize]="1000000" (onSelect)="onImageUpload($event)" chooseLabel="Upload Image" [headers]="tenantIdHeader"></p-fileUpload>
+            <div *ngIf="imageUrl" class="image-preview mt-3">
+                <img [src]="getDownloadUrl(imageUrl)" alt="Uploaded Image" class="img-fluid" />
+                <button pButton type="button" icon="pi pi-times" class="p-button-danger p-button-rounded p-button-text mt-2" (click)="removeImage()"></button>
+            </div>
+        </div>
+    </div>
+</div>

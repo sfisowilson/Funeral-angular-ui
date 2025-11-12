@@ -1,0 +1,158 @@
+<div class="modern-card">
+    <div class="card-header">
+        <div class="section-header">
+            <i class="pi pi-users text-blue-600"></i>
+            <h3>Personnel Management</h3>
+        </div>
+    </div>
+
+    <p-toast></p-toast>
+    <p-confirmDialog [style]="{ width: '450px' }" styleClass="modern-confirm-dialog"></p-confirmDialog>
+
+    <div class="card-body">
+        <div class="mb-6">
+            <button type="button" class="btn btn-primary" (click)="openNew()">
+                <i class="pi pi-plus me-2"></i>
+                New Personnel
+            </button>
+        </div>
+
+        <p-table
+            [value]="personnel()"
+            [loading]="loading()"
+            responsiveLayout="scroll"
+            [paginator]="true"
+            [rows]="10"
+            styleClass="modern-table"
+            [rowHover]="true"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} personnel"
+            [rowsPerPageOptions]="[10, 20, 30]"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="min-width: 12rem">Name</th>
+                    <th style="min-width: 15rem">Email</th>
+                    <th style="min-width: 10rem">Phone</th>
+                    <th style="min-width: 8rem">Role</th>
+                    <th style="min-width: 8rem">Status</th>
+                    <th style="min-width: 15rem">Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-person>
+                <tr>
+                    <td>
+                        <span class="font-semibold">{{ person.firstName }} {{ person.lastName }}</span>
+                    </td>
+                    <td>{{ person.email }}</td>
+                    <td>{{ person.phone || 'Not provided' }}</td>
+                    <td>
+                        <span class="role-badge" [class]="'role-' + person.role.toLowerCase()">
+                            {{ person.role }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge" [ngClass]="person.isActive ? 'success' : 'danger'">
+                            {{ person.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-info rounded-circle" (click)="viewSchedule(person)" title="View Schedule">
+                                <i class="pi pi-calendar"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-circle" (click)="editPersonnel(person)" title="Edit Personnel">
+                                <i class="pi pi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deletePersonnel(person)" title="Delete Personnel">
+                                <i class="pi pi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <!-- Personnel Dialog -->
+        <p-dialog [(visible)]="personnelDialogVisible" [style]="{ width: '500px' }" header="Personnel Details" [modal]="true" styleClass="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="firstName">First Name</label>
+                    <input type="text" pInputText id="firstName" [(ngModel)]="personnelMember.firstName" placeholder="Enter first name" [class]="{ 'ng-invalid ng-dirty': submitted() && !personnelMember.firstName }" />
+                    <small class="p-error" *ngIf="submitted() && !personnelMember.firstName">First name is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" pInputText id="lastName" [(ngModel)]="personnelMember.lastName" placeholder="Enter last name" [class]="{ 'ng-invalid ng-dirty': submitted() && !personnelMember.lastName }" />
+                    <small class="p-error" *ngIf="submitted() && !personnelMember.lastName">Last name is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input type="email" pInputText id="email" [(ngModel)]="personnelMember.email" placeholder="Enter email address" [class]="{ 'ng-invalid ng-dirty': submitted() && !personnelMember.email }" />
+                    <small class="p-error" *ngIf="submitted() && !personnelMember.email">Email is required.</small>
+                </div>
+
+                <div class="field">
+                    <label for="phone">Phone</label>
+                    <input type="text" pInputText id="phone" [(ngModel)]="personnelMember.phone" placeholder="Enter phone number" />
+                </div>
+
+                <div class="field">
+                    <label for="role">Role</label>
+                    <p-dropdown id="role" [options]="roles" [(ngModel)]="personnelMember.role" optionLabel="label" optionValue="value" placeholder="Select Role" appendTo="body"></p-dropdown>
+                </div>
+
+                <div class="field-checkbox">
+                    <input type="checkbox" pInputText id="isActive" [(ngModel)]="personnelMember.isActive" />
+                    <label for="isActive">Active</label>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+                    <i class="pi pi-times me-2"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" (click)="savePersonnel()">
+                    <i class="pi pi-check me-2"></i>
+                    Save
+                </button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- Schedule Dialog -->
+        <p-dialog [(visible)]="scheduleDialogVisible" [style]="{ width: '800px' }" header="Personnel Schedule" [modal]="true">
+            <ng-template pTemplate="content">
+                <p-table [value]="schedule()" styleClass="modern-table">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Event Date</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-event>
+                        <tr>
+                            <td>{{ event.eventDate | date: 'medium' }}</td>
+                            <td>{{ event.location || 'Not specified' }}</td>
+                            <td>
+                                <span class="status-badge info">Status {{ event.status }}</span>
+                            </td>
+                            <td>{{ event.notes || 'No notes' }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button type="button" class="btn btn-secondary" (click)="hideScheduleDialog()">
+                    <i class="pi pi-times me-2"></i>
+                    Close
+                </button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>

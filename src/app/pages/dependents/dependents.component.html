@@ -1,0 +1,190 @@
+<div class="card">
+    <p-toast></p-toast>
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+            <div class="my-2">
+                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedDependents()" [disabled]="!selectedDependents || !selectedDependents.length"></button>
+            </div>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table
+        #dt
+        [value]="dependents"
+        [columns]="cols"
+        responsiveLayout="scroll"
+        [rows]="10"
+        [globalFilterFields]="['name', 'email', 'identificationNumber']"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 20, 30]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [(selection)]="selectedDependents"
+        selectionMode="multiple"
+        [rowHover]="true"
+        dataKey="id"
+    >
+        <ng-template pTemplate="caption">
+            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                <h5 class="m-0">Manage Dependents</h5>
+                <span class="block mt-2 md:mt-0 p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                <th pSortableColumn="dependentType">Type <p-sortIcon field="dependentType"></p-sortIcon></th>
+                <th pSortableColumn="calculatedAge">Age <p-sortIcon field="calculatedAge"></p-sortIcon></th>
+                <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                <th pSortableColumn="identificationNumber">ID Number <p-sortIcon field="identificationNumber"></p-sortIcon></th>
+                <th style="min-width: 10rem">Verification Status</th>
+                <th style="min-width: 12rem"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-dependent>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="dependent"></p-tableCheckbox>
+                </td>
+                <td><span class="p-column-title">Name</span>{{ dependent.name }}</td>
+                <td><span class="p-column-title">Type</span>{{ getDependentTypeLabel(dependent.dependentType) }}</td>
+                <td><span class="p-column-title">Age</span>{{ dependent.calculatedAge ?? '-' }}</td>
+                <td><span class="p-column-title">Email</span>{{ dependent.email }}</td>
+                <td><span class="p-column-title">ID Number</span>{{ dependent.identificationNumber }}</td>
+                <td>
+                    <app-verification-status [memberId]="dependent.id" [compact]="true" [showHeader]="false"> </app-verification-status>
+                </td>
+                <td>
+                    <div class="flex">
+                        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editDependent(dependent)"></button>
+                        <button pButton pRipple icon="pi pi-shield" class="p-button-rounded p-button-info mr-2" (click)="verifyDependentIdentity(dependent)"></button>
+                        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteDependent(dependent)"></button>
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="dependentDialog" [style]="{ width: '600px' }" header="Dependent Details" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <!-- Phase 3: Dependent Classification Section -->
+        <div class="field">
+            <label for="dependentType">Dependent Type</label>
+            <p-dropdown 
+                id="dependentType" 
+                [(ngModel)]="dependent.dependentType" 
+                [options]="dependentTypeOptions" 
+                optionLabel="label" 
+                optionValue="value" 
+                placeholder="Select dependent type"
+                [showClear]="true">
+            </p-dropdown>
+            <small class="text-muted-color" *ngIf="dependent.dependentType">
+                {{ getAgeLimitWarning(dependent.dependentType) }}
+            </small>
+        </div>
+
+        <div class="field">
+            <label for="dateOfBirth">Date of Birth</label>
+            <p-calendar 
+                id="dateOfBirth" 
+                [(ngModel)]="dependent.dateOfBirth" 
+                dateFormat="yy-mm-dd" 
+                [showIcon]="true"
+                [maxDate]="maxDate"
+                placeholder="Select date of birth">
+            </p-calendar>
+            <small class="text-muted-color" *ngIf="dependent.calculatedAge !== null && dependent.calculatedAge !== undefined">
+                Current Age: {{ dependent.calculatedAge }} years
+            </small>
+        </div>
+
+        <!-- Extended Family Count Indicator -->
+        <div class="field" *ngIf="dependent.dependentType === 3">
+            <div class="p-message p-message-info">
+                <div class="p-message-wrapper">
+                    <span class="p-message-icon pi pi-info-circle"></span>
+                    <div class="p-message-detail">
+                        Extended Family Members: {{ getExtendedFamilyCount() }} of 4 
+                        <span *ngIf="getExtendedFamilyCount() >= 4">(Maximum reached)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Fields -->
+        <div class="field">
+            <label for="name">Name</label>
+            <input type="text" pInputText id="name" [(ngModel)]="dependent.name" required autofocus [ngClass]="{ 'ng-invalid ng-dirty': submitted && !dependent.name }" />
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !dependent.name">Name is required.</small>
+        </div>
+        <div class="field">
+            <label for="email">Email</label>
+            <input type="text" pInputText id="email" [(ngModel)]="dependent.email" required [ngClass]="{ 'ng-invalid ng-dirty': submitted && !dependent.email }" />
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !dependent.email">Email is required.</small>
+        </div>
+        <div class="field">
+            <label for="identificationNumber">ID Number</label>
+            <input type="text" pInputText id="identificationNumber" [(ngModel)]="dependent.identificationNumber" required [ngClass]="{ 'ng-invalid ng-dirty': submitted && !dependent.identificationNumber }" />
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !dependent.identificationNumber">ID Number is required.</small>
+        </div>
+        <div class="field">
+            <label for="address">Address</label>
+            <textarea id="address" pInputTextarea [(ngModel)]="dependent.address" required rows="3" cols="20"></textarea>
+        </div>
+        <div class="field">
+            <label for="phone1">Phone 1</label>
+            <input type="text" pInputText id="phone1" [(ngModel)]="dependent.phone1" />
+        </div>
+        <div class="field">
+            <label for="phone2">Phone 2</label>
+            <input type="text" pInputText id="phone2" [(ngModel)]="dependent.phone2" />
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveDependent()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Identity Verification Dialog -->
+<p-dialog [(visible)]="verificationDialog" [style]="{ width: '90vw', maxWidth: '600px' }" header="Dependent Identity Verification" [modal]="true" [closable]="true" styleClass="modern-dialog">
+    <ng-template pTemplate="content">
+        <div class="p-4">
+            <div class="mb-4 text-center">
+                <i class="pi pi-shield text-blue-500 text-4xl mb-2"></i>
+                <h4 class="text-900 mb-2">Verify Dependent Identity</h4>
+                <p class="text-muted-color">Please verify the identity of: {{ dependent.name || 'Dependent' }}</p>
+            </div>
+
+            <app-identity-verification-form
+                [title]="'Dependent Identity Verification'"
+                [subtitle]="'Verify identity for: ' + (dependent.name || 'Dependent')"
+                [memberId]="dependent.id"
+                [initialData]="{
+                    idNumber: dependent.identificationNumber,
+                    firstName: dependent.name ? dependent.name.split(' ')[0] : '',
+                    lastName: dependent.name ? dependent.name.split(' ').slice(1).join(' ') : ''
+                }"
+                (verificationComplete)="onVerificationComplete($event)"
+                (verificationStarted)="onVerificationStarted()"
+            >
+            </app-identity-verification-form>
+        </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Skip for Now" icon="pi pi-times" class="p-button-text" (click)="closeVerificationDialog()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

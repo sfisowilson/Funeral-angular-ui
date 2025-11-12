@@ -1,0 +1,41 @@
+@import '../../shared/styles/modern-ui.scss';
+
+:host ::ng-deep {
+    .p-tabview {
+        .p-tabview-nav {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #e5e7eb;
+
+            li {
+                margin-right: 0.5rem;
+
+                .p-tabview-nav-link {
+                    background: transparent;
+                    border: none;
+                    border-radius: 8px 8px 0 0;
+                    color: #6b7280;
+                    font-weight: 500;
+                    padding: 1rem 1.5rem;
+                    transition: all 0.2s ease;
+
+                    &:hover {
+                        background: rgba(102, 126, 234, 0.1);
+                        color: #667eea;
+                    }
+                }
+
+                &.p-highlight .p-tabview-nav-link {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                }
+            }
+        }
+
+        .p-tabview-panels {
+            background: transparent;
+            padding: 1.5rem 0;
+        }
+    }
+}

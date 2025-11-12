@@ -1,0 +1,174 @@
+@import '../../shared/styles/modern-ui.scss';
+
+// Component specific styles
+:host {
+    display: block;
+}
+
+.card-modern {
+    @apply bg-white rounded-lg shadow-sm p-4 border border-gray-100;
+    transition: all 0.2s ease;
+
+    &:hover {
+        @apply shadow-md;
+        transform: translateY(-2px);
+    }
+}
+
+// Stats cards styling
+.grid {
+    display: grid;
+}
+
+.grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+    .grid-cols-5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.text-primary {
+    color: var(--primary-color);
+}
+
+// Table styling
+::ng-deep {
+    .p-table {
+        .p-datatable-thead > tr > th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 1rem;
+        }
+
+        .p-datatable-tbody > tr {
+            &:hover {
+                background: rgba(102, 126, 234, 0.05);
+            }
+
+            > td {
+                padding: 1rem;
+                border-bottom: 1px solid #e5e7eb;
+            }
+        }
+    }
+
+    // Dialog styling
+    .p-dialog {
+        .p-dialog-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .p-dialog-content {
+            padding: 1.5rem;
+        }
+    }
+
+    // Toolbar styling
+    .p-toolbar {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    // Tabs styling
+    .p-tabs {
+        .p-tab {
+            &.p-tab-active {
+                .p-tab-header-content {
+                    color: var(--primary-color);
+                    border-color: var(--primary-color);
+                }
+            }
+        }
+    }
+}
+
+// Field styling
+.field {
+    margin-bottom: 1.5rem;
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    small {
+        display: block;
+        margin-top: 0.5rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+}
+
+.field-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    label {
+        margin-left: 0.5rem;
+        margin-bottom: 0;
+    }
+}
+
+// Utility classes
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mr-2 { margin-right: 0.5rem; }
+
+.p-4 { padding: 1rem; }
+
+.text-center { text-align: center; }
+.text-sm { font-size: 0.875rem; }
+.text-2xl { font-size: 1.5rem; }
+.text-4xl { font-size: 2.25rem; }
+
+.font-bold { font-weight: 700; }
+
+.rounded { border-radius: 0.375rem; }
+.rounded-lg { border-radius: 0.5rem; }
+
+.py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+
+// Color utilities
+.text-gray-400 { color: #9ca3af; }
+.text-gray-600 { color: #4b5563; }
+.text-red-600 { color: #dc2626; }
+.text-green-600 { color: #16a34a; }
+.text-blue-600 { color: #2563eb; }
+.text-yellow-600 { color: #ca8a04; }
+
+.bg-blue-50 { background-color: #eff6ff; }
+.bg-green-50 { background-color: #f0fdf4; }
+.bg-yellow-50 { background-color: #fefce8; }
+
+// Responsive utilities
+.flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.items-center { align-items: center; }
+
+// White text
+.text-white { color: white; }

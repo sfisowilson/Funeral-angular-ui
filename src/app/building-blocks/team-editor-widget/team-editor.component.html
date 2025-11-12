@@ -1,0 +1,260 @@
+<div class="team-editor">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+
+    <div class="p-fluid">
+        <!-- Widget Configuration Section -->
+        <div class="card mb-4">
+            <h3>Widget Configuration</h3>
+            <div class="p-field">
+                <label for="title">Widget Title</label>
+                <input id="title" type="text" pInputText [(ngModel)]="config.settings.title" (ngModelChange)="saveSettings()" placeholder="Enter team widget title" />
+            </div>
+
+            <div class="p-field">
+                <label for="description">Team Description</label>
+                <textarea id="description" pInputTextarea [(ngModel)]="config.settings.description" (ngModelChange)="saveSettings()" placeholder="Enter team description (optional)" rows="3"></textarea>
+            </div>
+        </div>
+
+        <!-- Team Settings & Management Section -->
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-3">
+                <h3>Team Settings & Members</h3>
+                <div class="flex gap-2">
+                    <button pButton label="Add from Users" icon="pi pi-plus" class="p-button-primary" (click)="openAddMemberDialog()"></button>
+                    <button pButton label="Create New Member" icon="pi pi-user-plus" class="p-button-success" (click)="openCreateMemberDialog()"></button>
+                    <button pButton label="Import Team" icon="pi pi-upload" class="p-button-info" (click)="openImportDialog()"></button>
+                </div>
+            </div>
+
+            <!-- Team Statistics -->
+            <div class="grid mb-4">
+                <div class="col-12 md:col-3">
+                    <div class="p-3 border-1 border-surface-200 border-round">
+                        <div class="text-xl font-semibold text-primary">{{ teamMembers.length }}</div>
+                        <div class="text-sm text-color-secondary">Total Members</div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="p-3 border-1 border-surface-200 border-round">
+                        <div class="text-xl font-semibold text-primary">{{ getUniqueRoles() }}</div>
+                        <div class="text-sm text-color-secondary">Different Roles</div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="p-3 border-1 border-surface-200 border-round">
+                        <div class="text-xl font-semibold text-primary">{{ getActiveMembers() }}</div>
+                        <div class="text-sm text-color-secondary">Active Members</div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-3">
+                    <div class="p-3 border-1 border-surface-200 border-round">
+                        <div class="text-xl font-semibold text-primary">{{ getRecentlyAdded() }}</div>
+                        <div class="text-sm text-color-secondary">Recently Added</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="flex gap-3 mb-3">
+                <span class="p-input-icon-left flex-1">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" [(ngModel)]="searchTerm" (input)="filterMembers()" placeholder="Search team members..." />
+                </span>
+                <p-dropdown [options]="roleFilterOptions" [(ngModel)]="selectedRoleFilter" (onChange)="filterMembers()" placeholder="Filter by Role" [showClear]="true"></p-dropdown>
+            </div>
+
+            <!-- Team Members Table -->
+            <p-table [value]="filteredTeamMembers" [tableStyle]="{ 'min-width': '60rem' }" [paginator]="true" [rows]="10" [showCurrentPageReport]="true" currentPageReportTemplate="{first} to {last} of {totalRecords} members">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Avatar</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Date Added</th>
+                        <th style="width: 12rem">Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-member let-rowIndex="rowIndex">
+                    <tr>
+                        <td>
+                            <div class="flex align-items-center justify-content-center">
+                                <div class="border-circle w-3rem h-3rem flex align-items-center justify-content-center" [style]="{ 'background-color': getAvatarColor(member.name), color: 'white' }">
+                                    {{ getInitials(member.name) }}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="font-medium">{{ member.name }}</div>
+                            <div class="text-sm text-color-secondary" *ngIf="member.department">{{ member.department }}</div>
+                        </td>
+                        <td>{{ member.email }}</td>
+                        <td>
+                            <input type="text" pInputText [(ngModel)]="member.role" (ngModelChange)="saveSettings()" placeholder="Enter role" class="w-full" />
+                        </td>
+                        <td>
+                            <p-tag [value]="member.status || 'Active'" [severity]="getStatusSeverity(member.status || 'Active')"></p-tag>
+                        </td>
+                        <td>{{ formatDate(member.dateAdded) }}</td>
+                        <td>
+                            <div class="flex align-items-center gap-2">
+                                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info" (click)="editMember(member)" pTooltip="Edit Member"></button>
+                                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-secondary" (click)="viewMember(member)" pTooltip="View Details"></button>
+                                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="deleteMember(rowIndex)" pTooltip="Remove Member"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="empty">
+                    <tr>
+                        <td colspan="7" class="text-center p-4">
+                            <div class="text-xl text-color-secondary mb-2">No team members found</div>
+                            <div class="text-color-secondary mb-3">Get started by adding your first team member</div>
+                            <button pButton label="Add First Member" icon="pi pi-plus" (click)="openAddMemberDialog()"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <!-- Add from Users Dialog -->
+    <p-dialog header="Add Team Members from Users" [(visible)]="displayAddMemberDialog" [modal]="true" [style]="{ width: '70vw' }">
+        <div class="p-fluid">
+            <div class="mb-3">
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" [(ngModel)]="userSearchTerm" (input)="filterAvailableUsers()" placeholder="Search users..." class="w-full" />
+                </span>
+            </div>
+
+            <div class="p-field">
+                <label for="users">Select Users to Add</label>
+                <p-multiSelect
+                    id="users"
+                    [options]="filteredAvailableUsers"
+                    [(ngModel)]="selectedUsers"
+                    optionLabel="displayName"
+                    optionValue="id"
+                    display="chip"
+                    placeholder="Select users to add to team"
+                    [filter]="true"
+                    filterPlaceholder="Search users..."
+                    class="w-full"
+                >
+                    <ng-template let-user pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                            <div class="border-circle w-2rem h-2rem flex align-items-center justify-content-center text-xs" [style]="{ 'background-color': getAvatarColor(user.displayName), color: 'white' }">
+                                {{ getInitials(user.displayName) }}
+                            </div>
+                            <div>
+                                <div class="font-medium">{{ user.displayName }}</div>
+                                <div class="text-sm text-color-secondary">{{ user.email }}</div>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-multiSelect>
+            </div>
+
+            <div class="p-field">
+                <label for="defaultRole">Default Role for Selected Users</label>
+                <input id="defaultRole" type="text" pInputText [(ngModel)]="defaultRole" placeholder="Enter default role (e.g., Team Member, Developer)" />
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" (click)="closeAddMemberDialog()" class="p-button-text"></p-button>
+            <p-button label="Add Selected ({{ selectedUsers.length }})" icon="pi pi-check" (click)="addSelectedUsers()" [disabled]="selectedUsers.length === 0"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Create New Member Dialog -->
+    <p-dialog header="Create New Team Member" [(visible)]="displayCreateDialog" [modal]="true" [style]="{ width: '50vw' }">
+        <div class="p-fluid">
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <div class="p-field">
+                        <label for="newMemberName">Full Name *</label>
+                        <input id="newMemberName" type="text" pInputText [(ngModel)]="newMember.name" placeholder="Enter full name" required />
+                    </div>
+                </div>
+                <div class="col-12 md:col-6">
+                    <div class="p-field">
+                        <label for="newMemberEmail">Email Address *</label>
+                        <input id="newMemberEmail" type="email" pInputText [(ngModel)]="newMember.email" placeholder="Enter email address" required />
+                    </div>
+                </div>
+                <div class="col-12 md:col-6">
+                    <div class="p-field">
+                        <label for="newMemberRole">Role *</label>
+                        <input id="newMemberRole" type="text" pInputText [(ngModel)]="newMember.role" placeholder="Enter role" required />
+                    </div>
+                </div>
+                <div class="col-12 md:col-6">
+                    <div class="p-field">
+                        <label for="newMemberDepartment">Department</label>
+                        <input id="newMemberDepartment" type="text" pInputText [(ngModel)]="newMember.department" placeholder="Enter department (optional)" />
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="p-field">
+                        <label for="newMemberBio">Bio/Description</label>
+                        <textarea id="newMemberBio" pInputTextarea [(ngModel)]="newMember.bio" placeholder="Enter member bio or description (optional)" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" (click)="closeCreateMemberDialog()" class="p-button-text"></p-button>
+            <p-button label="Create Member" icon="pi pi-check" (click)="createNewMember()" [disabled]="!isNewMemberValid()"></p-button>
+        </ng-template>
+    </p-dialog>
+
+    <!-- Import Team Dialog -->
+    <p-dialog header="Import Team Data" [(visible)]="displayImportDialog" [modal]="true" [style]="{ width: '60vw' }">
+        <div class="p-fluid">
+            <div class="mb-4">
+                <h4>Import Options</h4>
+                <div class="flex flex-column gap-3">
+                    <div class="flex align-items-center">
+                        <p-radioButton name="importType" value="csv" [(ngModel)]="importType" inputId="csv"></p-radioButton>
+                        <label for="csv" class="ml-2">CSV File</label>
+                    </div>
+                    <div class="flex align-items-center">
+                        <p-radioButton name="importType" value="json" [(ngModel)]="importType" inputId="json"></p-radioButton>
+                        <label for="json" class="ml-2">JSON File</label>
+                    </div>
+                    <div class="flex align-items-center">
+                        <p-radioButton name="importType" value="template" [(ngModel)]="importType" inputId="template"></p-radioButton>
+                        <label for="template" class="ml-2">Use Template</label>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="importType === 'csv' || importType === 'json'" class="p-field">
+                <label>Upload File</label>
+                <p-fileUpload mode="basic" [auto]="false" chooseLabel="Choose File" [accept]="importType === 'csv' ? '.csv' : '.json'" (onSelect)="onFileSelect($event)"></p-fileUpload>
+            </div>
+
+            <div *ngIf="importType === 'template'" class="p-field">
+                <label>Select Template</label>
+                <p-dropdown [options]="teamTemplates" [(ngModel)]="selectedTemplate" optionLabel="name" placeholder="Choose a team template"></p-dropdown>
+            </div>
+
+            <div class="mt-4">
+                <h4>Expected Format</h4>
+                <p class="text-sm text-color-secondary">
+                    CSV columns: Name, Email, Role, Department (optional), Bio (optional)<br />
+                    JSON format: Array of objects with same properties
+                </p>
+            </div>
+        </div>
+        <ng-template pTemplate="footer">
+            <p-button label="Cancel" icon="pi pi-times" (click)="closeImportDialog()" class="p-button-text"></p-button>
+            <p-button label="Download Template" icon="pi pi-download" (click)="downloadTemplate()" class="p-button-secondary"></p-button>
+            <p-button label="Import" icon="pi pi-upload" (click)="importTeamData()" [disabled]="!canImport()"></p-button>
+        </ng-template>
+    </p-dialog>
+</div>

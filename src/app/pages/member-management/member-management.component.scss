@@ -1,0 +1,147 @@
+@import '../../shared/styles/modern-ui.scss';
+
+// Member Dialog Enhancements
+::ng-deep .member-dialog {
+    .p-dialog-content {
+        padding: 0 !important;
+        overflow: visible;
+    }
+}
+
+.member-form-grid {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+    
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+        
+        &:hover {
+            background: #94a3b8;
+        }
+    }
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--surface-card);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--surface-border);
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0 0 1.25rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+        font-size: 1.25rem;
+    }
+}
+
+.field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.field {
+    margin-bottom: 1rem;
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    input, textarea, p-dropdown, p-calendar, p-inputMask {
+        width: 100%;
+    }
+
+    small.field-hint {
+        display: block;
+        margin-top: 0.5rem;
+        color: var(--text-color-secondary);
+        font-size: 0.875rem;
+
+        i {
+            margin-right: 0.25rem;
+        }
+    }
+
+    small.p-error {
+        display: block;
+        margin-top: 0.5rem;
+        color: var(--red-500);
+        font-size: 0.875rem;
+    }
+
+    small.p-success {
+        display: block;
+        margin-top: 0.5rem;
+        color: var(--green-500);
+        font-size: 0.875rem;
+
+        i {
+            margin-right: 0.25rem;
+        }
+    }
+}
+
+.field-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    label {
+        margin: 0;
+        cursor: pointer;
+    }
+}
+
+.policy-replacement-fields {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--surface-ground);
+    border-radius: var(--border-radius);
+    border-left: 3px solid var(--primary-color);
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .member-form-grid {
+        padding: 1rem;
+    }
+
+    .form-section {
+        padding: 1rem;
+    }
+}

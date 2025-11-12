@@ -1,0 +1,548 @@
+<div class="page-builder-container">
+    <!-- Toolbar -->
+    <div class="builder-toolbar">
+        <div class="toolbar-left">
+            <h2 class="toolbar-title">
+                <i class="pi pi-sitemap"></i>
+                Landing Page Builder
+            </h2>
+        </div>
+        
+        <div class="toolbar-actions">
+            <button 
+                pButton 
+                type="button"
+                icon="pi pi-plus"
+                label="Add Widget"
+                class="p-button-success"
+                (click)="openWidgetPicker()">
+            </button>
+            
+            <button 
+                pButton 
+                type="button"
+                [icon]="gridVisible() ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                [label]="gridVisible() ? 'Hide Grid' : 'Show Grid'"
+                class="p-button-outlined"
+                (click)="toggleGrid()">
+            </button>
+            
+            <button 
+                pButton 
+                type="button"
+                icon="pi pi-arrows-v"
+                label="Compact"
+                class="p-button-outlined"
+                (click)="compactLayout()"
+                pTooltip="Remove empty spaces">
+            </button>
+            
+            <button 
+                pButton 
+                type="button"
+                [icon]="previewMode() ? 'pi pi-pencil' : 'pi pi-eye'"
+                [label]="previewMode() ? 'Edit Mode' : 'Preview'"
+                [class]="previewMode() ? 'p-button-outlined' : 'p-button-info'"
+                (click)="togglePreview()">
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="builder-content" [class.preview-mode]="previewMode()">
+        <!-- Canvas -->
+        <div class="builder-canvas" [class.show-grid]="gridVisible() && !previewMode()">
+            <div 
+                class="widget-grid"
+                [ngStyle]="getGridStyles()"
+                cdkDropList
+                (cdkDropListDropped)="onWidgetDrop($event)">
+                
+                <div 
+                    *ngFor="let widget of widgets(); let i = index; trackBy: trackByWidgetId"
+                    class="widget-item"
+                    [class.selected]="selectedWidget()?.id === widget.id"
+                    [class.preview-mode]="previewMode()"
+                    [ngStyle]="getWidgetStyles(widget)"
+                    cdkDrag>
+                    
+                    <!-- Widget Controls (Edit Mode Only) -->
+                    <div *ngIf="!previewMode()" class="widget-controls">
+                        <div class="control-handle" cdkDragHandle>
+                            <i class="pi pi-arrows-alt"></i>
+                        </div>
+                        
+                        <div class="control-buttons">
+                            <button 
+                                pButton 
+                                type="button"
+                                icon="pi pi-pencil"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="editWidgetContent(widget)"
+                                pTooltip="Edit Content">
+                            </button>
+                            <button 
+                                pButton 
+                                type="button"
+                                icon="pi pi-cog"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="selectWidget(widget)"
+                                pTooltip="Layout Settings">
+                            </button>
+                            <button 
+                                pButton 
+                                type="button"
+                                icon="pi pi-clone"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="duplicateWidget(widget)"
+                                pTooltip="Duplicate">
+                            </button>
+                            <button 
+                                pButton 
+                                type="button"
+                                icon="pi pi-arrow-up"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="moveWidgetUp(widget)"
+                                pTooltip="Move Up">
+                            </button>
+                            <button 
+                                pButton 
+                                type="button"
+                                icon="pi pi-arrow-down"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="moveWidgetDown(widget)"
+                                pTooltip="Move Down">
+                            </button>
+                            <button 
+                                pButton 
+                                type="button"
+                                icon="pi pi-arrows-h"
+                                class="p-button-rounded p-button-text p-button-sm"
+                                (click)="setWidgetFullWidth(widget)"
+                                pTooltip="Full Width">
+                            </button>
+                            <button 
+                                pButton 
+                                type="button"
+                                icon="pi pi-trash"
+                                class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                                (click)="deleteWidget(widget)"
+                                pTooltip="Delete">
+                            </button>
+                        </div>
+                        
+                        <div class="widget-type-badge">
+                            {{ widget.type }}
+                        </div>
+                    </div>
+                    
+                    <!-- Widget Content -->
+                    <div class="widget-content">
+                        <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }">
+                        </ng-container>
+                    </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div *ngIf="widgets().length === 0" class="empty-state">
+                    <i class="pi pi-inbox"></i>
+                    <h3>No Widgets Yet</h3>
+                    <p>Click "Add Widget" to start building your landing page</p>
+                    <button 
+                        pButton 
+                        type="button"
+                        label="Add Your First Widget"
+                        icon="pi pi-plus"
+                        (click)="openWidgetPicker()">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Widget Picker Dialog -->
+    <p-dialog 
+        [(visible)]="showWidgetPicker"
+        header="Add Widget"
+        [modal]="true"
+        [style]="{ width: '800px' }"
+        [draggable]="false"
+        [resizable]="false">
+        
+        <div class="widget-picker-grid">
+            <div 
+                *ngFor="let widgetType of availableWidgets"
+                class="widget-picker-item"
+                (click)="addWidget(widgetType)">
+                <div class="widget-icon">
+                    <i [class]="'pi pi-' + widgetType.icon"></i>
+                </div>
+                <h4>{{ widgetType.name | titlecase }}</h4>
+            </div>
+        </div>
+    </p-dialog>
+
+    <!-- Layout Settings Dialog -->
+    <p-dialog 
+        [(visible)]="showLayoutSettings"
+        header="Widget Layout Settings"
+        [modal]="true"
+        [style]="{ width: '600px' }"
+        [draggable]="false"
+        [resizable]="false">
+        
+        <div *ngIf="selectedWidget()" class="layout-settings">
+            <p-tabView>
+                <!-- Position & Size Tab -->
+                <p-tabPanel header="Position & Size" leftIcon="pi pi-map">
+                    <div class="settings-section">
+                        <h4>Grid Position</h4>
+                        
+                        <div class="form-field">
+                            <label>Column</label>
+                            <p-inputNumber 
+                                [(ngModel)]="selectedWidget()!.layout!.column"
+                                [min]="1"
+                                [max]="gridColumns()"
+                                [showButtons]="true">
+                            </p-inputNumber>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label>Row</label>
+                            <p-inputNumber 
+                                [(ngModel)]="selectedWidget()!.layout!.row"
+                                [min]="1"
+                                [showButtons]="true">
+                            </p-inputNumber>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label>Column Span (Width)</label>
+                            <p-dropdown 
+                                [(ngModel)]="selectedWidget()!.layout!.columnSpan"
+                                [options]="columnSpanOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                [style]="{ width: '100%' }">
+                            </p-dropdown>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label>Row Span (Height)</label>
+                            <p-dropdown 
+                                [(ngModel)]="selectedWidget()!.layout!.rowSpan"
+                                [options]="rowSpanOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                [style]="{ width: '100%' }"
+                                [disabled]="!!selectedWidget()!.layout!.autoHeight">
+                            </p-dropdown>
+                        </div>
+                        
+                        <div class="form-field">
+                            <p-checkbox 
+                                [(ngModel)]="selectedWidget()!.layout!.autoHeight"
+                                [binary]="true"
+                                label="Auto Height (Adapts to content)"
+                                inputId="autoHeight">
+                            </p-checkbox>
+                            <small class="text-gray-600 block mt-1">
+                                Recommended for dynamic content like calculators and forms
+                            </small>
+                        </div>
+                        
+                        <div class="form-field">
+                            <p-checkbox 
+                                [(ngModel)]="selectedWidget()!.layout!.fullWidth"
+                                [binary]="true"
+                                label="Full Width"
+                                inputId="fullWidth">
+                            </p-checkbox>
+                        </div>
+                    </div>
+                </p-tabPanel>
+                
+                <!-- Styling Tab -->
+                <p-tabPanel header="Styling" leftIcon="pi pi-palette">
+                    <div class="settings-section">
+                        <h4>Spacing</h4>
+                        
+                        <div class="form-field">
+                            <label>Padding ({{ selectedWidget()!.layout!.padding || 0 }}px)</label>
+                            <p-slider 
+                                [(ngModel)]="selectedWidget()!.layout!.padding"
+                                [min]="0"
+                                [max]="100">
+                            </p-slider>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label>Margin ({{ selectedWidget()!.layout!.margin || 0 }}px)</label>
+                            <p-slider 
+                                [(ngModel)]="selectedWidget()!.layout!.margin"
+                                [min]="0"
+                                [max]="50">
+                            </p-slider>
+                        </div>
+                        
+                        <h4 class="mt-4">Dimensions</h4>
+                        
+                        <div class="form-field">
+                            <label>Minimum Height (px)</label>
+                            <p-inputNumber 
+                                [(ngModel)]="selectedWidget()!.layout!.minHeight"
+                                [min]="0"
+                                [step]="10">
+                            </p-inputNumber>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label>Maximum Height (px)</label>
+                            <p-inputNumber 
+                                [(ngModel)]="selectedWidget()!.layout!.maxHeight"
+                                [min]="0"
+                                [step]="10">
+                            </p-inputNumber>
+                        </div>
+                        
+                        <h4 class="mt-4">Appearance</h4>
+                        
+                        <div class="form-field">
+                            <label>Background Color</label>
+                            <input 
+                                type="color" 
+                                [(ngModel)]="selectedWidget()!.layout!.backgroundColor"
+                                class="color-input">
+                        </div>
+                        
+                        <div class="form-field">
+                            <label>Border Radius ({{ selectedWidget()!.layout!.borderRadius || 0 }}px)</label>
+                            <p-slider 
+                                [(ngModel)]="selectedWidget()!.layout!.borderRadius"
+                                [min]="0"
+                                [max]="50">
+                            </p-slider>
+                        </div>
+                        
+                        <div class="form-field">
+                            <label>Z-Index (Layer)</label>
+                            <p-inputNumber 
+                                [(ngModel)]="selectedWidget()!.layout!.zIndex"
+                                [min]="0"
+                                [max]="100">
+                            </p-inputNumber>
+                        </div>
+                    </div>
+                </p-tabPanel>
+                
+                <!-- Responsive Tab -->
+                <p-tabPanel header="Responsive" leftIcon="pi pi-mobile">
+                    <div class="settings-section">
+                        <p class="text-sm text-gray-600 mb-4">
+                            Configure how this widget appears on different devices
+                        </p>
+                        
+                        <p-panel header="Mobile" [toggleable]="true" [collapsed]="true">
+                            <div class="form-field">
+                                <label>Column Span</label>
+                                <p-inputNumber 
+                                    [(ngModel)]="selectedWidget()!.layout!.responsive!.mobile!.columnSpan"
+                                    [min]="1"
+                                    [max]="12">
+                                </p-inputNumber>
+                            </div>
+                            <div class="form-field">
+                                <p-checkbox 
+                                    [(ngModel)]="selectedWidget()!.layout!.responsive!.mobile!.hidden"
+                                    [binary]="true"
+                                    label="Hide on Mobile"
+                                    inputId="hideMobile">
+                                </p-checkbox>
+                            </div>
+                        </p-panel>
+                        
+                        <p-panel header="Tablet" [toggleable]="true" [collapsed]="true" class="mt-3">
+                            <div class="form-field">
+                                <label>Column Span</label>
+                                <p-inputNumber 
+                                    [(ngModel)]="selectedWidget()!.layout!.responsive!.tablet!.columnSpan"
+                                    [min]="1"
+                                    [max]="12">
+                                </p-inputNumber>
+                            </div>
+                            <div class="form-field">
+                                <p-checkbox 
+                                    [(ngModel)]="selectedWidget()!.layout!.responsive!.tablet!.hidden"
+                                    [binary]="true"
+                                    label="Hide on Tablet"
+                                    inputId="hideTablet">
+                                </p-checkbox>
+                            </div>
+                        </p-panel>
+                        
+                        <p-panel header="Desktop" [toggleable]="true" [collapsed]="true" class="mt-3">
+                            <div class="form-field">
+                                <label>Column Span</label>
+                                <p-inputNumber 
+                                    [(ngModel)]="selectedWidget()!.layout!.responsive!.desktop!.columnSpan"
+                                    [min]="1"
+                                    [max]="12">
+                                </p-inputNumber>
+                            </div>
+                            <div class="form-field">
+                                <p-checkbox 
+                                    [(ngModel)]="selectedWidget()!.layout!.responsive!.desktop!.hidden"
+                                    [binary]="true"
+                                    label="Hide on Desktop"
+                                    inputId="hideDesktop">
+                                </p-checkbox>
+                            </div>
+                        </p-panel>
+                    </div>
+                </p-tabPanel>
+                
+                <!-- Animations Tab -->
+                <p-tabPanel header="Animations" leftIcon="pi pi-sparkles">
+                    <div class="settings-section">
+                        <div class="form-field">
+                            <p-checkbox 
+                                [(ngModel)]="selectedWidget()!.layout!.animationEnabled"
+                                [binary]="true"
+                                label="Enable Animations"
+                                inputId="animationEnabled">
+                            </p-checkbox>
+                            <small class="text-gray-600 block mt-1">
+                                Animations add visual interest when widgets appear
+                            </small>
+                        </div>
+                        
+                        <ng-container *ngIf="selectedWidget()!.layout!.animationEnabled">
+                            <div class="form-field">
+                                <label>Animation Type</label>
+                                <p-dropdown 
+                                    [(ngModel)]="selectedWidget()!.layout!.animationType"
+                                    [options]="animationTypeOptions"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    [style]="{ width: '100%' }">
+                                </p-dropdown>
+                            </div>
+                            
+                            <div class="form-field">
+                                <label>Duration ({{ selectedWidget()!.layout!.animationDuration || 600 }}ms)</label>
+                                <p-slider 
+                                    [(ngModel)]="selectedWidget()!.layout!.animationDuration"
+                                    [min]="200"
+                                    [max]="2000"
+                                    [step]="100">
+                                </p-slider>
+                                <small class="text-gray-600">
+                                    Faster (200ms) to Slower (2000ms)
+                                </small>
+                            </div>
+                            
+                            <div class="form-field">
+                                <label>Delay ({{ selectedWidget()!.layout!.animationDelay || 0 }}ms)</label>
+                                <p-inputNumber 
+                                    [(ngModel)]="selectedWidget()!.layout!.animationDelay"
+                                    [min]="0"
+                                    [max]="5000"
+                                    [step]="100"
+                                    suffix="ms">
+                                </p-inputNumber>
+                                <small class="text-gray-600">
+                                    Wait time before animation starts
+                                </small>
+                            </div>
+                            
+                            <div class="form-field">
+                                <label>Easing</label>
+                                <p-dropdown 
+                                    [(ngModel)]="selectedWidget()!.layout!.animationEasing"
+                                    [options]="animationEasingOptions"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    [style]="{ width: '100%' }">
+                                </p-dropdown>
+                                <small class="text-gray-600">
+                                    Animation timing curve
+                                </small>
+                            </div>
+                            
+                            <div class="animation-preview">
+                                <p class="text-sm font-semibold mb-2">Preview:</p>
+                                <div class="preview-box" 
+                                     [class]="'animate-' + (selectedWidget()!.layout!.animationType || 'fade-in')"
+                                     [style.animation-duration.ms]="selectedWidget()!.layout!.animationDuration || 600"
+                                     [style.animation-timing-function]="selectedWidget()!.layout!.animationEasing || 'ease'">
+                                    Widget Animation
+                                </div>
+                            </div>
+                        </ng-container>
+                        
+                        <h4 class="mt-4">Hover Effects</h4>
+                        
+                        <div class="form-field">
+                            <label>Hover Effect</label>
+                            <p-dropdown 
+                                [(ngModel)]="selectedWidget()!.layout!.hoverEffect"
+                                [options]="hoverEffectOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                [style]="{ width: '100%' }">
+                            </p-dropdown>
+                            <small class="text-gray-600">
+                                Interactive effect when user hovers over widget
+                            </small>
+                        </div>
+                        
+                        <div class="info-box mt-4">
+                            <i class="pi pi-info-circle"></i>
+                            <div>
+                                <strong>Accessibility Note:</strong> Users who prefer reduced motion won't see these animations.
+                            </div>
+                        </div>
+                    </div>
+                </p-tabPanel>
+            </p-tabView>
+        </div>
+        
+        <ng-template pTemplate="footer">
+            <button 
+                pButton 
+                type="button"
+                label="Cancel"
+                icon="pi pi-times"
+                class="p-button-outlined"
+                (click)="showLayoutSettings.set(false)">
+            </button>
+            <button 
+                pButton 
+                type="button"
+                label="Apply"
+                icon="pi pi-check"
+                (click)="updateWidgetLayout(); showLayoutSettings.set(false)">
+            </button>
+        </ng-template>
+    </p-dialog>
+    
+    <!-- Widget Content Editor Dialog -->
+    <p-dialog 
+        [(visible)]="showContentEditor"
+        [header]="'Edit ' + (selectedWidget()?.type || 'Widget') + ' Content'"
+        [modal]="true"
+        [style]="{ width: '90vw', maxWidth: '1000px' }"
+        [draggable]="false"
+        [resizable]="false"
+        styleClass="content-editor-dialog">
+        
+        <div class="content-editor" *ngIf="selectedWidget()">
+            <ng-container #editorContainer></ng-container>
+        </div>
+    </p-dialog>
+
+    <!-- Toast & Confirmation Dialog -->
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
+</div>

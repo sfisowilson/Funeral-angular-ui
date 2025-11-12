@@ -1,0 +1,349 @@
+<div class="modern-card">
+    <!-- Header Section -->
+    <div class="card-header-gradient">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-2">Asset Management</h2>
+                <p class="text-white/80">Manage your funeral parlor assets, checkouts, and inspections</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div class="card-modern">
+            <div class="text-sm text-gray-600 mb-1">Total Assets</div>
+            <div class="text-2xl font-bold text-primary">{{ stats()?.totalAssets || 0 }}</div>
+        </div>
+        <div class="card-modern">
+            <div class="text-sm text-gray-600 mb-1">Available</div>
+            <div class="text-2xl font-bold text-green-600">{{ stats()?.availableAssets || 0 }}</div>
+        </div>
+        <div class="card-modern">
+            <div class="text-sm text-gray-600 mb-1">Checked Out</div>
+            <div class="text-2xl font-bold text-blue-600">{{ stats()?.checkedOutAssets || 0 }}</div>
+        </div>
+        <div class="card-modern">
+            <div class="text-sm text-gray-600 mb-1">Under Maintenance</div>
+            <div class="text-2xl font-bold text-yellow-600">{{ stats()?.underMaintenanceAssets || 0 }}</div>
+        </div>
+        <div class="card-modern">
+            <div class="text-sm text-gray-600 mb-1">Overdue</div>
+            <div class="text-2xl font-bold text-red-600">{{ stats()?.overdueCheckouts || 0 }}</div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <p-tabView>
+        <p-tabPanel>
+            <ng-template pTemplate="header">
+                <i class="pi pi-box mr-2"></i>
+                <span>Assets</span>
+            </ng-template>
+
+            <!-- Toolbar -->
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="start">
+                    <button pButton pRipple label="New Asset" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                </ng-template>
+                <ng-template pTemplate="end">
+                    <p-iconField iconPosition="left">
+                        <p-inputIcon styleClass="pi pi-search" />
+                        <input pInputText type="text" (input)="onGlobalFilter($event)" placeholder="Search..." />
+                    </p-iconField>
+                </ng-template>
+            </p-toolbar>
+
+            <!-- Assets Table -->
+            <p-table #dt [value]="assets()" [rows]="10" [paginator]="true" [globalFilterFields]="['name', 'identificationNumber', 'make', 'model']"
+                [rowHover]="true" dataKey="id" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} assets"
+                [showCurrentPageReport]="true" [loading]="loading()">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="assetType">Type <p-sortIcon field="assetType"></p-sortIcon></th>
+                        <th pSortableColumn="identificationNumber">ID Number <p-sortIcon field="identificationNumber"></p-sortIcon></th>
+                        <th pSortableColumn="currentLocation">Location <p-sortIcon field="currentLocation"></p-sortIcon></th>
+                        <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-asset>
+                    <tr>
+                        <td>
+                            <strong>{{ asset.name }}</strong>
+                            <br />
+                            <small class="text-gray-600">{{ asset.make }} {{ asset.model }}</small>
+                        </td>
+                        <td>{{ getAssetTypeName(asset.assetType) }}</td>
+                        <td>{{ asset.identificationNumber }}</td>
+                        <td>{{ asset.currentLocation }}</td>
+                        <td>
+                            <p-tag [value]="getAssetStatusName(asset.status)" [severity]="getStatusSeverity(asset.status)"></p-tag>
+                        </td>
+                        <td>
+                            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editAsset(asset)"></button>
+                            <button pButton pRipple icon="pi pi-sign-out" class="p-button-rounded p-button-info mr-2" (click)="checkoutAsset(asset)"
+                                *ngIf="asset.status === 0" pTooltip="Checkout Asset"></button>
+                            <button pButton pRipple icon="pi pi-wrench" class="p-button-rounded p-button-warning mr-2" (click)="scheduleMaintenance(asset)"
+                                pTooltip="Schedule Maintenance"></button>
+                            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteAsset(asset)"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6" class="text-center py-8">
+                            <i class="pi pi-box text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600">No assets found. Click "New Asset" to get started.</p>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-tabPanel>
+
+        <p-tabPanel>
+            <ng-template pTemplate="header">
+                <i class="pi pi-sign-out mr-2"></i>
+                <span>Active Checkouts</span>
+            </ng-template>
+
+            <!-- Checkouts Table -->
+            <p-table [value]="checkouts()" [rows]="10" [paginator]="true" [rowHover]="true">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Asset</th>
+                        <th>Checked Out By</th>
+                        <th>Checkout Date</th>
+                        <th>Expected Return</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-checkout>
+                    <tr>
+                        <td>
+                            <strong>{{ checkout.assetName }}</strong>
+                            <br />
+                            <small class="text-gray-600">{{ checkout.assetIdentificationNumber }}</small>
+                        </td>
+                        <td>{{ checkout.checkedOutByName }}</td>
+                        <td>{{ checkout.checkoutDate | date: 'short' }}</td>
+                        <td>{{ checkout.expectedReturnDate | date: 'short' }}</td>
+                        <td>{{ checkout.purpose }}</td>
+                        <td>
+                            <p-tag [value]="checkout.statusName" [severity]="getCheckoutStatusSeverity(checkout.status)"></p-tag>
+                        </td>
+                        <td>
+                            <button pButton pRipple icon="pi pi-sign-in" class="p-button-rounded p-button-success" 
+                                (click)="checkinAsset(checkout)" *ngIf="checkout.status === 0" pTooltip="Check In Asset"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="7" class="text-center py-8">
+                            <i class="pi pi-sign-out text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600">No active checkouts.</p>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-tabPanel>
+    </p-tabView>
+</div>
+
+<!-- Asset Dialog -->
+<p-dialog [(visible)]="assetDialog" [style]="{ width: '650px' }" header="Asset Details" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="name">Name *</label>
+            <input type="text" pInputText id="name" [(ngModel)]="asset.name" required autofocus [ngClass]="{ 'ng-invalid ng-dirty': submitted && !asset.name }" />
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !asset.name">Name is required.</small>
+        </div>
+
+        <div class="field">
+            <label for="description">Description</label>
+            <textarea id="description" pTextarea [(ngModel)]="asset.description" rows="3"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="field">
+                <label for="assetType">Asset Type *</label>
+                <p-dropdown id="assetType" [(ngModel)]="asset.assetType" [options]="assetTypes" optionLabel="label" optionValue="value" 
+                    placeholder="Select Type" [ngClass]="{ 'ng-invalid ng-dirty': submitted && asset.assetType == null }"></p-dropdown>
+            </div>
+
+            <div class="field">
+                <label for="status">Status</label>
+                <p-dropdown id="status" [(ngModel)]="asset.status" [options]="assetStatuses" optionLabel="label" optionValue="value" 
+                    placeholder="Select Status"></p-dropdown>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+            <div class="field">
+                <label for="identificationNumber">ID Number</label>
+                <input type="text" pInputText id="identificationNumber" [(ngModel)]="asset.identificationNumber" />
+            </div>
+
+            <div class="field">
+                <label for="make">Make</label>
+                <input type="text" pInputText id="make" [(ngModel)]="asset.make" />
+            </div>
+
+            <div class="field">
+                <label for="model">Model</label>
+                <input type="text" pInputText id="model" [(ngModel)]="asset.model" />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+            <div class="field">
+                <label for="year">Year</label>
+                <p-inputnumber id="year" [(ngModel)]="asset.year" [useGrouping]="false"></p-inputnumber>
+            </div>
+
+            <div class="field">
+                <label for="quantity">Quantity</label>
+                <p-inputnumber id="quantity" [(ngModel)]="asset.quantity" [min]="1"></p-inputnumber>
+            </div>
+
+            <div class="field">
+                <label for="currentLocation">Current Location</label>
+                <input type="text" pInputText id="currentLocation" [(ngModel)]="asset.currentLocation" />
+            </div>
+        </div>
+
+        <div class="field-checkbox">
+            <p-checkbox id="requiresInspection" [(ngModel)]="asset.requiresInspection" [binary]="true"></p-checkbox>
+            <label for="requiresInspection">Requires Inspection</label>
+        </div>
+
+        <div class="field" *ngIf="asset.requiresInspection">
+            <label for="checkpoints">Inspection Checkpoints</label>
+            <p-chips id="checkpoints" [(ngModel)]="checkpoints" placeholder="Add checkpoint and press Enter"></p-chips>
+            <small>Add checkpoints that need to be verified during checkout/checkin</small>
+        </div>
+
+        <div class="field">
+            <label for="conditionNotes">Condition Notes</label>
+            <textarea id="conditionNotes" pTextarea [(ngModel)]="asset.conditionNotes" rows="2"></textarea>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveAsset()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Checkout Dialog -->
+<p-dialog [(visible)]="checkoutDialog" [style]="{ width: '550px' }" header="Checkout Asset" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="purpose">Purpose *</label>
+            <input type="text" pInputText id="purpose" [(ngModel)]="checkout.purpose" required 
+                [ngClass]="{ 'ng-invalid ng-dirty': submitted && !checkout.purpose }" />
+        </div>
+
+        <div class="field">
+            <label for="destination">Destination</label>
+            <input type="text" pInputText id="destination" [(ngModel)]="checkout.destination" />
+        </div>
+
+        <div class="field">
+            <label for="expectedReturnDate">Expected Return Date</label>
+            <p-calendar id="expectedReturnDate" [(ngModel)]="checkout.expectedReturnDate" [showTime]="true" dateFormat="yy-mm-dd"></p-calendar>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="field">
+                <label for="startingOdometer">Starting Odometer</label>
+                <p-inputnumber id="startingOdometer" [(ngModel)]="checkout.startingOdometer" [minFractionDigits]="1"></p-inputnumber>
+            </div>
+
+            <div class="field">
+                <label for="fuelLevelCheckout">Fuel Level (%)</label>
+                <p-inputnumber id="fuelLevelCheckout" [(ngModel)]="checkout.fuelLevelCheckout" [min]="0" [max]="100"></p-inputnumber>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="checkoutNotes">Notes</label>
+            <textarea id="checkoutNotes" pTextarea [(ngModel)]="checkout.checkoutNotes" rows="3"></textarea>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Checkout" icon="pi pi-check" class="p-button-text" (click)="saveCheckout()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Checkin Dialog -->
+<p-dialog [(visible)]="checkinDialog" [style]="{ width: '550px' }" header="Check In Asset" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="grid grid-cols-2 gap-4">
+            <div class="field">
+                <label for="endingOdometer">Ending Odometer</label>
+                <p-inputnumber id="endingOdometer" [(ngModel)]="checkin.endingOdometer" [minFractionDigits]="1"></p-inputnumber>
+            </div>
+
+            <div class="field">
+                <label for="fuelLevelCheckin">Fuel Level (%)</label>
+                <p-inputnumber id="fuelLevelCheckin" [(ngModel)]="checkin.fuelLevelCheckin" [min]="0" [max]="100"></p-inputnumber>
+            </div>
+        </div>
+
+        <div class="field-checkbox mb-4">
+            <p-checkbox id="returnedInGoodCondition" [(ngModel)]="checkin.returnedInGoodCondition" [binary]="true"></p-checkbox>
+            <label for="returnedInGoodCondition">Returned in Good Condition</label>
+        </div>
+
+        <div class="field" *ngIf="!checkin.returnedInGoodCondition">
+            <label for="damageReported">Damage Description *</label>
+            <textarea id="damageReported" pTextarea [(ngModel)]="checkin.damageReported" rows="3" 
+                [ngClass]="{ 'ng-invalid ng-dirty': submitted && !checkin.returnedInGoodCondition && !checkin.damageReported }"></textarea>
+        </div>
+
+        <div class="field">
+            <label for="checkinNotes">Notes</label>
+            <textarea id="checkinNotes" pTextarea [(ngModel)]="checkin.checkinNotes" rows="3"></textarea>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Check In" icon="pi pi-check" class="p-button-text" (click)="saveCheckin()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Maintenance Dialog -->
+<p-dialog [(visible)]="maintenanceDialog" [style]="{ width: '450px' }" header="Schedule Maintenance" [modal]="true" class="p-fluid">
+    <ng-template #content>
+        <div class="mb-4 p-4 bg-yellow-50 rounded">
+            <strong>Asset:</strong> {{ asset.name }}
+        </div>
+
+        <div class="field">
+            <label for="nextMaintenanceDate">Next Maintenance Date *</label>
+            <p-calendar id="nextMaintenanceDate" [(ngModel)]="asset.nextMaintenanceDate" [showTime]="true" dateFormat="yy-mm-dd"
+                [ngClass]="{ 'ng-invalid ng-dirty': submitted && !asset.nextMaintenanceDate }"></p-calendar>
+        </div>
+
+        <div class="field">
+            <label for="maintenanceNotes">Maintenance Notes</label>
+            <textarea id="maintenanceNotes" pTextarea [(ngModel)]="asset.conditionNotes" rows="3"></textarea>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Schedule" icon="pi pi-check" class="p-button-text" (click)="saveMaintenance()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>
+<p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>

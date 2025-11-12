@@ -1,0 +1,474 @@
+/* ============================================
+ * Modern UI Shared Styles
+ * ============================================
+ * Import design tokens and mixins
+ */
+
+@import 'design-tokens';
+@import 'mixins';
+
+/* ============================================
+ * Common Modern Dialog Styling
+ * ============================================ */
+.modern-dialog {
+    .p-dialog-header {
+        @include dialog-header;
+    }
+    
+    .p-dialog-content {
+        @include dialog-content;
+        @include custom-scrollbar;
+    }
+    
+    .p-dialog-footer {
+        @include dialog-footer;
+    }
+}
+
+/* ============================================
+ * Modern Toolbar Styling
+ * ============================================ */
+.modern-toolbar {
+    background: $gradient-header;
+    border: 1px solid $color-border-light;
+    border-radius: $radius-card;
+    padding: $spacing-md $spacing-card-padding;
+    margin-bottom: $spacing-card-padding;
+    box-shadow: $shadow-sm;
+    
+    .p-button {
+        border-radius: $radius-md;
+        font-weight: $font-weight-medium;
+        transition: $transition-base;
+        
+        &.p-button-secondary {
+            background: $gradient-primary;
+            border: none;
+            color: $color-white;
+            
+            &:hover {
+                background: $gradient-primary-hover;
+                transform: translateY(-1px);
+                box-shadow: $shadow-button-primary;
+            }
+            
+            &.p-button-outlined {
+                background: $color-transparent;
+                border: 2px solid $color-primary-500;
+                color: $color-primary-500;
+                
+                &:hover {
+                    background: $color-primary-500;
+                    color: $color-white;
+                }
+            }
+        }
+    }
+}
+
+/* ============================================
+ * Modern Table Styling
+ * ============================================ */
+.modern-table {
+    border-radius: $radius-card;
+    overflow: hidden;
+    box-shadow: $shadow-base;
+    border: 1px solid $table-border-color;
+    
+    .p-datatable-header {
+        background: $gradient-header;
+        border-bottom: 2px solid $table-border-color;
+        padding: $spacing-card-padding;
+        
+        h5 {
+            color: $color-text-primary;
+            font-weight: $font-weight-semibold;
+            font-size: $font-size-xl;
+            margin: 0;
+        }
+        
+        .p-input-icon-left {
+            .p-inputtext {
+                border-radius: $radius-md;
+                border: 1px solid $input-border-color;
+                padding: $spacing-3 $spacing-md $spacing-3 2.5rem;
+                transition: $transition-base;
+                
+                &:focus {
+                    border-color: $input-border-color-focus;
+                    box-shadow: $shadow-focus-primary;
+                }
+            }
+            
+            .p-input-icon {
+                color: $color-text-tertiary;
+                left: $spacing-3;
+            }
+        }
+    }
+    
+    .p-datatable-thead > tr > th {
+        background: $table-header-bg;
+        border-bottom: 2px solid $table-border-color;
+        color: $color-text-secondary;
+        font-weight: $font-weight-semibold;
+        padding: $spacing-md;
+        
+        &:first-child {
+            border-top-left-radius: 0;
+        }
+        
+        &:last-child {
+            border-top-right-radius: 0;
+        }
+    }
+    
+    .p-datatable-tbody > tr {
+        transition: $transition-base;
+        
+        &:hover {
+            background: $table-row-hover-bg;
+        }
+        
+        &:nth-child(even) {
+            background: $table-row-stripe-bg;
+        }
+        
+        > td {
+            padding: $spacing-md;
+            border-bottom: 1px solid #f1f5f9;
+            color: $color-text-secondary;
+            
+            .p-button {
+                border-radius: $radius-base;
+                padding: $spacing-2;
+                margin: 0 $spacing-1;
+                
+                &.p-button-outlined {
+                    border-width: 1px;
+                }
+            }
+        }
+    }
+    
+    .p-paginator {
+        background: $table-header-bg;
+        border-top: 1px solid $table-border-color;
+        padding: $spacing-md $spacing-card-padding;
+        
+        .p-paginator-pages {
+            .p-paginator-page {
+                border-radius: $radius-base;
+                margin: 0 $spacing-1;
+                transition: $transition-base;
+                
+                &.p-highlight {
+                    background: $color-primary-500;
+                    color: $color-white;
+                }
+            }
+        }
+        
+        .p-paginator-prev,
+        .p-paginator-next {
+            border-radius: $radius-base;
+            transition: $transition-base;
+            
+            &:hover {
+                background: $color-gray-250;
+            }
+        }
+    }
+}
+
+/* ============================================
+ * Form Group Styling
+ * ============================================ */
+.form-group {
+    @include form-group;
+    
+    label {
+        @include form-label;
+    }
+    
+    input, textarea, .p-dropdown {
+        @include input-base;
+    }
+    
+    small {
+        &.text-red-500 {
+            @include form-error-message;
+        }
+        
+        &:not(.text-red-500) {
+            @include form-help-text;
+        }
+    }
+}
+
+/* ============================================
+ * Modern Button Styling
+ * ============================================ */
+%modern-button-placeholder {
+    @include button-base;
+}
+
+%modern-button-primary-placeholder {
+    @include button-primary;
+}
+
+/* Global PrimeNG .p-button normalization */
+.p-button {
+    @extend %modern-button-placeholder;
+
+    &.p-button-primary,
+    &.p-button-success,
+    &.p-button-info {
+        @extend %modern-button-primary-placeholder;
+        padding: $spacing-button-padding-y 1.1rem !important;
+        border: none !important;
+        color: $color-white !important;
+    }
+
+    &.p-button-secondary,
+    &.p-button-outlined {
+        @include button-outlined;
+    }
+
+    &.p-button-danger {
+        @include button-danger;
+    }
+
+    &.p-button-icon-only,
+    &.p-button-rounded {
+        @include button-icon-only;
+    }
+
+    &:hover {
+        transform: translateY(-1px) !important;
+    }
+
+    &:disabled {
+        opacity: $opacity-disabled !important;
+        cursor: not-allowed !important;
+    }
+}
+
+.modern-button {
+    @extend %modern-button-placeholder;
+
+    &.primary {
+        @extend %modern-button-primary-placeholder;
+    }
+    
+    &.secondary {
+        @include button-secondary;
+    }
+
+    &.danger {
+        @include button-danger;
+    }
+}
+
+/* ============================================
+ * Section Headers
+ * ============================================ */
+.section-header {
+    @include flex-between;
+    padding-bottom: $spacing-2;
+    border-bottom: 2px solid $table-border-color;
+    margin-bottom: $spacing-card-padding;
+    
+    h3 {
+        font-family: $font-family-heading;
+        color: $color-gray-950;
+        font-weight: $font-weight-semibold;
+        font-size: $font-size-lg;
+        margin: 0;
+    }
+    
+    i {
+        font-size: 1.1rem;
+        margin-right: $spacing-2;
+    }
+}
+
+/* ============================================
+ * Card Styling
+ * ============================================ */
+.modern-card {
+    @include card-base;
+    @include card-hover;
+    
+    .card-header {
+        @include card-header;
+    }
+    
+    .card-body {
+        @include card-body;
+    }
+}
+
+/* ============================================
+ * Status Badges
+ * ============================================ */
+.status-badge {
+    @include badge-base;
+    
+    &.active {
+        @include badge-active;
+    }
+    
+    &.inactive {
+        @include badge-inactive;
+    }
+    
+    &.pending {
+        @include badge-pending;
+    }
+    
+    &.completed {
+        @include badge-completed;
+    }
+}
+
+/* ============================================
+ * Responsive Design
+ * ============================================ */
+@include responsive(md) {
+    .modern-dialog {
+        .p-dialog {
+            margin: $spacing-md;
+            width: calc(100vw - 2rem) !important;
+            max-width: none !important;
+        }
+        
+        .p-dialog-header {
+            padding: $spacing-md $spacing-card-padding;
+            
+            .p-dialog-title {
+                font-size: 1.1rem;
+            }
+        }
+        
+        .p-dialog-content {
+            max-height: 60vh;
+        }
+    }
+    
+    .modern-toolbar {
+        padding: $spacing-md;
+        
+        .p-button {
+            padding: $spacing-2 $spacing-md;
+            font-size: $font-size-sm;
+        }
+    }
+    
+    .modern-table {
+        .p-datatable-header {
+            padding: $spacing-md;
+        }
+        
+        .p-datatable-thead > tr > th,
+        .p-datatable-tbody > tr > td {
+            padding: $spacing-3 $spacing-2;
+            font-size: $font-size-sm;
+        }
+    }
+    
+    .form-group {
+        margin-bottom: $spacing-md;
+        
+        .grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+}
+
+/* ============================================
+ * Animation for form focus states
+ * ============================================ */
+@keyframes focusGlow {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+    70% { box-shadow: $shadow-focus-info; }
+    100% { box-shadow: $shadow-focus-info; }
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    animation: focusGlow $transition-duration-slow ease-out;
+}
+
+/* ============================================
+ * Loading States
+ * ============================================ */
+.loading-spinner {
+    @include loading-spinner($size: 1rem, $border-width: 2px, $color: $color-primary-500);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+ * Toast Notifications
+ * ============================================ */
+.p-toast {
+    .p-toast-message {
+        border-radius: $radius-md;
+        box-shadow: $shadow-md;
+        border: none;
+        
+        &.p-toast-message-success {
+            background: $gradient-success;
+        }
+        
+        &.p-toast-message-error {
+            background: $gradient-error;
+        }
+        
+        &.p-toast-message-warn {
+            background: $gradient-warning;
+        }
+        
+        &.p-toast-message-info {
+            background: $gradient-info;
+        }
+    }
+}
+
+/* ============================================
+ * PrimeNG button overrides to align outlined/secondary buttons with Modern UI
+ * ============================================ */
+.p-button.p-button-secondary,
+.p-button.p-button-outlined {
+    @extend %modern-button-placeholder;
+    background: $color-transparent !important;
+    border: 2px solid rgba(99,102,241,0.15) !important;
+    color: $color-text-primary !important;
+    border-radius: $radius-button !important;
+    padding: $spacing-2 0.9rem !important;
+    box-shadow: $shadow-none !important;
+    transition: $transition-fast !important;
+
+    &:hover {
+        background: rgba(102,126,234,0.06) !important;
+        border-color: rgba(102,126,234,0.25) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    &:disabled {
+        opacity: $opacity-disabled !important;
+        cursor: not-allowed !important;
+        background: $color-transparent !important;
+        border-color: rgba(0,0,0,0.05) !important;
+    }
+}
+
+/* Smaller icon-only outlined buttons inside tables */
+.p-datatable .p-button.p-button-outlined {
+    padding: 0.35rem 0.6rem !important;
+    border-radius: $radius-md !important;
+}

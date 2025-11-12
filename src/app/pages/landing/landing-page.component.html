@@ -1,0 +1,28 @@
+<div class="landing-page">
+    <div class="controls">
+        <p-button (click)="showAddWidgetModal = true" label="Add Widget" icon="pi pi-plus"></p-button>
+        <p-button (click)="saveLayout()" label="Save Layout" icon="pi pi-save"></p-button>
+    </div>
+
+    <div cdkDropList (cdkDropListDropped)="drop($event)" class="widget-list">
+        <ng-container #widgetContainer></ng-container>
+    </div>
+
+    <p-dialog header="Add a Widget" [(visible)]="showAddWidgetModal" [modal]="true" [style]="{ width: '50vw' }">
+        <ul class="widget-type-list">
+            <li *ngFor="let type of widgetTypes" (click)="addWidget(type.name)">
+                <i class="widget-icon pi pi-{{ type.icon }}"></i>
+                <span class="widget-name">{{ type.name | titlecase }}</span>
+            </li>
+        </ul>
+    </p-dialog>
+
+    <p-dialog header="Edit Widget" [visible]="!!editingWidget" (onHide)="editingWidget = null" [modal]="true" [style]="{ width: '50vw' }">
+        <ng-template pTemplate="body">
+            <ng-container #editorContainer></ng-container>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <p-button (click)="editingWidget = null" label="Close"></p-button>
+        </ng-template>
+    </p-dialog>
+</div>

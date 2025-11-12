@@ -1,0 +1,461 @@
+@import '../../shared/styles/modern-ui.scss';
+
+.registration-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 768px) {
+        padding: 1rem 0.5rem;
+    }
+}
+
+.registration-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    max-width: 900px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+        border-radius: 8px;
+    }
+}
+
+.registration-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+
+    @media (max-width: 768px) {
+        padding: 1.5rem 1rem;
+    }
+}
+
+.tenant-branding {
+    margin-bottom: 1rem;
+}
+
+.tenant-logo {
+    height: 60px;
+    object-fit: contain;
+
+    @media (max-width: 768px) {
+        height: 40px;
+    }
+}
+
+.registration-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+
+    @media (max-width: 768px) {
+        font-size: 1.5rem;
+    }
+}
+
+.registration-subtitle {
+    margin: 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+
+    @media (max-width: 768px) {
+        font-size: 1rem;
+    }
+}
+
+.step-content {
+    padding: 2rem;
+
+    @media (max-width: 768px) {
+        padding: 1.5rem 1rem;
+    }
+}
+
+.step-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.75rem;
+        color: #333;
+
+        @media (max-width: 768px) {
+            font-size: 1.5rem;
+        }
+    }
+
+    p {
+        margin: 0;
+        color: #666;
+        font-size: 1rem;
+
+        @media (max-width: 768px) {
+            font-size: 0.9rem;
+        }
+    }
+}
+
+.form-field {
+    margin-bottom: 1.5rem;
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #333;
+        font-size: 0.95rem;
+    }
+
+    input, ::ng-deep .p-inputtext, ::ng-deep .p-password input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+
+        &:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        &.invalid {
+            border-color: #f56565;
+        }
+    }
+
+    .help-text {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.85rem;
+        color: #718096;
+    }
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+
+.id-info, .id-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+
+    i {
+        font-size: 1.2rem;
+    }
+}
+
+.id-info {
+    background: #d1fae5;
+    color: #065f46;
+
+    i {
+        color: #10b981;
+    }
+}
+
+.id-error {
+    background: #fee2e2;
+    color: #991b1b;
+
+    i {
+        color: #ef4444;
+    }
+}
+
+.policy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.policy-card {
+    position: relative;
+    padding: 1.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+
+    &:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+    }
+
+    &.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    &.recommended {
+        border-color: #fbbf24;
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+
+        &.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f5ff 0%, #e0e7ff 100%);
+        }
+    }
+}
+
+.policy-badge {
+    position: absolute;
+    top: -10px;
+    right: 10px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.policy-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+
+    @media (max-width: 768px) {
+        font-size: 1.75rem;
+    }
+}
+
+.policy-premium {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.policy-description {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.4;
+}
+
+.policy-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    color: #10b981;
+}
+
+.registration-form {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e2e8f0;
+
+    h3 {
+        margin: 0 0 1.5rem 0;
+        font-size: 1.25rem;
+        color: #333;
+    }
+}
+
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+
+    i {
+        font-size: 2rem;
+        color: #667eea;
+    }
+
+    strong {
+        display: block;
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 0.25rem;
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #666;
+    }
+}
+
+.contact-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-option {
+    position: relative;
+
+    input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+
+        &:checked + label {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+    }
+
+    label {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: white;
+
+        &:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+
+        i {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        span {
+            font-size: 1rem;
+            color: #333;
+        }
+    }
+}
+
+.otp-input {
+    text-align: center;
+    font-size: 1.5rem !important;
+    letter-spacing: 0.5rem;
+    font-weight: 700;
+
+    @media (max-width: 768px) {
+        font-size: 1.25rem !important;
+    }
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+
+    button {
+        flex: 1;
+        min-width: 150px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+
+        @media (max-width: 768px) {
+            min-width: 120px;
+            padding: 0.625rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    ::ng-deep .p-button {
+        &:not(.p-button-text):not(.p-button-secondary) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+
+            &:hover {
+                background: linear-gradient(135deg, #5568d3 0%, #6a4190 100%);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }
+        }
+    }
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #fee2e2;
+    color: #991b1b;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+
+    i {
+        font-size: 1.2rem;
+    }
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    border-radius: 16px;
+}
+
+::ng-deep {
+    .p-password {
+        width: 100%;
+
+        input {
+            width: 100%;
+        }
+    }
+
+    .p-progressspinner {
+        width: 60px;
+        height: 60px;
+    }
+
+    .p-progressspinner-circle {
+        stroke: #667eea;
+    }
+}

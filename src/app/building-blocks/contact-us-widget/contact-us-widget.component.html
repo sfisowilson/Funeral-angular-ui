@@ -1,0 +1,26 @@
+<div class="contact-us-widget">
+    <h2>{{ config.settings.title }}</h2>
+
+    <div *ngIf="branches.length > 0" class="branches-section">
+        <h3>Our Branches</h3>
+        <div *ngFor="let branch of branches" class="branch-card">
+            <h4>{{ branch.name }}</h4>
+            <p><strong>Address:</strong> {{ branch.address }}</p>
+            <p><strong>Phone:</strong> {{ branch.phone }}</p>
+            <p><strong>Email:</strong> {{ branch.email }}</p>
+        </div>
+    </div>
+
+    <div *ngIf="socialMediaHandles.length > 0" class="social-media-section">
+        <h3>Follow Us</h3>
+        <div class="social-icons">
+            <a *ngFor="let handle of socialMediaHandles" [href]="handle.url" target="_blank" class="social-icon">
+                <i class="pi pi-{{ handle.platform | lowercase }}"></i>
+            </a>
+        </div>
+    </div>
+
+    <div *ngIf="!branches.length && !socialMediaHandles.length">
+        <p>No contact information configured.</p>
+    </div>
+</div>

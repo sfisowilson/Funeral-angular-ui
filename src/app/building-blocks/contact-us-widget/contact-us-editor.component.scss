@@ -1,0 +1,65 @@
+.contact-us-editor {
+  padding: 1rem;
+}
+
+.card {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.p-field {
+  margin-bottom: 1rem;
+}
+
+.p-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.p-fluid .p-field input.p-inputtext, .p-fluid .p-field textarea.p-inputtextarea {
+  width: 100%;
+}
+
+.p-button {
+  margin-right: 0.5rem;
+}
+
+.p-button-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.p-button-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.p-button-text {
+  background-color: transparent;
+  color: #007bff;
+  border-color: transparent;
+}
+
+.p-button-text:hover {
+  background-color: rgba(0, 123, 255, 0.04);
+}
+
+.p-button-rounded {
+  border-radius: 50%;
+}
+
+.p-table .p-button {
+  padding: 0.5rem;
+}
+
+.p-table .p-button-icon-only {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.p-dialog .p-button {
+  margin-top: 1rem;
+}

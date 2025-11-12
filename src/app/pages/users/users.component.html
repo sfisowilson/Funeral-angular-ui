@@ -1,0 +1,169 @@
+<p-toolbar styleClass="mb-6 modern-toolbar">
+    <ng-template #start>
+        <button type="button" class="btn btn-primary me-2" (click)="openNew()">
+            <i class="pi pi-plus me-2"></i>
+            New User
+        </button>
+        <button type="button" class="btn btn-outline-danger" (click)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length">
+            <i class="pi pi-trash me-2"></i>
+            Delete
+        </button>
+    </ng-template>
+
+    <ng-template #end>
+        <button type="button" class="btn btn-secondary" (click)="exportCSV()">
+            <i class="pi pi-upload me-2"></i>
+            Export
+        </button>
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt
+    [value]="users()"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedUsers"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+    styleClass="modern-table"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <div class="section-header">
+                <i class="pi pi-users text-blue-600"></i>
+                <h3>Manage Users</h3>
+            </div>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search users..." class="search-input" />
+            </p-iconfield>
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="id" style="min-width: 16rem">
+                Id
+                <p-sortIcon field="id" />
+            </th>
+            <th pSortableColumn="email" style="min-width: 16rem">
+                Email
+                <p-sortIcon field="email" />
+            </th>
+            <th pSortableColumn="firstName" style="min-width: 10rem">
+                First Name
+                <p-sortIcon field="firstName" />
+            </th>
+            <th pSortableColumn="roles" style="min-width: 10rem">
+                Roles
+                <p-sortIcon field="roles" />
+            </th>
+            <th style="min-width: 12rem"></th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-user>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="user" />
+            </td>
+            <td>{{ user.id }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.firstName }}</td>
+            <td>{{ getUserRolesDisplay(user) }}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editUser(user)">
+                    <i class="pi pi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deleteUser(user)">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog
+    [(visible)]="userDialog"
+    [style]="{ width: '90vw', maxWidth: '600px', minHeight: '400px' }"
+    [contentStyle]="{ padding: '0' }"
+    header="User Information"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="modern-dialog"
+>
+    <ng-template #content>
+        <div class="px-6 py-4">
+            <!-- User Information Section -->
+            <div class="mb-6">
+                <div class="section-header mb-6">
+                    <i class="pi pi-user text-blue-600"></i>
+                    <h3>User Details</h3>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="form-group">
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2"> Email Address <span class="text-red-500">*</span> </label>
+                        <input
+                            type="email"
+                            pInputText
+                            id="email"
+                            [(ngModel)]="user.email"
+                            required
+                            autofocus
+                            fluid
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Enter email address"
+                        />
+                        <small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && !user.email"> <i class="pi pi-exclamation-triangle mr-1"></i>Email address is required </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2"> First Name <span class="text-red-500">*</span> </label>
+                        <input
+                            type="text"
+                            pInputText
+                            id="firstName"
+                            [(ngModel)]="user.firstName"
+                            required
+                            fluid
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Enter first name"
+                        />
+                        <small class="text-red-500 text-xs mt-1 block" *ngIf="submitted && !user.firstName"> <i class="pi pi-exclamation-triangle mr-1"></i>First name is required </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roles" class="block text-sm font-medium text-gray-700 mb-2"> User Roles <span class="text-red-500">*</span> </label>
+                        <p-multiSelect [style]="{ width: '100%' }" [options]="roles()" [(ngModel)]="selectedRoles" optionLabel="name" placeholder="Select user roles" class="w-full" appendTo="body"> </p-multiSelect>
+                        <small class="text-gray-500 text-xs mt-1 block"> <i class="pi pi-info-circle mr-1"></i>Select one or more roles for this user </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-3 p-6 bg-gray-50 border-t border-gray-200">
+            <button type="button" class="btn btn-outline-secondary btn-lg px-4" (click)="hideDialog()">
+                <i class="pi pi-times me-2"></i>
+                Cancel
+            </button>
+            <button type="button" class="btn btn-primary btn-lg px-4" (click)="saveUser()">
+                <i class="pi pi-check me-2"></i>
+                Save User
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }" />

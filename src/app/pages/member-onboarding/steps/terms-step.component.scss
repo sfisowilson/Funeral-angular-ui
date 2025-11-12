@@ -1,0 +1,214 @@
+.terms-step {
+    max-width: 900px;
+    margin: 0 auto;
+
+    .loading-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 3rem;
+        color: var(--text-color-secondary);
+    }
+
+    .success-message {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+        border-radius: 12px;
+        border: 2px solid var(--green-200);
+        
+        .success-icon {
+            font-size: 4rem;
+            color: var(--green-500);
+            margin-bottom: 1rem;
+        }
+        
+        h3 {
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        p {
+            color: var(--text-color-secondary);
+        }
+
+        .terms-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+
+            p {
+                margin: 0.25rem 0;
+            }
+        }
+    }
+
+    .view-mode-notice {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: var(--yellow-50);
+        border: 1px solid var(--yellow-200);
+        border-radius: 8px;
+        color: var(--yellow-900);
+        font-size: 0.95rem;
+
+        i {
+            color: var(--yellow-600);
+        }
+    }
+
+    .terms-card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        
+        .card-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            
+            h2 {
+                margin: 0 0 0.5rem 0;
+                font-size: 1.5rem;
+            }
+            
+            .terms-metadata {
+                display: flex;
+                gap: 1.5rem;
+                font-size: 0.875rem;
+                opacity: 0.9;
+                
+                .version, .effective-date {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+            }
+        }
+
+        .terms-content {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1.5rem;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: var(--surface-ground);
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            
+            ::ng-deep {
+                h1, h2, h3, h4, h5, h6 {
+                    color: var(--text-color);
+                    margin-top: 1.5rem;
+                    margin-bottom: 0.75rem;
+                }
+                
+                p {
+                    margin-bottom: 1rem;
+                }
+                
+                ul, ol {
+                    margin-bottom: 1rem;
+                    padding-left: 2rem;
+                }
+                
+                li {
+                    margin-bottom: 0.5rem;
+                }
+                
+                strong {
+                    font-weight: 600;
+                    color: var(--text-color);
+                }
+            }
+
+            &::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: var(--surface-border);
+                border-radius: 4px;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background: var(--primary-color);
+                border-radius: 4px;
+            }
+        }
+
+        .acceptance-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--surface-50);
+            border-radius: 8px;
+            
+            .checkbox-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                
+                .acceptance-label {
+                    font-weight: 500;
+                    color: var(--text-color);
+                    cursor: pointer;
+                    user-select: none;
+                }
+            }
+            
+            p-button {
+                align-self: flex-end;
+            }
+        }
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        text-align: center;
+        
+        h4 {
+            margin-top: 1rem;
+            color: var(--text-color);
+        }
+        
+        p {
+            color: var(--text-color-secondary);
+            margin-top: 0.5rem;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .terms-step {
+        .terms-card {
+            .card-header {
+                .terms-metadata {
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+            }
+            
+            .acceptance-section {
+                p-button {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}

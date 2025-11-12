@@ -1,0 +1,44 @@
+<div class="widget-card onboarding-widget">
+    <div class="widget-header">
+        <div class="widget-icon">
+            <i class="pi pi-id-card"></i>
+        </div>
+        <div class="widget-title">
+            <h3>My Onboarding</h3>
+            <p>View your membership details</p>
+        </div>
+    </div>
+    
+    <div class="widget-content">
+        <div class="onboarding-info">
+            <div class="info-item">
+                <i class="pi pi-check-circle success-icon"></i>
+                <span>Onboarding Completed</span>
+            </div>
+            <div class="info-item">
+                <i class="pi pi-file-check success-icon"></i>
+                <span>All Documents Submitted</span>
+            </div>
+            <div class="info-item">
+                <i class="pi pi-shield success-icon"></i>
+                <span>Account Verified</span>
+            </div>
+        </div>
+        
+        <button 
+            pButton 
+            pRipple 
+            label="View My Onboarding Details" 
+            icon="pi pi-eye"
+            class="p-button-primary view-button"
+            (click)="viewOnboarding()">
+        </button>
+        
+        <div class="widget-footer">
+            <small>
+                <i class="pi pi-info-circle"></i>
+                Review your onboarding information including dependents, beneficiaries, documents, and banking details
+            </small>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,122 @@
+@import '../../styles/modern-ui.scss';
+
+.identity-verification-form {
+  .field {
+    .ng-invalid {
+      border-color: var(--red-500);
+    }
+  }
+
+  .text-muted-color {
+    color: var(--text-color-secondary);
+  }
+
+  .text-red-500 {
+    color: var(--red-500);
+  }
+
+  .text-blue-500 {
+    color: var(--blue-500);
+  }
+
+  p-card {
+    .p-card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 16px 16px 0 0;
+      padding: 1.5rem;
+    }
+
+    .p-card-content {
+      padding: 2rem;
+    }
+  }
+
+  p-button {
+    button {
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+
+  p-dropdown {
+    .p-dropdown {
+      border-radius: 8px;
+      border: 2px solid var(--surface-border);
+      transition: border-color 0.2s ease;
+
+      &:hover {
+        border-color: var(--primary-color);
+      }
+
+      &.p-focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      }
+    }
+  }
+
+  p-calendar {
+    .p-calendar {
+      .p-inputtext {
+        border-radius: 8px;
+        border: 2px solid var(--surface-border);
+        transition: border-color 0.2s ease;
+
+        &:hover {
+          border-color: var(--primary-color);
+        }
+
+        &:focus {
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+      }
+    }
+  }
+
+  input[type="text"] {
+    border-radius: 8px;
+    border: 2px solid var(--surface-border);
+    padding: 0.75rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--primary-color);
+    }
+
+    &:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+      outline: none;
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: var(--red-500);
+      box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.25);
+    }
+  }
+
+  .flex-1 {
+    flex: 1;
+  }
+
+  .loading-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+    
+    .loading-text {
+      margin-left: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-color-secondary);
+    }
+  }
+}

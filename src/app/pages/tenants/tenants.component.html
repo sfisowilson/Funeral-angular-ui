@@ -1,0 +1,170 @@
+<p-toolbar styleClass="mb-6">
+    <ng-template #start>
+        <button type="button" class="btn btn-primary me-2" (click)="openNew()">
+            <i class="pi pi-plus me-2"></i>
+            New Tenant
+        </button>
+        <button type="button" class="btn btn-outline-danger" (click)="deleteSelectedTenants()" [disabled]="!selectedTenants || !selectedTenants.length">
+            <i class="pi pi-trash me-2"></i>
+            Delete
+        </button>
+    </ng-template>
+
+    <ng-template #end>
+        <button type="button" class="btn btn-secondary" (click)="exportCSV()">
+            <i class="pi pi-upload me-2"></i>
+            Export
+        </button>
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt
+    [value]="tenants()"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedTenants"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} tenants"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <h5 class="m-0">Manage Tenants</h5>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+            </p-iconfield>
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="name" style="min-width: 16rem">
+                Name
+                <p-sortIcon field="name" />
+            </th>
+            <th pSortableColumn="email" style="min-width: 16rem">
+                Email
+                <p-sortIcon field="email" />
+            </th>
+            <th pSortableColumn="domain" style="min-width: 10rem">
+                Domain
+                <p-sortIcon field="domain" />
+            </th>
+            <th pSortableColumn="address" style="min-width: 10rem">
+                Address
+                <p-sortIcon field="address" />
+            </th>
+            <th pSortableColumn="phone1" style="min-width: 10rem">
+                Phone 1
+                <p-sortIcon field="phone1" />
+            </th>
+            <th pSortableColumn="phone2" style="min-width: 10rem">
+                Phone 2
+                <p-sortIcon field="phone2" />
+            </th>
+            <th pSortableColumn="registrationNumber" style="min-width: 10rem">
+                Registration Number
+                <p-sortIcon field="registrationNumber" />
+            </th>
+            <th pSortableColumn="type" style="min-width: 10rem">
+                Type
+                <p-sortIcon field="type" />
+            </th>
+            <th style="min-width: 12rem"></th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-tenant>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="tenant" />
+            </td>
+            <td>{{ tenant.name }}</td>
+            <td>{{ tenant.email }}</td>
+            <td>{{ tenant.domain }}</td>
+            <td>{{ tenant.address }}</td>
+            <td>{{ tenant.phone1 }}</td>
+            <td>{{ tenant.phone2 }}</td>
+            <td>{{ tenant.registrationNumber }}</td>
+            <td>{{ getTenantTypeName(tenant.type) }}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editTenant(tenant)">
+                    <i class="pi pi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deleteTenant(tenant)">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="tenantDialog" [style]="{ width: '450px' }" header="Tenant Details" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-6">
+            <div>
+                <label for="name" class="block font-bold mb-3">Name</label>
+                <input type="text" pInputText id="name" [(ngModel)]="tenant.name" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !tenant.name">Name is required.</small>
+            </div>
+            <div>
+                <label for="email" class="block font-bold mb-3">Email</label>
+                <input type="email" pInputText id="email" [(ngModel)]="tenant.email" required fluid />
+                <small class="text-red-500" *ngIf="submitted && !tenant.email">Email is required.</small>
+            </div>
+            <div>
+                <label for="password" class="block font-bold mb-3">Password</label>
+                <input type="password" pInputText id="password" [(ngModel)]="tenant.password" fluid />
+            </div>
+            <div>
+                <label for="domain" class="block font-bold mb-3">Domain</label>
+                <input type="text" pInputText id="domain" [(ngModel)]="tenant.domain" required fluid />
+                <small class="text-red-500" *ngIf="submitted && !tenant.domain">Domain is required.</small>
+            </div>
+            <div>
+                <label for="address" class="block font-bold mb-3">Address</label>
+                <textarea id="address" pTextarea [(ngModel)]="tenant.address" required rows="3" cols="20" fluid></textarea>
+                <small class="text-red-500" *ngIf="submitted && !tenant.address">Address is required.</small>
+            </div>
+            <div>
+                <label for="phone1" class="block font-bold mb-3">Phone 1</label>
+                <input type="text" pInputText id="phone1" [(ngModel)]="tenant.phone1" required fluid />
+                <small class="text-red-500" *ngIf="submitted && !tenant.phone1">Phone 1 is required.</small>
+            </div>
+            <div>
+                <label for="phone2" class="block font-bold mb-3">Phone 2</label>
+                <input type="text" pInputText id="phone2" [(ngModel)]="tenant.phone2" fluid />
+            </div>
+            <div>
+                <label for="type" class="block font-bold mb-3">Tenant Type</label>
+                <p-dropdown id="type" [(ngModel)]="tenant.type" [options]="tenantTypes" optionLabel="label" optionValue="value" placeholder="Select a Type" required fluid appendTo="body"></p-dropdown>
+                <small class="text-red-500" *ngIf="submitted && tenant.type === undefined">Tenant Type is required.</small>
+            </div>
+            <div>
+                <label for="registrationNumber" class="block font-bold mb-3">Registration Number</label>
+                <input type="text" pInputText id="registrationNumber" [(ngModel)]="tenant.registrationNumber" required fluid />
+                <small class="text-red-500" *ngIf="submitted && !tenant.registrationNumber">Registration Number is required.</small>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+            <i class="pi pi-times me-2"></i>
+            Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveTenant()">
+            <i class="pi pi-check me-2"></i>
+            Save
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }" />

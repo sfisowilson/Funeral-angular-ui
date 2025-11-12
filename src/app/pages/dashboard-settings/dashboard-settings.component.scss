@@ -1,0 +1,139 @@
+@import '../../shared/styles/modern-ui.scss';
+
+.action-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+
+    &.visible {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+
+    &.hidden {
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+    }
+}
+
+.roles-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.role-badge {
+    padding: 0.25rem 0.625rem;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+code {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 0.875rem;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.text-muted {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.text-center {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+}
+
+.dialog-content {
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            &.full-width {
+                grid-column: 1 / -1;
+            }
+
+            label {
+                font-weight: 500;
+                color: #374151;
+                font-size: 0.875rem;
+            }
+
+            .help-text {
+                font-size: 0.75rem;
+                color: #6b7280;
+                margin-top: -0.25rem;
+            }
+
+            .form-select {
+                width: 100%;
+                padding: 0.625rem;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                font-size: 0.9375rem;
+                transition: all 0.2s ease;
+
+                &:focus {
+                    outline: none;
+                    border-color: #667eea;
+                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                }
+
+                &:disabled {
+                    background: #f3f4f6;
+                    cursor: not-allowed;
+                }
+            }
+
+            .switch-field {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem;
+                background: #f9fafb;
+                border-radius: 8px;
+
+                label {
+                    margin: 0;
+                    font-size: 0.9375rem;
+                }
+            }
+        }
+    }
+}
+
+// Fix z-index for multiselect dropdown to appear above dialog
+::ng-deep {
+    .p-dialog {
+        .p-multiselect-panel {
+            z-index: 1101 !important; // Higher than dialog overlay (1100)
+        }
+    }
+    
+    // Alternative: Fix for the panel appearing in body
+    .p-multiselect-panel {
+        z-index: 9999 !important;
+    }
+}
+

@@ -1,0 +1,193 @@
+<div class="identity-verification-container">
+    <div class="modern-card">
+        <!-- Header -->
+        <div class="modern-card-header">
+            <h2 class="header-title">
+                <i class="pi pi-shield"></i>
+                Identity Verification
+            </h2>
+            <p class="header-subtitle">Verify your identity to access enhanced features and secure your account</p>
+        </div>
+
+        <!-- Quick Verification Section -->
+        <div class="verification-quick-section">
+            <h3 class="section-title">
+                <i class="pi pi-bolt"></i>
+                Quick Verification
+            </h3>
+            <p class="section-description">Use existing profile information for instant verification</p>
+            <button pButton type="button" label="Quick ID Check" icon="pi pi-bolt" class="p-button-outlined quick-verify-btn" [loading]="quickVerifying()" (click)="performQuickIdCheck()"></button>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Manual Verification Form -->
+        <div class="verification-form-section">
+            <h3 class="section-title">
+                <i class="pi pi-id-card"></i>
+                Manual Verification
+            </h3>
+            <p class="section-description">Provide your identity details for comprehensive verification</p>
+
+            <form [formGroup]="verificationForm" (ngSubmit)="submitVerification()" class="verification-form">
+                <!-- Verification Type Selection -->
+                <div class="field">
+                    <label for="verificationType" class="field-label">Verification Type</label>
+                    <p-dropdown id="verificationType" formControlName="verificationType" [options]="verificationTypes" optionLabel="label" optionValue="value" placeholder="Select verification type" styleClass="w-full">
+                        <ng-template pTemplate="selectedItem" let-selectedOption>
+                            <div class="verification-type-item" *ngIf="selectedOption">
+                                <i [class]="selectedOption.icon"></i>
+                                <div class="item-content">
+                                    <div class="item-label">{{ selectedOption.label }}</div>
+                                    <div class="item-description">{{ selectedOption.description }}</div>
+                                </div>
+                            </div>
+                        </ng-template>
+                        <ng-template pTemplate="item" let-option>
+                            <div class="verification-type-item">
+                                <i [class]="option.icon"></i>
+                                <div class="item-content">
+                                    <div class="item-label">{{ option.label }}</div>
+                                    <div class="item-description">{{ option.description }}</div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+
+                <!-- ID Number -->
+                <div class="field">
+                    <label for="idNumber" class="field-label">
+                        ID Number
+                        <span class="required-asterisk">*</span>
+                    </label>
+                    <input pInputText id="idNumber" formControlName="idNumber" placeholder="Enter your 13-digit ID number" maxlength="13" [class.ng-invalid]="isFieldInvalid('idNumber')" />
+                    <small class="p-error" *ngIf="isFieldInvalid('idNumber')">
+                        {{ getFieldError('idNumber') }}
+                    </small>
+                </div>
+
+                <!-- First Name -->
+                <div class="field">
+                    <label for="firstName" class="field-label">
+                        First Name
+                        <span class="required-asterisk">*</span>
+                    </label>
+                    <input pInputText id="firstName" formControlName="firstName" placeholder="Enter your first name" [class.ng-invalid]="isFieldInvalid('firstName')" />
+                    <small class="p-error" *ngIf="isFieldInvalid('firstName')">
+                        {{ getFieldError('firstName') }}
+                    </small>
+                </div>
+
+                <!-- Last Name -->
+                <div class="field">
+                    <label for="lastName" class="field-label">
+                        Last Name
+                        <span class="required-asterisk">*</span>
+                    </label>
+                    <input pInputText id="lastName" formControlName="lastName" placeholder="Enter your last name" [class.ng-invalid]="isFieldInvalid('lastName')" />
+                    <small class="p-error" *ngIf="isFieldInvalid('lastName')">
+                        {{ getFieldError('lastName') }}
+                    </small>
+                </div>
+
+                <!-- Date of Birth -->
+                <div class="field">
+                    <label for="dateOfBirth" class="field-label">
+                        Date of Birth
+                        <span class="required-asterisk">*</span>
+                    </label>
+                    <p-calendar
+                        id="dateOfBirth"
+                        formControlName="dateOfBirth"
+                        placeholder="Select your date of birth"
+                        [showIcon]="true"
+                        [maxDate]="new Date()"
+                        dateFormat="dd/mm/yy"
+                        styleClass="w-full"
+                        [class.ng-invalid]="isFieldInvalid('dateOfBirth')"
+                    >
+                    </p-calendar>
+                    <small class="p-error" *ngIf="isFieldInvalid('dateOfBirth')">
+                        {{ getFieldError('dateOfBirth') }}
+                    </small>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-actions">
+                    <button pButton type="submit" label="Submit Verification" icon="pi pi-check" class="submit-btn" [loading]="submitting()" [disabled]="verificationForm.invalid"></button>
+                </div>
+            </form>
+        </div>
+
+        <p-divider></p-divider>
+
+        <!-- Verification History -->
+        <div class="verification-history-section">
+            <h3 class="section-title">
+                <i class="pi pi-history"></i>
+                Verification History
+            </h3>
+            <p class="section-description">View your previous verification requests and their status</p>
+
+            <div *ngIf="loading()" class="loading-container">
+                <p-progressSpinner [style]="{ width: '50px', height: '50px' }"></p-progressSpinner>
+                <p>Loading verification history...</p>
+            </div>
+
+            <div *ngIf="!loading() && verificationHistory().length === 0" class="empty-state">
+                <i class="pi pi-info-circle empty-icon"></i>
+                <h4>No Verification History</h4>
+                <p>You haven't submitted any verification requests yet.</p>
+            </div>
+
+            <p-table *ngIf="!loading() && verificationHistory().length > 0" [value]="verificationHistory()" [paginator]="true" [rows]="10" styleClass="verification-history-table">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Verified</th>
+                        <th>Transaction ID</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-verification>
+                    <tr>
+                        <td>
+                            <div class="verification-type-cell">
+                                <i class="pi pi-id-card type-icon"></i>
+                                {{ verification.verificationType || 'Standard' }}
+                            </div>
+                        </td>
+                        <td>
+                            <p-tag [value]="getVerificationStatus(verification.status).label" [severity]="getVerificationStatus(verification.status).severity" [icon]="getVerificationStatus(verification.status).icon"> </p-tag>
+                        </td>
+                        <td>{{ formatDate(verification.createdAt) }}</td>
+                        <td>{{ formatDate(verification.verifiedAt) }}</td>
+                        <td>
+                            <span class="transaction-id" *ngIf="verification.verifyIdTransactionId">
+                                {{ verification.verifyIdTransactionId }}
+                            </span>
+                            <span class="no-data" *ngIf="!verification.verifyIdTransactionId">-</span>
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="text-center p-4">
+                            <div class="empty-state-table">
+                                <i class="pi pi-info-circle"></i>
+                                <p>No verification records found</p>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <!-- Toast Messages -->
+    <p-toast></p-toast>
+</div>

@@ -1,0 +1,39 @@
+<!-- Modern Dashboard Layout -->
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="section-header">
+            <div class="header-content">
+                <i class="pi pi-chart-line section-icon"></i>
+                <div>
+                    <h1 class="section-title">Dashboard Overview</h1>
+                    <p class="section-subtitle">Monitor your business performance and key metrics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Widgets Grid -->
+    <div class="dashboard-widgets">
+        <ng-container *ngIf="!loading(); else loadingTemplate">
+            <ng-container *ngFor="let widget of visibleWidgets()">
+                <div class="widget-wrapper" [ngClass]="widget.gridClass">
+                    <ng-container *ngComponentOutlet="widget.component"></ng-container>
+                </div>
+            </ng-container>
+
+            <div *ngIf="visibleWidgets().length === 0" class="empty-state">
+                <i class="pi pi-chart-line empty-icon"></i>
+                <h3>No Widgets Configured</h3>
+                <p>Contact your administrator to configure dashboard widgets for your role.</p>
+            </div>
+        </ng-container>
+
+        <ng-template #loadingTemplate>
+            <div class="loading-state">
+                <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                <p>Loading dashboard...</p>
+            </div>
+        </ng-template>
+    </div>
+</div>

@@ -1,0 +1,97 @@
+<div class="verification-status" [class.compact]="compact">
+    <p-card *ngIf="showHeader && !compact">
+        <ng-template pTemplate="header">
+            <div class="card-header">
+                <h3 class="m-0">Identity Verification Status</h3>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="content">
+            <div *ngIf="loading()" class="loading-container">
+                <p-progressSpinner [style]="{ width: '30px', height: '30px' }"></p-progressSpinner>
+                <span class="ml-2">Loading verification status...</span>
+            </div>
+
+            <div *ngIf="!loading() && verificationRequests().length === 0" class="no-verifications">
+                <div class="text-center p-4">
+                    <i class="pi pi-info-circle text-blue-500 text-4xl mb-3"></i>
+                    <h4 class="text-900 mb-2">No Verification Records</h4>
+                    <p class="text-muted-color">No identity verification has been performed yet.</p>
+                </div>
+            </div>
+
+            <div *ngIf="!loading() && verificationRequests().length > 0" class="verification-list">
+                <div *ngFor="let request of verificationRequests(); let i = index" class="verification-item" [class.mb-3]="i < verificationRequests().length - 1">
+                    <div class="flex justify-content-between align-items-center">
+                        <div class="verification-info">
+                            <div class="flex align-items-center gap-2 mb-2">
+                                <i
+                                    [class]="getVerificationStatus(request.status || '').icon"
+                                    [class.text-green-500]="getVerificationStatus(request.status || '').severity === 'success'"
+                                    [class.text-blue-500]="getVerificationStatus(request.status || '').severity === 'info'"
+                                    [class.text-yellow-500]="getVerificationStatus(request.status || '').severity === 'warning'"
+                                    [class.text-red-500]="getVerificationStatus(request.status || '').severity === 'danger'"
+                                >
+                                </i>
+                                <strong>{{ request.verificationType || 'Standard' }} Verification</strong>
+                            </div>
+
+                            <div class="verification-details text-sm text-muted-color">
+                                <div *ngIf="request.idNumber" class="mb-1">
+                                    <i class="pi pi-id-card mr-2"></i>
+                                    ID: {{ request.idNumber }}
+                                </div>
+                                <div *ngIf="request.verifiedAt" class="mb-1">
+                                    <i class="pi pi-calendar mr-2"></i>
+                                    Verified: {{ formatDate(request.verifiedAt) }}
+                                </div>
+                                <div *ngIf="request.verifyIdTransactionId" class="mb-1">
+                                    <i class="pi pi-hashtag mr-2"></i>
+                                    Transaction: {{ request.verifyIdTransactionId }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="verification-status">
+                            <p-tag [value]="getVerificationStatus(request.status || '').label" [severity]="getVerificationStatus(request.status || '').severity" [icon]="getVerificationStatus(request.status || '').icon"></p-tag>
+                        </div>
+                    </div>
+
+                    <p-divider *ngIf="i < verificationRequests().length - 1"></p-divider>
+                </div>
+            </div>
+        </ng-template>
+    </p-card>
+
+    <!-- Compact view -->
+    <div *ngIf="compact" class="compact-status">
+        <div *ngIf="loading()" class="flex align-items-center gap-2">
+            <p-progressSpinner [style]="{ width: '20px', height: '20px' }"></p-progressSpinner>
+            <span class="text-sm">Checking...</span>
+        </div>
+
+        <div *ngIf="!loading() && verificationRequests().length === 0" class="flex align-items-center gap-2 text-yellow-600">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span class="text-sm">Not Verified</span>
+        </div>
+
+        <div *ngIf="!loading() && hasVerifiedStatus()" class="flex align-items-center gap-2 text-green-600">
+            <i class="pi pi-check-circle"></i>
+            <span class="text-sm">Identity Verified</span>
+        </div>
+
+        <div *ngIf="!loading() && verificationRequests().length > 0 && !hasVerifiedStatus()" class="flex align-items-center gap-2">
+            <ng-container *ngIf="getLatestVerificationStatus() as latestStatus">
+                <i
+                    [class]="latestStatus.icon"
+                    [class.text-green-500]="latestStatus.severity === 'success'"
+                    [class.text-blue-500]="latestStatus.severity === 'info'"
+                    [class.text-yellow-500]="latestStatus.severity === 'warning'"
+                    [class.text-red-500]="latestStatus.severity === 'danger'"
+                >
+                </i>
+                <span class="text-sm">{{ latestStatus.label }}</span>
+            </ng-container>
+        </div>
+    </div>
+</div>

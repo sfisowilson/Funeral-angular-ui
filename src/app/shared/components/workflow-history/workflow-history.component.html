@@ -1,0 +1,53 @@
+<div class="modern-card">
+    <div class="card-header">
+        <div class="section-header">
+            <i class="pi pi-history text-blue-600"></i>
+            <h3>Claim Workflow History</h3>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <p-timeline [value]="history()" align="left" styleClass="modern-timeline">
+            <ng-template pTemplate="marker" let-event>
+                <span class="timeline-marker" [style.backgroundColor]="getStatusColor(event.newStatus)">
+                    <i [class]="getStatusIcon(event.newStatus)" class="text-white"></i>
+                </span>
+            </ng-template>
+            <ng-template pTemplate="content" let-event>
+                <div class="timeline-content">
+                    <div class="timeline-card">
+                        <div class="timeline-header">
+                            <h4 class="timeline-title">{{ event.newStatus }}</h4>
+                            <span class="timeline-date">{{ formatDate(event.changedAt) }}</span>
+                        </div>
+
+                        <div class="timeline-body">
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="status-badge secondary" *ngIf="event.oldStatus"> From: {{ event.oldStatus }} </span>
+                                <span class="status-badge" [ngClass]="getTagSeverity(event.newStatus)"> To: {{ event.newStatus }} </span>
+                            </div>
+
+                            <div class="timeline-info">
+                                <div class="info-item">
+                                    <i class="pi pi-user text-gray-500 mr-2"></i>
+                                    <span class="text-gray-600">Changed by:</span>
+                                    <span class="font-semibold ml-1">{{ event.changedByName }}</span>
+                                </div>
+
+                                <div class="info-item" *ngIf="event.comments">
+                                    <i class="pi pi-comment text-gray-500 mr-2"></i>
+                                    <span class="text-gray-700">{{ event.comments }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </p-timeline>
+
+        <div class="empty-state" *ngIf="history().length === 0">
+            <i class="pi pi-history text-4xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500">No workflow history available</p>
+        </div>
+    </div>
+</div>

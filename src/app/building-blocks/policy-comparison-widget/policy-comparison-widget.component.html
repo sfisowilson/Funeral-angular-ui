@@ -1,0 +1,14 @@
+<div class="policy-comparison-widget">
+    <h2>{{ config.settings.title }}</h2>
+    <div class="policy-list">
+        <div *ngFor="let policy of policiesToCompare" class="policy-card">
+            <h3>{{ policy.name }}</h3>
+            <p>Price: {{ currency }} {{ policy.price }}</p>
+            <p>Payout Amount: {{ currency }} {{ policy.payoutAmount }}</p>
+            <!-- Add more policy details as needed -->
+        </div>
+        <div *ngIf="policiesToCompare.length === 0">
+            <p>No policies selected for comparison.</p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,121 @@
+<!-- Modern Page Header -->
+<div class="page-header">
+    <div class="section-header">
+        <div class="header-content">
+            <i class="pi pi-users section-icon"></i>
+            <div>
+                <h1 class="section-title">Role Management</h1>
+                <p class="section-subtitle">Manage user roles and their permissions</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modern Toolbar -->
+<div class="modern-toolbar">
+    <div class="toolbar-section">
+        <button type="button" class="btn btn-primary" (click)="openNew()">
+            <i class="pi pi-plus me-2"></i>
+            New Role
+        </button>
+    </div>
+</div>
+
+<p-table
+    #dt
+    [value]="roles()"
+    [rows]="10"
+    [paginator]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedRoles"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} roles"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <h5 class="m-0">Manage Roles</h5>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+            </p-iconfield>
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="name" style="min-width: 16rem">
+                Name
+                <p-sortIcon field="name" />
+            </th>
+            <th style="min-width: 12rem"></th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-role>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="role" />
+            </td>
+            <td>{{ role.name }}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editRole(role)">
+                    <i class="pi pi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-info rounded-circle" (click)="openPermissionDialog(role)">
+                    <i class="pi pi-shield"></i>
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="roleDialog" [style]="{ width: '450px' }" header="Role Details" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-6">
+            <div>
+                <label for="name" class="block font-bold mb-3">Name</label>
+                <input type="text" pInputText id="name" [(ngModel)]="role.name" required autofocus fluid />
+                <small class="text-red-500" *ngIf="submitted && !role.name">Name is required.</small>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+            <i class="pi pi-times me-2"></i>
+            Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveRole()">
+            <i class="pi pi-check me-2"></i>
+            Save
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }" />
+
+<p-dialog [(visible)]="permissionDialog" [style]="{ width: '450px', height: '800px' }" header="Manage Permissions" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-6">
+            <div>
+                <label for="permissions" class="block font-bold mb-3">Permissions</label>
+                <p-multiSelect [style]="{ width: '100%' }" [options]="availablePermissions()" [(ngModel)]="selectedPermissions" optionLabel="name" placeholder="Select Permissions"></p-multiSelect>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button type="button" class="btn btn-secondary" (click)="hidePermissionDialog()">
+            <i class="pi pi-times me-2"></i>
+            Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="savePermissions()">
+            <i class="pi pi-check me-2"></i>
+            Save
+        </button>
+    </ng-template>
+</p-dialog>

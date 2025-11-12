@@ -1,0 +1,190 @@
+@import '../../shared/styles/modern-ui.scss';
+
+// Page Layout — extend shared `.modern-card` to keep tokens centralized
+.personnel-card {
+  @extend .modern-card;
+
+  .card-header {
+    margin-bottom: 2rem;
+
+    .section-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      padding: 2rem;
+      color: white;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+
+      i {
+        font-size: 3rem;
+        opacity: 0.9;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+    }
+  }
+
+  .card-body {
+    padding: 2rem;
+
+    .mb-6 {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    // Datatable styles
+    .modern-table {
+      .p-datatable-thead > tr > th {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        color: #374151;
+        font-weight: 600;
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid #e5e7eb;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+      }
+
+      .p-datatable-tbody > tr {
+        border-bottom: 1px solid #f3f4f6;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+      }
+
+      .p-datatable-tbody > tr > td {
+        padding: 1rem 1.5rem;
+        color: #374151;
+        font-weight: 500;
+      }
+    }
+  }
+
+  // Dialogs, toasts, paginator and role badges scoped inside the card
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+
+    &.role-driver { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    &.role-decorator { background: linear-gradient(135deg, #ec4899, #db2777); color: white; }
+    &.role-director { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+    &.role-assistant { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
+  }
+
+  .p-dialog {
+    .p-dialog-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px 12px 0 0;
+      padding: 1.5rem 2rem;
+      border-bottom: none;
+    }
+
+    .p-dialog-content {
+      padding: 2rem;
+
+      .field {
+        margin-bottom: 1.5rem;
+
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; }
+
+        .p-dropdown, .p-inputtext {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          border: 2px solid #e5e7eb;
+          border-radius: 8px;
+          font-size: 0.875rem;
+          transition: all 0.2s ease;
+
+          &:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); outline: none; }
+        }
+
+        .p-error { color: #dc2626; font-size: 0.75rem; margin-top: 0.25rem; }
+      }
+
+      .field-checkbox { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;
+        input[type="checkbox"] { width: 1.2rem; height: 1.2rem; }
+        label { margin-bottom: 0; font-weight: 500; color: #374151; }
+      }
+    }
+
+    .p-dialog-footer { padding: 1.5rem 2rem; border-top: 1px solid #e5e7eb; background: #f9fafb; border-radius: 0 0 12px 12px;
+      .p-button { margin-left: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; }
+    }
+  }
+
+  .modern-confirm-dialog { .p-dialog-header { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); } }
+
+  .p-toast { .p-toast-message { border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); } }
+
+  .p-paginator { border: none; padding: 1rem; background: #f9fafb;
+    .p-paginator-pages .p-paginator-page { border-radius: 8px; margin: 0 0.25rem; }
+  }
+
+}
+
+// :host deep overrides for component-scoped selectors
+:host ::ng-deep {
+  .modern-button {
+    &.primary {
+      @extend %modern-button-placeholder;
+      @extend %modern-button-primary-placeholder;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    &.secondary {
+      @extend %modern-button-placeholder;
+      background: white;
+      border: 2px solid #e5e7eb;
+      color: #6b7280;
+
+      &:hover {
+        border-color: #667eea;
+        color: #667eea;
+      }
+    }
+
+    &.danger {
+      @extend %modern-button-placeholder;
+      background: white;
+      border: 2px solid #fecaca;
+      color: #dc2626;
+
+      &:hover {
+        border-color: #dc2626;
+        background: #fef2f2;
+      }
+    }
+  }
+}
+
+// Custom personnel specific helpers
+.flex { display: flex; }
+.flex.gap-2 { gap: 0.5rem; }
+.font-semibold { font-weight: 600; }
+.text-blue-600 { color: #2563eb; }

@@ -1,0 +1,793 @@
+<div class="bg-gray-100 p-4 sm:p-6 lg:p-8 rounded-lg">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-semibold text-gray-800 mb-6">Tenant Settings</h1>
+
+        <div class="space-y-8">
+            <!-- General Settings -->
+            <div class="bg-white p-6 rounded-lg shadow" *ngIf="tenantSettings.tenantName">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">General</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label for="tenantName" class="font-medium text-gray-700 mb-2">Tenant Name</label>
+                        <input type="text" pInputText id="tenantName" [(ngModel)]="tenantSettings.tenantName" required autofocus class="w-full" />
+                        <small class="p-error mt-1" *ngIf="submitted && !tenantSettings.tenantName">Tenant Name is required.</small>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="currency" class="font-medium text-gray-700 mb-2">Currency</label>
+                        <p-dropdown id="currency" [(ngModel)]="currency" [options]="currencyOptions" optionLabel="label" optionValue="value" class="w-full"></p-dropdown>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="ozowApiKey" class="font-medium text-gray-700 mb-2">Ozow API Key</label>
+                        <input type="text" pInputText id="ozowApiKey" [(ngModel)]="tenantSettings.ozowApiKey" class="w-full" />
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="ozowSiteCode" class="font-medium text-gray-700 mb-2">Ozow Site Code</label>
+                        <input type="text" pInputText id="ozowSiteCode" [(ngModel)]="tenantSettings.ozowSiteCode" class="w-full" />
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="ozowPrivateKey" class="font-medium text-gray-700 mb-2">Ozow Private Key</label>
+                        <input type="text" pInputText id="ozowPrivateKey" [(ngModel)]="tenantSettings.ozowPrivateKey" class="w-full" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Uploads -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Branding</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label for="logo" class="font-medium text-gray-700 mb-2">Logo</label>
+                        <p-fileUpload mode="basic" name="logoFile" accept="image/*" [maxFileSize]="1000000" (onSelect)="onLogoUpload($event)" chooseLabel="Upload Logo" class="w-full" [headers]="tenantIdHeader"></p-fileUpload>
+                        <img *ngIf="_settings.logo" [src]="getDownloadUrl(_settings.logo)" alt="Logo" class="mt-4 rounded-md" style="max-width: 200px" />
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="favicon" class="font-medium text-gray-700 mb-2">Favicon</label>
+                        <p-fileUpload mode="basic" name="faviconFile" accept="image/*" [maxFileSize]="1000000" (onSelect)="onFaviconUpload($event)" chooseLabel="Upload Favicon" class="w-full" [headers]="tenantIdHeader"></p-fileUpload>
+                        <img *ngIf="_settings.favicon" [src]="getDownloadUrl(_settings.favicon)" alt="Favicon" class="mt-4 rounded-md" style="max-width: 50px" />
+                    </div>
+
+                    <div class="flex flex-col md:col-span-2">
+                        <label for="cssFile" class="font-medium text-gray-700 mb-2">Custom CSS File</label>
+                        <div class="flex items-center gap-4">
+                            <p-fileUpload mode="basic" name="cssFile" accept=".css" [maxFileSize]="1000000" (onSelect)="onCssFileUpload($event)" chooseLabel="Upload CSS" class="flex-grow" [headers]="tenantIdHeader"></p-fileUpload>
+                            <a *ngIf="customCssId" (click)="downloadCss()" class="btn btn-secondary mt-2">Download CSS</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Colors -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Theme Colors</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label for="primaryColor" class="font-medium text-gray-700 mb-2">Primary Color</label>
+                        <p-colorPicker [(ngModel)]="_settings.primaryColor"></p-colorPicker>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="secondaryColor" class="font-medium text-gray-700 mb-2">Secondary Color</label>
+                        <p-colorPicker [(ngModel)]="_settings.secondaryColor"></p-colorPicker>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="accentColor" class="font-medium text-gray-700 mb-2">Accent Color</label>
+                        <p-colorPicker [(ngModel)]="_settings.accentColor"></p-colorPicker>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="textColor" class="font-medium text-gray-700 mb-2">Text Color</label>
+                        <p-colorPicker [(ngModel)]="_settings.textColor"></p-colorPicker>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="backgroundColor" class="font-medium text-gray-700 mb-2">Background Color</label>
+                        <p-colorPicker [(ngModel)]="_settings.backgroundColor"></p-colorPicker>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="borderColor" class="font-medium text-gray-700 mb-2">Border Color</label>
+                        <p-colorPicker [(ngModel)]="_settings.borderColor"></p-colorPicker>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="buttonPrimaryHoverBackground" class="font-medium text-gray-700 mb-2">Button Primary Hover Background</label>
+                        <p-colorPicker [(ngModel)]="_settings.buttonPrimaryHoverBackground"></p-colorPicker>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="primaryActiveColor" class="font-medium text-gray-700 mb-2">Primary Active Color</label>
+                        <p-colorPicker [(ngModel)]="_settings.primaryActiveColor"></p-colorPicker>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Button Styles -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Button Styles</h2>
+                <p class="text-sm text-gray-600 mb-4">Customize the appearance of buttons throughout your application</p>
+                
+                <!-- Quick Theme Presets -->
+                <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 class="text-md font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                        <i class="pi pi-palette"></i>
+                        Quick Color Presets
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button 
+                            class="px-4 py-2 rounded-lg text-white font-medium text-sm transition-all hover:scale-105"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                            (click)="applyPreset('purple')">
+                            Purple Gradient
+                        </button>
+                        <button 
+                            class="px-4 py-2 rounded-lg text-white font-medium text-sm transition-all hover:scale-105"
+                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%)"
+                            (click)="applyPreset('green')">
+                            Success Green
+                        </button>
+                        <button 
+                            class="px-4 py-2 rounded-lg text-white font-medium text-sm transition-all hover:scale-105"
+                            style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
+                            (click)="applyPreset('blue')">
+                            Professional Blue
+                        </button>
+                        <button 
+                            class="px-4 py-2 rounded-lg text-white font-medium text-sm transition-all hover:scale-105"
+                            style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
+                            (click)="applyPreset('orange')">
+                            Warm Orange
+                        </button>
+                        <button 
+                            class="px-4 py-2 rounded-lg text-white font-medium text-sm transition-all hover:scale-105"
+                            style="background: linear-gradient(135deg, #1f2937 0%, #374151 100%)"
+                            (click)="applyPreset('dark')">
+                            Modern Dark
+                        </button>
+                    </div>
+                    <p class="text-xs text-blue-700 mt-2">
+                        Click a preset to instantly apply colors. You can customize further below.
+                    </p>
+                </div>
+                
+                <div class="space-y-6">
+                    <!-- Primary Button Styles -->
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">Primary Button</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col">
+                                <label for="buttonPrimaryBackground" class="font-medium text-gray-700 mb-2">Background Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonPrimaryBackground"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Default button background</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonPrimaryBorder" class="font-medium text-gray-700 mb-2">Border Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonPrimaryBorder"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Button border color</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonPrimaryColor" class="font-medium text-gray-700 mb-2">Text Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonPrimaryColor"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Button text color</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonPrimaryHoverBackground" class="font-medium text-gray-700 mb-2">Hover Background</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonPrimaryHoverBackground"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Background on hover</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Button Styles -->
+                    <div class="border-l-4 border-gray-400 pl-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">Secondary Button</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col">
+                                <label for="buttonSecondaryBackground" class="font-medium text-gray-700 mb-2">Background Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonSecondaryBackground"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Secondary button background</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonSecondaryBorder" class="font-medium text-gray-700 mb-2">Border Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonSecondaryBorder"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Secondary border color</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonSecondaryColor" class="font-medium text-gray-700 mb-2">Text Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonSecondaryColor"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Secondary text color</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Button Shape & Size -->
+                    <div class="border-l-4 border-purple-500 pl-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">Button Shape & Size</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col">
+                                <label for="buttonBorderRadius" class="font-medium text-gray-700 mb-2">Border Radius</label>
+                                <input type="text" pInputText id="buttonBorderRadius" [(ngModel)]="_settings.buttonBorderRadius" class="w-full" placeholder="e.g., 4px, 8px, 50%" />
+                                <small class="text-gray-500 mt-1">Rounded corners (e.g., 4px, 0.5rem)</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonPadding" class="font-medium text-gray-700 mb-2">Padding</label>
+                                <input type="text" pInputText id="buttonPadding" [(ngModel)]="_settings.buttonPadding" class="w-full" placeholder="e.g., 10px 20px" />
+                                <small class="text-gray-500 mt-1">Button spacing (e.g., 0.5rem 1rem)</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonFontSize" class="font-medium text-gray-700 mb-2">Font Size</label>
+                                <input type="text" pInputText id="buttonFontSize" [(ngModel)]="_settings.buttonFontSize" class="w-full" placeholder="e.g., 14px, 1rem" />
+                                <small class="text-gray-500 mt-1">Button text size</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonFontWeight" class="font-medium text-gray-700 mb-2">Font Weight</label>
+                                <input type="text" pInputText id="buttonFontWeight" [(ngModel)]="_settings.buttonFontWeight" class="w-full" placeholder="e.g., 500, bold" />
+                                <small class="text-gray-500 mt-1">Text weight (e.g., 400, 500, bold)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Button Preview -->
+                    <div class="border-l-4 border-green-500 pl-4 bg-gray-50 p-4 rounded">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">Preview</h3>
+                        <div class="flex flex-wrap gap-4">
+                            <button 
+                                class="preview-button primary"
+                                [style.background-color]="_settings.buttonPrimaryBackground"
+                                [style.border-color]="_settings.buttonPrimaryBorder"
+                                [style.color]="_settings.buttonPrimaryColor"
+                                [style.border-radius]="_settings.buttonBorderRadius"
+                                [style.padding]="_settings.buttonPadding"
+                                [style.font-size]="_settings.buttonFontSize"
+                                [style.font-weight]="_settings.buttonFontWeight">
+                                Primary Button
+                            </button>
+                            <button 
+                                class="preview-button secondary"
+                                [style.background-color]="_settings.buttonSecondaryBackground"
+                                [style.border-color]="_settings.buttonSecondaryBorder"
+                                [style.color]="_settings.buttonSecondaryColor"
+                                [style.border-radius]="_settings.buttonBorderRadius"
+                                [style.padding]="_settings.buttonPadding"
+                                [style.font-size]="_settings.buttonFontSize"
+                                [style.font-weight]="_settings.buttonFontWeight">
+                                Secondary Button
+                            </button>
+                        </div>
+                        <div class="flex gap-3 mt-4">
+                            <button 
+                                type="button"
+                                class="btn btn-sm btn-outline-info" 
+                                (click)="previewTheme()">
+                                <i class="pi pi-eye me-2"></i>
+                                Preview Theme
+                            </button>
+                            <button 
+                                type="button"
+                                class="btn btn-sm btn-success" 
+                                (click)="applyThemeCSS()">
+                                <i class="pi pi-check me-2"></i>
+                                Apply to All Pages
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-3">
+                            <i class="pi pi-info-circle mr-2"></i>
+                            Click "Preview Theme" to see changes, then "Apply to All Pages" to make buttons visible globally. Remember to save settings.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Font Settings -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Font Settings</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label for="fontFamily" class="font-medium text-gray-700 mb-2">Font Family</label>
+                        <input type="text" pInputText id="fontFamily" [(ngModel)]="_settings.fontFamily" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="fontSize" class="font-medium text-gray-700 mb-2">Font Size</label>
+                        <input type="text" pInputText id="fontSize" [(ngModel)]="_settings.fontSize" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="fontWeight" class="font-medium text-gray-700 mb-2">Font Weight</label>
+                        <input type="text" pInputText id="fontWeight" [(ngModel)]="_settings.fontWeight" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="lineHeight" class="font-medium text-gray-700 mb-2">Line Height</label>
+                        <input type="text" pInputText id="lineHeight" [(ngModel)]="_settings.lineHeight" class="w-full" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Common Variables -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Common Variables</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label for="primaryContrastColor" class="font-medium text-gray-700 mb-2">Primary Contrast Color</label>
+                        <input type="text" pInputText id="primaryContrastColor" [(ngModel)]="_settings.primaryContrastColor" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="textMutedColor" class="font-medium text-gray-700 mb-2">Text Muted Color</label>
+                        <input type="text" pInputText id="textMutedColor" [(ngModel)]="_settings.textMutedColor" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="contentBorderColor" class="font-medium text-gray-700 mb-2">Content Border Color</label>
+                        <input type="text" pInputText id="contentBorderColor" [(ngModel)]="_settings.contentBorderColor" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="contentBackground" class="font-medium text-gray-700 mb-2">Content Background</label>
+                        <input type="text" pInputText id="contentBackground" [(ngModel)]="_settings.contentBackground" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="contentHoverBackground" class="font-medium text-gray-700 mb-2">Content Hover Background</label>
+                        <input type="text" pInputText id="contentHoverBackground" [(ngModel)]="_settings.contentHoverBackground" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="overlayPopoverBackground" class="font-medium text-gray-700 mb-2">Overlay Popover Background</label>
+                        <input type="text" pInputText id="overlayPopoverBackground" [(ngModel)]="_settings.overlayPopoverBackground" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="transitionDuration" class="font-medium text-gray-700 mb-2">Transition Duration</label>
+                        <input type="text" pInputText id="transitionDuration" [(ngModel)]="_settings.transitionDuration" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="maskBackground" class="font-medium text-gray-700 mb-2">Mask Background</label>
+                        <input type="text" pInputText id="maskBackground" [(ngModel)]="_settings.maskBackground" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="contentBorderRadius" class="font-medium text-gray-700 mb-2">Content Border Radius</label>
+                        <input type="text" pInputText id="contentBorderRadius" [(ngModel)]="_settings.contentBorderRadius" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="layoutSectionTransitionDuration" class="font-medium text-gray-700 mb-2">Layout Section Transition Duration</label>
+                        <input type="text" pInputText id="layoutSectionTransitionDuration" [(ngModel)]="_settings.layoutSectionTransitionDuration" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="elementTransitionDuration" class="font-medium text-gray-700 mb-2">Element Transition Duration</label>
+                        <input type="text" pInputText id="elementTransitionDuration" [(ngModel)]="_settings.elementTransitionDuration" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="focusRingWidth" class="font-medium text-gray-700 mb-2">Focus Ring Width</label>
+                        <input type="text" pInputText id="focusRingWidth" [(ngModel)]="_settings.focusRingWidth" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="focusRingStyle" class="font-medium text-gray-700 mb-2">Focus Ring Style</label>
+                        <input type="text" pInputText id="focusRingStyle" [(ngModel)]="_settings.focusRingStyle" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="focusRingColor" class="font-medium text-gray-700 mb-2">Focus Ring Color</label>
+                        <input type="text" pInputText id="focusRingColor" [(ngModel)]="_settings.focusRingColor" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="focusRingOffset" class="font-medium text-gray-700 mb-2">Focus Ring Offset</label>
+                        <input type="text" pInputText id="focusRingOffset" [(ngModel)]="_settings.focusRingOffset" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="focusRingShadow" class="font-medium text-gray-700 mb-2">Focus Ring Shadow</label>
+                        <input type="text" pInputText id="focusRingShadow" [(ngModel)]="_settings.focusRingShadow" class="w-full" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dark Theme Variables -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Dark Theme Variables</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label for="surface950" class="font-medium text-gray-700 mb-2">Surface 950 (Dark)</label>
+                        <input type="text" pInputText id="surface950" [(ngModel)]="_settings.surface950" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="surface800" class="font-medium text-gray-700 mb-2">Surface 800 (Dark)</label>
+                        <input type="text" pInputText id="surface800" [(ngModel)]="_settings.surface800" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="surface100" class="font-medium text-gray-700 mb-2">Surface 100 (Dark)</label>
+                        <input type="text" pInputText id="surface100" [(ngModel)]="_settings.surface100" class="w-full" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Light Theme Variables -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Light Theme Variables</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label for="surface900" class="font-medium text-gray-700 mb-2">Surface 900 (Light)</label>
+                        <input type="text" pInputText id="surface900" [(ngModel)]="_settings.surface900" class="w-full" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="surface200" class="font-medium text-gray-700 mb-2">Surface 200 (Light)</label>
+                        <input type="text" pInputText id="surface200" [(ngModel)]="_settings.surface200" class="w-full" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMTP Settings -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">SMTP Settings</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label for="smtpServer" class="font-medium text-gray-700 mb-2">SMTP Server</label>
+                        <input type="text" pInputText id="smtpServer" [(ngModel)]="smtpSettings.smtpServer" class="w-full" />
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="smtpPort" class="font-medium text-gray-700 mb-2">SMTP Port</label>
+                        <input type="number" pInputText id="smtpPort" [(ngModel)]="smtpSettings.smtpPort" class="w-full" />
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="smtpUsername" class="font-medium text-gray-700 mb-2">SMTP Username</label>
+                        <input type="text" pInputText id="smtpUsername" [(ngModel)]="smtpSettings.smtpUsername" class="w-full" />
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="smtpPassword" class="font-medium text-gray-700 mb-2">SMTP Password</label>
+                        <input type="password" pInputText id="smtpPassword" [(ngModel)]="smtpSettings.smtpPassword" class="w-full" />
+                    </div>
+
+                    <div class="flex items-center md:col-span-2">
+                        <p-checkbox [(ngModel)]="smtpSettings.enableSsl" inputId="enableSsl" binary="true"></p-checkbox>
+                        <label for="enableSsl" class="ml-2 font-medium text-gray-700">Enable SSL</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Notifications</h2>
+                <div class="flex items-center">
+                    <p-checkbox [(ngModel)]="notificationSettings.notifyUsersOnPolicyUpdate" inputId="notifyUsersOnPolicyUpdate" binary="true"></p-checkbox>
+                    <label for="notifyUsersOnPolicyUpdate" class="ml-2 font-medium text-gray-700">Notify Users on Policy Update</label>
+                </div>
+            </div>
+
+            <!-- Premium Calculation Settings -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-700">Premium Calculation Settings</h2>
+                        <p class="text-sm text-gray-600 mt-1">Configure premium tables for policy covers and extended family benefits</p>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary" (click)="openPremiumSettings()">
+                        <i class="pi pi-calculator me-2"></i>
+                        Configure Premiums
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600">
+                            <i class="pi pi-table"></i>
+                        </div>
+                        <div class="text-sm text-gray-600 mt-2">Policy Cover Tables</div>
+                        <p class="text-xs text-gray-500 mt-1">Configure premiums based on cover amount and dependents</p>
+                    </div>
+                    <div class="text-center p-4 bg-indigo-50 rounded-lg">
+                        <div class="text-2xl font-bold text-indigo-600">
+                            <i class="pi pi-users"></i>
+                        </div>
+                        <div class="text-sm text-gray-600 mt-2">Extended Family Benefits</div>
+                        <p class="text-xs text-gray-500 mt-1">Configure premiums based on age ranges</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Management Section -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-700">Team Management</h2>
+                    <button type="button" class="btn btn-outline-secondary" (click)="openTeamManagement()">
+                        <i class="pi pi-users me-2"></i>
+                        Manage Team
+                    </button>
+                </div>
+
+                <!-- Team Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600">{{ getTeamMemberCount() }}</div>
+                        <div class="text-sm text-gray-600">Total Members</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600">{{ getActiveTeamMemberCount() }}</div>
+                        <div class="text-sm text-gray-600">Active Members</div>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600">{{ getUniqueRoleCount() }}</div>
+                        <div class="text-sm text-gray-600">Unique Roles</div>
+                    </div>
+                </div>
+
+                <!-- Quick Team Overview -->
+                <div *ngIf="teamMembers.length > 0" class="space-y-2">
+                    <h3 class="text-lg font-medium text-gray-700 mb-3">Recent Team Members</h3>
+                    <div class="space-y-2 max-h-48 overflow-y-auto">
+                        <div *ngFor="let member of getRecentTeamMembers()" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium" [style.background-color]="getAvatarColor(member.name)">
+                                    {{ getInitials(member.name) }}
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900">{{ member.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ member.email }}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-gray-700">{{ member.role }}</div>
+                                <div class="text-xs text-gray-500">{{ member.department || 'No dept.' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="teamMembers.length > 5" class="text-center mt-3">
+                        <button type="button" class="btn btn-sm btn-link" (click)="openTeamManagement()">
+                            View All ({{ teamMembers.length }} members)
+                        </button>
+                    </div>
+                </div>
+
+                <div *ngIf="teamMembers.length === 0" class="text-center py-8">
+                    <i class="pi pi-users text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 mb-4">No team members have been added yet</p>
+                    <button type="button" class="btn btn-primary" (click)="openTeamManagement()">
+                        <i class="pi pi-plus me-2"></i>
+                        Add First Team Member
+                    </button>
+                </div>
+            </div>
+
+            <!-- Other Settings -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Other Settings</h2>
+                <div class="flex flex-col">
+                    <label for="settings" class="font-medium text-gray-700 mb-2">Settings (JSON)</label>
+                    <textarea pInputTextarea id="settings" [ngModel]="_settings | json" rows="5" [disabled]="true" class="w-full"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-6">
+                <button type="button" class="btn btn-primary" (click)="saveSettings()">
+                    <i class="pi pi-check me-2"></i>
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-toast></p-toast>
+
+<!-- Team Management Dialog -->
+<p-dialog header="Team Management" [(visible)]="showTeamManagementDialog" [modal]="true" [style]="{ width: '90vw', maxWidth: '1200px' }" [draggable]="false" [resizable]="false">
+    <div class="team-management-content">
+        <app-team-editor [config]="teamEditorConfig"></app-team-editor>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2">
+            <button type="button" class="btn btn-secondary" (click)="showTeamManagementDialog = false">
+                <i class="pi pi-times me-2"></i>
+                Close
+            </button>
+            <button type="button" class="btn btn-success" (click)="saveTeamChanges()">
+                <i class="pi pi-check me-2"></i>
+                Save Changes
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Premium Calculation Settings Dialog -->
+<p-dialog header="Premium Calculation Settings" [(visible)]="showPremiumSettingsDialog" [modal]="true" [style]="{ width: '95vw', maxWidth: '1400px' }" [draggable]="false" [resizable]="false">
+    <div *ngIf="loadingPremiumSettings" class="text-center py-8">
+        <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
+        <p class="text-gray-600 mt-4">Loading premium settings...</p>
+    </div>
+
+    <div *ngIf="!loadingPremiumSettings && premiumSettings" class="premium-settings-content space-y-6">
+        <!-- Policy Cover Premium Table -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Policy Cover Premium Table</h3>
+                    <p class="text-sm text-gray-600">Configure premiums with flexible dependent count tiers (e.g., 1-5, 6-9, 10-15)</p>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary" (click)="addCoverRow()">
+                    <i class="pi pi-plus me-2"></i>
+                    Add Cover Amount
+                </button>
+            </div>
+
+            <!-- Loop through each cover amount row -->
+            <div *ngFor="let row of premiumSettings.policyCoverTable.rows; let rowIndex = index" class="mb-6 border border-gray-300 rounded-lg p-4 bg-gray-50">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center space-x-4">
+                        <label class="text-sm font-medium text-gray-700">Cover Amount (R):</label>
+                        <input type="number" pInputText [(ngModel)]="row.coverAmount" class="w-32" placeholder="e.g., 10000" />
+                    </div>
+                    <button type="button" class="btn btn-sm btn-danger" (click)="removeCoverRow(rowIndex)">
+                        <i class="pi pi-trash me-1"></i>
+                        Remove Cover
+                    </button>
+                </div>
+
+                <!-- Dependent Count Tiers Section -->
+                <div class="bg-white rounded-lg p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-md font-semibold text-gray-700">Dependent Count Tiers</h4>
+                        <button type="button" class="btn btn-sm btn-success" (click)="addDependentTier(rowIndex)">
+                            <i class="pi pi-plus me-1"></i>
+                            Add Tier
+                        </button>
+                    </div>
+
+                    <!-- Show tiers if they exist -->
+                    <div *ngIf="row.dependentCountTiers && row.dependentCountTiers.length > 0" class="space-y-3">
+                        <div *ngFor="let tier of row.dependentCountTiers; let tierIndex = index" class="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                            <div class="grid grid-cols-12 gap-3 items-center mb-3">
+                                <div class="col-span-3">
+                                    <label class="text-xs text-gray-600">Min Dependents</label>
+                                    <input type="number" pInputText [(ngModel)]="tier.minDependents" class="w-full mt-1" placeholder="e.g., 1" />
+                                </div>
+                                <div class="col-span-3">
+                                    <label class="text-xs text-gray-600">Max Dependents</label>
+                                    <input type="number" pInputText [(ngModel)]="tier.maxDependents" class="w-full mt-1" placeholder="e.g., 5" />
+                                </div>
+                                <div class="col-span-5">
+                                    <label class="text-xs text-gray-600">Label</label>
+                                    <input type="text" pInputText [(ngModel)]="tier.label" class="w-full mt-1" placeholder="e.g., 1-5 dependents" />
+                                </div>
+                                <div class="col-span-1 flex justify-end">
+                                    <button type="button" class="btn btn-sm btn-danger" (click)="removeDependentTier(rowIndex, tierIndex)">
+                                        <i class="pi pi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Age Brackets for this tier -->
+                            <div class="mt-3 pl-4 border-l-2 border-blue-300">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-medium text-gray-700">Age Brackets</span>
+                                    <button type="button" class="btn btn-xs btn-primary" (click)="addAgeBracket(rowIndex, tierIndex)">
+                                        <i class="pi pi-plus me-1"></i>
+                                        Add Age Bracket
+                                    </button>
+                                </div>
+
+                                <div *ngIf="getAgeBracketsArray(tier).length > 0" class="space-y-2">
+                                    <div *ngFor="let bracket of getAgeBracketsArray(tier); trackBy: trackByBracketKey; let bracketIndex = index" class="grid grid-cols-12 gap-2 items-center bg-white p-2 rounded">
+                                        <div class="col-span-3">
+                                            <label class="text-xs text-gray-500">Max Age</label>
+                                            <input type="number" pInputText [(ngModel)]="bracket.key" class="w-full mt-1 text-sm" placeholder="e.g., 64" readonly />
+                                        </div>
+                                        <div class="col-span-4">
+                                            <label class="text-xs text-gray-500">Label</label>
+                                            <input type="text" pInputText [(ngModel)]="bracket.value.label" class="w-full mt-1 text-sm" placeholder="e.g., Under 65" />
+                                        </div>
+                                        <div class="col-span-4">
+                                            <label class="text-xs text-gray-500">Premium (R)</label>
+                                            <input type="number" pInputText [(ngModel)]="bracket.value.premium" class="w-full mt-1 text-sm" placeholder="e.g., 220" />
+                                        </div>
+                                        <div class="col-span-1 flex justify-end">
+                                            <button type="button" class="btn btn-xs btn-danger" (click)="removeAgeBracket(tier, bracket.key)">
+                                                <i class="pi pi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="getAgeBracketsArray(tier).length === 0" class="text-xs text-gray-500 italic py-2">
+                                    No age brackets defined. Click "Add Age Bracket" to create one.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty state for tiers -->
+                    <div *ngIf="!row.dependentCountTiers || row.dependentCountTiers.length === 0" class="text-center py-4 text-gray-500 text-sm">
+                        No dependent count tiers defined. Click "Add Tier" to create one (e.g., 1-5, 6-9).
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state for cover amounts -->
+            <div *ngIf="!premiumSettings.policyCoverTable.rows || premiumSettings.policyCoverTable.rows.length === 0" class="text-center py-8 text-gray-500">
+                No cover amounts defined. Click "Add Cover Amount" to get started.
+            </div>
+        </div>
+
+        <!-- Extended Family Benefit Table -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">Extended Family Benefit Table</h3>
+                    <p class="text-sm text-gray-600">Configure premiums for extended family members based on age ranges and cover amounts</p>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary" (click)="addExtendedFamilyRow()">
+                    <i class="pi pi-plus me-2"></i>
+                    Add Row
+                </button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Min Age</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max Age</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age Range</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R5,000 Cover</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R10,000 Cover</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R15,000 Cover</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R20,000 Cover</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R25,000 Cover</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr *ngFor="let row of premiumSettings.extendedFamilyTable.rows; let i = index" class="hover:bg-gray-50">
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input type="number" pInputText [(ngModel)]="row.minAge" class="w-full" placeholder="e.g., 0" />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input type="number" pInputText [(ngModel)]="row.maxAge" class="w-full" placeholder="e.g., 20" />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input type="text" pInputText [(ngModel)]="row.ageRange" class="w-full" placeholder="e.g., 0-20" />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input type="number" pInputText [(ngModel)]="row.premium_5000_Cover" class="w-full" placeholder="e.g., 50" />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input type="number" pInputText [(ngModel)]="row.premium_10000_Cover" class="w-full" placeholder="e.g., 75" />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input type="number" pInputText [(ngModel)]="row.premium_15000_Cover" class="w-full" placeholder="e.g., 100" />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input type="number" pInputText [(ngModel)]="row.premium_20000_Cover" class="w-full" placeholder="e.g., 125" />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input type="number" pInputText [(ngModel)]="row.premium_25000_Cover" class="w-full" placeholder="e.g., 150" />
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <button type="button" class="btn btn-sm btn-danger" (click)="removeExtendedFamilyRow(i)">
+                                    <i class="pi pi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start gap-3">
+                <i class="pi pi-info-circle text-blue-600 mt-1"></i>
+                <div class="text-sm text-blue-800">
+                    <p class="font-semibold mb-1">Premium Calculation Guidelines:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Policy Cover Table:</strong> Defines base premiums based on cover amount and dependent count/age brackets</li>
+                        <li><strong>Extended Family Table:</strong> Additional premiums for extended family members based on their age and selected cover</li>
+                        <li>Premium amounts should be in the tenant's configured currency ({{currency}})</li>
+                        <li>Changes take effect immediately for new premium calculations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2">
+            <button type="button" class="btn btn-secondary" (click)="showPremiumSettingsDialog = false">
+                <i class="pi pi-times me-2"></i>
+                Close
+            </button>
+            <button type="button" class="btn btn-success" (click)="savePremiumSettings()">
+                <i class="pi pi-check me-2"></i>
+                Save Premium Settings
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

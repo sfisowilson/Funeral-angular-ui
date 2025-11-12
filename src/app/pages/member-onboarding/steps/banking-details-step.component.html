@@ -1,0 +1,172 @@
+<div class="banking-details-step">
+  <p-toast />
+  
+  <p-card header="Banking Details" subheader="Please provide your bank account information for policy payments">
+    <form [formGroup]="bankingForm" (ngSubmit)="onSubmit()" class="modern-form">
+      <!-- Bank Name -->
+      <div class="form-group mb-3">
+        <label for="bankName" class="form-label required">Bank Name</label>
+        <p-dropdown
+          id="bankName"
+          formControlName="bankName"
+          [options]="banks"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select your bank"
+          [style]="{'width':'100%'}"
+          [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('bankName')}"
+        ></p-dropdown>
+        @if (isFieldInvalid('bankName')) {
+          <small class="text-danger mt-1">{{ getFieldError('bankName') }}</small>
+        }
+      </div>
+
+      <!-- Account Number -->
+      <div class="form-group mb-3">
+        <label for="accountNumber" class="form-label required">Account Number</label>
+        <input
+          pInputText
+          id="accountNumber"
+          formControlName="accountNumber"
+          placeholder="Enter your account number"
+          type="text"
+          maxlength="15"
+          class="form-control"
+          [ngClass]="{'is-invalid': isFieldInvalid('accountNumber')}"
+        />
+        @if (isFieldInvalid('accountNumber')) {
+          <small class="text-danger mt-1">{{ getFieldError('accountNumber') }}</small>
+        }
+      </div>
+
+      <!-- Account Type -->
+      <div class="form-group mb-3">
+        <label for="accountType" class="form-label required">Account Type</label>
+        <p-dropdown
+          id="accountType"
+          formControlName="accountType"
+          [options]="accountTypes"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select account type"
+          [style]="{'width':'100%'}"
+          [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('accountType')}"
+        ></p-dropdown>
+        @if (isFieldInvalid('accountType')) {
+          <small class="text-danger mt-1">{{ getFieldError('accountType') }}</small>
+        }
+      </div>
+
+      <!-- Branch Code -->
+      <div class="form-group mb-3">
+        <label for="branchCode" class="form-label required">Branch Code</label>
+        <input
+          pInputText
+          id="branchCode"
+          formControlName="branchCode"
+          placeholder="Enter 6-digit branch code"
+          type="text"
+          maxlength="6"
+          class="form-control"
+          [ngClass]="{'is-invalid': isFieldInvalid('branchCode')}"
+        />
+        @if (isFieldInvalid('branchCode')) {
+          <small class="text-danger mt-1">{{ getFieldError('branchCode') }}</small>
+        }
+      </div>
+
+      <!-- Branch Name -->
+      <div class="form-group mb-3">
+        <label for="branchName" class="form-label required">Branch Name</label>
+        <input
+          pInputText
+          id="branchName"
+          formControlName="branchName"
+          placeholder="Enter branch name"
+          type="text"
+          class="form-control"
+          [ngClass]="{'is-invalid': isFieldInvalid('branchName')}"
+        />
+        @if (isFieldInvalid('branchName')) {
+          <small class="text-danger mt-1">{{ getFieldError('branchName') }}</small>
+        }
+      </div>
+
+      <!-- Account Holder Name -->
+      <div class="form-group mb-3">
+        <label for="accountHolderName" class="form-label required">Account Holder Name</label>
+        <input
+          pInputText
+          id="accountHolderName"
+          formControlName="accountHolderName"
+          placeholder="Enter account holder's full name"
+          type="text"
+          class="form-control"
+          [ngClass]="{'is-invalid': isFieldInvalid('accountHolderName')}"
+        />
+        @if (isFieldInvalid('accountHolderName')) {
+          <small class="text-danger mt-1">{{ getFieldError('accountHolderName') }}</small>
+        }
+        <small class="form-text text-muted mt-1">
+          Name as it appears on your bank account
+        </small>
+      </div>
+
+      <!-- Debit Day -->
+      <div class="form-group mb-3">
+        <label for="debitDay" class="form-label required">Debit Day</label>
+        <p-dropdown
+          id="debitDay"
+          formControlName="debitDay"
+          [options]="debitDays"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select day of month for debit"
+          [style]="{'width':'100%'}"
+          [ngClass]="{'ng-invalid ng-dirty': isFieldInvalid('debitDay')}"
+        ></p-dropdown>
+        @if (isFieldInvalid('debitDay')) {
+          <small class="text-danger mt-1">{{ getFieldError('debitDay') }}</small>
+        }
+        <small class="form-text text-muted mt-1">
+          <i class="pi pi-info-circle me-1"></i>
+          Your account will be debited on this day each month for policy payments
+        </small>
+      </div>
+
+      <!-- Security Notice -->
+      <div class="alert alert-info mb-3" role="alert">
+        <i class="pi pi-info-circle me-2"></i>
+        <strong>Secure Information:</strong> Your banking details are encrypted and stored securely. 
+        They will only be used for policy-related transactions.
+      </div>
+
+      <!-- Submit Button -->
+      <div class="d-flex justify-content-between mt-4">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="skipStep()"
+          [disabled]="loading()"
+        >
+          <i class="pi pi-arrow-right me-2"></i>
+          <span>Skip for Now</span>
+        </button>
+        
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span>Saving...</span>
+          } @else {
+            <i class="pi pi-check me-2"></i>
+            <span>{{ existingBankingDetails() ? 'Update' : 'Save' }} & Continue</span>
+          }
+        </button>
+      </div>
+    </form>
+  </p-card>
+</div>

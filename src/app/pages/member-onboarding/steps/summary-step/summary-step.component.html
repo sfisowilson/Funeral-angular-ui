@@ -1,0 +1,139 @@
+<div class="summary-step">
+  <p-toast></p-toast>
+  
+  <div class="modern-card">
+    <div class="card-header">
+      <h3>Summary & Signature</h3>
+      <p>Review your onboarding information and provide your digital signature to complete the process</p>
+    </div>
+
+    <div class="card-body">
+      <!-- PDF Preview Section -->
+      <div class="pdf-section">
+        <h4>Onboarding Document Preview</h4>
+        <p class="section-description">
+          Review all the information you've provided during onboarding. You can download this document for your records.
+        </p>
+        
+        @if (isLoadingPdf()) {
+          <div class="loading-container">
+            <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+            <p>Loading PDF preview...</p>
+          </div>
+        } @else if (pdfUrl()) {
+          <div class="pdf-preview">
+            <iframe 
+              [src]="pdfUrl()!" 
+              width="100%" 
+              height="600px" 
+              style="border: 1px solid #ddd; border-radius: 8px;">
+            </iframe>
+          </div>
+        } @else {
+          <div class="pdf-placeholder">
+            <i class="pi pi-file-pdf" style="font-size: 3rem; color: #667eea;"></i>
+            <p>PDF preview will be available once you connect to the API</p>
+            <small>Start the backend API and refresh this page</small>
+          </div>
+        }
+        
+        <div class="pdf-actions">
+          <button 
+            pButton 
+            type="button" 
+            label="Download PDF" 
+            icon="pi pi-download" 
+            class="btn btn-secondary"
+            [loading]="isDownloading()"
+            (click)="downloadPdf()">
+          </button>
+        </div>
+      </div>
+
+      <!-- Signature Section -->
+      <div class="signature-section">
+        <h4>Digital Signature</h4>
+        <p class="section-description">
+          @if (viewMode()) {
+            View the member's digital signature below.
+          } @else {
+            Please sign below to confirm that all information provided is accurate and complete.
+          }
+        </p>
+        
+        <div class="signature-container">
+          @if (!viewMode()) {
+            <div class="signature-instructions">
+              <i class="pi pi-info-circle"></i>
+              <span>Use your mouse or touchpad to draw your signature in the box below</span>
+            </div>
+          }
+          
+          <canvas 
+            id="signatureCanvas" 
+            width="600" 
+            height="200" 
+            [class.signature-canvas]="!viewMode()"
+            [class.signature-canvas-readonly]="viewMode()"
+            [class.disabled]="viewMode()"
+            (mousedown)="!viewMode() && startDrawing($event)"
+            (mousemove)="!viewMode() && draw($event)"
+            (mouseup)="!viewMode() && stopDrawing()"
+            (mouseleave)="!viewMode() && stopDrawing()">
+          </canvas>
+          
+          @if (!viewMode()) {
+            <div class="signature-actions">
+              <button 
+                pButton 
+                type="button" 
+                label="Clear Signature" 
+                icon="pi pi-times" 
+                class="btn btn-outline-secondary"
+                (click)="clearSignature()">
+              </button>
+            </div>
+          }
+        </div>
+
+        @if (signatureDataUrl()) {
+          <div class="signature-confirmation">
+            <i class="pi pi-check-circle" style="color: #10b981;"></i>
+            <span>Signature captured successfully</span>
+          </div>
+        }
+      </div>
+
+      <!-- Confirmation Text -->
+      <div class="confirmation-section">
+        <div class="confirmation-text">
+          <i class="pi pi-shield" style="color: #667eea;"></i>
+          <p>
+            By signing this document, I confirm that:
+          </p>
+          <ul>
+            <li>All information provided during this onboarding process is accurate and complete</li>
+            <li>I have reviewed the terms and conditions and agree to abide by them</li>
+            <li>I understand my rights and responsibilities as a member</li>
+            <li>I authorize the processing of my personal information as described</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      @if (!viewMode()) {
+        <button 
+          pButton 
+          type="button" 
+          label="Sign & Complete Onboarding" 
+          icon="pi pi-check" 
+          class="btn btn-success btn-lg"
+          [loading]="isSigning()"
+          [disabled]="!signatureDataUrl()"
+          (click)="signAndComplete()">
+        </button>
+      }
+    </div>
+  </div>
+</div>

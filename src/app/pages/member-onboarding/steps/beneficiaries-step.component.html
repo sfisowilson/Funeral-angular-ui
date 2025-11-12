@@ -1,0 +1,293 @@
+<div class="beneficiaries-step">
+    <p-toast></p-toast>
+    
+    <div class="step-header">
+        <p-button 
+            label="Add Beneficiary" 
+            icon="pi pi-plus"
+            (onClick)="showAddDialog()"
+            styleClass="p-button-success">
+        </p-button>
+        
+        @if (beneficiaries().length > 0) {
+            <div class="status-badge success">
+                <i class="pi pi-check-circle"></i>
+                {{ beneficiaries().length }} beneficiary(ies) added
+            </div>
+        } @else {
+            <div class="status-badge warning">
+                <i class="pi pi-exclamation-triangle"></i>
+                No beneficiaries added yet
+            </div>
+        }
+    </div>
+
+    @if (loading()) {
+        <div class="loading-message">
+            <i class="pi pi-spin pi-spinner"></i>
+            Loading beneficiaries...
+        </div>
+    }
+
+    @if (!loading() && beneficiaries().length === 0) {
+        <div class="empty-state">
+            <i class="pi pi-user" style="font-size: 3rem; color: var(--text-color-secondary)"></i>
+            <h4>No beneficiaries added</h4>
+            <p>Click "Add Beneficiary" to add your first beneficiary.</p>
+        </div>
+    }
+
+    @if (!loading() && beneficiaries().length > 0) {
+        <p-table 
+            [value]="beneficiaries()" 
+            styleClass="p-datatable-striped"
+            [tableStyle]="{'min-width': '50rem'}">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Name</th>
+                    <th>Relationship</th>
+                    <th>ID Number</th>
+                    <th>Benefit %</th>
+                    <th style="width: 120px">Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-beneficiary>
+                <tr>
+                    <td>{{ beneficiary.name || '-' }}</td>
+                    <td>-</td>
+                    <td>{{ beneficiary.identificationNumber || '-' }}</td>
+                    <td>-</td>
+                    <td>
+                        <div class="action-buttons">
+                            <p-button 
+                                icon="pi pi-pencil" 
+                                styleClass="p-button-text p-button-sm"
+                                (onClick)="editBeneficiary(beneficiary)"
+                                pTooltip="Edit">
+                            </p-button>
+                            <p-button 
+                                icon="pi pi-trash" 
+                                styleClass="p-button-text p-button-danger p-button-sm"
+                                (onClick)="deleteBeneficiary(beneficiary.id)"
+                                pTooltip="Delete">
+                            </p-button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    }
+
+    <!-- Add/Edit Dialog -->
+    <p-dialog 
+        [(visible)]="displayDialog" 
+        [header]="editMode() ? 'Edit Beneficiary' : 'Add Beneficiary'"
+        [modal]="true" 
+        [style]="{width: '700px', 'max-height': '90vh'}"
+        [draggable]="false"
+        [resizable]="false">
+        
+        <p-tabView>
+            <p-tabPanel header="Beneficiary Information">
+                <div class="p-fluid">
+            <div class="field">
+                <label for="name">Full Name *</label>
+                <input 
+                    pInputText 
+                    id="name" 
+                    [(ngModel)]="currentBeneficiary.name" 
+                    placeholder="Enter full name"
+                    class="w-full" />
+            </div>
+            
+            <div class="field">
+                <label for="idNumber">ID Number (SA) *</label>
+                <input 
+                    pInputText 
+                    id="idNumber" 
+                    [(ngModel)]="currentBeneficiary.identificationNumber" 
+                    (ngModelChange)="onIdNumberChange()"
+                    placeholder="e.g. 0001015009087"
+                    maxlength="13"
+                    class="w-full"
+                    [class.ng-invalid]="idInfo() && !idInfo()!.isValid"
+                    [class.ng-valid]="idInfo() && idInfo()!.isValid" />
+                
+                @if (idInfo() && !idInfo()!.isValid) {
+                    <small class="p-error">{{ idInfo()!.errorMessage }}</small>
+                }
+                
+                @if (idInfo() && idInfo()!.isValid) {
+                    <small class="p-success">
+                        <i class="pi pi-check-circle"></i> Valid SA ID Number
+                    </small>
+                }
+            </div>
+            
+            <!-- Auto-populated Date of Birth -->
+            @if (parsedDateOfBirth()) {
+                <div class="field">
+                    <label for="dob">Date of Birth (from ID)</label>
+                    <p-calendar 
+                        id="dob" 
+                        [ngModel]="parsedDateOfBirth()"
+                        [disabled]="true"
+                        dateFormat="dd/mm/yy"
+                        [showIcon]="true"
+                        placeholder="Auto-populated from ID"
+                        class="w-full">
+                    </p-calendar>
+                    <small class="text-muted">Age: {{ idInfo()?.age }} years</small>
+                </div>
+            }
+            
+            <!-- Auto-populated Gender -->
+            @if (parsedGender()) {
+                <div class="field">
+                    <label for="gender">Gender (from ID)</label>
+                    <input 
+                        pInputText 
+                        id="gender" 
+                        [value]="parsedGender()"
+                        [disabled]="true"
+                        class="w-full" />
+                </div>
+            }
+            
+            <div class="field">
+                <label for="email">Email Address</label>
+                <input 
+                    pInputText 
+                    id="email" 
+                    [(ngModel)]="currentBeneficiary.email" 
+                    type="email"
+                    placeholder="Enter email address"
+                    class="w-full" />
+            </div>
+            
+            <div class="field">
+                <label for="phone">Phone Number</label>
+                <p-inputMask 
+                    id="phone" 
+                    [(ngModel)]="currentBeneficiary.phone1" 
+                    mask="(999) 999-9999"
+                    placeholder="(012) 345-6789"
+                    class="w-full">
+                </p-inputMask>
+            </div>
+            
+            <div class="field">
+                <label for="address">Address</label>
+                <input 
+                    pInputText 
+                    id="address" 
+                    [(ngModel)]="currentBeneficiary.address" 
+                    placeholder="Enter address"
+                    class="w-full" />
+            </div>
+        </div>
+            </p-tabPanel>
+            
+            <!-- Documents Tab -->
+            @if (editMode() && currentBeneficiaryId()) {
+                <p-tabPanel header="Documents">
+                    <div class="documents-section">
+                        <p class="info-text">
+                            <i class="pi pi-info-circle"></i>
+                            Upload supporting documents for this beneficiary (e.g., ID document, banking details)
+                        </p>
+                        
+                        <!-- Upload Form -->
+                        <div class="upload-form">
+                            <div class="field">
+                                <label>Document Type *</label>
+                                <p-dropdown
+                                    [(ngModel)]="selectedDocumentType"
+                                    [options]="documentTypes"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="Select document type"
+                                    [showClear]="true"
+                                    styleClass="w-full">
+                                    <ng-template let-option pTemplate="item">
+                                        <div class="dropdown-option">
+                                            <i [class]="'pi ' + option.icon"></i>
+                                            <div>
+                                                <div class="dropdown-item-label">{{ option.label }}</div>
+                                                <small class="dropdown-item-description">{{ option.description }}</small>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                            </div>
+                            
+                            <div class="field">
+                                <label>File *</label>
+                                <p-fileUpload
+                                    mode="basic"
+                                    [auto]="false"
+                                    [customUpload]="true"
+                                    (onSelect)="onFileSelect($event)"
+                                    [maxFileSize]="10000000"
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    chooseLabel="Choose File">
+                                </p-fileUpload>
+                                @if (selectedFile) {
+                                    <small class="file-selected">
+                                        <i class="pi pi-check"></i> {{ selectedFile.name }}
+                                    </small>
+                                }
+                            </div>
+                            
+                            <p-button 
+                                label="Upload Document"
+                                icon="pi pi-upload"
+                                (onClick)="uploadBeneficiaryDocument()"
+                                [loading]="uploading()"
+                                [disabled]="!selectedDocumentType || !selectedFile">
+                            </p-button>
+                        </div>
+                        
+                        <!-- Uploaded Documents List -->
+                        @if (uploadedDocuments().length > 0) {
+                            <div class="uploaded-docs-list">
+                                <h4>Uploaded Documents</h4>
+                                @for (doc of uploadedDocuments(); track doc.id) {
+                                    <div class="doc-item">
+                                        <div class="doc-info">
+                                            <i class="pi pi-file"></i>
+                                            <div>
+                                                <strong>{{ doc.description || 'Document' }}</strong>
+                                                <small>{{ doc.fileName }}</small>
+                                            </div>
+                                        </div>
+                                        <p-button 
+                                            icon="pi pi-trash" 
+                                            styleClass="p-button-text p-button-danger p-button-sm"
+                                            (onClick)="deleteBeneficiaryDocument(doc.id)"
+                                            pTooltip="Delete">
+                                        </p-button>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </p-tabPanel>
+            }
+        </p-tabView>
+        
+        <ng-template pTemplate="footer">
+            <p-button 
+                label="Cancel" 
+                icon="pi pi-times" 
+                (onClick)="displayDialog = false" 
+                styleClass="p-button-text">
+            </p-button>
+            <p-button 
+                label="Save" 
+                icon="pi pi-check" 
+                (onClick)="saveBeneficiary()">
+            </p-button>
+        </ng-template>
+    </p-dialog>
+</div>

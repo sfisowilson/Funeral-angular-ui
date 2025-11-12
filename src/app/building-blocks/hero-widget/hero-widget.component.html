@@ -1,0 +1,14 @@
+<div class="hero-widget" [style.background-color]="config.settings.backgroundColor" [style.padding.px]="config.settings.padding">
+    <h1 [style.font-size.px]="config.settings.titleSize" [style.color]="config.settings.textColor">{{ config.settings.title }}</h1>
+    <p [style.font-size.px]="config.settings.subtitleSize" [style.color]="config.settings.textColor">{{ config.settings.subtitle }}</p>
+    <a
+        [href]="config.settings.buttonLink"
+        class="btn"
+        [style.background-color]="config.settings.buttonColor"
+        [style.color]="config.settings.buttonTextColor"
+        [style.font-size.px]="config.settings.buttonTextSize"
+        [style.padding.px]="config.settings.buttonPadding"
+    >
+        {{ config.settings.buttonText }}
+    </a>
+</div>

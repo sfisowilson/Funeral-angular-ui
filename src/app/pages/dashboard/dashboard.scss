@@ -1,0 +1,220 @@
+@import '../../shared/styles/modern-ui.scss';
+
+.dashboard-container {
+  padding: 1.5rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+
+  .section-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    color: white;
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+
+      .section-icon {
+        font-size: 3rem;
+        opacity: 0.9;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        @media (max-width: 768px) {
+          font-size: 2rem;
+        }
+      }
+
+      .section-subtitle {
+        font-size: 1.1rem;
+        margin: 0;
+        opacity: 0.9;
+        font-weight: 400;
+
+        @media (max-width: 768px) {
+          font-size: 1rem;
+        }
+      }
+    }
+
+    @media (max-width: 768px) {
+      padding: 1.5rem;
+      
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        
+        .section-icon {
+          font-size: 2.5rem;
+        }
+      }
+    }
+  }
+}
+
+.dashboard-widgets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+
+  .widget-wrapper {
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    &.half-width {
+      grid-column: span 1;
+    }
+
+    @media (max-width: 1200px) {
+      grid-column: 1 / -1 !important;
+    }
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+    .empty-icon {
+      font-size: 4rem;
+      color: #cbd5e1;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: #475569;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 1rem;
+    }
+  }
+
+  .loading-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+
+    i {
+      color: #667eea;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 1rem;
+    }
+  }
+}
+
+
+// Animation for dashboard load
+@keyframes dashboardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard-container {
+  animation: dashboardFadeIn 0.6s ease-out;
+}
+
+// Widget entrance animations
+.widget-wrapper {
+  animation: slideInUp 0.6s ease-out;
+  animation-fill-mode: both;
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+}
+
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Dark mode support
+.dark {
+  .dashboard-container {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  }
+  
+  .widget-wrapper {
+    :ng-deep {
+      .modern-card {
+        background: #1e293b;
+        border-color: #334155;
+        
+        .card-header {
+          background: linear-gradient(135deg, #334155 0%, #475569 100%);
+          border-bottom-color: #475569;
+          color: #f1f5f9;
+        }
+        
+        .card-content {
+          background: #1e293b;
+          color: #f1f5f9;
+        }
+      }
+      
+      .stat-card {
+        background: #1e293b;
+        border-color: #334155;
+        color: #f1f5f9;
+      }
+    }
+  }
+  
+  .dashboard-header .section-header {
+    background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%);
+  }
+  
+  .empty-state {
+    background: #1e293b;
+    color: #f1f5f9;
+  }
+}
+

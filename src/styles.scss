@@ -1,0 +1,8 @@
+/* You can add global styles to this file, and also import other style files */
+@use 'bootstrap/scss/bootstrap' as bs;
+@use 'bootstrap-icons/font/bootstrap-icons.css';
+@use './tailwind.css';
+@use './assets/layout/layout.scss';
+@use 'primeicons/primeicons.css';
+@use './assets/demo/demo.scss';
+@use './app/shared/styles/modern-ui.scss';

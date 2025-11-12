@@ -1,0 +1,15 @@
+<div class="team-editor-widget">
+    <h2>{{ config.settings.title }}</h2>
+
+    <div *ngIf="teamMembers.length > 0" class="team-members-list">
+        <div *ngFor="let member of teamMembers" class="team-member-card">
+            <h3>{{ member.name }}</h3>
+            <p><strong>Email:</strong> {{ member.email }}</p>
+            <p><strong>Role:</strong> {{ member.role }}</p>
+        </div>
+    </div>
+
+    <div *ngIf="teamMembers.length === 0">
+        <p>No team members added.</p>
+    </div>
+</div>

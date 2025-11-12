@@ -1,0 +1,25 @@
+/* override variable properties eg     --p-primary-color */
+:root {
+    --p-primary-color: #f5a623;
+    --p-secondary-color: #f8e0c0;
+    --p-text-color: #333;
+    --p-background-color: #f7efe7;
+    --p-border-color: #ddd;
+
+    --p-button-primary-hover-background: #d38304;
+    --p-primary-active-color: #d67d08;
+}
+
+body {
+    background-color: rgb(247, 239, 231);
+}
+
+.layout-topbar {
+    background-color: rgb(250, 223, 192) !important;
+
+}
+
+
+.layout-sidebar {
+    background-color: rgb(250, 223, 192) !important;
+}

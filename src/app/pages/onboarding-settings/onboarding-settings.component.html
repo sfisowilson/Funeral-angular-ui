@@ -1,0 +1,20 @@
+<div class="modern-card">
+    <div class="card-header">
+        <h2>Onboarding Settings</h2>
+        <p>Configure terms & conditions, required documents, and dynamic form fields for member onboarding</p>
+    </div>
+
+    <div class="card-content">
+        <p-tabView [(activeIndex)]="activeIndex">
+            <p-tabPanel header="Terms & Conditions">
+                <app-terms-management />
+            </p-tabPanel>
+            <p-tabPanel header="Required Documents">
+                <app-required-documents />
+            </p-tabPanel>
+            <p-tabPanel header="Field Configuration">
+                <app-field-configuration />
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+</div>

@@ -1,0 +1,141 @@
+<<p-toolbar styleClass="mb-6">
+    <ng-template #start>
+        <p-button label="New Beneficiary" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+        <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedBeneficiaries()" [disabled]="!selectedBeneficiaries || !selectedBeneficiaries.length" />
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt
+    [value]="beneficiaries"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    [(selection)]="selectedBeneficiaries"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} beneficiaries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <h5 class="m-0">Manage Beneficiaries</h5>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+            </p-iconfield>
+        </div>
+    </ng-template>
+
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="name" style="min-width: 12rem">
+                Name
+                <p-sortIcon field="name" />
+            </th>
+            <th pSortableColumn="email" style="min-width: 12rem">
+                Email
+                <p-sortIcon field="email" />
+            </th>
+            <th pSortableColumn="identificationNumber" style="min-width: 10rem">
+                ID Number
+                <p-sortIcon field="identificationNumber" />
+            </th>
+            <th style="min-width: 10rem">Verification Status</th>
+            <th style="min-width: 12rem"></th>
+        </tr>
+    </ng-template>
+
+    <ng-template #body let-beneficiary>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="beneficiary" />
+            </td>
+            <td>{{ beneficiary.name }}</td>
+            <td>{{ beneficiary.email }}</td>
+            <td>{{ beneficiary.identificationNumber }}</td>
+            <td>
+                <app-verification-status [memberId]="beneficiary.id" [compact]="true" [showHeader]="false"> </app-verification-status>
+            </td>
+            <td>
+                <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editBeneficiary(beneficiary)" />
+                <p-button icon="pi pi-shield" severity="info" class="mr-2" [rounded]="true" [outlined]="true" (click)="verifyBeneficiaryIdentity(beneficiary)" />
+                <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteBeneficiary(beneficiary)" />
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<!-- Beneficiary Dialog -->
+<p-dialog [(visible)]="beneficiaryDialog" [style]="{ width: '90vw', maxWidth: '600px' }" header="Beneficiary Information" [modal]="true" [closable]="true" styleClass="modern-dialog">
+    <ng-template #content>
+        <div class="p-4">
+            <div class="grid grid-cols-1 gap-4">
+                <div class="form-group">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2"> Full Name <span class="text-red-500">*</span> </label>
+                    <input type="text" pInputText id="name" [(ngModel)]="beneficiary.name" required autofocus class="w-full" placeholder="Enter full name" />
+                    <small class="text-red-500" *ngIf="submitted && !beneficiary.name"> Full name is required </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2"> Email Address </label>
+                    <input type="email" pInputText id="email" [(ngModel)]="beneficiary.email" class="w-full" placeholder="Enter email address" />
+                </div>
+
+                <div class="form-group">
+                    <label for="identificationNumber" class="block text-sm font-medium text-gray-700 mb-2"> ID Number </label>
+                    <input type="text" pInputText id="identificationNumber" [(ngModel)]="beneficiary.identificationNumber" class="w-full" placeholder="Enter ID number" />
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-3">
+            <p-button label="Cancel" icon="pi pi-times" severity="secondary" outlined (click)="hideDialog()" />
+            <p-button label="Save Beneficiary" icon="pi pi-check" (click)="saveBeneficiary()" />
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Identity Verification Dialog -->
+<p-dialog [(visible)]="verificationDialog" [style]="{ width: '90vw', maxWidth: '600px' }" header="Beneficiary Identity Verification" [modal]="true" [closable]="true" styleClass="modern-dialog">
+    <ng-template #content>
+        <div class="p-4">
+            <div class="mb-4 text-center">
+                <i class="pi pi-shield text-blue-500 text-4xl mb-2"></i>
+                <h4 class="text-900 mb-2">Verify Beneficiary Identity</h4>
+                <p class="text-muted-color">Please verify the identity of: {{ beneficiary.name || 'Beneficiary' }}</p>
+            </div>
+
+            <app-identity-verification-form
+                [title]="'Beneficiary Identity Verification'"
+                [subtitle]="'Verify identity for: ' + (beneficiary.name || 'Beneficiary')"
+                [memberId]="beneficiary.id"
+                [initialData]="{
+                    idNumber: beneficiary.identificationNumber,
+                    firstName: beneficiary.name ? beneficiary.name.split(' ')[0] : '',
+                    lastName: beneficiary.name ? beneficiary.name.split(' ').slice(1).join(' ') : ''
+                }"
+                (verificationComplete)="onVerificationComplete($event)"
+                (verificationStarted)="onVerificationStarted()"
+            >
+            </app-identity-verification-form>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-3">
+            <p-button label="Skip for Now" icon="pi pi-times" severity="secondary" outlined (click)="closeVerificationDialog()" />
+        </div>
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog />
+
+<p-toast />

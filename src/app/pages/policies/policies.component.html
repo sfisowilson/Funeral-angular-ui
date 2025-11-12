@@ -1,0 +1,88 @@
+<p-toolbar styleClass="mb-6 modern-toolbar">
+    <ng-template #start>
+        <button type="button" class="btn btn-primary me-2" (click)="openNew()">
+            <i class="pi pi-plus me-2"></i>
+            New Policy
+        </button>
+        <button type="button" class="btn btn-outline-danger" (click)="deleteSelectedPolicies()" [disabled]="!selectedPolicies || !selectedPolicies.length">
+            <i class="pi pi-trash me-2"></i>
+            Delete
+        </button>
+    </ng-template>
+
+    <ng-template #end>
+        <button type="button" class="btn btn-secondary" (click)="exportCSV()">
+            <i class="pi pi-upload me-2"></i>
+            Export
+        </button>
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt
+    [value]="policies()"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedPolicies"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} policies"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+    styleClass="modern-table"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <div class="section-header">
+                <i class="pi pi-file-text text-purple-600"></i>
+                <h3>Manage Policies</h3>
+            </div>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search policies..." class="search-input" />
+            </p-iconfield>
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="name" style="min-width: 16rem">
+                Name
+                <p-sortIcon field="name" />
+            </th>
+            <th pSortableColumn="price" style="min-width: 16rem">
+                Price
+                <p-sortIcon field="price" />
+            </th>
+            <th pSortableColumn="payoutAmount" style="min-width: 16rem">
+                Payout Amount
+                <p-sortIcon field="payoutAmount" />
+            </th>
+            <th style="min-width: 12rem"></th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-policy>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="policy" />
+            </td>
+            <td>{{ policy.name }}</td>
+            <td>{{ policy.price | currency: currency }}</td>
+            <td>{{ policy.payoutAmount | currency: currency }}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editPolicy(policy)">
+                    <i class="pi pi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deletePolicy(policy)">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-confirmdialog [style]="{ width: '450px' }" />
