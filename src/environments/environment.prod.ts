@@ -3,7 +3,7 @@ import packageInfo from '../../package.json';
 export const environment = {
     appVersion: packageInfo.version,
     production: true,
-    apiUrl: 'https://localhost:3000',
-    baseDomain: 'funeral.com',
-    hostSubdomain: 'host'
+    apiUrl: 'https://mizo.co.za',
+    baseDomain: 'mizo.co.za',
+    hostSubdomain: 'mizo'
 };
