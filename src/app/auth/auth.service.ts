@@ -28,9 +28,16 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
         console.log('❌ No token available for Auth_ChangePassword');
     }
 
-    // 2. Extract subdomain (e.g., "tenant1" from "tenant1.exampleui.com")
-    const host = window.location.hostname; // Gets current UI host (tenant1.exampleui.com)
-    const subdomain = host.split('.')[0]; // Extracts "tenant1"
+    // 2. Extract subdomain intelligently for multi-level TLDs like mizo.co.za
+    // For mizo.co.za: subdomain = '' (empty, it's the host)
+    // For tenant.mizo.co.za: subdomain = 'tenant'
+    const host = window.location.hostname;
+    const baseDomain = 'mizo.co.za';
+    let subdomain = '';
+    if (host.endsWith(baseDomain) && host !== baseDomain) {
+        // Remove the base domain and the trailing dot
+        subdomain = host.substring(0, host.length - baseDomain.length - 1);
+    }
 
     // 3. Add X-Tenant-ID header (only if subdomain exists and is not "www")
     if (subdomain && subdomain !== 'www') {
