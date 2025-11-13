@@ -8,7 +8,7 @@ export const environment = {
     appVersion: packageInfo.version,
     production: false,
     apiUrl: 'http://localhost:3000',
-    baseDomain: 'mizo.co.za',
+    baseDomain: 'dev.co.za',
     hostSubdomain: 'host'
 };
 
