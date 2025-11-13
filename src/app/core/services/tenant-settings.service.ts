@@ -24,26 +24,19 @@ export class TenantSettingsService {
 
     loadSettings(): Promise<any> {
         const host = window.location.hostname;
+        // Extract subdomain intelligently to handle multi-level TLDs like mizo.co.za
+        // For mizo.co.za: subdomain = '' (empty, it's the host)
+        // For tenant.mizo.co.za: subdomain = 'tenant'
+        const baseDomain = 'mizo.co.za';
+        let subdomain = '';
+        if (host.endsWith(baseDomain) && host !== baseDomain) {
+            // Remove the base domain and the trailing dot
+            subdomain = host.substring(0, host.length - baseDomain.length - 1);
+        }
         
-        // For localhost/127.0.0.1 - skip subdomain extraction
-        if (host === 'localhost' || host === '127.0.0.1' || host.startsWith('localhost:') || host.startsWith('127.0.0.1:')) {
-            // Local dev - no tenant header needed
-            // Backend will default to 'host' tenant
-        } else {
-            // Production - extract subdomain intelligently to handle multi-level TLDs like mizo.co.za
-            // For mizo.co.za: subdomain = '' (empty, it's the host)
-            // For tenant.mizo.co.za: subdomain = 'tenant'
-            const baseDomain = 'mizo.co.za';
-            let subdomain = '';
-            if (host.endsWith(baseDomain) && host !== baseDomain) {
-                // Remove the base domain and the trailing dot
-                subdomain = host.substring(0, host.length - baseDomain.length - 1);
-            }
-            
-            // Only set the header if there's an actual subdomain (not the base domain)
-            if (subdomain && subdomain !== 'www') {
-                this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', subdomain);
-            }
+        // Only set the header if there's an actual subdomain (not the base domain)
+        if (subdomain && subdomain !== 'www') {
+            this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', subdomain);
         }
 
         if (this.settings) {
