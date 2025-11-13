@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from './auth-service';
+import { environment } from '../environments/environment';
 
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
     const authService = inject(AuthService);
@@ -28,13 +29,13 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
         console.log('❌ No token available for Auth_ChangePassword');
     }
 
-    // 2. Extract subdomain intelligently for multi-level TLDs like mizo.co.za
-    // For mizo.co.za: subdomain = '' (empty, it's the host)
-    // For tenant.mizo.co.za: subdomain = 'tenant'
+    // 2. Extract subdomain intelligently for multi-level TLDs like dev.co.za or mizo.co.za
+    // For dev.co.za: subdomain = '' (empty, it's the host)
+    // For tenant.dev.co.za: subdomain = 'tenant'
     const host = window.location.hostname;
     let subdomain = '';
     
-    const baseDomain = 'mizo.co.za';
+    const baseDomain = environment.baseDomain;
     if (host.endsWith(baseDomain) && host !== baseDomain) {
         // Remove the base domain and the trailing dot
         subdomain = host.substring(0, host.length - baseDomain.length - 1);

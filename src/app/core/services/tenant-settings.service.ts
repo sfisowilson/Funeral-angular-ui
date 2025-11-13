@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { API_BASE_URL, TenantSettingServiceProxy, TenantSettingDto } from './service-proxies';
 import { SpinnerService } from './spinner.service';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -24,10 +25,10 @@ export class TenantSettingsService {
 
     loadSettings(): Promise<any> {
         const host = window.location.hostname;
-        // Extract subdomain intelligently to handle multi-level TLDs like mizo.co.za
-        // For mizo.co.za: subdomain = '' (empty, it's the host)
-        // For tenant.mizo.co.za: subdomain = 'tenant'
-        const baseDomain = 'mizo.co.za';
+        // Extract subdomain intelligently to handle multi-level TLDs like dev.co.za or mizo.co.za
+        // For dev.co.za: subdomain = '' (empty, it's the host)
+        // For tenant.dev.co.za: subdomain = 'tenant'
+        const baseDomain = environment.baseDomain;
         let subdomain = '';
         if (host.endsWith(baseDomain) && host !== baseDomain) {
             // Remove the base domain and the trailing dot
