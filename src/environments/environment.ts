@@ -9,7 +9,7 @@ export const environment = {
     production: false,
     apiUrl: 'http://localhost:3000',
     baseDomain: 'mizo.co.za',
-    hostSubdomain: 'mizo'
+    hostSubdomain: 'host'
 };
 
 /*

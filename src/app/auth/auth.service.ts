@@ -29,14 +29,19 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
     }
 
     // 2. Extract subdomain intelligently for multi-level TLDs like mizo.co.za
+    // For localhost: skip subdomain extraction, backend defaults to 'host'
     // For mizo.co.za: subdomain = '' (empty, it's the host)
     // For tenant.mizo.co.za: subdomain = 'tenant'
     const host = window.location.hostname;
-    const baseDomain = 'mizo.co.za';
     let subdomain = '';
-    if (host.endsWith(baseDomain) && host !== baseDomain) {
-        // Remove the base domain and the trailing dot
-        subdomain = host.substring(0, host.length - baseDomain.length - 1);
+    
+    // Skip subdomain extraction for localhost
+    if (host !== 'localhost' && host !== '127.0.0.1' && !host.startsWith('localhost:') && !host.startsWith('127.0.0.1:')) {
+        const baseDomain = 'mizo.co.za';
+        if (host.endsWith(baseDomain) && host !== baseDomain) {
+            // Remove the base domain and the trailing dot
+            subdomain = host.substring(0, host.length - baseDomain.length - 1);
+        }
     }
 
     // 3. Add X-Tenant-ID header (only if subdomain exists and is not "www")
