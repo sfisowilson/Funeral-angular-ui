@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { API_BASE_URL, TenantSettingServiceProxy, TenantSettingDto } from './service-proxies';
 import { SpinnerService } from './spinner.service';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
