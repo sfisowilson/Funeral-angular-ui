@@ -60,35 +60,35 @@ import { DividerModule } from 'primeng/divider';
                     <div class="row g-3">
                         <div class="col-12 col-md-3">
                             <label for="backgroundColor" class="form-label fw-semibold">Background</label>
-                            <p-colorPicker id="backgroundColor" [(ngModel)]="settings.backgroundColor" [inline]="false"></p-colorPicker>
+                            <p-colorPicker id="backgroundColor" [(ngModel)]="settings.backgroundColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                         <div class="col-12 col-md-3">
                             <label for="titleColor" class="form-label fw-semibold">Title</label>
-                            <p-colorPicker id="titleColor" [(ngModel)]="settings.titleColor" [inline]="false"></p-colorPicker>
+                            <p-colorPicker id="titleColor" [(ngModel)]="settings.titleColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                         <div class="col-12 col-md-3">
                             <label for="cardBackgroundColor" class="form-label fw-semibold">Card Background</label>
-                            <p-colorPicker id="cardBackgroundColor" [(ngModel)]="settings.cardBackgroundColor" [inline]="false"></p-colorPicker>
+                            <p-colorPicker id="cardBackgroundColor" [(ngModel)]="settings.cardBackgroundColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                         <div class="col-12 col-md-3">
                             <label for="iconColor" class="form-label fw-semibold">Icon Color</label>
-                            <p-colorPicker id="iconColor" [(ngModel)]="settings.iconColor" [inline]="false"></p-colorPicker>
+                            <p-colorPicker id="iconColor" [(ngModel)]="settings.iconColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                         <div class="col-12 col-md-3">
                             <label for="serviceTitleColor" class="form-label fw-semibold">Service Title</label>
-                            <p-colorPicker id="serviceTitleColor" [(ngModel)]="settings.serviceTitleColor" [inline]="false"></p-colorPicker>
+                            <p-colorPicker id="serviceTitleColor" [(ngModel)]="settings.serviceTitleColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                         <div class="col-12 col-md-3">
                             <label for="descriptionColor" class="form-label fw-semibold">Description</label>
-                            <p-colorPicker id="descriptionColor" [(ngModel)]="settings.descriptionColor" [inline]="false"></p-colorPicker>
+                            <p-colorPicker id="descriptionColor" [(ngModel)]="settings.descriptionColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                         <div class="col-12 col-md-3">
                             <label for="priceColor" class="form-label fw-semibold">Price</label>
-                            <p-colorPicker id="priceColor" [(ngModel)]="settings.priceColor" [inline]="false"></p-colorPicker>
+                            <p-colorPicker id="priceColor" [(ngModel)]="settings.priceColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                         <div class="col-12 col-md-3">
                             <label for="buttonColor" class="form-label fw-semibold">Button</label>
-                            <p-colorPicker id="buttonColor" [(ngModel)]="settings.buttonColor" [inline]="false"></p-colorPicker>
+                            <p-colorPicker id="buttonColor" [(ngModel)]="settings.buttonColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                     </div>
                 </p-accordionTab>

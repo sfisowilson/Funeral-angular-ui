@@ -163,6 +163,12 @@ export class PageBuilderComponent implements OnInit {
     }
 
     selectWidget(widget: WidgetConfig): void {
+        console.log('=== SELECT WIDGET ===');
+        console.log('Widget being selected:', widget);
+        console.log('Widget settings:', widget.settings);
+        console.log('Services in widget settings:', widget.settings?.services);
+        console.log('Services count:', widget.settings?.services?.length || 0);
+        
         // Ensure layout exists
         if (!widget.layout) {
             widget.layout = {
@@ -220,6 +226,8 @@ export class PageBuilderComponent implements OnInit {
         }
         
         this.selectedWidget.set(widget);
+        console.log('Widget selected and set:', widget);
+        console.log('=== END SELECT WIDGET ===');
         this.showLayoutSettings.set(true);
     }
 
@@ -254,11 +262,20 @@ export class PageBuilderComponent implements OnInit {
     }
 
     editWidgetContent(widget: WidgetConfig): void {
+        console.log('=== EDIT WIDGET CONTENT ===');
+        console.log('Widget to edit:', widget);
+        console.log('Widget settings:', widget.settings);
+        console.log('Services in settings:', widget.settings?.services);
+        console.log('Services count:', widget.settings?.services?.length || 0);
+        
         this.selectedWidget.set(widget);
         this.showContentEditor.set(true);
         
+        console.log('Selected widget set, opening content editor');
+        
         // Wait for dialog to render, then load editor
         setTimeout(() => {
+            console.log('Loading editor component...');
             this.loadEditor();
         }, 100);
     }
@@ -266,17 +283,23 @@ export class PageBuilderComponent implements OnInit {
     private loadEditor(): void {
         if (!this.editorContainer || !this.selectedWidget()) return;
         
-        console.log('=== LOADING EDITOR ===');
+        console.log('=== LOAD EDITOR ===');
         console.log('Editor container:', this.editorContainer);
         console.log('Selected widget:', this.selectedWidget());
         
         // Clear previous editor
-        this.editorContainer.clear();
         if (this.editorComponentRef) {
+            console.log('Destroying existing editor component');
             this.editorComponentRef.destroy();
         }
         
         const widget = this.selectedWidget()!;
+        console.log('Loading editor for widget:', widget);
+        console.log('Widget type:', widget.type);
+        console.log('Widget settings:', widget.settings);
+        console.log('Services in widget:', widget.settings?.services);
+        console.log('Services count:', widget.settings?.services?.length || 0);
+        
         const editorComponent = this.getWidgetEditorComponent(widget.type);
         
         if (editorComponent) {
@@ -284,18 +307,39 @@ export class PageBuilderComponent implements OnInit {
             this.editorComponentRef = this.editorContainer.createComponent(editorComponent);
             
             // Set inputs
+            console.log('Setting config on editor instance...');
             this.editorComponentRef.instance.config = widget;
-            console.log('Config set on editor:', widget);
+            console.log('Config set on editor. Config object:', widget);
+            console.log('Config.settings:', widget.settings);
+            console.log('Config.settings.services:', widget.settings?.services);
             
-            // Manually trigger change detection to ensure ngOnChanges is called
+            // Manually trigger ngOnChanges since we're setting input programmatically
+            console.log('Manually triggering ngOnChanges...');
+            if (this.editorComponentRef.instance.ngOnChanges) {
+                this.editorComponentRef.instance.ngOnChanges({
+                    config: {
+                        currentValue: widget,
+                        previousValue: undefined,
+                        firstChange: true,
+                        isFirstChange: () => true
+                    }
+                });
+            }
+            console.log('ngOnChanges triggered');
+            
+            // Trigger change detection to update the view
+            console.log('Triggering change detection...');
             this.editorComponentRef.changeDetectorRef.detectChanges();
+            console.log('Change detection triggered');
             
             // Subscribe to outputs
             if (this.editorComponentRef.instance.update) {
                 console.log('Subscribing to update event');
                 this.editorComponentRef.instance.update.subscribe((settings: any) => {
-                    console.log('=== UPDATE EVENT RECEIVED ===');
-                    console.log('Settings:', settings);
+                    console.log('=== UPDATE EVENT RECEIVED FROM EDITOR ===');
+                    console.log('Settings received:', settings);
+                    console.log('Services in settings:', settings?.services);
+                    console.log('Services count:', settings?.services?.length || 0);
                     this.handleEditorUpdate(settings);
                 });
             } else {
@@ -311,6 +355,7 @@ export class PageBuilderComponent implements OnInit {
             }
             
             console.log('Editor loaded and events wired up');
+            console.log('=== END LOAD EDITOR ===');
         } else {
             console.error('No editor component found for type:', widget.type);
         }
@@ -323,26 +368,38 @@ export class PageBuilderComponent implements OnInit {
             return;
         }
 
-        console.log('Updating widget content:', { widgetId: selected.id, settings: updatedSettings });
-        console.log('ImageUrl being saved:', updatedSettings.imageUrl);
+        console.log('=== UPDATE WIDGET CONTENT ===');
+        console.log('Selected widget before update:', selected);
+        console.log('Updated settings received:', updatedSettings);
+        console.log('Services in updated settings:', updatedSettings.services);
+        console.log('Services count:', updatedSettings.services?.length || 0);
 
         // Create a new widget object to trigger change detection
+        // Use deep copy for settings to avoid reference issues
         const updatedWidget: WidgetConfig = {
             ...selected,
-            settings: { ...updatedSettings },
+            settings: JSON.parse(JSON.stringify(updatedSettings)),
             title: updatedSettings.title || selected.type
         };
         
-        console.log('Updated widget to save:', updatedWidget);
+        console.log('Updated widget object created:', updatedWidget);
         console.log('Settings in updated widget:', updatedWidget.settings);
+        console.log('Services in updated widget:', updatedWidget.settings.services);
+        console.log('Services count in updated widget:', updatedWidget.settings.services?.length || 0);
         
         const currentWidgets = this.widgets();
         const index = currentWidgets.findIndex(w => w.id === selected.id);
+        
+        console.log('Widget index in array:', index);
+        console.log('Current widgets array length:', currentWidgets.length);
         
         if (index > -1) {
             currentWidgets[index] = updatedWidget;
             this.widgets.set([...currentWidgets]);
             this.selectedWidget.set(updatedWidget);
+            
+            console.log('Widget updated in array at index:', index);
+            console.log('Updated widgets array:', currentWidgets);
             
             // Save to backend
             this.saveWidgets();
@@ -353,7 +410,8 @@ export class PageBuilderComponent implements OnInit {
                 detail: 'Widget content has been updated successfully.'
             });
             
-            console.log('Widget updated and saved');
+            console.log('Widget updated and saved successfully');
+            console.log('=== END UPDATE WIDGET CONTENT ===');
         } else {
             console.error('Widget not found in array');
         }
