@@ -250,17 +250,34 @@ export class ServicesOverviewEditorComponent implements OnChanges {
     settings: any = {};
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['config'] && this.config && this.config.settings) {
-            // Always reload when config changes - deep copy to avoid mutating the original
-            this.settings = JSON.parse(JSON.stringify(this.config.settings));
+        console.log('=== SERVICES EDITOR ngOnChanges FIRED ===');
+        console.log('changes:', changes);
+        console.log('this.config:', this.config);
+        
+        if (changes['config'] && this.config) {
+            console.log('Config exists, checking settings...');
+            console.log('this.config.settings:', this.config.settings);
             
-            // Ensure services array exists
-            if (!this.settings.services) {
-                this.settings.services = [];
+            if (this.config.settings) {
+                // Always reload when config changes - deep copy to avoid mutating the original
+                this.settings = JSON.parse(JSON.stringify(this.config.settings));
+                
+                console.log('Settings after deep copy:', this.settings);
+                console.log('Services in settings:', this.settings.services);
+                
+                // Ensure services array exists
+                if (!this.settings.services) {
+                    console.warn('No services array found, initializing empty array');
+                    this.settings.services = [];
+                }
+                
+                console.log('Final services count:', this.settings.services?.length || 0);
+                console.log('Final settings object:', this.settings);
+            } else {
+                console.error('NO SETTINGS FOUND IN CONFIG!');
             }
-            
-            console.log('Editor loaded with settings:', this.settings);
-            console.log('Services count:', this.settings.services?.length || 0);
+        } else {
+            console.log('Config change not detected or config is null');
         }
     }
 
