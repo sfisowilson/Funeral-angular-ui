@@ -4,18 +4,26 @@ import { FormsModule } from '@angular/forms';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { AccordionModule } from 'primeng/accordion';
 import { DividerModule } from 'primeng/divider';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { environment } from '../../../environments/environment';
+import { AuthService } from '../../auth/auth-service';
+import { TenantService } from '../../core/services/tenant.service';
 
 @Component({
     selector: 'app-services-overview-editor',
     standalone: true,
     imports: [
-        CommonModule, 
-        FormsModule, 
-        ColorPickerModule, 
-        AccordionModule, 
-        DividerModule
+        CommonModule,
+        FormsModule,
+        ColorPickerModule,
+        AccordionModule,
+        DividerModule,
+        ToastModule
     ],
+    providers: [MessageService],
     template: `
+        <p-toast></p-toast>
         <div class="services-overview-editor p-4">
             <p-accordion [multiple]="true" [activeIndex]="[0]">
                 
@@ -128,8 +136,38 @@ import { DividerModule } from 'primeng/divider';
                                     <small class="text-muted">PrimeIcons: pi pi-[name]</small>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label [for]="'serviceImage' + i" class="form-label fw-semibold">Image URL (optional)</label>
-                                    <input type="text" [id]="'serviceImage' + i" [(ngModel)]="service.imageUrl" class="form-control" placeholder="https://..." />
+                                    <label class="form-label fw-semibold">Service Image</label>
+                                    <div class="d-flex gap-2 mb-2">
+                                        <input 
+                                            [id]="'fileInput' + i"
+                                            type="file" 
+                                            accept="image/*" 
+                                            (change)="onImageSelected($event, i)"
+                                            class="d-none"
+                                        />
+                                        <button
+                                            type="button"
+                                            (click)="triggerFileInput(i)"
+                                            class="btn btn-outline-secondary flex-fill"
+                                        >
+                                            <i class="pi pi-upload me-2"></i>Choose Image
+                                        </button>
+                                        <button
+                                            type="button"
+                                            (click)="uploadServiceImage(i)"
+                                            [disabled]="!selectedFiles[i] || uploadingServices[i]"
+                                            class="btn btn-primary"
+                                        >
+                                            {{ uploadingServices[i] ? 'Uploading...' : 'Upload' }}
+                                        </button>
+                                    </div>
+                                    <input type="text" [id]="'serviceImage' + i" [(ngModel)]="service.imageUrl" class="form-control" placeholder="Or enter image URL" />
+                                    <small class="text-muted d-block mt-1" *ngIf="selectedFiles[i]">
+                                        Selected: {{ selectedFiles[i]?.name }}
+                                    </small>
+                                    <small class="text-muted d-block mt-1" *ngIf="uploadProgress[i] > 0 && uploadProgress[i] < 100">
+                                        Upload progress: {{ uploadProgress[i] }}%
+                                    </small>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-check">
@@ -248,6 +286,17 @@ export class ServicesOverviewEditorComponent implements OnChanges {
     @Output() cancel = new EventEmitter<void>();
 
     settings: any = {};
+    
+    // Image upload properties
+    selectedFiles: { [key: number]: File | null } = {};
+    uploadingServices: { [key: number]: boolean } = {};
+    uploadProgress: { [key: number]: number } = {};
+
+    constructor(
+        private messageService: MessageService,
+        private authService: AuthService,
+        private tenantService: TenantService
+    ) {}
 
     ngOnChanges(changes: SimpleChanges): void {
         console.log('=== SERVICES EDITOR ngOnChanges FIRED ===');
@@ -331,5 +380,150 @@ export class ServicesOverviewEditorComponent implements OnChanges {
 
     onCancel(): void {
         this.cancel.emit();
+    }
+
+    // Image upload methods
+    triggerFileInput(serviceIndex: number): void {
+        const fileInput = document.getElementById(`fileInput${serviceIndex}`) as HTMLInputElement;
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+
+    onImageSelected(event: Event, serviceIndex: number): void {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files.length > 0) {
+            const file = input.files[0];
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Invalid File',
+                    detail: 'Please select a valid image file (JPG, PNG, GIF, WebP, etc.)'
+                });
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'File Too Large',
+                    detail: 'Maximum file size is 5MB'
+                });
+                return;
+            }
+
+            this.selectedFiles[serviceIndex] = file;
+            this.messageService.add({
+                severity: 'info',
+                summary: 'File Selected',
+                detail: `${file.name} (${(file.size / 1024).toFixed(2)} KB)`
+            });
+        }
+    }
+
+    uploadServiceImage(serviceIndex: number): void {
+        const selectedFile = this.selectedFiles[serviceIndex];
+        
+        if (!selectedFile) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'No File',
+                detail: 'Please select an image file first'
+            });
+            return;
+        }
+
+        // Check if user is authenticated
+        const token = this.authService.getToken();
+        if (!token) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Not Authenticated',
+                detail: 'Please log in to upload files'
+            });
+            return;
+        }
+
+        this.uploadingServices[serviceIndex] = true;
+        this.uploadProgress[serviceIndex] = 0;
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('entityType', 'ServiceImage');
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (event: ProgressEvent) => {
+            if (event.lengthComputable) {
+                this.uploadProgress[serviceIndex] = Math.round((event.loaded / event.total) * 100);
+            }
+        });
+
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 201 || xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    
+                    // Get the tenant domain for the download URL
+                    const tenantId = this.tenantService.getTenantId() || 'host';
+                    
+                    // Get the uploaded file URL or path with tenant query parameter
+                    const imageUrl = response.id 
+                        ? `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${response.id}?X-Tenant-ID=${tenantId}` 
+                        : response.filePath;
+                    
+                    console.log('Service image upload complete:', imageUrl);
+                    
+                    // Set the image URL for this service
+                    this.settings.services[serviceIndex].imageUrl = imageUrl;
+                    
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Upload Successful',
+                        detail: 'Service image uploaded successfully'
+                    });
+                    
+                    this.selectedFiles[serviceIndex] = null;
+                    this.uploadProgress[serviceIndex] = 0;
+                } catch (error) {
+                    console.error('Error parsing upload response:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to process upload response'
+                    });
+                }
+            } else {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Upload Failed',
+                    detail: `Server returned status ${xhr.status}`
+                });
+            }
+            this.uploadingServices[serviceIndex] = false;
+        });
+
+        xhr.addEventListener('error', () => {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Upload Error',
+                detail: 'Network error occurred during upload'
+            });
+            this.uploadingServices[serviceIndex] = false;
+        });
+
+        xhr.open('POST', `${environment.apiUrl}/api/FileUpload/File_UploadFile`);
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+        
+        const tenantId = this.tenantService.getTenantId();
+        if (tenantId) {
+            xhr.setRequestHeader('X-Tenant-ID', tenantId);
+        }
+        
+        xhr.send(formData);
     }
 }
