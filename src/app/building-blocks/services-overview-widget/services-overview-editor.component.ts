@@ -231,6 +231,15 @@ import { DividerModule } from 'primeng/divider';
         .services-overview-editor :host ::ng-deep .p-accordion-header {
             font-weight: 600;
         }
+        
+        /* Fix color picker z-index to prevent it from being cut off */
+        :host ::ng-deep .p-colorpicker-panel {
+            z-index: 9999 !important;
+        }
+        
+        :host ::ng-deep .p-colorpicker-overlay {
+            z-index: 9999 !important;
+        }
     `]
 })
 export class ServicesOverviewEditorComponent implements OnChanges {
@@ -239,15 +248,21 @@ export class ServicesOverviewEditorComponent implements OnChanges {
     @Output() cancel = new EventEmitter<void>();
 
     settings: any = {};
+    private initialized = false;
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['config'] && this.config) {
-            // Deep copy to avoid mutating the original config
-            this.settings = JSON.parse(JSON.stringify(this.config.settings));
-            
-            // Ensure services array exists
-            if (!this.settings.services) {
-                this.settings.services = [];
+        if (changes['config'] && this.config && this.config.settings) {
+            // Only reinitialize if we haven't initialized yet or if it's a completely different config
+            if (!this.initialized || !this.settings.services) {
+                // Deep copy to avoid mutating the original config
+                this.settings = JSON.parse(JSON.stringify(this.config.settings));
+                
+                // Ensure services array exists
+                if (!this.settings.services) {
+                    this.settings.services = [];
+                }
+                
+                this.initialized = true;
             }
         }
     }
