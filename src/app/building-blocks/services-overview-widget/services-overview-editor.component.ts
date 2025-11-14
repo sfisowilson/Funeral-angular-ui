@@ -231,7 +231,13 @@ export class ServicesOverviewEditorComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['config'] && this.config) {
-            this.settings = { ...this.config.settings };
+            // Deep copy to avoid mutating the original config
+            this.settings = JSON.parse(JSON.stringify(this.config.settings));
+            
+            // Ensure services array exists
+            if (!this.settings.services) {
+                this.settings.services = [];
+            }
         }
     }
 
