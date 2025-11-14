@@ -56,6 +56,7 @@ export const WIDGET_TYPES: WidgetType[] = [
             backgroundColor: '#f8f9fa',
             textColor: '#212529',
             padding: 40,
+            showButton: true,
             buttonText: 'Learn More',
             buttonLink: '#',
             buttonColor: '#007bff',

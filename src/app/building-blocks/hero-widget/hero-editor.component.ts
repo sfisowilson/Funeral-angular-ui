@@ -6,11 +6,12 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { FieldsetModule } from 'primeng/fieldset';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
     selector: 'app-hero-editor',
     standalone: true,
-    imports: [FormsModule, CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, FieldsetModule],
+    imports: [FormsModule, CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, FieldsetModule, CheckboxModule],
     template: `
         <div class="bg-gray-100 p-4 rounded-lg">
             <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
@@ -53,7 +54,17 @@ import { FieldsetModule } from 'primeng/fieldset';
                 </p-fieldset>
 
                 <p-fieldset legend="Button" [toggleable]="true">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col mb-4">
+                        <p-checkbox 
+                            formControlName="showButton"
+                            [binary]="true"
+                            label="Show Action Button"
+                            inputId="showButton">
+                        </p-checkbox>
+                        <small class="text-gray-600 mt-1">Toggle to show or hide the call-to-action button</small>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" *ngIf="form.get('showButton')?.value">
                         <div class="flex flex-col">
                             <label for="buttonText" class="font-medium text-gray-700 mb-2">Button Text</label>
                             <input id="buttonText" type="text" pInputText formControlName="buttonText" class="w-full" />
@@ -105,6 +116,7 @@ export class HeroEditorComponent implements OnInit, OnChanges {
             backgroundColor: ['#ffffff'],
             textColor: ['#000000'],
             padding: [20],
+            showButton: [true],
             buttonText: ['Click Me'],
             buttonLink: ['#'],
             buttonColor: ['#007bff'],

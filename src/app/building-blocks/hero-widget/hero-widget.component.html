@@ -2,6 +2,7 @@
     <h1 [style.font-size.px]="config.settings.titleSize" [style.color]="config.settings.textColor">{{ config.settings.title }}</h1>
     <p [style.font-size.px]="config.settings.subtitleSize" [style.color]="config.settings.textColor">{{ config.settings.subtitle }}</p>
     <a
+        *ngIf="config.settings.showButton !== false"
         [href]="config.settings.buttonLink"
         class="btn"
         [style.background-color]="config.settings.buttonColor"
