@@ -268,22 +268,120 @@
                     <div class="settings-section">
                         <h4>Spacing</h4>
                         
+                        <!-- Padding Controls -->
                         <div class="form-field">
-                            <label>Padding ({{ selectedWidget()!.layout!.padding || 0 }}px)</label>
-                            <p-slider 
-                                [(ngModel)]="selectedWidget()!.layout!.padding"
-                                [min]="0"
-                                [max]="100">
-                            </p-slider>
+                            <div class="flex justify-content-between align-items-center mb-2">
+                                <label class="mb-0">Padding</label>
+                                <p-checkbox 
+                                    [(ngModel)]="paddingIndividual"
+                                    [binary]="true"
+                                    label="Individual Sides"
+                                    inputId="paddingIndividual">
+                                </p-checkbox>
+                            </div>
+                            
+                            <div *ngIf="!paddingIndividual">
+                                <label class="text-sm text-gray-600">All Sides ({{ selectedWidget()!.layout!.padding || 0 }}px)</label>
+                                <p-slider 
+                                    [(ngModel)]="selectedWidget()!.layout!.padding"
+                                    (ngModelChange)="onPaddingAllChange($event)"
+                                    [min]="0"
+                                    [max]="100">
+                                </p-slider>
+                            </div>
+                            
+                            <div *ngIf="paddingIndividual" class="grid grid-cols-2 gap-3 mt-2">
+                                <div>
+                                    <label class="text-sm text-gray-600">Top ({{ selectedWidget()!.layout!.paddingTop ?? selectedWidget()!.layout!.padding ?? 0 }}px)</label>
+                                    <p-slider 
+                                        [(ngModel)]="selectedWidget()!.layout!.paddingTop"
+                                        [min]="0"
+                                        [max]="100">
+                                    </p-slider>
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600">Right ({{ selectedWidget()!.layout!.paddingRight ?? selectedWidget()!.layout!.padding ?? 0 }}px)</label>
+                                    <p-slider 
+                                        [(ngModel)]="selectedWidget()!.layout!.paddingRight"
+                                        [min]="0"
+                                        [max]="100">
+                                    </p-slider>
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600">Bottom ({{ selectedWidget()!.layout!.paddingBottom ?? selectedWidget()!.layout!.padding ?? 0 }}px)</label>
+                                    <p-slider 
+                                        [(ngModel)]="selectedWidget()!.layout!.paddingBottom"
+                                        [min]="0"
+                                        [max]="100">
+                                    </p-slider>
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600">Left ({{ selectedWidget()!.layout!.paddingLeft ?? selectedWidget()!.layout!.padding ?? 0 }}px)</label>
+                                    <p-slider 
+                                        [(ngModel)]="selectedWidget()!.layout!.paddingLeft"
+                                        [min]="0"
+                                        [max]="100">
+                                    </p-slider>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="form-field">
-                            <label>Margin ({{ selectedWidget()!.layout!.margin || 0 }}px)</label>
-                            <p-slider 
-                                [(ngModel)]="selectedWidget()!.layout!.margin"
-                                [min]="0"
-                                [max]="50">
-                            </p-slider>
+                        <!-- Margin Controls -->
+                        <div class="form-field mt-4">
+                            <div class="flex justify-content-between align-items-center mb-2">
+                                <label class="mb-0">Margin</label>
+                                <p-checkbox 
+                                    [(ngModel)]="marginIndividual"
+                                    [binary]="true"
+                                    label="Individual Sides"
+                                    inputId="marginIndividual">
+                                </p-checkbox>
+                            </div>
+                            
+                            <div *ngIf="!marginIndividual">
+                                <label class="text-sm text-gray-600">All Sides ({{ selectedWidget()!.layout!.margin || 0 }}px)</label>
+                                <p-slider 
+                                    [(ngModel)]="selectedWidget()!.layout!.margin"
+                                    (ngModelChange)="onMarginAllChange($event)"
+                                    [min]="0"
+                                    [max]="50">
+                                </p-slider>
+                            </div>
+                            
+                            <div *ngIf="marginIndividual" class="grid grid-cols-2 gap-3 mt-2">
+                                <div>
+                                    <label class="text-sm text-gray-600">Top ({{ selectedWidget()!.layout!.marginTop ?? selectedWidget()!.layout!.margin ?? 0 }}px)</label>
+                                    <p-slider 
+                                        [(ngModel)]="selectedWidget()!.layout!.marginTop"
+                                        [min]="0"
+                                        [max]="50">
+                                    </p-slider>
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600">Right ({{ selectedWidget()!.layout!.marginRight ?? selectedWidget()!.layout!.margin ?? 0 }}px)</label>
+                                    <p-slider 
+                                        [(ngModel)]="selectedWidget()!.layout!.marginRight"
+                                        [min]="0"
+                                        [max]="50">
+                                    </p-slider>
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600">Bottom ({{ selectedWidget()!.layout!.marginBottom ?? selectedWidget()!.layout!.margin ?? 0 }}px)</label>
+                                    <p-slider 
+                                        [(ngModel)]="selectedWidget()!.layout!.marginBottom"
+                                        [min]="0"
+                                        [max]="50">
+                                    </p-slider>
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600">Left ({{ selectedWidget()!.layout!.marginLeft ?? selectedWidget()!.layout!.margin ?? 0 }}px)</label>
+                                    <p-slider 
+                                        [(ngModel)]="selectedWidget()!.layout!.marginLeft"
+                                        [min]="0"
+                                        [max]="50">
+                                    </p-slider>
+                                </div>
+                            </div>
                         </div>
                         
                         <h4 class="mt-4">Dimensions</h4>

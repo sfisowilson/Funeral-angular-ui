@@ -5,7 +5,7 @@ import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScroll
 import Aura from '@primeng/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
-import { environment } from './environments/environment.prod';
+import { environment } from './environments/environment';
 import { 
     API_BASE_URL, 
     TenantSettingServiceProxy, 
@@ -75,7 +75,17 @@ export const appConfig: ApplicationConfig = {
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         provideHttpClient(withInterceptors([AuthInterceptor])),
         provideAnimationsAsync(),
-        { provide: API_BASE_URL, useValue: environment.apiUrl }, // Provide the API base URL
+        { 
+            provide: API_BASE_URL, 
+            useValue: (() => {
+                console.log('🔍 Environment loaded:', { 
+                    apiUrl: environment.apiUrl, 
+                    baseDomain: environment.baseDomain,
+                    production: environment.production 
+                });
+                return environment.apiUrl;
+            })()
+        },
         providePrimeNG({ theme: { preset: Aura } })
     ]
 };

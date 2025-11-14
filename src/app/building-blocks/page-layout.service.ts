@@ -285,11 +285,37 @@ export class PageLayoutService {
         const layout = widget.layout;
         const grid = this.gridConfig();
 
+        // Calculate padding - individual sides take precedence
+        let padding: string | undefined;
+        if (layout.paddingTop !== undefined || layout.paddingRight !== undefined || 
+            layout.paddingBottom !== undefined || layout.paddingLeft !== undefined) {
+            const top = layout.paddingTop ?? layout.padding ?? 0;
+            const right = layout.paddingRight ?? layout.padding ?? 0;
+            const bottom = layout.paddingBottom ?? layout.padding ?? 0;
+            const left = layout.paddingLeft ?? layout.padding ?? 0;
+            padding = `${top}px ${right}px ${bottom}px ${left}px`;
+        } else if (layout.padding !== undefined) {
+            padding = `${layout.padding}px`;
+        }
+
+        // Calculate margin - individual sides take precedence
+        let margin: string | undefined;
+        if (layout.marginTop !== undefined || layout.marginRight !== undefined || 
+            layout.marginBottom !== undefined || layout.marginLeft !== undefined) {
+            const top = layout.marginTop ?? layout.margin ?? 0;
+            const right = layout.marginRight ?? layout.margin ?? 0;
+            const bottom = layout.marginBottom ?? layout.margin ?? 0;
+            const left = layout.marginLeft ?? layout.margin ?? 0;
+            margin = `${top}px ${right}px ${bottom}px ${left}px`;
+        } else if (layout.margin !== undefined) {
+            margin = `${layout.margin}px`;
+        }
+
         const baseStyles = {
             minHeight: layout.minHeight ? `${layout.minHeight}px` : undefined,
             maxHeight: layout.maxHeight ? `${layout.maxHeight}px` : undefined,
-            padding: layout.padding ? `${layout.padding}px` : undefined,
-            margin: layout.margin ? `${layout.margin}px` : undefined,
+            padding,
+            margin,
             backgroundColor: layout.backgroundColor,
             borderRadius: layout.borderRadius ? `${layout.borderRadius}px` : undefined,
             boxShadow: layout.boxShadow,

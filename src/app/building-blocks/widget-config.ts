@@ -27,8 +27,16 @@ export interface WidgetLayoutConfig {
     };
     
     // Styling
-    padding?: number; // Internal padding
-    margin?: number; // External margin
+    padding?: number; // Internal padding (all sides)
+    paddingTop?: number;
+    paddingRight?: number;
+    paddingBottom?: number;
+    paddingLeft?: number;
+    margin?: number; // External margin (all sides)
+    marginTop?: number;
+    marginRight?: number;
+    marginBottom?: number;
+    marginLeft?: number;
     backgroundColor?: string;
     borderRadius?: number;
     boxShadow?: string;

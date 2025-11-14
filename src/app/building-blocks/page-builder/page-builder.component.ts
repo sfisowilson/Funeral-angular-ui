@@ -98,6 +98,10 @@ export class PageBuilderComponent implements OnInit {
         { label: 'Linear', value: 'linear' }
     ];
     
+    // Spacing controls
+    paddingIndividual = false;
+    marginIndividual = false;
+    
     hoverEffectOptions = [
         { label: 'None', value: 'none' },
         { label: 'Lift (Elevate on hover)', value: 'lift' },
@@ -499,6 +503,30 @@ export class PageBuilderComponent implements OnInit {
 
     private generateId(): string {
         return `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
+    // Handle padding changes when "All Sides" mode is active
+    onPaddingAllChange(value: number): void {
+        const widget = this.selectedWidget();
+        if (widget?.layout) {
+            // Clear individual padding values when using all sides
+            widget.layout.paddingTop = undefined;
+            widget.layout.paddingRight = undefined;
+            widget.layout.paddingBottom = undefined;
+            widget.layout.paddingLeft = undefined;
+        }
+    }
+    
+    // Handle margin changes when "All Sides" mode is active
+    onMarginAllChange(value: number): void {
+        const widget = this.selectedWidget();
+        if (widget?.layout) {
+            // Clear individual margin values when using all sides
+            widget.layout.marginTop = undefined;
+            widget.layout.marginRight = undefined;
+            widget.layout.marginBottom = undefined;
+            widget.layout.marginLeft = undefined;
+        }
     }
 
     // Drag and drop handler (for manual ordering)

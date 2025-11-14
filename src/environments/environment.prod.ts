@@ -5,5 +5,5 @@ export const environment = {
     production: true,
     apiUrl: 'https://mizo.co.za',
     baseDomain: 'mizo.co.za',
-    hostSubdomain: 'mizo'
+    hostSubdomain: 'host'
 };
