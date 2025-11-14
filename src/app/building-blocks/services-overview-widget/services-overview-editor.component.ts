@@ -248,22 +248,19 @@ export class ServicesOverviewEditorComponent implements OnChanges {
     @Output() cancel = new EventEmitter<void>();
 
     settings: any = {};
-    private initialized = false;
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['config'] && this.config && this.config.settings) {
-            // Only reinitialize if we haven't initialized yet or if it's a completely different config
-            if (!this.initialized || !this.settings.services) {
-                // Deep copy to avoid mutating the original config
-                this.settings = JSON.parse(JSON.stringify(this.config.settings));
-                
-                // Ensure services array exists
-                if (!this.settings.services) {
-                    this.settings.services = [];
-                }
-                
-                this.initialized = true;
+            // Always reload when config changes - deep copy to avoid mutating the original
+            this.settings = JSON.parse(JSON.stringify(this.config.settings));
+            
+            // Ensure services array exists
+            if (!this.settings.services) {
+                this.settings.services = [];
             }
+            
+            console.log('Editor loaded with settings:', this.settings);
+            console.log('Services count:', this.settings.services?.length || 0);
         }
     }
 
