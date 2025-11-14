@@ -209,6 +209,11 @@ import { DividerModule } from 'primeng/divider';
                 </p-accordionTab>
                 
             </p-accordion>
+
+            <div class="mt-4 flex justify-content-end gap-2">
+                <button pButton type="button" label="Cancel" class="p-button-secondary" (click)="onCancel()"></button>
+                <button pButton type="button" label="Update Widget" class="p-button-success" (click)="updateWidget()"></button>
+            </div>
         </div>
     `,
     styles: [`
@@ -220,6 +225,7 @@ import { DividerModule } from 'primeng/divider';
 export class ServicesOverviewEditorComponent implements OnChanges {
     @Input() config: any;
     @Output() update = new EventEmitter<any>();
+    @Output() cancel = new EventEmitter<void>();
 
     settings: any = {};
 
@@ -244,12 +250,10 @@ export class ServicesOverviewEditorComponent implements OnChanges {
             featured: false,
             pricing: null
         });
-        this.updateWidget();
     }
 
     removeService(index: number): void {
         this.settings.services.splice(index, 1);
-        this.updateWidget();
     }
 
     addFeature(serviceIndex: number): void {
@@ -257,12 +261,10 @@ export class ServicesOverviewEditorComponent implements OnChanges {
             this.settings.services[serviceIndex].features = [];
         }
         this.settings.services[serviceIndex].features.push('New Feature');
-        this.updateWidget();
     }
 
     removeFeature(serviceIndex: number, featureIndex: number): void {
         this.settings.services[serviceIndex].features.splice(featureIndex, 1);
-        this.updateWidget();
     }
 
     addPricing(serviceIndex: number): void {
@@ -271,15 +273,17 @@ export class ServicesOverviewEditorComponent implements OnChanges {
             period: '/month',
             originalPrice: null
         };
-        this.updateWidget();
     }
 
     removePricing(serviceIndex: number): void {
         this.settings.services[serviceIndex].pricing = null;
-        this.updateWidget();
     }
 
     updateWidget(): void {
         this.update.emit(this.settings);
+    }
+
+    onCancel(): void {
+        this.cancel.emit();
     }
 }
