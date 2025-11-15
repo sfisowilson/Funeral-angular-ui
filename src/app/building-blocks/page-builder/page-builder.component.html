@@ -630,9 +630,10 @@
         [(visible)]="showContentEditor"
         [header]="'Edit ' + (selectedWidget()?.type || 'Widget') + ' Content'"
         [modal]="true"
-        [style]="{ width: '90vw', maxWidth: '1000px' }"
+        [style]="{ width: '90vw', maxWidth: '1000px', minHeight: '500px' }"
         [draggable]="false"
         [resizable]="false"
+        [contentStyle]="{ 'overflow-y': 'auto' }"
         styleClass="content-editor-dialog">
         
         <div class="content-editor" *ngIf="selectedWidget()">

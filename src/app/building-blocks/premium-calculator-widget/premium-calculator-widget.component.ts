@@ -1,12 +1,6 @@
 import { Component, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { CardModule } from 'primeng/card';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { Router } from '@angular/router';
 import {
     PremiumCalculationServiceProxy,
@@ -41,158 +35,152 @@ interface BreakdownItem {
 @Component({
     selector: 'app-premium-calculator-widget',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, DropdownModule, InputNumberModule, CardModule, ToastModule],
-    providers: [MessageService, PremiumCalculationServiceProxy],
+    imports: [CommonModule, FormsModule],
+    providers: [PremiumCalculationServiceProxy],
     template: `
         <div [ngStyle]="{
-            backgroundColor: config.backgroundColor,
-            padding: config.padding + 'px'
+            backgroundColor: config.settings?.backgroundColor,
+            padding: config.settings?.padding + 'px'
         }">
-            <div class="max-w-4xl mx-auto">
-                <div class="text-center mb-8">
+            <div class="contents">
+                <div class="text-center mb-4">
                     <h2 [ngStyle]="{
-                        fontSize: config.titleSize + 'px',
-                        color: config.titleColor,
+                        fontSize: config.settings?.titleSize + 'px',
+                        color: config.settings?.titleColor,
                         fontWeight: 'bold',
                         marginBottom: '16px'
-                    }">{{ config.title }}</h2>
+                    }">{{ config.settings?.title }}</h2>
                     <p [ngStyle]="{
-                        fontSize: config.subtitleSize + 'px',
-                        color: config.subtitleColor
-                    }">{{ config.subtitle }}</p>
+                        fontSize: config.settings?.subtitleSize + 'px',
+                        color: config.settings?.subtitleColor
+                    }">{{ config.settings?.subtitle }}</p>
                 </div>
 
-                <p-card [ngStyle]="{
-                    backgroundColor: config.cardBackgroundColor
+                <div class="card" [ngStyle]="{
+                    backgroundColor: config.settings?.cardBackgroundColor
                 }">
-                    <div class="space-y-6">
+                    <div class="card-body">
                         <!-- Cover Amount Selection -->
-                        <div>
-                            <label class="block mb-2 font-semibold" [ngStyle]="{ color: config.labelColor }">
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold" [ngStyle]="{ color: config.settings?.labelColor }">
                                 Select Cover Amount
                             </label>
-                            <p-dropdown 
+                            <select 
+                                class="form-select"
                                 [(ngModel)]="selectedCoverRow" 
-                                [options]="coverOptions"
-                                optionLabel="label"
-                                optionValue="value"
-                                placeholder="Choose cover amount"
-                                [style]="{ width: '100%' }"
-                                (onChange)="onCoverAmountChange()">
-                            </p-dropdown>
+                                (ngModelChange)="onCoverAmountChange()">
+                                <option [ngValue]="null">Choose cover amount</option>
+                                <option *ngFor="let option of coverOptions" [ngValue]="option.value">
+                                    {{ option.label }}
+                                </option>
+                            </select>
                         </div>
 
                         <!-- Immediate Family Age Bracket Inputs -->
-                        <div *ngIf="ageBracketInputs.length > 0">
-                            <label class="block mb-3 font-semibold" [ngStyle]="{ color: config.labelColor }">
+                        <div class="mb-4" *ngIf="ageBracketInputs.length > 0">
+                            <label class="form-label fw-semibold" [ngStyle]="{ color: config.settings?.labelColor }">
                                 Immediate Family - Enter Number of People by Age Group
                             </label>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div *ngFor="let bracket of ageBracketInputs" class="flex flex-col">
-                                    <label class="mb-2 text-sm flex items-center gap-2" [ngStyle]="{ color: config.labelColor }">
+                            <div class="row g-3">
+                                <div *ngFor="let bracket of ageBracketInputs" class="col-md-6">
+                                    <label class="form-label small" [ngStyle]="{ color: config.settings?.labelColor }">
                                         {{ bracket.label }}
                                     </label>
-                                    <p-inputNumber 
+                                    <input 
+                                        type="number" 
+                                        class="form-control"
                                         [(ngModel)]="bracket.count" 
                                         [min]="0" 
                                         [max]="getMaxAllowedDependents()"
-                                        [showButtons]="true"
-                                        [style]="{ width: '100%' }"
                                         (ngModelChange)="onDependentCountChange()">
-                                    </p-inputNumber>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Extended Family Age Bracket Inputs -->
-                        <div *ngIf="extendedFamilyBracketInputs.length > 0">
-                            <label class="block mb-3 font-semibold" [ngStyle]="{ color: config.labelColor }">
+                        <div class="mb-4" *ngIf="extendedFamilyBracketInputs.length > 0">
+                            <label class="form-label fw-semibold d-flex align-items-center" [ngStyle]="{ color: config.settings?.labelColor }">
                                 Extended Family - Enter Number of People by Age Group
-                                <span class="text-xs ml-2 px-2 py-1 rounded"
-                                      [ngStyle]="{ backgroundColor: '#ffc107', color: '#000' }">
+                                <span class="badge bg-warning text-dark ms-2">
                                     Max {{ settings()?.maxExtendedFamilyMembers || 4 }} members
                                 </span>
                             </label>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div *ngFor="let bracket of extendedFamilyBracketInputs" class="flex flex-col">
-                                    <label class="mb-2 text-sm flex items-center gap-2" [ngStyle]="{ color: config.labelColor }">
+                            <div class="row g-3">
+                                <div *ngFor="let bracket of extendedFamilyBracketInputs" class="col-md-6">
+                                    <label class="form-label small d-flex align-items-center gap-2" [ngStyle]="{ color: config.settings?.labelColor }">
                                         {{ bracket.label }}
-                                        <span class="text-xs text-gray-500">
-                                            (+{{ config.currency }}{{ bracket.premium }} per person)
+                                        <span class="text-muted small">
+                                            (+{{ config.settings?.currency }}{{ bracket.premium }} per person)
                                         </span>
                                     </label>
-                                    <p-inputNumber 
+                                    <input 
+                                        type="number" 
+                                        class="form-control"
                                         [(ngModel)]="bracket.count" 
                                         [min]="0" 
                                         [max]="settings()?.maxExtendedFamilyMembers || 4"
-                                        [showButtons]="true"
-                                        [style]="{ width: '100%' }"
                                         (ngModelChange)="onExtendedFamilyCountChange()">
-                                    </p-inputNumber>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Result Display -->
-                        <div *ngIf="calculatedPremium() !== null" class="mt-6 p-6 rounded-lg border-2"
+                        <div *ngIf="calculatedPremium() !== null" class="mt-4 p-4 rounded border"
                             [ngStyle]="{
-                                backgroundColor: config.resultBackgroundColor,
-                                borderColor: config.resultBorderColor
+                                backgroundColor: config.settings?.resultBackgroundColor,
+                                borderColor: config.settings?.resultBorderColor,
+                                borderWidth: '2px'
                             }">
                             <div class="text-center">
-                                <p class="text-lg mb-2" [ngStyle]="{ color: config.resultLabelColor }">
-                                    {{ config.resultLabel }}
+                                <p class="fs-5 mb-2" [ngStyle]="{ color: config.settings?.resultLabelColor }">
+                                    {{ config.settings?.resultLabel }}
                                 </p>
-                                <p class="text-5xl font-bold mb-1" [ngStyle]="{ color: config.resultAmountColor }">
-                                    {{ config.currency }}{{ calculatedPremium()!.toFixed(2) }}
+                                <p class="display-3 fw-bold mb-1" [ngStyle]="{ color: config.settings?.resultAmountColor }">
+                                    {{ config.settings?.currency }}{{ calculatedPremium()!.toFixed(2) }}
                                 </p>
-                                <p class="text-sm" [ngStyle]="{ color: config.resultPeriodColor }">
-                                    {{ config.resultPeriod }}
+                                <p class="small" [ngStyle]="{ color: config.settings?.resultPeriodColor }">
+                                    {{ config.settings?.resultPeriod }}
                                 </p>
 
                                 <!-- Breakdown -->
-                                <div *ngIf="breakdown().length > 0" class="mt-4 pt-4 border-t"
-                                    [ngStyle]="{ borderColor: config.resultBorderColor }">
-                                    <p class="font-semibold mb-2" [ngStyle]="{ color: config.resultLabelColor }">
+                                <div *ngIf="breakdown().length > 0" class="mt-3 pt-3 border-top"
+                                    [ngStyle]="{ borderColor: config.settings?.resultBorderColor }">
+                                    <p class="fw-semibold mb-2" [ngStyle]="{ color: config.settings?.resultLabelColor }">
                                         Breakdown:
                                     </p>
-                                    <div *ngFor="let item of breakdown()" class="flex justify-between py-1">
-                                        <span [ngStyle]="{ color: config.resultLabelColor }">{{ item.label }}</span>
-                                        <span *ngIf="item.showAmount !== false" [ngStyle]="{ color: config.resultAmountColor }">{{ config.currency }}{{ item.amount.toFixed(2) }}</span>
+                                    <div *ngFor="let item of breakdown()" class="d-flex justify-content-between py-1">
+                                        <span [ngStyle]="{ color: config.settings?.resultLabelColor }">{{ item.label }}</span>
+                                        <span *ngIf="item.showAmount !== false" [ngStyle]="{ color: config.settings?.resultAmountColor }">{{ config.settings?.currency }}{{ item.amount.toFixed(2) }}</span>
                                     </div>
                                 </div>
 
                                 <!-- Sign Up Button -->
-                                <div class="mt-6">
+                                <div class="mt-4">
                                     <button 
-                                        pButton 
                                         type="button"
-                                        [label]="config?.signupButtonText || 'Sign Up Now'"
+                                        class="btn btn-lg px-4"
                                         [ngStyle]="{
-                                            backgroundColor: config?.signupButtonColor || '#28a745',
-                                            borderColor: config?.signupButtonColor || '#28a745',
-                                            color: config?.signupButtonTextColor || '#ffffff'
+                                            backgroundColor: config.settings?.signupButtonColor || '#28a745',
+                                            borderColor: config.settings?.signupButtonColor || '#28a745',
+                                            color: config.settings?.signupButtonTextColor || '#ffffff'
                                         }"
-                                        (click)="navigateToSignup()"
-                                        class="px-8 py-3 text-lg">
+                                        (click)="navigateToSignup()">
+                                        {{ config.settings?.signupButtonText || 'Sign Up Now' }}
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </p-card>
+                </div>
             </div>
         </div>
-        <p-toast></p-toast>
     `,
     styles: [`
-        :host ::ng-deep {
-            .p-card {
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            }
-            .p-dropdown, .p-inputnumber {
-                width: 100%;
-            }
+        .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .form-control, .form-select {
+            width: 100%;
         }
     `]
 })
@@ -214,7 +202,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
 
     constructor(
         private premiumService: PremiumCalculationServiceProxy,
-        private messageService: MessageService,
         private router: Router
     ) {}
 
@@ -232,11 +219,7 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading premium settings:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to load premium settings'
-                });
+                // Failed to load premium settings
             }
         });
     }
@@ -296,12 +279,7 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
         
         // If total exceeds max, show warning
         if (totalDependents > maxAllowed) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Too Many Dependents',
-                detail: `Maximum allowed dependents for this cover is ${maxAllowed}. Please reduce the count.`,
-                life: 3000
-            });
+            console.warn(`Too Many Dependents: Maximum allowed dependents for this cover is ${maxAllowed}. Please reduce the count.`);
             // Clear results if invalid
             this.calculatedPremium.set(null);
             this.breakdown.set([]);
@@ -321,12 +299,7 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
         
         // If total exceeds max, show warning
         if (totalExtended > maxAllowed) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Too Many Extended Family Members',
-                detail: `Maximum allowed extended family members is ${maxAllowed}. Please reduce the count.`,
-                life: 3000
-            });
+            console.warn(`Too Many Extended Family Members: Maximum allowed extended family members is ${maxAllowed}. Please reduce the count.`);
             // Clear results if invalid
             this.calculatedPremium.set(null);
             this.breakdown.set([]);
@@ -671,7 +644,7 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
     }
 
     navigateToSignup(): void {
-        const signupUrl = this.config.signupUrl || '/auth/register';
+        const signupUrl = this.config.settings?.signupUrl || '/auth/register';
         this.router.navigateByUrl(signupUrl);
     }
 }

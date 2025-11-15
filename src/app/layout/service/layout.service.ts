@@ -53,6 +53,9 @@ export class LayoutService {
     private menuSource = new Subject<MenuChangeEvent>();
 
     private resetSource = new Subject();
+    
+    // Add a subject for state changes
+    private stateChangeSource = new Subject<LayoutState>();
 
     menuSource$ = this.menuSource.asObservable();
 
@@ -61,6 +64,8 @@ export class LayoutService {
     configUpdate$ = this.configUpdate.asObservable();
 
     overlayOpen$ = this.overlayOpen.asObservable();
+    
+    stateChange$ = this.stateChangeSource.asObservable();
 
     theme = computed(() => (this.layoutConfig()?.darkTheme ? 'light' : 'dark'));
 
@@ -139,6 +144,7 @@ export class LayoutService {
         console.log('=== Menu Toggle Called ===');
         console.log('isOverlay:', this.isOverlay());
         console.log('isDesktop:', this.isDesktop());
+        console.log('Window width:', window.innerWidth);
         console.log('Current state:', this.layoutState());
         
         if (this.isOverlay()) {
@@ -151,19 +157,54 @@ export class LayoutService {
 
         if (this.isDesktop()) {
             this.layoutState.update((prev) => ({ ...prev, staticMenuDesktopInactive: !this.layoutState().staticMenuDesktopInactive }));
+            
+            // Directly apply desktop class
+            const wrapper = document.querySelector('.layout-wrapper');
+            if (wrapper) {
+                if (this.layoutState().staticMenuDesktopInactive) {
+                    console.log('Adding layout-static-inactive class (desktop)');
+                    wrapper.classList.add('layout-static-inactive');
+                } else {
+                    console.log('Removing layout-static-inactive class (desktop)');
+                    wrapper.classList.remove('layout-static-inactive');
+                }
+                console.log('Wrapper classes:', wrapper.className);
+            }
         } else {
             this.layoutState.update((prev) => ({ ...prev, staticMenuMobileActive: !this.layoutState().staticMenuMobileActive }));
 
             if (this.layoutState().staticMenuMobileActive) {
                 this.overlayOpen.next(null);
             }
+            
+            // Directly apply mobile class
+            const wrapper = document.querySelector('.layout-wrapper');
+            if (wrapper) {
+                if (this.layoutState().staticMenuMobileActive) {
+                    console.log('Adding layout-mobile-active class (mobile)');
+                    wrapper.classList.add('layout-mobile-active');
+                } else {
+                    console.log('Removing layout-mobile-active class (mobile)');
+                    wrapper.classList.remove('layout-mobile-active');
+                }
+                console.log('Wrapper classes:', wrapper.className);
+            }
         }
         
-        console.log('New state:', this.layoutState());
+        const newState = this.layoutState();
+        console.log('New state:', newState);
+        console.log('staticMenuMobileActive:', newState.staticMenuMobileActive);
+        
+        // Emit the state change so components can subscribe
+        console.log('About to emit state change via stateChangeSource.next()');
+        this.stateChangeSource.next(newState);
+        console.log('State change emitted');
     }
 
     isDesktop() {
-        return window.innerWidth > 991;
+        const width = window.innerWidth;
+        console.log('isDesktop check - window width:', width, 'result:', width > 991);
+        return width > 991;
     }
 
     isMobile() {

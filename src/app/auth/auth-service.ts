@@ -61,7 +61,6 @@ export class AuthService {
         }
 
         const isExpired = this.jwtHelper.isTokenExpired(token);
-        console.log('- Token expired:', isExpired);
 
         if (isExpired) {
             console.log('- Result: Token is expired');
@@ -76,7 +75,6 @@ export class AuthService {
         }
 
         const isAuthenticated = !!this.decodedUserToken;
-        console.log('- Final result:', isAuthenticated);
         return isAuthenticated;
     }
 

@@ -1,4 +1,4 @@
-import { Component, Renderer2, ViewChild, ElementRef, OnInit, effect } from '@angular/core';
+import { Component, Renderer2, ViewChild, ElementRef, OnInit, AfterViewInit, OnDestroy, DoCheck } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
@@ -20,45 +20,104 @@ import { LayoutService } from '../service/layout.service';
             </div>
             <app-footer></app-footer>
         </div>
-        <div class="layout-mask animate-fadein"></div>
+        <div class="layout-mask animate-fadein" (click)="hideMenu()"></div>
     </div> `
 })
-export class AppLayout implements OnInit {
+export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
     overlayMenuOpenSubscription!: Subscription;
     menuOutsideClickListener: any;
+    layoutStateSubscription!: Subscription;
+    
+    // Track previous state to detect changes
+    private previousMobileActive = false;
+    private previousDesktopInactive = false;
 
     @ViewChild(AppSidebar) appSidebar!: AppSidebar;
     @ViewChild(AppTopbar) appTopBar!: AppTopbar;
-    @ViewChild('layoutWrapper') layoutWrapper!: ElementRef;
+    @ViewChild('layoutWrapper', { static: true }) layoutWrapper!: ElementRef;
 
     constructor(
         public layoutService: LayoutService,
         public renderer: Renderer2,
         public router: Router
     ) {
-        // Use effect to watch for state changes and manually apply classes
-        effect(() => {
-            const state = this.layoutService.layoutState();
-            console.log('Effect: Layout state changed:', state);
+        console.log('AppLayout constructor called');
+    }
+
+    ngAfterViewInit() {
+        console.log('ngAfterViewInit called');
+        console.log('layoutWrapper available:', !!this.layoutWrapper);
+    }
+
+    ngDoCheck() {
+        // No longer needed - using subscription instead
+        // Kept for potential debugging
+    }
+
+    updateMobileClass(isActive: boolean) {
+        if (this.layoutWrapper?.nativeElement) {
+            const element = this.layoutWrapper.nativeElement;
             
-            // Wait for view to initialize
-            setTimeout(() => {
-                if (this.layoutWrapper) {
-                    const element = this.layoutWrapper.nativeElement;
-                    
-                    if (state.staticMenuMobileActive) {
-                        console.log('Effect: Adding layout-mobile-active class');
-                        this.renderer.addClass(element, 'layout-mobile-active');
-                    } else {
-                        console.log('Effect: Removing layout-mobile-active class');
-                        this.renderer.removeClass(element, 'layout-mobile-active');
-                    }
-                }
-            });
-        });
+            if (isActive) {
+                console.log('Adding layout-mobile-active class');
+                this.renderer.addClass(element, 'layout-mobile-active');
+            } else {
+                console.log('Removing layout-mobile-active class');
+                this.renderer.removeClass(element, 'layout-mobile-active');
+            }
+            
+            console.log('Current classes:', element.className);
+        }
+    }
+
+    updateDesktopClass(isInactive: boolean) {
+        if (this.layoutWrapper?.nativeElement) {
+            const element = this.layoutWrapper.nativeElement;
+            
+            if (isInactive) {
+                console.log('Adding layout-static-inactive class');
+                this.renderer.addClass(element, 'layout-static-inactive');
+            } else {
+                console.log('Removing layout-static-inactive class');
+                this.renderer.removeClass(element, 'layout-static-inactive');
+            }
+            
+            console.log('Current classes:', element.className);
+        }
+    }
+
+    watchLayoutState() {
+        // This method is no longer needed with ngDoCheck
     }
 
     ngOnInit() {
+        console.log('=== ngOnInit called ===');
+        console.log('Setting up stateChange$ subscription');
+        
+        // Subscribe to state changes from the service
+        this.layoutStateSubscription = this.layoutService.stateChange$.subscribe({
+            next: (state) => {
+                console.log('=== State Change Subscription Triggered ===');
+                console.log('New state received:', state);
+                console.log('staticMenuMobileActive:', state.staticMenuMobileActive);
+                console.log('staticMenuDesktopInactive:', state.staticMenuDesktopInactive);
+                
+                // Apply mobile class
+                const mobileActive = state.staticMenuMobileActive ?? false;
+                this.updateMobileClass(mobileActive);
+                this.previousMobileActive = mobileActive;
+                
+                // Apply desktop class
+                const desktopInactive = state.staticMenuDesktopInactive ?? false;
+                this.updateDesktopClass(desktopInactive);
+                this.previousDesktopInactive = desktopInactive;
+            },
+            error: (err) => console.error('State change subscription error:', err),
+            complete: () => console.log('State change subscription completed')
+        });
+        
+        console.log('stateChange$ subscription set up successfully');
+        
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
                 this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {
@@ -87,12 +146,14 @@ export class AppLayout implements OnInit {
     }
 
     hideMenu() {
+        console.log('=== Hiding Menu ===');
         this.layoutService.layoutState.update((prev) => ({ ...prev, overlayMenuActive: false, staticMenuMobileActive: false, menuHoverActive: false }));
         if (this.menuOutsideClickListener) {
             this.menuOutsideClickListener();
             this.menuOutsideClickListener = null;
         }
         this.unblockBodyScroll();
+        console.log('Menu hidden, new state:', this.layoutService.layoutState());
     }
 
     blockBodyScroll(): void {
@@ -114,6 +175,10 @@ export class AppLayout implements OnInit {
     ngOnDestroy() {
         if (this.overlayMenuOpenSubscription) {
             this.overlayMenuOpenSubscription.unsubscribe();
+        }
+
+        if (this.layoutStateSubscription) {
+            this.layoutStateSubscription.unsubscribe();
         }
 
         if (this.menuOutsideClickListener) {
