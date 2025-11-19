@@ -49,9 +49,17 @@
                     Policy Benefits
                 </h4>
                 <ul class="features-list">
-                    <li class="feature-item" *ngFor="let attribute of policy.policyAttributes">
+                    <li class="feature-item">
                         <i class="pi pi-check feature-check"></i>
-                        <span class="feature-text">{{ attribute.description }}</span>
+                        <span class="feature-text">Coverage Amount: {{ formatCurrency(policy.coverageAmount) }}</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="pi pi-check feature-check"></i>
+                        <span class="feature-text">Max Claim Amount: {{ formatCurrency(policy.maxClaimAmount) }}</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="pi pi-check feature-check"></i>
+                        <span class="feature-text">Waiting Period: {{ policy.waitingPeriodDays }} days</span>
                     </li>
                 </ul>
             </div>

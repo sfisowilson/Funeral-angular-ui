@@ -112,7 +112,7 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
                 this.updateDesktopClass(desktopInactive);
                 this.previousDesktopInactive = desktopInactive;
             },
-            error: (err) => console.error('State change subscription error:', err),
+            error: (err: any) => console.error('State change subscription error:', err),
             complete: () => console.log('State change subscription completed')
         });
         
@@ -148,6 +148,14 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
     hideMenu() {
         console.log('=== Hiding Menu ===');
         this.layoutService.layoutState.update((prev) => ({ ...prev, overlayMenuActive: false, staticMenuMobileActive: false, menuHoverActive: false }));
+        
+        // Directly remove mobile menu class from DOM
+        const wrapper = document.querySelector('.layout-wrapper');
+        if (wrapper) {
+            wrapper.classList.remove('layout-mobile-active');
+            console.log('Removed layout-mobile-active class');
+        }
+        
         if (this.menuOutsideClickListener) {
             this.menuOutsideClickListener();
             this.menuOutsideClickListener = null;

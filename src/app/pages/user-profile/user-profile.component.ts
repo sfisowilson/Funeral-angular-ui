@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { UserProfileServiceProxy, UserProfileDto, UpdateUserProfileDto, AuthServiceProxy, LoginRequest } from '../../core/services/service-proxies';
+import { UserProfileService } from '../../core/services/generated/user-profile/user-profile.service';
+import { AuthService as AuthApiService } from '../../core/services/generated/auth/auth.service';
+import { UserProfileDto, UpdateUserProfileDto, LoginRequest } from '../../core/models';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
@@ -15,11 +17,11 @@ import { WidgetConfig } from '../../building-blocks/widget-config';
     styleUrl: './user-profile.component.css',
     standalone: true,
     imports: [FormsModule, CommonModule, InputTextModule, InputTextarea, TeamEditorWidgetComponent],
-    providers: [UserProfileServiceProxy, MessageService, AuthServiceProxy]
+    providers: [MessageService]
 })
 export class UserProfileComponent implements OnInit {
-    userProfile: UserProfileDto = new UserProfileDto();
-    updateUserProfileDto: UpdateUserProfileDto = new UpdateUserProfileDto();
+    userProfile: UserProfileDto = {} as UserProfileDto;
+    updateUserProfileDto: UpdateUserProfileDto = {} as UpdateUserProfileDto;
 
     isLoading = false;
 
@@ -58,10 +60,10 @@ export class UserProfileComponent implements OnInit {
     };
 
     constructor(
-        private userProfileService: UserProfileServiceProxy,
+        private userProfileService: UserProfileService,
         private messageService: MessageService,
         public authService: AuthService,
-        private authServiceProxy: AuthServiceProxy
+        private authApiService: AuthApiService
     ) {}
 
     ngOnInit(): void {
@@ -79,11 +81,12 @@ export class UserProfileComponent implements OnInit {
         // Initialize with default values to ensure something shows
         this.userProfile = {
             id: '',
+            email: '',
             firstName: '',
             lastName: '',
-            emailAddress: '',
             phoneNumber: '',
-            address: ''
+            tenantId: '',
+            roles: []
         } as UserProfileDto;
 
         this.updateUserProfileDto = {
@@ -104,16 +107,15 @@ export class UserProfileComponent implements OnInit {
             return;
         }
 
-        this.userProfileService.userProfile_GetCurrentUserProfile().subscribe({
+        this.userProfileService.getApiUserProfileUserProfileGetCurrent().subscribe({
             next: (profile) => {
                 this.userProfile = profile;
                 this.updateUserProfileDto.firstName = profile.firstName;
                 this.updateUserProfileDto.lastName = profile.lastName;
                 this.updateUserProfileDto.phoneNumber = profile.phoneNumber;
-                this.updateUserProfileDto.address = profile.address;
                 this.isLoading = false;
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error details:', {
                     status: error.status,
                     statusText: error.statusText,
@@ -134,12 +136,12 @@ export class UserProfileComponent implements OnInit {
         }
 
         this.isLoading = true;
-        this.userProfileService.userProfile_UpdateCurrentUserProfile(this.updateUserProfileDto).subscribe({
+        this.userProfileService.putApiUserProfileUserProfileUpdateCurrentUserProfile(this.updateUserProfileDto).subscribe({
             next: () => {
                 this.loadUserProfile(); // Refresh the profile data
                 this.isLoading = false;
             },
-            error: (error) => {
+            error: (error: any) => {
                 this.isLoading = false;
             }
         });
@@ -150,12 +152,9 @@ export class UserProfileComponent implements OnInit {
     }
 
     resetForm(): void {
-        this.updateUserProfileDto.firstName = this.userProfile.firstName;
-        this.updateUserProfileDto.lastName = this.userProfile.lastName;
-        this.updateUserProfileDto.phoneNumber = this.userProfile.phoneNumber;
-        this.updateUserProfileDto.address = this.userProfile.address;
-
-        console.log('Form has been reset to original values');
+            this.updateUserProfileDto.firstName = this.userProfile.firstName;
+            this.updateUserProfileDto.lastName = this.userProfile.lastName;
+            this.updateUserProfileDto.phoneNumber = this.userProfile.phoneNumber;
     }
 
     // DEBUG LOGIN METHOD - TEMPORARY FOR TESTING
@@ -166,12 +165,12 @@ export class UserProfileComponent implements OnInit {
 
 
         // Create proper LoginRequest object
-        const loginRequest = new LoginRequest({
+        const loginRequest: LoginRequest = {
             email: this.debugLoginForm.email,
             password: this.debugLoginForm.password
-        });
+        };
 
-        this.authServiceProxy.auth_Login(loginRequest).subscribe({
+        this.authApiService.postApiAuthAuthLogin(loginRequest as LoginRequest).subscribe({
             next: (token) => {
 
                 if (!token || !token.token) {
@@ -199,7 +198,7 @@ export class UserProfileComponent implements OnInit {
                     this.debugLoginInProgress = false;
                 });
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('❌ Debug login failed:', error);
                 this.debugLoginMessage = `❌ Login failed: ${error.message || 'Unknown error'}`;
                 this.debugLoginSuccess = false;

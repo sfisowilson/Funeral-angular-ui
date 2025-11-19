@@ -97,21 +97,21 @@ export class DynamicFormService {
             const control = new FormControl(config.defaultValue || '', validators);
 
             let options: string[] | undefined;
-            if (config.optionsJson) {
+            if (config.options) {
                 try {
-                    options = JSON.parse(config.optionsJson);
+                    options = JSON.parse(config.options);
                 } catch (e) {
-                    console.error(`Invalid options JSON for field ${config.fieldKey}:`, e);
+                    console.error(`Invalid options JSON for field ${config.fieldName}:`, e);
                     options = [];
                 }
             }
 
             let validationRules: any = {};
-            if (config.validationRulesJson) {
+            if (config.validationRules) {
                 try {
-                    validationRules = JSON.parse(config.validationRulesJson);
+                    validationRules = JSON.parse(config.validationRules);
                 } catch (e) {
-                    console.error(`Invalid validation rules JSON for field ${config.fieldKey}:`, e);
+                    console.error(`Invalid validation rules JSON for field ${config.fieldName}:`, e);
                 }
             }
 
@@ -141,14 +141,6 @@ export class DynamicFormService {
             validators.push(Validators.required);
         }
 
-        // Length validators
-        if (config.minLength !== undefined && config.minLength > 0) {
-            validators.push(Validators.minLength(config.minLength));
-        }
-        if (config.maxLength !== undefined && config.maxLength > 0) {
-            validators.push(Validators.maxLength(config.maxLength));
-        }
-
         // Type-specific validators
         switch (config.fieldType) {
             case 'email':
@@ -160,9 +152,15 @@ export class DynamicFormService {
         }
 
         // Custom validation rules from JSON
-        if (config.validationRulesJson) {
+        if (config.validationRules) {
             try {
-                const rules = JSON.parse(config.validationRulesJson);
+                const rules = JSON.parse(config.validationRules);
+                if (rules.minLength !== undefined && rules.minLength > 0) {
+                    validators.push(Validators.minLength(rules.minLength));
+                }
+                if (rules.maxLength !== undefined && rules.maxLength > 0) {
+                    validators.push(Validators.maxLength(rules.maxLength));
+                }
                 if (rules.pattern) {
                     validators.push(Validators.pattern(rules.pattern));
                 }
@@ -173,7 +171,7 @@ export class DynamicFormService {
                     validators.push(Validators.max(rules.max));
                 }
             } catch (e) {
-                console.error(`Error parsing validation rules for ${config.fieldKey}:`, e);
+                console.error(`Error parsing validation rules for ${config.fieldName}:`, e);
             }
         }
 
@@ -203,7 +201,7 @@ export class DynamicFormService {
         
         categories.forEach(category => {
             category.fields.forEach(field => {
-                const key = field.config.fieldKey || 'unknown';
+                const key = field.config.fieldName || 'unknown';
                 group[key] = field.control;
             });
         });
@@ -219,24 +217,24 @@ export class DynamicFormService {
         const config = field.config;
 
         if (control.hasError('required')) {
-            return `${config.fieldLabel} is required`;
+            return `${config.displayLabel} is required`;
         }
         if (control.hasError('email')) {
             return 'Please enter a valid email address';
         }
         if (control.hasError('minlength')) {
             const minLength = control.getError('minlength').requiredLength;
-            return `${config.fieldLabel} must be at least ${minLength} characters`;
+            return `${config.displayLabel} must be at least ${minLength} characters`;
         }
         if (control.hasError('maxlength')) {
             const maxLength = control.getError('maxlength').requiredLength;
-            return `${config.fieldLabel} must not exceed ${maxLength} characters`;
+            return `${config.displayLabel} must not exceed ${maxLength} characters`;
         }
         if (control.hasError('pattern')) {
             // Try to get custom message from validation rules
-            if (config.validationRulesJson) {
+            if (config.validationRules) {
                 try {
-                    const rules = JSON.parse(config.validationRulesJson);
+                    const rules = JSON.parse(config.validationRules);
                     if (rules.message) {
                         return rules.message;
                     }
@@ -244,21 +242,21 @@ export class DynamicFormService {
                     // Ignore
                 }
             }
-            return `${config.fieldLabel} format is invalid`;
+            return `${config.displayLabel} format is invalid`;
         }
         if (control.hasError('phone')) {
             return 'Please enter a valid phone number';
         }
         if (control.hasError('min')) {
             const min = control.getError('min').min;
-            return `${config.fieldLabel} must be at least ${min}`;
+            return `${config.displayLabel} must be at least ${min}`;
         }
         if (control.hasError('max')) {
             const max = control.getError('max').max;
-            return `${config.fieldLabel} must not exceed ${max}`;
+            return `${config.displayLabel} must not exceed ${max}`;
         }
 
-        return `${config.fieldLabel} is invalid`;
+        return `${config.displayLabel} is invalid`;
     }
 
     /**

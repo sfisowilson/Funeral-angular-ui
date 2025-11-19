@@ -15,7 +15,8 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { PolicyDto, PolicyServiceProxy } from '../../core/services/service-proxies';
+import { PolicyDto } from '../../core/models';
+import { PoliciesService } from '../../core/services/generated/policies/policies.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 
@@ -34,7 +35,7 @@ interface ExportColumn {
     selector: 'app-policies',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule, CheckboxModule],
-    providers: [MessageService, ConfirmationService, PolicyServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './policies.component.html'
 })
 export class PoliciesComponent {
@@ -54,7 +55,7 @@ export class PoliciesComponent {
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private policyService: PolicyServiceProxy,
+        private policyService: PoliciesService,
         private router: Router,
         private tenantSettingsService: TenantSettingsService
     ) {}
@@ -76,7 +77,7 @@ export class PoliciesComponent {
     }
 
     loadPolicies() {
-        this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe((policies) => {
+        this.policyService.getApiPolicyPolicyGetAllPolicies().subscribe((policies) => {
             this.policies.set(policies);
         });
 
@@ -127,9 +128,9 @@ export class PoliciesComponent {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.policyService.policy_DeletePolicy(policy.id!).subscribe(() => {
+                this.policyService.deleteApiPolicyPolicyDeletePolicyId(policy.id!).subscribe(() => {
                     this.policies.set(this.policies().filter((val) => val.id !== policy.id));
-                    this.policy = new PolicyDto();
+                    this.policy = {} as PolicyDto;
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Successful',

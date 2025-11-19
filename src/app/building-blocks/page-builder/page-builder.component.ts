@@ -515,7 +515,7 @@ export class PageBuilderComponent implements OnInit {
             next: () => {
                 console.log('✓ Widgets saved successfully to backend');
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('✗ Error saving widgets:', error);
                 this.messageService.add({
                     severity: 'error',

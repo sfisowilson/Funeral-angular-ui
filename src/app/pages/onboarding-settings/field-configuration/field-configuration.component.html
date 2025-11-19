@@ -70,13 +70,13 @@
                 <td>{{ field.displayOrder }}</td>
                 <td>
                     <div class="field-label-cell">
-                        <strong>{{ field.fieldLabel }}</strong>
+                        <strong>{{ field.displayLabel }}</strong>
                         @if (field.helpText) {
                             <small class="text-muted d-block">{{ field.helpText }}</small>
                         }
                     </div>
                 </td>
-                <td><code>{{ field.fieldKey }}</code></td>
+                <td><code>{{ field.fieldName }}</code></td>
                 <td>
                     <span class="badge badge-info">{{ getFieldTypeName(field.fieldType) }}</span>
                 </td>
@@ -147,7 +147,7 @@
                 <input
                     pInputText
                     id="fieldKey"
-                    [(ngModel)]="currentField.fieldKey"
+                    [(ngModel)]="currentField.fieldName"
                     [disabled]="isEditMode()"
                     placeholder="e.g., employerName, phoneNumber"
                 />
@@ -159,7 +159,7 @@
                 <input
                     pInputText
                     id="fieldLabel"
-                    [(ngModel)]="currentField.fieldLabel"
+                    [(ngModel)]="currentField.displayLabel"
                     placeholder="e.g., Employer Name, Phone Number"
                 />
                 <small class="text-muted">Display label shown to users</small>
@@ -298,7 +298,7 @@
                     <textarea
                         pInputTextarea
                         id="optionsJson"
-                        [(ngModel)]="currentField.optionsJson"
+                        [(ngModel)]="currentField.options"
                         [rows]="3"
                         placeholder='["Option 1", "Option 2", "Option 3"]'
                     ></textarea>
@@ -311,7 +311,7 @@
                 <textarea
                     pInputTextarea
                     id="validationRulesJson"
-                    [(ngModel)]="currentField.validationRulesJson"
+                    [(ngModel)]="currentField.validationRules"
                     [rows]="3"
                     placeholder='{"pattern": "^[A-Za-z]+$", "message": "Letters only"}'
                 ></textarea>

@@ -1,0 +1,136 @@
+<div [ngStyle]="{
+    backgroundColor: config.settings?.backgroundColor,
+    padding: config.settings?.padding + 'px'
+}">
+    <div class="contents">
+        <div class="text-center mb-4">
+            <h2 [ngStyle]="{
+                fontSize: config.settings?.titleSize + 'px',
+                color: config.settings?.titleColor,
+                fontWeight: 'bold',
+                marginBottom: '16px'
+            }">{{ config.settings?.title }}</h2>
+            <p [ngStyle]="{
+                fontSize: config.settings?.subtitleSize + 'px',
+                color: config.settings?.subtitleColor
+            }">{{ config.settings?.subtitle }}</p>
+        </div>
+
+        <div class="card" [ngStyle]="{
+            backgroundColor: config.settings?.cardBackgroundColor
+        }">
+            <div class="card-body">
+                <!-- Cover Amount Selection -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" [ngStyle]="{ color: config.settings?.labelColor }">
+                        Select Cover Amount
+                    </label>
+                    <select 
+                        class="form-select"
+                        [(ngModel)]="selectedCoverRow" 
+                        (ngModelChange)="onCoverAmountChange()">
+                        <option [ngValue]="null">Choose cover amount</option>
+                        <option *ngFor="let option of coverOptions" [ngValue]="option.value">
+                            {{ option.label }}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Immediate Family Age Bracket Inputs -->
+                <div class="mb-4" *ngIf="ageBracketInputs.length > 0">
+                    <label class="form-label fw-semibold" [ngStyle]="{ color: config.settings?.labelColor }">
+                        Immediate Family - Enter Number of People by Age Group
+                    </label>
+                    <div class="row g-3">
+                        <div *ngFor="let bracket of ageBracketInputs" class="col-md-6">
+                            <label class="form-label small" [ngStyle]="{ color: config.settings?.labelColor }">
+                                {{ bracket.label }}
+                            </label>
+                            <input 
+                                type="number" 
+                                class="form-control"
+                                [(ngModel)]="bracket.count" 
+                                [min]="0" 
+                                [max]="getMaxAllowedDependents()"
+                                (ngModelChange)="onDependentCountChange()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extended Family Age Bracket Inputs -->
+                <div class="mb-4" *ngIf="extendedFamilyBracketInputs.length > 0">
+                    <label class="form-label fw-semibold d-flex align-items-center" [ngStyle]="{ color: config.settings?.labelColor }">
+                        Extended Family - Enter Number of People by Age Group
+                        <span class="badge bg-warning text-dark ms-2">
+                            Max {{ settings()?.maxExtendedFamilyMembers || 4 }} members
+                        </span>
+                    </label>
+                    <div class="row g-3">
+                        <div *ngFor="let bracket of extendedFamilyBracketInputs" class="col-md-6">
+                            <label class="form-label small d-flex align-items-center gap-2" [ngStyle]="{ color: config.settings?.labelColor }">
+                                {{ bracket.label }}
+                                <span class="text-muted small">
+                                    (+{{ config.settings?.currency }}{{ bracket.premium }} per person)
+                                </span>
+                            </label>
+                            <input 
+                                type="number" 
+                                class="form-control"
+                                [(ngModel)]="bracket.count" 
+                                [min]="0" 
+                                [max]="settings()?.maxExtendedFamilyMembers || 4"
+                                (ngModelChange)="onExtendedFamilyCountChange()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Display -->
+                <div *ngIf="calculatedPremium() !== null" class="mt-4 p-4 rounded border"
+                    [ngStyle]="{
+                        backgroundColor: config.settings?.resultBackgroundColor,
+                        borderColor: config.settings?.resultBorderColor,
+                        borderWidth: '2px'
+                    }">
+                    <div class="text-center">
+                        <p class="fs-5 mb-2" [ngStyle]="{ color: config.settings?.resultLabelColor }">
+                            {{ config.settings?.resultLabel }}
+                        </p>
+                        <p class="display-3 fw-bold mb-1" [ngStyle]="{ color: config.settings?.resultAmountColor }">
+                            {{ config.settings?.currency }}{{ calculatedPremium()!.toFixed(2) }}
+                        </p>
+                        <p class="small" [ngStyle]="{ color: config.settings?.resultPeriodColor }">
+                            {{ config.settings?.resultPeriod }}
+                        </p>
+
+                        <!-- Breakdown -->
+                        <div *ngIf="breakdown().length > 0" class="mt-3 pt-3 border-top"
+                            [ngStyle]="{ borderColor: config.settings?.resultBorderColor }">
+                            <p class="fw-semibold mb-2" [ngStyle]="{ color: config.settings?.resultLabelColor }">
+                                Breakdown:
+                            </p>
+                            <div *ngFor="let item of breakdown()" class="d-flex justify-content-between py-1">
+                                <span [ngStyle]="{ color: config.settings?.resultLabelColor }">{{ item.label }}</span>
+                                <span *ngIf="item.showAmount !== false" [ngStyle]="{ color: config.settings?.resultAmountColor }">{{ config.settings?.currency }}{{ item.amount.toFixed(2) }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Sign Up Button -->
+                        <div class="mt-4">
+                            <button 
+                                type="button"
+                                class="btn btn-lg px-4"
+                                [ngStyle]="{
+                                    backgroundColor: config.settings?.signupButtonColor || '#28a745',
+                                    borderColor: config.settings?.signupButtonColor || '#28a745',
+                                    color: config.settings?.signupButtonTextColor || '#ffffff'
+                                }"
+                                (click)="navigateToSignup()">
+                                {{ config.settings?.signupButtonText || 'Sign Up Now' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

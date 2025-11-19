@@ -13,14 +13,17 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { UserDto, UserServiceProxy, RoleServiceProxy, UserRoleServiceProxy, Role, UserRoleInputDto, UserRoleDto, RoleDto } from '../../core/services/service-proxies';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { UserService } from '../../core/services/generated/user/user.service';
+import { RoleService } from '../../core/services/generated/role/role.service';
+import { UserRoleService } from '../../core/services/generated/user-role/user-role.service';
+import { UserDto, RoleDto, UserRoleDto, UserRoleInputDto } from '../../core/models';
 
 @Component({
     selector: 'app-users',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule, MultiSelectModule],
-    providers: [MessageService, ConfirmationService, UserServiceProxy, RoleServiceProxy, UserRoleServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './users.component.html'
 })
 export class UsersComponent {
@@ -46,15 +49,17 @@ export class UsersComponent {
     cols: any[] = [];
 
     getUserRolesDisplay(user: UserDto): string {
-        return user.userRoles?.map((ur) => ur.roleName).join(', ') || '';
+        // UserDto doesn't have userRoles in the current schema
+        // This would need to be loaded separately if needed
+        return '';
     }
 
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private userService: UserServiceProxy,
-        private roleService: RoleServiceProxy,
-        private userRoleService: UserRoleServiceProxy
+        private userService: UserService,
+        private roleService: RoleService,
+        private userRoleService: UserRoleService
     ) {}
 
     ngOnInit() {
@@ -63,13 +68,13 @@ export class UsersComponent {
     }
 
     loadUsers() {
-        this.userService.user_GetAllUsers(undefined, undefined, undefined, undefined, undefined).subscribe((users) => {
+        this.userService.getApiUserUserGetAll().subscribe((users) => {
             this.users.set(users);
         });
     }
 
     loadRoles() {
-        this.roleService.role_GetAllRoles().subscribe((roles) => {
+        this.roleService.getApiRoleRoleGetAllRoles().subscribe((roles) => {
             this.roles.set(roles);
         });
     }
@@ -79,15 +84,16 @@ export class UsersComponent {
     }
 
     openNew() {
-        this.user = new UserDto();
+        this.user = {} as UserDto;
         this.selectedRoles = [];
         this.submitted = false;
         this.userDialog = true;
     }
 
     editUser(user: UserDto) {
-        this.user = UserDto.fromJS(user);
-        this.originalUserRoles = this.user.userRoles || [];
+        this.user = { ...user };
+        // UserDto doesn't have userRoles in current schema
+        this.originalUserRoles = [];
         this.selectedRoles = this.roles().filter((role) => this.originalUserRoles.some((ur) => ur.roleId === role.id));
         this.userDialog = true;
     }
@@ -99,10 +105,10 @@ export class UsersComponent {
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.selectedUsers?.forEach((user) => {
-                    this.userService.user_DeleteUser(user.id).subscribe(() => {
+                    this.userService.deleteApiUserUserDelete({ id: user.id }).subscribe(() => {
                         this.users.set(this.users().filter((val) => val.id !== user.id));
                     });
-                });
+                });  
                 this.selectedUsers = null;
                 this.messageService.add({
                     severity: 'success',
@@ -125,9 +131,9 @@ export class UsersComponent {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.userService.user_DeleteUser(user.id).subscribe(() => {
+                this.userService.deleteApiUserUserDelete({ id: user.id }).subscribe(() => {
                     this.users.set(this.users().filter((val) => val.id !== user.id));
-                    this.user = new UserDto();
+                    this.user = {} as UserDto;
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Successful',
@@ -143,12 +149,12 @@ export class UsersComponent {
         this.submitted = true;
         if (this.user.email?.trim() && this.user.firstName?.trim()) {
             if (this.user.id) {
-                this.userService.user_UpdateUser(this.user).subscribe({
+                this.userService.putApiUserUserUpdate(this.user).subscribe({
                     next: (updatedUser: UserDto) => {
                         // Roles to add
                         const rolesToAdd = this.selectedRoles.filter((selectedRole) => !this.originalUserRoles.some((originalRole) => originalRole.roleId === selectedRole.id));
                         rolesToAdd.forEach((role: RoleDto) => {
-                            this.userRoleService.userRole_CreateUserRole(UserRoleInputDto.fromJS({ userId: updatedUser.id, roleId: role.id })).subscribe(() => {
+                            this.userRoleService.postApiUserRoleUserRoleCreateUserRole({ userId: updatedUser.id, roleId: role.id }).subscribe(() => {
                                 // Handle success for individual role assignment if needed
                             });
                         });
@@ -182,11 +188,11 @@ export class UsersComponent {
                     }
                 });
             } else {
-                this.userService.user_CreateUser(this.user).subscribe({
+                this.userService.postApiUserUserCreate(this.user).subscribe({
                     next: (createdUser: UserDto) => {
                         const roleIds = this.selectedRoles.map((role: RoleDto) => role.id);
                         roleIds.forEach((roleId: string) => {
-                            this.userRoleService.userRole_CreateUserRole(UserRoleInputDto.fromJS({ userId: createdUser.id, roleId: roleId })).subscribe(() => {
+                            this.userRoleService.postApiUserRoleUserRoleCreateUserRole({ userId: createdUser.id, roleId: roleId }).subscribe(() => {
                                 // Handle success for individual role assignment if needed
                             });
                         });
@@ -209,7 +215,7 @@ export class UsersComponent {
                 });
             }
             this.userDialog = false;
-            this.user = new UserDto();
+            this.user = {} as UserDto;
         }
     }
 }

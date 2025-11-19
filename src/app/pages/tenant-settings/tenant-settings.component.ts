@@ -1,6 +1,7 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextarea } from 'primeng/inputtextarea';
@@ -12,8 +13,22 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { DialogModule } from 'primeng/dialog';
-import { TenantSettingDto, TenantSettingServiceProxy, FileUploadServiceProxy, FileMetadataDto, FileParameter, API_BASE_URL, PremiumCalculationServiceProxy, PremiumCalculationSettingsDto, PolicyCoverPremiumTableDto, ExtendedFamilyBenefitTableDto, PolicyCoverRowDto, ExtendedFamilyBenefitRowDto, DependentCountTierDto, PolicyCoverAgeBracketDto } from '../../core/services/service-proxies';
+import { TenantSettingsService as TenantSettingsApiService } from '../../core/services/generated/tenant-settings/tenant-settings.service';
+import { FileUploadsService } from '../../core/services/generated/file-uploads/file-uploads.service';
+import { PremiumCalculationService } from '../../core/services/generated/premium-calculation/premium-calculation.service';
+import { 
+    TenantSettingDto, 
+    FileMetadataDto, 
+    PremiumCalculationSettingsDto, 
+    PolicyCoverPremiumTableDto, 
+    ExtendedFamilyBenefitTableDto, 
+    PolicyCoverRowDto, 
+    ExtendedFamilyBenefitRowDto, 
+    DependentCountTierDto, 
+    PolicyCoverAgeBracketDto 
+} from '../../core/models';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { TeamEditorComponent } from '../../building-blocks/team-editor-widget/team-editor.component';
 import { WidgetConfig } from '../../building-blocks/widget-config';
 import { WidgetService } from '../../building-blocks/widget.service';
@@ -32,6 +47,7 @@ interface NotificationSettings {
 }
 
 interface Settings extends SmtpSettings, NotificationSettings {
+    TenantName?: string; // Capital T to match JSON from backend
     customCssId?: string;
     currency?: string;
     logo?: string;
@@ -97,7 +113,7 @@ interface TeamMember {
     selector: 'app-tenant-settings',
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, InputTextarea, ToastModule, FileUploadModule, CardModule, CheckboxModule, DropdownModule, ColorPickerModule, DialogModule, TeamEditorComponent],
-    providers: [MessageService, TenantSettingServiceProxy, FileUploadServiceProxy, TenantSettingsService, PremiumCalculationServiceProxy],
+    providers: [MessageService, TenantSettingsService],
     templateUrl: './tenant-settings.component.html',
     styleUrl: './tenant-settings.component.scss'
 })
@@ -141,12 +157,13 @@ export class TenantSettingsComponent implements OnInit {
 
     constructor(
         private messageService: MessageService,
-        private tenantSettingService: TenantSettingServiceProxy,
-        private fileUploadService: FileUploadServiceProxy,
+        private tenantSettingService: TenantSettingsApiService,
+        private fileUploadService: FileUploadsService,
         private tenantSettingsService: TenantSettingsService,
+        private themeService: ThemeService,
         private widgetService: WidgetService,
-        private premiumCalculationService: PremiumCalculationServiceProxy,
-        @Inject(API_BASE_URL) private baseUrl: string,
+        private premiumCalculationService: PremiumCalculationService,
+        private cdr: ChangeDetectorRef,
         @Inject(DOCUMENT) private document: Document
     ) {}
 
@@ -154,7 +171,7 @@ export class TenantSettingsComponent implements OnInit {
         if (!fileId) {
             return '';
         }
-        let url = `${this.baseUrl}/api/FileUpload/File_DownloadFile/${fileId}`;
+        let url = `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${fileId}`;
         if (this.tenantIdHeader && this.tenantIdHeader.has('X-Tenant-ID')) {
             url += `?X-Tenant-ID=${this.tenantIdHeader.get('X-Tenant-ID')}`;
         }
@@ -172,27 +189,73 @@ export class TenantSettingsComponent implements OnInit {
         const cssId = this.customCssId;
         if (cssId) {
             window.open(this.getDownloadUrl(cssId), '_blank');
+        } else {
+            this.messageService.add({ 
+                severity: 'warn', 
+                summary: 'No CSS File', 
+                detail: 'No custom CSS file has been uploaded yet.', 
+                life: 3000 
+            });
+        }
+    }
+
+    removeCssFile() {
+        if (this._settings.customCssId) {
+            // Clear the CSS file ID from settings
+            this._settings.customCssId = undefined;
+            
+            // Immediately remove the custom CSS from the page
+            this.themeService.removeCustomCss();
+            
+            this.messageService.add({ 
+                severity: 'success', 
+                summary: 'CSS Removed', 
+                detail: 'Custom CSS file removed from settings and page. Click "Save" to persist changes to the database.', 
+                life: 5000 
+            });
+        } else {
+            this.messageService.add({ 
+                severity: 'warn', 
+                summary: 'No CSS File', 
+                detail: 'No custom CSS file to remove.', 
+                life: 3000 
+            });
         }
     }
 
     ngOnInit(): void {
-        const host = window.location.hostname;
-        const subdomain = host.split('.')[0];
-        if (subdomain && subdomain !== 'www') {
-            this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', subdomain);
-        }
+        // Initial load - we'll set the tenant header after loading settings
         this.loadTenantSettings();
     }
 
     loadTenantSettings() {
+        // console.log('🔄 Loading tenant settings...');
         this.tenantSettingsService
             .loadSettings()
             .then((data) => {
+                // console.log('✅ Tenant settings loaded:', data);
+                // console.log('Logo:', data.logo);
+                // console.log('Favicon:', data.favicon);
+                // console.log('TenantName:', data.tenantName);
+                // console.log('TenantDomain:', (data as any).tenantDomain);
+                
                 this.tenantSettings = data; // Assign the fetched TenantSettingDto directly
+                
+                // Set tenant header from the loaded tenant domain
+                const tenantDomain = (data as any).tenantDomain;
+                if (tenantDomain) {
+                    this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', tenantDomain);
+                    // console.log('Tenant header set from domain:', tenantDomain);
+                }
 
                 if (this.tenantSettings.settings) {
                     try {
                         this._settings = JSON.parse(this.tenantSettings.settings);
+                        
+                        // Extract tenantName from settings JSON if not present at top level
+                        if (!this.tenantSettings.tenantName && this._settings.TenantName) {
+                            this.tenantSettings.tenantName = this._settings.TenantName;
+                        }
                     } catch (e) {
                         console.error('Error parsing existing tenant settings JSON:', e);
                         this._settings = {}; // Initialize to empty if parsing fails
@@ -270,16 +333,25 @@ export class TenantSettingsComponent implements OnInit {
                 // Initialize team members
                 this.teamMembers = this._settings.teamMembers || [];
                 this.teamEditorConfig.settings.teamMembers = [...this.teamMembers];
+                
+                // Trigger change detection to update the view
+                this.cdr.detectChanges();
+                console.log('✅ Change detection triggered');
             })
-            .catch((error) => {
+            .catch((error: any) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load tenant settings', life: 3000 });
                 console.error(error);
             });
     }
 
     saveSettings() {
+        // console.log('=== Save Settings Called ===');
+        // console.log('tenantSettings:', this.tenantSettings);
+        // console.log('tenantName:', this.tenantSettings.tenantName);
+        
         this.submitted = true;
         if (this.tenantSettings.tenantName?.trim()) {
+            console.log('Validation passed - proceeding with save');
             let existingSettings: Settings = {};
             if (this.tenantSettings.settings) {
                 try {
@@ -292,8 +364,9 @@ export class TenantSettingsComponent implements OnInit {
             // Merge updated properties into existingSettings
             existingSettings.customCssId = this._settings.customCssId;
             existingSettings.currency = this.currency;
-            existingSettings.logo = this._settings.logo;
-            existingSettings.favicon = this._settings.favicon;
+            // Don't save logo and favicon to JSON settings - they're saved as top-level properties
+            // existingSettings.logo = this._settings.logo;
+            // existingSettings.favicon = this._settings.favicon;
             existingSettings.primaryColor = this._settings.primaryColor;
             existingSettings.secondaryColor = this._settings.secondaryColor;
             existingSettings.accentColor = this._settings.accentColor;
@@ -350,44 +423,60 @@ export class TenantSettingsComponent implements OnInit {
             existingSettings.teamMembers = this.teamMembers;
 
             // Create a TenantSettingDto to send to the service
-            const tenantSettingDtoToSend: TenantSettingDto = new TenantSettingDto();
-            tenantSettingDtoToSend.id = this.tenantSettings.id;
-            tenantSettingDtoToSend.tenantName = this.tenantSettings.tenantName;
-            tenantSettingDtoToSend.ozowApiKey = this.tenantSettings.ozowApiKey;
-            tenantSettingDtoToSend.ozowSiteCode = this.tenantSettings.ozowSiteCode;
-            tenantSettingDtoToSend.ozowPrivateKey = this.tenantSettings.ozowPrivateKey;
-            tenantSettingDtoToSend.settings = JSON.stringify(existingSettings); // Stringify the combined settings
+            const tenantSettingDtoToSend: TenantSettingDto = {
+                id: this.tenantSettings.id,
+                tenantName: this.tenantSettings.tenantName,
+                ozowApiKey: this.tenantSettings.ozowApiKey,
+                ozowSiteCode: this.tenantSettings.ozowSiteCode,
+                ozowPrivateKey: this.tenantSettings.ozowPrivateKey,
+                logo: this.tenantSettings.logo,
+                favicon: this.tenantSettings.favicon,
+                settings: JSON.stringify(existingSettings),
+                tenantDomain: this.tenantSettings.tenantDomain || ''
+            };
 
-            this.tenantSettingService.tenantSetting_UpdateTenantSetting(tenantSettingDtoToSend).subscribe({
+            console.log('About to send DTO:', tenantSettingDtoToSend);
+            console.log('Settings JSON:', tenantSettingDtoToSend.settings);
+
+            this.tenantSettingService.postApiTenantSettingTenantSettingUpdateTenantSetting(tenantSettingDtoToSend).subscribe({
                 next: () => {
+                    console.log('Save successful!');
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Tenant Settings Updated', life: 3000 });
                     // Refresh widgets to reflect any landing page changes
                     this.widgetService.refreshWidgets().subscribe({
                         next: () => {
                             console.log('Widgets refreshed after tenant settings save');
                         },
-                        error: (error) => {
+                        error: (error: any) => {
                             console.error('Error refreshing widgets:', error);
                         }
                     });
                 },
                 error: (error: any) => {
+                    console.error('Save failed with error:', error);
+                    console.error('Error details:', error?.error);
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update tenant settings', life: 3000 });
                     console.error(error);
                 }
             });
+        } else {
+            console.warn('Validation failed - tenantName is missing or empty');
+            this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Tenant Name is required', life: 3000 });
         }
     }
 
     onLogoUpload(event: any) {
         const file = event.files[0];
-        const fileParameter: FileParameter = {
-            data: file,
-            fileName: file.name
-        };
+        console.log('📤 Uploading logo...');
         // Pass entityType='Logo' and entityId as the tenant ID so it's linked to tenant settings
-        this.fileUploadService.file_UploadFile('Logo', undefined, undefined, undefined, false, fileParameter).subscribe({
+        this.fileUploadService.postApiFileUploadFileUploadFile({
+            file: file,
+            entityType: 'Logo',
+            isRequired: false
+        }).subscribe({
             next: (result: FileMetadataDto) => {
+                console.log('✅ Logo uploaded successfully:', result);
+                console.log('File ID:', result.id);
                 // Logo is automatically saved in TenantSettings on backend via the uploadFile logic
                 // Just confirm to user
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Logo uploaded successfully', life: 3000 });
@@ -403,13 +492,16 @@ export class TenantSettingsComponent implements OnInit {
 
     onFaviconUpload(event: any) {
         const file = event.files[0];
-        const fileParameter: FileParameter = {
-            data: file,
-            fileName: file.name
-        };
+        // console.log('📤 Uploading favicon...');
         // Pass entityType='Favicon' so it's automatically saved in TenantSettings on backend
-        this.fileUploadService.file_UploadFile('Favicon', undefined, undefined, undefined, false, fileParameter).subscribe({
+        this.fileUploadService.postApiFileUploadFileUploadFile({
+            file: file,
+            entityType: 'Favicon',
+            isRequired: false
+        }).subscribe({
             next: (result: FileMetadataDto) => {
+                // console.log('✅ Favicon uploaded successfully:', result);
+                // console.log('File ID:', result.id);
                 // Favicon is automatically saved in TenantSettings on backend via the uploadFile logic
                 // Just confirm to user
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Favicon uploaded successfully', life: 3000 });
@@ -425,11 +517,11 @@ export class TenantSettingsComponent implements OnInit {
 
     onCssFileUpload(event: any) {
         const file = event.files[0];
-        const fileParameter: FileParameter = {
-            data: file,
-            fileName: file.name
-        };
-        this.fileUploadService.file_UploadFile('CssFile', undefined, undefined, undefined, false, fileParameter).subscribe({
+        this.fileUploadService.postApiFileUploadFileUploadFile({
+            file: file,
+            entityType: 'CssFile',
+            isRequired: false
+        }).subscribe({
             next: (result: FileMetadataDto) => {
                 // Store the CSS file ID in settings
                 this._settings.customCssId = result.id;
@@ -765,12 +857,12 @@ export class TenantSettingsComponent implements OnInit {
 
     loadPremiumSettings(): void {
         this.loadingPremiumSettings = true;
-        this.premiumCalculationService.premiumCalculation_GetSettings().subscribe({
+        this.premiumCalculationService.getApiPremiumCalculationPremiumCalculationGetSettings().subscribe({
             next: (settings) => {
                 this.premiumSettings = settings;
                 this.loadingPremiumSettings = false;
             },
-            error: (error) => {
+            error: (error: any) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load premium settings', life: 3000 });
                 console.error(error);
                 this.loadingPremiumSettings = false;
@@ -781,12 +873,12 @@ export class TenantSettingsComponent implements OnInit {
     savePremiumSettings(): void {
         if (!this.premiumSettings) return;
         
-        this.premiumCalculationService.premiumCalculation_SaveSettings(this.premiumSettings).subscribe({
+        this.premiumCalculationService.postApiPremiumCalculationPremiumCalculationSaveSettings(this.premiumSettings).subscribe({
             next: () => {
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Premium settings saved successfully', life: 3000 });
                 this.showPremiumSettingsDialog = false;
             },
-            error: (error) => {
+            error: (error: any) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save premium settings', life: 3000 });
                 console.error(error);
             }
@@ -794,117 +886,138 @@ export class TenantSettingsComponent implements OnInit {
     }
 
     addCoverRow(): void {
-        if (!this.premiumSettings?.policyCoverTable?.rows) return;
+        if (!this.premiumSettings?.policyCoverTable?.['rows']) return;
         
-        const newRow = new PolicyCoverRowDto();
-        newRow.coverAmount = 0;
-        // Initialize dependent count tiers array
-        newRow.dependentCountTiers = [];
-        // Maintain legacy properties for backward compatibility
-        newRow.premium_1To5Dependents_Under65 = 0;
-        newRow.premium_1To5Dependents_Under70 = 0;
-        newRow.premium_1To5Dependents_Under75 = 0;
+        const newRow: any = {
+            coverAmount: 0,
+            dependentCountTiers: [],
+            ageBrackets: {},
+            premium_1To5Dependents_Under65: 0,
+            premium_1To5Dependents_Under70: 0,
+            premium_1To5Dependents_Under75: 0,
+            premium_1To5Dependents_75Plus: 0
+        };
         
-        this.premiumSettings.policyCoverTable.rows.push(newRow);
+        (this.premiumSettings.policyCoverTable['rows'] as any[]).push(newRow);
     }
 
     removeCoverRow(index: number): void {
-        if (!this.premiumSettings?.policyCoverTable?.rows) return;
-        this.premiumSettings.policyCoverTable.rows.splice(index, 1);
+        if (!this.premiumSettings?.policyCoverTable?.['rows']) return;
+        (this.premiumSettings.policyCoverTable['rows'] as any[]).splice(index, 1);
     }
 
     addDependentTier(rowIndex: number): void {
-        const row = this.premiumSettings?.policyCoverTable?.rows?.[rowIndex];
+        const rows = this.premiumSettings?.policyCoverTable?.['rows'] as any[];
+        const row = rows?.[rowIndex];
         if (!row) return;
         
-        if (!row.dependentCountTiers) {
-            row.dependentCountTiers = [];
+        if (!row['dependentCountTiers']) {
+            row['dependentCountTiers'] = [];
         }
 
         // Create new tier with default values
-        const newTier = new DependentCountTierDto();
-        newTier.minDependents = 1;
-        newTier.maxDependents = 5;
-        newTier.label = `${newTier.minDependents}-${newTier.maxDependents} dependents`;
-        newTier.ageBrackets = {};
+        const newTier = {
+            minDependents: 1,
+            maxDependents: 5,
+            label: '1-5 dependents',
+            ageBrackets: {}
+        };
         
-        row.dependentCountTiers.push(newTier);
+        (row['dependentCountTiers'] as any[]).push(newTier);
     }
 
     removeDependentTier(rowIndex: number, tierIndex: number): void {
-        const row = this.premiumSettings?.policyCoverTable?.rows?.[rowIndex];
-        if (!row?.dependentCountTiers) return;
+        const rows = this.premiumSettings?.policyCoverTable?.['rows'] as any[];
+        const row = rows?.[rowIndex];
+        const tiers = row?.['dependentCountTiers'] as any[];
+        if (!tiers) return;
         
-        row.dependentCountTiers.splice(tierIndex, 1);
+        tiers.splice(tierIndex, 1);
     }
 
     addAgeBracket(rowIndex: number, tierIndex: number): void {
-        const tier = this.premiumSettings?.policyCoverTable?.rows?.[rowIndex]?.dependentCountTiers?.[tierIndex];
+        const rows = this.premiumSettings?.policyCoverTable?.['rows'] as any[];
+        const tier = (rows?.[rowIndex]?.['dependentCountTiers'] as any[])?.[tierIndex];
         if (!tier) return;
         
-        if (!tier.ageBrackets) {
-            tier.ageBrackets = {};
+        if (!tier['ageBrackets']) {
+            tier['ageBrackets'] = {};
         }
 
         // Find next age value (default to 64 if empty, or highest + 5)
-        const existingKeys = Object.keys(tier.ageBrackets).map(k => parseInt(k));
+        const existingKeys = Object.keys(tier['ageBrackets']).map((k: string) => parseInt(k));
         const nextAge = existingKeys.length === 0 ? 64 : Math.max(...existingKeys) + 5;
 
-        const newBracket = new PolicyCoverAgeBracketDto();
-        newBracket.maxAge = nextAge;
-        newBracket.label = `Under ${nextAge + 1}`;
-        newBracket.premium = 0;
+        const newBracket = {
+            maxAge: nextAge,
+            label: `Under ${nextAge + 1}`,
+            premium: 0
+        };
 
-        tier.ageBrackets[nextAge] = newBracket;
+        tier['ageBrackets'][nextAge] = newBracket;
     }
 
-    removeAgeBracket(tier: DependentCountTierDto, bracketKey: number): void {
-        if (!tier.ageBrackets) return;
-        delete tier.ageBrackets[bracketKey];
+    removeAgeBracket(tier: any, bracketKey: number): void {
+        if (!tier['ageBrackets']) return;
+        delete tier['ageBrackets'][bracketKey];
     }
 
-    updateAgeBracketKey(tier: DependentCountTierDto, bracket: { key: number; value: PolicyCoverAgeBracketDto }, newMaxAge: number): void {
-        if (!tier.ageBrackets || !newMaxAge || bracket.key === newMaxAge) return;
+    updateAgeBracketKey(tier: any, bracket: { key: number; value: any }, newMaxAge: number): void {
+        if (!tier['ageBrackets'] || !newMaxAge || bracket.key === newMaxAge) return;
         
         // Prevent update if maxAge in the value object already matches the new value
-        if (bracket.value.maxAge === newMaxAge && tier.ageBrackets[newMaxAge]) return;
+        if (bracket.value['maxAge'] === newMaxAge && tier['ageBrackets'][newMaxAge]) return;
         
         // Remove old key and add with new key
-        delete tier.ageBrackets[bracket.key];
-        tier.ageBrackets[newMaxAge] = bracket.value;
+        delete tier['ageBrackets'][bracket.key];
+        tier['ageBrackets'][newMaxAge] = bracket.value;
         bracket.key = newMaxAge;
     }
 
-    getAgeBracketsArray(tier: DependentCountTierDto): { key: number; value: PolicyCoverAgeBracketDto }[] {
-        if (!tier.ageBrackets) return [];
-        return Object.keys(tier.ageBrackets)
-            .map(key => ({ key: parseInt(key), value: tier.ageBrackets![parseInt(key)] }))
+    getAgeBracketsArray(tier: any): { key: number; value: any }[] {
+        if (!tier['ageBrackets']) return [];
+        return Object.keys(tier['ageBrackets'])
+            .map((key: string) => ({ key: parseInt(key), value: tier['ageBrackets'][parseInt(key)] }))
             .sort((a, b) => a.key - b.key);
     }
 
-    trackByBracketKey(index: number, item: { key: number; value: PolicyCoverAgeBracketDto }): number {
+    trackByBracketKey(index: number, item: { key: number; value: any }): number {
         return item.key;
     }
 
+    // Helper methods for template access to index signature properties
+    getPolicyCoverRows(): any[] {
+        return (this.premiumSettings?.policyCoverTable?.['rows'] as any[]) || [];
+    }
+
+    getExtendedFamilyRows(): any[] {
+        return (this.premiumSettings?.extendedFamilyTable?.['rows'] as any[]) || [];
+    }
+
+    getDependentTiers(row: any): any[] {
+        return (row?.['dependentCountTiers'] as any[]) || [];
+    }
+
     addExtendedFamilyRow(): void {
-        if (!this.premiumSettings?.extendedFamilyTable?.rows) return;
+        if (!this.premiumSettings?.extendedFamilyTable?.['rows']) return;
         
-        const newRow = new ExtendedFamilyBenefitRowDto();
-        newRow.minAge = 0;
-        newRow.maxAge = 0;
-        newRow.ageRange = '0-0';
-        newRow.premium_5000_Cover = 0;
-        newRow.premium_10000_Cover = 0;
-        newRow.premium_15000_Cover = 0;
-        newRow.premium_20000_Cover = 0;
-        newRow.premium_25000_Cover = 0;
+        const newRow = {
+            minAge: 0,
+            maxAge: 0,
+            ageRange: '0-0',
+            premium_5000_Cover: 0,
+            premium_10000_Cover: 0,
+            premium_15000_Cover: 0,
+            premium_20000_Cover: 0,
+            premium_25000_Cover: 0
+        };
         
-        this.premiumSettings.extendedFamilyTable.rows.push(newRow);
+        (this.premiumSettings.extendedFamilyTable['rows'] as any[]).push(newRow);
     }
 
     removeExtendedFamilyRow(index: number): void {
-        if (!this.premiumSettings?.extendedFamilyTable?.rows) return;
-        this.premiumSettings.extendedFamilyTable.rows.splice(index, 1);
+        if (!this.premiumSettings?.extendedFamilyTable?.['rows']) return;
+        (this.premiumSettings.extendedFamilyTable['rows'] as any[]).splice(index, 1);
     }
 
     // Apply a color preset

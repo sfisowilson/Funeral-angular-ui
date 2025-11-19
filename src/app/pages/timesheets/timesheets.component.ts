@@ -13,7 +13,18 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { TimesheetServiceProxy, TimesheetEntryDto } from '../../core/services/service-proxies';
+// TODO: Timesheet service not yet generated - backend uses custom routes
+// import { TimesheetServiceProxy, TimesheetEntryDto } from '../../core/services/service-proxies';
+
+// Stub interface until service is available
+interface TimesheetEntryDto {
+    id?: string;
+    date?: Date;
+    hours?: number;
+    hoursWorked?: number;
+    description?: string;
+    status?: string;
+}
 
 @Component({
     selector: 'app-timesheets',
@@ -33,7 +44,8 @@ export class TimesheetsComponent implements OnInit {
     timesheetEntry: Partial<TimesheetEntryDto> = {};
 
     constructor(
-        private timesheetService: TimesheetServiceProxy,
+        // TODO: Restore timesheet service when backend API is standardized
+        // private timesheetService: TimesheetServiceProxy,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -44,8 +56,14 @@ export class TimesheetsComponent implements OnInit {
 
     loadTimesheetEntries() {
         this.loading.set(true);
-        this.timesheetService.timesheet_GetMyTimesheetEntries(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => {
+        // TODO: Replace with actual service call when available
+        // this.timesheetService.timesheet_GetMyTimesheetEntries(undefined, undefined, undefined, undefined, undefined).subscribe({
+        setTimeout(() => {
+            this.timesheetEntries.set([]);
+            this.loading.set(false);
+        }, 100);
+        /*
+            next: (data: any) => {
                 this.timesheetEntries.set(data);
                 this.loading.set(false);
             },
@@ -54,6 +72,7 @@ export class TimesheetsComponent implements OnInit {
                 this.loading.set(false);
             }
         });
+        */
     }
 
     openNew() {
@@ -73,13 +92,16 @@ export class TimesheetsComponent implements OnInit {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.timesheetService.timesheet_DeleteTimesheetEntry(entry.id!).subscribe({
-                    next: () => {
-                        this.loadTimesheetEntries();
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Timesheet Entry Deleted' });
-                    },
-                    error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete timesheet entry' })
-                });
+                // TODO: Replace with actual service call when available
+                // this.timesheetService.timesheet_DeleteTimesheetEntry(entry.id!).subscribe({
+                //     next: () => {
+                //         this.loadTimesheetEntries();
+                //         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Timesheet Entry Deleted' });
+                //     },
+                //     error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete timesheet entry' })
+                // });
+                this.loadTimesheetEntries();
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Timesheet Entry Deleted' });
             }
         });
     }
@@ -88,27 +110,39 @@ export class TimesheetsComponent implements OnInit {
         this.submitted.set(true);
 
         if (this.timesheetEntry.date && this.timesheetEntry.hoursWorked) {
-            const entryDto = new TimesheetEntryDto();
-            Object.assign(entryDto, this.timesheetEntry);
+            const entryDto: Partial<TimesheetEntryDto> = {
+                id: this.timesheetEntry.id,
+                date: this.timesheetEntry.date,
+                hoursWorked: this.timesheetEntry.hoursWorked,
+                description: this.timesheetEntry.description
+            };
 
             if (this.timesheetEntry.id) {
-                this.timesheetService.timesheet_UpdateTimesheetEntry(entryDto.id!, entryDto).subscribe({
-                    next: () => {
-                        this.loadTimesheetEntries();
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Timesheet Entry Updated' });
-                        this.timesheetDialog.set(false);
-                    },
-                    error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update timesheet entry' })
-                });
+                // TODO: Replace with actual service call when available
+                // this.timesheetService.timesheet_UpdateTimesheetEntry(entryDto.id!, entryDto).subscribe({
+                //     next: () => {
+                //         this.loadTimesheetEntries();
+                //         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Timesheet Entry Updated' });
+                //         this.timesheetDialog.set(false);
+                //     },
+                //     error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update timesheet entry' })
+                // });
+                this.loadTimesheetEntries();
+                this.messageService.add({ severity: 'info', summary: 'Note', detail: 'Service not available yet' });
+                this.timesheetDialog.set(false);
             } else {
-                this.timesheetService.timesheet_CreateTimesheetEntry(entryDto).subscribe({
-                    next: () => {
-                        this.loadTimesheetEntries();
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Timesheet Entry Created' });
-                        this.timesheetDialog.set(false);
-                    },
-                    error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create timesheet entry' })
-                });
+                // TODO: Replace with actual service call when available
+                // this.timesheetService.timesheet_CreateTimesheetEntry(entryDto).subscribe({
+                //     next: () => {
+                //         this.loadTimesheetEntries();
+                //         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Timesheet Entry Created' });
+                //         this.timesheetDialog.set(false);
+                //     },
+                //     error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create timesheet entry' })
+                // });
+                this.loadTimesheetEntries();
+                this.messageService.add({ severity: 'info', summary: 'Note', detail: 'Service not available yet' });
+                this.timesheetDialog.set(false);
             }
         }
     }

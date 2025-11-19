@@ -23,20 +23,20 @@ import {
     DynamicFormCategory, 
     DynamicFormField 
 } from '../../../core/services/dynamic-form.service';
+import { OnboardingFieldConfigurationService } from '../../../core/services/generated/onboarding-field-configuration/onboarding-field-configuration.service';
+import { MemberProfileCompletionService } from '../../../core/services/generated/member-profile-completion/member-profile-completion.service';
+import { MembersService } from '../../../core/services/generated/members/members.service';
+import { FileUploadsService } from '../../../core/services/generated/file-uploads/file-uploads.service';
+import { DocumentRequirementsService } from '../../../core/services/generated/document-requirements/document-requirements.service';
 import {
-    OnboardingFieldConfigurationServiceProxy,
-    MemberProfileCompletionServiceProxy,
     UpdateProfileCompletionStepDto,
     SaveMemberOnboardingDataDto,
     MemberOnboardingDataDto,
-    MemberServiceProxy,
     MemberDto,
-    FileUploadServiceProxy,
-    DocumentRequirementServiceProxy,
     FileMetadataDto,
     MemberDocumentType,
     DocumentRequirement
-} from '../../../core/services/service-proxies';
+} from '../../../core/models';
 import { AuthService } from '../../../auth/auth-service';
 import { SAIdValidator, SAIdInfo } from '../../../shared/utils/sa-id-validator';
 
@@ -94,24 +94,26 @@ export class PersonalInfoStepComponent implements OnInit {
     requiredDocuments = signal<DocumentRequirement[]>([]);
     
     documentTypes = [
-        { label: 'ID Document', value: MemberDocumentType._1 },
-        { label: 'Proof of Residence', value: MemberDocumentType._2 },
-        { label: 'Birth Certificate', value: MemberDocumentType._3 },
-        { label: 'Marriage Certificate', value: MemberDocumentType._4 },
-        { label: 'Divorce Decree', value: MemberDocumentType._5 },
-        { label: 'Death Certificate', value: MemberDocumentType._6 },
-        { label: 'Other Document', value: MemberDocumentType._99 }
+        { label: 'ID Document', value: MemberDocumentType.IdentificationDocument },
+        { label: 'Proof of Residence', value: MemberDocumentType.ProofOfAddress },
+        { label: 'Birth Certificate', value: MemberDocumentType.BirthCertificate },
+        { label: 'Marriage Certificate', value: MemberDocumentType.MarriageCertificate },
+        { label: 'Passport', value: MemberDocumentType.Passport },
+        { label: 'Work Permit', value: MemberDocumentType.WorkPermit },
+        { label: 'Death Certificate', value: MemberDocumentType.DeathCertificate },
+        { label: 'Banking Document', value: MemberDocumentType.BankingDocument },
+        { label: 'Other Document', value: MemberDocumentType.Other }
     ];
     
     private stepCompleteSubject = new Subject<void>();
 
     constructor(
         private dynamicFormService: DynamicFormService,
-        private fieldConfigService: OnboardingFieldConfigurationServiceProxy,
-        private profileService: MemberProfileCompletionServiceProxy,
-        private memberService: MemberServiceProxy,
-        private fileUploadService: FileUploadServiceProxy,
-        private documentRequirementService: DocumentRequirementServiceProxy,
+        private fieldConfigService: OnboardingFieldConfigurationService,
+        private profileService: MemberProfileCompletionService,
+        private memberService: MembersService,
+        private fileUploadService: FileUploadsService,
+        private documentRequirementService: DocumentRequirementsService,
         private messageService: MessageService,
         private authService: AuthService
     ) {
@@ -141,14 +143,14 @@ export class PersonalInfoStepComponent implements OnInit {
             return;
         }
 
-        this.memberService.member_GetById(memberId).subscribe({
+        this.memberService.getApiMemberMemberGetByIdId(memberId).subscribe({
             next: (member: MemberDto) => {
                 console.log('[PersonalInfo] Loaded member data:', member);
                 this.memberData.set(member);
                 
                 // Validate existing ID number
-                if (member.identificationNumber) {
-                    this.validateIdNumber(member.identificationNumber);
+                if (member['identificationNumber']) {
+                    this.validateIdNumber(member['identificationNumber'] as string);
                 }
             },
             error: (error: any) => {
@@ -198,19 +200,19 @@ export class PersonalInfoStepComponent implements OnInit {
      * Load existing member onboarding data if available
      */
     loadExistingData() {
-        this.fieldConfigService.onboardingFieldConfiguration_GetMemberData().subscribe({
+        this.fieldConfigService.getOnboardingFieldConfigurationOnboardingFieldConfigurationGetMemberData().subscribe({
             next: (data: MemberOnboardingDataDto) => {
-                if (data && data.fieldValues) {
+                if (data && data.data) {
                     console.log('[PersonalInfo] Loaded existing data:', data);
                     
                     // Wait for form to be ready
                     setTimeout(() => {
                         const form = this.formGroup();
-                        if (form && data.fieldValues) {
-                            // Convert fieldValues dictionary to array format for populateForm
-                            const dataArray = Object.entries(data.fieldValues).map(([key, value]) => ({
+                        if (form && data.data) {
+                            // Convert data dictionary to array format for populateForm
+                            const dataArray = Object.entries(data.data).map(([key, value]) => ({
                                 fieldKey: key,
-                                fieldValue: value
+                                fieldValue: value as string
                             }));
                             
                             this.dynamicFormService.populateForm(form, dataArray);
@@ -261,15 +263,15 @@ export class PersonalInfoStepComponent implements OnInit {
             fieldValues[item.fieldKey] = item.fieldValue;
         });
         
-        const dto = new SaveMemberOnboardingDataDto({
-            fieldValues: fieldValues
-        });
+        const dto: SaveMemberOnboardingDataDto = {
+            data: fieldValues
+        };
         
         console.log('[PersonalInfo] Saving form data:', dto);
 
         // Validate ID number before saving
         const member = this.memberData();
-        if (member && member.identificationNumber) {
+        if (member && member['identificationNumber']) {
             const info = this.idInfo();
             if (!info || !info.isValid) {
                 this.messageService.add({
@@ -285,17 +287,17 @@ export class PersonalInfoStepComponent implements OnInit {
         // Save member basic information first
         if (member) {
             // Create a clean DTO to send to the API
-            const memberDto = new MemberDto({
+            const memberDto: MemberDto = {
                 ...member,
                 // Convert Date object to ISO string for proper serialization
                 dateOfBirth: member.dateOfBirth ? 
-                    (member.dateOfBirth instanceof Date ? 
-                        member.dateOfBirth.toISOString() : 
+                    (member.dateOfBirth && typeof member.dateOfBirth === 'object' && 'toISOString' in member.dateOfBirth ?
+                        (member.dateOfBirth as any).toISOString() :
                         member.dateOfBirth) as any : 
                     undefined
-            });
+            };
             
-            this.memberService.member_UpdateMember(memberDto.id, memberDto).subscribe({
+            this.memberService.putApiMemberMemberUpdateMemberId(memberDto.id!, memberDto).subscribe({
                 next: () => {
                     console.log('[PersonalInfo] Member basic info saved');
                     // Then save custom form fields
@@ -321,7 +323,7 @@ export class PersonalInfoStepComponent implements OnInit {
      * Save dynamic form data to backend
      */
     private saveDynamicFormData(dto: SaveMemberOnboardingDataDto) {
-        this.fieldConfigService.onboardingFieldConfiguration_SaveMemberData(dto).subscribe({
+        this.fieldConfigService.postOnboardingFieldConfigurationOnboardingFieldConfigurationSaveMemberData(dto).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success',
@@ -355,13 +357,13 @@ export class PersonalInfoStepComponent implements OnInit {
             return;
         }
 
-        const dto = new UpdateProfileCompletionStepDto({
+        const dto: UpdateProfileCompletionStepDto = {
             memberId: memberId,
             stepName: 'PersonalInfo',
             isCompleted: true
-        });
+        };
 
-        this.profileService.profileCompletion_UpdateStep(dto).subscribe({
+        this.profileService.postApiMemberProfileCompletionProfileCompletionUpdateStep(dto as any).subscribe({
             next: () => {
                 console.log('[PersonalInfo] Step marked as complete');
                 this.stepCompleteSubject.next();
@@ -388,13 +390,13 @@ export class PersonalInfoStepComponent implements OnInit {
 
             console.log('[PersonalInfo] Form is valid, marking as complete');
             // Don't auto-save, but mark as complete if valid
-            const dto = new UpdateProfileCompletionStepDto({
+            const dto: UpdateProfileCompletionStepDto = {
                 memberId: memberId,
                 stepName: 'PersonalInfo',
                 isCompleted: true
-            });
+            };
 
-            this.profileService.profileCompletion_UpdateStep(dto).subscribe({
+            this.profileService.postApiMemberProfileCompletionProfileCompletionUpdateStep(dto as any).subscribe({
                 next: () => {
                     console.log('[PersonalInfo] Step auto-marked as complete');
                 },
@@ -505,7 +507,7 @@ export class PersonalInfoStepComponent implements OnInit {
     onIdNumberChange() {
         const member = this.memberData();
         if (member) {
-            this.validateIdNumber(member.identificationNumber);
+            this.validateIdNumber(member['identificationNumber'] as string);
         }
     }
 
@@ -514,7 +516,7 @@ export class PersonalInfoStepComponent implements OnInit {
         const memberId = this.memberId || this.authService.getUserId();
         if (!memberId) return;
 
-        this.documentRequirementService.documentRequirement_GetRequiredDocuments(memberId).subscribe({
+        this.documentRequirementService.getApiDocumentRequirementDocumentRequirementGetRequiredDocumentsMemberId(memberId).subscribe({
             next: (requirements: DocumentRequirement[]) => {
                 this.requiredDocuments.set(requirements);
             },
@@ -529,18 +531,18 @@ export class PersonalInfoStepComponent implements OnInit {
         if (!memberId) return;
 
         const filesObservable = this.memberId
-            ? this.fileUploadService.file_GetFilesByMemberId(this.memberId)
-            : this.fileUploadService.file_GetMyFiles();
+            ? this.fileUploadService.getApiFileUploadFileGetFilesByMemberIdMemberId<FileMetadataDto[]>(this.memberId)
+            : this.fileUploadService.getApiFileUploadFileGetMyFiles<FileMetadataDto[]>();
         
         filesObservable.subscribe({
-            next: (files) => {
+            next: (files: FileMetadataDto[]) => {
                 // Filter files for this member
-                const memberFiles = files.filter(f => 
+                const memberFiles = files.filter((f: any) => 
                     f.entityType === 'Member' && f.entityId === memberId
                 );
                 this.uploadedDocuments.set(memberFiles);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading member documents:', error);
             }
         });
@@ -574,23 +576,17 @@ export class PersonalInfoStepComponent implements OnInit {
 
         this.uploading.set(true);
 
-        const fileParameter = {
-            data: this.selectedFile,
-            fileName: this.selectedFile.name
-        };
-
         // Determine if this document type is required
-        const requirement = this.requiredDocuments().find(r => r.documentType === this.selectedDocumentType);
+        const requirement = this.requiredDocuments().find(r => r['documentType'] === String(this.selectedDocumentType));
         const isRequired = requirement?.isRequired || false;
 
-        this.fileUploadService.file_UploadFile(
-            "Member",  // entityType
-            memberId,  // entityId (member ID)
-            undefined,  // documentType (legacy)
-            this.selectedDocumentType,  // memberDocumentType
-            isRequired,  // isRequired flag
-            fileParameter
-        ).subscribe({
+        this.fileUploadService.postApiFileUploadFileUploadFile({
+            file: this.selectedFile,
+            entityType: "Member",
+            entityId: memberId,
+            memberDocumentType: this.selectedDocumentType,
+            isRequired: isRequired
+        }).subscribe({
             next: (result) => {
                 this.uploading.set(false);
                 this.messageService.add({
@@ -606,7 +602,7 @@ export class PersonalInfoStepComponent implements OnInit {
                 // Emit step complete to refresh completion status
                 this.stepCompleteSubject.next();
             },
-            error: (error) => {
+            error: (error: any) => {
                 this.uploading.set(false);
                 console.error('Upload error:', error);
                 this.messageService.add({
@@ -625,7 +621,7 @@ export class PersonalInfoStepComponent implements OnInit {
 
     deleteMemberDocument(fileId: string) {
         if (confirm('Are you sure you want to delete this document?')) {
-            this.fileUploadService.file_DeleteFile(fileId).subscribe({
+            this.fileUploadService.deleteApiFileUploadFileDeleteFileFileId(fileId).subscribe({
                 next: () => {
                     this.messageService.add({
                         severity: 'success',
@@ -636,7 +632,7 @@ export class PersonalInfoStepComponent implements OnInit {
                     // Emit step complete to refresh completion status
                     this.stepCompleteSubject.next();
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error deleting document:', error);
                     this.messageService.add({
                         severity: 'error',

@@ -79,7 +79,7 @@
 
             <div class="form-group">
                 <label for="emailAddress">Email Address</label>
-                <input pInputText id="emailAddress" [value]="userProfile.emailAddress" placeholder="Email address" readonly />
+                <input type="email" pInputText id="emailAddress" [value]="userProfile.email" placeholder="Email address" readonly />
             </div>
 
             <div class="form-group">
@@ -106,7 +106,7 @@
             <div class="debug-info">
                 <h3>Debug Information</h3>
                 <p>User ID: {{ userProfile.id || 'Not loaded' }}</p>
-                <p>Email: {{ userProfile.emailAddress || 'Not loaded' }}</p>
+                <p>Email: {{ userProfile.email || 'Not loaded' }}</p>
                 <p>Loading: {{ isLoading }}</p>
                 <p>Form Valid: {{ isFormValid() }}</p>
 

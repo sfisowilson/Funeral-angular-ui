@@ -99,7 +99,7 @@ export class TeamEditorComponent implements OnInit {
         this.filteredTeamMembers = [...members];
         this.config.settings.teamMembers = members;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Failed to load team members:', error);
         this.messageService.add({
           severity: 'error',

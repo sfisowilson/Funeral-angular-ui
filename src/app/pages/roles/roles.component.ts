@@ -12,14 +12,16 @@ import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { RoleServiceProxy, Role, PermissionServiceProxy, Permission, RolePermissionServiceProxy, RolePermission, RoleDto, PermissionDto, RoleInput, CreateRolePermissionDto } from '../../core/services/service-proxies';
+import { RoleService } from '../../core/services/generated/role/role.service';
+import { PermissionService } from '../../core/services/generated/permission/permission.service';
+import { RoleDto, PermissionDto } from '../../core/models';
 import { MultiSelectModule } from 'primeng/multiselect';
 
 @Component({
     selector: 'app-roles',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, MultiSelectModule],
-    providers: [MessageService, ConfirmationService, RoleServiceProxy, PermissionServiceProxy, RolePermissionServiceProxy],
+    providers: [MessageService, ConfirmationService, RoleService, PermissionService],
     templateUrl: './roles.component.html',
     styleUrl: './roles.component.scss'
 })
@@ -33,9 +35,10 @@ export class RolesComponent {
     selectedRoles!: RoleDto[] | null;
 
     permissionDialog: boolean = false;
-    availablePermissions = signal<Permission[]>([]);
-    selectedPermissions: Permission[] = [];
-    originalRolePermissions: RolePermission[] = [];
+    availablePermissions = signal<PermissionDto[]>([]);
+    selectedPermissions: PermissionDto[] = [];
+    // originalRolePermissions removed - using simplified permission management
+    originalPermissionIds: string[] = [];
 
     submitted: boolean = false;
 
@@ -44,9 +47,8 @@ export class RolesComponent {
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private roleService: RoleServiceProxy,
-        private permissionService: PermissionServiceProxy,
-        private rolePermissionService: RolePermissionServiceProxy
+        private roleService: RoleService,
+        private permissionService: PermissionService
     ) {}
 
     ngOnInit() {
@@ -55,13 +57,13 @@ export class RolesComponent {
     }
 
     loadRoles() {
-        this.roleService.role_GetAllRoles().subscribe((roles) => {
+        this.roleService.getApiRoleRoleGetAllRoles<RoleDto[]>().subscribe((roles: any) => {
             this.roles.set(roles);
         });
     }
 
     loadPermissions() {
-        this.permissionService.permission_GetAllPermissions().subscribe((permissions) => {
+        this.permissionService.getApiPermissionPermissionGetAllPermissions<PermissionDto[]>().subscribe((permissions: any) => {
             this.availablePermissions.set(permissions);
         });
     }
@@ -71,20 +73,20 @@ export class RolesComponent {
     }
 
     openNew() {
-        this.role = new RoleDto();
+        this.role = {} as RoleDto;
         this.submitted = false;
         this.roleDialog = true;
     }
 
     editRole(role: RoleDto) {
-        this.role = RoleDto.fromJS(role);
+        this.role = { ...role };
         this.roleDialog = true;
     }
 
     openPermissionDialog(role: RoleDto) {
-        this.role = RoleDto.fromJS(role);
-        this.originalRolePermissions = (role.permissions || []).map((p) => RolePermission.fromJS({ roleId: role.id, permissionId: p.id }));
-        this.selectedPermissions = this.availablePermissions().filter((permission) => this.originalRolePermissions.some((rp) => rp.permissionId === permission.id));
+        this.role = { ...role };
+        this.originalPermissionIds = (role.permissions || []).map((p: any) => p.id || p);
+        this.selectedPermissions = this.availablePermissions().filter((permission) => this.originalPermissionIds.includes(permission.id || ''));
         this.permissionDialog = true;
     }
 
@@ -97,7 +99,7 @@ export class RolesComponent {
         this.submitted = true;
         if (this.role.name?.trim()) {
             if (this.role.id) {
-                this.roleService.role_UpdateRole(this.role).subscribe({
+                this.roleService.postApiRoleRoleUpdateRole(this.role).subscribe({
                     next: (updatedRole) => {
                         this.messageService.add({
                             severity: 'success',
@@ -107,7 +109,7 @@ export class RolesComponent {
                         });
                         this.loadRoles();
                         this.roleDialog = false;
-                        this.role = new RoleDto();
+                        this.role = {} as RoleDto;
                         this.submitted = false;
                     },
                     error: (error: any) => {
@@ -122,7 +124,7 @@ export class RolesComponent {
                 });
             } else {
                 console.log('Creating new role:', this.role.name);
-                this.roleService.role_CreateRole(RoleInput.fromJS({ name: this.role.name || '' })).subscribe({
+                this.roleService.postApiRoleRoleCreateRole({ name: this.role.name || '' } as any).subscribe({
                     next: (createdRole) => {
                         this.messageService.add({
                             severity: 'success',
@@ -132,7 +134,7 @@ export class RolesComponent {
                         });
                         this.loadRoles();
                         this.roleDialog = false;
-                        this.role = new RoleDto();
+                        this.role = {} as RoleDto;
                         this.submitted = false;
                     },
                     error: (error: any) => {
@@ -150,102 +152,32 @@ export class RolesComponent {
     }
 
     savePermissions() {
-        // Permissions to add
-        const permissionsToAdd = this.selectedPermissions.filter((selectedPerm) => !this.originalRolePermissions.some((originalPerm) => originalPerm.permissionId === selectedPerm.id));
+        // Update role with selected permission IDs
+        const updatedRole = {
+            ...this.role,
+            permissions: this.selectedPermissions.map((p) => p.id)
+        };
 
-        // Permissions to remove (API limitation)
-        const permissionsToRemove = this.originalRolePermissions.filter((originalPerm) => !this.selectedPermissions.some((selectedPerm) => selectedPerm.id === originalPerm.permissionId));
-
-        if (permissionsToRemove.length > 0) {
-            console.warn('Cannot remove permissions due to API limitation. Permissions to remove:', permissionsToRemove);
-        }
-
-        // If there are no permissions to add, just close and show message
-        if (permissionsToAdd.length === 0) {
-            if (permissionsToRemove.length > 0) {
+        this.roleService.postApiRoleRoleUpdateRole(updatedRole as any).subscribe({
+            next: () => {
                 this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Warning',
-                    detail: 'Some permissions could not be removed due to API limitations.',
-                    life: 5000
-                });
-            } else {
-                this.messageService.add({
-                    severity: 'info',
-                    summary: 'No Changes',
-                    detail: 'No permission changes to save',
+                    severity: 'success',
+                    summary: 'Successful',
+                    detail: 'Permissions Updated',
                     life: 3000
                 });
-            }
-            this.permissionDialog = false;
-            return;
-        }
-
-        // Track completion of all permission assignments
-        let completedCount = 0;
-        const totalToAdd = permissionsToAdd.length;
-        let hasError = false;
-
-        permissionsToAdd.forEach((permission) => {
-            this.rolePermissionService
-                .rolePermission_CreateRolePermission(
-                    CreateRolePermissionDto.fromJS({
-                        roleId: this.role.id,
-                        permissionId: permission.id
-                    })
-                )
-                .subscribe({
-                    next: () => {
-                        completedCount++;
-                        // When all permissions are added, reload and show success
-                        if (completedCount === totalToAdd) {
-                            this.loadRoles(); // Reload roles to reflect changes
-                            this.permissionDialog = false;
-                            
-                            if (hasError) {
-                                this.messageService.add({
-                                    severity: 'warn',
-                                    summary: 'Partial Success',
-                                    detail: 'Some permissions were updated, but some failed',
-                                    life: 3000
-                                });
-                            } else {
-                                this.messageService.add({
-                                    severity: 'success',
-                                    summary: 'Successful',
-                                    detail: 'Permissions Updated',
-                                    life: 3000
-                                });
-                            }
-
-                            if (permissionsToRemove.length > 0) {
-                                this.messageService.add({
-                                    severity: 'warn',
-                                    summary: 'Note',
-                                    detail: 'Some permissions could not be removed due to API limitations.',
-                                    life: 5000
-                                });
-                            }
-                        }
-                    },
-                    error: (error) => {
-                        hasError = true;
-                        completedCount++;
-                        console.error('Failed to assign permission:', error);
-                        
-                        // Still check if all are complete
-                        if (completedCount === totalToAdd) {
-                            this.loadRoles();
-                            this.permissionDialog = false;
-                            this.messageService.add({
-                                severity: 'error',
-                                summary: 'Error',
-                                detail: 'Failed to update some permissions',
-                                life: 3000
-                            });
-                        }
-                    }
+                this.loadRoles();
+                this.permissionDialog = false;
+            },
+            error: (error: any) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to update permissions',
+                    life: 3000
                 });
+                console.error('Failed to update permissions:', error);
+            }
         });
     }
 

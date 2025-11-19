@@ -14,12 +14,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
+import { OnboardingFieldConfigurationService } from '../../../core/services/generated/onboarding-field-configuration/onboarding-field-configuration.service';
 import {
-    OnboardingFieldConfigurationServiceProxy,
     OnboardingFieldConfigurationDto,
     CreateOnboardingFieldConfigurationDto,
     UpdateOnboardingFieldConfigurationDto
-} from '../../../core/services/service-proxies';
+} from '../../../core/models';
 
 interface FieldTypeOption {
     label: string;
@@ -50,7 +50,7 @@ interface CategoryOption {
         ToolbarModule,
         TooltipModule
     ],
-    providers: [MessageService, ConfirmationService, OnboardingFieldConfigurationServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './field-configuration.component.html',
     styleUrl: './field-configuration.component.scss'
 })
@@ -61,7 +61,7 @@ export class FieldConfigurationComponent implements OnInit {
     showInitializeDialog = signal(false);
     isEditMode = signal(false);
 
-    currentField: Partial<OnboardingFieldConfigurationDto> = {};
+    currentField: Partial<OnboardingFieldConfigurationDto> & { minLength?: number; maxLength?: number } = {};
     
     fieldTypes: FieldTypeOption[] = [
         { label: 'Text Input', value: 'text' },
@@ -82,7 +82,7 @@ export class FieldConfigurationComponent implements OnInit {
     ];
 
     constructor(
-        private fieldService: OnboardingFieldConfigurationServiceProxy,
+        private fieldService: OnboardingFieldConfigurationService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -93,7 +93,7 @@ export class FieldConfigurationComponent implements OnInit {
 
     loadFields() {
         this.loading.set(true);
-        this.fieldService.onboardingFieldConfiguration_GetAll().subscribe({
+        this.fieldService.getOnboardingFieldConfigurationOnboardingFieldConfigurationGetAll().subscribe({
             next: (result: OnboardingFieldConfigurationDto[]) => {
                 // Sort by display order
                 const sorted = result.sort((a, b) => a.displayOrder - b.displayOrder);
@@ -116,8 +116,8 @@ export class FieldConfigurationComponent implements OnInit {
         const maxOrder = this.fields().reduce((max, f) => Math.max(max, f.displayOrder), 0);
         this.currentField = {
             id: '00000000-0000-0000-0000-000000000000',
-            fieldKey: '',
-            fieldLabel: '',
+            fieldName: '',
+            displayLabel: '',
             fieldType: 'text',
             category: 'PersonalInfo',
             isRequired: false,
@@ -125,8 +125,8 @@ export class FieldConfigurationComponent implements OnInit {
             displayOrder: maxOrder + 1,
             placeholder: '',
             helpText: '',
-            optionsJson: '',
-            validationRulesJson: '',
+            options: '',
+            validationRules: '',
             defaultValue: '',
             maxLength: undefined,
             minLength: undefined
@@ -143,7 +143,7 @@ export class FieldConfigurationComponent implements OnInit {
 
     saveField() {
         // Validation
-        if (!this.currentField.fieldKey || !this.currentField.fieldLabel || !this.currentField.fieldType || !this.currentField.category) {
+        if (!this.currentField.fieldName || !this.currentField.displayLabel || !this.currentField.fieldType || !this.currentField.category) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Validation Error',
@@ -154,7 +154,7 @@ export class FieldConfigurationComponent implements OnInit {
 
         // Validate field key format (no spaces, alphanumeric + underscore)
         const fieldKeyRegex = /^[a-zA-Z][a-zA-Z0-9_]*$/;
-        if (!fieldKeyRegex.test(this.currentField.fieldKey!)) {
+        if (!fieldKeyRegex.test(this.currentField.fieldName!)) {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'Validation Error',
@@ -164,9 +164,9 @@ export class FieldConfigurationComponent implements OnInit {
         }
 
         // Validate options JSON if field type is select or radio
-        if ((this.currentField.fieldType === 'select' || this.currentField.fieldType === 'radio') && this.currentField.optionsJson) {
+        if ((this.currentField.fieldType === 'select' || this.currentField.fieldType === 'radio') && this.currentField.options) {
             try {
-                JSON.parse(this.currentField.optionsJson);
+                JSON.parse(this.currentField.options);
             } catch (e) {
                 this.messageService.add({
                     severity: 'warn',
@@ -178,9 +178,9 @@ export class FieldConfigurationComponent implements OnInit {
         }
 
         // Validate validation rules JSON if provided
-        if (this.currentField.validationRulesJson) {
+        if (this.currentField.validationRules) {
             try {
-                JSON.parse(this.currentField.validationRulesJson);
+                JSON.parse(this.currentField.validationRules);
             } catch (e) {
                 this.messageService.add({
                     severity: 'warn',
@@ -195,10 +195,10 @@ export class FieldConfigurationComponent implements OnInit {
 
         if (this.isEditMode()) {
             // Update existing field
-            const updateDto = new UpdateOnboardingFieldConfigurationDto({
+            const updateDto = {
                 id: this.currentField.id!,
-                fieldKey: this.currentField.fieldKey!,
-                fieldLabel: this.currentField.fieldLabel!,
+                fieldName: this.currentField.fieldName!,
+                displayLabel: this.currentField.displayLabel!,
                 fieldType: this.currentField.fieldType!,
                 category: this.currentField.category,
                 isRequired: this.currentField.isRequired!,
@@ -206,14 +206,14 @@ export class FieldConfigurationComponent implements OnInit {
                 displayOrder: this.currentField.displayOrder!,
                 placeholder: this.currentField.placeholder,
                 helpText: this.currentField.helpText,
-                optionsJson: this.currentField.optionsJson,
-                validationRulesJson: this.currentField.validationRulesJson,
+                options: this.currentField.options,
+                validationRules: this.currentField.validationRules,
                 defaultValue: this.currentField.defaultValue,
                 maxLength: this.currentField.maxLength,
                 minLength: this.currentField.minLength
-            });
+            } as any;
 
-            this.fieldService.onboardingFieldConfiguration_Update(updateDto).subscribe({
+            this.fieldService.putOnboardingFieldConfigurationOnboardingFieldConfigurationUpdate(updateDto).subscribe({
                 next: (result: OnboardingFieldConfigurationDto) => {
                     this.messageService.add({
                         severity: 'success',
@@ -235,24 +235,22 @@ export class FieldConfigurationComponent implements OnInit {
             });
         } else {
             // Create new field
-            const createDto = new CreateOnboardingFieldConfigurationDto({
-                fieldKey: this.currentField.fieldKey!,
-                fieldLabel: this.currentField.fieldLabel!,
+            const createDto = {
+                fieldName: this.currentField.fieldName!,
+                displayLabel: this.currentField.displayLabel!,
                 fieldType: this.currentField.fieldType!,
-                category: this.currentField.category!,
+                category: this.currentField.category,
                 isRequired: this.currentField.isRequired!,
                 isEnabled: this.currentField.isEnabled!,
                 displayOrder: this.currentField.displayOrder!,
                 placeholder: this.currentField.placeholder,
                 helpText: this.currentField.helpText,
-                optionsJson: this.currentField.optionsJson,
-                validationRulesJson: this.currentField.validationRulesJson,
-                defaultValue: this.currentField.defaultValue,
-                maxLength: this.currentField.maxLength,
-                minLength: this.currentField.minLength
-            });
+                options: this.currentField.options,
+                validationRules: this.currentField.validationRules,
+                defaultValue: this.currentField.defaultValue
+            } as any;
 
-            this.fieldService.onboardingFieldConfiguration_Create(createDto).subscribe({
+            this.fieldService.postOnboardingFieldConfigurationOnboardingFieldConfigurationCreate(createDto).subscribe({
                 next: (result: OnboardingFieldConfigurationDto) => {
                     this.messageService.add({
                         severity: 'success',
@@ -277,12 +275,12 @@ export class FieldConfigurationComponent implements OnInit {
 
     deleteField(field: OnboardingFieldConfigurationDto) {
         this.confirmationService.confirm({
-            message: `Are you sure you want to delete the field "${field.fieldLabel}"?`,
+            message: `Are you sure you want to delete the field "${field.displayLabel}"?`,
             header: 'Confirm Delete',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.loading.set(true);
-                this.fieldService.onboardingFieldConfiguration_Delete(field.id).subscribe({
+                this.fieldService.deleteOnboardingFieldConfigurationOnboardingFieldConfigurationDelete({ id: field.id }).subscribe({
                     next: () => {
                         this.messageService.add({
                             severity: 'success',
@@ -306,10 +304,10 @@ export class FieldConfigurationComponent implements OnInit {
     }
 
     toggleFieldEnabled(field: OnboardingFieldConfigurationDto) {
-        const updateDto = new UpdateOnboardingFieldConfigurationDto({
+        const updateDto: UpdateOnboardingFieldConfigurationDto = {
             id: field.id,
-            fieldKey: field.fieldKey || '',
-            fieldLabel: field.fieldLabel || '',
+            fieldName: field.fieldName || '',
+            displayLabel: field.displayLabel || '',
             fieldType: field.fieldType || '',
             category: field.category,
             isRequired: field.isRequired,
@@ -317,14 +315,12 @@ export class FieldConfigurationComponent implements OnInit {
             displayOrder: field.displayOrder,
             placeholder: field.placeholder,
             helpText: field.helpText,
-            optionsJson: field.optionsJson,
-            validationRulesJson: field.validationRulesJson,
-            defaultValue: field.defaultValue,
-            maxLength: field.maxLength,
-            minLength: field.minLength
-        });
+            options: field.options,
+            validationRules: field.validationRules,
+            defaultValue: field.defaultValue
+        };
 
-        this.fieldService.onboardingFieldConfiguration_Update(updateDto).subscribe({
+        this.fieldService.putOnboardingFieldConfigurationOnboardingFieldConfigurationUpdate(updateDto).subscribe({
             next: (result: OnboardingFieldConfigurationDto) => {
                 this.messageService.add({
                     severity: 'success',
@@ -345,10 +341,10 @@ export class FieldConfigurationComponent implements OnInit {
     }
 
     toggleFieldRequired(field: OnboardingFieldConfigurationDto) {
-        const updateDto = new UpdateOnboardingFieldConfigurationDto({
+        const updateDto: UpdateOnboardingFieldConfigurationDto = {
             id: field.id,
-            fieldKey: field.fieldKey || '',
-            fieldLabel: field.fieldLabel || '',
+            fieldName: field.fieldName || '',
+            displayLabel: field.displayLabel || '',
             fieldType: field.fieldType || '',
             category: field.category,
             isRequired: !field.isRequired,
@@ -356,14 +352,12 @@ export class FieldConfigurationComponent implements OnInit {
             displayOrder: field.displayOrder,
             placeholder: field.placeholder,
             helpText: field.helpText,
-            optionsJson: field.optionsJson,
-            validationRulesJson: field.validationRulesJson,
-            defaultValue: field.defaultValue,
-            maxLength: field.maxLength,
-            minLength: field.minLength
-        });
+            options: field.options,
+            validationRules: field.validationRules,
+            defaultValue: field.defaultValue
+        };
 
-        this.fieldService.onboardingFieldConfiguration_Update(updateDto).subscribe({
+        this.fieldService.putOnboardingFieldConfigurationOnboardingFieldConfigurationUpdate(updateDto).subscribe({
             next: (result: OnboardingFieldConfigurationDto) => {
                 this.messageService.add({
                     severity: 'success',
@@ -389,7 +383,7 @@ export class FieldConfigurationComponent implements OnInit {
 
     initializeDefaults() {
         this.loading.set(true);
-        this.fieldService.onboardingFieldConfiguration_InitializeDefaults().subscribe({
+        this.fieldService.postOnboardingFieldConfigurationOnboardingFieldConfigurationInitializeDefaults().subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success',

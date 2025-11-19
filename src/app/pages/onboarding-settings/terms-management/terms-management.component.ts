@@ -11,10 +11,8 @@ import { EditorModule } from 'primeng/editor';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { 
-    TermsServiceProxy,
-    TermsAndConditionsDto
-} from '../../../core/services/service-proxies';
+import { TermsService } from '../../../core/services/generated/terms/terms.service';
+import { TermsAndConditionsDto } from '../../../core/models';
 import { DateTime } from 'luxon';
 
 @Component({
@@ -33,7 +31,7 @@ import { DateTime } from 'luxon';
         ToastModule,
         ConfirmDialogModule
     ],
-    providers: [MessageService, ConfirmationService, TermsServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './terms-management.component.html',
     styleUrl: './terms-management.component.scss'
 })
@@ -43,10 +41,10 @@ export class TermsManagementComponent implements OnInit {
     showDialog = signal(false);
     isEditMode = signal(false);
     
-    currentTerm: TermsAndConditionsDto = new TermsAndConditionsDto();
+    currentTerm: TermsAndConditionsDto = {} as TermsAndConditionsDto;
 
     constructor(
-        private termsService: TermsServiceProxy,
+        private termsService: TermsService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -57,12 +55,12 @@ export class TermsManagementComponent implements OnInit {
 
     loadTerms() {
         this.loading.set(true);
-        this.termsService.terms_GetAll().subscribe({
+        this.termsService.getApiTermsTermsGetAll().subscribe({
             next: (result) => {
                 this.terms.set(result);
                 this.loading.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading terms:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -75,21 +73,24 @@ export class TermsManagementComponent implements OnInit {
     }
 
     openNewDialog() {
-        this.currentTerm = new TermsAndConditionsDto({
+        this.currentTerm = {
             id: '00000000-0000-0000-0000-000000000000',
+            tenantId: '',
             title: '',
             content: '',
             version: '1.0',
             isActive: true,
             effectiveDate: new Date() as any,
-            expiryDate: undefined
-        });
+            expiryDate: null as any,
+            createdAt: new Date() as any,
+            updatedAt: new Date() as any
+        } as TermsAndConditionsDto;
         this.isEditMode.set(false);
         this.showDialog.set(true);
     }
 
     editTerm(term: TermsAndConditionsDto) {
-        this.currentTerm = TermsAndConditionsDto.fromJS(term.toJSON());
+        this.currentTerm = { ...term };
         this.isEditMode.set(true);
         this.showDialog.set(true);
     }
@@ -112,23 +113,19 @@ export class TermsManagementComponent implements OnInit {
             version: this.currentTerm.version,
             isActive: this.currentTerm.isActive,
             effectiveDate: this.currentTerm.effectiveDate 
-                ? (this.currentTerm.effectiveDate instanceof Date 
-                    ? this.currentTerm.effectiveDate.toISOString()
-                    : (this.currentTerm.effectiveDate instanceof DateTime 
-                        ? this.currentTerm.effectiveDate.toISO() 
-                        : this.currentTerm.effectiveDate))
+                ? (typeof this.currentTerm.effectiveDate === 'string' 
+                    ? this.currentTerm.effectiveDate
+                    : new Date(this.currentTerm.effectiveDate as any).toISOString())
                 : new Date().toISOString(),
             expiryDate: this.currentTerm.expiryDate 
-                ? (this.currentTerm.expiryDate instanceof Date 
-                    ? this.currentTerm.expiryDate.toISOString()
-                    : (this.currentTerm.expiryDate instanceof DateTime 
-                        ? this.currentTerm.expiryDate.toISO() 
-                        : this.currentTerm.expiryDate))
+                ? (typeof this.currentTerm.expiryDate === 'string' 
+                    ? this.currentTerm.expiryDate
+                    : new Date(this.currentTerm.expiryDate as any).toISOString())
                 : null
         };
 
         this.loading.set(true);
-        this.termsService.terms_Create(payload as any).subscribe({
+        this.termsService.postApiTermsTermsCreate(payload as any).subscribe({
             next: (result) => {
                 this.messageService.add({
                     severity: 'success',
@@ -138,7 +135,7 @@ export class TermsManagementComponent implements OnInit {
                 this.showDialog.set(false);
                 this.loadTerms();
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error saving terms:', error);
                 this.messageService.add({
                     severity: 'error',

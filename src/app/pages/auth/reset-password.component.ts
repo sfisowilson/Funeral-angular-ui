@@ -5,14 +5,14 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { AuthServiceProxy, ResetPasswordRequest } from '../../core/services/service-proxies';
+import { AuthService } from '../../core/services/generated/auth/auth.service';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 
 @Component({
     selector: 'app-reset-password',
     standalone: true,
     imports: [CommonModule, ButtonModule, InputTextModule, PasswordModule, ReactiveFormsModule, RouterModule],
-    providers: [AuthServiceProxy],
+    providers: [],
     templateUrl: './reset-password.component.html',
     styleUrl: './reset-password.component.scss'
 })
@@ -25,7 +25,7 @@ export class ResetPasswordComponent extends TenantBaseComponent {
     constructor(
         injector: Injector,
         private fb: FormBuilder,
-        private authServiceProxy: AuthServiceProxy,
+        private authService: AuthService,
         private router: Router,
         private route: ActivatedRoute
     ) {
@@ -61,17 +61,16 @@ export class ResetPasswordComponent extends TenantBaseComponent {
             return;
         }
 
-        const resetPasswordRequest = new ResetPasswordRequest();
-        resetPasswordRequest.email = this.email;
-        resetPasswordRequest.code = this.code;
-        resetPasswordRequest.newPassword = this.form.value.password;
-
-        this.authServiceProxy.auth_ResetPassword(resetPasswordRequest).subscribe({
+        this.authService.postApiAuthAuthResetPassword({
+            email: this.email,
+            code: this.code,
+            newPassword: this.form.value.password
+        }).subscribe({
             next: () => {
                 alert('Password has been reset successfully.');
                 this.router.navigate(['/auth/login']);
             },
-            error: (err) => {
+            error: (err: any) => {
                 alert('Error resetting password: ' + err.message);
                 this.isBusy = false;
             },

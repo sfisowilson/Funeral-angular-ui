@@ -8,7 +8,8 @@ import { ButtonModule } from 'primeng/button';
 import { FieldsetModule } from 'primeng/fieldset';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
-import { FileUploadServiceProxy, FileMetadataDto, API_BASE_URL } from '../../core/services/service-proxies';
+import { FileUploadsService } from '../../core/services/generated/file-uploads/file-uploads.service';
+import { FileMetadataDto } from '../../core/models';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { HttpHeaders } from '@angular/common/http';
 
@@ -16,7 +17,7 @@ import { HttpHeaders } from '@angular/common/http';
     selector: 'app-gallery-editor',
     standalone: true,
     imports: [FormsModule, CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, FieldsetModule, FileUploadModule],
-    providers: [MessageService, FileUploadServiceProxy, TenantSettingsService],
+    providers: [MessageService, TenantSettingsService],
     template: `
         <div class="bg-gray-100 p-4 rounded-lg">
             <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
@@ -63,9 +64,8 @@ export class GalleryEditorComponent implements OnInit {
     constructor(
         private fb: FormBuilder,
         private messageService: MessageService,
-        private fileUploadService: FileUploadServiceProxy,
-        private tenantSettingsService: TenantSettingsService,
-        @Inject(API_BASE_URL) private baseUrl: string
+        private fileUploadService: FileUploadsService,
+        private tenantSettingsService: TenantSettingsService
     ) {
         this.form = this.fb.group({
             title: [''],
@@ -105,7 +105,7 @@ export class GalleryEditorComponent implements OnInit {
         const tenantId = this.tenantSettingsService.getSettings()?.id;
 
         if (tenantId) {
-            this.fileUploadService.file_UploadFile('GalleryImage', tenantId, undefined, undefined, false, fileParameter).subscribe({
+            this.fileUploadService.postApiFileUploadFileUploadFile({ file, entityType: 'GalleryImage', entityId: tenantId }).subscribe({
                 next: (result: FileMetadataDto) => {
                     const imageUrl = this.getDownloadUrl(result.id);
                     if (index !== undefined) {

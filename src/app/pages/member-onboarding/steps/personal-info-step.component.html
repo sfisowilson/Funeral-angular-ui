@@ -137,8 +137,8 @@
                     <div class="fields-grid">
                         <!-- Loop through fields in category -->
                         <div *ngFor="let field of category.fields" class="field-group">
-                            <label [for]="field.config.fieldKey!" class="field-label">
-                                {{ field.config.fieldLabel }}
+                            <label [for]="field.config.fieldName!" class="field-label">
+                                {{ field.config.displayLabel }}
                                 <span *ngIf="isFieldRequired(field)" class="required-asterisk">*</span>
                             </label>
 
@@ -146,8 +146,8 @@
                             <input 
                                 *ngIf="field.config.fieldType === 'text' || field.config.fieldType === 'email' || field.config.fieldType === 'tel'"
                                 pInputText
-                                [id]="field.config.fieldKey!"
-                                [formControlName]="field.config.fieldKey!"
+                                [id]="field.config.fieldName!"
+                                [formControlName]="field.config.fieldName!"
                                 [type]="field.config.fieldType"
                                 [placeholder]="field.config.placeholder || ''"
                                 class="form-control"
@@ -156,8 +156,8 @@
                             <!-- Date Input -->
                             <p-calendar 
                                 *ngIf="field.config.fieldType === 'date'"
-                                [id]="field.config.fieldKey!"
-                                [formControlName]="field.config.fieldKey!"
+                                [id]="field.config.fieldName!"
+                                [formControlName]="field.config.fieldName!"
                                 [placeholder]="field.config.placeholder || 'Select date'"
                                 dateFormat="yy-mm-dd"
                                 [showIcon]="true"
@@ -167,8 +167,8 @@
                             <!-- Dropdown (select) -->
                             <p-dropdown 
                                 *ngIf="field.config.fieldType === 'select'"
-                                [id]="field.config.fieldKey!"
-                                [formControlName]="field.config.fieldKey!"
+                                [id]="field.config.fieldName!"
+                                [formControlName]="field.config.fieldName!"
                                 [options]="getFieldOptions(field)"
                                 [placeholder]="field.config.placeholder || 'Select an option'"
                                 [showClear]="!isFieldRequired(field)"
@@ -179,30 +179,30 @@
                             <div *ngIf="field.config.fieldType === 'radio'" class="radio-group">
                                 <div *ngFor="let option of field.options; let i = index" class="radio-option">
                                     <p-radioButton 
-                                        [inputId]="field.config.fieldKey! + '_' + i"
-                                        [formControlName]="field.config.fieldKey!"
+                                        [inputId]="field.config.fieldName! + '_' + i"
+                                        [formControlName]="field.config.fieldName!"
                                         [value]="option"
                                     ></p-radioButton>
-                                    <label [for]="field.config.fieldKey! + '_' + i" class="ms-2">{{ option }}</label>
+                                    <label [for]="field.config.fieldName! + '_' + i" class="ms-2">{{ option }}</label>
                                 </div>
                             </div>
 
                             <!-- Checkbox -->
                             <div *ngIf="field.config.fieldType === 'checkbox'" class="checkbox-group">
                                 <p-checkbox 
-                                    [inputId]="field.config.fieldKey!"
-                                    [formControlName]="field.config.fieldKey!"
+                                    [inputId]="field.config.fieldName!"
+                                    [formControlName]="field.config.fieldName!"
                                     [binary]="true"
                                 ></p-checkbox>
-                                <label [for]="field.config.fieldKey!" class="ms-2">{{ field.config.fieldLabel }}</label>
+                                <label [for]="field.config.fieldName!" class="ms-2">{{ field.config.displayLabel }}</label>
                             </div>
 
                             <!-- Textarea -->
                             <textarea 
                                 *ngIf="field.config.fieldType === 'textarea'"
                                 pInputTextarea
-                                [id]="field.config.fieldKey!"
-                                [formControlName]="field.config.fieldKey!"
+                                [id]="field.config.fieldName!"
+                                [formControlName]="field.config.fieldName!"
                                 [placeholder]="field.config.placeholder || ''"
                                 [rows]="3"
                                 class="form-control"

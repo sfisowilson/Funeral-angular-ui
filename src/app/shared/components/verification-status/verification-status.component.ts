@@ -5,7 +5,18 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { VerificationServiceProxy, VerificationRequestDto } from '../../../core/services/service-proxies';
+// import { VerificationServiceProxy, VerificationRequestDto } from '../../../core/services/service-proxies';
+
+// Temporary type until VerificationServiceProxy is available
+interface VerificationRequestDto {
+    id?: string;
+    status?: string;
+    createdAt?: Date;
+    idNumber?: string;
+    verifiedAt?: Date;
+    verifyIdTransactionId?: string;
+    verificationType?: string;
+}
 
 interface VerificationStatus {
     status: string;
@@ -30,7 +41,7 @@ export class VerificationStatusComponent implements OnInit {
     verificationRequests = signal<VerificationRequestDto[]>([]);
     loading = signal(false);
 
-    constructor(private verificationService: VerificationServiceProxy) {}
+    constructor(/* private verificationService: VerificationServiceProxy */) {}
 
     ngOnInit(): void {
         this.loadVerificationStatus();
@@ -41,18 +52,22 @@ export class VerificationStatusComponent implements OnInit {
 
         this.loading.set(true);
 
+        // TODO: Implement when VerificationServiceProxy is available
+        /*
         if (this.memberId) {
             this.verificationService.verification_GetByMember(this.memberId).subscribe({
                 next: (requests) => {
                     this.verificationRequests.set(requests || []);
                     this.loading.set(false);
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error loading verification status:', error);
                     this.loading.set(false);
                 }
             });
         }
+        */
+        this.loading.set(false);
     }
 
     getVerificationStatus(status: string): VerificationStatus {
@@ -117,7 +132,7 @@ export class VerificationStatusComponent implements OnInit {
         const requests = this.verificationRequests();
         if (requests.length === 0) return null;
 
-        const latest = requests.sort((a, b) => {
+        const latest = requests.sort((a:any, b:any) => {
             const dateA = a.verifiedAt ? new Date(a.verifiedAt.toString()).getTime() : 0;
             const dateB = b.verifiedAt ? new Date(b.verifiedAt.toString()).getTime() : 0;
             return dateB - dateA;

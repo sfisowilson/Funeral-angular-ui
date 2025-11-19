@@ -6,11 +6,11 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { 
-    TermsServiceProxy,
+import { TermsService } from '../../../core/services/generated/terms/terms.service';
+import {
     TermsAndConditionsDto,
     AcceptTermsDto
-} from '../../../core/services/service-proxies';
+} from '../../../core/models';
 
 @Component({
     selector: 'app-terms-step',
@@ -40,7 +40,7 @@ export class TermsStepComponent implements OnInit {
     termsAccepted = false;
 
     constructor(
-        private termsService: TermsServiceProxy,
+        private termsService: TermsService,
         private messageService: MessageService
     ) {
         this.stepCompleteSubject.pipe(
@@ -62,7 +62,7 @@ export class TermsStepComponent implements OnInit {
 
     loadActiveTerms() {
         this.loading.set(true);
-        this.termsService.terms_GetActive().subscribe({
+        this.termsService.getApiTermsTermsGetActive().subscribe({
             next: (data: any) => {
                 this.activeTerms.set(data);
                 this.loading.set(false);
@@ -110,7 +110,7 @@ export class TermsStepComponent implements OnInit {
             termsAndConditionsId: terms.id
         } as any;
 
-        this.termsService.terms_Accept(acceptDto).subscribe({
+        this.termsService.postApiTermsTermsAccept(acceptDto).subscribe({
             next: () => {
                 this.messageService.add({ 
                     severity: 'success', 

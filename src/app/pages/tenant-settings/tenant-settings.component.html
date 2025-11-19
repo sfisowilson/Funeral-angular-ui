@@ -42,20 +42,54 @@
                     <div class="flex flex-col">
                         <label for="logo" class="font-medium text-gray-700 mb-2">Logo</label>
                         <p-fileUpload mode="basic" name="logoFile" accept="image/*" [maxFileSize]="1000000" (onSelect)="onLogoUpload($event)" chooseLabel="Upload Logo" class="w-full" [headers]="tenantIdHeader"></p-fileUpload>
-                        <img *ngIf="_settings.logo" [src]="getDownloadUrl(_settings.logo)" alt="Logo" class="mt-4 rounded-md" style="max-width: 200px" />
+                        <img *ngIf="tenantSettings?.logo" [src]="getDownloadUrl(tenantSettings.logo)" alt="Logo" class="mt-4 rounded-md" style="max-width: 200px" />
                     </div>
 
                     <div class="flex flex-col">
                         <label for="favicon" class="font-medium text-gray-700 mb-2">Favicon</label>
                         <p-fileUpload mode="basic" name="faviconFile" accept="image/*" [maxFileSize]="1000000" (onSelect)="onFaviconUpload($event)" chooseLabel="Upload Favicon" class="w-full" [headers]="tenantIdHeader"></p-fileUpload>
-                        <img *ngIf="_settings.favicon" [src]="getDownloadUrl(_settings.favicon)" alt="Favicon" class="mt-4 rounded-md" style="max-width: 50px" />
+                        <img *ngIf="tenantSettings?.favicon" [src]="getDownloadUrl(tenantSettings.favicon)" alt="Favicon" class="mt-4 rounded-md" style="max-width: 50px" />
                     </div>
 
                     <div class="flex flex-col md:col-span-2">
                         <label for="cssFile" class="font-medium text-gray-700 mb-2">Custom CSS File</label>
-                        <div class="flex items-center gap-4">
-                            <p-fileUpload mode="basic" name="cssFile" accept=".css" [maxFileSize]="1000000" (onSelect)="onCssFileUpload($event)" chooseLabel="Upload CSS" class="flex-grow" [headers]="tenantIdHeader"></p-fileUpload>
-                            <a *ngIf="customCssId" (click)="downloadCss()" class="btn btn-secondary mt-2">Download CSS</a>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <p-fileUpload 
+                                    mode="basic" 
+                                    name="cssFile" 
+                                    accept=".css" 
+                                    [maxFileSize]="1000000" 
+                                    (onSelect)="onCssFileUpload($event)" 
+                                    chooseLabel="Upload CSS" 
+                                    class="flex-grow" 
+                                    [headers]="tenantIdHeader">
+                                </p-fileUpload>
+                                <button 
+                                    *ngIf="customCssId" 
+                                    type="button" 
+                                    class="btn btn-outline-primary" 
+                                    (click)="downloadCss()">
+                                    <i class="pi pi-download me-2"></i>
+                                    Download
+                                </button>
+                                <button 
+                                    *ngIf="customCssId" 
+                                    type="button" 
+                                    class="btn btn-outline-danger" 
+                                    (click)="removeCssFile()">
+                                    <i class="pi pi-trash me-2"></i>
+                                    Remove
+                                </button>
+                            </div>
+                            <div *ngIf="customCssId" class="flex items-center gap-2 text-sm">
+                                <i class="pi pi-check-circle text-green-600"></i>
+                                <span class="text-gray-600">Custom CSS file is active</span>
+                            </div>
+                            <div *ngIf="!customCssId" class="flex items-center gap-2 text-sm">
+                                <i class="pi pi-info-circle text-blue-600"></i>
+                                <span class="text-gray-600">No custom CSS file uploaded. Upload a CSS file to customize your tenant's styling.</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -601,7 +635,7 @@
             </div>
 
             <!-- Loop through each cover amount row -->
-            <div *ngFor="let row of premiumSettings.policyCoverTable.rows; let rowIndex = index" class="mb-6 border border-gray-300 rounded-lg p-4 bg-gray-50">
+            <div *ngFor="let row of getPolicyCoverRows(); let rowIndex = index" class="mb-6 border border-gray-300 rounded-lg p-4 bg-gray-50">
                 <div class="flex justify-between items-center mb-4">
                     <div class="flex items-center space-x-4">
                         <label class="text-sm font-medium text-gray-700">Cover Amount (R):</label>
@@ -624,20 +658,20 @@
                     </div>
 
                     <!-- Show tiers if they exist -->
-                    <div *ngIf="row.dependentCountTiers && row.dependentCountTiers.length > 0" class="space-y-3">
-                        <div *ngFor="let tier of row.dependentCountTiers; let tierIndex = index" class="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <div *ngIf="getDependentTiers(row).length > 0" class="space-y-3">
+                        <div *ngFor="let tier of getDependentTiers(row); let tierIndex = index" class="border border-gray-200 rounded-lg p-3 bg-gray-50">
                             <div class="grid grid-cols-12 gap-3 items-center mb-3">
                                 <div class="col-span-3">
                                     <label class="text-xs text-gray-600">Min Dependents</label>
-                                    <input type="number" pInputText [(ngModel)]="tier.minDependents" class="w-full mt-1" placeholder="e.g., 1" />
+                                    <input type="number" pInputText [(ngModel)]="tier['minDependents']" class="w-full mt-1" placeholder="e.g., 1" />
                                 </div>
                                 <div class="col-span-3">
                                     <label class="text-xs text-gray-600">Max Dependents</label>
-                                    <input type="number" pInputText [(ngModel)]="tier.maxDependents" class="w-full mt-1" placeholder="e.g., 5" />
+                                    <input type="number" pInputText [(ngModel)]="tier['maxDependents']" class="w-full mt-1" placeholder="e.g., 5" />
                                 </div>
                                 <div class="col-span-5">
                                     <label class="text-xs text-gray-600">Label</label>
-                                    <input type="text" pInputText [(ngModel)]="tier.label" class="w-full mt-1" placeholder="e.g., 1-5 dependents" />
+                                    <input type="text" pInputText [(ngModel)]="tier['label']" class="w-full mt-1" placeholder="e.g., 1-5 dependents" />
                                 </div>
                                 <div class="col-span-1 flex justify-end">
                                     <button type="button" class="btn btn-sm btn-danger" (click)="removeDependentTier(rowIndex, tierIndex)">
@@ -664,11 +698,11 @@
                                         </div>
                                         <div class="col-span-4">
                                             <label class="text-xs text-gray-500">Label</label>
-                                            <input type="text" pInputText [(ngModel)]="bracket.value.label" class="w-full mt-1 text-sm" placeholder="e.g., Under 65" />
+                                            <input type="text" pInputText [(ngModel)]="bracket.value['label']" class="w-full mt-1 text-sm" placeholder="e.g., Under 65" />
                                         </div>
                                         <div class="col-span-4">
                                             <label class="text-xs text-gray-500">Premium (R)</label>
-                                            <input type="number" pInputText [(ngModel)]="bracket.value.premium" class="w-full mt-1 text-sm" placeholder="e.g., 220" />
+                                            <input type="number" pInputText [(ngModel)]="bracket.value['premium']" class="w-full mt-1 text-sm" placeholder="e.g., 220" />
                                         </div>
                                         <div class="col-span-1 flex justify-end">
                                             <button type="button" class="btn btn-xs btn-danger" (click)="removeAgeBracket(tier, bracket.key)">
@@ -685,14 +719,14 @@
                     </div>
 
                     <!-- Empty state for tiers -->
-                    <div *ngIf="!row.dependentCountTiers || row.dependentCountTiers.length === 0" class="text-center py-4 text-gray-500 text-sm">
+                    <div *ngIf="getDependentTiers(row).length === 0" class="text-center py-4 text-gray-500 text-sm">
                         No dependent count tiers defined. Click "Add Tier" to create one (e.g., 1-5, 6-9).
                     </div>
                 </div>
             </div>
 
             <!-- Empty state for cover amounts -->
-            <div *ngIf="!premiumSettings.policyCoverTable.rows || premiumSettings.policyCoverTable.rows.length === 0" class="text-center py-8 text-gray-500">
+            <div *ngIf="getPolicyCoverRows().length === 0" class="text-center py-8 text-gray-500">
                 No cover amounts defined. Click "Add Cover Amount" to get started.
             </div>
         </div>
@@ -726,7 +760,7 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <tr *ngFor="let row of premiumSettings.extendedFamilyTable.rows; let i = index" class="hover:bg-gray-50">
+                        <tr *ngFor="let row of getExtendedFamilyRows(); let i = index" class="hover:bg-gray-50">
                             <td class="px-4 py-3 whitespace-nowrap">
                                 <input type="number" pInputText [(ngModel)]="row.minAge" class="w-full" placeholder="e.g., 0" />
                             </td>

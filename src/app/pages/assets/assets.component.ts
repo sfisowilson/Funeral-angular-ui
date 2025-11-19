@@ -1,4 +1,6 @@
-import { AssetDto, AssetServiceProxy, FileUploadServiceProxy } from '../../core/services/service-proxies';
+import { AssetsService } from '../../core/services/generated/assets/assets.service';
+import { FileUploadsService } from '../../core/services/generated/file-uploads/file-uploads.service';
+import { AssetDto } from '../../core/models';
 import { Component, signal, ViewChild } from '@angular/core';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -56,7 +58,7 @@ interface ExportColumn {
         DropdownModule
     ],
     templateUrl: './assets.component.html',
-    providers: [MessageService, ConfirmationService, AssetServiceProxy]
+    providers: [MessageService, ConfirmationService]
 })
 export class AssetsComponent {
     assetDialog: boolean = false;
@@ -80,12 +82,12 @@ export class AssetsComponent {
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private assetService: AssetServiceProxy,
-        private fileService: FileUploadServiceProxy
+        private assetService: AssetsService,
+        private fileService: FileUploadsService
     ) {}
 
     downloadFile(fileId: string) {
-        this.fileService.file_DownloadFile(fileId).subscribe(
+        this.fileService.getApiFileUploadFileDownloadFileFileId(fileId).subscribe(
             () => {
                 this.messageService.add({
                     severity: 'success',
@@ -115,7 +117,7 @@ export class AssetsComponent {
     }
 
     loadDemoData() {
-        this.assetService.asset_GetAllAssets(undefined, undefined, undefined, undefined, undefined).subscribe((assets) => {
+        this.assetService.getApiAssetAssetGetAllAssets().subscribe((assets: any) => {
             this.assets.set(assets);
         });
 
@@ -141,7 +143,7 @@ export class AssetsComponent {
     }
 
     openNew() {
-        this.asset = new AssetDto();
+        this.asset = {} as AssetDto;
         this.submitted = false;
         this.assetDialog = true;
     }
@@ -181,7 +183,7 @@ export class AssetsComponent {
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.assets.set(this.assets().filter((val) => val.id !== asset.id));
-                this.asset = new AssetDto();
+                this.asset = {} as AssetDto;
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Successful',
@@ -232,7 +234,7 @@ export class AssetsComponent {
         if (this.asset.name?.trim()) {
             if (this.asset.id) {
                 _assets[this.findIndexById(this.asset.id)] = this.asset;
-                this.assetService.asset_UpdateAsset(this.asset.id, this.asset).subscribe((updatedAsset: AssetDto) => {
+                this.assetService.putApiAssetAssetUpdateAssetId<AssetDto>(this.asset.id, this.asset).subscribe((updatedAsset: AssetDto) => {
                     this.assets.set([..._assets]);
                     this.messageService.add({
                         severity: 'success',
@@ -243,7 +245,7 @@ export class AssetsComponent {
                 });
             } else {
                 // this.asset.image = 'asset-placeholder.svg';
-                this.assetService.asset_CreateAsset(this.asset).subscribe(() => {
+                this.assetService.postApiAssetAssetCreateAsset(this.asset).subscribe(() => {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Successful',
@@ -257,7 +259,7 @@ export class AssetsComponent {
             }
 
             this.assetDialog = false;
-            this.asset = new AssetDto();
+            this.asset = {} as AssetDto;
         }
     }
 }

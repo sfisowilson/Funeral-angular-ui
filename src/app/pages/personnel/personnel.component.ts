@@ -11,7 +11,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { PersonnelServiceProxy, FuneralEventDto } from '../../core/services/service-proxies';
+// TODO: Personnel service not yet generated - backend uses custom routes
+// import { PersonnelServiceProxy, FuneralEventDto } from '../../core/services/service-proxies';
+import { FuneralEventDto } from '../../core/models';
 
 interface PersonnelMember {
     id?: string;
@@ -50,7 +52,8 @@ export class PersonnelComponent implements OnInit {
     ];
 
     constructor(
-        private personnelService: PersonnelServiceProxy,
+        // TODO: Restore personnel service when backend API is standardized
+        // private personnelService: PersonnelServiceProxy,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -86,13 +89,16 @@ export class PersonnelComponent implements OnInit {
     }
 
     viewSchedule(person: PersonnelMember) {
-        this.personnelService.personnel_GetMySchedule(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => {
-                this.schedule.set(data);
-                this.scheduleDialog.set(true);
-            },
-            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load schedule' })
-        });
+        // TODO: Replace with actual service call when available
+        // this.personnelService.personnel_GetMySchedule(undefined, undefined, undefined, undefined, undefined).subscribe({
+        //     next: (data: any) => {
+        //         this.schedule.set(data);
+        //         this.scheduleDialog.set(true);
+        //     },
+        //     error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load schedule' })
+        // });
+        this.schedule.set([]);
+        this.scheduleDialog.set(true);
     }
 
     openNew() {

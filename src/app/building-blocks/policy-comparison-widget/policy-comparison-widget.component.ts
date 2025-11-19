@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { WidgetConfig } from '../widget-config';
-import { PolicyDto, PolicyServiceProxy } from '../../core/services/service-proxies';
+import { PoliciesService } from '../../core/services/generated/policies/policies.service';
+import { PolicyDto } from '../../core/models';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 
 @Component({
@@ -10,7 +11,7 @@ import { TenantSettingsService } from '../../core/services/tenant-settings.servi
     imports: [CommonModule],
     templateUrl: './policy-comparison-widget.component.html',
     styleUrls: ['./policy-comparison-widget.component.scss'],
-    providers: [PolicyServiceProxy, TenantSettingsService]
+    providers: [TenantSettingsService]
 })
 export class PolicyComparisonWidgetComponent implements OnInit {
     @Input() config!: WidgetConfig;
@@ -19,7 +20,7 @@ export class PolicyComparisonWidgetComponent implements OnInit {
     currency: string = 'ZAR';
 
     constructor(
-        private policyService: PolicyServiceProxy,
+        private policyService: PoliciesService,
         private tenantSettingsService: TenantSettingsService
     ) {}
 
@@ -29,7 +30,7 @@ export class PolicyComparisonWidgetComponent implements OnInit {
     }
 
     loadPolicies(): void {
-        this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe((policies) => {
+        this.policyService.getApiPolicyPolicyGetAllPolicies().subscribe((policies) => {
             this.allPolicies = policies;
             this.filterPolicies();
         });

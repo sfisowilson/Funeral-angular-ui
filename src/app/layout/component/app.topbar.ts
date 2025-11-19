@@ -75,7 +75,7 @@ export class AppTopbar implements OnInit {
     @Input() isHostTenant: boolean = false;
     items!: MenuItem[];
     tenantLogoUrl: string | undefined;
-    userProfile: UserProfileDto = new UserProfileDto();
+    userProfile: UserProfileDto = {} as UserProfileDto;
 
     constructor(
         public layoutService: LayoutService,
@@ -123,7 +123,7 @@ export class AppTopbar implements OnInit {
                 console.error('Error loading tenant settings for topbar:', error);
             });
 
-        this.userProfileService.userProfile_GetCurrentUserProfile().subscribe((profile) => {
+        this.userProfileService.userProfile_GetCurrent().subscribe((profile) => {
             this.userProfile = profile;
         });
     }

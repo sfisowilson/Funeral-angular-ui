@@ -37,7 +37,7 @@ export class ThemeService {
                                         console.error('CSS content is null/undefined. Cannot load custom CSS.');
                                     }
                                 },
-                                error: (error) => {
+                                error: (error: any) => {
                                     console.error('Error loading custom CSS:', error);
                                 }
                             });
@@ -204,6 +204,15 @@ export class ThemeService {
             reader.readAsText(cssContent);
         } else if (typeof cssContent === 'string') {
             style.innerHTML = cssContent;
+        }
+    }
+
+    removeCustomCss() {
+        // Remove custom CSS style element
+        const customCssElement = document.getElementById('tenant-custom-css');
+        if (customCssElement) {
+            customCssElement.remove();
+            console.log('Custom CSS removed from page');
         }
     }
 }

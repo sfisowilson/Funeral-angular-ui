@@ -41,7 +41,7 @@
                 </th>
                 <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
                 <th pSortableColumn="dependentType">Type <p-sortIcon field="dependentType"></p-sortIcon></th>
-                <th pSortableColumn="calculatedAge">Age <p-sortIcon field="calculatedAge"></p-sortIcon></th>
+                <th>Age</th>
                 <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
                 <th pSortableColumn="identificationNumber">ID Number <p-sortIcon field="identificationNumber"></p-sortIcon></th>
                 <th style="min-width: 10rem">Verification Status</th>
@@ -55,7 +55,7 @@
                 </td>
                 <td><span class="p-column-title">Name</span>{{ dependent.name }}</td>
                 <td><span class="p-column-title">Type</span>{{ getDependentTypeLabel(dependent.dependentType) }}</td>
-                <td><span class="p-column-title">Age</span>{{ dependent.calculatedAge ?? '-' }}</td>
+                <td><span class="p-column-title">Age</span>{{ getCalculatedAge(dependent) ?? '-' }}</td>
                 <td><span class="p-column-title">Email</span>{{ dependent.email }}</td>
                 <td><span class="p-column-title">ID Number</span>{{ dependent.identificationNumber }}</td>
                 <td>
@@ -102,13 +102,13 @@
                 [maxDate]="maxDate"
                 placeholder="Select date of birth">
             </p-calendar>
-            <small class="text-muted-color" *ngIf="dependent.calculatedAge !== null && dependent.calculatedAge !== undefined">
-                Current Age: {{ dependent.calculatedAge }} years
+            <small class="text-muted-color" *ngIf="getCalculatedAge(dependent) !== null">
+                Current Age: {{ getCalculatedAge(dependent) }} years
             </small>
         </div>
 
         <!-- Extended Family Count Indicator -->
-        <div class="field" *ngIf="dependent.dependentType === 3">
+        <div class="field" *ngIf="isExtendedFamily(dependent)">
             <div class="p-message p-message-info">
                 <div class="p-message-wrapper">
                     <span class="p-message-icon pi pi-info-circle"></span>

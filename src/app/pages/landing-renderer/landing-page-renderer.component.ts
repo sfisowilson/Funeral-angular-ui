@@ -6,8 +6,11 @@ import { WIDGET_TYPES } from '@app/building-blocks/widget-registry';
 import { PageLayoutService } from '@app/building-blocks/page-layout.service';
 import { ScrollRevealDirective } from '@app/building-blocks/scroll-reveal.directive';
 import { Subscription } from 'rxjs';
+import { HttpHeaders } from '@angular/common/http';
 import { AuthService } from '@app/auth/auth-service';
-
+import { TenantSettingsService } from '@app/core/services/generated/tenant-settings/tenant-settings.service';
+import { FileHelperService } from '@app/core/services/file-helper.service';
+import { environment } from '../../../environments/environment';
 @Component({
     selector: 'app-landing-page-renderer',
     standalone: true,
@@ -17,11 +20,12 @@ import { AuthService } from '@app/auth/auth-service';
             <!-- Header -->
             <header class="bg-white shadow-md">
                 <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div class="text-xl font-bold text-gray-800">MyApp</div>
+                    <div class="flex items-center gap-3">
+                        <img *ngIf="tenantLogo" [src]="tenantLogoUrl" [alt]="appName + ' logo'" class="h-10 w-auto object-contain" />
+                        <div class="text-xl font-bold text-gray-800">{{ appName }}</div>
+                    </div>
                     <nav class="hidden md:flex space-x-6">
-                        <a href="#" class="text-gray-600 hover:text-blue-600 transition">Home</a>
-                        <a href="#" class="text-gray-600 hover:text-blue-600 transition">About</a>
-                        <a href="#" class="text-gray-600 hover:text-blue-600 transition">Contact</a>
+                        <a href="/" class="text-gray-600 hover:text-blue-600 transition">Home</a>
                         <ng-container *ngIf="!isLoggedIn">
                             <a href="/auth/register" class="text-blue-600 hover:underline font-semibold">Register</a>
                             <a href="/auth/login" class="text-blue-600 hover:underline font-semibold">Login</a>
@@ -46,9 +50,7 @@ import { AuthService } from '@app/auth/auth-service';
                 <!-- Mobile Menu -->
                 <nav *ngIf="mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200 shadow-lg">
                     <div class="px-4 py-4 space-y-1">
-                        <a href="#" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Home</a>
-                        <a href="#" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">About</a>
-                        <a href="#" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Contact</a>
+                        <a href="/" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Home</a>
                         <ng-container *ngIf="!isLoggedIn">
                             <a href="/auth/register" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Register</a>
                             <a href="/auth/login" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Login</a>
@@ -82,7 +84,7 @@ import { AuthService } from '@app/auth/auth-service';
             <!-- Footer -->
             <footer class="bg-gray-100 mt-8">
                 <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm">
-                    <p>&copy; {{ currentYear }} MyApp. All rights reserved.</p>
+                    <p>&copy; {{ currentYear }} {{ appName }}. All rights reserved.</p>
                     <div class="mt-2 md:mt-0 space-x-4">
                         <a href="#" class="hover:text-blue-600">Privacy</a>
                         <a href="#" class="hover:text-blue-600">Terms</a>
@@ -144,15 +146,43 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     currentYear: number = new Date().getFullYear();
     isLoggedIn = false; // replace this with real auth state
     mobileMenuOpen = false;
+    appName = 'MyApp'; // Default fallback
+    tenantLogo: string | null = null;
+    tenantLogoUrl: string | undefined;
+    tenantIdHeader!: HttpHeaders;
 
     constructor(
         private widgetService: WidgetService,
         private authService: AuthService,
-        private pageLayoutService: PageLayoutService
+        private pageLayoutService: PageLayoutService,
+        private tenantSettingsService: TenantSettingsService,
+        public fileHelperService: FileHelperService
     ) {}
 
     ngOnInit(): void {
         this.isLoggedIn = this.authService.isAuthenticated();
+
+        // Load tenant settings to get app name and logo
+        this.tenantSettingsService.getApiTenantSettingTenantSettingGetCurrentTenantSettings().subscribe({
+            next: (settings) => {
+                // Check if this is the host tenant (Mizo)
+                // Host tenant typically has domain 'localhost' or a specific identifier
+                if (settings.tenantDomain === 'host' || settings.tenantName?.toLowerCase() === 'mizo') {
+                    this.appName = 'Mizo';
+                } else {
+                    // Use tenant name from settings
+                    this.appName = settings.tenantName || 'MyApp';
+                }
+                
+                // Set logo if available
+                this.tenantLogo = settings.logo || null;
+                this.tenantLogoUrl = this.getDownloadUrl(settings.logo, settings.tenantDomain || 'host');
+            },
+            error: (error) => {
+                console.error('Failed to load tenant settings:', error);
+                // Keep default 'MyApp' on error
+            }
+        });
 
         this.widgetSubscription = this.widgetService.widgets$.subscribe((widgets: WidgetConfig[]) => {
             this.widgets = widgets;
@@ -232,5 +262,19 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     getWidgetComponent(widgetType: string): any {
         const type = WIDGET_TYPES.find(t => t.name === widgetType);
         return type?.component;
+    }
+
+    getDownloadUrl(fileId: string | undefined, tenantDomain: string): string {
+        if (!fileId) {
+            return '';
+        }
+        let url = `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${fileId}`;
+        this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', tenantDomain);
+        console.log('Download URL:', url);
+        console.log('Tenant ID Header:', this.tenantIdHeader);
+        if (this.tenantIdHeader && this.tenantIdHeader.has('X-Tenant-ID')) {
+            url += `?X-Tenant-ID=${this.tenantIdHeader.get('X-Tenant-ID')}`;
+        }
+        return url;
     }
 }

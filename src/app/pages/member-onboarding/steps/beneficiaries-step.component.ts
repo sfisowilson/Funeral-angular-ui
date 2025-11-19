@@ -15,15 +15,15 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { FileUploadModule } from 'primeng/fileupload';
 import { DropdownModule } from 'primeng/dropdown';
 import { TabViewModule } from 'primeng/tabview';
-import { 
-    BeneficiaryServiceProxy,
+import { BeneficiariesService } from '../../../core/services/generated/beneficiaries/beneficiaries.service';
+import { FileUploadsService } from '../../../core/services/generated/file-uploads/file-uploads.service';
+import { DocumentRequirementsService } from '../../../core/services/generated/document-requirements/document-requirements.service';
+import {
     BeneficiaryDto,
-    FileUploadServiceProxy,
-    DocumentRequirementServiceProxy,
     DocumentRequirement,
     MemberDocumentType,
     FileMetadataDto
-} from '../../../core/services/service-proxies';
+} from '../../../core/models';
 import { SAIdValidator, SAIdInfo } from '../../../shared/utils/sa-id-validator';
 import { AuthService } from '../../../auth/auth-service';
 
@@ -47,9 +47,7 @@ import { AuthService } from '../../../auth/auth-service';
         TabViewModule
     ],
     providers: [
-        MessageService,
-        FileUploadServiceProxy,
-        DocumentRequirementServiceProxy
+        MessageService
     ],
     templateUrl: './beneficiaries-step.component.html',
     styleUrl: './beneficiaries-step.component.scss'
@@ -79,17 +77,17 @@ export class BeneficiariesStepComponent implements OnInit {
     selectedFile: File | undefined = undefined;
 
     documentTypes = [
-        { label: 'ID Document / Passport', value: MemberDocumentType._1, icon: 'pi-id-card', description: 'Beneficiary identification' },
-        { label: 'Birth Certificate', value: MemberDocumentType._6, icon: 'pi-user', description: 'For beneficiary verification' },
-        { label: 'Banking Document', value: MemberDocumentType._8, icon: 'pi-money-bill', description: 'Bank account details for payout' },
-        { label: 'Other Document', value: MemberDocumentType._99, icon: 'pi-file', description: 'Any other supporting document' }
+        { label: 'ID Document / Passport', value: MemberDocumentType.IdentificationDocument, icon: 'pi-id-card', description: 'Beneficiary identification' },
+        { label: 'Birth Certificate', value: MemberDocumentType.BirthCertificate, icon: 'pi-user', description: 'For beneficiary verification' },
+        { label: 'Banking Document', value: MemberDocumentType.BankingDocument, icon: 'pi-money-bill', description: 'Bank account details for payout' },
+        { label: 'Other Document', value: MemberDocumentType.Other, icon: 'pi-file', description: 'Any other supporting document' }
     ];
 
     constructor(
-        private beneficiaryService: BeneficiaryServiceProxy,
+        private beneficiaryService: BeneficiariesService,
         private messageService: MessageService,
-        private fileUploadService: FileUploadServiceProxy,
-        private documentRequirementService: DocumentRequirementServiceProxy,
+        private fileUploadService: FileUploadsService,
+        private documentRequirementService: DocumentRequirementsService,
         private authService: AuthService
     ) {
         // Debounce step completion to prevent rapid emissions
@@ -109,16 +107,16 @@ export class BeneficiariesStepComponent implements OnInit {
         
         // Use appropriate method based on whether viewing own or another member's beneficiaries
         const beneficiariesObservable = this.memberId
-            ? this.beneficiaryService.beneficiary_GetBeneficiariesByMemberId(this.memberId)
-            : this.beneficiaryService.beneficiary_GetMyBeneficiaries();
+            ? this.beneficiaryService.getApiBeneficiaryBeneficiaryGetBeneficiariesByMemberIdMemberId(this.memberId)
+            : this.beneficiaryService.getApiBeneficiaryBeneficiaryGetMyBeneficiaries();
         
         beneficiariesObservable.subscribe({
-            next: (data) => {
+            next: (data: any) => {
                 this.beneficiaries.set(data);
                 this.checkCompletion();
                 this.loading.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading beneficiaries:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -215,7 +213,7 @@ export class BeneficiariesStepComponent implements OnInit {
         }
 
         if (this.editMode()) {
-            this.beneficiaryService.beneficiary_UpdateBeneficiary(this.currentBeneficiary).subscribe({
+            this.beneficiaryService.putApiBeneficiaryBeneficiaryUpdateBeneficiary(this.currentBeneficiary).subscribe({
                 next: () => {
                     this.messageService.add({ 
                         severity: 'success', 
@@ -225,7 +223,7 @@ export class BeneficiariesStepComponent implements OnInit {
                     this.loadBeneficiaries();
                     this.displayDialog = false;
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error updating beneficiary:', error);
                     this.messageService.add({ 
                         severity: 'error', 
@@ -235,8 +233,8 @@ export class BeneficiariesStepComponent implements OnInit {
                 }
             });
         } else {
-            this.beneficiaryService.beneficiary_CreateBeneficiary(this.currentBeneficiary).subscribe({
-                next: (createdBeneficiary) => {
+            this.beneficiaryService.postApiBeneficiaryBeneficiaryCreateBeneficiary(this.currentBeneficiary).subscribe({
+                next: (createdBeneficiary: any) => {
                     this.messageService.add({ 
                         severity: 'success', 
                         summary: 'Success', 
@@ -251,7 +249,7 @@ export class BeneficiariesStepComponent implements OnInit {
                     // Reload beneficiaries
                     this.loadBeneficiaries();
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error adding beneficiary:', error);
                     this.messageService.add({ 
                         severity: 'error', 
@@ -265,7 +263,7 @@ export class BeneficiariesStepComponent implements OnInit {
 
     deleteBeneficiary(id: string) {
         if (confirm('Are you sure you want to delete this beneficiary?')) {
-            this.beneficiaryService.beneficiary_DeleteBeneficiary(id).subscribe({
+            this.beneficiaryService.deleteApiBeneficiaryBeneficiaryDeleteBeneficiaryId(id).subscribe({
                 next: () => {
                     this.messageService.add({ 
                         severity: 'success', 
@@ -274,7 +272,7 @@ export class BeneficiariesStepComponent implements OnInit {
                     });
                     this.loadBeneficiaries();
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error deleting beneficiary:', error);
                     this.messageService.add({ 
                         severity: 'error', 
@@ -300,18 +298,18 @@ export class BeneficiariesStepComponent implements OnInit {
         if (!memberId) return;
 
         const filesObservable = this.memberId
-            ? this.fileUploadService.file_GetFilesByMemberId(this.memberId)
-            : this.fileUploadService.file_GetMyFiles();
+            ? this.fileUploadService.getApiFileUploadFileGetFilesByMemberIdMemberId<FileMetadataDto[]>(this.memberId)
+            : this.fileUploadService.getApiFileUploadFileGetMyFiles<FileMetadataDto[]>();
         
         filesObservable.subscribe({
-            next: (files) => {
+            next: (files: any) => {
                 // Filter files for this beneficiary
-                const beneficiaryFiles = files.filter(f => 
+                const beneficiaryFiles = files.filter((f: any) => 
                     f.entityType === 'Beneficiary' && f.entityId === beneficiaryId
                 );
                 this.uploadedDocuments.set(beneficiaryFiles);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading beneficiary documents:', error);
             }
         });
@@ -344,19 +342,13 @@ export class BeneficiariesStepComponent implements OnInit {
 
         this.uploading.set(true);
 
-        const fileParameter = {
-            data: this.selectedFile,
-            fileName: this.selectedFile.name
-        };
-
-        this.fileUploadService.file_UploadFile(
-            "Beneficiary",  // entityType
-            this.currentBeneficiaryId()!,  // entityId (beneficiary ID)
-            undefined,  // documentType (legacy)
-            this.selectedDocumentType,  // memberDocumentType
-            false,  // isRequired flag (typically optional for beneficiaries)
-            fileParameter
-        ).subscribe({
+        this.fileUploadService.postApiFileUploadFileUploadFile({
+            file: this.selectedFile,
+            entityType: "Beneficiary",
+            entityId: this.currentBeneficiaryId()!,
+            memberDocumentType: this.selectedDocumentType,
+            isRequired: false
+        }).subscribe({
             next: (result) => {
                 this.uploading.set(false);
                 this.messageService.add({
@@ -369,7 +361,7 @@ export class BeneficiariesStepComponent implements OnInit {
                 this.selectedFile = undefined;
                 this.selectedDocumentType = undefined;
             },
-            error: (error) => {
+            error: (error: any) => {
                 this.uploading.set(false);
                 console.error('Upload error:', error);
                 this.messageService.add({
@@ -388,7 +380,7 @@ export class BeneficiariesStepComponent implements OnInit {
 
     deleteBeneficiaryDocument(fileId: string) {
         if (confirm('Are you sure you want to delete this document?')) {
-            this.fileUploadService.file_DeleteFile(fileId).subscribe({
+            this.fileUploadService.deleteApiFileUploadFileDeleteFileFileId(fileId).subscribe({
                 next: () => {
                     this.messageService.add({
                         severity: 'success',
@@ -399,7 +391,7 @@ export class BeneficiariesStepComponent implements OnInit {
                         this.loadBeneficiaryDocuments(this.currentBeneficiaryId()!);
                     }
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error deleting document:', error);
                     this.messageService.add({
                         severity: 'error',

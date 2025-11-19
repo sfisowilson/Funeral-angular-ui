@@ -11,14 +11,12 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DASHBOARD_WIDGETS } from '../dashboard/dashboard-widgets.registry';
+import { DashboardWidgetsService } from '../../core/services/generated/dashboard-widgets/dashboard-widgets.service';
+import { RoleService } from '../../core/services/generated/role/role.service';
 import { 
-    DashboardWidgetServiceProxy, 
-    DashboardWidgetSettingDto,
-    CreateDashboardWidgetSettingDto,
-    UpdateDashboardWidgetSettingDto,
-    RoleServiceProxy,
+    DashboardWidgetDto,
     RoleDto
-} from '../../core/services/service-proxies';
+} from '../../core/models';
 
 // Local interface for component state
 interface WidgetSetting {
@@ -45,7 +43,7 @@ interface WidgetSetting {
         InputNumberModule,
         ToastModule
     ],
-    providers: [MessageService, DashboardWidgetServiceProxy, RoleServiceProxy],
+    providers: [MessageService],
     templateUrl: './dashboard-settings.component.html',
     styleUrl: './dashboard-settings.component.scss'
 })
@@ -72,8 +70,8 @@ export class DashboardSettingsComponent implements OnInit {
 
     constructor(
         private messageService: MessageService,
-        private dashboardWidgetService: DashboardWidgetServiceProxy,
-        private roleService: RoleServiceProxy
+        private dashboardWidgetService: DashboardWidgetsService,
+        private roleService: RoleService
     ) {}
 
     ngOnInit() {
@@ -82,7 +80,7 @@ export class DashboardSettingsComponent implements OnInit {
     }
 
     loadRoles() {
-        this.roleService.role_GetAllRoles().subscribe({
+        this.roleService.getApiRoleRoleGetAllRoles().subscribe({
             next: (roles: RoleDto[]) => {
                 const roleOptions = roles.map(role => ({
                     label: role.name || '',
@@ -90,7 +88,7 @@ export class DashboardSettingsComponent implements OnInit {
                 }));
                 this.availableRoles.set(roleOptions);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading roles:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -103,20 +101,30 @@ export class DashboardSettingsComponent implements OnInit {
 
     loadWidgets() {
         this.loading.set(true);
-        this.dashboardWidgetService.dashboardWidget_GetAll().subscribe({
-            next: (result) => {
-                const mappedWidgets = result.map(dto => ({
-                    id: dto.id?.toString(),
-                    widgetKey: dto.widgetKey,
-                    widgetName: dto.widgetName,
-                    isVisible: dto.isVisible ?? true,
-                    allowedRoles: dto.allowedRoles ?? [],
-                    displayOrder: dto.displayOrder ?? 0
-                }));
+        this.dashboardWidgetService.getApiDashboardWidgetDashboardWidgetGetAll<DashboardWidgetDto[]>().subscribe({
+            next: (settings: DashboardWidgetDto[]) => {
+                const mappedWidgets = settings.map(dto => {
+                    // Parse configuration JSON if it exists
+                    let config: any = {};
+                    try {
+                        config = dto.configuration ? JSON.parse(dto.configuration) : {};
+                    } catch (e) {
+                        console.warn('Failed to parse widget configuration', e);
+                    }
+                    
+                    return {
+                        id: dto.id?.toString(),
+                        widgetKey: dto.type,
+                        widgetName: dto.name,
+                        isVisible: dto.isEnabled ?? true,
+                        allowedRoles: config.allowedRoles ?? [],
+                        displayOrder: dto.order ?? 0
+                    };
+                });
                 this.widgets.set(mappedWidgets);
                 this.loading.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading dashboard widgets:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -160,14 +168,16 @@ export class DashboardSettingsComponent implements OnInit {
         this.loading.set(true);
 
         if (this.isEditMode()) {
-            const updateDto = new UpdateDashboardWidgetSettingDto({
+            const updateDto: DashboardWidgetDto = {
                 id: this.currentWidget.id || '',
-                isVisible: this.currentWidget.isVisible,
-                allowedRoles: this.currentWidget.allowedRoles || [],
-                displayOrder: this.currentWidget.displayOrder
-            });
+                name: this.currentWidget.widgetName || '',
+                type: this.currentWidget.widgetKey || '',
+                configuration: JSON.stringify({ allowedRoles: this.currentWidget.allowedRoles }),
+                isEnabled: this.currentWidget.isVisible,
+                order: this.currentWidget.displayOrder
+            };
 
-            this.dashboardWidgetService.dashboardWidget_Update(updateDto).subscribe({
+            this.dashboardWidgetService.putApiDashboardWidgetDashboardWidgetUpdate<DashboardWidgetDto>(updateDto).subscribe({
                 next: (result) => {
                     this.messageService.add({
                         severity: 'success',
@@ -177,7 +187,7 @@ export class DashboardSettingsComponent implements OnInit {
                     this.showDialog.set(false);
                     this.loadWidgets();
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error saving widget:', error);
                     this.messageService.add({
                         severity: 'error',
@@ -188,15 +198,16 @@ export class DashboardSettingsComponent implements OnInit {
                 }
             });
         } else {
-            const createDto = new CreateDashboardWidgetSettingDto({
-                widgetKey: this.currentWidget.widgetKey || '',
-                widgetName: this.currentWidget.widgetName || '',
-                isVisible: this.currentWidget.isVisible,
-                allowedRoles: this.currentWidget.allowedRoles || [],
-                displayOrder: this.currentWidget.displayOrder
-            });
+            const createDto: DashboardWidgetDto = {
+                id: '',
+                name: this.currentWidget.widgetName || '',
+                type: this.currentWidget.widgetKey || '',
+                configuration: JSON.stringify({ allowedRoles: this.currentWidget.allowedRoles }),
+                isEnabled: this.currentWidget.isVisible,
+                order: this.currentWidget.displayOrder
+            };
 
-            this.dashboardWidgetService.dashboardWidget_Create(createDto).subscribe({
+            this.dashboardWidgetService.postApiDashboardWidgetDashboardWidgetCreate<DashboardWidgetDto>(createDto).subscribe({
                 next: (result) => {
                     this.messageService.add({
                         severity: 'success',
@@ -206,7 +217,7 @@ export class DashboardSettingsComponent implements OnInit {
                     this.showDialog.set(false);
                     this.loadWidgets();
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error saving widget:', error);
                     this.messageService.add({
                         severity: 'error',
@@ -222,7 +233,7 @@ export class DashboardSettingsComponent implements OnInit {
     initializeDefaults() {
         this.loading.set(true);
 
-        this.dashboardWidgetService.dashboardWidget_InitializeDefaults().subscribe({
+        this.dashboardWidgetService.postApiDashboardWidgetDashboardWidgetInitializeDefaults<any>().subscribe({
             next: (result) => {
                 this.messageService.add({
                     severity: 'success',
@@ -231,7 +242,7 @@ export class DashboardSettingsComponent implements OnInit {
                 });
                 this.loadWidgets();
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error initializing defaults:', error);
                 this.messageService.add({
                     severity: 'error',

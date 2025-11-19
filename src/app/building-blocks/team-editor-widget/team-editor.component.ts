@@ -15,7 +15,8 @@ import { TagModule } from 'primeng/tag';
 import { FileUploadModule } from 'primeng/fileupload';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TooltipModule } from 'primeng/tooltip';
-import { UserDto, UserServiceProxy } from '../../core/services/service-proxies';
+import { UserService } from '../../core/services/generated/user/user.service';
+import { UserDto } from '../../core/models';
 
 interface TeamMember {
     id: string;
@@ -38,7 +39,7 @@ interface TeamTemplate {
     selector: 'app-team-editor',
     standalone: true,
     imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, TableModule, DialogModule, ConfirmDialogModule, ToastModule, MultiSelectModule, DropdownModule, TagModule, FileUploadModule, RadioButtonModule, TooltipModule],
-    providers: [MessageService, ConfirmationService, UserServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './team-editor.component.html',
     styleUrls: ['./team-editor.component.scss']
 })
@@ -89,7 +90,7 @@ export class TeamEditorComponent implements OnInit {
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private userService: UserServiceProxy
+        private userService: UserService
     ) {}
 
     ngOnInit(): void {
@@ -182,13 +183,13 @@ export class TeamEditorComponent implements OnInit {
     loadUsers(): void {
         console.log('🔄 Loading users for team selection...');
 
-        this.userService.user_GetAllUsers(undefined, undefined, undefined, undefined, undefined).subscribe({
+        this.userService.getApiUserUserGetAll().subscribe({
             next: (users) => {
                 console.log('✅ Users loaded successfully:', users);
                 this.availableUsers = users;
                 this.filteredAvailableUsers = [...users];
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('❌ Error loading users:', error);
                 console.error('Error details:', {
                     status: error.status,

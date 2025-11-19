@@ -2,7 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { DASHBOARD_WIDGETS, DashboardWidget } from './dashboard-widgets.registry';
 import { AuthService } from '../../auth/auth-service';
-import { DashboardWidgetServiceProxy, DashboardWidgetSettingDto } from '../../core/services/service-proxies';
+import { DashboardWidgetServiceProxy, DashboardWidgetDto } from '../../core/services/service-proxies';
 
 // Import all widget components for standalone mode
 import { StatsSummaryWidgetComponent } from './widgets/stats-summary-widget/stats-summary-widget.component';
@@ -53,12 +53,12 @@ export class Dashboard implements OnInit {
         const userRoles = this.authService.getRoles();
         
         // Fetch visible widgets from API based on user roles
-        this.dashboardWidgetService.dashboardWidget_GetVisibleByRoles(userRoles).subscribe({
-            next: (settings: DashboardWidgetSettingDto[]) => {
+        (this.dashboardWidgetService.dashboardWidget_GetVisibleByRoles(userRoles) as any).subscribe({
+            next: (settings: DashboardWidgetDto[]) => {
                 // Map widget settings to actual components
                 const widgets = settings
-                    .map((setting: DashboardWidgetSettingDto) => {
-                        const widget = DASHBOARD_WIDGETS.find(w => w.key === setting.widgetKey);
+                    .map((setting: DashboardWidgetDto) => {
+                        const widget = DASHBOARD_WIDGETS.find(w => w.key === setting.type);
                         return widget;
                     })
                     .filter((w: DashboardWidget | undefined) => w !== undefined) as DashboardWidget[];

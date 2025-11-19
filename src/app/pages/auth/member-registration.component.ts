@@ -12,15 +12,15 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DateTime } from 'luxon';
+import { MemberRegistrationService } from '../../core/services/generated/member-registration/member-registration.service';
 import { 
-    MemberRegistrationServiceProxy, 
-    CheckIdNumberDto, 
+    PostApiMemberRegistrationMemberRegistrationCheckIdNumberBody,
+    PostApiMemberRegistrationMemberRegistrationSendDependentOtpBody,
+    PostApiMemberRegistrationMemberRegistrationVerifyOtpAndCreateAccountBody,
     CheckIdNumberResponseDto,
     RegisterNewMemberDto,
-    RequestDependentOtpDto,
-    VerifyDependentOtpDto,
     PolicyOptionDto
-} from '../../core/services/service-proxies';
+} from '../../core/models';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 import { SAIdValidator, SAIdInfo } from '../../shared/utils/sa-id-validator';
 
@@ -41,7 +41,7 @@ import { SAIdValidator, SAIdInfo } from '../../shared/utils/sa-id-validator';
         ToastModule,
         ProgressSpinnerModule
     ],
-    providers: [MessageService, MemberRegistrationServiceProxy],
+    providers: [MessageService],
     templateUrl: './member-registration.component.html',
     styleUrl: './member-registration.component.scss'
 })
@@ -74,7 +74,7 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
         private fb: FormBuilder,
         private router: Router,
         private messageService: MessageService,
-        private registrationService: MemberRegistrationServiceProxy,
+        private registrationService: MemberRegistrationService,
         protected override injector: Injector
     ) {
         super(injector);
@@ -148,10 +148,11 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
         this.isProcessing.set(true);
         
         try {
-            const dto = new CheckIdNumberDto();
-            dto.idNumber = idNumber;
+            const dto: PostApiMemberRegistrationMemberRegistrationCheckIdNumberBody = {
+                idNumber: idNumber
+            };
             
-            const response = await this.registrationService.memberRegistration_CheckIdNumber(dto).toPromise();
+            const response = await this.registrationService.postApiMemberRegistrationMemberRegistrationCheckIdNumber<any>(dto).toPromise() as any;
             
             if (!response) {
                 throw new Error('No response from server');
@@ -159,9 +160,9 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
             
             this.idCheckResponse.set(response);
             
-            if (response.exists) {
+            if (response?.exists) {
                 // Check if user account already exists
-                if (response.hasUserAccount) {
+                if (response?.hasUserAccount) {
                     // User already has an account - redirect to login
                     this.messageService.add({
                         severity: 'info',
@@ -182,7 +183,7 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
                 this.messageService.add({
                     severity: 'info',
                     summary: 'Member Found',
-                    detail: `Welcome, ${response.memberName}! We'll send you a verification code to create your account.`
+                    detail: `Welcome, ${(response as any).MemberName || 'Member'}! We'll send you a verification code to create your account.`
                 });
             } else {
                 // New member - load policy options
@@ -213,12 +214,12 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
     // Step 2: Load Policy Options
     async loadPolicyOptions() {
         try {
-            const options = await this.registrationService.memberRegistration_GetPolicyOptions().toPromise();
+            const options = await this.registrationService.getApiMemberRegistrationMemberRegistrationGetPolicyOptions<any[]>().toPromise();
             if (options) {
                 this.policyOptions.set(options);
                 
                 // Auto-select recommended policy
-                const recommended = options.find(p => p.isRecommended);
+                const recommended = options.find((p: any) => p.isRecommended);
                 if (recommended) {
                     this.selectedPolicy.set(recommended);
                 }
@@ -261,19 +262,19 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
         
         try {
             const idInfo = this.idInfo();
-            const dto = new RegisterNewMemberDto();
-            dto.idNumber = this.idCheckForm.value.idNumber;
-            dto.email = this.newMemberForm.value.email;
-            dto.password = this.newMemberForm.value.password;
-            dto.firstNames = this.newMemberForm.value.firstNames;
-            dto.surname = this.newMemberForm.value.surname;
-            dto.phoneNumber = this.newMemberForm.value.phoneNumber;
-            dto.selectedCoverAmount = this.selectedPolicy()!.coverAmount;
-            dto.dateOfBirth = idInfo?.dateOfBirth ? DateTime.fromJSDate(idInfo.dateOfBirth) : undefined;
+            const dto: RegisterNewMemberDto = {
+                firstName: this.newMemberForm.value.firstNames,
+                lastName: this.newMemberForm.value.surname,
+                idNumber: this.idCheckForm.value.idNumber,
+                email: this.newMemberForm.value.email,
+                phone: this.newMemberForm.value.phoneNumber,
+                dateOfBirth: idInfo?.dateOfBirth ? idInfo.dateOfBirth.toISOString() : '',
+                address: ''
+            };
             
-            const response = await this.registrationService.memberRegistration_RegisterNewMember(dto).toPromise();
+            const response = await this.registrationService.postApiMemberRegistrationMemberRegistrationRegisterNewMember(dto).toPromise();
             
-            if (response?.succeeded) {
+            if ((response as any)?.succeeded) {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Registration Successful',
@@ -285,7 +286,7 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
                     this.router.navigate(['/auth/login']);
                 }, 2000);
             } else {
-                throw new Error(response?.message || 'Registration failed');
+                throw new Error((response as any)?.message || 'Registration failed');
             }
         } catch (error: any) {
             this.messageService.add({
@@ -308,14 +309,15 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
         this.isProcessing.set(true);
         
         try {
-            const dto = new RequestDependentOtpDto();
-            dto.idNumber = this.idCheckForm.value.idNumber;
-            dto.contactMethod = contactMethod;
+            const dto = {
+                idNumber: this.idCheckForm.value.idNumber,
+                contactMethod: contactMethod
+            } as any;
             
-            const success = await this.registrationService.memberRegistration_SendDependentOtp(dto).toPromise();
+            const success = await this.registrationService.postApiMemberRegistrationMemberRegistrationSendDependentOtp<any>(dto).toPromise();
             
             if (success) {
-                const contactValue = contactMethod === 'email' ? response.contactEmail : response.contactPhone;
+                const contactValue = contactMethod === 'email' ? (response as any).ContactEmail : (response as any).ContactPhone;
                 this.otpSentTo.set(contactValue || '');
                 
                 this.messageService.add({
@@ -354,15 +356,16 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
         this.isProcessing.set(true);
         
         try {
-            const dto = new VerifyDependentOtpDto();
-            dto.idNumber = this.idCheckForm.value.idNumber;
-            dto.otpCode = this.accountForm.value.otpCode;
-            dto.email = this.accountForm.value.email;
-            dto.password = this.accountForm.value.password;
+            const dto = {
+                idNumber: this.idCheckForm.value.idNumber,
+                otpCode: this.accountForm.value.otpCode,
+                email: this.accountForm.value.email,
+                password: this.accountForm.value.password
+            } as any;
             
-            const authResult = await this.registrationService.memberRegistration_VerifyOtpAndCreateAccount(dto).toPromise();
+            const authResult = await this.registrationService.postApiMemberRegistrationMemberRegistrationVerifyOtpAndCreateAccount<any>(dto).toPromise();
             
-            if (authResult?.succeeded) {
+            if ((authResult as any)?.succeeded) {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Account Created',
@@ -374,7 +377,7 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
                     this.router.navigate(['/auth/login']);
                 }, 2000);
             } else {
-                throw new Error(authResult?.message || 'Verification failed');
+                throw new Error((authResult as any)?.message || 'Verification failed');
             }
         } catch (error: any) {
             this.messageService.add({

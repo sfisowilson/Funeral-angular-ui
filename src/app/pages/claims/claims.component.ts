@@ -15,7 +15,10 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { ClaimServiceProxy, ClaimDto, CreateClaimDto, MemberServiceProxy, PolicyServiceProxy } from '../../core/services/service-proxies';
+import { ClaimsService } from '../../core/services/generated/claims/claims.service';
+import { MembersService } from '../../core/services/generated/members/members.service';
+import { PoliciesService } from '../../core/services/generated/policies/policies.service';
+import { ClaimDto } from '../../core/models';
 import { WorkflowHistoryComponent } from '../../shared/components/workflow-history/workflow-history.component';
 
 @Component({
@@ -53,7 +56,7 @@ export class ClaimsComponent implements OnInit {
     historyDialogVisible = false;
     selectedClaimId: string | number | null = null;
 
-    claim: Partial<ClaimDto> = {};
+    claim: Partial<ClaimDto> & { memberId?: string; description?: string } = {};
 
     statuses = [
         { label: 'Pending', value: 'Pending' },
@@ -65,9 +68,9 @@ export class ClaimsComponent implements OnInit {
     ];
 
     constructor(
-        private claimService: ClaimServiceProxy,
-        private memberService: MemberServiceProxy,
-        private policyService: PolicyServiceProxy,
+        private claimService: ClaimsService,
+        private memberService: MembersService,
+        private policyService: PoliciesService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -80,12 +83,12 @@ export class ClaimsComponent implements OnInit {
 
     loadClaims() {
         this.loading.set(true);
-        this.claimService.claim_GetAllClaims(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => {
-                this.claims.set(data);
+        this.claimService.getApiClaimClaimGetAllClaims<ClaimDto[]>().subscribe({
+            next: (data: any) => {
+                this.claims.set(data || []);
                 this.loading.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load claims' });
                 this.loading.set(false);
             }
@@ -93,15 +96,15 @@ export class ClaimsComponent implements OnInit {
     }
 
     loadMembers() {
-        this.memberService.member_GetAllMembers(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => this.members.set(data),
+        this.memberService.getApiMemberMemberGetAllMembers<any[]>().subscribe({
+            next: (data) => this.members.set(data || []),
             error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load members' })
         });
     }
 
     loadPolicies() {
-        this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => this.policies.set(data),
+        this.policyService.getApiPolicyPolicyGetAllPolicies<any[]>().subscribe({
+            next: (data) => this.policies.set(data || []),
             error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load policies' })
         });
     }
@@ -123,7 +126,7 @@ export class ClaimsComponent implements OnInit {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.claimService.claim_DeleteClaim(claim.id!).subscribe({
+                this.claimService.deleteApiClaimClaimDeleteClaimId(claim.id!).subscribe({
                     next: () => {
                         this.loadClaims();
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Claim Deleted' });
@@ -137,20 +140,18 @@ export class ClaimsComponent implements OnInit {
     saveClaim() {
         this.submitted.set(true);
 
-        if (this.claim.memberId && this.claim.policyId && this.claim.claimAmount) {
-            const claimDto = new CreateClaimDto();
-            claimDto.memberId = this.claim.memberId;
-            claimDto.policyId = this.claim.policyId;
-            claimDto.requestedAmount = this.claim.claimAmount;
-            claimDto.description = this.claim.description;
-            claimDto.dateOfDeath = DateTime.now(); // Add required field
-            claimDto.beneficiaryId = this.claim.memberId; // Use memberId as beneficiary for now
-            claimDto.hasDeathCertificate = false;
-            claimDto.hasIdentityDocuments = false;
-            claimDto.hasMedicalReports = false;
-            claimDto.requiresPoliceReport = false;
+        if (this.claim.policyId && this.claim.claimAmount) {
+            const claimDto: ClaimDto = {
+                id: this.claim.id || '',
+                policyId: this.claim.policyId,
+                claimNumber: this.claim.claimNumber || '',
+                claimDate: this.claim.claimDate || DateTime.now().toISO() || '',
+                claimAmount: this.claim.claimAmount,
+                status: this.claim.status || 'Pending',
+                deceasedName: this.claim.deceasedName || ''
+            };
 
-            this.claimService.claim_CreateClaim(claimDto).subscribe({
+            this.claimService.postApiClaimClaimCreateClaim(claimDto).subscribe({
                 next: () => {
                     this.loadClaims();
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Claim Created' });

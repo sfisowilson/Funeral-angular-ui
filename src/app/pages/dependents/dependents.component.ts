@@ -14,7 +14,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { DependentDto, DependentServiceProxy, DependentType } from '../../core/services/service-proxies';
+import { DependentsService } from '../../core/services/generated/dependents/dependents.service';
+import { DependentDto, DependentType } from '../../core/models';
 import { IdentityVerificationFormComponent } from '../../shared/components/identity-verification/identity-verification-form.component';
 import { VerificationStatusComponent } from '../../shared/components/verification-status/verification-status.component';
 
@@ -39,14 +40,14 @@ import { VerificationStatusComponent } from '../../shared/components/verificatio
         IdentityVerificationFormComponent,
         VerificationStatusComponent
     ],
-    providers: [MessageService, ConfirmationService, DependentServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './dependents.component.html'
 })
 export class DependentsComponent implements OnInit, OnChanges {
     @Input() memberId!: string;
     dependents: DependentDto[] = [];
     selectedDependents: DependentDto[] = [];
-    dependent: DependentDto = new DependentDto();
+    dependent: DependentDto = {} as DependentDto;
     dependentDialog: boolean = false;
     verificationDialog: boolean = false;
     submitted: boolean = false;
@@ -61,7 +62,7 @@ export class DependentsComponent implements OnInit, OnChanges {
     ];
 
     constructor(
-        private dependentService: DependentServiceProxy,
+        private dependentService: DependentsService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -73,8 +74,7 @@ export class DependentsComponent implements OnInit, OnChanges {
             { field: 'name', header: 'Name' },
             { field: 'email', header: 'Email' },
             { field: 'identificationNumber', header: 'ID Number' },
-            { field: 'dependentType', header: 'Type' },
-            { field: 'calculatedAge', header: 'Age' }
+            { field: 'dependentType', header: 'Type' }
         ];
     }
 
@@ -91,14 +91,14 @@ export class DependentsComponent implements OnInit, OnChanges {
 
     loadDependents() {
         if (this.memberId) {
-            this.dependentService.dependent_GetAllDependents(this.memberId, undefined, undefined, undefined, undefined).subscribe((result) => {
+            this.dependentService.getApiDependentDependentGetAllDependents().subscribe((result) => {
                 this.dependents = result;
             });
         }
     }
 
     openNew() {
-        this.dependent = new DependentDto(); // Reset for new entry
+        this.dependent = {} as DependentDto; // Reset for new entry
         this.submitted = false;
         this.dependentDialog = true;
     }
@@ -111,7 +111,7 @@ export class DependentsComponent implements OnInit, OnChanges {
             accept: () => {
                 const ids = this.selectedDependents.map((d) => d.id);
                 ids.forEach((id) => {
-                    this.dependentService.dependent_DeleteDependent(id).subscribe(() => {
+                    this.dependentService.deleteApiDependentDependentDeleteDependentId(id).subscribe(() => {
                         this.dependents = this.dependents.filter((val) => val.id !== id);
                     });
                 });
@@ -122,19 +122,19 @@ export class DependentsComponent implements OnInit, OnChanges {
     }
 
     editDependent(dependent: DependentDto) {
-        this.dependent = new DependentDto(dependent);
+        this.dependent = { ...dependent };
         this.dependentDialog = true;
     }
 
     deleteDependent(dependent: DependentDto) {
         this.confirmationService.confirm({
-            message: 'Are you sure you want to delete ' + dependent.name + '?',
+            message: 'Are you sure you want to delete ' + dependent['name'] + '?',
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.dependentService.dependent_DeleteDependent(dependent.id).subscribe(() => {
+                this.dependentService.deleteApiDependentDependentDeleteDependentId(dependent.id).subscribe(() => {
                     this.dependents = this.dependents.filter((val) => val.id !== dependent.id);
-                    this.dependent = new DependentDto();
+                    this.dependent = {} as DependentDto;
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Dependent Deleted', life: 3000 });
                 });
             }
@@ -149,24 +149,24 @@ export class DependentsComponent implements OnInit, OnChanges {
     saveDependent() {
         this.submitted = true;
 
-        if (this.dependent.name?.trim()) {
+        if (this.dependent['name']?.trim()) {
             if (this.dependent.id) {
-                this.dependentService.dependent_UpdateDependent(this.dependent).subscribe({
+                this.dependentService.putApiDependentDependentUpdateDependent(this.dependent).subscribe({
                     next: (result) => {
                         this.dependents[this.findIndexById(this.dependent.id)] = result;
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Dependent Updated', life: 3000 });
                         this.dependents = [...this.dependents];
                         this.dependentDialog = false;
-                        this.dependent = new DependentDto();
+                        this.dependent = {} as DependentDto;
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error updating dependent:', error);
                         const errorMessage = error?.result?.message || error?.message || 'Failed to update dependent';
                         this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 5000 });
                     }
                 });
             } else {
-                this.dependentService.dependent_CreateDependent(this.dependent).subscribe({
+                this.dependentService.postApiDependentDependentCreateDependent(this.dependent).subscribe({
                     next: (success) => {
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Dependent Created', life: 3000 });
                         this.loadDependents();
@@ -174,16 +174,16 @@ export class DependentsComponent implements OnInit, OnChanges {
 
                         // Prompt for identity verification for new dependents
                         if (success && this.dependent.identificationNumber) {
-                            const dependentForVerification = new DependentDto(this.dependent);
+                            const dependentForVerification = { ...this.dependent };
                             setTimeout(() => {
                                 this.dependent = dependentForVerification;
                                 this.openVerificationDialog();
                             }, 500);
                         } else {
-                            this.dependent = new DependentDto();
+                            this.dependent = {} as DependentDto;
                         }
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error creating dependent:', error);
                         const errorMessage = error?.result?.message || error?.message || 'Failed to create dependent';
                         this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 5000 });
@@ -194,7 +194,7 @@ export class DependentsComponent implements OnInit, OnChanges {
     }
 
     verifyDependentIdentity(dependent: DependentDto) {
-        this.dependent = new DependentDto(dependent);
+        this.dependent = { ...dependent };
         this.openVerificationDialog();
     }
 
@@ -204,7 +204,7 @@ export class DependentsComponent implements OnInit, OnChanges {
 
     closeVerificationDialog() {
         this.verificationDialog = false;
-        this.dependent = new DependentDto();
+        this.dependent = {} as DependentDto;
     }
 
     onVerificationComplete(result: any) {
@@ -244,18 +244,20 @@ export class DependentsComponent implements OnInit, OnChanges {
     }
 
     // Phase 3: Get dependent type label for display
-    getDependentTypeLabel(type: DependentType | undefined): string {
+    getDependentTypeLabel(type: string | DependentType | undefined): string {
         if (!type) return 'Not Specified';
-        const option = this.dependentTypeOptions.find(opt => opt.value === type);
+        const numType = typeof type === 'string' ? parseInt(type) : type;
+        const option = this.dependentTypeOptions.find(opt => opt.value === numType);
         return option ? option.label : 'Not Specified';
     }
 
     // Phase 3: Get age limit warning message based on selected type
-    getAgeLimitWarning(type: DependentType | undefined): string {
+    getAgeLimitWarning(type: string | DependentType | undefined): string {
         if (!type) return '';
-        if (type === 1 || type === 2) {
+        const numType = typeof type === 'string' ? parseInt(type) : type;
+        if (numType === 1 || numType === 2) {
             return 'Maximum age: 74 years';
-        } else if (type === 3) {
+        } else if (numType === 3) {
             return 'Maximum age: 84 years';
         }
         return '';
@@ -263,6 +265,24 @@ export class DependentsComponent implements OnInit, OnChanges {
 
     // Phase 3: Get extended family count for the current member
     getExtendedFamilyCount(): number {
-        return this.dependents.filter(d => d.dependentType === 3).length;
+        return this.dependents.filter(d => d.dependentType === '3' || d.dependentType === 3 as any).length;
+    }
+
+    // Check if dependent is extended family
+    isExtendedFamily(dependent: DependentDto): boolean {
+        return dependent.dependentType === '3' || dependent.dependentType === 3 as any;
+    }
+
+    // Calculate age from date of birth
+    getCalculatedAge(dependent: DependentDto): number | null {
+        if (!dependent.dateOfBirth) return null;
+        const dob = new Date(dependent.dateOfBirth);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age;
     }
 }

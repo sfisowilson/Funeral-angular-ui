@@ -8,7 +8,8 @@ import { ButtonModule } from 'primeng/button';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { FileUploadServiceProxy, FileMetadataDto } from '../../core/services/service-proxies';
+import { FileUploadsService } from '../../core/services/generated/file-uploads/file-uploads.service';
+import { FileMetadataDto } from '../../core/models';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { HttpHeaders } from '@angular/common/http';
 
@@ -16,7 +17,7 @@ import { HttpHeaders } from '@angular/common/http';
     selector: 'app-about-us-editor',
     standalone: true,
     imports: [CommonModule, FormsModule, InputTextModule, InputTextarea, ButtonModule, FileUploadModule, ToastModule],
-    providers: [MessageService, FileUploadServiceProxy, TenantSettingsService],
+    providers: [MessageService, TenantSettingsService],
     templateUrl: './about-us-editor.component.html',
     styleUrls: ['./about-us-editor.component.scss']
 })
@@ -26,7 +27,7 @@ export class AboutUsEditorComponent implements OnInit {
 
     constructor(
         private messageService: MessageService,
-        private fileUploadService: FileUploadServiceProxy,
+        private fileUploadService: FileUploadsService,
         private tenantSettingsService: TenantSettingsService
     ) {}
 
@@ -48,7 +49,7 @@ export class AboutUsEditorComponent implements OnInit {
         const tenantId = this.tenantSettingsService.getSettings()?.id;
 
         if (tenantId) {
-            this.fileUploadService.file_UploadFile('AboutUsImage', tenantId, undefined, undefined, false, fileParameter).subscribe({
+            this.fileUploadService.postApiFileUploadFileUploadFile({ file, entityType: 'AboutUsImage', entityId: tenantId }).subscribe({
                 next: (result: FileMetadataDto) => {
                     this.config.settings.imageUrl = result.id;
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Image Uploaded' });

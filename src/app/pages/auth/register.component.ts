@@ -3,20 +3,25 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth/auth-service';
 import { CommonModule } from '@angular/common';
-import { AuthServiceProxy, PolicyDto, PolicyServiceProxy, RegisterRequest, TenantCreateUpdateDto } from '../../core/services/service-proxies';
 import { HttpClient } from '@angular/common/http';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
-import { LookupServiceProxy, TenantType } from '../../core/services/service-proxies';
+import { AuthService as AuthApiService } from '../../core/services/generated/auth/auth.service';
+import { LookupService } from '../../core/services/generated/lookup/lookup.service';
+import { PoliciesService } from '../../core/services/generated/policies/policies.service';
+import { MemberRegistrationService } from '../../core/services/generated/member-registration/member-registration.service';
+import { PolicyDto, RegisterRequest, TenantCreateUpdateDto } from '../../core/models';
 import { PolicySelectionModalComponent } from './policy-selection-modal/policy-selection-modal.component';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 import { IdentityVerificationFormComponent } from '../../shared/components/identity-verification/identity-verification-form.component';
 import { SAIdValidator, SAIdInfo } from '../../shared/utils/sa-id-validator';
+import { environment } from '../../../environments/environment';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
     selector: 'app-register',
     standalone: true,
     imports: [CommonModule, FormsModule, RouterModule, ReactiveFormsModule, IdentityVerificationFormComponent],
-    providers: [HttpClient, AuthServiceProxy, LookupServiceProxy, PolicyServiceProxy],
+    providers: [HttpClient, AuthApiService, LookupService, PoliciesService, MemberRegistrationService, DialogService],
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss'
 })
@@ -30,7 +35,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     tenantName: string = 'Funeral Management System';
     isBusy: boolean = false;
     isHostTenant: boolean = false;
-    tenantTypes: { label: string; value: TenantType }[] = [];
+    tenantTypes: { label: string; value: any }[] = [];
     selectedPolicy: PolicyDto | null = null;
     showModal: boolean = false;
     alertMessage: string = '';
@@ -46,16 +51,21 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     idInfo = signal<SAIdInfo | null>(null);
     parsedDateOfBirth = signal<Date | null>(null);
     parsedGender = signal<string | null>(null);
+    
+    requirePolicySelection: boolean = true; // Default to true
+    private dialogRef?: DynamicDialogRef;
 
     constructor(
         private fb: FormBuilder,
         private authService: AuthService,
         private router: Router,
-        private authServiceProxy: AuthServiceProxy,
+        private authApiService: AuthApiService,
         protected override tenantSettingsService: TenantSettingsService,
-        private lookupService: LookupServiceProxy,
+        private lookupService: LookupService,
         private route: ActivatedRoute,
-        private policyService: PolicyServiceProxy,
+        private policyService: PoliciesService,
+        private memberRegistrationService: MemberRegistrationService,
+        private dialogService: DialogService,
         protected override injector: Injector
     ) {
         super(injector);
@@ -71,7 +81,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
             console.log('RegisterComponent.ngOnInit: tenantType =', this.tenantService.getTenantType(), 'isHostTenant =', this.isHostTenant);
 
             if (this.isHostTenant) {
-                this.lookupService.getEnumValues('TenantType').subscribe(
+                this.lookupService.getApiLookupGetEnumValuesEnumTypeName<any[]>('TenantType').subscribe(
                     (data: any[]) => {
                         console.log('Raw enum data from API:', data);
                         this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
@@ -107,12 +117,11 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                     if (params['policyId']) {
                         const policyId = +params['policyId'];
                         this.form.patchValue({ policyId: policyId });
-                        this.policyService.policy_GetById(policyId.toString()).subscribe((policy) => {
+                        this.policyService.getApiPolicyPolicyGetByIdId<PolicyDto>(policyId.toString()).subscribe((policy) => {
                             this.selectedPolicy = policy;
                         });
-                    } else {
-                        this.showPolicySelection();
                     }
+                    // If no policy selected yet, user will need to click "Select Policy" button
                 });
             }
         } catch (error) {
@@ -149,7 +158,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 }
             }
             // Build DTO explicitly to avoid missing/mapped properties from the FormGroup
-            const tenantRegisterDto: TenantCreateUpdateDto = TenantCreateUpdateDto.fromJS({
+            const tenantRegisterDto: TenantCreateUpdateDto = {
                 id: '00000000-0000-0000-0000-000000000000', // Use empty GUID for new tenant
                 email: fv.email || '',
                 password: fv.password || '',
@@ -161,23 +170,30 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 registrationNumber: fv.registrationNumber || '',
                 type: fv.type || (0 as any),
                 subscriptionPlanId: fv.subscriptionPlanId || undefined
-            });
+            };
             if (!tenantRegisterDto.email) {
                 this.showAlertMessage('warning', 'Email is required for tenant registration.');
                 this.isBusy = false;
                 return;
             }
-            this.authServiceProxy.auth_RegisterTenant(tenantRegisterDto)
+            this.authApiService.postApiAuthAuthRegisterTenant<any>(tenantRegisterDto)
                 .subscribe({
                     next: (result) => {
                         if (result) {
                             this.showAlertMessage('success', 'Tenant registered successfully');
-                            this.router.navigate(['/auth/login']);
+                            // Redirect to the new tenant's domain
+                            const tenantDomain = fv.domain || '';
+                            if (tenantDomain) {
+                                const newUrl = `${window.location.protocol}//${tenantDomain}.${environment.baseDomain}/auth/login`;
+                                window.location.href = newUrl;
+                            } else {
+                                this.router.navigate(['/auth/login']);
+                            }
                         } else {
                             this.showAlertMessage('error', 'Tenant registration failed');
                         }
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         this.showAlertMessage('error', error.message);
                     }
                 })
@@ -192,16 +208,44 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                     fv = this.form.value;
                 }
             }
-            const memberRegisterRequest: RegisterRequest = RegisterRequest.fromJS({
+            
+            // Build member registration request with all required fields
+            const memberRegisterRequest: any = {
                 email: fv.email || '',
-                password: fv.password || ''
-            });
-            if (!memberRegisterRequest.email) {
-                this.showAlertMessage('warning', 'Email is required for registration.');
+                password: fv.password || '',
+                firstNames: fv.firstName || '',
+                surname: fv.lastName || '',
+                phoneNumber: fv.phoneNumber || '',
+                idNumber: fv.identificationNumber || ''
+            };
+            
+            // Only include policy if it was selected (and required)
+            if (this.selectedPolicy && this.selectedPolicy.coverageAmount) {
+                memberRegisterRequest.selectedCoverAmount = this.selectedPolicy.coverageAmount;
+            }
+            
+            // Add dateOfBirth if available from ID validation
+            const dob = this.parsedDateOfBirth();
+            if (dob) {
+                memberRegisterRequest.dateOfBirth = dob.toISOString();
+            }
+            
+            if (!memberRegisterRequest.email || !memberRegisterRequest.password || 
+                !memberRegisterRequest.firstNames || !memberRegisterRequest.surname || 
+                !memberRegisterRequest.idNumber) {
+                this.showAlertMessage('warning', 'Email, password, first name, last name, and ID number are required.');
                 this.isBusy = false;
                 return;
             }
-            this.authServiceProxy.auth_Register(memberRegisterRequest)
+            
+            // Only validate policy selection if required by tenant
+            if (this.requirePolicySelection && !this.selectedPolicy) {
+                this.showAlertMessage('warning', 'Please select a policy to continue.');
+                this.isBusy = false;
+                return;
+            }
+            
+            this.memberRegistrationService.postApiMemberRegistrationMemberRegistrationRegisterNewMember<any>(memberRegisterRequest)
                 .subscribe({
                     next: () => {
                         this.showAlertMessage('success', 'Member registered successfully');
@@ -213,7 +257,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                             this.router.navigate(['/auth/login']);
                         }
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         this.showAlertMessage('error', error.message);
                     }
                 })
@@ -228,6 +272,9 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
 
             if (settings) {
                 this.tenantName = settings.tenantName || 'Funeral Management System';
+                
+                // Check if policy selection is required
+                this.requirePolicySelection = settings.requirePolicySelection !== false; // Default to true if not set
 
                 // Try multiple ways to get the logo
                 let logoId = null;
@@ -262,8 +309,22 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     }
 
     showPolicySelection() {
-        this.showModal = true;
-        // The modal will emit a policy selection event through the template
+        this.dialogRef = this.dialogService.open(PolicySelectionModalComponent, {
+            header: 'Select Your Policy',
+            width: '90vw',
+            height: '90vh',
+            maximizable: true,
+            modal: true,
+            dismissableMask: false,
+            styleClass: 'policy-selection-dialog'
+        });
+
+        this.dialogRef.onClose.subscribe((policy: PolicyDto | null) => {
+            if (policy) {
+                this.selectedPolicy = policy;
+                this.form.patchValue({ policyId: policy.id });
+            }
+        });
     }
 
     onVerificationComplete(result: any) {

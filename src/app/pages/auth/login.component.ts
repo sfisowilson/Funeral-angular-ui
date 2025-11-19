@@ -11,8 +11,9 @@ import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
-import { AuthService } from '../../auth/auth-service';
-import { AuthServiceProxy } from '../../core/services/service-proxies';
+import { AuthService as AuthStateService } from '../../auth/auth-service';
+import { AuthService } from '../../core/services/generated/auth/auth.service';
+import { LoginRequest } from '../../core/models';
 import { HttpClient } from '@angular/common/http';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
@@ -22,7 +23,7 @@ import { ChangePasswordDialogComponent } from './change-password-dialog/change-p
     selector: 'app-login',
     standalone: true,
     imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ReactiveFormsModule, ChangePasswordDialogComponent, MessageModule, ToastModule],
-    providers: [HttpClient, AuthServiceProxy, MessageService],
+    providers: [HttpClient, MessageService],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
 })
@@ -45,10 +46,10 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
     constructor(
         injector: Injector,
         private fb: FormBuilder,
-        private authService: AuthService,
+        private authStateService: AuthStateService,
         private router: Router,
         private route: ActivatedRoute,
-        private service: AuthServiceProxy,
+        private authService: AuthService,
         private _tenantSettings: TenantSettingsService,
         private messageService: MessageService
     ) {
@@ -128,7 +129,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
         // Store credentials for potential retry after password change
         this.loginCredentials = { ...this.form.value };
 
-        this.service.auth_Login(this.form.value).subscribe({
+        this.authService.postApiAuthAuthLogin(this.form.value as LoginRequest).subscribe({
             next: (result) => {
                 if (!result || !result.token) {
                     this.messageService.add({
@@ -144,7 +145,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
                 // Check if password change is required
                 if (result.mustChangePassword) {
                     // Store the token so it can be used for the password change API call
-                    this.authService.setToken(result.token).subscribe(() => {
+                    this.authStateService.setToken(result.token).subscribe(() => {
                         // Give a tiny delay to ensure token is fully stored
                         setTimeout(() => {
                             this.showChangePasswordDialog.set(true);
@@ -157,7 +158,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
                 // Normal login flow - set token and redirect
                 this.completeLogin(result.token);
             },
-            error: (err) => {
+            error: (err: any) => {
                 console.error('Login error:', err);
                 // HTTP errors have the actual error message in err.error.error or err.error.message
                 const errorMessage = err?.error?.error || err?.error?.message || err?.message || 'Invalid credentials';
@@ -186,7 +187,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
 
         this.isBusy = true;
 
-        this.service.auth_Login(this.loginCredentials).subscribe({
+        this.authService.postApiAuthAuthLogin(this.loginCredentials as LoginRequest).subscribe({
             next: (result) => {
                 if (!result || !result.token) {
                     alert('Login failed after password change');
@@ -197,7 +198,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
                 // Should not require password change again
                 this.completeLogin(result.token);
             },
-            error: (err) => {
+            error: (err: any) => {
                 console.error('Re-login error:', err);
                 alert('Password changed but auto-login failed. Please log in again manually.');
                 this.isBusy = false;
@@ -217,7 +218,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
         this.loginCredentials = null;
         
         // set token in auth service
-        this.authService.setToken(token).subscribe((success) => {
+        this.authStateService.setToken(token).subscribe((success) => {
             if (success) {
                 // Check if we have a return URL from session expiration
                 if (this.returnUrl && this.returnUrl !== '/auth/login') {
@@ -230,10 +231,10 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
                 const tenantType = this.tenantService.getTenantType();
                 let redirectUrl = '/admin/dashboard';
 
-                if (tenantType === 'host' && this.authService.hasRole('HostAdmin')) {
+                if (tenantType === 'host' && this.authStateService.hasRole('HostAdmin')) {
                     redirectUrl = '/admin/dashboard';
                 } else if (tenantType === 'tenant') {
-                    if (this.authService.hasRole('Member')) {
+                    if (this.authStateService.hasRole('Member')) {
                         // Members go to dashboard, ProfileCompletionGuard will redirect to onboarding if needed
                         redirectUrl = '/admin/dashboard';
                     } else {

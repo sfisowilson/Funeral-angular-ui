@@ -17,7 +17,20 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { PolicyAttributeDto, PolicyAttributeServiceProxy } from '../../core/services/service-proxies';
+// TODO: PolicyAttribute service not yet generated - backend uses custom routes
+// import { PolicyAttributeDto, PolicyAttributeServiceProxy } from '../../core/services/service-proxies';
+
+// Stub interface until service is available
+interface PolicyAttributeDto {
+    id?: string;
+    policyId?: string;
+    property?: string;
+    value?: string;
+    dataType?: string;
+    description?: string;
+    isIncluded?: boolean;
+    displayOrder?: number;
+}
 
 interface Column {
     field: string;
@@ -52,7 +65,7 @@ interface ExportColumn {
         InputNumberModule,
         TooltipModule
     ],
-    providers: [MessageService, ConfirmationService, PolicyAttributeServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './policy-attributes.component.html',
     styleUrl: './policy-attributes.component.scss'
 })
@@ -75,8 +88,9 @@ export class PolicyAttributesComponent {
 
     constructor(
         private messageService: MessageService,
-        private confirmationService: ConfirmationService,
-        private policyAttributeService: PolicyAttributeServiceProxy
+        private confirmationService: ConfirmationService
+        // TODO: Restore policy attribute service when backend API is standardized
+        // private policyAttributeService: PolicyAttributeServiceProxy
     ) {}
 
     exportCSV() {
@@ -88,9 +102,11 @@ export class PolicyAttributesComponent {
     }
 
     loadPolicyAttributes() {
-        this.policyAttributeService.policyAttribute_GetAllPolicies(undefined, undefined, undefined, undefined, undefined, undefined).subscribe((attributes) => {
-            this.policyAttributes.set(attributes);
-        });
+        // TODO: Replace with actual service call when available
+        // this.policyAttributeService.policyAttribute_GetAllPolicies(undefined, undefined, undefined, undefined, undefined, undefined).subscribe((attributes: any) => {
+        //     this.policyAttributes.set(attributes);
+        // });
+        this.policyAttributes.set([]);
 
         this.cols = [
             { field: 'policyId', header: 'Policy ID' },
@@ -109,13 +125,13 @@ export class PolicyAttributesComponent {
     }
 
     openNew() {
-        this.policyAttribute = new PolicyAttributeDto();
+        this.policyAttribute = {} as PolicyAttributeDto;
         this.submitted = false;
         this.policyAttributeDialog = true;
     }
 
     editPolicyAttribute(attribute: PolicyAttributeDto) {
-        this.policyAttribute = PolicyAttributeDto.fromJS(attribute);
+        this.policyAttribute = { ...attribute };
         this.policyAttributeDialog = true;
     }
 
@@ -150,16 +166,17 @@ export class PolicyAttributesComponent {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.policyAttributeService.policyAttribute_DeletePolicyAttribute(attribute.id!).subscribe(() => {
-                    this.policyAttributes.set(this.policyAttributes().filter((val) => val.id !== attribute.id));
-                    this.policyAttribute = new PolicyAttributeDto();
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Successful',
-                        detail: 'Policy Attribute Deleted',
-                        life: 3000
-                    });
+                // TODO: Replace with actual service call when available
+                // this.policyAttributeService.policyAttribute_DeletePolicyAttribute(attribute.id!).subscribe(() => {
+                this.policyAttributes.set(this.policyAttributes().filter((val) => val.id !== attribute.id));
+                this.policyAttribute = {} as PolicyAttributeDto;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Successful',
+                    detail: 'Policy Attribute Deleted',
+                    life: 3000
                 });
+                // });
             }
         });
     }
@@ -189,8 +206,10 @@ export class PolicyAttributesComponent {
             this.policyAttribute.isIncluded !== undefined
         ) {
             if (this.policyAttribute.id) {
+                // TODO: Replace with actual service call when available
+                /*
                 this.policyAttributeService.policyAttribute_UpdatePolicyAttribute(this.policyAttribute).subscribe({
-                    next: (updatedAttribute) => {
+                    next: (updatedAttribute: any) => {
                         const currentAttributes = this.policyAttributes();
                         const index = currentAttributes.findIndex((a) => a.id === updatedAttribute.id);
                         if (index !== -1) {
@@ -204,7 +223,7 @@ export class PolicyAttributesComponent {
                             life: 3000
                         });
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error updating policy attribute:', error);
                         this.messageService.add({
                             severity: 'error',
@@ -214,9 +233,13 @@ export class PolicyAttributesComponent {
                         });
                     }
                 });
+                */
+                this.messageService.add({ severity: 'info', summary: 'Note', detail: 'Service not available yet', life: 3000 });
             } else {
+                // TODO: Replace with actual service call when available
+                /*
                 this.policyAttributeService.policyAttribute_CreatePolicyAttribute(this.policyAttribute).subscribe({
-                    next: (createdAttribute) => {
+                    next: (createdAttribute: any) => {
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Successful',
@@ -225,7 +248,7 @@ export class PolicyAttributesComponent {
                         });
                         this.loadPolicyAttributes(); // Re-fetch data to update the table with the new attribute
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error creating policy attribute:', error);
                         this.messageService.add({
                             severity: 'error',
@@ -235,9 +258,11 @@ export class PolicyAttributesComponent {
                         });
                     }
                 });
+                */
+                this.messageService.add({ severity: 'info', summary: 'Note', detail: 'Service not available yet', life: 3000 });
             }
             this.policyAttributeDialog = false;
-            this.policyAttribute = new PolicyAttributeDto();
+            this.policyAttribute = {} as PolicyAttributeDto;
         } else {
             // Surface a helpful warning so the user knows why nothing happened.
             this.messageService.add({

@@ -56,7 +56,7 @@ export class RecentSalesWidget implements OnInit {
     loadRecentClaims() {
         this.dashboardService.getDashboardData().subscribe({
             next: (data) => this.recentClaims.set(data.recentClaims),
-            error: (error) => console.error('Failed to load recent claims:', error)
+            error: (error: any) => console.error('Failed to load recent claims:', error)
         });
     }
 

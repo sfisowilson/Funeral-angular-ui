@@ -13,14 +13,15 @@ import {
     MemberProfileCompletionServiceProxy, 
     DependentServiceProxy, 
     BeneficiaryServiceProxy, 
-    TermsServiceProxy, 
-    RequiredDocumentServiceProxy, 
-    VerificationServiceProxy, 
+    RequiredDocumentServiceProxy,
     PremiumCalculationServiceProxy,
     AuthServiceProxy,
     MemberServiceProxy,
     MemberBankingDetailServiceProxy,
-    MemberRegistrationServiceProxy
+    MemberRegistrationServiceProxy,
+    LookupServiceProxy,
+    PolicyServiceProxy,
+    RoleServiceProxy
 } from './app/core/services/service-proxies';
 import { AuthService } from './app/auth/auth-service';
 import { AuthInterceptor } from './app/auth/auth.service';
@@ -51,14 +52,15 @@ export const appConfig: ApplicationConfig = {
         MemberProfileCompletionServiceProxy,
         DependentServiceProxy,
         BeneficiaryServiceProxy,
-        TermsServiceProxy,
         RequiredDocumentServiceProxy,
-        VerificationServiceProxy,
         PremiumCalculationServiceProxy,
         AuthServiceProxy,
         MemberServiceProxy,
         MemberBankingDetailServiceProxy,
         MemberRegistrationServiceProxy,
+        LookupServiceProxy,
+        PolicyServiceProxy,
+        RoleServiceProxy,
         appInitializerProvider,
         {
             provide: APP_INITIALIZER,

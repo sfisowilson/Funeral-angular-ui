@@ -1,25 +1,51 @@
 /* override variable properties eg     --p-primary-color */
 :root {
     --p-primary-color: #f5a623;
-    --p-secondary-color: #f8e0c0;
+    --cs-p-secondary-color: #f8e0c0;
     --p-text-color: #333;
-    --p-background-color: #f7efe7;
+    --cs-p-inputtext-color: #333;
+    --cs-p-background-color: #f7efe7;
+    --cs-off-white-background-color: #e5e7eb;
     --p-border-color: #ddd;
+    --cs-p-inputtext-background: #f7efe7;
 
     --p-button-primary-hover-background: #d38304;
     --p-primary-active-color: #d67d08;
 }
 
 body {
-    background-color: rgb(247, 239, 231);
+    background-color: var(--cs-off-white-background-color) !important;
 }
 
 .layout-topbar {
-    background-color: rgb(250, 223, 192) !important;
+    background-color: var(--cs-p-secondary-color) !important;
 
 }
 
 
 .layout-sidebar {
-    background-color: rgb(250, 223, 192) !important;
+    background-color: var(--cs-p-secondary-color) !important;
+}
+
+/* form */
+.p-select-overlay,
+.p-inputtext, .p-select {
+    color: var(--cs-p-inputtext-color) !important;
+    background: var(--cs-p-inputtext-background) !important;
+}
+
+.p-select-label {
+    color: var(--cs-p-inputtext-color) !important;
+}
+
+/* Sidebar */
+
+.layout-menu ul a:hover {
+    background-color: var(--cs-p-background-color);
+}
+
+/* table */
+.p-datatable-tbody>tr {
+    background: white !important;
+    color: var(--cs-p-inputtext-background) !important;
 }

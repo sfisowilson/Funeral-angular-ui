@@ -85,11 +85,9 @@ export class WidgetService {
 
                 const updatedSettings = { ...currentSettings, [this.SETTINGS_KEY]: widgets };
 
-                const updateDto = new TenantSettingDto();
-                if (tenantSettingDto) {
-                    updateDto.init(tenantSettingDto);
-                }
-                updateDto.settings = JSON.stringify(updatedSettings);
+                const updateDto: TenantSettingDto = tenantSettingDto ? 
+                    { ...tenantSettingDto, settings: JSON.stringify(updatedSettings) } :
+                    { settings: JSON.stringify(updatedSettings) } as TenantSettingDto;
 
                 return this.tenantSettingServiceProxy.tenantSetting_UpdateTenantSetting(updateDto).pipe(
                     tap(() => {

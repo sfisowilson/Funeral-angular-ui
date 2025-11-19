@@ -19,7 +19,16 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { TenantCreateUpdateDto, TenantServiceProxy, TenantType, LookupServiceProxy } from '../../core/services/service-proxies';
+import { TenantCreateUpdateDto } from '../../core/models';
+import { TenantService } from '../../core/services/generated/tenant/tenant.service';
+import { LookupService } from '../../core/services/generated/lookup/lookup.service';
+
+// TODO: Move to backend when migrated
+export enum TenantType {
+    Individual = 0,
+    Organization = 1,
+    Funeral = 2
+}
 
 interface Column {
     field: string;
@@ -36,7 +45,7 @@ interface ExportColumn {
     selector: 'app-tenants',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule],
-    providers: [MessageService, ConfirmationService, TenantServiceProxy, LookupServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './tenants.component.html'
 })
 export class TenantsComponent {
@@ -61,8 +70,8 @@ export class TenantsComponent {
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private tenantService: TenantServiceProxy,
-        private lookupService: LookupServiceProxy
+        private tenantService: TenantService,
+        private lookupService: LookupService
     ) {
         this.tenantTypes = []; // Initialize as empty, will be populated by lookup
     }
@@ -76,15 +85,15 @@ export class TenantsComponent {
     }
 
     async loadDemoData() {
-        this.tenantService.tenant_GetAllTenants().subscribe((tenants) => {
-            this.tenants.set(tenants);
+        this.tenantService.getApiTenantTenantGetAllTenants<any[]>().subscribe((tenants) => {
+            this.tenants.set(tenants as any[] || []);
         });
 
-        this.lookupService.getEnumValues('TenantType').subscribe({
+        this.lookupService.getApiLookupGetEnumValuesEnumTypeName('TenantType').subscribe({
             next: (data: any[]) => {
                 this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading tenant types:', error);
             }
         });
@@ -108,13 +117,13 @@ export class TenantsComponent {
     }
 
     openNew() {
-        this.tenant = new TenantCreateUpdateDto();
+        this.tenant = {} as TenantCreateUpdateDto;
         this.submitted = false;
         this.tenantDialog = true;
     }
 
     editTenant(tenant: TenantCreateUpdateDto) {
-        this.tenant = TenantCreateUpdateDto.fromJS(tenant);
+        this.tenant = { ...tenant };
         this.tenantDialog = true;
     }
 
@@ -149,9 +158,9 @@ export class TenantsComponent {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.tenantService.tenant_DeleteTenant(tenant.id!).subscribe(() => {
+                this.tenantService.deleteApiTenantTenantDeleteTenantId(tenant.id!).subscribe(() => {
                     this.tenants.set(this.tenants().filter((val) => val.id !== tenant.id));
-                    this.tenant = new TenantCreateUpdateDto();
+                    this.tenant = {} as TenantCreateUpdateDto;
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Successful',
@@ -184,26 +193,18 @@ export class TenantsComponent {
         this.submitted = true;
         if (this.tenant.name?.trim() && this.tenant.email?.trim() && this.tenant.domain?.trim() && this.tenant.address?.trim() && this.tenant.phone1?.trim() && this.tenant.registrationNumber?.trim() && this.tenant.type !== undefined) {
             if (this.tenant.id) {
-                this.tenantService.tenant_UpdateTenant(this.tenant.id, this.tenant).subscribe({
+                this.tenantService.putApiTenantTenantUpdateTenantId<any>(this.tenant.id, this.tenant as any).subscribe({
                     next: (success) => {
-                        if (success) {
-                            this.messageService.add({
-                                severity: 'success',
-                                summary: 'Successful',
-                                detail: 'Tenant Updated',
-                                life: 3000
-                            });
-                            this.loadDemoData(); // Re-fetch data to update the table
-                        } else {
-                            this.messageService.add({
-                                severity: 'error',
-                                summary: 'Error',
-                                detail: 'Failed to update tenant',
-                                life: 3000
-                            });
-                        }
+                        // Service returns void, just check the call succeeded
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Successful',
+                            detail: 'Tenant Updated',
+                            life: 3000
+                        });
+                        this.loadDemoData(); // Re-fetch data to update the table
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error updating tenant:', error);
                         this.messageService.add({
                             severity: 'error',
@@ -214,26 +215,18 @@ export class TenantsComponent {
                     }
                 });
             } else {
-                this.tenantService.tenant_RegisterTenant(this.tenant).subscribe({
+                this.tenantService.postApiTenantTenantRegisterTenant<any>(this.tenant as any).subscribe({
                     next: (registered) => {
-                        if (registered) {
-                            this.messageService.add({
-                                severity: 'success',
-                                summary: 'Successful',
-                                detail: 'Tenant Created',
-                                life: 3000
-                            });
-                            this.loadDemoData(); // Re-fetch data to update the table
-                        } else {
-                            this.messageService.add({
-                                severity: 'error',
-                                summary: 'Error',
-                                detail: 'Tenant creation failed',
-                                life: 3000
-                            });
-                        }
+                        // Service returns void, just check the call succeeded
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Successful',
+                            detail: 'Tenant Created',
+                            life: 3000
+                        });
+                        this.loadDemoData(); // Re-fetch data to update the table
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error creating tenant:', error);
                         this.messageService.add({
                             severity: 'error',
@@ -245,7 +238,7 @@ export class TenantsComponent {
                 });
             }
             this.tenantDialog = false;
-            this.tenant = new TenantCreateUpdateDto();
+            this.tenant = {} as TenantCreateUpdateDto;
         }
     }
 }

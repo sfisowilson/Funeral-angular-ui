@@ -15,8 +15,17 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { SubscriptionPlanDto, SubscriptionPlanServiceProxy, TenantType, LookupServiceProxy } from '../../core/services/service-proxies';
+import { SubscriptionPlanDto } from '../../core/models';
+import { SubscriptionPlanService } from '../../core/services/generated/subscription-plan/subscription-plan.service';
+import { LookupService } from '../../core/services/generated/lookup/lookup.service';
 import { CheckboxModule } from 'primeng/checkbox';
+
+// TODO: Move to backend when migrated
+export enum TenantType {
+    Individual = 0,
+    Organization = 1,
+    Funeral = 2
+}
 
 interface Column {
     field: string;
@@ -33,7 +42,7 @@ interface ExportColumn {
     selector: 'app-subscription-plans',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule],
-    providers: [MessageService, ConfirmationService, SubscriptionPlanServiceProxy, LookupServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './subscription-plans.component.html'
 })
 export class SubscriptionPlansComponent {
@@ -58,8 +67,8 @@ export class SubscriptionPlansComponent {
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private subscriptionPlanService: SubscriptionPlanServiceProxy,
-        private lookupService: LookupServiceProxy
+        private subscriptionPlanService: SubscriptionPlanService,
+        private lookupService: LookupService
     ) {
         this.tenantTypes = [];
     }
@@ -70,7 +79,7 @@ export class SubscriptionPlansComponent {
 
     ngOnInit() {
         this.loadSubscriptionPlans();
-        this.lookupService.getEnumValues('TenantType').subscribe(
+        this.lookupService.getApiLookupGetEnumValuesEnumTypeName('TenantType').subscribe(
             (data: any[]) => {
                 this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
             },
@@ -81,7 +90,7 @@ export class SubscriptionPlansComponent {
     }
 
     loadSubscriptionPlans() {
-        this.subscriptionPlanService.subscriptionPlan_GetAll().subscribe((plans) => {
+        this.subscriptionPlanService.getSubscriptionPlanSubscriptionPlanGetAll<SubscriptionPlanDto[]>().subscribe((plans) => {
             this.subscriptionPlans.set(plans);
         });
 
@@ -100,13 +109,13 @@ export class SubscriptionPlansComponent {
     }
 
     openNew() {
-        this.subscriptionPlan = new SubscriptionPlanDto();
+        this.subscriptionPlan = {} as SubscriptionPlanDto;
         this.submitted = false;
         this.subscriptionPlanDialog = true;
     }
 
     editSubscriptionPlan(plan: SubscriptionPlanDto) {
-        this.subscriptionPlan = SubscriptionPlanDto.fromJS(plan);
+        this.subscriptionPlan = { ...plan };
         this.subscriptionPlanDialog = true;
     }
 
@@ -141,9 +150,9 @@ export class SubscriptionPlansComponent {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.subscriptionPlanService.subscriptionPlan_Delete(plan.id!).subscribe(() => {
+                this.subscriptionPlanService.deleteSubscriptionPlanSubscriptionPlanDeleteId(plan.id!).subscribe(() => {
                     this.subscriptionPlans.set(this.subscriptionPlans().filter((val) => val.id !== plan.id));
-                    this.subscriptionPlan = new SubscriptionPlanDto();
+                    this.subscriptionPlan = {} as SubscriptionPlanDto;
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Successful',
@@ -176,7 +185,7 @@ export class SubscriptionPlansComponent {
         this.submitted = true;
         if (this.subscriptionPlan.name?.trim() && this.subscriptionPlan.description?.trim() && this.subscriptionPlan.monthlyPrice !== undefined && this.subscriptionPlan.allowedTenantType !== undefined) {
             if (this.subscriptionPlan.id) {
-                this.subscriptionPlanService.subscriptionPlan_Update(this.subscriptionPlan.id, this.subscriptionPlan).subscribe({
+                this.subscriptionPlanService.putSubscriptionPlanSubscriptionPlanUpdateId<SubscriptionPlanDto>(this.subscriptionPlan.id, this.subscriptionPlan).subscribe({
                     next: (updatedPlan) => {
                         const currentPlans = this.subscriptionPlans();
                         const index = currentPlans.findIndex((p) => p.id === updatedPlan.id);
@@ -191,7 +200,7 @@ export class SubscriptionPlansComponent {
                             life: 3000
                         });
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error updating subscription plan:', error);
                         this.messageService.add({
                             severity: 'error',
@@ -202,7 +211,7 @@ export class SubscriptionPlansComponent {
                     }
                 });
             } else {
-                this.subscriptionPlanService.subscriptionPlan_Create(this.subscriptionPlan).subscribe({
+                this.subscriptionPlanService.postSubscriptionPlanSubscriptionPlanCreate<SubscriptionPlanDto>(this.subscriptionPlan).subscribe({
                     next: (createdPlan) => {
                         this.messageService.add({
                             severity: 'success',
@@ -212,7 +221,7 @@ export class SubscriptionPlansComponent {
                         });
                         this.loadSubscriptionPlans(); // Re-fetch data to update the table with the new plan
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error creating subscription plan:', error);
                         this.messageService.add({
                             severity: 'error',
@@ -224,7 +233,7 @@ export class SubscriptionPlansComponent {
                 });
             }
             this.subscriptionPlanDialog = false;
-            this.subscriptionPlan = new SubscriptionPlanDto();
+            this.subscriptionPlan = {} as SubscriptionPlanDto;
         }
     }
 }

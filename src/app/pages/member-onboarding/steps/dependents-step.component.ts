@@ -14,17 +14,17 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { FileUploadModule } from 'primeng/fileupload';
 import { DropdownModule } from 'primeng/dropdown';
 import { TabViewModule } from 'primeng/tabview';
-import { 
-    DependentServiceProxy,
+import { DependentsService } from '../../../core/services/generated/dependents/dependents.service';
+import { MemberProfileCompletionService } from '../../../core/services/generated/member-profile-completion/member-profile-completion.service';
+import { FileUploadsService } from '../../../core/services/generated/file-uploads/file-uploads.service';
+import { DocumentRequirementsService } from '../../../core/services/generated/document-requirements/document-requirements.service';
+import {
     DependentDto,
-    MemberProfileCompletionServiceProxy,
-    UpdateProfileCompletionStepDto,
-    FileUploadServiceProxy,
-    DocumentRequirementServiceProxy,
+    PostApiMemberProfileCompletionProfileCompletionUpdateStepBody,
     DocumentRequirement,
     MemberDocumentType,
     FileMetadataDto
-} from '../../../core/services/service-proxies';
+} from '../../../core/models';
 import { SAIdValidator, SAIdInfo } from '../../../shared/utils/sa-id-validator';
 import { AuthService } from '../../../auth/auth-service';
 
@@ -47,11 +47,7 @@ import { AuthService } from '../../../auth/auth-service';
         TabViewModule
     ],
     providers: [
-        MessageService, 
-        MemberProfileCompletionServiceProxy, 
-        DependentServiceProxy,
-        FileUploadServiceProxy,
-        DocumentRequirementServiceProxy
+        MessageService
     ],
     templateUrl: './dependents-step.component.html',
     styleUrl: './dependents-step.component.scss'
@@ -83,18 +79,18 @@ export class DependentsStepComponent implements OnInit {
     selectedFile: File | undefined = undefined;
 
     documentTypes = [
-        { label: 'Birth Certificate', value: MemberDocumentType._6, icon: 'pi-user', description: 'Required for dependent verification' },
-        { label: 'ID Document / Passport', value: MemberDocumentType._1, icon: 'pi-id-card', description: 'South African ID or Passport' },
-        { label: 'Marriage Certificate', value: MemberDocumentType._3, icon: 'pi-heart', description: 'Required for spouse dependent' },
-        { label: 'Other Document', value: MemberDocumentType._99, icon: 'pi-file', description: 'Any other supporting document' }
+        { label: 'Birth Certificate', value: MemberDocumentType.BirthCertificate, icon: 'pi-user', description: 'Required for dependent verification' },
+        { label: 'ID Document / Passport', value: MemberDocumentType.IdentificationDocument, icon: 'pi-id-card', description: 'South African ID or Passport' },
+        { label: 'Marriage Certificate', value: MemberDocumentType.MarriageCertificate, icon: 'pi-heart', description: 'Required for spouse dependent' },
+        { label: 'Other Document', value: MemberDocumentType.Other, icon: 'pi-file', description: 'Any other supporting document' }
     ];
 
     constructor(
-        private dependentService: DependentServiceProxy,
-        private profileService: MemberProfileCompletionServiceProxy,
+        private dependentService: DependentsService,
+        private profileService: MemberProfileCompletionService,
         private messageService: MessageService,
-        private fileUploadService: FileUploadServiceProxy,
-        private documentRequirementService: DocumentRequirementServiceProxy,
+        private fileUploadService: FileUploadsService,
+        private documentRequirementService: DocumentRequirementsService,
         private authService: AuthService
     ) {
         // Debounce step completion to prevent rapid emissions
@@ -115,17 +111,17 @@ export class DependentsStepComponent implements OnInit {
         
         // Use appropriate method based on whether viewing own or another member's dependents
         const dependentsObservable = this.memberId
-            ? this.dependentService.dependent_GetDependentsByMemberId(this.memberId)
-            : this.dependentService.dependent_GetMyDependents();
+            ? this.dependentService.getApiDependentDependentGetDependentsByMemberIdMemberId(this.memberId)
+            : this.dependentService.getApiDependentDependentGetMyDependents();
         
         dependentsObservable.subscribe({
-            next: (data) => {
+            next: (data: any) => {
                 console.log('[DependentsStep] Loaded dependents:', data);
                 this.dependents.set(data);
                 this.checkCompletion();
                 this.loading.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading dependents:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -162,7 +158,7 @@ export class DependentsStepComponent implements OnInit {
     editDependent(dependent: DependentDto) {
         this.editMode.set(true);
         // Create new instance to avoid reference issues
-        this.currentDependent = new DependentDto({
+        this.currentDependent = {
             id: dependent.id,
             memberId: dependent.memberId,
             name: dependent.name,
@@ -174,8 +170,8 @@ export class DependentsStepComponent implements OnInit {
             // Phase 3: Include dependent classification fields
             dependentType: dependent.dependentType,
             dateOfBirth: dependent.dateOfBirth,
-            calculatedAge: dependent.calculatedAge
-        });
+            calculatedAge: this.getCalculatedAge(dependent)
+        } as any;
         
         // Validate ID if present
         if (dependent.identificationNumber) {
@@ -237,7 +233,7 @@ export class DependentsStepComponent implements OnInit {
         }
 
         if (this.editMode()) {
-            this.dependentService.dependent_UpdateDependent(this.currentDependent).subscribe({
+            this.dependentService.putApiDependentDependentUpdateDependent(this.currentDependent).subscribe({
                 next: () => {
                     this.messageService.add({ 
                         severity: 'success', 
@@ -247,7 +243,7 @@ export class DependentsStepComponent implements OnInit {
                     this.loadDependents();
                     this.displayDialog = false;
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error updating dependent:', error);
                     // Extract error message from API response
                     const errorMessage = error?.result?.message || error?.message || 'Failed to update dependent';
@@ -260,7 +256,7 @@ export class DependentsStepComponent implements OnInit {
             });
         } else {
             console.log('[DependentsStep] Creating new dependent:', this.currentDependent);
-            this.dependentService.dependent_CreateDependent(this.currentDependent).subscribe({
+            this.dependentService.postApiDependentDependentCreateDependent(this.currentDependent).subscribe({
                 next: (createdDependent) => {
                     console.log('[DependentsStep] Dependent created successfully:', createdDependent);
                     this.messageService.add({ 
@@ -278,7 +274,7 @@ export class DependentsStepComponent implements OnInit {
                     console.log('[DependentsStep] Reloading dependents after creation...');
                     this.loadDependents();
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error adding dependent:', error);
                     // Extract error message from API response
                     const errorMessage = error?.result?.message || error?.message || 'Failed to add dependent';
@@ -294,7 +290,7 @@ export class DependentsStepComponent implements OnInit {
 
     deleteDependent(id: string) {
         if (confirm('Are you sure you want to delete this dependent?')) {
-            this.dependentService.dependent_DeleteDependent(id).subscribe({
+            this.dependentService.deleteApiDependentDependentDeleteDependentId(id).subscribe({
                 next: () => {
                     this.messageService.add({ 
                         severity: 'success', 
@@ -303,7 +299,7 @@ export class DependentsStepComponent implements OnInit {
                     });
                     this.loadDependents();
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error deleting dependent:', error);
                     // Extract error message from API response
                     const errorMessage = error?.result?.message || error?.message || 'Failed to delete dependent';
@@ -335,18 +331,18 @@ export class DependentsStepComponent implements OnInit {
         if (!memberId) return;
 
         const filesObservable = this.memberId
-            ? this.fileUploadService.file_GetFilesByMemberId(this.memberId)
-            : this.fileUploadService.file_GetMyFiles();
+            ? this.fileUploadService.getApiFileUploadFileGetFilesByMemberIdMemberId<FileMetadataDto[]>(this.memberId)
+            : this.fileUploadService.getApiFileUploadFileGetMyFiles<FileMetadataDto[]>();
         
         filesObservable.subscribe({
-            next: (files) => {
+            next: (files:any) => {
                 // Filter files for this dependent
-                const dependentFiles = files.filter(f => 
+                const dependentFiles = files.filter((f: any) => 
                     f.entityType === 'Dependent' && f.entityId === dependentId
                 );
                 this.uploadedDocuments.set(dependentFiles);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading dependent documents:', error);
             }
         });
@@ -385,18 +381,17 @@ export class DependentsStepComponent implements OnInit {
         };
 
         // Determine if this document type is required
-        const requirement = this.requiredDocuments().find(r => r.documentType === this.selectedDocumentType);
+        const requirement = this.requiredDocuments().find((r:any) => r.documentType === this.selectedDocumentType);
         const isRequired = requirement?.isRequired || false;
 
-        this.fileUploadService.file_UploadFile(
-            "Dependent",  // entityType
-            this.currentDependentId()!,  // entityId (dependent ID)
-            undefined,  // documentType (legacy)
-            this.selectedDocumentType,  // memberDocumentType
-            isRequired,  // isRequired flag
-            fileParameter
-        ).subscribe({
-            next: (result) => {
+        this.fileUploadService.postApiFileUploadFileUploadFile({
+            file: this.selectedFile!,
+            entityType: "Dependent",
+            entityId: this.currentDependentId()!,
+            documentType: this.selectedDocumentType?.toString(),
+            isRequired: isRequired
+        }).subscribe({
+            next: (result: any) => {
                 this.uploading.set(false);
                 this.messageService.add({
                     severity: 'success',
@@ -408,7 +403,7 @@ export class DependentsStepComponent implements OnInit {
                 this.selectedFile = undefined;
                 this.selectedDocumentType = undefined;
             },
-            error: (error) => {
+            error: (error: any) => {
                 this.uploading.set(false);
                 console.error('Upload error:', error);
                 this.messageService.add({
@@ -425,7 +420,8 @@ export class DependentsStepComponent implements OnInit {
      * Returns the incremental premium amount for the dependent
      */
     getPremiumImpact(dependent: DependentDto): number | null {
-        if (!dependent.calculatedAge && dependent.calculatedAge !== 0) {
+        const age = this.getCalculatedAge(dependent);
+        if (!age && age !== 0) {
             return null;
         }
 
@@ -439,7 +435,7 @@ export class DependentsStepComponent implements OnInit {
         }
 
         // Find the max age among all dependents (this will determine the premium bracket)
-        const maxAge = Math.max(...allDependents.map(d => d.calculatedAge || 0));
+        const maxAge = Math.max(...allDependents.map(d => this.getCalculatedAge(d) || 0));;
         
         // Calculate premium for all dependents vs without this dependent
         const premiumWithDependent = this.calculatePremiumForDependents(totalDependents, maxAge, this.coverAmount);
@@ -447,7 +443,7 @@ export class DependentsStepComponent implements OnInit {
         // Calculate what premium would be without this dependent
         const dependentsWithout = allDependents.filter(d => d.id !== dependent.id);
         const maxAgeWithout = dependentsWithout.length > 0 
-            ? Math.max(...dependentsWithout.map(d => d.calculatedAge || 0))
+            ? Math.max(...dependentsWithout.map(d => this.getCalculatedAge(d) || 0))
             : 0;
         const premiumWithoutDependent = this.calculatePremiumForDependents(
             Math.max(0, totalDependents - 1), 
@@ -506,7 +502,7 @@ export class DependentsStepComponent implements OnInit {
 
     deleteDependentDocument(fileId: string) {
         if (confirm('Are you sure you want to delete this document?')) {
-            this.fileUploadService.file_DeleteFile(fileId).subscribe({
+            this.fileUploadService.deleteApiFileUploadFileDeleteFileFileId(fileId).subscribe({
                 next: () => {
                     this.messageService.add({
                         severity: 'success',
@@ -517,7 +513,7 @@ export class DependentsStepComponent implements OnInit {
                         this.loadDependentDocuments(this.currentDependentId()!);
                     }
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error deleting document:', error);
                     this.messageService.add({
                         severity: 'error',
@@ -527,5 +523,17 @@ export class DependentsStepComponent implements OnInit {
                 }
             });
         }
+    }
+
+    getCalculatedAge(dependent: DependentDto): number | null {
+        if (!dependent.dateOfBirth) return null;
+        const dob = new Date(dependent.dateOfBirth);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        return age;
     }
 }

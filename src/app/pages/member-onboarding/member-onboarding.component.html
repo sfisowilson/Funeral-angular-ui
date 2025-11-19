@@ -31,11 +31,11 @@
                 
                 <div class="completion-percentage">
                     <p-progressBar 
-                        [value]="completionStatus()?.completionPercentage || 0"
+                        [value]="completionStatus()?.['completionPercentage'] || 0"
                         [showValue]="true">
                     </p-progressBar>
                     <span class="percentage-text">
-                        {{ completionStatus()?.completionPercentage || 0 }}% Complete
+                        {{ completionStatus()?.['completionPercentage'] || 0 }}% Complete
                     </span>
                 </div>
             </div>
@@ -90,14 +90,14 @@
                                         <div class="premium-breakdown">
                                             <h5>Breakdown</h5>
                                             <div class="breakdown-items">
-                                                @for (item of premiumCalculation()!.breakdown!; track item.category) {
+                                                @for (item of premiumCalculation()!.breakdown!; track getBreakdownItemValue(item, 'category')) {
                                                     <div class="breakdown-item">
-                                                        <span class="category">{{ item.category }}</span>
-                                                        <span class="amount">R{{ item.amount.toFixed(2) }}</span>
+                                                        <span class="category">{{ getBreakdownItemValue(item, 'category') }}</span>
+                                                        <span class="amount">R{{ getBreakdownItemValue(item, 'amount')?.toFixed?.(2) || '0.00' }}</span>
                                                     </div>
-                                                    @if (item.details) {
+                                                    @if (getBreakdownItemValue(item, 'details')) {
                                                         <div class="breakdown-details">
-                                                            <small>{{ item.details }}</small>
+                                                            <small>{{ getBreakdownItemValue(item, 'details') }}</small>
                                                         </div>
                                                     }
                                                 }
@@ -177,7 +177,7 @@
                                 <app-terms-step 
                                     [viewMode]="viewMode"
                                     [memberId]="memberId"
-                                    [hasAcceptedTerms]="completionStatus()?.hasAcceptedLatestTerms"
+                                    [hasAcceptedTerms]="!!completionStatus()?.['hasAcceptedLatestTerms']"
                                     (stepComplete)="onStepComplete()">
                                 </app-terms-step>
                             </div>
@@ -224,10 +224,10 @@
                         Previous
                     </button>
                     
-                    @if (completionStatus()?.nextStepRecommendation) {
+                    @if (completionStatus()?.['nextStepRecommendation']) {
                         <div class="next-step-hint">
                             <i class="pi pi-info-circle"></i>
-                            {{ completionStatus()?.nextStepRecommendation }}
+                            {{ completionStatus()?.['nextStepRecommendation'] }}
                         </div>
                     }
                     
@@ -297,7 +297,7 @@
                 <h3><i class="pi pi-table"></i> Base Premium - Policy Cover Table</h3>
                 <p class="mb-3">Base monthly premiums based on cover amount and dependent ages (1-5 dependents).</p>
                 
-                <p-table [value]="premiumSettings()!.policyCoverTable!.rows!" styleClass="p-datatable-sm">
+                <p-table [value]="getPolicyCoverRows()" styleClass="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Cover Amount</th>
@@ -322,7 +322,7 @@
                 <h3><i class="pi pi-users"></i> Extended Family Benefit Table</h3>
                 <p class="mb-3">Additional premium per dependent when their age exceeds the base bracket (age 75+).</p>
                 
-                <p-table [value]="premiumSettings()!.extendedFamilyTable!.rows!" styleClass="p-datatable-sm">
+                <p-table [value]="getExtendedFamilyRows()" styleClass="p-datatable-sm">
                     <ng-template pTemplate="header">
                         <tr>
                             <th>Age Range</th>

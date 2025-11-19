@@ -13,7 +13,9 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { FuneralEventServiceProxy, FuneralEventDto, FuneralEventStatus, ClaimServiceProxy } from '../../core/services/service-proxies';
+import { FuneralEventsService } from '../../core/services/generated/funeral-events/funeral-events.service';
+import { ClaimsService } from '../../core/services/generated/claims/claims.service';
+import { FuneralEventDto } from '../../core/models';
 import { DateTime } from 'luxon';
 
 @Component({
@@ -32,17 +34,17 @@ export class FuneralEventsComponent implements OnInit {
     eventDialog = signal(false);
     submitted = signal(false);
 
-    funeralEvent: Partial<FuneralEventDto> = {};
+    funeralEvent: Partial<FuneralEventDto> & { claimId?: string; notes?: string; status?: number } = {};
 
     statuses = [
-        { label: 'Status 0', value: FuneralEventStatus._0 },
-        { label: 'Status 1', value: FuneralEventStatus._1 },
-        { label: 'Status 2', value: FuneralEventStatus._2 }
+        { label: 'Status 0', value: 0 },
+        { label: 'Status 1', value: 1 },
+        { label: 'Status 2', value: 2 }
     ];
 
     constructor(
-        private funeralEventService: FuneralEventServiceProxy,
-        private claimService: ClaimServiceProxy,
+        private funeralEventService: FuneralEventsService,
+        private claimService: ClaimsService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -54,12 +56,12 @@ export class FuneralEventsComponent implements OnInit {
 
     loadFuneralEvents() {
         this.loading.set(true);
-        this.funeralEventService.funeralEvent_GetAllFuneralEvents(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => {
-                this.funeralEvents.set(data);
+        this.funeralEventService.getApiFuneralEventFuneralEventGetAllFuneralEvents<FuneralEventDto[]>().subscribe({
+            next: (data: any) => {
+                this.funeralEvents.set(data || []);
                 this.loading.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load funeral events' });
                 this.loading.set(false);
             }
@@ -67,14 +69,14 @@ export class FuneralEventsComponent implements OnInit {
     }
 
     loadClaims() {
-        this.claimService.claim_GetAllClaims(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => this.claims.set(data),
+        this.claimService.getApiClaimClaimGetAllClaims<any[]>().subscribe({
+            next: (data) => this.claims.set(data || []),
             error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load claims' })
         });
     }
 
     openNew() {
-        this.funeralEvent = { status: FuneralEventStatus._0 };
+        this.funeralEvent = { status: 0 };
         this.submitted.set(false);
         this.eventDialog.set(true);
     }
@@ -90,7 +92,7 @@ export class FuneralEventsComponent implements OnInit {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.funeralEventService.funeralEvent_DeleteFuneralEvent(event.id!).subscribe({
+                this.funeralEventService.deleteApiFuneralEventFuneralEventDeleteFuneralEventId(event.id!).subscribe({
                     next: () => {
                         this.loadFuneralEvents();
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Funeral Event Deleted' });
@@ -104,17 +106,17 @@ export class FuneralEventsComponent implements OnInit {
     saveEvent() {
         this.submitted.set(true);
 
-        if (this.funeralEvent.claimId && this.funeralEvent.eventDate) {
-            const eventDto = new FuneralEventDto();
-            eventDto.claimId = this.funeralEvent.claimId;
-            eventDto.eventDate = this.funeralEvent.eventDate;
-            eventDto.location = this.funeralEvent.location;
-            eventDto.notes = this.funeralEvent.notes;
-            eventDto.status = this.funeralEvent.status || FuneralEventStatus._0;
+        if (this.funeralEvent.eventName && this.funeralEvent.eventDate) {
+            const eventDto: FuneralEventDto = {
+                id: this.funeralEvent.id || '',
+                eventName: this.funeralEvent.eventName,
+                eventDate: this.funeralEvent.eventDate,
+                location: this.funeralEvent.location || '',
+                description: this.funeralEvent.description || ''
+            };
 
             if (this.funeralEvent.id) {
-                eventDto.id = this.funeralEvent.id;
-                this.funeralEventService.funeralEvent_UpdateFuneralEvent(eventDto.id, eventDto).subscribe({
+                this.funeralEventService.putApiFuneralEventFuneralEventUpdateFuneralEventId(eventDto.id, eventDto).subscribe({
                     next: () => {
                         this.loadFuneralEvents();
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Funeral Event Updated' });
@@ -123,7 +125,7 @@ export class FuneralEventsComponent implements OnInit {
                     error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update funeral event' })
                 });
             } else {
-                this.funeralEventService.funeralEvent_CreateFuneralEvent(eventDto).subscribe({
+                this.funeralEventService.postApiFuneralEventFuneralEventCreateFuneralEvent(eventDto).subscribe({
                     next: () => {
                         this.loadFuneralEvents();
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Funeral Event Created' });
@@ -140,13 +142,13 @@ export class FuneralEventsComponent implements OnInit {
         this.submitted.set(false);
     }
 
-    getSeverity(status: FuneralEventStatus): string {
+    getSeverity(status: number): string {
         switch (status) {
-            case FuneralEventStatus._0:
+            case 0:
                 return 'info';
-            case FuneralEventStatus._1:
+            case 1:
                 return 'warning';
-            case FuneralEventStatus._2:
+            case 2:
                 return 'success';
             default:
                 return 'secondary';

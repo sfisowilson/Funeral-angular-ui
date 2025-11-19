@@ -17,7 +17,8 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextarea } from 'primeng/inputtextarea';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { MemberDto, MemberServiceProxy, MemberStatus, CreateMemberDto } from '../../core/services/service-proxies';
+import { MembersService } from '../../core/services/generated/members/members.service';
+import { MemberDto, MemberStatus, CreateMemberDto } from '../../core/models';
 import { DependentsComponent } from '../dependents/dependents.component';
 import { BeneficiariesComponent } from '../beneficiaries/beneficiaries.component';
 
@@ -48,14 +49,14 @@ interface ExtendedMemberDto extends MemberDto {
         DependentsComponent, 
         BeneficiariesComponent
     ],
-    providers: [MessageService, ConfirmationService, MemberServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './member-management.component.html',
     styleUrls: ['./member-management.component.scss']
 })
 export class MemberManagementComponent implements OnInit {
     members: MemberDto[] = [];
     selectedMembers: MemberDto[] = [];
-    member: ExtendedMemberDto = new MemberDto();
+    member: ExtendedMemberDto = {} as MemberDto;
     memberDialog: boolean = false;
     dependentsDialog: boolean = false;
     beneficiariesDialog: boolean = false;
@@ -92,7 +93,7 @@ export class MemberManagementComponent implements OnInit {
     ];
 
     constructor(
-        private memberService: MemberServiceProxy,
+        private memberService: MembersService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private router: Router
@@ -116,13 +117,13 @@ export class MemberManagementComponent implements OnInit {
     loadMembers() {
         // Assuming a tenant context is available, for now, we'll fetch all members
         // In a real multi-tenant app, you'd pass a tenant ID to filter members
-        this.memberService.member_GetAllMembers(undefined, undefined, undefined, undefined, undefined).subscribe((result) => {
+        this.memberService.getApiMemberMemberGetAllMembers().subscribe((result) => {
             this.members = result;
         });
     }
 
     openNew() {
-        this.member = new MemberDto(); // Reset to an empty MemberDto for new entry
+        this.member = {} as MemberDto; // Reset to an empty MemberDto for new entry
         this.member.policyId = 'defaultPolicyId'; // TODO: Replace with actual policy ID
         // Initialize Phase 1 fields
         this.member.isReplacingExistingPolicy = false;
@@ -140,7 +141,7 @@ export class MemberManagementComponent implements OnInit {
             accept: () => {
                 const ids = this.selectedMembers.map((m) => m.id);
                 ids.forEach((id) => {
-                    this.memberService.member_DeleteMember(id).subscribe(() => {
+                    this.memberService.deleteApiMemberMemberDeleteMemberId(id).subscribe(() => {
                         this.members = this.members.filter((val) => val.id !== id);
                     });
                 });
@@ -151,7 +152,7 @@ export class MemberManagementComponent implements OnInit {
     }
 
     editMember(member: MemberDto) {
-        this.member = MemberDto.fromJS(member); // Cast to ExtendedMemberDto
+        this.member = { ...member } as ExtendedMemberDto;
         this.memberDialog = true;
     }
 
@@ -161,9 +162,9 @@ export class MemberManagementComponent implements OnInit {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.memberService.member_DeleteMember(member.id).subscribe(() => {
+                this.memberService.deleteApiMemberMemberDeleteMemberId(member.id).subscribe(() => {
                     this.members = this.members.filter((val) => val.id !== member.id);
-                    this.member = new MemberDto();
+                    this.member = {} as MemberDto;
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Member Deleted', life: 3000 });
                 });
             }
@@ -171,12 +172,12 @@ export class MemberManagementComponent implements OnInit {
     }
 
     manageDependents(member: MemberDto) {
-        this.member = MemberDto.fromJS(member); // Create a new instance of MemberDto
+        this.member = { ...member } as ExtendedMemberDto;
         this.dependentsDialog = true;
     }
 
     manageBeneficiaries(member: MemberDto) {
-        this.member = MemberDto.fromJS(member); // Create a new instance of MemberDto
+        this.member = { ...member } as ExtendedMemberDto;
         this.beneficiariesDialog = true;
     }
 
@@ -201,12 +202,12 @@ export class MemberManagementComponent implements OnInit {
         if (this.member.name?.trim()) {
             if (this.member.id) {
                 // Existing member
-                this.memberService.member_UpdateMember(this.member.id, this.member).subscribe((result) => {
+                this.memberService.putApiMemberMemberUpdateMemberId<MemberDto>(this.member.id, this.member).subscribe((result: MemberDto) => {
                     this.members[this.findIndexById(this.member.id!)] = result; // Use non-null assertion as ID exists for existing members
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Member Updated', life: 3000 });
                     this.members = [...this.members];
                     this.memberDialog = false;
-                    this.member = new MemberDto();
+                    this.member = {} as MemberDto;
                 });
             } else {
                 // New member
@@ -214,12 +215,11 @@ export class MemberManagementComponent implements OnInit {
                 if (!this.member.policyId) {
                     this.member.policyId = 'defaultPolicyId'; // Assign a default or handle as appropriate
                 }
-                const createMemberDto = CreateMemberDto.fromJS(this.member); // Convert MemberDto to CreateMemberDto
-                this.memberService.member_Create(createMemberDto).subscribe(() => {
+                this.memberService.postApiMemberMemberCreate<MemberDto>(this.member as any).subscribe(() => {
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Member Created', life: 3000 });
                     this.loadMembers();
                     this.memberDialog = false;
-                    this.member = new MemberDto();
+                    this.member = {} as MemberDto;
                 });
             }
         }
@@ -238,14 +238,16 @@ export class MemberManagementComponent implements OnInit {
 
     getMemberStatusText(status: MemberStatus): string {
         switch (status) {
-            case MemberStatus._0:
-                return 'Pending';
-            case MemberStatus._1:
+            case MemberStatus.PendingApproval:
+                return 'Pending Approval';
+            case MemberStatus.Active:
                 return 'Active';
-            case MemberStatus._2:
+            case MemberStatus.Suspended:
+                return 'Suspended';
+            case MemberStatus.Inactive:
                 return 'Inactive';
-            case MemberStatus._3:
-                return 'Deceased';
+            case MemberStatus.Rejected:
+                return 'Rejected';
             default:
                 return 'Unknown';
         }
@@ -253,16 +255,16 @@ export class MemberManagementComponent implements OnInit {
 
     getMemberStatusSeverity(status: MemberStatus): string {
         switch (status) {
-            case MemberStatus._0:
+            case MemberStatus.PendingApproval:
                 return 'warning';
-            case MemberStatus._1:
+            case MemberStatus.Active:
                 return 'success';
-            case MemberStatus._2:
+            case MemberStatus.Suspended:
                 return 'danger';
-            case MemberStatus._3:
-                return 'info';
+            case MemberStatus.Inactive:
+                return 'secondary';
             default:
-                return 'primary';
+                return 'info';
         }
     }
 }

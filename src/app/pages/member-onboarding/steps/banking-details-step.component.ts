@@ -7,11 +7,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { MemberBankingDetailService } from '../../../core/services/generated/member-banking-detail/member-banking-detail.service';
 import {
-  MemberBankingDetailServiceProxy,
-  CreateMemberBankingDetailDto,
-  MemberBankingDetailDto
-} from '../../../core/services/service-proxies';
+  PostApiMemberBankingDetailMemberBankingDetailCreateBankingDetailsBody,
+  GetApiMemberBankingDetailMemberBankingDetailGetMyBankingDetails200
+} from '../../../core/models';
 
 interface BankOption {
   label: string;
@@ -35,7 +35,7 @@ interface AccountTypeOption {
     InputNumberModule,
     ToastModule
   ],
-  providers: [MessageService, MemberBankingDetailServiceProxy],
+  providers: [MessageService],
   templateUrl: './banking-details-step.component.html',
   styleUrl: './banking-details-step.component.scss'
 })
@@ -46,7 +46,7 @@ export class BankingDetailsStepComponent implements OnInit {
   
   bankingForm!: FormGroup;
   loading = signal<boolean>(false);
-  existingBankingDetails = signal<MemberBankingDetailDto | null>(null);
+  existingBankingDetails = signal<GetApiMemberBankingDetailMemberBankingDetailGetMyBankingDetails200 | null>(null);
 
   banks: BankOption[] = [
     { label: 'ABSA', value: 'ABSA' },
@@ -71,7 +71,7 @@ export class BankingDetailsStepComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private bankingService: MemberBankingDetailServiceProxy,
+    private bankingService: MemberBankingDetailService,
     private messageService: MessageService
   ) {
     this.initializeForm();
@@ -110,24 +110,24 @@ export class BankingDetailsStepComponent implements OnInit {
     
     // Use appropriate method based on whether viewing own or another member's banking details
     const bankingObservable = this.memberId()
-        ? this.bankingService.memberBankingDetail_GetBankingDetailsByMemberId(this.memberId()!)
-        : this.bankingService.memberBankingDetail_GetMyBankingDetails();
+        ? this.bankingService.getApiMemberBankingDetailMemberBankingDetailGetBankingDetailsByMemberIdMemberId(this.memberId()!)
+        : this.bankingService.getApiMemberBankingDetailMemberBankingDetailGetMyBankingDetails();
     
     bankingObservable.subscribe({
-      next: (details) => {
+      next: (details: any) => {
         this.existingBankingDetails.set(details);
         this.bankingForm.patchValue({
-          bankName: details.bankName,
-          accountNumber: details.accountNumber,
-          accountType: details.accountType,
-          branchCode: details.branchCode,
-          branchName: details.branchName,
-          accountHolderName: details.accountHolderName,
-          debitDay: details.debitDay
+          bankName: details['bankName'],
+          accountNumber: details['accountNumber'],
+          accountType: details['accountType'],
+          branchCode: details['branchCode'],
+          branchName: details['branchName'],
+          accountHolderName: details['accountHolderName'],
+          debitDay: details['debitDay']
         });
         this.loading.set(false);
       },
-      error: (error) => {
+      error: (error: any) => {
         // If no banking details exist yet, that's fine
         if (error.status !== 404) {
           this.handleError(error);
@@ -150,7 +150,7 @@ export class BankingDetailsStepComponent implements OnInit {
 
     this.loading.set(true);
 
-    const dto = new CreateMemberBankingDetailDto({
+    const dto: PostApiMemberBankingDetailMemberBankingDetailCreateBankingDetailsBody = {
       bankName: this.bankingForm.value.bankName,
       accountNumber: this.bankingForm.value.bankName,
       accountType: this.bankingForm.value.accountType,
@@ -159,13 +159,13 @@ export class BankingDetailsStepComponent implements OnInit {
       accountHolderName: this.bankingForm.value.accountHolderName,
       debitDay: this.bankingForm.value.debitDay,
       paymentMethod: 1 // Default to Debit Order - TODO: Add payment method dropdown to form
-    });
+    };
 
     const existing = this.existingBankingDetails();
 
     if (existing) {
       // Update existing
-      this.bankingService.memberBankingDetail_UpdateBankingDetails(existing.id!, dto).subscribe({
+      this.bankingService.putApiMemberBankingDetailMemberBankingDetailUpdateBankingDetailsId((existing as any)['id']!, dto).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
@@ -175,11 +175,11 @@ export class BankingDetailsStepComponent implements OnInit {
           this.loading.set(false);
           this.stepComplete.emit();
         },
-        error: (error) => this.handleError(error)
+        error: (error: any) => this.handleError(error)
       });
     } else {
       // Create new
-      this.bankingService.memberBankingDetail_CreateBankingDetails(dto).subscribe({
+      this.bankingService.postApiMemberBankingDetailMemberBankingDetailCreateBankingDetails(dto).subscribe({
         next: () => {
           this.messageService.add({
             severity: 'success',
@@ -189,7 +189,7 @@ export class BankingDetailsStepComponent implements OnInit {
           this.loading.set(false);
           this.stepComplete.emit();
         },
-        error: (error) => this.handleError(error)
+        error: (error: any) => this.handleError(error)
       });
     }
   }

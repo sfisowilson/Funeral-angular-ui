@@ -12,7 +12,8 @@ import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { BeneficiaryDto, BeneficiaryServiceProxy } from '../../core/services/service-proxies';
+import { BeneficiariesService } from '../../core/services/generated/beneficiaries/beneficiaries.service';
+import { BeneficiaryDto } from '../../core/models';
 import { IdentityVerificationFormComponent } from '../../shared/components/identity-verification/identity-verification-form.component';
 import { VerificationStatusComponent } from '../../shared/components/verification-status/verification-status.component';
 
@@ -35,21 +36,21 @@ import { VerificationStatusComponent } from '../../shared/components/verificatio
         IdentityVerificationFormComponent,
         VerificationStatusComponent
     ],
-    providers: [MessageService, ConfirmationService, BeneficiaryServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './beneficiaries.component.html'
 })
 export class BeneficiariesComponent implements OnInit, OnChanges {
     @Input() memberId!: string;
     beneficiaries: BeneficiaryDto[] = [];
     selectedBeneficiaries: BeneficiaryDto[] = [];
-    beneficiary: BeneficiaryDto = new BeneficiaryDto();
+    beneficiary: BeneficiaryDto = {} as BeneficiaryDto;
     beneficiaryDialog: boolean = false;
     verificationDialog: boolean = false;
     submitted: boolean = false;
     cols: any[] = [];
 
     constructor(
-        private beneficiaryService: BeneficiaryServiceProxy,
+        private beneficiaryService: BeneficiariesService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -73,7 +74,7 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
 
     loadBeneficiaries() {
         if (this.memberId) {
-            this.beneficiaryService.beneficiary_GetAllBeneficiaries(this.memberId, undefined, undefined, undefined, undefined).subscribe((result) => {
+            this.beneficiaryService.getApiBeneficiaryBeneficiaryGetBeneficiariesByMemberIdMemberId(this.memberId).subscribe((result) => {
                 this.beneficiaries = result;
             });
         }
@@ -84,7 +85,7 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
     }
 
     openNew() {
-        this.beneficiary = new BeneficiaryDto();
+        this.beneficiary = {} as BeneficiaryDto;
         this.submitted = false;
         this.beneficiaryDialog = true;
     }
@@ -97,7 +98,7 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
             accept: () => {
                 const ids = this.selectedBeneficiaries.map((b) => b.id);
                 ids.forEach((id) => {
-                    this.beneficiaryService.beneficiary_DeleteBeneficiary(id).subscribe(() => {
+                    this.beneficiaryService.deleteApiBeneficiaryBeneficiaryDeleteBeneficiaryId(id).subscribe(() => {
                         this.beneficiaries = this.beneficiaries.filter((val) => val.id !== id);
                     });
                 });
@@ -108,7 +109,7 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
     }
 
     editBeneficiary(beneficiary: BeneficiaryDto) {
-        this.beneficiary = new BeneficiaryDto(beneficiary);
+        this.beneficiary = { ...beneficiary } as BeneficiaryDto;
         this.beneficiaryDialog = true;
     }
 
@@ -118,9 +119,9 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.beneficiaryService.beneficiary_DeleteBeneficiary(beneficiary.id).subscribe(() => {
+                this.beneficiaryService.deleteApiBeneficiaryBeneficiaryDeleteBeneficiaryId(beneficiary.id).subscribe(() => {
                     this.beneficiaries = this.beneficiaries.filter((val) => val.id !== beneficiary.id);
-                    this.beneficiary = new BeneficiaryDto();
+                    this.beneficiary = {} as BeneficiaryDto;
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Beneficiary Deleted', life: 3000 });
                 });
             }
@@ -137,29 +138,29 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
 
         if (this.beneficiary.name?.trim()) {
             if (this.beneficiary.id) {
-                this.beneficiaryService.beneficiary_UpdateBeneficiary(this.beneficiary).subscribe((result) => {
+                this.beneficiaryService.putApiBeneficiaryBeneficiaryUpdateBeneficiary(this.beneficiary).subscribe((result) => {
                     this.beneficiaries[this.findIndexById(this.beneficiary.id)] = result;
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Beneficiary Updated', life: 3000 });
                     this.beneficiaries = [...this.beneficiaries];
                     this.beneficiaryDialog = false;
-                    this.beneficiary = new BeneficiaryDto();
+                    this.beneficiary = {} as BeneficiaryDto;
                 });
             } else {
                 // This is incorrect, but will be fixed later
-                this.beneficiaryService.beneficiary_CreateBeneficiary(this.beneficiary).subscribe((success) => {
+                this.beneficiaryService.postApiBeneficiaryBeneficiaryCreateBeneficiary(this.beneficiary).subscribe((success) => {
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Beneficiary Created', life: 3000 });
                     this.loadBeneficiaries();
                     this.beneficiaryDialog = false;
 
                     // Prompt for identity verification for new beneficiaries
                     if (success && this.beneficiary.identificationNumber) {
-                        const beneficiaryForVerification = new BeneficiaryDto(this.beneficiary);
+                        const beneficiaryForVerification = { ...this.beneficiary } as BeneficiaryDto;
                         setTimeout(() => {
                             this.beneficiary = beneficiaryForVerification;
                             this.openVerificationDialog();
                         }, 500);
                     } else {
-                        this.beneficiary = new BeneficiaryDto();
+                        this.beneficiary = {} as BeneficiaryDto;
                     }
                 });
             }
@@ -167,7 +168,7 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
     }
 
     verifyBeneficiaryIdentity(beneficiary: BeneficiaryDto) {
-        this.beneficiary = new BeneficiaryDto(beneficiary);
+        this.beneficiary = { ...beneficiary } as BeneficiaryDto;
         this.openVerificationDialog();
     }
 
@@ -177,7 +178,7 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
 
     closeVerificationDialog() {
         this.verificationDialog = false;
-        this.beneficiary = new BeneficiaryDto();
+        this.beneficiary = {} as BeneficiaryDto;
     }
 
     onVerificationComplete(result: any) {

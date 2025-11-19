@@ -11,12 +11,26 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { 
-    RequiredDocumentServiceProxy,
-    RequiredDocumentDto,
-    RequiredDocumentType,
-    RequiredDocumentEntityType
-} from '../../../core/services/service-proxies';
+import { RequiredDocumentService } from '../../../core/services/generated/required-document/required-document.service';
+import { RequiredDocumentDto } from '../../../core/models';
+
+// TODO: Move to backend when migrated
+export enum RequiredDocumentType {
+    _0 = 0, // Member ID Document
+    _1 = 1, // Member Proof of Address
+    _2 = 2, // Dependent ID Document
+    _3 = 3, // Dependent Birth Certificate
+    _4 = 4, // Beneficiary ID Document
+    _5 = 5, // Policy Document
+    _6 = 6  // Other
+}
+
+export enum RequiredDocumentEntityType {
+    _0 = 0, // Member
+    _1 = 1, // Dependent
+    _2 = 2, // Beneficiary
+    _3 = 3  // Policy
+}
 
 @Component({
     selector: 'app-required-documents',
@@ -34,7 +48,7 @@ import {
         ToastModule,
         ConfirmDialogModule
     ],
-    providers: [MessageService, ConfirmationService, RequiredDocumentServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './required-documents.component.html',
     styleUrl: './required-documents.component.scss'
 })
@@ -44,7 +58,7 @@ export class RequiredDocumentsComponent implements OnInit {
     showDialog = signal(false);
     isEditMode = signal(false);
     
-    currentDocument: RequiredDocumentDto = new RequiredDocumentDto();
+    currentDocument: RequiredDocumentDto = {} as RequiredDocumentDto;
 
     documentTypeOptions = [
         { label: 'Member ID Document', value: RequiredDocumentType._0 },
@@ -64,7 +78,7 @@ export class RequiredDocumentsComponent implements OnInit {
     ];
 
     constructor(
-        private requiredDocService: RequiredDocumentServiceProxy,
+        private requiredDocService: RequiredDocumentService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
@@ -75,12 +89,12 @@ export class RequiredDocumentsComponent implements OnInit {
 
     loadDocuments() {
         this.loading.set(true);
-        this.requiredDocService.requiredDocument_GetAll().subscribe({
+        this.requiredDocService.getRequiredDocumentRequiredDocumentGetAll().subscribe({
             next: (result) => {
                 this.documents.set(result);
                 this.loading.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading required documents:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -93,22 +107,28 @@ export class RequiredDocumentsComponent implements OnInit {
     }
 
     openNewDialog() {
-        this.currentDocument = new RequiredDocumentDto({
+        this.currentDocument = {
             id: '00000000-0000-0000-0000-000000000000',
+            tenantId: '',
             documentName: '',
             description: '',
-            documentType: RequiredDocumentType._6,
-            entityType: RequiredDocumentEntityType._0,
+            documentType: RequiredDocumentType._6.toString(),
+            entityType: RequiredDocumentEntityType._0.toString(),
             isRequired: true,
+            isActive: true,
             allowedFileTypes: 'pdf,jpg,jpeg,png',
-            maxFileSizeBytes: 5242880 // 5MB
-        });
+            maxFileSizeBytes: 5242880, // 5MB
+            createdBy: '',
+            updatedBy: '',
+            createdAt: new Date() as any,
+            updatedAt: new Date() as any
+        } as RequiredDocumentDto;
         this.isEditMode.set(false);
         this.showDialog.set(true);
     }
 
     editDocument(doc: RequiredDocumentDto) {
-        this.currentDocument = RequiredDocumentDto.fromJS(doc.toJSON());
+        this.currentDocument = { ...doc };
         this.isEditMode.set(true);
         this.showDialog.set(true);
     }
@@ -126,7 +146,7 @@ export class RequiredDocumentsComponent implements OnInit {
         this.loading.set(true);
         
         if (this.isEditMode()) {
-            this.requiredDocService.requiredDocument_Update(this.currentDocument).subscribe({
+            this.requiredDocService.putRequiredDocumentRequiredDocumentUpdate(this.currentDocument).subscribe({
                 next: (result) => {
                     this.messageService.add({
                         severity: 'success',
@@ -136,7 +156,7 @@ export class RequiredDocumentsComponent implements OnInit {
                     this.showDialog.set(false);
                     this.loadDocuments();
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error saving document:', error);
                     this.messageService.add({
                         severity: 'error',
@@ -147,7 +167,7 @@ export class RequiredDocumentsComponent implements OnInit {
                 }
             });
         } else {
-            this.requiredDocService.requiredDocument_Create(this.currentDocument).subscribe({
+            this.requiredDocService.postRequiredDocumentRequiredDocumentCreate(this.currentDocument).subscribe({
                 next: (result) => {
                     this.messageService.add({
                         severity: 'success',
@@ -157,7 +177,7 @@ export class RequiredDocumentsComponent implements OnInit {
                     this.showDialog.set(false);
                     this.loadDocuments();
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error saving document:', error);
                     this.messageService.add({
                         severity: 'error',
@@ -177,7 +197,7 @@ export class RequiredDocumentsComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.loading.set(true);
-                this.requiredDocService.requiredDocument_Delete(doc.id).subscribe({
+                this.requiredDocService.deleteRequiredDocumentRequiredDocumentDeleteId(doc.id).subscribe({
                     next: () => {
                         this.messageService.add({
                             severity: 'success',
@@ -186,7 +206,7 @@ export class RequiredDocumentsComponent implements OnInit {
                         });
                         this.loadDocuments();
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error deleting document:', error);
                         this.messageService.add({
                             severity: 'error',

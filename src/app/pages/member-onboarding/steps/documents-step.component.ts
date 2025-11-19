@@ -9,17 +9,17 @@ import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { FileUploadsService } from '../../../core/services/generated/file-uploads/file-uploads.service';
+import { RequiredDocumentService } from '../../../core/services/generated/required-document/required-document.service';
+import { DocumentRequirementsService } from '../../../core/services/generated/document-requirements/document-requirements.service';
 import { 
-    FileUploadServiceProxy,
-    RequiredDocumentServiceProxy,
     RequiredDocumentDto,
     FileMetadataDto,
-    DocumentRequirementServiceProxy,
     DocumentRequirement,
     DocumentComplianceStatus,
     MemberDocumentType,
     DocumentVerificationStatus
-} from '../../../core/services/service-proxies';
+} from '../../../core/models';
 import { AuthService } from '../../../auth/auth-service';
 
 interface DocumentUpload {
@@ -43,10 +43,7 @@ interface DocumentUpload {
         ToastModule
     ],
     providers: [
-        MessageService,
-        FileUploadServiceProxy,
-        RequiredDocumentServiceProxy,
-        DocumentRequirementServiceProxy
+        MessageService
     ],
     templateUrl: './documents-step.component.html',
     styleUrl: './documents-step.component.scss'
@@ -71,21 +68,21 @@ export class DocumentsStepComponent implements OnInit {
 
     // Phase 4: MemberDocumentType enum mapping
     documentTypes = [
-        { label: 'ID Document / Passport', value: MemberDocumentType._1, icon: 'pi-id-card', description: 'South African ID or International Passport' },
-        { label: 'Proof of Residential Address', value: MemberDocumentType._2, icon: 'pi-home', description: 'Utility bill, bank statement, or lease agreement' },
-        { label: 'Marriage Certificate', value: MemberDocumentType._3, icon: 'pi-heart', description: 'Required if you have a spouse dependent' },
-        { label: 'Valid Passport', value: MemberDocumentType._4, icon: 'pi-globe', description: 'Required for foreign nationals' },
-        { label: 'Work Permit / Visa', value: MemberDocumentType._5, icon: 'pi-briefcase', description: 'Required for foreign nationals in South Africa' },
-        { label: 'Birth Certificate', value: MemberDocumentType._6, icon: 'pi-user', description: 'Optional supporting document' },
-        { label: 'Death Certificate', value: MemberDocumentType._7, icon: 'pi-file', description: 'For claims processing' },
-        { label: 'Banking Document', value: MemberDocumentType._8, icon: 'pi-money-bill', description: 'Bank account details' },
-        { label: 'Other Document', value: MemberDocumentType._99, icon: 'pi-file', description: 'Any other supporting document' }
+        { label: 'ID Document / Passport', value: MemberDocumentType.IdentificationDocument, icon: 'pi-id-card', description: 'South African ID or International Passport' },
+        { label: 'Proof of Residential Address', value: MemberDocumentType.ProofOfAddress, icon: 'pi-home', description: 'Utility bill, bank statement, or lease agreement' },
+        { label: 'Marriage Certificate', value: MemberDocumentType.MarriageCertificate, icon: 'pi-heart', description: 'Required if you have a spouse dependent' },
+        { label: 'Valid Passport', value: MemberDocumentType.Passport, icon: 'pi-globe', description: 'Required for foreign nationals' },
+        { label: 'Work Permit / Visa', value: MemberDocumentType.WorkPermit, icon: 'pi-briefcase', description: 'Required for foreign nationals in South Africa' },
+        { label: 'Birth Certificate', value: MemberDocumentType.BirthCertificate, icon: 'pi-user', description: 'Optional supporting document' },
+        { label: 'Death Certificate', value: MemberDocumentType.DeathCertificate, icon: 'pi-file', description: 'For claims processing' },
+        { label: 'Banking Document', value: MemberDocumentType.BankingDocument, icon: 'pi-money-bill', description: 'Bank account details' },
+        { label: 'Other Document', value: MemberDocumentType.Other, icon: 'pi-file', description: 'Any other supporting document' }
     ];
 
     constructor(
-        private requiredDocumentService: RequiredDocumentServiceProxy,
-        private fileUploadService: FileUploadServiceProxy,
-        private documentRequirementService: DocumentRequirementServiceProxy,
+        private requiredDocumentService: RequiredDocumentService,
+        private fileUploadService: FileUploadsService,
+        private documentRequirementService: DocumentRequirementsService,
         private messageService: MessageService,
         public authService: AuthService
     ) {
@@ -123,7 +120,7 @@ export class DocumentsStepComponent implements OnInit {
         }
 
         // Phase 4: Use new DocumentRequirementService to get conditional requirements
-        this.documentRequirementService.documentRequirement_GetRequiredDocuments(memberId).subscribe({
+        this.documentRequirementService.getApiDocumentRequirementDocumentRequirementGetRequiredDocumentsMemberId(memberId).subscribe({
             next: (data: DocumentRequirement[]) => {
                 console.log('[Phase 4] Required documents loaded:', data);
                 this.requiredDocuments.set(data);
@@ -146,7 +143,7 @@ export class DocumentsStepComponent implements OnInit {
         if (!memberId) return;
 
         // Phase 4: Get comprehensive compliance status
-        this.documentRequirementService.documentRequirement_GetComplianceStatus(memberId).subscribe({
+        this.documentRequirementService.getApiDocumentRequirementsGetComplianceStatusMemberId(memberId).subscribe({
             next: (status: DocumentComplianceStatus) => {
                 console.log('[Phase 4] Compliance status:', status);
                 this.complianceStatus.set(status);
@@ -162,17 +159,17 @@ export class DocumentsStepComponent implements OnInit {
         
         // Use appropriate method based on whether viewing own or another member's files
         const filesObservable = this.memberId
-            ? this.fileUploadService.file_GetFilesByMemberId(this.memberId)
-            : this.fileUploadService.file_GetMyFiles();
+            ? this.fileUploadService.getApiFileUploadGetFilesByMemberIdMemberId(this.memberId)
+            : this.fileUploadService.getApiFileUploadGetMyFiles();
         
-        filesObservable.subscribe({
+        (filesObservable as any).subscribe({
             next: (files: FileMetadataDto[]) => {
                 console.log('[DocumentsStep] Received files from server:', files);
-                const fileDtos = files.map(f => {
+                const fileDtos = files.map((f: any) => {
                     // Use description (document type like "IdDocument") for display
                     // The backend stores document type in the Description field
-                    if (f.description) {
-                        f.entityType = f.description;
+                    if (f['description']) {
+                        f['entityType'] = f['description'];
                     }
                     return f;
                 });
@@ -193,8 +190,8 @@ export class DocumentsStepComponent implements OnInit {
     checkCompletion() {
         const files = this.uploadedDocuments();
         // At minimum, user should upload an ID document
-        const hasIdDocument = files.some(f => 
-            f.entityType?.toLowerCase().includes('id') || 
+        const hasIdDocument = files.some((f: any) => 
+            f['entityType']?.toLowerCase().includes('id') || 
             f.fileName?.toLowerCase().includes('id')
         );
         
@@ -240,25 +237,18 @@ export class DocumentsStepComponent implements OnInit {
 
         this.uploading.set(true);
 
-        // Use the generated service proxy for proper authentication and base URL handling
-        const fileParameter = {
-            data: this.currentUpload.file,
-            fileName: this.currentUpload.file.name
-        };
-
         // Phase 4: Check if this document type is required
-        const requirement = this.requiredDocuments().find(r => r.documentType === this.currentUpload.documentType);
+        const requirement = this.requiredDocuments().find(r => r['documentType'] === String(this.currentUpload.documentType));
         const isRequired = requirement?.isRequired || false;
 
         // Phase 4: Upload with MemberDocumentType and isRequired flag
-        this.fileUploadService.file_UploadFile(
-            "Member",  // entityType must be "Member"
-            memberId,  // entityId must be the current user's ID
-            undefined, // documentType (legacy field - can be undefined)
-            this.currentUpload.documentType, // Phase 4: memberDocumentType (enum value)
-            isRequired, // Phase 4: isRequired flag
-            fileParameter // file data
-        ).subscribe({
+        this.fileUploadService.postApiFileUploadFileUploadFile({
+            file: this.currentUpload.file,
+            entityType: "Member",
+            entityId: memberId,
+            memberDocumentType: this.currentUpload.documentType,
+            isRequired: isRequired
+        }).subscribe({
             next: (result: FileMetadataDto) => {
                 this.uploading.set(false);
                 const docLabel = this.getDocumentTypeLabel(this.currentUpload.documentType!);
@@ -298,13 +288,13 @@ export class DocumentsStepComponent implements OnInit {
 
     getVerificationStatusInfo(status: DocumentVerificationStatus | undefined) {
         switch (status) {
-            case DocumentVerificationStatus._0: // Pending
+            case DocumentVerificationStatus.Pending:
                 return { label: 'Pending Verification', severity: 'info', icon: 'pi-clock' };
-            case DocumentVerificationStatus._1: // Approved
+            case DocumentVerificationStatus.Approved:
                 return { label: 'Approved', severity: 'success', icon: 'pi-check-circle' };
-            case DocumentVerificationStatus._2: // Rejected
+            case DocumentVerificationStatus.Rejected:
                 return { label: 'Rejected', severity: 'danger', icon: 'pi-times-circle' };
-            case DocumentVerificationStatus._3: // RequiresResubmission
+            case DocumentVerificationStatus.RequiresResubmission:
                 return { label: 'Requires Resubmission', severity: 'warning', icon: 'pi-refresh' };
             default:
                 return { label: 'Unknown', severity: 'secondary', icon: 'pi-question-circle' };
@@ -317,6 +307,6 @@ export class DocumentsStepComponent implements OnInit {
 
     getSelectedDocumentRequirement(): DocumentRequirement | undefined {
         if (!this.currentUpload.documentType) return undefined;
-        return this.requiredDocuments().find(r => r.documentType === this.currentUpload.documentType);
+        return this.requiredDocuments().find(r => r['documentType'] === String(this.currentUpload.documentType));
     }
 }

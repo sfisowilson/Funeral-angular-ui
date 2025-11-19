@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { PolicyDto, PolicyServiceProxy } from '../../../core/services/service-proxies';
+import { PoliciesService } from '../../../core/services/generated/policies/policies.service';
+import { PolicyDto } from '../../../core/models';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -14,7 +15,7 @@ import { TenantSettingsService } from '../../../core/services/tenant-settings.se
     selector: 'app-policy-selection-modal',
     standalone: true,
     imports: [CommonModule, DividerModule, ButtonModule, RippleModule, TableModule, RadioButtonModule, FormsModule],
-    providers: [PolicyServiceProxy, TenantSettingsService],
+    providers: [TenantSettingsService],
     templateUrl: './policy-selection-modal.component.html',
     styleUrls: ['./policy-selection-modal.component.scss']
 })
@@ -27,7 +28,7 @@ export class PolicySelectionModalComponent implements OnInit {
     constructor(
         public ref: DynamicDialogRef,
         public config: DynamicDialogConfig,
-        private policyService: PolicyServiceProxy,
+        private policyService: PoliciesService,
         private tenantSettingsService: TenantSettingsService
     ) {}
 
@@ -41,12 +42,12 @@ export class PolicySelectionModalComponent implements OnInit {
             }
 
             // Load policies
-            this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe({
-                next: (policies) => {
-                    this.policies = policies;
+            this.policyService.getApiPolicyPolicyGetAllPolicies<PolicyDto[]>().subscribe({
+                next: (policies: PolicyDto[]) => {
+                    this.policies = policies || [];
                     this.loading = false;
                 },
-                error: (error) => {
+                error: (error: any) => {
                     console.error('Error loading policies:', error);
                     this.loading = false;
                 }
@@ -73,5 +74,12 @@ export class PolicySelectionModalComponent implements OnInit {
 
     cancelSelection() {
         this.ref.close(null);
+    }
+
+    formatCurrency(amount: number): string {
+        return new Intl.NumberFormat('en-ZA', { 
+            style: 'currency', 
+            currency: this.currency || 'ZAR' 
+        }).format(amount);
     }
 }

@@ -10,18 +10,16 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { TagModule } from 'primeng/tag';
 import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
-import { 
-    MemberProfileCompletionServiceProxy,
-    ProfileCompletionStatusDto,
-    UpdateProfileCompletionStepDto,
-    PremiumCalculationServiceProxy,
+import { MemberProfileCompletionService } from '../../core/services/generated/member-profile-completion/member-profile-completion.service';
+import { PremiumCalculationService } from '../../core/services/generated/premium-calculation/premium-calculation.service';
+import { OnboardingFieldConfigurationService } from '../../core/services/generated/onboarding-field-configuration/onboarding-field-configuration.service';
+import { DocumentRequirementsService } from '../../core/services/generated/document-requirements/document-requirements.service';
+import {
+    GetApiMemberProfileCompletionProfileCompletionGetStatusMemberId200,
+    PostApiMemberProfileCompletionProfileCompletionUpdateStepBody,
     PremiumCalculationResultDto,
-    PremiumCalculationSettingsDto,
-    OnboardingFieldConfigurationServiceProxy,
-    DocumentRequirementServiceProxy,
-    UserProfileServiceProxy,
-    UserProfileDto
-} from '../../core/services/service-proxies';
+    PremiumCalculationSettingsDto
+} from '../../core/models';
 import { PersonalInfoStepComponent } from './steps/personal-info-step.component';
 import { BeneficiariesStepComponent } from './steps/beneficiaries-step.component';
 import { DependentsStepComponent } from './steps/dependents-step.component';
@@ -49,8 +47,7 @@ import { SummaryStepComponent } from './steps/summary-step/summary-step.componen
         TermsStepComponent,
         SummaryStepComponent
     ],
-    providers: [MessageService, MemberProfileCompletionServiceProxy, PremiumCalculationServiceProxy,
-        OnboardingFieldConfigurationServiceProxy, DocumentRequirementServiceProxy, UserProfileServiceProxy],
+    providers: [MessageService],
     templateUrl: './member-onboarding.component.html',
     styleUrl: './member-onboarding.component.scss'
 })
@@ -66,7 +63,7 @@ export class MemberOnboardingComponent implements OnInit {
     @ViewChild(SummaryStepComponent) summaryStep?: SummaryStepComponent;
 
     activeStep = signal(0);
-    completionStatus = signal<ProfileCompletionStatusDto | null>(null);
+    completionStatus = signal<GetApiMemberProfileCompletionProfileCompletionGetStatusMemberId200 | null>(null);
     loading = signal(false);
     refreshing = signal(false); // Separate state for silent refreshes
     initialLoadComplete = false;
@@ -77,7 +74,7 @@ export class MemberOnboardingComponent implements OnInit {
     showPremium = signal(false); // Show premium on dependents and beneficiaries steps
     
     // Member profile and premium settings
-    memberProfile = signal<UserProfileDto | null>(null);
+    memberProfile = signal<any>(null); // TODO: Create UserProfileDto when profile service is implemented
     premiumSettings = signal<PremiumCalculationSettingsDto | null>(null);
     showPremiumSettingsDialog = signal(false);
     loadingSettings = signal(false);
@@ -93,9 +90,8 @@ export class MemberOnboardingComponent implements OnInit {
     ]);
 
     constructor(
-        private profileService: MemberProfileCompletionServiceProxy,
-        private premiumService: PremiumCalculationServiceProxy,
-        private userProfileService: UserProfileServiceProxy,
+        private profileService: MemberProfileCompletionService,
+        private premiumService: PremiumCalculationService,
         private messageService: MessageService,
         private router: Router,
         private route: ActivatedRoute
@@ -135,8 +131,8 @@ export class MemberOnboardingComponent implements OnInit {
         
         // Use appropriate method based on whether viewing own or another member's onboarding
         const statusObservable = this.memberId 
-            ? this.profileService.profileCompletion_GetStatus(this.memberId)
-            : this.profileService.profileCompletion_GetMyStatus();
+            ? this.profileService.getApiMemberProfileCompletionProfileCompletionGetStatusMemberId(this.memberId)
+            : this.profileService.getApiMemberProfileCompletionProfileCompletionGetMyStatus();
         
         statusObservable.subscribe({
             next: (status) => {
@@ -149,7 +145,7 @@ export class MemberOnboardingComponent implements OnInit {
                 this.loading.set(false);
                 this.refreshing.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error loading profile status:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -162,13 +158,14 @@ export class MemberOnboardingComponent implements OnInit {
         });
     }
 
-    determineActiveStep(status: ProfileCompletionStatusDto) {
+    determineActiveStep(status: GetApiMemberProfileCompletionProfileCompletionGetStatusMemberId200) {
         // Step 0: Personal Information (with documents)
-        if (!status.profileCompletion?.hasDependents) {
+        const pc = (status as any)['profileCompletion'];
+        if (!pc?.['hasDependents']) {
             this.activeStep.set(1); // Dependents
-        } else if (!status.profileCompletion?.hasBeneficiaries) {
+        } else if (!pc?.['hasBeneficiaries']) {
             this.activeStep.set(2); // Beneficiaries
-        } else if (!status.profileCompletion?.hasAcceptedTerms) {
+        } else if (!pc?.['hasAcceptedTerms']) {
             this.activeStep.set(4); // Banking is step 3, Terms is step 4
         } else {
             // If all previous steps are complete, go to Summary & Signature (step 5)
@@ -178,7 +175,8 @@ export class MemberOnboardingComponent implements OnInit {
 
     canProceedToNextStep(): boolean {
         const status = this.completionStatus();
-        if (!status?.profileCompletion) return false;
+        const pc = (status as any)?.['profileCompletion'];
+        if (!pc) return false;
 
         switch (this.activeStep()) {
             case 0:
@@ -186,16 +184,16 @@ export class MemberOnboardingComponent implements OnInit {
                 return true; // For now, allow proceeding (validation in component)
             case 1:
                 // Dependents
-                return status.profileCompletion.hasDependents;
+                return pc['hasDependents'];
             case 2:
                 // Beneficiaries
-                return status.profileCompletion.hasBeneficiaries;
+                return pc['hasBeneficiaries'];
             case 3:
                 // Banking details step - optional, can always proceed
                 return true;
             case 4:
                 // Terms & Conditions
-                return status.profileCompletion.hasAcceptedTerms;
+                return pc['hasAcceptedTerms'];
             case 5:
                 // Summary & Signature step - requires signature
                 return true;
@@ -227,23 +225,24 @@ export class MemberOnboardingComponent implements OnInit {
         }
 
         // For forward navigation, check if steps are completed
-        if (stepIndex === 1 && status.profileCompletion?.hasDependents) {
+        const pc = (status as any)['profileCompletion'];
+        if (stepIndex === 1 && pc?.['hasDependents']) {
             this.activeStep.set(stepIndex);
-        } else if (stepIndex === 2 && status.profileCompletion?.hasBeneficiaries) {
+        } else if (stepIndex === 2 && pc?.['hasBeneficiaries']) {
             this.activeStep.set(stepIndex);
         } else if (stepIndex === 3) {
             // Banking is optional, can always navigate if prior steps done
-            if (status.profileCompletion?.hasBeneficiaries) {
+            if (pc?.['hasBeneficiaries']) {
                 this.activeStep.set(stepIndex);
             }
-        } else if (stepIndex === 4 && status.profileCompletion?.hasAcceptedTerms) {
+        } else if (stepIndex === 4 && pc?.['hasAcceptedTerms']) {
             this.activeStep.set(stepIndex);
         } else if (stepIndex === 5) {
             // Summary step - can navigate if terms accepted
-            if (status.profileCompletion?.hasAcceptedTerms) {
+            if (pc?.['hasAcceptedTerms']) {
                 this.activeStep.set(stepIndex);
             }
-        } else if (stepIndex === 6 && status.isComplete) {
+        } else if (stepIndex === 6 && status['isComplete']) {
             this.activeStep.set(stepIndex);
         }
     }
@@ -251,7 +250,7 @@ export class MemberOnboardingComponent implements OnInit {
     onStepComplete() {
         console.log('[OnStepComplete] Event triggered, recalculating profile and premium...');
         // First recalculate the profile status based on actual data
-        this.profileService.profileCompletion_RecalculateMy().subscribe({
+        this.profileService.postApiMemberProfileCompletionProfileCompletionRecalculateMy().subscribe({
             next: () => {
                 console.log('[OnStepComplete] Profile recalculated, reloading premium...');
                 // Then reload profile status silently (no spinner)
@@ -264,7 +263,7 @@ export class MemberOnboardingComponent implements OnInit {
                     console.log('[OnStepComplete] Skipping premium calculation - showPremium:', this.showPremium(), 'viewMode:', this.viewMode);
                 }
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error recalculating profile status:', error);
                 // Still try to reload even if recalculation fails
                 this.loadProfileStatus(false);
@@ -275,13 +274,13 @@ export class MemberOnboardingComponent implements OnInit {
     loadPremiumCalculation() {
         console.log('[LoadPremiumCalculation] Fetching latest premium from API...');
         this.loadingPremium.set(true);
-        this.premiumService.premiumCalculation_GetMyPremium().subscribe({
+        this.premiumService.getApiPremiumCalculationPremiumCalculationGetMyPremium().subscribe({
             next: (result) => {
                 console.log('[LoadPremiumCalculation] Premium received:', result);
                 this.premiumCalculation.set(result);
                 this.loadingPremium.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('[LoadPremiumCalculation] Error calculating premium:', error);
                 this.loadingPremium.set(false);
                 // Don't show error toast, just silently fail (premium might not be configured yet)
@@ -290,26 +289,28 @@ export class MemberOnboardingComponent implements OnInit {
     }
 
     loadMemberProfile() {
-        this.userProfileService.userProfile_GetCurrentUserProfile().subscribe({
-            next: (profile) => {
-                console.log('[MemberOnboarding] Member profile loaded:', profile);
-                this.memberProfile.set(profile);
-            },
-            error: (error) => {
-                console.error('[MemberOnboarding] Error loading member profile:', error);
-            }
-        });
+        // TODO: Implement when UserProfileService is available in backend
+        console.log('[MemberOnboarding] UserProfileService not yet implemented in backend');
+        // this.userProfileService.userProfile_GetCurrentUserProfile().subscribe({
+        //     next: (profile: any) => {
+        //         console.log('[MemberOnboarding] Member profile loaded:', profile);
+        //         this.memberProfile.set(profile);
+        //     },
+        //     error: (error: any) => {
+        //         console.error('[MemberOnboarding] Error loading member profile:', error);
+        //     }
+        // });
     }
 
     loadPremiumSettings() {
         this.loadingSettings.set(true);
-        this.premiumService.premiumCalculation_GetSettings().subscribe({
+        this.premiumService.getApiPremiumCalculationPremiumCalculationGetSettings().subscribe({
             next: (settings) => {
                 console.log('[MemberOnboarding] Premium settings loaded:', settings);
                 this.premiumSettings.set(settings);
                 this.loadingSettings.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('[MemberOnboarding] Error loading premium settings:', error);
                 this.loadingSettings.set(false);
                 this.messageService.add({
@@ -359,9 +360,9 @@ export class MemberOnboardingComponent implements OnInit {
         }
 
         // Parse cover amount from breakdown description (e.g., "Base Premium - R10 000 Cover")
-        const baseItem = premium.breakdown.find(item => item.category === 'Base');
-        if (baseItem?.description) {
-            const match = baseItem.description.match(/R\s?([\d\s]+)\s?Cover/);
+        const baseItem = premium.breakdown.find((item: any) => item['category'] === 'Base');
+        if (baseItem?.['description']) {
+            const match = (baseItem['description'] as string).match(/R\s?([\d\s]+)\s?Cover/);
             if (match) {
                 const amountStr = match[1].replace(/\s/g, '');
                 return parseInt(amountStr, 10);
@@ -373,5 +374,19 @@ export class MemberOnboardingComponent implements OnInit {
 
     goToDashboard() {
         this.router.navigate(['/admin/dashboard']);
+    }
+
+    // Helper method to get breakdown item property
+    getBreakdownItemValue(item: any, property: string): any {
+        return item[property];
+    }
+
+    // Helper methods for template access to index signature properties
+    getPolicyCoverRows(): any[] {
+        return (this.premiumSettings()?.policyCoverTable?.['rows'] as any[]) || [];
+    }
+
+    getExtendedFamilyRows(): any[] {
+        return (this.premiumSettings()?.extendedFamilyTable?.['rows'] as any[]) || [];
     }
 }

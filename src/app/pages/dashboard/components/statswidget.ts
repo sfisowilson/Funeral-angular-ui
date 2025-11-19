@@ -79,7 +79,7 @@ export class StatsWidget implements OnInit {
     loadStats() {
         this.dashboardService.getDashboardData().subscribe({
             next: (data) => this.stats.set(data),
-            error: (error) => console.error('Failed to load dashboard stats:', error)
+            error: (error: any) => console.error('Failed to load dashboard stats:', error)
         });
     }
 }

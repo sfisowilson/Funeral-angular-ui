@@ -6,7 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { PasswordModule } from 'primeng/password';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { AuthServiceProxy, ChangePasswordRequest } from '../../../core/services/service-proxies';
+import { AuthService } from '../../../core/services/generated/auth/auth.service';
+import { ChangePasswordRequest } from '../../../core/models';
 
 @Component({
   selector: 'app-change-password-dialog',
@@ -34,7 +35,7 @@ export class ChangePasswordDialogComponent {
   loading = signal<boolean>(false);
 
   constructor(
-    private authService: AuthServiceProxy,
+    private authService: AuthService,
     private messageService: MessageService
   ) {}
 
@@ -89,12 +90,6 @@ export class ChangePasswordDialogComponent {
 
     this.loading.set(true);
 
-    const request = new ChangePasswordRequest({
-      currentPassword: this.currentPassword(),
-      newPassword: this.newPassword(),
-      confirmPassword: this.confirmPassword()
-    });
-
     // Debug: Log token availability
     console.log('🔐 Attempting password change...');
     const token = localStorage.getItem('auth_token');
@@ -109,7 +104,7 @@ export class ChangePasswordDialogComponent {
       }
     }
 
-    this.authService.auth_ChangePassword(request).subscribe({
+    this.authService.postApiAuthAuthChangePassword({ oldPassword: this.currentPassword(), newPassword: this.newPassword() }).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -126,7 +121,7 @@ export class ChangePasswordDialogComponent {
         this.passwordChanged.emit();
         this.onHide();
       },
-      error: (error) => {
+      error: (error: any) => {
         this.loading.set(false);
         console.error('Password change error:', error);
         const errorMessage = error?.response || error?.message || error?.error?.error || 'Failed to change password';

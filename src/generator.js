@@ -22,6 +22,7 @@ async function fetchSwaggerJson() {
         console.log(`Swagger JSON saved to ${SWAGGER_FILE}`);
     } catch (error) {
         console.error('Failed to fetch Swagger JSON:', error.message);
+        console.error('Full error:', error);
         process.exit(1);
     }
 }
@@ -32,12 +33,16 @@ function generateAngularServices() {
     exec(`nswag run ${NSWAH_CONFIG}`, (error, stdout, stderr) => {
         if (error) {
             console.error('Failed to generate Angular services:', error.message);
+            console.error('NSwag stdout:', stdout);
             console.error('NSwag stderr:', stderr);
             cleanup(); // Clean up on error
             process.exit(1);
         }
         console.log(stdout);
         console.log('Angular services generated successfully!');
+        
+        // Post-process the file (synchronously)
+        removeIndexSignatures(OUTPUT_DIR);
         deleteLastLine(OUTPUT_DIR);
         cleanup(); // Clean up on success
     });
@@ -45,27 +50,38 @@ function generateAngularServices() {
 
 // Step 3: Delete the last line of a file
 function deleteLastLine(filePath) {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error('Error reading file:', err);
-            return;
-        }
+    try {
+        const data = fs.readFileSync(filePath, 'utf8');
         const lines = data.split('\n');
         if (lines.length > 0) {
             lines.pop(); // Remove the last line
             const newContent = lines.join('\n');
-            fs.writeFile(filePath, newContent, 'utf8', (err) => {
-                if (err) {
-                    console.error('Error writing file:', err);
-                } else {
-                    console.log(`Last line deleted from ${filePath}`);
-                }
-            });
+            fs.writeFileSync(filePath, newContent, 'utf8');
+            console.log(`Last line deleted from ${filePath}`);
         }
-    });
+    } catch (err) {
+        console.error('Error deleting last line:', err);
+    }
 }
 
-// Step 4: Clean up temporary files
+// Step 4: Remove index signatures from interfaces
+function removeIndexSignatures(filePath) {
+    try {
+        const data = fs.readFileSync(filePath, 'utf8');
+        
+        // Remove lines containing [key: string]: any;
+        const lines = data.split('\n');
+        const filteredLines = lines.filter(line => !line.trim().match(/^\[key: string\]: any;$/));
+        const newContent = filteredLines.join('\n');
+        
+        fs.writeFileSync(filePath, newContent, 'utf8');
+        console.log(`Index signatures removed from ${filePath}`);
+    } catch (err) {
+        console.error('Error removing index signatures:', err);
+    }
+}
+
+// Step 5: Clean up temporary files
 function cleanup() {
     if (fs.existsSync(SWAGGER_FILE)) {
         fs.unlinkSync(SWAGGER_FILE);

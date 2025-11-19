@@ -45,9 +45,10 @@ export class AppComponent implements OnInit {
         this.tenantSettingsService
             .loadSettings()
             .then((settings: TenantSettingDto) => {
-                this.jsonSettings = JSON.parse(settings.settings || '{}');
-                if (this.jsonSettings.favicon) {
-                    let faviconUrl = this.tenantSettingsService.getDownloadUrl(this.jsonSettings.favicon);
+                
+                // Favicon is a direct property on TenantSettingDto, not inside the settings JSON
+                if (settings.favicon) {
+                    let faviconUrl = this.tenantSettingsService.getDownloadUrl(settings.favicon);
 
                     let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
                     if (link) {

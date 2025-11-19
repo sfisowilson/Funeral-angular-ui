@@ -9,8 +9,24 @@ import { DividerModule } from 'primeng/divider';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
-import { VerificationServiceProxy, CreateVerificationRequestDto, VerificationRequestDto } from '../../../core/services/service-proxies';
+// import { VerificationServiceProxy, CreateVerificationRequestDto, VerificationRequestDto } from '../../../core/services/service-proxies';
 import { TenantFeatureService, TenantFeaturesDto } from '../../../core/services/tenant-feature.service';
+
+// Temporary types until VerificationServiceProxy is available
+interface VerificationRequestDto {
+    id?: string;
+    status?: string;
+}
+interface CreateVerificationRequestDto {
+    idNumber?: string;
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: Date;
+    verificationType?: string;
+    userId?: string;
+    memberId?: string;
+    claimId?: string;
+}
 
 interface VerificationTypeOption {
     label: string;
@@ -80,7 +96,7 @@ export class IdentityVerificationFormComponent implements OnInit {
 
     constructor(
         private fb: FormBuilder,
-        private verificationService: VerificationServiceProxy,
+        // private verificationService: VerificationServiceProxy,
         private tenantFeatureService: TenantFeatureService,
         private messageService: MessageService
     ) {
@@ -120,7 +136,7 @@ export class IdentityVerificationFormComponent implements OnInit {
                 this.filterVerificationTypes(features);
                 this.featuresLoading.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Failed to load tenant features:', error);
                 this.messageService.add({
                     severity: 'warn',
@@ -201,50 +217,27 @@ export class IdentityVerificationFormComponent implements OnInit {
         this.verificationStarted.emit();
 
         const formValue = this.verificationForm.value;
-        const request = new CreateVerificationRequestDto();
-        request.idNumber = formValue.idNumber;
-        request.firstName = formValue.firstName;
-        request.lastName = formValue.lastName;
-        request.dateOfBirth = formValue.dateOfBirth;
-        request.verificationType = formValue.verificationType;
+        const request: CreateVerificationRequestDto = {
+            idNumber: formValue.idNumber,
+            firstName: formValue.firstName,
+            lastName: formValue.lastName,
+            dateOfBirth: formValue.dateOfBirth,
+            verificationType: formValue.verificationType,
+            userId: this.userId,
+            memberId: this.memberId,
+            claimId: this.claimId
+        };
 
-        // Set context-specific IDs
-        request.userId = this.userId;
-        request.memberId = this.memberId;
-        request.claimId = this.claimId;
-
-        this.verificationService.verification_CreateRequest(request).subscribe({
-            next: (result) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Verification Submitted',
-                    detail: 'Identity verification request has been submitted successfully'
-                });
-
-                this.verificationComplete.emit({
-                    success: true,
-                    verificationRequest: result
-                });
-
-                this.submitting.set(false);
-            },
-            error: (error) => {
-                console.error('Verification error:', error);
-                const errorMessage = error?.error?.message || 'Failed to submit verification request. Please try again.';
-
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Verification Failed',
-                    detail: errorMessage
-                });
-
-                this.verificationComplete.emit({
-                    success: false,
-                    error: errorMessage
-                });
-
-                this.submitting.set(false);
-            }
+        // TODO: Implement when VerificationServiceProxy is available
+        this.messageService.add({
+            severity: 'warn',
+            summary: 'Not Implemented',
+            detail: 'Verification service not yet available'
+        });
+        this.submitting.set(false);
+        this.verificationComplete.emit({
+            success: false,
+            error: 'Service not available'
         });
     }
 
@@ -261,45 +254,24 @@ export class IdentityVerificationFormComponent implements OnInit {
         this.quickVerifying.set(true);
         this.verificationStarted.emit();
 
-        const request = new CreateVerificationRequestDto();
-        request.idNumber = this.verificationForm.get('idNumber')?.value;
-        request.verificationType = 'QUICK';
-        request.userId = this.userId;
-        request.memberId = this.memberId;
-        request.claimId = this.claimId;
+        const request: CreateVerificationRequestDto = {
+            idNumber: this.verificationForm.get('idNumber')?.value,
+            verificationType: 'QUICK',
+            userId: this.userId,
+            memberId: this.memberId,
+            claimId: this.claimId
+        };
 
-        this.verificationService.verification_CreateRequest(request).subscribe({
-            next: (result) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Quick Verification Complete',
-                    detail: 'Quick ID check completed successfully'
-                });
-
-                this.verificationComplete.emit({
-                    success: true,
-                    verificationRequest: result
-                });
-
-                this.quickVerifying.set(false);
-            },
-            error: (error) => {
-                console.error('Quick verification error:', error);
-                const errorMessage = error?.error?.message || 'Failed to perform quick ID check. Please try again.';
-
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Quick Verification Failed',
-                    detail: errorMessage
-                });
-
-                this.verificationComplete.emit({
-                    success: false,
-                    error: errorMessage
-                });
-
-                this.quickVerifying.set(false);
-            }
+        // TODO: Implement when VerificationServiceProxy is available
+        this.messageService.add({
+            severity: 'warn',
+            summary: 'Not Implemented',
+            detail: 'Verification service not yet available'
+        });
+        this.quickVerifying.set(false);
+        this.verificationComplete.emit({
+            success: false,
+            error: 'Service not available'
         });
     }
 

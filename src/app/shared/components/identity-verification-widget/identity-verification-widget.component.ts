@@ -131,7 +131,7 @@ export class IdentityVerificationWidgetComponent implements OnInit {
                 this.verificationComplete.emit(result);
                 this.submitting.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Verification error:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -157,7 +157,7 @@ export class IdentityVerificationWidgetComponent implements OnInit {
                 this.verificationComplete.emit(result);
                 this.quickVerifying.set(false);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Quick verification error:', error);
                 this.messageService.add({
                     severity: 'error',

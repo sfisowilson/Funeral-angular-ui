@@ -24,8 +24,8 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
 // Service Proxies
+import { AssetManagementService } from '../../core/services/generated/asset-management/asset-management.service';
 import { 
-    AssetManagementServiceProxy, 
     AssetDto, 
     CreateAssetDto, 
     UpdateAssetDto, 
@@ -36,7 +36,7 @@ import {
     AssetType, 
     AssetStatus, 
     CheckoutStatus 
-} from '../../core/services/service-proxies';
+} from '../../core/models';
 
 @Component({
     selector: 'app-asset-management',
@@ -65,7 +65,7 @@ import {
     ],
     templateUrl: './asset-management.component.html',
     styleUrl: './asset-management.component.scss',
-    providers: [MessageService, ConfirmationService, AssetManagementServiceProxy]
+    providers: [MessageService, ConfirmationService]
 })
 export class AssetManagementComponent implements OnInit {
     // View Child
@@ -95,27 +95,28 @@ export class AssetManagementComponent implements OnInit {
 
     // Dropdowns
     assetTypes: any[] = [
-        { label: 'Vehicle', value: AssetType._0 },
-        { label: 'Tent', value: AssetType._1 },
-        { label: 'Coffin', value: AssetType._2 },
-        { label: 'Equipment', value: AssetType._3 },
-        { label: 'Furniture', value: AssetType._4 },
-        { label: 'Other', value: AssetType._5 }
+        { label: 'Vehicle', value: AssetType.Vehicle },
+        { label: 'Tent', value: AssetType.Tent },
+        { label: 'Equipment', value: AssetType.Equipment },
+        { label: 'Refrigeration', value: AssetType.Refrigeration },
+        { label: 'Furniture', value: AssetType.Furniture },
+        { label: 'Tools', value: AssetType.Tools },
+        { label: 'Other', value: AssetType.Other }
     ];
 
     assetStatuses: any[] = [
-        { label: 'Available', value: AssetStatus._0 },
-        { label: 'Checked Out', value: AssetStatus._1 },
-        { label: 'Under Maintenance', value: AssetStatus._2 },
-        { label: 'Out of Service', value: AssetStatus._3 },
-        { label: 'Retired', value: AssetStatus._4 }
+        { label: 'Available', value: AssetStatus.Available },
+        { label: 'Checked Out', value: AssetStatus.CheckedOut },
+        { label: 'Under Maintenance', value: AssetStatus.UnderMaintenance },
+        { label: 'Out of Service', value: AssetStatus.OutOfService },
+        { label: 'Retired', value: AssetStatus.Retired }
     ];
 
     checkoutStatuses: any[] = [
-        { label: 'Checked Out', value: CheckoutStatus._0 },
-        { label: 'Checked In', value: CheckoutStatus._1 },
-        { label: 'Overdue', value: CheckoutStatus._2 },
-        { label: 'Cancelled', value: CheckoutStatus._3 }
+        { label: 'Active', value: CheckoutStatus.Active },
+        { label: 'Returned', value: CheckoutStatus.Returned },
+        { label: 'Overdue', value: CheckoutStatus.Overdue },
+        { label: 'Cancelled', value: CheckoutStatus.Cancelled }
     ];
 
     // Inspection checkpoints
@@ -124,7 +125,7 @@ export class AssetManagementComponent implements OnInit {
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private assetManagementService: AssetManagementServiceProxy
+        private assetManagementService: AssetManagementService
     ) {}
 
     ngOnInit() {
@@ -135,7 +136,7 @@ export class AssetManagementComponent implements OnInit {
 
     loadAssets() {
         this.loading.set(true);
-        this.assetManagementService.assetManagement_GetAll().subscribe({
+        this.assetManagementService.getApiAssetManagementAssetManagementGetAll<AssetDto[]>().subscribe({
             next: (data: AssetDto[]) => {
                 this.assets.set(data);
                 this.loading.set(false);
@@ -148,7 +149,7 @@ export class AssetManagementComponent implements OnInit {
     }
 
     loadCheckouts() {
-        this.assetManagementService.assetManagement_GetActiveCheckouts().subscribe({
+        this.assetManagementService.getApiAssetManagementAssetManagementGetActiveCheckouts<any[]>().subscribe({
             next: (data: AssetCheckoutDto[]) => {
                 this.checkouts.set(data);
             },
@@ -159,7 +160,7 @@ export class AssetManagementComponent implements OnInit {
     }
 
     loadStats() {
-        this.assetManagementService.assetManagement_GetStats().subscribe({
+        this.assetManagementService.getApiAssetManagementAssetManagementGetStats<any>().subscribe({
             next: (data: AssetStatsDto) => {
                 this.stats.set(data);
             },
@@ -192,7 +193,7 @@ export class AssetManagementComponent implements OnInit {
             header: 'Confirm',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                this.assetManagementService.assetManagement_Delete(asset.id!).subscribe({
+                this.assetManagementService.deleteApiAssetManagementAssetManagementDeleteId<any>(asset.id!).subscribe({
                     next: () => {
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Asset Deleted', life: 3000 });
                         this.loadAssets();
@@ -214,7 +215,7 @@ export class AssetManagementComponent implements OnInit {
 
             if ('id' in this.asset && this.asset.id) {
                 // Update
-                this.assetManagementService.assetManagement_Update(this.asset as UpdateAssetDto).subscribe({
+                this.assetManagementService.putApiAssetManagementAssetManagementUpdate<AssetDto>(this.asset as UpdateAssetDto).subscribe({
                     next: () => {
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Asset Updated', life: 3000 });
                         this.assetDialog = false;
@@ -228,7 +229,7 @@ export class AssetManagementComponent implements OnInit {
                 });
             } else {
                 // Create
-                this.assetManagementService.assetManagement_Create(this.asset as CreateAssetDto).subscribe({
+                this.assetManagementService.postApiAssetManagementAssetManagementCreate<AssetDto>(this.asset as CreateAssetDto).subscribe({
                     next: () => {
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Asset Created', life: 3000 });
                         this.assetDialog = false;
@@ -265,7 +266,7 @@ export class AssetManagementComponent implements OnInit {
         this.submitted = true;
 
         if (this.checkout.assetId) {
-            this.assetManagementService.assetManagement_Checkout(this.checkout).subscribe({
+            this.assetManagementService.postApiAssetManagementAssetManagementCheckout<any>(this.checkout).subscribe({
                 next: () => {
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Asset Checked Out', life: 3000 });
                     this.checkoutDialog = false;
@@ -294,7 +295,7 @@ export class AssetManagementComponent implements OnInit {
         this.submitted = true;
 
         if (this.checkin.checkoutId) {
-            this.assetManagementService.assetManagement_Checkin(this.checkin).subscribe({
+            this.assetManagementService.postApiAssetManagementAssetManagementCheckin<any>(this.checkin).subscribe({
                 next: () => {
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Asset Checked In', life: 3000 });
                     this.checkinDialog = false;

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { WidgetConfig } from '../widget-config';
-import { API_BASE_URL } from '../../core/services/service-proxies';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-about-us-widget',
@@ -13,13 +13,11 @@ import { API_BASE_URL } from '../../core/services/service-proxies';
 export class AboutUsWidgetComponent {
     @Input() config!: WidgetConfig;
 
-    constructor(@Inject(API_BASE_URL) private baseUrl: string) {}
-
     getDownloadUrl(fileId: string | undefined): string {
         if (!fileId) {
             return '';
         }
         // Assuming tenantId is not directly available here, or handled by backend
-        return `${this.baseUrl}/api/FileUpload/File_DownloadFile/${fileId}`;
+        return `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${fileId}`;
     }
 }

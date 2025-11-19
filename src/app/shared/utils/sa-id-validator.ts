@@ -124,7 +124,6 @@ export class SAIdValidator {
   private static validateChecksum(idNumber: string): boolean {
     let sum = 0;
 
-    console.log('🔍 SA ID Checksum Validation:', idNumber);
     
     // Process from left to right, excluding the checksum digit (positions 0-11)
     // In 0-based indexing: double odd positions (1, 3, 5, 7, 9, 11)
@@ -139,9 +138,9 @@ export class SAIdValidator {
         if (digit > 9) {
           digit -= 9; // Subtract 9 if result is greater than 9
         }
-        console.log(`  Index ${i} (Pos ${i+1}): ${originalDigit} x2 = ${originalDigit*2} -> ${digit}`);
+        // console.log(`  Index ${i} (Pos ${i+1}): ${originalDigit} x2 = ${originalDigit*2} -> ${digit}`);
       } else {
-        console.log(`  Index ${i} (Pos ${i+1}): ${originalDigit} (keep)`);
+        // console.log(`  Index ${i} (Pos ${i+1}): ${originalDigit} (keep)`);
       }
 
       sum += digit;
@@ -150,10 +149,10 @@ export class SAIdValidator {
     const calculatedChecksum = (10 - (sum % 10)) % 10;
     const providedChecksum = parseInt(idNumber.charAt(12), 10);
 
-    console.log(`  Sum: ${sum}`);
-    console.log(`  Calculated checksum: ${calculatedChecksum}`);
-    console.log(`  Provided checksum: ${providedChecksum}`);
-    console.log(`  ✓ Valid: ${calculatedChecksum === providedChecksum}`);
+    // console.log(`  Sum: ${sum}`);
+    // console.log(`  Calculated checksum: ${calculatedChecksum}`);
+    // console.log(`  Provided checksum: ${providedChecksum}`);
+    // console.log(`  ✓ Valid: ${calculatedChecksum === providedChecksum}`);
 
     return calculatedChecksum === providedChecksum;
   }

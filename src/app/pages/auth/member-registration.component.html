@@ -136,7 +136,7 @@
             <div class="member-info" *ngIf="idCheckResponse()">
                 <i class="pi pi-user"></i>
                 <div>
-                    <strong>{{idCheckResponse()!.memberName}}</strong>
+                    <strong>{{idCheckResponse()!.MemberName}}</strong>
                     <p>Member ID: {{idCheckForm.value.idNumber}}</p>
                 </div>
             </div>
@@ -145,18 +145,18 @@
                 <div class="form-field">
                     <label>How would you like to receive your verification code?</label>
                     <div class="contact-options">
-                        <div class="contact-option" *ngIf="idCheckResponse()?.contactEmail">
+                        <div class="contact-option" *ngIf="idCheckResponse()?.ContactEmail">
                             <input type="radio" id="email" formControlName="contactMethod" value="email">
                             <label for="email">
                                 <i class="pi pi-envelope"></i>
-                                <span>Email: {{idCheckResponse()!.contactEmail}}</span>
+                                <span>Email: {{idCheckResponse()!.ContactEmail}}</span>
                             </label>
                         </div>
-                        <div class="contact-option" *ngIf="idCheckResponse()?.contactPhone">
+                        <div class="contact-option" *ngIf="idCheckResponse()?.ContactPhone">
                             <input type="radio" id="sms" formControlName="contactMethod" value="sms">
                             <label for="sms">
                                 <i class="pi pi-mobile"></i>
-                                <span>SMS: {{idCheckResponse()!.contactPhone}}</span>
+                                <span>SMS: {{idCheckResponse()!.ContactPhone}}</span>
                             </label>
                         </div>
                     </div>
