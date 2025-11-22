@@ -45,7 +45,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     // Identity verification properties
     showVerificationDialog: boolean = false;
     registeredUserId?: string;
-    skipVerification: boolean = false;
+    skipVerification: boolean = true;
     
     // SA ID validation
     idInfo = signal<SAIdInfo | null>(null);
@@ -54,6 +54,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     
     requirePolicySelection: boolean = true; // Default to true
     private dialogRef?: DynamicDialogRef;
+    settings:any;
 
     constructor(
         private fb: FormBuilder,
@@ -74,10 +75,14 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
         console.log('RegisterComponent.ngOnInit: CALLED');
         try {
             await super.ngOnInit();
-            console.log('RegisterComponent.ngOnInit: after super.ngOnInit()');
 
             // Use tenant type from tenant service instead of checking tenant name
             this.isHostTenant = this.tenantService.getTenantType() === 'host';
+            this.settings = await this.tenantSettingsService.loadSettings();
+            let tenantSettings = JSON.parse(this.settings.settings);
+            this.requirePolicySelection = tenantSettings.requirePolicySelection === true; // Default to false if not set
+            console.log('requirePolicySelection =', this.requirePolicySelection);
+
             console.log('RegisterComponent.ngOnInit: tenantType =', this.tenantService.getTenantType(), 'isHostTenant =', this.isHostTenant);
 
             if (this.isHostTenant) {
@@ -247,7 +252,8 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
             
             this.memberRegistrationService.postApiMemberRegistrationMemberRegistrationRegisterNewMember<any>(memberRegisterRequest)
                 .subscribe({
-                    next: () => {
+                    next: (res) => {
+                        debugger;
                         this.showAlertMessage('success', 'Member registered successfully');
 
                         // Show identity verification dialog if ID number was provided
@@ -267,27 +273,27 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
 
     override async loadTenantSettings() {
         try {
-            const settings = await this.tenantSettingsService.loadSettings();
-            console.log('Register component - Full settings object:', settings);
+            this.settings = await this.tenantSettingsService.loadSettings();
+            console.log('Register component - Full settings object:', this.settings );
 
-            if (settings) {
-                this.tenantName = settings.tenantName || 'Funeral Management System';
+            if (this.settings ) {
+                this.tenantName = this.settings.tenantName || 'Funeral Management System';
                 
                 // Check if policy selection is required
-                this.requirePolicySelection = settings.requirePolicySelection !== false; // Default to true if not set
+                this.requirePolicySelection = this.settings.requirePolicySelection !== false; // Default to true if not set
 
                 // Try multiple ways to get the logo
                 let logoId = null;
 
                 // Check if logo is directly on settings object
-                if (settings.logo) {
-                    logoId = settings.logo;
+                if (this.settings.logo) {
+                    logoId = this.settings.logo;
                 }
 
                 // Check if logo is in parsed JSON settings
-                if (settings.settings) {
+                if (this.settings.settings) {
                     try {
-                        const parsedSettings = JSON.parse(settings.settings);
+                        const parsedSettings = JSON.parse(this.settings.settings);
                         if (parsedSettings.logo) {
                             logoId = parsedSettings.logo;
                         }

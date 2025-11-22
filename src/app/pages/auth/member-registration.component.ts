@@ -248,8 +248,10 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
             });
             return;
         }
-        
-        if (!this.selectedPolicy()) {
+
+        // Check tenant setting for policy requirement
+        const requirePolicy = this.tenantSettings?.requirePolicyOnMemberRegistration;
+        if (requirePolicy && !this.selectedPolicy()) {
             this.messageService.add({
                 severity: 'error',
                 summary: 'No Policy Selected',
@@ -257,9 +259,9 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
             });
             return;
         }
-        
+
         this.isProcessing.set(true);
-        
+
         try {
             const idInfo = this.idInfo();
             const dto: RegisterNewMemberDto = {
@@ -269,18 +271,20 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
                 email: this.newMemberForm.value.email,
                 phone: this.newMemberForm.value.phoneNumber,
                 dateOfBirth: idInfo?.dateOfBirth ? idInfo.dateOfBirth.toISOString() : '',
-                address: ''
+                address: '',
+                // Only include policyId if required and selected
+                //...(requirePolicy && this.selectedPolicy() ? { policyId: this.selectedPolicy()!.id } : {})
             };
-            
+
             const response = await this.registrationService.postApiMemberRegistrationMemberRegistrationRegisterNewMember(dto).toPromise();
-            
+
             if ((response as any)?.succeeded) {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Registration Successful',
                     detail: 'Your account has been created successfully!'
                 });
-                
+
                 // Wait a bit then redirect to login
                 setTimeout(() => {
                     this.router.navigate(['/auth/login']);

@@ -1,3 +1,4 @@
+import { MemberOnboardingComponent } from './member-onboarding/member-onboarding.component';
 import { Routes } from '@angular/router';
 import { AssetsComponent } from './assets/assets.component';
 import { ClaimsComponent } from './claims/claims.component';
@@ -22,6 +23,7 @@ import { PageBuilderComponent } from '../building-blocks/page-builder/page-build
 
 export default [
     { path: 'assets', component: AssetsComponent },
+    { path: 'onboarding', component: MemberOnboardingComponent },
     { path: 'asset-management', component: AssetManagementComponent },
     { path: 'tenant-settings', component: TenantSettingsComponent },
     { path: 'member-management', component: MemberManagementComponent },

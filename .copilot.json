@@ -1,0 +1,22 @@
+{
+  "rules": [
+    "Avoid using deprecated Angular APIs",
+    "Prefer RxJS for async operations",
+    "Use Bootstrap for UI",
+    "No direct DOM manipulation",
+    "Follow project coding standards",
+    "Use environment variables for config",
+    "Write unit tests for new features",
+    "API requests must always fetch data only for the current tenant: for logged-in users, use the tenant from their token; for public routes, provide tenant via X-Tenant-ID header.",
+    "Replace PrimeNG components with Bootstrap wherever possible; aim to remove PrimeNG from the project.",
+    "Always keep security in mind: follow best practices for authentication, authorization, data validation, and protection of sensitive information.",
+    "When adding a new API endpoint, always run Orval to generate the corresponding frontend service.",
+    "If a DB model change is made on the API, also update the sync and setup DB scripts to reflect the changes."
+    ,
+    "Always separate TypeScript (.ts) and HTML (.html) files for Angular components; do not use inline templates."
+      ,
+      "Reference the APP_DESCRIPTION.md file at least once every hour to stay up-to-date with project context and guidelines."
+        ,
+        "If new functionality is added that should be documented, update the APP_DESCRIPTION.md file to keep it current."
+  ]
+}

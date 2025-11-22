@@ -96,6 +96,7 @@ interface Settings extends SmtpSettings, NotificationSettings {
     surface900?: string;
     surface200?: string;
     teamMembers?: TeamMember[];
+    requirePolicyOnMemberRegistration?: boolean;
 }
 
 interface TeamMember {

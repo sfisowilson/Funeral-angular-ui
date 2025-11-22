@@ -581,6 +581,20 @@
                 </div>
             </div>
 
+            <!-- Policy Registration Requirement Toggle -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Member Registration Settings</h2>
+                <div class="flex items-center">
+                    <p-checkbox [(ngModel)]="_settings.requirePolicyOnMemberRegistration" inputId="requirePolicyOnMemberRegistration" binary="true"></p-checkbox>
+                    <label for="requirePolicyOnMemberRegistration" class="ml-2 font-medium text-gray-700">
+                        Require policy selection when registering a new member
+                    </label>
+                </div>
+                <p class="text-sm text-gray-600 mt-1">
+                    If disabled, members can register without selecting a policy. This setting can be changed at any time.
+                </p>
+            </div>
+
             <div class="flex justify-end pt-6">
                 <button type="button" class="btn btn-primary" (click)="saveSettings()">
                     <i class="pi pi-check me-2"></i>
@@ -662,15 +676,15 @@
                         <div *ngFor="let tier of getDependentTiers(row); let tierIndex = index" class="border border-gray-200 rounded-lg p-3 bg-gray-50">
                             <div class="grid grid-cols-12 gap-3 items-center mb-3">
                                 <div class="col-span-3">
-                                    <label class="text-xs text-gray-600">Min Dependents</label>
+                                    <label class="text-xs text-gray-500">Min Dependents</label>
                                     <input type="number" pInputText [(ngModel)]="tier['minDependents']" class="w-full mt-1" placeholder="e.g., 1" />
                                 </div>
                                 <div class="col-span-3">
-                                    <label class="text-xs text-gray-600">Max Dependents</label>
+                                    <label class="text-xs text-gray-500">Max Dependents</label>
                                     <input type="number" pInputText [(ngModel)]="tier['maxDependents']" class="w-full mt-1" placeholder="e.g., 5" />
                                 </div>
                                 <div class="col-span-5">
-                                    <label class="text-xs text-gray-600">Label</label>
+                                    <label class="text-xs text-gray-500">Label</label>
                                     <input type="text" pInputText [(ngModel)]="tier['label']" class="w-full mt-1" placeholder="e.g., 1-5 dependents" />
                                 </div>
                                 <div class="col-span-1 flex justify-end">

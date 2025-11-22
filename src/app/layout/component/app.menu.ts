@@ -48,6 +48,7 @@ export class AppMenu implements OnInit {
                 items: [
                     { label: 'Tenants', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/tenants'], visible: this.authService.hasPermission('Permission.tenant.view') },
                     { label: 'Tenant Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/tenant-settings'], visible: this.authService.hasPermission('Permission.Admin.update') },
+                    { label: 'Onboarding', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/onboarding'] },
                     { label: 'Onboarding Settings', icon: 'pi pi-fw pi-id-card', routerLink: ['/admin/pages/onboarding-settings'], visible: this.authService.hasPermission('Permission.tenant.view') },
                     { label: 'Dashboard Settings', icon: 'pi pi-fw pi-sliders-h', routerLink: ['/admin/pages/dashboard-settings'], visible: this.authService.hasPermission('Permission.tenant.view') },
                     { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/users'], visible: this.authService.hasPermission('Permission.tenant.view') },
@@ -58,7 +59,7 @@ export class AppMenu implements OnInit {
                     { label: 'Claims', icon: 'pi pi-fw pi-file', routerLink: ['/admin/pages/claims'], visible: this.authService.hasPermission('Permission.tenant.view') },
                     // { label: 'Dependents', icon: 'pi pi-fw pi-user-plus', routerLink: ['/admin/pages/dependents'] },
                     { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'], visible: this.authService.hasPermission('Permission.tenant.view') },
-                    { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: this.authService.hasPermission('Permission.tenant.view') },
+                    { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: this.authService.hasPermission('Permission.Admin.update') },
                     // {
                     //     label: 'Auth',
                     //     icon: 'pi pi-fw pi-user',
