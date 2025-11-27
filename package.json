@@ -4,7 +4,7 @@
     "scripts": {
         "ng": "ng",
         "start": "ng serve --configuration development --host 0.0.0.0 --port 4200 --disable-host-check",
-        "build": "ng build",
+        "build": "ng build --configuration production",
         "watch": "ng build --watch --configuration development",
         "format": "prettier --write \"**/*.{js,mjs,ts,mts,d.ts,html}\" --cache",
         "test": "ng test"

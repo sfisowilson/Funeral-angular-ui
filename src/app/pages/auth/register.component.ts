@@ -90,7 +90,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                     phone1: [''],
                     phone2: [''],
                     registrationNumber: [''],
-                    type: ['']
+                    tenantType: ['']
                 });
             } else {
                 this.form = this.fb.group({
@@ -159,7 +159,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 phone1: fv.phone1 || '',
                 phone2: fv.phone2 || '',
                 registrationNumber: fv.registrationNumber || '',
-                type: fv.type || (0 as any),
+                tenantType: fv.tenantType || (0 as any),
                 subscriptionPlanId: fv.subscriptionPlanId || undefined
             });
             if (!tenantRegisterDto.email) {

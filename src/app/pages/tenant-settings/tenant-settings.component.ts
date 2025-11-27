@@ -18,6 +18,7 @@ import { TeamEditorComponent } from '../../building-blocks/team-editor-widget/te
 import { WidgetConfig } from '../../building-blocks/widget-config';
 import { WidgetService } from '../../building-blocks/widget.service';
 import { HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 interface SmtpSettings {
     smtpServer?: string;
@@ -108,6 +109,7 @@ export class TenantSettingsComponent implements OnInit {
     smtpSettings: SmtpSettings = {};
     notificationSettings: NotificationSettings = {};
     currency: string = 'R'; // Default to Rands
+    hasChanges: boolean = false;
     currencyOptions: any[] = [
         { label: 'South African Rand (R)', value: 'ZAR' },
         { label: 'United States Dollar ($)', value: 'USD' },
@@ -176,11 +178,17 @@ export class TenantSettingsComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        // Use subdomain if present, otherwise use hostSubdomain from environment
         const host = window.location.hostname;
         const subdomain = host.split('.')[0];
-        if (subdomain && subdomain !== 'www') {
-            this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', subdomain);
+        let tenantId = '';
+        if (subdomain && subdomain !== 'www' && subdomain !== environment.baseDomain.split('.')[0]) {
+            tenantId = subdomain;
+        } else {
+            // fallback to hostSubdomain from environment file
+            tenantId = environment.hostSubdomain;
         }
+        this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', tenantId);
         this.loadTenantSettings();
     }
 
@@ -388,11 +396,11 @@ export class TenantSettingsComponent implements OnInit {
         // Pass entityType='Logo' and entityId as the tenant ID so it's linked to tenant settings
         this.fileUploadService.file_UploadFile('Logo', undefined, undefined, undefined, false, fileParameter).subscribe({
             next: (result: FileMetadataDto) => {
-                // Logo is automatically saved in TenantSettings on backend via the uploadFile logic
-                // Just confirm to user
+
+                    this._settings.logo = result.id;
+                    this.hasChanges = true;
+
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Logo uploaded successfully', life: 3000 });
-                // Reload settings to reflect changes
-                this.loadTenantSettings();
             },
             error: (error: any) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload logo: ' + (error?.error?.error || error?.message || 'Unknown error'), life: 5000 });
@@ -410,11 +418,10 @@ export class TenantSettingsComponent implements OnInit {
         // Pass entityType='Favicon' so it's automatically saved in TenantSettings on backend
         this.fileUploadService.file_UploadFile('Favicon', undefined, undefined, undefined, false, fileParameter).subscribe({
             next: (result: FileMetadataDto) => {
-                // Favicon is automatically saved in TenantSettings on backend via the uploadFile logic
-                // Just confirm to user
+                
+                this._settings.favicon = result.id;
+                this.hasChanges = true;
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Favicon uploaded successfully', life: 3000 });
-                // Reload settings to reflect changes
-                this.loadTenantSettings();
             },
             error: (error: any) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload favicon: ' + (error?.error?.error || error?.message || 'Unknown error'), life: 5000 });

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WidgetService } from '@app/building-blocks/widget.service';
 import { WidgetConfig } from '@app/building-blocks/widget-config';
@@ -7,21 +7,28 @@ import { PageLayoutService } from '@app/building-blocks/page-layout.service';
 import { ScrollRevealDirective } from '@app/building-blocks/scroll-reveal.directive';
 import { Subscription } from 'rxjs';
 import { AuthService } from '@app/auth/auth-service';
+import { HttpHeaders } from '@angular/common/http';
+import { TenantSettingServiceProxy, API_BASE_URL, TenantSettingDto } from '../../core/services/service-proxies';
+import { TenantSettingsService } from '../../core/services/tenant-settings.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-landing-page-renderer',
     standalone: true,
     imports: [CommonModule, ScrollRevealDirective],
+    providers: [TenantSettingsService],
     template: `
         <div class="flex flex-col min-h-screen">
             <!-- Header -->
             <header class="bg-white shadow-md">
                 <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-                    <div class="text-xl font-bold text-gray-800">MyApp</div>
+                
+                    <div class="text-xl font-bold text-gray-800 d-flex items-center">
+                        <img *ngIf="_settings.logo" [src]="getDownloadUrl(_settings.logo)" alt="Logo" class="mt-4 rounded-md" style="max-width: 50px" />
+                        <span> Mizo</span>
+                    </div>
                     <nav class="hidden md:flex space-x-6">
                         <a href="#" class="text-gray-600 hover:text-blue-600 transition">Home</a>
-                        <a href="#" class="text-gray-600 hover:text-blue-600 transition">About</a>
-                        <a href="#" class="text-gray-600 hover:text-blue-600 transition">Contact</a>
                         <ng-container *ngIf="!isLoggedIn">
                             <a href="/auth/register" class="text-blue-600 hover:underline font-semibold">Register</a>
                             <a href="/auth/login" class="text-blue-600 hover:underline font-semibold">Login</a>
@@ -47,8 +54,6 @@ import { AuthService } from '@app/auth/auth-service';
                 <nav *ngIf="mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200 shadow-lg">
                     <div class="px-4 py-4 space-y-1">
                         <a href="#" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Home</a>
-                        <a href="#" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">About</a>
-                        <a href="#" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Contact</a>
                         <ng-container *ngIf="!isLoggedIn">
                             <a href="/auth/register" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Register</a>
                             <a href="/auth/login" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Login</a>
@@ -144,15 +149,38 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     currentYear: number = new Date().getFullYear();
     isLoggedIn = false; // replace this with real auth state
     mobileMenuOpen = false;
+    tenantIdHeader!: HttpHeaders;
+    _settings: any = {};
+    tenantSettings!: TenantSettingDto;
 
     constructor(
         private widgetService: WidgetService,
+        private tenantSettingService: TenantSettingsService,
         private authService: AuthService,
+        @Inject(API_BASE_URL) private baseUrl: string,
         private pageLayoutService: PageLayoutService
     ) {}
 
     ngOnInit(): void {
+
+        this.tenantSettingService.loadSettings()
+        .then((data: any) => {
+            this.tenantSettings = data;
+             this._settings = JSON.parse(this.tenantSettings.settings ?? "{}");
+        });
+
         this.isLoggedIn = this.authService.isAuthenticated();
+        // Use subdomain if present, otherwise use hostSubdomain from environment
+        const host = window.location.hostname;
+        const subdomain = host.split('.')[0];
+        let tenantId = '';
+        if (subdomain && subdomain !== 'www' && subdomain !== environment.baseDomain.split('.')[0]) {
+            tenantId = subdomain;
+        } else {
+            // fallback to hostSubdomain from environment file
+            tenantId = environment.hostSubdomain;
+        }
+        this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', tenantId);
 
         this.widgetSubscription = this.widgetService.widgets$.subscribe((widgets: WidgetConfig[]) => {
             this.widgets = widgets;
@@ -164,6 +192,8 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             });
         });
     }
+
+    
 
     ngOnDestroy(): void {
         if (this.widgetSubscription) {
@@ -232,5 +262,16 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     getWidgetComponent(widgetType: string): any {
         const type = WIDGET_TYPES.find(t => t.name === widgetType);
         return type?.component;
+    }
+
+    getDownloadUrl(fileId: string | undefined): string {
+        if (!fileId) {
+            return '';
+        }
+        let url = `${this.baseUrl}/api/FileUpload/File_DownloadFile/${fileId}`;
+        if (this.tenantIdHeader && this.tenantIdHeader.has('X-Tenant-ID')) {
+            url += `?X-Tenant-ID=${this.tenantIdHeader.get('X-Tenant-ID')}`;
+        }
+        return url;
     }
 }

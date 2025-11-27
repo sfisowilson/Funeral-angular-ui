@@ -51,7 +51,7 @@ Create `src/environments/environment.ts` and `src/environments/environment.prod.
 ```typescript
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000'
+  apiUrl: 'https://localhost:44375'
 };
 ```
 

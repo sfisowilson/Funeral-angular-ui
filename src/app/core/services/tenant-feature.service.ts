@@ -18,7 +18,7 @@ export interface TenantFeaturesDto {
     providedIn: 'root'
 })
 export class TenantFeatureService {
-    private baseUrl = environment.apiUrl || 'https://localhost:3000';
+    private baseUrl = environment.apiUrl;
 
     constructor(private http: HttpClient) {}
 
