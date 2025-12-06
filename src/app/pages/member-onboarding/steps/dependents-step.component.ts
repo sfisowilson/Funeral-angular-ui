@@ -57,6 +57,13 @@ import { AuthService } from '../../../auth/auth-service';
     styleUrl: './dependents-step.component.scss'
 })
 export class DependentsStepComponent implements OnInit {
+            isPremiumHigh(dependent: any): boolean {
+                return !!dependent && typeof dependent.calculatedAge === 'number' && dependent.calculatedAge >= 75;
+            }
+        // Used for ngFor trackBy on uploadedDocuments
+        trackByDocId(index: number, doc: any): any {
+            return doc.id;
+        }
     @Input() viewMode: boolean = false;
     @Input() memberId?: string;
     @Input() coverAmount: number = 10000; // Policy cover amount from parent

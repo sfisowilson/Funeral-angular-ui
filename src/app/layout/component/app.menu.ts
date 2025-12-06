@@ -58,32 +58,16 @@ export class AppMenu implements OnInit {
                     // { label: 'Dependents', icon: 'pi pi-fw pi-user-plus', routerLink: ['/admin/pages/dependents'] },
                     { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'] },
                     { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'] },
-                    // {
-                    //     label: 'Auth',
-                    //     icon: 'pi pi-fw pi-user',
-                    //     items: [
-                    //         {
-                    //             label: 'Login',
-                    //             icon: 'pi pi-fw pi-sign-in',
-                    //             routerLink: ['/auth/login']
-                    //         },
-                    //         {
-                    //             label: 'Error',
-                    //             icon: 'pi pi-fw pi-times-circle',
-                    //             routerLink: ['/auth/error']
-                    //         },
-                    //         {
-                    //             label: 'Access Denied',
-                    //             icon: 'pi pi-fw pi-lock',
-                    //             routerLink: ['/auth/access']
-                    //         }
-                    //     ]
-                    // },
-                    // {
-                    //     label: 'Not Found',
-                    //     icon: 'pi pi-fw pi-exclamation-circle',
-                    //     routerLink: ['/pages/notfound']
-                    // }
+                ]
+            },
+            {
+                label: 'Payments & Billing',
+                icon: 'pi pi-fw pi-wallet',
+                items: [
+                    { label: 'Payment Gateway Config', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/payment-config'], visible: this.authService.hasPermission('Permission.payment.config.view') },
+                    { label: 'Payment Settings', icon: 'pi pi-fw pi-credit-card', routerLink: ['/admin/payment-settings'] },
+                    { label: 'Debit Order Management', icon: 'pi pi-fw pi-file-export', routerLink: ['/admin/debit-orders'], visible: this.authService.hasPermission('Permission.debitorder.view') },
+                    { label: 'Invoices', icon: 'pi pi-fw pi-money-bill', routerLink: ['/admin/invoices'] }
                 ]
             },
             // {

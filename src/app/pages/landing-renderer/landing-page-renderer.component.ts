@@ -25,7 +25,7 @@ import { environment } from '../../../environments/environment';
                 
                     <div class="text-xl font-bold text-gray-800 d-flex items-center">
                         <img *ngIf="_settings.logo" [src]="getDownloadUrl(_settings.logo)" alt="Logo" class="mt-4 rounded-md" style="max-width: 50px" />
-                        <span> Mizo</span>
+                        <span> {{_settings.TenantName ?? 'Mizo'}}</span>
                     </div>
                     <nav class="hidden md:flex space-x-6">
                         <a href="#" class="text-gray-600 hover:text-blue-600 transition">Home</a>

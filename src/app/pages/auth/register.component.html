@@ -82,6 +82,44 @@
                         <strong>Policy:</strong> {{ selectedPolicy.name }}
                         <button type="button" class="btn btn-sm btn-secondary float-end" (click)="showPolicySelection()">Change</button>
                     </div>
+                    <div *ngIf="!selectedPolicy" class="mb-3">
+                        <button type="button" class="btn btn-primary w-100" (click)="showPolicySelection()">Select Policy</button>
+                    </div>
+                                        <!-- Policy Selection Bootstrap Modal -->
+                                        <div class="modal fade show" tabindex="-1" [ngStyle]="{ display: showModal ? 'block' : 'none', background: 'rgba(0,0,0,0.5)' }" *ngIf="showModal">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Select a Policy</h5>
+                                                        <button type="button" class="btn-close" (click)="closePolicyModal()"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div *ngIf="policies.length === 0" class="alert alert-warning">No policies available.</div>
+                                                        <div *ngIf="policies.length > 0">
+                                                            <div class="row">
+                                                                <div class="col-md-6 mb-3" *ngFor="let policy of policies">
+                                                                    <div class="card h-100" [class.border-primary]="selectedPolicy?.id === policy.id">
+                                                                        <div class="card-body">
+                                                                            <h5 class="card-title">{{ policy.name }}</h5>
+                                                                            <p class="card-text">{{ policy.policyAttributes?.[0]?.description || '' }}</p>
+                                                                            <p><strong>Price:</strong> {{ policy.price | currency:'ZAR' }}</p>
+                                                                            <p><strong>Payout:</strong> {{ policy.payoutAmount | currency:'ZAR' }}</p>
+                                                                            <ul>
+                                                                                <li *ngFor="let attr of policy.policyAttributes">{{ attr.description }}</li>
+                                                                            </ul>
+                                                                            <button type="button" class="btn btn-outline-primary w-100 mt-2" (click)="onPolicySelected(policy)">Select</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" (click)="closePolicyModal()">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                     <div class="mb-3">
                         <label for="memberEmail" class="form-label"><i class="bi bi-envelope"></i> Email Address</label>
                         <input type="email" class="form-control" id="memberEmail" name="member-email" autocomplete="email" placeholder="Enter email address" formControlName="email" />
@@ -131,6 +169,7 @@
                 <!-- Form Links -->
                 <div class="mt-3 d-flex justify-content-between">
                     <a routerLink="/auth/login" class="text-decoration-none"><i class="bi bi-arrow-left"></i> Back to Sign In</a>
+                    <a routerLink="/" class="text-decoration-none"><i class="bi bi-house"></i> Home</a>
                     <a routerLink="/auth/forgot-password" class="text-decoration-none">Forgot Password? <i class="bi bi-arrow-right"></i></a>
                 </div>
             </form>

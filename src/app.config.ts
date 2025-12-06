@@ -20,7 +20,13 @@ import {
     AuthServiceProxy,
     MemberServiceProxy,
     MemberBankingDetailServiceProxy,
-    MemberRegistrationServiceProxy
+    MemberRegistrationServiceProxy,
+    Payment_configServiceProxy,
+    GatewayServiceProxy,
+    Payment_gatewayServiceProxy,
+    Debit_orderServiceProxy,
+    Tenant_bankingServiceProxy,
+    Tenant_invoiceServiceProxy
 } from './app/core/services/service-proxies';
 import { AuthService } from './app/auth/auth-service';
 import { AuthInterceptor } from './app/auth/auth.service';
@@ -59,6 +65,12 @@ export const appConfig: ApplicationConfig = {
         MemberServiceProxy,
         MemberBankingDetailServiceProxy,
         MemberRegistrationServiceProxy,
+        Payment_configServiceProxy,
+        GatewayServiceProxy,
+        Payment_gatewayServiceProxy,
+        Debit_orderServiceProxy,
+        Tenant_bankingServiceProxy,
+        Tenant_invoiceServiceProxy,
         appInitializerProvider,
         {
             provide: APP_INITIALIZER,

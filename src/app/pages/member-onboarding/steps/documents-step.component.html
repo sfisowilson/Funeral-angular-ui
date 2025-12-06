@@ -18,57 +18,46 @@
     }
 
     <!-- Phase 4: Compliance Status Widget -->
-    @if (!loading() && complianceStatus()) {
-        <div class="compliance-widget">
-            <div class="compliance-header">
-                <div class="compliance-title">
-                    <i [class]="complianceStatus()!.isCompliant ? 'pi pi-check-circle' : 'pi pi-exclamation-triangle'"></i>
-                    <h3>Document Compliance Status</h3>
+    <ng-container *ngIf="!loading() && complianceStatus()">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i [ngClass]="complianceStatus()!.isCompliant ? 'bi bi-check-circle text-success' : 'bi bi-exclamation-triangle text-warning'" style="font-size: 1.5rem;"></i>
+                    <h3 class="ms-2 mb-0">Document Compliance Status</h3>
                 </div>
-                <span 
-                    class="compliance-badge"
-                    [class.compliant]="complianceStatus()!.isCompliant"
-                    [class.non-compliant]="!complianceStatus()!.isCompliant">
+                <span class="badge" [ngClass]="complianceStatus()!.isCompliant ? 'bg-success' : 'bg-warning text-dark'">
                     {{ complianceStatus()!.isCompliant ? 'COMPLIANT' : 'MISSING DOCUMENTS' }}
                 </span>
             </div>
-            
-            <div class="compliance-stats">
-                <div class="stat-item">
-                    <span class="stat-value">{{ complianceStatus()!.totalUploaded }}</span>
-                    <span class="stat-label">Uploaded</span>
-                </div>
-                <div class="stat-divider">/</div>
-                <div class="stat-item">
-                    <span class="stat-value">{{ complianceStatus()!.totalRequired }}</span>
-                    <span class="stat-label">Required</span>
-                </div>
-                <div class="stat-item approved">
-                    <span class="stat-value">{{ complianceStatus()!.totalApproved }}</span>
-                    <span class="stat-label">Approved</span>
-                </div>
-            </div>
-
-            @if (complianceStatus()!.totalRequired > 0) {
-                <div class="progress-bar">
-                    <div 
-                        class="progress-fill" 
-                        [style.width.%]="(complianceStatus()!.totalUploaded / complianceStatus()!.totalRequired) * 100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="me-3 text-center">
+                        <span class="fw-bold">{{ complianceStatus()!.totalUploaded }}</span>
+                        <div class="text-muted">Uploaded</div>
+                    </div>
+                    <span class="mx-2">/</span>
+                    <div class="me-3 text-center">
+                        <span class="fw-bold">{{ complianceStatus()!.totalRequired }}</span>
+                        <div class="text-muted">Required</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="fw-bold text-success">{{ complianceStatus()!.totalApproved }}</span>
+                        <div class="text-muted">Approved</div>
                     </div>
                 </div>
-                <small class="progress-text">
+                <div class="progress mb-2" *ngIf="complianceStatus()!.totalRequired > 0">
+                    <div class="progress-bar" role="progressbar" [style.width.%]="(complianceStatus()!.totalUploaded / complianceStatus()!.totalRequired) * 100" aria-valuenow="{{ (complianceStatus()!.totalUploaded / complianceStatus()!.totalRequired) * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <small class="text-muted" *ngIf="complianceStatus()!.totalRequired > 0">
                     {{ ((complianceStatus()!.totalUploaded / complianceStatus()!.totalRequired) * 100).toFixed(0) }}% of required documents uploaded
                 </small>
-            }
-
-            @if (complianceStatus()!.missingDocuments && complianceStatus()!.missingDocuments!.length > 0) {
-                <div class="missing-alert">
-                    <i class="pi pi-exclamation-circle"></i>
+                <div class="alert alert-warning mt-2 p-2" *ngIf="complianceStatus()!.missingDocuments && complianceStatus()!.missingDocuments!.length > 0">
+                    <i class="bi bi-exclamation-circle"></i>
                     <span>{{ complianceStatus()!.missingDocuments!.length }} required document(s) missing</span>
                 </div>
-            }
+            </div>
         </div>
-    }
+    </ng-container>
 
     <!-- Phase 4: Required Documents Section with Conditional Requirements -->
     @if (!loading() && requiredDocuments().length > 0) {

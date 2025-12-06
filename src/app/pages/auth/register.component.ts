@@ -32,6 +32,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     isHostTenant: boolean = false;
     tenantTypes: { label: string; value: TenantType }[] = [];
     selectedPolicy: PolicyDto | null = null;
+    policies: PolicyDto[] = [];
     showModal: boolean = false;
     alertMessage: string = '';
     alertType: 'success' | 'error' | 'warning' | 'info' = 'info';
@@ -101,6 +102,16 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                     phoneNumber: [''],
                     policyId: [null],
                     identificationNumber: [''] // Add ID number for verification
+                });
+
+                // Load policies for member registration
+                this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe({
+                    next: (policies) => {
+                        this.policies = policies;
+                    },
+                    error: (error) => {
+                        console.error('Error loading policies:', error);
+                    }
                 });
 
                 this.route.queryParams.subscribe((params) => {
@@ -263,7 +274,14 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
 
     showPolicySelection() {
         this.showModal = true;
-        // The modal will emit a policy selection event through the template
+    }
+    onPolicySelected(policy: PolicyDto) {
+        this.selectedPolicy = policy;
+        this.form.patchValue({ policyId: policy.id });
+        this.showModal = false;
+    }
+    closePolicyModal() {
+        this.showModal = false;
     }
 
     onVerificationComplete(result: any) {

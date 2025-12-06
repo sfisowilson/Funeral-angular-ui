@@ -55,6 +55,10 @@ import { AuthService } from '../../../auth/auth-service';
     styleUrl: './beneficiaries-step.component.scss'
 })
 export class BeneficiariesStepComponent implements OnInit {
+        // Used for ngFor trackBy on uploadedDocuments
+        trackByDocId(index: number, doc: any): any {
+            return doc.id;
+        }
     @Input() viewMode: boolean = false;
     @Input() memberId?: string;
     @Output() stepComplete = new EventEmitter<void>();

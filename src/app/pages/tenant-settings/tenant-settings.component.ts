@@ -38,6 +38,8 @@ interface Settings extends SmtpSettings, NotificationSettings {
     logo?: string;
     favicon?: string;
     primaryColor?: string;
+    testcolour?: string;
+    inputBackgroundColor?: string;
     secondaryColor?: string;
     accentColor?: string;
     textColor?: string;
@@ -97,7 +99,7 @@ interface TeamMember {
 @Component({
     selector: 'app-tenant-settings',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, InputTextarea, ToastModule, FileUploadModule, CardModule, CheckboxModule, DropdownModule, ColorPickerModule, DialogModule, TeamEditorComponent],
+    imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, ToastModule, FileUploadModule, CardModule, CheckboxModule, DropdownModule, ColorPickerModule, DialogModule, TeamEditorComponent],
     providers: [MessageService, TenantSettingServiceProxy, FileUploadServiceProxy, TenantSettingsService, PremiumCalculationServiceProxy],
     templateUrl: './tenant-settings.component.html',
     styleUrl: './tenant-settings.component.scss'
@@ -190,6 +192,7 @@ export class TenantSettingsComponent implements OnInit {
         }
         this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', tenantId);
         this.loadTenantSettings();
+        
     }
 
     loadTenantSettings() {
@@ -278,6 +281,7 @@ export class TenantSettingsComponent implements OnInit {
                 // Initialize team members
                 this.teamMembers = this._settings.teamMembers || [];
                 this.teamEditorConfig.settings.teamMembers = [...this.teamMembers];
+                // ...theme styles now applied globally by ThemeService...
             })
             .catch((error) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load tenant settings', life: 3000 });
@@ -303,6 +307,8 @@ export class TenantSettingsComponent implements OnInit {
             existingSettings.logo = this._settings.logo;
             existingSettings.favicon = this._settings.favicon;
             existingSettings.primaryColor = this._settings.primaryColor;
+            existingSettings.testcolour = this._settings.testcolour;
+            existingSettings.inputBackgroundColor = this._settings.inputBackgroundColor;
             existingSettings.secondaryColor = this._settings.secondaryColor;
             existingSettings.accentColor = this._settings.accentColor;
             existingSettings.textColor = this._settings.textColor;
@@ -516,6 +522,9 @@ export class TenantSettingsComponent implements OnInit {
     // Generate CSS variables for PrimeNG theme
     generateThemeCSS(): string {
         const primaryColor = this._settings.primaryColor || this._settings.buttonPrimaryBackground || '#667eea';
+        const testcolour = this._settings.testcolour ||  'red';
+        const inputBackgroundColor = this._settings.inputBackgroundColor ||  'white';
+        debugger;
         const primaryHover = this._settings.buttonPrimaryHoverBackground || this.darkenColor(primaryColor, 10);
         const primaryActive = this._settings.primaryActiveColor || this.darkenColor(primaryColor, 15);
         const secondaryColor = this._settings.secondaryColor || this._settings.buttonSecondaryBackground || '#6b7280';
@@ -527,6 +536,20 @@ export class TenantSettingsComponent implements OnInit {
 :root {
     /* Primary Colors */
     --p-primary-color: ${primaryColor};
+    
+    --surface-card: ${testcolour} !important;
+    --surface-overlay: ${testcolour} !important;
+    --p-dialog-background: ${testcolour} !important;
+    --p-inputtext-background: ${inputBackgroundColor} !important;
+    --p-multiselect-background: ${inputBackgroundColor} !important;
+    --p-multiselect-option-focus-background: ${inputBackgroundColor} !important;
+    --p-multiselect-option-focus-color: ${textColor} !important;
+    --p-dropdown-background: ${inputBackgroundColor} !important;
+    --p-dropdown-panel-background: ${inputBackgroundColor} !important;
+    --p-dropdown-item-hover-background: ${inputBackgroundColor} !important;
+    --p-dropdown-item-hover-color: ${textColor} !important;
+    --p-inputtext-border-color: ${borderColor} !important;
+
     --p-primary-contrast-color: ${this._settings.buttonPrimaryColor || '#ffffff'};
     
     /* Button Primary */
@@ -735,34 +758,7 @@ export class TenantSettingsComponent implements OnInit {
         return '0.5rem';
     }
 
-    // Apply the generated CSS to the document
-    applyThemeCSS(): void {
-        const css = this.generateThemeCSS();
-        
-        // Remove existing tenant theme if present
-        const existingStyle = this.document.getElementById('tenant-theme-styles');
-        if (existingStyle) {
-            existingStyle.remove();
-        }
-        
-        // Create and inject new style element
-        const styleElement = this.document.createElement('style');
-        styleElement.id = 'tenant-theme-styles';
-        styleElement.innerHTML = css;
-        this.document.head.appendChild(styleElement);
-        
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Theme Applied',
-            detail: 'Button styles have been applied. Refresh to see changes across all pages.',
-            life: 5000
-        });
-    }
-
-    // Preview theme without saving
-    previewTheme(): void {
-        this.applyThemeCSS();
-    }
+    // ...existing code...
 
     // Premium Calculation Methods
     openPremiumSettings(): void {
@@ -926,6 +922,8 @@ export class TenantSettingsComponent implements OnInit {
                 this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
                 this._settings.primaryColor = '#667eea';
+                this._settings.testcolour = 'red';
+                this._settings.inputBackgroundColor = 'white';
                 break;
             case 'green':
                 this._settings.buttonPrimaryBackground = '#10b981';
@@ -936,6 +934,9 @@ export class TenantSettingsComponent implements OnInit {
                 this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
                 this._settings.primaryColor = '#10b981';
+                this._settings.testcolour = 'red';
+                this._settings.inputBackgroundColor = 'white';
+
                 break;
             case 'blue':
                 this._settings.buttonPrimaryBackground = '#3b82f6';
@@ -946,6 +947,8 @@ export class TenantSettingsComponent implements OnInit {
                 this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
                 this._settings.primaryColor = '#3b82f6';
+                this._settings.testcolour = 'red';
+                this._settings.inputBackgroundColor = 'white';
                 break;
             case 'orange':
                 this._settings.buttonPrimaryBackground = '#f59e0b';
@@ -956,6 +959,8 @@ export class TenantSettingsComponent implements OnInit {
                 this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
                 this._settings.primaryColor = '#f59e0b';
+                this._settings.testcolour = 'red';
+                this._settings.inputBackgroundColor = 'white';
                 break;
             case 'dark':
                 this._settings.buttonPrimaryBackground = '#1f2937';
@@ -966,6 +971,8 @@ export class TenantSettingsComponent implements OnInit {
                 this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
                 this._settings.primaryColor = '#1f2937';
+                this._settings.testcolour = 'red';
+                this._settings.inputBackgroundColor = 'white';
                 break;
         }
         

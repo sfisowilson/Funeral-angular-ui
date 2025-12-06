@@ -1,311 +1,184 @@
 <div class="dependents-step">
-    <p-toast></p-toast>
+    <!-- Bootstrap alert for toast messages (replace with Angular alert logic if needed) -->
     
-    <div class="step-header">
-        <p-button 
-            label="Add Dependent" 
-            icon="pi pi-plus"
-            (onClick)="showAddDialog()"
-            styleClass="p-button-success">
-        </p-button>
-        
-        @if (dependents().length > 0) {
-            <div class="status-badge success">
-                <i class="pi pi-check-circle"></i>
-                {{ dependents().length }} dependent(s) added
-            </div>
-        } @else {
-            <div class="status-badge warning">
-                <i class="pi pi-exclamation-triangle"></i>
-                No dependents added yet
-            </div>
-        }
+    <div class="step-header d-flex align-items-center justify-content-between mb-3">
+        <button type="button" class="btn btn-success" (click)="showAddDialog()">
+            <i class="bi bi-plus-lg me-1"></i> Add Dependent
+        </button>
+        <div>
+            <ng-container *ngIf="dependents().length > 0; else noDependents">
+                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> {{ dependents().length }} dependent(s) added</span>
+            </ng-container>
+            <ng-template #noDependents>
+                <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i> No dependents added yet</span>
+            </ng-template>
+        </div>
     </div>
 
-    @if (loading()) {
-        <div class="loading-message">
-            <i class="pi pi-spin pi-spinner"></i>
+    <ng-container *ngIf="loading()">
+        <div class="d-flex align-items-center mb-3">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Loading dependents...
         </div>
-    }
+    </ng-container>
 
-    @if (!loading() && dependents().length === 0) {
-        <div class="empty-state">
-            <i class="pi pi-users" style="font-size: 3rem; color: var(--text-color-secondary)"></i>
+    <ng-container *ngIf="!loading() && dependents().length === 0">
+        <div class="empty-state text-center py-4">
+            <i class="bi bi-people" style="font-size: 3rem; color: #6c757d;"></i>
             <h4>No dependents added</h4>
             <p>Click "Add Dependent" to add your first dependent.</p>
         </div>
-    }
+    </ng-container>
 
-    @if (!loading() && dependents().length > 0) {
-        <p-table 
-            [value]="dependents()" 
-            styleClass="p-datatable-striped"
-            [tableStyle]="{'min-width': '50rem'}">
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>ID Number</th>
-                    <th style="width: 80px">Age</th>
-                    <th style="width: 150px">Premium Impact</th>
-                    <th style="width: 120px">Actions</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-dependent>
-                <tr>
-                    <td>{{ dependent.name || '-' }}</td>
-                    <td>{{ dependent.email || '-' }}</td>
-                    <td>{{ dependent.phone1 || '-' }}</td>
-                    <td>{{ dependent.identificationNumber || '-' }}</td>
-                    <td>
-                        @if (dependent.calculatedAge !== undefined && dependent.calculatedAge !== null) {
-                            {{ dependent.calculatedAge }} years
-                        } @else {
-                            <span style="color: var(--text-color-secondary)">-</span>
-                        }
-                    </td>
-                    <td>
-                        @if (getPremiumImpact(dependent)) {
-                            <span class="premium-impact" [class.premium-high]="dependent.calculatedAge >= 75">
-                                +R{{ getPremiumImpact(dependent) }}
-                            </span>
-                        } @else {
-                            <span style="color: var(--text-color-secondary)">-</span>
-                        }
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <p-button 
-                                icon="pi pi-pencil" 
-                                styleClass="p-button-text p-button-sm"
-                                (onClick)="editDependent(dependent)"
-                                pTooltip="Edit">
-                            </p-button>
-                            <p-button 
-                                icon="pi pi-trash" 
-                                styleClass="p-button-text p-button-danger p-button-sm"
-                                (onClick)="deleteDependent(dependent.id)"
-                                pTooltip="Delete">
-                            </p-button>
+    <ng-container *ngIf="!loading() && dependents().length > 0">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle" style="min-width: 50rem;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>ID Number</th>
+                        <th style="width: 80px">Age</th>
+                        <th style="width: 150px">Premium Impact</th>
+                        <th style="width: 120px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let dependent of dependents()">
+                        <td>{{ dependent.name || '-' }}</td>
+                        <td>{{ dependent.email || '-' }}</td>
+                        <td>{{ dependent.phone1 || '-' }}</td>
+                        <td>{{ dependent.identificationNumber || '-' }}</td>
+                        <td>
+                            <ng-container *ngIf="dependent.calculatedAge !== undefined && dependent.calculatedAge !== null; else noAge">
+                                {{ dependent.calculatedAge }} years
+                            </ng-container>
+                            <ng-template #noAge>
+                                <span class="text-secondary">-</span>
+                            </ng-template>
+                        </td>
+                        <td>
+                            <ng-container *ngIf="getPremiumImpact(dependent); else noPremium">
+                                <span class="premium-impact" [class.premium-high]="isPremiumHigh(dependent)">
+                                    +R{{ getPremiumImpact(dependent) }}
+                                </span>
+                            </ng-container>
+                            <ng-template #noPremium>
+                                <span class="text-secondary">-</span>
+                            </ng-template>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm" (click)="editDependent(dependent)" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteDependent(dependent.id)" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </ng-container>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal fade show" tabindex="-1" [ngStyle]="{ display: displayDialog ? 'block' : 'none', background: 'rgba(0,0,0,0.5)' }" *ngIf="displayDialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ editMode() ? 'Edit Dependent' : 'Add Dependent' }}</h5>
+                    <button type="button" class="btn-close" (click)="displayDialog = false"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Dependent Information</button>
+                        </li>
+                        <li class="nav-item" role="presentation" *ngIf="editMode() && currentDependentId()">
+                            <button class="nav-link" id="docs-tab" data-bs-toggle="tab" data-bs-target="#docs" type="button" role="tab">Documents</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="info" role="tabpanel">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Full Name *</label>
+                                    <input id="name" [(ngModel)]="currentDependent.name" name="name" placeholder="Enter full name" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input id="email" [(ngModel)]="currentDependent.email" name="email" type="email" placeholder="Enter email address" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone1" class="form-label">Phone Number</label>
+                                    <input id="phone1" [(ngModel)]="currentDependent.phone1" name="phone1" placeholder="(012) 345-6789" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="idNumber" class="form-label">ID Number (SA) *</label>
+                                    <input id="idNumber" [(ngModel)]="currentDependent.identificationNumber" name="idNumber" (ngModelChange)="onIdNumberChange()" placeholder="e.g. 0001015009087" maxlength="13" class="form-control" [class.is-invalid]="idInfo() && !idInfo()!.isValid" [class.is-valid]="idInfo() && idInfo()!.isValid" />
+                                    <div *ngIf="idInfo() && !idInfo()!.isValid" class="invalid-feedback d-block">{{ idInfo()!.errorMessage }}</div>
+                                    <div *ngIf="idInfo() && idInfo()!.isValid" class="valid-feedback d-block"><i class="bi bi-check-circle"></i> Valid SA ID Number</div>
+                                </div>
+                                <div *ngIf="parsedDateOfBirth()" class="mb-3">
+                                    <label for="dob" class="form-label">Date of Birth (from ID)</label>
+                                    <input id="dob" [value]="parsedDateOfBirth() | date:'dd/MM/yyyy'" disabled class="form-control" />
+                                    <small class="text-muted">Age: {{ idInfo()?.age }} years</small>
+                                </div>
+                                <div *ngIf="parsedGender()" class="mb-3">
+                                    <label for="gender" class="form-label">Gender (from ID)</label>
+                                    <input id="gender" [value]="parsedGender()" disabled class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input id="address" [(ngModel)]="currentDependent.address" name="address" placeholder="Enter address" class="form-control" />
+                                </div>
+                            </form>
                         </div>
-                    </td>
-                </tr>
-            </ng-template>
-        </p-table>
-    }
-
-    <!-- Add/Edit Dialog -->
-    <p-dialog 
-        [(visible)]="displayDialog" 
-        [header]="editMode() ? 'Edit Dependent' : 'Add Dependent'"
-        [modal]="true" 
-        [style]="{width: '700px', 'max-height': '90vh'}"
-        [draggable]="false"
-        [resizable]="false">
-        
-        <p-tabView>
-            <p-tabPanel header="Dependent Information">
-                <div class="p-fluid">
-            <div class="field">
-                <label for="name">Full Name *</label>
-                <input 
-                    pInputText 
-                    id="name" 
-                    [(ngModel)]="currentDependent.name" 
-                    placeholder="Enter full name"
-                    class="w-full" />
-            </div>
-            
-            <div class="field">
-                <label for="email">Email Address</label>
-                <input 
-                    pInputText 
-                    id="email" 
-                    [(ngModel)]="currentDependent.email" 
-                    type="email"
-                    placeholder="Enter email address"
-                    class="w-full" />
-            </div>
-            
-            <div class="field">
-                <label for="phone1">Phone Number</label>
-                <p-inputMask 
-                    id="phone1" 
-                    [(ngModel)]="currentDependent.phone1" 
-                    mask="(999) 999-9999"
-                    placeholder="(012) 345-6789"
-                    class="w-full">
-                </p-inputMask>
-            </div>
-            
-            <div class="field">
-                <label for="idNumber">ID Number (SA) *</label>
-                <input 
-                    pInputText 
-                    id="idNumber" 
-                    [(ngModel)]="currentDependent.identificationNumber" 
-                    (ngModelChange)="onIdNumberChange()"
-                    placeholder="e.g. 0001015009087"
-                    maxlength="13"
-                    class="w-full"
-                    [class.ng-invalid]="idInfo() && !idInfo()!.isValid"
-                    [class.ng-valid]="idInfo() && idInfo()!.isValid" />
-                
-                @if (idInfo() && !idInfo()!.isValid) {
-                    <small class="p-error">{{ idInfo()!.errorMessage }}</small>
-                }
-                
-                @if (idInfo() && idInfo()!.isValid) {
-                    <small class="p-success">
-                        <i class="pi pi-check-circle"></i> Valid SA ID Number
-                    </small>
-                }
-            </div>
-            
-            <!-- Auto-populated Date of Birth -->
-            @if (parsedDateOfBirth()) {
-                <div class="field">
-                    <label for="dob">Date of Birth (from ID)</label>
-                    <p-calendar 
-                        id="dob" 
-                        [ngModel]="parsedDateOfBirth()"
-                        [disabled]="true"
-                        dateFormat="dd/mm/yy"
-                        [showIcon]="true"
-                        placeholder="Auto-populated from ID"
-                        class="w-full">
-                    </p-calendar>
-                    <small class="text-muted">Age: {{ idInfo()?.age }} years</small>
+                        <div class="tab-pane fade" id="docs" role="tabpanel" *ngIf="editMode() && currentDependentId()">
+                            <div class="mb-3">
+                                <div class="alert alert-info"><i class="bi bi-info-circle"></i> Upload required documents for this dependent (e.g., birth certificate, ID document)</div>
+                                <form>
+                                    <div class="mb-3">
+                                        <label class="form-label">Document Type *</label>
+                                        <select [(ngModel)]="selectedDocumentType" name="documentType" class="form-select">
+                                            <option value="">Select document type</option>
+                                            <option *ngFor="let type of documentTypes" [value]="type.value">{{ type.label }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">File *</label>
+                                        <input type="file" (change)="onFileSelect($event)" accept=".pdf,.jpg,.jpeg,.png" class="form-control" />
+                                        <div *ngIf="selectedFile" class="text-success mt-1"><i class="bi bi-check"></i> {{ selectedFile.name }}</div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" (click)="uploadDependentDocument()" [disabled]="!selectedDocumentType || !selectedFile">
+                                        <span *ngIf="uploading(); else notUploading"><span class="spinner-border spinner-border-sm me-2"></span>Uploading...</span><ng-template #notUploading><i class="bi bi-upload"></i> Upload Document</ng-template>
+                                    </button>
+                                </form>
+                            </div>
+                            <div *ngIf="uploadedDocuments().length > 0" class="mt-4">
+                                <h4>Uploaded Documents</h4>
+                                <div *ngFor="let doc of uploadedDocuments(); trackBy: trackByDocId" class="d-flex align-items-center mb-2">
+                                    <div class="flex-grow-1">
+                                        <i class="bi bi-file-earmark"></i>
+                                        <strong>{{ doc.description || 'Document' }}</strong>
+                                        <small class="text-muted ms-2">{{ doc.fileName }}</small>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-danger btn-sm ms-2" (click)="deleteDependentDocument(doc.id)" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            }
-            
-            <!-- Auto-populated Gender -->
-            @if (parsedGender()) {
-                <div class="field">
-                    <label for="gender">Gender (from ID)</label>
-                    <input 
-                        pInputText 
-                        id="gender" 
-                        [value]="parsedGender()"
-                        [disabled]="true"
-                        class="w-full" />
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="displayDialog = false"><i class="bi bi-x"></i> Cancel</button>
+                    <button type="button" class="btn btn-primary" (click)="saveDependent()"><i class="bi bi-check"></i> Save</button>
                 </div>
-            }
-            
-            <div class="field">
-                <label for="address">Address</label>
-                <input 
-                    pInputText 
-                    id="address" 
-                    [(ngModel)]="currentDependent.address" 
-                    placeholder="Enter address"
-                    class="w-full" />
             </div>
         </div>
-            </p-tabPanel>
-            
-            <!-- Documents Tab -->
-            @if (editMode() && currentDependentId()) {
-                <p-tabPanel header="Documents">
-                    <div class="documents-section">
-                        <p class="info-text">
-                            <i class="pi pi-info-circle"></i>
-                            Upload required documents for this dependent (e.g., birth certificate, ID document)
-                        </p>
-                        
-                        <!-- Upload Form -->
-                        <div class="upload-form">
-                            <div class="field">
-                                <label>Document Type *</label>
-                                <p-dropdown
-                                    [(ngModel)]="selectedDocumentType"
-                                    [options]="documentTypes"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    placeholder="Select document type"
-                                    [showClear]="true"
-                                    styleClass="w-full">
-                                    <ng-template let-option pTemplate="item">
-                                        <div class="dropdown-option">
-                                            <i [class]="'pi ' + option.icon"></i>
-                                            <div>
-                                                <div class="dropdown-item-label">{{ option.label }}</div>
-                                                <small class="dropdown-item-description">{{ option.description }}</small>
-                                            </div>
-                                        </div>
-                                    </ng-template>
-                                </p-dropdown>
-                            </div>
-                            
-                            <div class="field">
-                                <label>File *</label>
-                                <p-fileUpload
-                                    mode="basic"
-                                    [auto]="false"
-                                    [customUpload]="true"
-                                    (onSelect)="onFileSelect($event)"
-                                    [maxFileSize]="10000000"
-                                    accept=".pdf,.jpg,.jpeg,.png"
-                                    chooseLabel="Choose File">
-                                </p-fileUpload>
-                                @if (selectedFile) {
-                                    <small class="file-selected">
-                                        <i class="pi pi-check"></i> {{ selectedFile.name }}
-                                    </small>
-                                }
-                            </div>
-                            
-                            <p-button 
-                                label="Upload Document"
-                                icon="pi pi-upload"
-                                (onClick)="uploadDependentDocument()"
-                                [loading]="uploading()"
-                                [disabled]="!selectedDocumentType || !selectedFile">
-                            </p-button>
-                        </div>
-                        
-                        <!-- Uploaded Documents List -->
-                        @if (uploadedDocuments().length > 0) {
-                            <div class="uploaded-docs-list">
-                                <h4>Uploaded Documents</h4>
-                                @for (doc of uploadedDocuments(); track doc.id) {
-                                    <div class="doc-item">
-                                        <div class="doc-info">
-                                            <i class="pi pi-file"></i>
-                                            <div>
-                                                <strong>{{ doc.description || 'Document' }}</strong>
-                                                <small>{{ doc.fileName }}</small>
-                                            </div>
-                                        </div>
-                                        <p-button 
-                                            icon="pi pi-trash" 
-                                            styleClass="p-button-text p-button-danger p-button-sm"
-                                            (onClick)="deleteDependentDocument(doc.id)"
-                                            pTooltip="Delete">
-                                        </p-button>
-                                    </div>
-                                }
-                            </div>
-                        }
-                    </div>
-                </p-tabPanel>
-            }
-        </p-tabView>
-        
-        <ng-template pTemplate="footer">
-            <p-button 
-                label="Cancel" 
-                icon="pi pi-times" 
-                (onClick)="displayDialog = false" 
-                styleClass="p-button-text">
-            </p-button>
-            <p-button 
-                label="Save" 
-                icon="pi pi-check" 
-                (onClick)="saveDependent()">
-            </p-button>
-        </ng-template>
-    </p-dialog>
+    </div>
 </div>
