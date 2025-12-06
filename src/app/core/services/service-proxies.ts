@@ -4147,7 +4147,7 @@ export class Debit_orderServiceProxy {
      * @param pageSize (optional) 
      * @return OK
      */
-    batchGetList(page: number | undefined, pageSize: number | undefined): Observable<void> {
+    batchGet(page: number | undefined, pageSize: number | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/debit-order/batch?";
         if (page === null)
             throw new globalThis.Error("The parameter 'page' cannot be null.");
@@ -4167,11 +4167,11 @@ export class Debit_orderServiceProxy {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processBatchGetList(response_);
+            return this.processBatchGet(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processBatchGetList(response_ as any);
+                    return this.processBatchGet(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -4180,7 +4180,7 @@ export class Debit_orderServiceProxy {
         }));
     }
 
-    protected processBatchGetList(response: HttpResponseBase): Observable<void> {
+    protected processBatchGet(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -4202,7 +4202,7 @@ export class Debit_orderServiceProxy {
     /**
      * @return OK
      */
-    batchGetById(batchId: string): Observable<void> {
+    batchGet(batchId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/debit-order/batch/{batchId}";
         if (batchId === undefined || batchId === null)
             throw new globalThis.Error("The parameter 'batchId' must be defined.");
@@ -4217,11 +4217,11 @@ export class Debit_orderServiceProxy {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processBatchGetById(response_);
+            return this.processBatchGet(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processBatchGetById(response_ as any);
+                    return this.processBatchGet(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -4230,7 +4230,7 @@ export class Debit_orderServiceProxy {
         }));
     }
 
-    protected processBatchGetById(response: HttpResponseBase): Observable<void> {
+    protected processBatchGet(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -5404,6 +5404,74 @@ export class ApiServiceProxy {
                 result200 = resultData200 !== undefined ? resultData200 : null as any;
     
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    onboardingContract(contractId: string): Observable<OnboardingContractDto> {
+        let url_ = this.baseUrl + "/api/OnboardingContract/{contractId}";
+        if (contractId === undefined || contractId === null)
+            throw new globalThis.Error("The parameter 'contractId' must be defined.");
+        url_ = url_.replace("{contractId}", encodeURIComponent("" + contractId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOnboardingContract(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOnboardingContract(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<OnboardingContractDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<OnboardingContractDto>;
+        }));
+    }
+
+    protected processOnboardingContract(response: HttpResponseBase): Observable<OnboardingContractDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = OnboardingContractDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -7991,6 +8059,291 @@ export class MemberRegistrationServiceProxy {
 }
 
 @Injectable()
+export class OnboardingContractServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    generate(body: GenerateContractRequest | undefined): Observable<ContractGenerationResult> {
+        let url_ = this.baseUrl + "/api/OnboardingContract/generate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGenerate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGenerate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ContractGenerationResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ContractGenerationResult>;
+        }));
+    }
+
+    protected processGenerate(response: HttpResponseBase): Observable<ContractGenerationResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ContractGenerationResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    sign(body: SignContractRequest | undefined): Observable<OnboardingContractDto> {
+        let url_ = this.baseUrl + "/api/OnboardingContract/sign";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSign(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSign(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<OnboardingContractDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<OnboardingContractDto>;
+        }));
+    }
+
+    protected processSign(response: HttpResponseBase): Observable<OnboardingContractDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = OnboardingContractDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    member(memberId: string): Observable<OnboardingContractDto[]> {
+        let url_ = this.baseUrl + "/api/OnboardingContract/member/{memberId}";
+        if (memberId === undefined || memberId === null)
+            throw new globalThis.Error("The parameter 'memberId' must be defined.");
+        url_ = url_.replace("{memberId}", encodeURIComponent("" + memberId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMember(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMember(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<OnboardingContractDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<OnboardingContractDto[]>;
+        }));
+    }
+
+    protected processMember(response: HttpResponseBase): Observable<OnboardingContractDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(OnboardingContractDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    download(contractId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/OnboardingContract/{contractId}/download";
+        if (contractId === undefined || contractId === null)
+            throw new globalThis.Error("The parameter 'contractId' must be defined.");
+        url_ = url_.replace("{contractId}", encodeURIComponent("" + contractId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDownload(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDownload(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDownload(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class OnboardingFieldConfigurationServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -8766,7 +9119,7 @@ export class Payment_configServiceProxy {
     /**
      * @return OK
      */
-    gatewayGetList(): Observable<void> {
+    gatewayGet(): Observable<void> {
         let url_ = this.baseUrl + "/api/payment-config/gateway";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -8778,11 +9131,11 @@ export class Payment_configServiceProxy {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGatewayGetList(response_);
+            return this.processGatewayGet(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGatewayGetList(response_ as any);
+                    return this.processGatewayGet(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -8791,7 +9144,7 @@ export class Payment_configServiceProxy {
         }));
     }
 
-    protected processGatewayGetList(response: HttpResponseBase): Observable<void> {
+    protected processGatewayGet(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -8865,7 +9218,7 @@ export class Payment_configServiceProxy {
     /**
      * @return OK
      */
-    gatewayGetById(id: string): Observable<void> {
+    gatewayGet(id: string): Observable<void> {
         let url_ = this.baseUrl + "/api/payment-config/gateway/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -8880,11 +9233,11 @@ export class Payment_configServiceProxy {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGatewayGetById(response_);
+            return this.processGatewayGet(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGatewayGetById(response_ as any);
+                    return this.processGatewayGet(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<void>;
                 }
@@ -8893,7 +9246,7 @@ export class Payment_configServiceProxy {
         }));
     }
 
-    protected processGatewayGetById(response: HttpResponseBase): Observable<void> {
+    protected processGatewayGet(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -13290,6 +13643,108 @@ export class TenantSettingServiceProxy {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * @param file (optional) 
+     * @return OK
+     */
+    uploadContractTemplate(file: FileParameter | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/TenantSetting/upload-contract-template";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file === null || file === undefined)
+            throw new globalThis.Error("The parameter 'file' cannot be null.");
+        else
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUploadContractTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUploadContractTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUploadContractTemplate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    removeContractTemplate(): Observable<void> {
+        let url_ = this.baseUrl + "/api/TenantSetting/remove-contract-template";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRemoveContractTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRemoveContractTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRemoveContractTemplate(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable()
@@ -17110,6 +17565,54 @@ export interface ICompleteMaintenanceDto {
     notes: string | undefined;
 }
 
+export class ContractGenerationResult implements IContractGenerationResult {
+    contractId!: string;
+    pdfUrl!: string | undefined;
+    usedTemplate!: boolean;
+    message!: string | undefined;
+
+    constructor(data?: IContractGenerationResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.contractId = _data["contractId"];
+            this.pdfUrl = _data["pdfUrl"];
+            this.usedTemplate = _data["usedTemplate"];
+            this.message = _data["message"];
+        }
+    }
+
+    static fromJS(data: any): ContractGenerationResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContractGenerationResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["contractId"] = this.contractId;
+        data["pdfUrl"] = this.pdfUrl;
+        data["usedTemplate"] = this.usedTemplate;
+        data["message"] = this.message;
+        return data;
+    }
+}
+
+export interface IContractGenerationResult {
+    contractId: string;
+    pdfUrl: string | undefined;
+    usedTemplate: boolean;
+    message: string | undefined;
+}
+
 export class CreateAssetDto implements ICreateAssetDto {
     name!: string | undefined;
     description!: string | undefined;
@@ -18749,6 +19252,42 @@ export enum FuneralEventStatus {
     _2 = 2,
 }
 
+export class GenerateContractRequest implements IGenerateContractRequest {
+    memberId!: string;
+
+    constructor(data?: IGenerateContractRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.memberId = _data["memberId"];
+        }
+    }
+
+    static fromJS(data: any): GenerateContractRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new GenerateContractRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberId"] = this.memberId;
+        return data;
+    }
+}
+
+export interface IGenerateContractRequest {
+    memberId: string;
+}
+
 export class GeneratePolicyNumberRequestDto implements IGeneratePolicyNumberRequestDto {
     memberId!: string | undefined;
 
@@ -19935,6 +20474,86 @@ export enum MemberStatus {
     _1 = 1,
     _2 = 2,
     _3 = 3,
+}
+
+export class OnboardingContractDto implements IOnboardingContractDto {
+    id!: string;
+    tenantId!: string;
+    memberId!: string;
+    templateFileId!: string | undefined;
+    generatedPdfPath!: string | undefined;
+    signedPdfPath!: string | undefined;
+    signatureImagePath!: string | undefined;
+    ipAddress!: string | undefined;
+    signedAt!: DateTime | undefined;
+    isLegallyBinding!: boolean;
+    documentHash!: string | undefined;
+    signedDocumentHash!: string | undefined;
+
+    constructor(data?: IOnboardingContractDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.memberId = _data["memberId"];
+            this.templateFileId = _data["templateFileId"];
+            this.generatedPdfPath = _data["generatedPdfPath"];
+            this.signedPdfPath = _data["signedPdfPath"];
+            this.signatureImagePath = _data["signatureImagePath"];
+            this.ipAddress = _data["ipAddress"];
+            this.signedAt = _data["signedAt"] ? DateTime.fromISO(_data["signedAt"].toString()) : undefined as any;
+            this.isLegallyBinding = _data["isLegallyBinding"];
+            this.documentHash = _data["documentHash"];
+            this.signedDocumentHash = _data["signedDocumentHash"];
+        }
+    }
+
+    static fromJS(data: any): OnboardingContractDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OnboardingContractDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["memberId"] = this.memberId;
+        data["templateFileId"] = this.templateFileId;
+        data["generatedPdfPath"] = this.generatedPdfPath;
+        data["signedPdfPath"] = this.signedPdfPath;
+        data["signatureImagePath"] = this.signatureImagePath;
+        data["ipAddress"] = this.ipAddress;
+        data["signedAt"] = this.signedAt ? this.signedAt.toString() : undefined as any;
+        data["isLegallyBinding"] = this.isLegallyBinding;
+        data["documentHash"] = this.documentHash;
+        data["signedDocumentHash"] = this.signedDocumentHash;
+        return data;
+    }
+}
+
+export interface IOnboardingContractDto {
+    id: string;
+    tenantId: string;
+    memberId: string;
+    templateFileId: string | undefined;
+    generatedPdfPath: string | undefined;
+    signedPdfPath: string | undefined;
+    signatureImagePath: string | undefined;
+    ipAddress: string | undefined;
+    signedAt: DateTime | undefined;
+    isLegallyBinding: boolean;
+    documentHash: string | undefined;
+    signedDocumentHash: string | undefined;
 }
 
 export class OnboardingFieldConfigurationDto implements IOnboardingFieldConfigurationDto {
@@ -21873,6 +22492,74 @@ export interface IScheduleMaintenanceDto {
     notes: string | undefined;
 }
 
+export class SignContractRequest implements ISignContractRequest {
+    contractId!: string;
+    signatureBase64!: string | undefined;
+    ipAddress!: string | undefined;
+    userAgent!: string | undefined;
+    geoLocation!: string | undefined;
+    signatureX!: number;
+    signatureY!: number;
+    signatureWidth!: number;
+    signatureHeight!: number;
+
+    constructor(data?: ISignContractRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.contractId = _data["contractId"];
+            this.signatureBase64 = _data["signatureBase64"];
+            this.ipAddress = _data["ipAddress"];
+            this.userAgent = _data["userAgent"];
+            this.geoLocation = _data["geoLocation"];
+            this.signatureX = _data["signatureX"];
+            this.signatureY = _data["signatureY"];
+            this.signatureWidth = _data["signatureWidth"];
+            this.signatureHeight = _data["signatureHeight"];
+        }
+    }
+
+    static fromJS(data: any): SignContractRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignContractRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["contractId"] = this.contractId;
+        data["signatureBase64"] = this.signatureBase64;
+        data["ipAddress"] = this.ipAddress;
+        data["userAgent"] = this.userAgent;
+        data["geoLocation"] = this.geoLocation;
+        data["signatureX"] = this.signatureX;
+        data["signatureY"] = this.signatureY;
+        data["signatureWidth"] = this.signatureWidth;
+        data["signatureHeight"] = this.signatureHeight;
+        return data;
+    }
+}
+
+export interface ISignContractRequest {
+    contractId: string;
+    signatureBase64: string | undefined;
+    ipAddress: string | undefined;
+    userAgent: string | undefined;
+    geoLocation: string | undefined;
+    signatureX: number;
+    signatureY: number;
+    signatureWidth: number;
+    signatureHeight: number;
+}
+
 export enum SourceOfIncome {
     _1 = 1,
     _2 = 2,
@@ -22145,6 +22832,7 @@ export class TenantSettingDto implements ITenantSettingDto {
     logo!: string | undefined;
     favicon!: string | undefined;
     tenantName!: string | undefined;
+    contractTemplateFileId!: string | undefined;
 
     constructor(data?: ITenantSettingDto) {
         if (data) {
@@ -22165,6 +22853,7 @@ export class TenantSettingDto implements ITenantSettingDto {
             this.logo = _data["logo"];
             this.favicon = _data["favicon"];
             this.tenantName = _data["tenantName"];
+            this.contractTemplateFileId = _data["contractTemplateFileId"];
         }
     }
 
@@ -22185,6 +22874,7 @@ export class TenantSettingDto implements ITenantSettingDto {
         data["logo"] = this.logo;
         data["favicon"] = this.favicon;
         data["tenantName"] = this.tenantName;
+        data["contractTemplateFileId"] = this.contractTemplateFileId;
         return data;
     }
 }
@@ -22198,6 +22888,7 @@ export interface ITenantSettingDto {
     logo: string | undefined;
     favicon: string | undefined;
     tenantName: string | undefined;
+    contractTemplateFileId: string | undefined;
 }
 
 export enum TenantType {
@@ -23337,4 +24028,4 @@ function blobToText(blob: any): Observable<string> {
         }
     });
 }
-
+
