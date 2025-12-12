@@ -1,0 +1,99 @@
+.whatsapp-editor {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.section {
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.form-label {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #555;
+}
+
+.form-control-color {
+  width: 80px;
+  height: 40px;
+  padding: 4px;
+}
+
+.photo-upload {
+  margin-top: 8px;
+}
+
+.current-photo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.current-photo img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.upload-area {
+  position: relative;
+}
+
+.upload-area input[type="file"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #f8f9fa;
+}
+
+.upload-label:hover {
+  border-color: #007bff;
+  background-color: #e7f1ff;
+}
+
+.upload-label i {
+  font-size: 32px;
+  color: #007bff;
+}
+
+.upload-label span {
+  font-size: 14px;
+  color: #666;
+}
+
+.form-text {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}

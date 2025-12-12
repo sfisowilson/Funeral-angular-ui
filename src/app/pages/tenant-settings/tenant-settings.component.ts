@@ -17,7 +17,7 @@ import { TenantSettingsService } from '../../core/services/tenant-settings.servi
 import { TeamEditorComponent } from '../../building-blocks/team-editor-widget/team-editor.component';
 import { WidgetConfig } from '../../building-blocks/widget-config';
 import { WidgetService } from '../../building-blocks/widget.service';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 interface SmtpSettings {
@@ -83,6 +83,9 @@ interface Settings extends SmtpSettings, NotificationSettings {
     surface900?: string;
     surface200?: string;
     teamMembers?: TeamMember[];
+    enableIdVerification?: boolean;
+    requireIdVerificationForRegistration?: boolean;
+    contractTemplateFileId?: string;
 }
 
 interface TeamMember {
@@ -150,6 +153,7 @@ export class TenantSettingsComponent implements OnInit {
         private tenantSettingsService: TenantSettingsService,
         private widgetService: WidgetService,
         private premiumCalculationService: PremiumCalculationServiceProxy,
+        private http: HttpClient,
         @Inject(API_BASE_URL) private baseUrl: string,
         @Inject(DOCUMENT) private document: Document
     ) {}
@@ -281,6 +285,10 @@ export class TenantSettingsComponent implements OnInit {
                 // Initialize team members
                 this.teamMembers = this._settings.teamMembers || [];
                 this.teamEditorConfig.settings.teamMembers = [...this.teamMembers];
+                
+                // Load contract template file ID from TenantSettingDto
+                this._settings.contractTemplateFileId = this.tenantSettings.contractTemplateFileId;
+                
                 // ...theme styles now applied globally by ThemeService...
             })
             .catch((error) => {
@@ -394,7 +402,9 @@ export class TenantSettingsComponent implements OnInit {
     }
 
     onLogoUpload(event: any) {
-        const file = event.files[0];
+        const file = event.target.files[0];
+        if (!file) return;
+        
         const fileParameter: FileParameter = {
             data: file,
             fileName: file.name
@@ -416,7 +426,9 @@ export class TenantSettingsComponent implements OnInit {
     }
 
     onFaviconUpload(event: any) {
-        const file = event.files[0];
+        const file = event.target.files[0];
+        if (!file) return;
+        
         const fileParameter: FileParameter = {
             data: file,
             fileName: file.name
@@ -437,7 +449,9 @@ export class TenantSettingsComponent implements OnInit {
     }
 
     onCssFileUpload(event: any) {
-        const file = event.files[0];
+        const file = event.target.files[0];
+        if (!file) return;
+        
         const fileParameter: FileParameter = {
             data: file,
             fileName: file.name
@@ -451,6 +465,98 @@ export class TenantSettingsComponent implements OnInit {
             error: (error: any) => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload CSS file: ' + (error?.error?.error || error?.message || 'Unknown error'), life: 5000 });
                 console.error('CSS upload error:', error);
+            }
+        });
+    }
+
+    onContractTemplateUpload(event: any) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.type !== 'application/pdf') {
+            this.messageService.add({ 
+                severity: 'error', 
+                summary: 'Invalid File', 
+                detail: 'Only PDF files are allowed for contract templates', 
+                life: 5000 
+            });
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const headers = new HttpHeaders();
+        // Let browser set content-type for multipart/form-data
+
+        this.http.post(`${this.baseUrl}/api/TenantSetting/upload-contract-template`, formData, { headers }).subscribe({
+            next: (result: any) => {
+                this.messageService.add({ 
+                    severity: 'success', 
+                    summary: 'Success', 
+                    detail: 'Contract template uploaded successfully', 
+                    life: 3000 
+                });
+                this._settings.contractTemplateFileId = result.fileId;
+                this.hasChanges = true;
+            },
+            error: (error: any) => {
+                this.messageService.add({ 
+                    severity: 'error', 
+                    summary: 'Error', 
+                    detail: 'Failed to upload contract template: ' + (error?.error?.message || error?.message || 'Unknown error'), 
+                    life: 5000 
+                });
+                console.error('Contract template upload error:', error);
+            }
+        });
+
+        // Reset file input
+        event.target.value = '';
+    }
+
+    removeContractTemplate() {
+        this.http.delete(`${this.baseUrl}/api/TenantSetting/remove-contract-template`).subscribe({
+            next: () => {
+                this.messageService.add({ 
+                    severity: 'success', 
+                    summary: 'Success', 
+                    detail: 'Contract template removed successfully', 
+                    life: 3000 
+                });
+                this._settings.contractTemplateFileId = undefined;
+                this.hasChanges = true;
+            },
+            error: (error: any) => {
+                this.messageService.add({ 
+                    severity: 'error', 
+                    summary: 'Error', 
+                    detail: 'Failed to remove contract template: ' + (error?.error?.message || error?.message || 'Unknown error'), 
+                    life: 5000 
+                });
+                console.error('Contract template removal error:', error);
+            }
+        });
+    }
+
+    syncFieldConfigurations() {
+        this.http.post(`${this.baseUrl}/api/OnboardingFieldConfiguration/OnboardingFieldConfiguration_InitializeDefaults`, {}).subscribe({
+            next: () => {
+                this.messageService.add({ 
+                    severity: 'success', 
+                    summary: 'Success', 
+                    detail: 'Field configurations synchronized successfully. All onboarding fields are now up to date.', 
+                    life: 3000 
+                });
+            },
+            error: (error: any) => {
+                this.messageService.add({ 
+                    severity: 'error', 
+                    summary: 'Error', 
+                    detail: 'Failed to sync field configurations: ' + (error?.error?.message || error?.message || 'Unknown error'), 
+                    life: 5000 
+                });
+                console.error('Field configuration sync error:', error);
             }
         });
     }

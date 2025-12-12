@@ -75,6 +75,7 @@ export class DependentsStepComponent implements OnInit {
     currentDependent: DependentDto = {} as DependentDto;
     loading = signal(false);
     private stepCompleteSubject = new Subject<void>();
+    activeTab: 'info' | 'docs' = 'info'; // Track active tab in modal
     
     // SA ID validation
     idInfo = signal<SAIdInfo | null>(null);
@@ -146,6 +147,7 @@ export class DependentsStepComponent implements OnInit {
 
     showAddDialog() {
         this.editMode.set(false);
+        this.activeTab = 'info'; // Reset to info tab
         this.currentDependent = {
             id: undefined,
             memberId: undefined, // Will be set by backend from JWT
@@ -168,6 +170,7 @@ export class DependentsStepComponent implements OnInit {
 
     editDependent(dependent: DependentDto) {
         this.editMode.set(true);
+        this.activeTab = 'info'; // Reset to info tab
         // Create new instance to avoid reference issues
         this.currentDependent = new DependentDto({
             id: dependent.id,
@@ -360,8 +363,10 @@ export class DependentsStepComponent implements OnInit {
     }
 
     onFileSelect(event: any) {
-        if (event.files && event.files.length > 0) {
-            this.selectedFile = event.files[0];
+        // Handle both PrimeNG fileUpload (event.files) and native input (event.target.files)
+        const files = event.files || (event.target && event.target.files);
+        if (files && files.length > 0) {
+            this.selectedFile = files[0];
         }
     }
 

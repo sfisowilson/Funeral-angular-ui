@@ -1,0 +1,68 @@
+<div class="whatsapp-widget-container" [ngStyle]="getContainerStyles()">
+  <!-- Main Button -->
+  <button 
+    *ngIf="!isExpanded"
+    type="button"
+    class="whatsapp-button"
+    [ngStyle]="getButtonStyles()"
+    (click)="toggleExpanded()"
+    aria-label="Chat with us on WhatsApp">
+    <i class="bi bi-whatsapp"></i>
+  </button>
+
+  <!-- Expanded Chat Box -->
+  <div 
+    *ngIf="isExpanded"
+    class="whatsapp-expanded"
+    [ngStyle]="getExpandedBoxStyles()">
+      
+    <!-- Header -->
+    <div class="whatsapp-header" [ngStyle]="getHeaderStyles()">
+      <div class="header-content">
+        <div class="agent-info">
+          <div class="agent-avatar">
+            <i class="bi bi-person-circle" *ngIf="!settings.agentPhoto"></i>
+            <img [src]="settings.agentPhoto" [alt]="settings.agentName" *ngIf="settings.agentPhoto">
+          </div>
+          <div class="agent-details">
+            <div class="agent-name">{{ settings.agentName || 'Support Team' }}</div>
+            <div class="agent-status">
+              <span class="status-indicator" [class.online]="settings.showOnlineStatus"></span>
+              {{ settings.showOnlineStatus ? 'Online' : 'Typically replies within minutes' }}
+            </div>
+          </div>
+        </div>
+        <button 
+          type="button"
+          class="close-button"
+          (click)="toggleExpanded()"
+          aria-label="Close chat">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Message Content -->
+    <div class="whatsapp-content">
+      <div class="welcome-message">
+        <div class="message-bubble">
+          <p>{{ settings.welcomeMessage || 'Hi there! How can we help you today?' }}</p>
+          <span class="message-time">Just now</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Button -->
+    <div class="whatsapp-footer">
+      <button 
+        type="button"
+        class="whatsapp-action"
+        [ngStyle]="getActionButtonStyles()"
+        (click)="openWhatsApp()">
+        <i class="bi bi-whatsapp"></i>
+        {{ settings.buttonText || 'Start Chat' }}
+      </button>
+    </div>
+  </div>
+</div>
+

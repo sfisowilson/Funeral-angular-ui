@@ -1,0 +1,67 @@
+<div class="slider-container" [ngStyle]="getContainerStyles()">
+  <div class="slider-wrapper">
+    <!-- Slides -->
+    <div class="slides-container" [ngStyle]="getSlidesContainerStyles()">
+      <div 
+        *ngFor="let slide of slides; let i = index"
+        class="slide"
+        [class.active]="i === currentSlide"
+        [ngStyle]="getSlideStyles(slide)">
+        
+        <!-- Overlay -->
+        <div class="slide-overlay" [ngStyle]="getOverlayStyles(slide)"></div>
+        
+        <!-- Content -->
+        <div class="slide-content" [ngStyle]="getContentStyles()">
+          <h2 class="slide-title" [ngStyle]="getTitleStyles()">
+            {{ slide.title }}
+          </h2>
+          <p class="slide-subtitle" [ngStyle]="getSubtitleStyles()">
+            {{ slide.subtitle }}
+          </p>
+          <a 
+            *ngIf="slide.buttonText && slide.buttonLink"
+            [href]="slide.buttonLink"
+            class="btn slide-button"
+            [ngStyle]="getButtonStyles()">
+            {{ slide.buttonText }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <button 
+      *ngIf="settings.showArrows && slides.length > 1"
+      class="btn slider-nav prev"
+      (click)="previousSlide()"
+      [ngStyle]="getNavButtonStyles()"
+      type="button">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+    <button 
+      *ngIf="settings.showArrows && slides.length > 1"
+      class="btn slider-nav next"
+      (click)="nextSlide()"
+      [ngStyle]="getNavButtonStyles()"
+      type="button">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+
+    <!-- Dots Navigation -->
+    <div 
+      *ngIf="settings.showDots && slides.length > 1"
+      class="slider-dots"
+      [ngStyle]="getDotsContainerStyles()">
+      <button
+        *ngFor="let slide of slides; let i = index"
+        class="dot"
+        [class.active]="i === currentSlide"
+        (click)="goToSlide(i)"
+        [ngStyle]="getDotStyles(i === currentSlide)"
+        type="button"
+        [attr.aria-label]="'Go to slide ' + (i + 1)">
+      </button>
+    </div>
+  </div>
+</div>

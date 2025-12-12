@@ -1,0 +1,17 @@
+.slider-editor {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.settings-section:last-child {
+  border-bottom: none !important;
+}
+
+.slide-editor {
+  background-color: #f8f9fa;
+}
+
+.form-control-color {
+  width: 60px;
+  height: 38px;
+}

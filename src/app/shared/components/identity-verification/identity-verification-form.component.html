@@ -1,4 +1,16 @@
 <div class="identity-verification-form">
+    <!-- Bootstrap Alert -->
+    <div *ngIf="showAlert" class="alert alert-{{alertType}} alert-dismissible fade show" role="alert">
+        <i class="bi" [ngClass]="{
+            'bi-check-circle-fill': alertType === 'success',
+            'bi-exclamation-triangle-fill': alertType === 'warning',
+            'bi-info-circle-fill': alertType === 'info',
+            'bi-x-circle-fill': alertType === 'danger'
+        }"></i>
+        {{ alertMessage }}
+        <button type="button" class="btn-close" (click)="closeAlert()" aria-label="Close"></button>
+    </div>
+
     <p-card [header]="title">
         <ng-template pTemplate="subtitle">
             <p class="text-muted-color">{{ subtitle }}</p>

@@ -1,0 +1,228 @@
+<div class="whatsapp-editor">
+  <!-- WhatsApp Configuration Section -->
+  <div class="section">
+    <h4 class="section-title">WhatsApp Configuration</h4>
+    
+    <div class="form-group mb-3">
+      <label class="form-label">WhatsApp Phone Number (with country code) *</label>
+      <input 
+        type="text" 
+        class="form-control" 
+        [(ngModel)]="settings.phoneNumber"
+        (blur)="formatPhoneNumber()"
+        placeholder="27821234567">
+      <small class="form-text text-muted">
+        Enter the full WhatsApp number with country code (e.g., 27821234567 for South Africa)
+      </small>
+    </div>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Default Message</label>
+      <textarea 
+        class="form-control" 
+        [(ngModel)]="settings.defaultMessage"
+        rows="3"
+        placeholder="Hi, I would like to get in touch."></textarea>
+      <small class="form-text text-muted">
+        This message will be pre-filled when users click to chat
+      </small>
+    </div>
+  </div>
+
+  <!-- Agent Details Section -->
+  <div class="section">
+    <h4 class="section-title">Agent Details</h4>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Agent Name</label>
+      <input 
+        type="text" 
+        class="form-control" 
+        [(ngModel)]="settings.agentName"
+        placeholder="Support Team">
+    </div>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Agent Photo</label>
+      <div class="photo-upload">
+        <div class="current-photo" *ngIf="settings.agentPhoto">
+          <img [src]="settings.agentPhoto" alt="Agent photo">
+          <button 
+            type="button"
+            class="btn btn-sm btn-danger"
+            (click)="removePhoto()">
+            <i class="bi bi-trash"></i> Remove
+          </button>
+        </div>
+        <div class="upload-area" *ngIf="!settings.agentPhoto">
+          <input 
+            type="file" 
+            id="agentPhotoInput"
+            accept="image/*"
+            (change)="onPhotoSelected($event)"
+            [disabled]="uploadingPhoto">
+          <label for="agentPhotoInput" class="upload-label">
+            <i class="bi bi-cloud-upload" *ngIf="!uploadingPhoto"></i>
+            <div class="spinner-border spinner-border-sm" role="status" *ngIf="uploadingPhoto">
+              <span class="visually-hidden">Uploading...</span>
+            </div>
+            <span *ngIf="!uploadingPhoto">Choose agent photo</span>
+            <span *ngIf="uploadingPhoto">Uploading...</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Welcome Message</label>
+      <textarea 
+        class="form-control" 
+        [(ngModel)]="settings.welcomeMessage"
+        rows="3"
+        placeholder="Hi there! How can we help you today?"></textarea>
+    </div>
+
+    <div class="form-check mb-3">
+      <input 
+        type="checkbox" 
+        class="form-check-input" 
+        id="showOnlineStatus"
+        [(ngModel)]="settings.showOnlineStatus">
+      <label class="form-check-label" for="showOnlineStatus">
+        Show as Online
+      </label>
+    </div>
+  </div>
+
+  <!-- Button Settings Section -->
+  <div class="section">
+    <h4 class="section-title">Button Settings</h4>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Button Text</label>
+      <input 
+        type="text" 
+        class="form-control" 
+        [(ngModel)]="settings.buttonText"
+        placeholder="Start Chat">
+    </div>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Button Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color" 
+        [(ngModel)]="settings.buttonColor">
+    </div>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Button Size: {{ settings.buttonSize }}px</label>
+      <input 
+        type="range" 
+        class="form-range" 
+        [(ngModel)]="settings.buttonSize"
+        min="50"
+        max="80"
+        step="5">
+    </div>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Border Radius: {{ settings.borderRadius }}%</label>
+      <input 
+        type="range" 
+        class="form-range" 
+        [(ngModel)]="settings.borderRadius"
+        min="0"
+        max="50"
+        step="5">
+    </div>
+  </div>
+
+  <!-- Position Settings Section -->
+  <div class="section">
+    <h4 class="section-title">Position Settings</h4>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Screen Position</label>
+      <select class="form-select" [(ngModel)]="settings.position">
+        <option value="left">Left Side</option>
+        <option value="right">Right Side</option>
+      </select>
+    </div>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Distance from Side: {{ settings.sidePosition }}px</label>
+      <input 
+        type="range" 
+        class="form-range" 
+        [(ngModel)]="settings.sidePosition"
+        min="10"
+        max="100"
+        step="5">
+    </div>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Distance from Bottom: {{ settings.bottomPosition }}px</label>
+      <input 
+        type="range" 
+        class="form-range" 
+        [(ngModel)]="settings.bottomPosition"
+        min="10"
+        max="200"
+        step="5">
+    </div>
+
+    <div class="form-group mb-3">
+      <label class="form-label">Z-Index (Layer Priority)</label>
+      <input 
+        type="number" 
+        class="form-control" 
+        [(ngModel)]="settings.zIndex"
+        min="0"
+        max="9999"
+        placeholder="1000">
+      <small class="form-text text-muted">
+        Higher values appear on top of other elements
+      </small>
+    </div>
+  </div>
+
+  <!-- Color Settings Section -->
+  <div class="section">
+    <h4 class="section-title">Color Customization</h4>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Header Background</label>
+        <input 
+          type="color" 
+          class="form-control form-control-color" 
+          [(ngModel)]="settings.headerBackgroundColor">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Header Text</label>
+        <input 
+          type="color" 
+          class="form-control form-control-color" 
+          [(ngModel)]="settings.headerTextColor">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Chat Background</label>
+        <input 
+          type="color" 
+          class="form-control form-control-color" 
+          [(ngModel)]="settings.expandedBackgroundColor">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Chat Text</label>
+        <input 
+          type="color" 
+          class="form-control form-control-color" 
+          [(ngModel)]="settings.expandedTextColor">
+      </div>
+    </div>
+  </div>
+</div>

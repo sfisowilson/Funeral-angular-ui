@@ -69,10 +69,10 @@ import { environment } from '../../../environments/environment';
             <!-- Main Content -->
             <main class="flex-1">
                 <div class="landing-page-container">
-                    <!-- Grid-based Layout -->
+                    <!-- Grid-based Layout for Normal Widgets -->
                     <div class="widget-grid" [ngStyle]="getGridStyles()">
                         <div 
-                            *ngFor="let widget of widgets"
+                            *ngFor="let widget of normalWidgets"
                             class="widget-item"
                             [ngStyle]="getWidgetStyles(widget)"
                             [ngClass]="getWidgetClasses(widget)"
@@ -83,6 +83,12 @@ import { environment } from '../../../environments/environment';
                     </div>
                 </div>
             </main>
+
+            <!-- Floating Widgets (rendered outside grid) -->
+            <ng-container *ngFor="let widget of floatingWidgets">
+                <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }">
+                </ng-container>
+            </ng-container>
 
             <!-- Footer -->
             <footer class="bg-gray-100 mt-8">
@@ -152,6 +158,21 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     tenantIdHeader!: HttpHeaders;
     _settings: any = {};
     tenantSettings!: TenantSettingDto;
+
+    // Separate floating and normal widgets
+    get normalWidgets(): WidgetConfig[] {
+        return this.widgets.filter(widget => {
+            const widgetType = WIDGET_TYPES.find(t => t.name === widget.type);
+            return !widgetType?.floating;
+        });
+    }
+
+    get floatingWidgets(): WidgetConfig[] {
+        return this.widgets.filter(widget => {
+            const widgetType = WIDGET_TYPES.find(t => t.name === widget.type);
+            return widgetType?.floating === true;
+        });
+    }
 
     constructor(
         private widgetService: WidgetService,

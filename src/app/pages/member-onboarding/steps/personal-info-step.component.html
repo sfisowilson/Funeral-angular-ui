@@ -218,71 +218,94 @@
         </p-tabPanel>
 
         <!-- Documents Tab -->
-        <div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
-            <div class="documents-section mt-4">
+        <p-tabPanel header="Documents">
+            <div class="documents-section mt-3">
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Upload your required identity documents and any supporting documents for the main member.
+                </div>
+
                 <div class="card mb-4">
-                    <div class="card-header">Upload Documents</div>
+                    <div class="card-header bg-light">
+                        <i class="bi bi-cloud-upload me-2"></i>Upload Documents
+                    </div>
                     <div class="card-body">
-                        <p>Upload your required identity documents and any supporting documents.</p>
                         <div class="row g-3 align-items-end">
                             <div class="col-md-5">
-                                <label for="documentType" class="form-label">Document Type</label>
+                                <label for="documentType" class="form-label">Document Type *</label>
                                 <select id="documentType" [(ngModel)]="selectedDocumentType" class="form-select">
                                     <option value="" disabled selected>Select document type</option>
                                     <option *ngFor="let type of documentTypes" [value]="type.value">{{ type.label }}</option>
                                 </select>
                             </div>
                             <div class="col-md-5">
-                                <label for="fileInput" class="form-label">Select File</label>
+                                <label for="fileInput" class="form-label">Select File *</label>
                                 <input type="file" id="fileInput" (change)="onFileSelect($event.target)" accept="image/*,application/pdf" class="form-control" />
                                 <div class="form-text text-success" *ngIf="selectedFile">
-                                    <i class="bi bi-check"></i> Selected: {{ selectedFile.name }}
+                                    <i class="bi bi-check-circle"></i> Selected: {{ selectedFile.name }}
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <button type="button" class="btn btn-success w-100" [disabled]="!selectedFile || !selectedDocumentType || uploading()" (click)="uploadMemberDocument()">
+                                <button type="button" class="btn btn-primary w-100" [disabled]="!selectedFile || !selectedDocumentType || uploading()" (click)="uploadMemberDocument()">
                                     <span *ngIf="uploading()" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                    <i class="bi bi-upload"></i> Upload Document
+                                    <i class="bi bi-upload me-1"></i> Upload
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <!-- Uploaded Documents List -->
-                <div class="uploaded-docs-list" *ngIf="uploadedDocuments().length > 0">
-                    <h4>Uploaded Documents</h4>
-                    <table class="table table-sm table-bordered align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>File Name</th>
-                                <th>Description</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let doc of uploadedDocuments()">
-                                <td>{{ doc.fileName }}</td>
-                                <td>{{ doc.description || '-' }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-outline-primary btn-sm me-1" (click)="downloadDocument(doc.filePath || '')" title="Download">
-                                        <i class="bi bi-download"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteMemberDocument(doc.id)" [disabled]="viewMode" title="Delete">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="card" *ngIf="uploadedDocuments().length > 0">
+                    <div class="card-header bg-light">
+                        <i class="bi bi-file-earmark-text me-2"></i>Uploaded Documents
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Document Type</th>
+                                        <th>File Name</th>
+                                        <th style="width: 150px">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let doc of uploadedDocuments()">
+                                        <td>
+                                            <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                                            <strong>{{ doc.description || 'Document' }}</strong>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ doc.fileName }}</small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-outline-primary btn-sm" (click)="downloadDocument(doc.filePath || '')" title="Download">
+                                                    <i class="bi bi-download"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteMemberDocument(doc.id)" [disabled]="viewMode" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
+
                 <!-- Empty State -->
-                <div class="empty-docs-state text-center text-muted" *ngIf="uploadedDocuments().length === 0">
-                    <i class="bi bi-file-earmark" style="font-size: 3rem;"></i>
-                    <p>No documents uploaded yet</p>
-                    <small>Upload your ID document and other required documents above</small>
+                <div class="card text-center py-5" *ngIf="uploadedDocuments().length === 0">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark text-muted" style="font-size: 4rem;"></i>
+                        <h5 class="mt-3 text-muted">No documents uploaded yet</h5>
+                        <p class="text-muted">Upload your ID document and other required documents above</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </p-tabPanel>
     </p-tabView>
 </div>
 

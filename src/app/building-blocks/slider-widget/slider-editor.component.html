@@ -1,0 +1,322 @@
+<div class="slider-editor p-4">
+  <h3 class="h5 fw-bold mb-4">Slider Settings</h3>
+
+  <!-- General Settings -->
+  <div class="settings-section mb-4 pb-3 border-bottom">
+    <h4 class="h6 fw-semibold mb-3">General Settings</h4>
+    
+    <div class="mb-3">
+      <label class="form-label">Slider Height (px)</label>
+      <input 
+        type="number" 
+        class="form-control"
+        [(ngModel)]="settings.height"
+        min="200"
+        max="1000">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Background Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.backgroundColor">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Border Radius (px)</label>
+      <input 
+        type="number" 
+        class="form-control"
+        [(ngModel)]="settings.borderRadius"
+        min="0"
+        max="50">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Padding (px)</label>
+      <input 
+        type="number" 
+        class="form-control"
+        [(ngModel)]="settings.padding"
+        min="0"
+        max="100">
+    </div>
+  </div>
+
+  <!-- Autoplay Settings -->
+  <div class="settings-section mb-4 pb-3 border-bottom">
+    <h4 class="h6 fw-semibold mb-3">Autoplay Settings</h4>
+    
+    <div class="form-check mb-3">
+      <input 
+        type="checkbox" 
+        class="form-check-input"
+        [(ngModel)]="settings.autoplay"
+        id="autoplay">
+      <label class="form-check-label" for="autoplay">
+        Enable Autoplay
+      </label>
+    </div>
+
+    <div class="mb-3" *ngIf="settings.autoplay">
+      <label class="form-label">Autoplay Speed (ms)</label>
+      <input 
+        type="number" 
+        class="form-control"
+        [(ngModel)]="settings.autoplaySpeed"
+        min="1000"
+        max="10000"
+        step="500">
+    </div>
+  </div>
+
+  <!-- Navigation Settings -->
+  <div class="settings-section mb-4 pb-3 border-bottom">
+    <h4 class="h6 fw-semibold mb-3">Navigation</h4>
+    
+    <div class="form-check mb-3">
+      <input 
+        type="checkbox" 
+        class="form-check-input"
+        [(ngModel)]="settings.showArrows"
+        id="showArrows">
+      <label class="form-check-label" for="showArrows">
+        Show Arrow Navigation
+      </label>
+    </div>
+
+    <div *ngIf="settings.showArrows" class="mb-3">
+      <label class="form-label">Arrow Background Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.arrowBackgroundColor">
+    </div>
+
+    <div *ngIf="settings.showArrows" class="mb-3">
+      <label class="form-label">Arrow Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.arrowColor">
+    </div>
+
+    <div class="form-check mb-3">
+      <input 
+        type="checkbox" 
+        class="form-check-input"
+        [(ngModel)]="settings.showDots"
+        id="showDots">
+      <label class="form-check-label" for="showDots">
+        Show Dot Navigation
+      </label>
+    </div>
+
+    <div *ngIf="settings.showDots" class="mb-3">
+      <label class="form-label">Dot Size (px)</label>
+      <input 
+        type="number" 
+        class="form-control"
+        [(ngModel)]="settings.dotSize"
+        min="8"
+        max="20">
+    </div>
+
+    <div *ngIf="settings.showDots" class="mb-3">
+      <label class="form-label">Dot Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.dotColor">
+    </div>
+
+    <div *ngIf="settings.showDots" class="mb-3">
+      <label class="form-label">Active Dot Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.dotActiveColor">
+    </div>
+
+    <div *ngIf="settings.showDots" class="mb-3">
+      <label class="form-label">Dots Background Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.dotsBackgroundColor">
+    </div>
+  </div>
+
+  <!-- Text Styling -->
+  <div class="settings-section mb-4 pb-3 border-bottom">
+    <h4 class="h6 fw-semibold mb-3">Text Styling</h4>
+    
+    <div class="mb-3">
+      <label class="form-label">Title Size (px)</label>
+      <input 
+        type="number" 
+        class="form-control"
+        [(ngModel)]="settings.titleSize"
+        min="20"
+        max="80">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Title Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.titleColor">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Subtitle Size (px)</label>
+      <input 
+        type="number" 
+        class="form-control"
+        [(ngModel)]="settings.subtitleSize"
+        min="14"
+        max="40">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Subtitle Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.subtitleColor">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label d-block">Overlay Opacity</label>
+      <input 
+        type="range" 
+        class="form-range"
+        [(ngModel)]="settings.overlayOpacity"
+        min="0"
+        max="1"
+        step="0.1">
+      <small class="text-muted">{{ settings.overlayOpacity }}</small>
+    </div>
+  </div>
+
+  <!-- Button Styling -->
+  <div class="settings-section mb-4 pb-3 border-bottom">
+    <h4 class="h6 fw-semibold mb-3">Button Styling</h4>
+    
+    <div class="mb-3">
+      <label class="form-label">Button Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.buttonColor">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Button Text Color</label>
+      <input 
+        type="color" 
+        class="form-control form-control-color"
+        [(ngModel)]="settings.buttonTextColor">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Button Text Size (px)</label>
+      <input 
+        type="number" 
+        class="form-control"
+        [(ngModel)]="settings.buttonTextSize"
+        min="12"
+        max="24">
+    </div>
+  </div>
+
+  <!-- Slides Management -->
+  <div class="settings-section mb-4">
+    <h4 class="h6 fw-semibold mb-3">Slides</h4>
+    
+    <div *ngFor="let slide of settings.slides; let i = index" class="slide-editor mb-3 p-3 border rounded bg-light">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="h6 mb-0">Slide {{ i + 1 }}</h5>
+        <button 
+          type="button"
+          class="btn btn-sm btn-danger"
+          (click)="removeSlide(i)">
+          <i class="bi bi-trash"></i> Remove
+        </button>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Image</label>
+        <input 
+          type="file"
+          class="form-control"
+          accept="image/*"
+          (change)="onImageSelected($event, i)">
+        <small class="text-muted d-block mt-1" *ngIf="slide.imageUrl">Current: {{ slide.imageUrl }}</small>
+        <div *ngIf="uploadingSlideIndex === i" class="mt-2">
+          <div class="spinner-border spinner-border-sm me-2" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          Uploading...
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input 
+          type="text" 
+          class="form-control"
+          [(ngModel)]="slide.title"
+          placeholder="Slide title">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Subtitle</label>
+        <textarea 
+          class="form-control"
+          [(ngModel)]="slide.subtitle"
+          rows="2"
+          placeholder="Slide subtitle or description"></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Button Text (optional)</label>
+        <input 
+          type="text" 
+          class="form-control"
+          [(ngModel)]="slide.buttonText"
+          placeholder="e.g., Learn More">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Button Link (optional)</label>
+        <input 
+          type="text" 
+          class="form-control"
+          [(ngModel)]="slide.buttonLink"
+          placeholder="e.g., #services or /about">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label d-block">Overlay Opacity (overrides global)</label>
+        <input 
+          type="range" 
+          class="form-range"
+          [(ngModel)]="slide.overlayOpacity"
+          min="0"
+          max="1"
+          step="0.1">
+        <small class="text-muted">{{ slide.overlayOpacity || 'Use global' }}</small>
+      </div>
+    </div>
+
+    <button 
+      type="button"
+      class="btn btn-primary"
+      (click)="addSlide()">
+      <i class="bi bi-plus-circle me-2"></i>Add Slide
+    </button>
+  </div>
+</div>

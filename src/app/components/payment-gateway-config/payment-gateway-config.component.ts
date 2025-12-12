@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Payment_configServiceProxy, GatewayServiceProxy, PaymentGatewayConfigDto } from '../../core/services/service-proxies';
+import { Payment_configServiceProxy, PaymentGatewayConfigDto } from '../../core/services/service-proxies';
 
 interface PaymentGatewayConfig {
   id?: string;
@@ -240,8 +240,7 @@ export class PaymentGatewayConfigComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private paymentConfigService: Payment_configServiceProxy,
-    private gatewayService: GatewayServiceProxy
+    private paymentConfigService: Payment_configServiceProxy
   ) {
     this.configForm = this.fb.group({
       provider: ['', Validators.required],
@@ -271,7 +270,7 @@ export class PaymentGatewayConfigComponent implements OnInit {
   }
 
   loadConfigs(): void {
-    this.paymentConfigService.gatewayGetList().subscribe({
+    this.paymentConfigService.gatewayList().subscribe({
       next: (data: any) => this.configs = data,
       error: (_err: any) => console.error('Error loading configs', _err)
     });
@@ -284,8 +283,8 @@ export class PaymentGatewayConfigComponent implements OnInit {
     const formData = this.configForm.value as PaymentGatewayConfigDto;
 
     const request = this.editingConfig
-      ? this.paymentConfigService.gatewayPut(this.editingConfig.id!, formData)
-      : this.paymentConfigService.gatewayPost(formData);
+      ? this.paymentConfigService.gatewayUpdate(this.editingConfig.id!, formData)
+      : this.paymentConfigService.gatewayCreate(formData);
 
     request.subscribe({
       next: () => {
@@ -338,7 +337,7 @@ export class PaymentGatewayConfigComponent implements OnInit {
   }
 
   toggleActive(config: PaymentGatewayConfig): void {
-    this.gatewayService.toggle(config.id!).subscribe({
+    this.paymentConfigService.gatewayToggle(config.id!).subscribe({
       next: (response: any) => {
         this.message = response.message;
         this.messageClass = 'bg-green-100 text-green-800 border border-green-300';

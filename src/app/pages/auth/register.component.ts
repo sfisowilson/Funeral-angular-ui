@@ -203,10 +203,22 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                     fv = this.form.value;
                 }
             }
-            const memberRegisterRequest: RegisterRequest = RegisterRequest.fromJS({
+            
+            // Build request object, only including fields with values
+            const requestData: any = {
                 email: fv.email || '',
                 password: fv.password || ''
-            });
+            };
+            
+            // Only add optional fields if they have values
+            if (fv.firstName) requestData.firstName = fv.firstName;
+            if (fv.lastName) requestData.lastName = fv.lastName;
+            if (fv.phoneNumber) requestData.phoneNumber = fv.phoneNumber;
+            if (fv.identificationNumber) requestData.identificationNumber = fv.identificationNumber;
+            if (fv.policyId) requestData.policyId = fv.policyId;
+            
+            const memberRegisterRequest: RegisterRequest = RegisterRequest.fromJS(requestData);
+            
             if (!memberRegisterRequest.email) {
                 this.showAlertMessage('warning', 'Email is required for registration.');
                 this.isBusy = false;

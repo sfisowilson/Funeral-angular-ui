@@ -163,14 +163,26 @@ export class MemberOnboardingComponent implements OnInit {
     }
 
     determineActiveStep(status: ProfileCompletionStatusDto) {
-        // Step 0: Personal Information (with documents)
-        if (!status.profileCompletion?.hasDependents) {
+        // Follow step-by-step order:
+        // Step 0: Personal Information & Documents (ID upload)
+        if (!status.profileCompletion?.hasUploadedIdDocument) {
+            this.activeStep.set(0); // Personal Information & Documents
+        }
+        // Step 1: Dependents
+        else if (!status.profileCompletion?.hasDependents) {
             this.activeStep.set(1); // Dependents
-        } else if (!status.profileCompletion?.hasBeneficiaries) {
+        }
+        // Step 2: Beneficiaries
+        else if (!status.profileCompletion?.hasBeneficiaries) {
             this.activeStep.set(2); // Beneficiaries
-        } else if (!status.profileCompletion?.hasAcceptedTerms) {
-            this.activeStep.set(4); // Banking is step 3, Terms is step 4
-        } else {
+        }
+        // Step 3: Banking Details (optional but in sequence)
+        // Step 4: Terms & Conditions
+        else if (!status.profileCompletion?.hasAcceptedTerms) {
+            this.activeStep.set(4); // Terms & Conditions
+        }
+        // Step 5: Summary & Signature
+        else {
             // If all previous steps are complete, go to Summary & Signature (step 5)
             this.activeStep.set(5);
         }
@@ -182,8 +194,8 @@ export class MemberOnboardingComponent implements OnInit {
 
         switch (this.activeStep()) {
             case 0:
-                // Personal Information (with documents) - can proceed once data is saved
-                return true; // For now, allow proceeding (validation in component)
+                // Personal Information & Documents - requires ID document upload
+                return status.profileCompletion.hasUploadedIdDocument;
             case 1:
                 // Dependents
                 return status.profileCompletion.hasDependents;
@@ -226,18 +238,27 @@ export class MemberOnboardingComponent implements OnInit {
             return;
         }
 
-        // For forward navigation, check if steps are completed
-        if (stepIndex === 1 && status.profileCompletion?.hasDependents) {
-            this.activeStep.set(stepIndex);
-        } else if (stepIndex === 2 && status.profileCompletion?.hasBeneficiaries) {
-            this.activeStep.set(stepIndex);
+        // For forward navigation, enforce sequential completion
+        if (stepIndex === 1) {
+            // Can go to Dependents only if Personal Info (ID upload) is complete
+            if (status.profileCompletion?.hasUploadedIdDocument) {
+                this.activeStep.set(stepIndex);
+            }
+        } else if (stepIndex === 2) {
+            // Can go to Beneficiaries only if Dependents is complete
+            if (status.profileCompletion?.hasDependents) {
+                this.activeStep.set(stepIndex);
+            }
         } else if (stepIndex === 3) {
-            // Banking is optional, can always navigate if prior steps done
+            // Can go to Banking Details if Beneficiaries is complete
             if (status.profileCompletion?.hasBeneficiaries) {
                 this.activeStep.set(stepIndex);
             }
-        } else if (stepIndex === 4 && status.profileCompletion?.hasAcceptedTerms) {
-            this.activeStep.set(stepIndex);
+        } else if (stepIndex === 4) {
+            // Can go to Terms if Beneficiaries is complete (Banking is optional)
+            if (status.profileCompletion?.hasBeneficiaries) {
+                this.activeStep.set(stepIndex);
+            }
         } else if (stepIndex === 5) {
             // Summary step - can navigate if terms accepted
             if (status.profileCompletion?.hasAcceptedTerms) {

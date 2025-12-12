@@ -1,6 +1,7 @@
 
 <div class="beneficiaries-step">
-    <!-- Bootstrap alert for toast messages (replace with Angular alert logic if needed) -->
+    <p-toast></p-toast>
+    
     <div class="step-header d-flex align-items-center justify-content-between mb-3">
         <button type="button" class="btn btn-success" (click)="showAddDialog()">
             <i class="bi bi-plus-lg me-1"></i> Add Beneficiary
@@ -75,14 +76,14 @@
                 <div class="modal-body">
                     <ul class="nav nav-tabs mb-3" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Beneficiary Information</button>
+                            <button class="nav-link" [class.active]="activeTab === 'info'" (click)="activeTab = 'info'" type="button" role="tab">Beneficiary Information</button>
                         </li>
                         <li class="nav-item" role="presentation" *ngIf="editMode() && currentBeneficiaryId()">
-                            <button class="nav-link" id="docs-tab" data-bs-toggle="tab" data-bs-target="#docs" type="button" role="tab">Documents</button>
+                            <button class="nav-link" [class.active]="activeTab === 'docs'" (click)="activeTab = 'docs'" type="button" role="tab">Documents</button>
                         </li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane fade show active" id="info" role="tabpanel">
+                        <div class="tab-pane fade" [class.show]="activeTab === 'info'" [class.active]="activeTab === 'info'" id="info" role="tabpanel">
                             <form>
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Full Name *</label>
@@ -117,7 +118,7 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="tab-pane fade" id="docs" role="tabpanel" *ngIf="editMode() && currentBeneficiaryId()">
+                        <div class="tab-pane fade" [class.show]="activeTab === 'docs'" [class.active]="activeTab === 'docs'" id="docs" role="tabpanel" *ngIf="editMode() && currentBeneficiaryId()">
                             <div class="mb-3">
                                 <div class="alert alert-info"><i class="bi bi-info-circle"></i> Upload supporting documents for this beneficiary (e.g., ID document, banking details)</div>
                                 <form>
@@ -130,7 +131,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">File *</label>
-                                        <input type="file" (change)="onFileSelect($event)" accept=".pdf,.jpg,.jpeg,.png" class="form-control" />
+                                        <input type="file" (change)="onFileSelect($event.target)" accept=".pdf,.jpg,.jpeg,.png" class="form-control" />
                                         <div *ngIf="selectedFile" class="text-success mt-1"><i class="bi bi-check"></i> {{ selectedFile.name }}</div>
                                     </div>
                                     <button type="button" class="btn btn-primary" (click)="uploadBeneficiaryDocument()" [disabled]="!selectedDocumentType || !selectedFile">

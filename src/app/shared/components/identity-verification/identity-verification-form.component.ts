@@ -7,7 +7,6 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { MessageService } from 'primeng/api';
 import { TagModule } from 'primeng/tag';
 import { VerificationServiceProxy, CreateVerificationRequestDto, VerificationRequestDto } from '../../../core/services/service-proxies';
 import { TenantFeatureService, TenantFeaturesDto } from '../../../core/services/tenant-feature.service';
@@ -56,6 +55,11 @@ export class IdentityVerificationFormComponent implements OnInit {
     maxDate = new Date(); // Add maxDate property
     tenantFeatures = signal<TenantFeaturesDto | null>(null);
     featuresLoading = signal(true);
+    
+    // Bootstrap alert properties
+    alertMessage: string = '';
+    alertType: 'success' | 'danger' | 'warning' | 'info' = 'info';
+    showAlert: boolean = false;
 
     verificationTypes: VerificationTypeOption[] = [
         {
@@ -81,8 +85,7 @@ export class IdentityVerificationFormComponent implements OnInit {
     constructor(
         private fb: FormBuilder,
         private verificationService: VerificationServiceProxy,
-        private tenantFeatureService: TenantFeatureService,
-        private messageService: MessageService
+        private tenantFeatureService: TenantFeatureService
     ) {
         this.verificationForm = this.fb.group({
             idNumber: ['', [Validators.required, Validators.pattern(/^\d{13}$/)]],
@@ -122,11 +125,7 @@ export class IdentityVerificationFormComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Failed to load tenant features:', error);
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Feature Check Failed',
-                    detail: 'Unable to verify subscription features. Some options may be limited.'
-                });
+                this.showAlertMessage('Unable to verify subscription features. Some options may be limited.', 'warning');
                 this.featuresLoading.set(false);
             }
         });
@@ -140,11 +139,7 @@ export class IdentityVerificationFormComponent implements OnInit {
         if (!features.identityVerification) {
             // If identity verification is not supported, disable the component
             this.verificationForm.disable();
-            this.messageService.add({
-                severity: 'info',
-                summary: 'Feature Not Available',
-                detail: 'Identity verification is not available in your current subscription plan.'
-            });
+            this.showAlertMessage('Identity verification is not available in your current subscription plan.', 'info');
             return;
         }
 
@@ -173,20 +168,12 @@ export class IdentityVerificationFormComponent implements OnInit {
         // Check usage limits
         if (features.verificationLimitReached) {
             this.verificationForm.disable();
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Usage Limit Reached',
-                detail: `You have reached your monthly verification limit of ${features.maxVerificationsPerMonth}. Upgrade your plan for more verifications.`
-            });
+            this.showAlertMessage(`You have reached your monthly verification limit of ${features.maxVerificationsPerMonth}. Upgrade your plan for more verifications.`, 'warning');
         } else if (features.maxVerificationsPerMonth > 0) {
             // Show usage information
             const remaining = features.maxVerificationsPerMonth - features.verificationsUsedThisMonth;
             if (remaining <= 3) {
-                this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Low Verification Credits',
-                    detail: `You have ${remaining} verification${remaining === 1 ? '' : 's'} remaining this month.`
-                });
+                this.showAlertMessage(`You have ${remaining} verification${remaining === 1 ? '' : 's'} remaining this month.`, 'warning');
             }
         }
     }
@@ -215,11 +202,7 @@ export class IdentityVerificationFormComponent implements OnInit {
 
         this.verificationService.verification_CreateRequest(request).subscribe({
             next: (result) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Verification Submitted',
-                    detail: 'Identity verification request has been submitted successfully'
-                });
+                this.showAlertMessage('Identity verification request has been submitted successfully', 'success');
 
                 this.verificationComplete.emit({
                     success: true,
@@ -232,11 +215,7 @@ export class IdentityVerificationFormComponent implements OnInit {
                 console.error('Verification error:', error);
                 const errorMessage = error?.error?.message || 'Failed to submit verification request. Please try again.';
 
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Verification Failed',
-                    detail: errorMessage
-                });
+                this.showAlertMessage(errorMessage, 'danger');
 
                 this.verificationComplete.emit({
                     success: false,
@@ -250,11 +229,7 @@ export class IdentityVerificationFormComponent implements OnInit {
 
     performQuickVerification(): void {
         if (!this.verificationForm.get('idNumber')?.value) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'ID Number Required',
-                detail: 'Please enter an ID number for quick verification'
-            });
+            this.showAlertMessage('Please enter an ID number for quick verification', 'warning');
             return;
         }
 
@@ -270,11 +245,7 @@ export class IdentityVerificationFormComponent implements OnInit {
 
         this.verificationService.verification_CreateRequest(request).subscribe({
             next: (result) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Quick Verification Complete',
-                    detail: 'Quick ID check completed successfully'
-                });
+                this.showAlertMessage('Quick ID check completed successfully', 'success');
 
                 this.verificationComplete.emit({
                     success: true,
@@ -287,11 +258,7 @@ export class IdentityVerificationFormComponent implements OnInit {
                 console.error('Quick verification error:', error);
                 const errorMessage = error?.error?.message || 'Failed to perform quick ID check. Please try again.';
 
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Quick Verification Failed',
-                    detail: errorMessage
-                });
+                this.showAlertMessage(errorMessage, 'danger');
 
                 this.verificationComplete.emit({
                     success: false,
@@ -339,5 +306,20 @@ export class IdentityVerificationFormComponent implements OnInit {
             verificationType: 'Verification Type'
         };
         return labels[fieldName] || fieldName;
+    }
+
+    showAlertMessage(message: string, type: 'success' | 'danger' | 'warning' | 'info'): void {
+        this.alertMessage = message;
+        this.alertType = type;
+        this.showAlert = true;
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            this.showAlert = false;
+        }, 5000);
+    }
+
+    closeAlert(): void {
+        this.showAlert = false;
     }
 }

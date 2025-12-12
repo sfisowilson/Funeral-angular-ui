@@ -69,6 +69,7 @@ export class BeneficiariesStepComponent implements OnInit {
     currentBeneficiary: BeneficiaryDto = {} as BeneficiaryDto;
     loading = signal(false);
     private stepCompleteSubject = new Subject<void>();
+    activeTab: 'info' | 'docs' = 'info'; // Track active tab in modal
     
     // SA ID validation
     idInfo = signal<SAIdInfo | null>(null);
@@ -136,6 +137,7 @@ export class BeneficiariesStepComponent implements OnInit {
 
     showAddDialog() {
         this.editMode.set(false);
+        this.activeTab = 'info'; // Reset to info tab
         this.currentBeneficiary = {
             id: undefined,
             name: undefined,
@@ -157,6 +159,7 @@ export class BeneficiariesStepComponent implements OnInit {
 
     editBeneficiary(beneficiary: BeneficiaryDto) {
         this.editMode.set(true);
+        this.activeTab = 'info'; // Reset to info tab
         this.currentBeneficiary = { ...beneficiary as any };
         
         // Validate ID if present
@@ -322,8 +325,10 @@ export class BeneficiariesStepComponent implements OnInit {
     }
 
     onFileSelect(event: any) {
-        if (event.files && event.files.length > 0) {
-            this.selectedFile = event.files[0];
+        // Handle both PrimeNG fileUpload (event.files) and native input (event.target.files)
+        const files = event.files || (event.target && event.target.files);
+        if (files && files.length > 0) {
+            this.selectedFile = files[0];
         }
     }
 

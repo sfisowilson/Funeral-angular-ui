@@ -34,6 +34,10 @@ import { PremiumCalculatorWidgetComponent } from './premium-calculator-widget/pr
 import { PremiumCalculatorEditorComponent } from './premium-calculator-widget/premium-calculator-editor.component';
 import { ImageContentWidgetComponent } from './image-content-widget/image-content-widget.component';
 import { ImageContentEditorComponent } from './image-content-widget/image-content-editor.component';
+import { SliderWidgetComponent } from './slider-widget/slider-widget.component';
+import { SliderEditorComponent } from './slider-widget/slider-editor.component';
+import { WhatsappWidgetComponent } from './whatsapp-widget/whatsapp-widget.component';
+import { WhatsappEditorComponent } from './whatsapp-widget/whatsapp-editor.component';
 
 export interface WidgetType {
     name: string;
@@ -41,9 +45,90 @@ export interface WidgetType {
     editorComponent: Type<any>;
     defaultConfig: any;
     icon: string;
+    floating?: boolean;
 }
 
 export const WIDGET_TYPES: WidgetType[] = [
+    {
+        name: 'whatsapp',
+        component: WhatsappWidgetComponent,
+        editorComponent: WhatsappEditorComponent,
+        defaultConfig: {
+            phoneNumber: '',
+            agentName: 'Support Team',
+            agentPhoto: '',
+            welcomeMessage: 'Hi there! How can we help you today?',
+            defaultMessage: 'Hi, I would like to get in touch.',
+            buttonText: 'Start Chat',
+            position: 'right',
+            sidePosition: 20,
+            bottomPosition: 20,
+            buttonColor: '#25d366',
+            buttonSize: 60,
+            borderRadius: 50,
+            headerBackgroundColor: '#075e54',
+            headerTextColor: '#ffffff',
+            expandedBackgroundColor: '#f0f0f0',
+            expandedTextColor: '#333333',
+            showOnlineStatus: true,
+            zIndex: 1000
+        },
+        icon: 'chat-dots',
+        floating: true
+    },
+    {
+        name: 'slider',
+        component: SliderWidgetComponent,
+        editorComponent: SliderEditorComponent,
+        defaultConfig: {
+            height: 500,
+            backgroundColor: 'transparent',
+            borderRadius: 0,
+            padding: 0,
+            autoplay: true,
+            autoplaySpeed: 5000,
+            showArrows: true,
+            showDots: true,
+            arrowBackgroundColor: 'rgba(0, 0, 0, 0.5)',
+            arrowColor: '#ffffff',
+            dotSize: 12,
+            dotColor: 'rgba(255, 255, 255, 0.5)',
+            dotActiveColor: '#ffffff',
+            dotsBackgroundColor: 'rgba(0, 0, 0, 0.3)',
+            titleSize: 48,
+            titleColor: '#ffffff',
+            subtitleSize: 20,
+            subtitleColor: '#ffffff',
+            overlayOpacity: 0.4,
+            buttonColor: '#007bff',
+            buttonTextColor: '#ffffff',
+            buttonTextSize: 16,
+            slides: [
+                {
+                    imageUrl: 'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=1200',
+                    title: 'Welcome to Our Services',
+                    subtitle: 'Professional funeral planning with compassion and care',
+                    buttonText: 'Learn More',
+                    buttonLink: '#services'
+                },
+                {
+                    imageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200',
+                    title: 'Comprehensive Coverage',
+                    subtitle: 'Protecting what matters most to you and your family',
+                    buttonText: 'Get Started',
+                    buttonLink: '#plans'
+                },
+                {
+                    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200',
+                    title: 'Here for You',
+                    subtitle: 'Supporting families through every step of the journey',
+                    buttonText: 'Contact Us',
+                    buttonLink: '#contact'
+                }
+            ]
+        },
+        icon: 'images'
+    },
     {
         name: 'hero',
         component: HeroWidgetComponent,

@@ -27,7 +27,7 @@ export class AppMenu implements OnInit {
                 label: 'Home',
                 items: [
                     { label: 'Front Page', icon: 'pi pi-fw pi-home', routerLink: ['/'], visible: this.authService.isAuthenticated() },
-                    { label: 'View Profile', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/user-profile'], visible: this.authService.isAuthenticated() },
+                    { label: 'View Profile', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/user-profile'], visible: this.authService.hasPermission('Permission.UserProfile.View') },
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/admin/dashboard'], visible: this.authService.isAuthenticated() },
                     { label: 'My Onboarding', icon: 'pi pi-fw pi-id-card', routerLink: ['/admin/member-onboarding'], queryParams: { view: 'true' }, visible: this.authService.hasRole('Member') }
                 ]
@@ -35,9 +35,7 @@ export class AppMenu implements OnInit {
             {
                 label: 'Assets',
                 items: [
-                    { label: 'Asset Management', icon: 'pi pi-fw pi-box', routerLink: ['/admin/pages/asset-management'] },
-                    // { label: 'Categories', icon: 'pi pi-fw pi-tags', routerLink: ['/pages/asset-categories'] },
-                    // { label: 'Statuses', icon: 'pi pi-fw pi-check-square', routerLink: ['/pages/asset-statuses'] }
+                    { label: 'Asset Management', icon: 'pi pi-fw pi-box', routerLink: ['/admin/pages/asset-management'], visible: this.authService.hasPermission('Permission.asset.view') }
                 ]
             },
             {
@@ -46,18 +44,17 @@ export class AppMenu implements OnInit {
                 routerLink: ['/pages'],
                 items: [
                     { label: 'Tenants', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/tenants'], visible: this.authService.hasPermission('Permission.tenant.view') },
-                    { label: 'Tenant Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/tenant-settings'] },
-                    { label: 'Onboarding Settings', icon: 'pi pi-fw pi-id-card', routerLink: ['/admin/pages/onboarding-settings'] },
-                    { label: 'Dashboard Settings', icon: 'pi pi-fw pi-sliders-h', routerLink: ['/admin/pages/dashboard-settings'] },
-                    { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/users'] },
+                    { label: 'Tenant Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/tenant-settings'], visible: this.authService.isAuthenticated() },
+                    { label: 'Onboarding Settings', icon: 'pi pi-fw pi-id-card', routerLink: ['/admin/pages/onboarding-settings'], visible: this.authService.hasPermission('Permission.onboardingFieldConfiguration.view') },
+                    { label: 'Dashboard Settings', icon: 'pi pi-fw pi-sliders-h', routerLink: ['/admin/pages/dashboard-settings'], visible: this.authService.isAuthenticated() },
+                    { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/users'], visible: this.authService.hasPermission('Permission.user.view') },
                     { label: 'Tenant Subscriptions', icon: 'pi pi-fw pi-credit-card', routerLink: ['/admin/pages/subscription-plans'], visible: this.authService.hasPermission('Permission.subscription.view') },
-                    { label: 'Policies', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/policies'] },
-                    { label: 'Roles', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/roles'] },
-                    { label: 'Member Management', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/member-management'] },
-                    { label: 'Claims', icon: 'pi pi-fw pi-file', routerLink: ['/admin/pages/claims'] },
-                    // { label: 'Dependents', icon: 'pi pi-fw pi-user-plus', routerLink: ['/admin/pages/dependents'] },
-                    { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'] },
-                    { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'] },
+                    { label: 'Policies', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/policies'], visible: this.authService.hasPermission('Permission.policy.view') },
+                    { label: 'Roles', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/roles'], visible: this.authService.hasPermission('Permission.role.view') },
+                    { label: 'Member Management', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/member-management'], visible: this.authService.hasPermission('Permission.member.view') },
+                    { label: 'Claims', icon: 'pi pi-fw pi-file', routerLink: ['/admin/pages/claims'], visible: this.authService.hasPermission('Permission.claim.view') },
+                    { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'], visible: this.authService.hasPermission('Permission.funeralEvent.view') },
+                    { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: this.authService.isAuthenticated() }
                 ]
             },
             {
@@ -65,68 +62,19 @@ export class AppMenu implements OnInit {
                 icon: 'pi pi-fw pi-wallet',
                 items: [
                     { label: 'Payment Gateway Config', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/payment-config'], visible: this.authService.hasPermission('Permission.payment.config.view') },
-                    { label: 'Payment Settings', icon: 'pi pi-fw pi-credit-card', routerLink: ['/admin/payment-settings'] },
+                    { label: 'Payment Settings', icon: 'pi pi-fw pi-credit-card', routerLink: ['/admin/payment-settings'], visible: this.authService.hasPermission('Permission.payment.settings.view') },
                     { label: 'Debit Order Management', icon: 'pi pi-fw pi-file-export', routerLink: ['/admin/debit-orders'], visible: this.authService.hasPermission('Permission.debitorder.view') },
-                    { label: 'Invoices', icon: 'pi pi-fw pi-money-bill', routerLink: ['/admin/invoices'] }
+                    { label: 'Invoices', icon: 'pi pi-fw pi-money-bill', routerLink: ['/admin/invoices'], visible: this.authService.hasPermission('Permission.invoice.view') }
                 ]
             },
-            // {
-            //     label: 'Hierarchy',
-            //     items: [
-            //         {
-            //             label: 'Submenu 1',
-            //             icon: 'pi pi-fw pi-bookmark',
-            //             items: [
-            //                 {
-            //                     label: 'Submenu 1.1',
-            //                     icon: 'pi pi-fw pi-bookmark',
-            //                     items: [
-            //                         { label: 'Submenu 1.1.1', icon: 'pi pi-fw pi-bookmark' },
-            //                         { label: 'Submenu 1.1.2', icon: 'pi pi-fw pi-bookmark' },
-            //                         { label: 'Submenu 1.1.3', icon: 'pi pi-fw pi-bookmark' }
-            //                     ]
-            //                 },
-            //                 {
-            //                     label: 'Submenu 1.2',
-            //                     icon: 'pi pi-fw pi-bookmark',
-            //                     items: [{ label: 'Submenu 1.2.1', icon: 'pi pi-fw pi-bookmark' }]
-            //                 }
-            //             ]
-            //         },
-            //         {
-            //             label: 'Submenu 2',
-            //             icon: 'pi pi-fw pi-bookmark',
-            //             items: [
-            //                 {
-            //                     label: 'Submenu 2.1',
-            //                     icon: 'pi pi-fw pi-bookmark',
-            //                     items: [
-            //                         { label: 'Submenu 2.1.1', icon: 'pi pi-fw pi-bookmark' },
-            //                         { label: 'Submenu 2.1.2', icon: 'pi pi-fw pi-bookmark' }
-            //                     ]
-            //                 },
-            //                 {
-            //                     label: 'Submenu 2.2',
-            //                     icon: 'pi pi-fw pi-bookmark',
-            //                     items: [{ label: 'Submenu 2.2.1', icon: 'pi pi-fw pi-bookmark' }]
-            //                 }
-            //             ]
-            //         }
-            //     ]
-            // },
             {
                 label: 'Get Started',
                 items: [
                     {
                         label: 'Documentation',
-                        icon: 'pi pi-fw pi-book'
-                    },
-                    // {
-                    //     label: 'View Source',
-                    //     icon: 'pi pi-fw pi-github',
-                    //     url: 'https://github.com/primefaces/sakai-ng',
-                    //     target: '_blank'
-                    // }
+                        icon: 'pi pi-fw pi-book',
+                        visible: this.authService.isAuthenticated()
+                    }
                 ]
             }
         ];
