@@ -1,0 +1,143 @@
+<div class="timeline-comparison-editor">
+  <div class="editor-section">
+    <h5>General Settings</h5>
+    
+    <div class="mb-3">
+      <label class="form-label">Widget Title</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.title" placeholder="Time Comparison">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Subtitle</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.subtitle" 
+             placeholder="Optional subtitle text">
+    </div>
+
+    <div class="mb-3">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="showSteps" 
+               [(ngModel)]="config.settings.showSteps">
+        <label class="form-check-label" for="showSteps">
+          Show detailed steps for each option
+        </label>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="highlightRecommended" 
+               [(ngModel)]="config.settings.highlightRecommended">
+        <label class="form-check-label" for="highlightRecommended">
+          Highlight recommended option
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Timeline Options</h5>
+      <button class="btn btn-sm btn-primary" (click)="addOption()">
+        <i class="bi bi-plus-circle me-1"></i> Add Option
+      </button>
+    </div>
+
+    <div class="timeline-options-list">
+      <div class="timeline-option-card mb-3" *ngFor="let option of config.options; let i = index">
+        <div class="option-header">
+          <h6>Option {{ i + 1 }}</h6>
+          <button class="btn btn-sm btn-danger" (click)="removeOption(i)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-md-6">
+            <label class="form-label">Title</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="option.title" 
+                   placeholder="Option title">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Subtitle</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="option.subtitle" 
+                   placeholder="Optional subtitle">
+          </div>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-md-4">
+            <label class="form-label">Duration</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="option.duration" 
+                   placeholder="e.g., 10 or 2-4">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Duration Unit</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="option.durationUnit" 
+                   placeholder="minutes, hours, months">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Total Label</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="option.totalLabel" 
+                   placeholder="Total Time: ...">
+          </div>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-md-6">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" [id]="'recommended-' + i" 
+                     [(ngModel)]="option.isRecommended">
+              <label class="form-check-label" [for]="'recommended-' + i">
+                Mark as recommended
+              </label>
+            </div>
+          </div>
+
+          <div class="col-md-6" *ngIf="option.isRecommended">
+            <label class="form-label">Highlight Color</label>
+            <input type="color" class="form-control form-control-sm form-control-color" 
+                   [(ngModel)]="option.highlightColor">
+          </div>
+        </div>
+
+        <div class="steps-section">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Steps</strong>
+            <button class="btn btn-sm btn-outline-primary" (click)="addStep(option)">
+              <i class="bi bi-plus"></i> Add Step
+            </button>
+          </div>
+
+          <div class="step-item" *ngFor="let step of option.steps; let si = index">
+            <div class="step-controls">
+              <button class="btn btn-sm btn-outline-secondary" 
+                      (click)="moveStepUp(option, si)" 
+                      [disabled]="si === 0">
+                <i class="bi bi-arrow-up"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" 
+                      (click)="moveStepDown(option, si)" 
+                      [disabled]="si === option.steps.length - 1">
+                <i class="bi bi-arrow-down"></i>
+              </button>
+            </div>
+
+            <div class="step-fields">
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="step.label" 
+                     placeholder="Step description">
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="step.duration" 
+                     placeholder="Duration">
+            </div>
+
+            <button class="btn btn-sm btn-outline-danger" (click)="removeStep(option, si)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

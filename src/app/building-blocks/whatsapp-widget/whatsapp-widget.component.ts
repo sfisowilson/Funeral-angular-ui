@@ -13,7 +13,10 @@ export class WhatsappWidgetComponent implements OnInit {
   @Input() config!: WidgetConfig;
 
   get settings(): any {
-    return (this.config as any).settings || this.config;
+    if (!this.config.settings) {
+      this.config.settings = {};
+    }
+    return this.config.settings;
   }
 
   isExpanded = false;

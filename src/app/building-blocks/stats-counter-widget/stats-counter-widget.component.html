@@ -1,0 +1,47 @@
+<div class="stats-counter-widget" 
+     [style.background-color]="backgroundColor"
+     [style.padding.px]="padding">
+    
+    <!-- Title Section -->
+    <div class="widget-header" *ngIf="title || subtitle">
+        <h2 class="widget-title" 
+            [style.color]="titleColor"
+            *ngIf="title">{{ title }}</h2>
+        <p class="widget-subtitle" 
+           [style.color]="subtitleColor"
+           *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid" 
+         [class.cols-2]="columns === 2"
+         [class.cols-3]="columns === 3"
+         [class.cols-4]="columns === 4">
+        
+        <div class="stat-card" 
+             #statCard
+             [style.background-color]="statBackgroundColor"
+             *ngFor="let stat of stats; let i = index">
+            
+            <!-- Stat Icon -->
+            <div class="stat-icon" 
+                 [style.color]="iconColor"
+                 *ngIf="stat.icon">
+                <i [class]="stat.icon"></i>
+            </div>
+
+            <!-- Stat Value -->
+            <div class="stat-value" 
+                 [style.color]="valueColor"
+                 [class.animating]="animateOnScroll && !hasAnimated">
+                {{ getDisplayValue(i, stat) }}
+            </div>
+
+            <!-- Stat Label -->
+            <div class="stat-label" 
+                 [style.color]="labelColor">
+                {{ stat.label }}
+            </div>
+        </div>
+    </div>
+</div>

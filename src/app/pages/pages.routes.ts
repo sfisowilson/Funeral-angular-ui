@@ -19,6 +19,9 @@ import { AssetManagementComponent } from './asset-management/asset-management.co
 import { OnboardingSettingsComponent } from './onboarding-settings/onboarding-settings.component';
 import { DashboardSettingsComponent } from './dashboard-settings/dashboard-settings.component';
 import { PageBuilderComponent } from '../building-blocks/page-builder/page-builder.component';
+import { PdfFieldMappingComponent } from './pdf-field-mapping/pdf-field-mapping.component';
+import { MemberApprovalComponent } from './member-approval/member-approval.component';
+import { TenantApprovalComponent } from './tenant-approval/tenant-approval.component';
 
 export default [
     { path: 'assets', component: AssetsComponent },
@@ -40,6 +43,9 @@ export default [
 
     { path: 'onboarding-settings', component: OnboardingSettingsComponent },
     { path: 'dashboard-settings', component: DashboardSettingsComponent },
+    { path: 'pdf-field-mapping', component: PdfFieldMappingComponent },
+    { path: 'member-approval', component: MemberApprovalComponent },
+    { path: 'tenant-approval', component: TenantApprovalComponent },
     { 
         path: 'page-builder', 
         component: PageBuilderComponent,

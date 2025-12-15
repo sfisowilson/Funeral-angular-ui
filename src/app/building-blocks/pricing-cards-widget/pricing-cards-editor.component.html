@@ -1,0 +1,156 @@
+<div class="pricing-cards-editor">
+  <!-- General Settings -->
+  <div class="editor-section">
+    <h5>General Settings</h5>
+    <div class="mb-3">
+      <label class="form-label">Section Title</label>
+      <input type="text" class="form-control" [(ngModel)]="config.title" (ngModelChange)="emitChange()" placeholder="Choose Your Plan">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Subtitle</label>
+      <input type="text" class="form-control" [(ngModel)]="config.subtitle" (ngModelChange)="emitChange()" placeholder="Select the perfect plan...">
+    </div>
+  </div>
+
+  <!-- Display Settings -->
+  <div class="editor-section">
+    <h5>Display Settings</h5>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Number of Columns</label>
+        <select class="form-select" [(ngModel)]="config.settings.columns" (ngModelChange)="emitChange()">
+          <option [value]="2">2 Columns</option>
+          <option [value]="3">3 Columns</option>
+          <option [value]="4">4 Columns</option>
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Billing Toggle Label</label>
+        <input type="text" class="form-control" [(ngModel)]="config.settings.billingLabel" (ngModelChange)="emitChange()" placeholder="Monthly / Annual">
+      </div>
+    </div>
+    <div class="mb-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="showBillingToggle" [(ngModel)]="config.settings.showBillingToggle" (ngModelChange)="emitChange()">
+        <label class="form-check-label" for="showBillingToggle">
+          Show Billing Period Toggle
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing Tiers -->
+  <div class="editor-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Pricing Tiers</h5>
+      <button type="button" class="btn btn-sm btn-primary" (click)="addTier()">
+        <i class="bi bi-plus-lg"></i> Add Tier
+      </button>
+    </div>
+
+    <div class="tiers-list">
+      <div *ngFor="let tier of config.tiers; let i = index" class="tier-item">
+        <div class="tier-header">
+          <div class="tier-title">
+            <i class="bi bi-tag-fill"></i>
+            <strong>{{ tier.name }}</strong>
+          </div>
+          <div class="tier-actions">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="moveTierUp(i)" [disabled]="i === 0">
+              <i class="bi bi-arrow-up"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="moveTierDown(i)" [disabled]="i === config.tiers.length - 1">
+              <i class="bi bi-arrow-down"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeTier(i)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="tier-content">
+          <!-- Basic Info -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Plan Name</label>
+              <input type="text" class="form-control" [(ngModel)]="tier.name" (ngModelChange)="emitChange()" placeholder="Starter">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Description</label>
+              <input type="text" class="form-control" [(ngModel)]="tier.description" (ngModelChange)="emitChange()" placeholder="Perfect for...">
+            </div>
+          </div>
+
+          <!-- Pricing -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label">Price</label>
+              <input type="text" class="form-control" [(ngModel)]="tier.price" (ngModelChange)="emitChange()" placeholder="R2,999">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Price Period</label>
+              <input type="text" class="form-control" [(ngModel)]="tier.pricePeriod" (ngModelChange)="emitChange()" placeholder="/ month">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Original Price (optional)</label>
+              <input type="text" class="form-control" [(ngModel)]="tier.originalPrice" (ngModelChange)="emitChange()" placeholder="R3,999">
+            </div>
+          </div>
+
+          <!-- CTA & Popular -->
+          <div class="row mb-3">
+            <div class="col-md-5">
+              <label class="form-label">CTA Button Text</label>
+              <input type="text" class="form-control" [(ngModel)]="tier.ctaText" (ngModelChange)="emitChange()" placeholder="Get Started">
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">CTA Button Link</label>
+              <input type="text" class="form-control" [(ngModel)]="tier.ctaLink" (ngModelChange)="emitChange()" placeholder="#signup">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Mark Popular</label>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" [id]="'popular-' + i" [(ngModel)]="tier.isPopular" (ngModelChange)="emitChange()">
+                <label class="form-check-label" [for]="'popular-' + i">
+                  <i class="bi bi-star-fill"></i>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Features -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="form-label mb-0">Features</label>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="addFeature(tier)">
+                <i class="bi bi-plus-lg"></i> Add Feature
+              </button>
+            </div>
+            <div class="features-list">
+              <div *ngFor="let feature of tier.features; let j = index" class="feature-item">
+                <div class="feature-controls">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" [id]="'feature-' + i + '-' + j" [(ngModel)]="feature.included" (ngModelChange)="emitChange()">
+                    <label class="form-check-label" [for]="'feature-' + i + '-' + j">
+                      <i class="bi" [ngClass]="feature.included ? 'bi-check-circle-fill text-success' : 'bi-x-circle text-danger'"></i>
+                    </label>
+                  </div>
+                  <input type="text" class="form-control flex-grow-1" [(ngModel)]="feature.text" (ngModelChange)="emitChange()" placeholder="Feature name">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="moveFeatureUp(tier, j)" [disabled]="j === 0">
+                    <i class="bi bi-arrow-up"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="moveFeatureDown(tier, j)" [disabled]="j === tier.features.length - 1">
+                    <i class="bi bi-arrow-down"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFeature(tier, j)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

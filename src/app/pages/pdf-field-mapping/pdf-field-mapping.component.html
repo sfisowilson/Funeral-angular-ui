@@ -1,0 +1,433 @@
+<div class="container-fluid py-4">
+  <!-- Alert Toast -->
+  <div *ngIf="showAlert" class="alert alert-{{alertType}} alert-dismissible fade show position-fixed top-0 end-0 m-3" 
+    style="z-index: 1050; min-width: 300px;" role="alert">
+    {{ alertMessage }}
+    <button type="button" class="btn-close" (click)="showAlert = false"></button>
+  </div>
+
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="h2 fw-bold mb-2">PDF Field Mapping</h1>
+      <p class="text-muted">Configure how database fields map to PDF form fields</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <button class="btn btn-outline-secondary me-2" (click)="loadCurrentTemplate()" 
+        [disabled]="!currentTemplateFileId">
+        <i class="bi bi-search"></i> Analyze Template
+      </button>
+      <button class="btn btn-primary" (click)="openCreateDialog()">
+        <i class="bi bi-plus-lg"></i> Create Mapping
+      </button>
+    </div>
+  </div>
+
+  <!-- Template Upload Section -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3">
+        <i class="bi bi-file-earmark-pdf"></i> PDF Contract Template
+      </h5>
+      <p class="text-muted small mb-3">
+        Upload a PDF template with fillable form fields for member onboarding contracts. 
+        The system will automatically populate fields like member name, ID number, policy details, etc.
+      </p>
+      
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <div *ngIf="currentTemplateFileId" class="alert alert-success mb-0">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>Template Active:</strong> {{ currentTemplateFileId }}
+          </div>
+          <div *ngIf="!currentTemplateFileId" class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            No template uploaded. Upload a PDF to enable field mapping.
+          </div>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <input type="file" #fileInput class="d-none" accept=".pdf" (change)="onTemplateUpload($event)">
+          <button class="btn btn-outline-primary me-2" (click)="fileInput.click()">
+            <i class="bi bi-upload"></i> Upload Template
+          </button>
+          <button *ngIf="currentTemplateFileId" class="btn btn-outline-danger" (click)="removeTemplate()">
+            <i class="bi bi-trash"></i> Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total Mappings</div>
+          <div class="h3 fw-bold text-primary mb-0">{{ mappings.length }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Enabled</div>
+          <div class="h3 fw-bold text-success mb-0">{{ getEnabledCount() }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Conditional</div>
+          <div class="h3 fw-bold text-purple mb-0" style="color: #9333ea;">{{ getMappingCount('Conditional') }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Simple</div>
+          <div class="h3 fw-bold text-secondary mb-0">{{ getMappingCount('Simple') }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Setup -->
+  <div class="card mb-4 border-0 shadow-sm">
+    <div class="card-header bg-white">
+      <h5 class="mb-0">Quick Setup Templates</h5>
+    </div>
+    <div class="card-body">
+      <button class="btn btn-outline-primary me-2" (click)="quickMapTitleCheckboxes()">
+        <i class="bi bi-check-square"></i> Title → Checkboxes
+      </button>
+      <button class="btn btn-outline-primary" (click)="quickMapGenderCheckboxes()">
+        <i class="bi bi-check-square"></i> Gender → Checkboxes
+      </button>
+    </div>
+  </div>
+
+  <!-- Mappings Table -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+      <h5 class="mb-0">Field Mappings</h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 60px;">
+                <i class="bi bi-toggle-on"></i>
+              </th>
+              <th>Source Field</th>
+              <th>PDF Field</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Description</th>
+              <th style="width: 120px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let mapping of mappings">
+              <td>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="mapping.isEnabled"
+                    (change)="toggleMapping(mapping)">
+                </div>
+              </td>
+              <td>
+                <span class="fw-semibold text-primary">{{ mapping.sourceField }}</span>
+              </td>
+              <td>
+                <span *ngIf="mapping.pdfFieldName">{{ mapping.pdfFieldName }}</span>
+                <span *ngIf="!mapping.pdfFieldName && mapping.mappingType === 'Conditional'" 
+                  class="text-muted fst-italic">Multiple fields (conditional)</span>
+              </td>
+              <td>
+                <span class="badge" 
+                  [ngClass]="mapping.mappingType === 'Conditional' ? 'bg-purple text-white' : 
+                             mapping.mappingType === 'Transform' ? 'bg-info' : 
+                             'bg-secondary'"
+                  [style.background-color]="mapping.mappingType === 'Conditional' ? '#9333ea' : ''">
+                  {{ getMappingTypeLabel(mapping.mappingType || 'Simple') }}
+                </span>
+              </td>
+              <td>
+                <span class="text-muted">{{ mapping.category || '-' }}</span>
+              </td>
+              <td>
+                <small class="text-muted">{{ mapping.description || '-' }}</small>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1" (click)="openEditDialog(mapping)" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteMapping(mapping)" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="mappings.length === 0">
+              <td colspan="7" class="text-center text-muted py-4">
+                No mappings configured. Click "Create Mapping" to add your first mapping.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Mapping Modal -->
+<div class="modal fade" [class.show]="showMappingDialog" [style.display]="showMappingDialog ? 'block' : 'none'" 
+  tabindex="-1" *ngIf="showMappingDialog">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEditMode ? 'Edit' : 'Create' }} Mapping</h5>
+        <button type="button" class="btn-close" (click)="showMappingDialog = false"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'basic-tab'" 
+              (click)="setActiveTab('basic-tab')" type="button">
+              Basic Info
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'rules-tab'" 
+              (click)="setActiveTab('rules-tab')" type="button"
+              *ngIf="mappingForm.mappingType === 'Conditional'">
+              Conditional Rules
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" [class.active]="activeTab === 'advanced-tab'" 
+              (click)="setActiveTab('advanced-tab')" type="button">
+              Advanced
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Basic Info Tab -->
+          <div class="tab-pane fade" [class.show]="activeTab === 'basic-tab'" 
+            [class.active]="activeTab === 'basic-tab'" id="basic-tab">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Source Field <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="mappingForm.sourceField" required>
+                  <option value="">Select a field...</option>
+                  <option *ngFor="let field of suggestedSourceFields" [value]="field">{{ field }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Mapping Type <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="mappingForm.mappingType" required>
+                  <option *ngFor="let type of mappingTypeOptions" [value]="type.value">{{ type.label }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-6" *ngIf="mappingForm.mappingType !== 'Conditional'">
+                <label class="form-label">PDF Field Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="mappingForm.pdfFieldName" 
+                  placeholder="e.g., firstName" required>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <select class="form-select" [(ngModel)]="mappingForm.category">
+                  <option value="">Select category...</option>
+                  <option *ngFor="let cat of categoryOptions" [value]="cat.value">{{ cat.label }}</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="2" [(ngModel)]="mappingForm.description"
+                  placeholder="Brief description of this mapping"></textarea>
+              </div>
+
+              <div class="col-md-6" *ngIf="mappingForm.mappingType === 'Transform'">
+                <label class="form-label">Transform Rule</label>
+                <select class="form-select" [(ngModel)]="mappingForm.transformRule">
+                  <option value="">Select transformation...</option>
+                  <option *ngFor="let transform of transformOptions" [value]="transform.value">
+                    {{ transform.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-6" *ngIf="mappingForm.mappingType === 'Checkbox'">
+                <label class="form-label">Checked Value</label>
+                <input type="text" class="form-control" [(ngModel)]="mappingForm.checkedValue" 
+                  placeholder="e.g., Yes, On, X">
+              </div>
+
+              <div class="col-md-6" *ngIf="mappingForm.mappingType === 'Checkbox'">
+                <label class="form-label">Unchecked Value</label>
+                <input type="text" class="form-control" [(ngModel)]="mappingForm.uncheckedValue" 
+                  placeholder="e.g., Off, No">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Default Value</label>
+                <input type="text" class="form-control" [(ngModel)]="mappingForm.defaultValue" 
+                  placeholder="Value if source is empty">
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-check form-switch mt-4">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="mappingForm.isEnabled" 
+                    id="enabledSwitch">
+                  <label class="form-check-label" for="enabledSwitch">Enabled</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conditional Rules Tab -->
+          <div class="tab-pane fade" [class.show]="activeTab === 'rules-tab'" 
+            [class.active]="activeTab === 'rules-tab'" id="rules-tab" 
+            *ngIf="mappingForm.mappingType === 'Conditional'">
+            <div class="mb-3">
+              <button class="btn btn-sm btn-outline-primary" (click)="addConditionalRule()">
+                <i class="bi bi-plus-lg"></i> Add Rule
+              </button>
+            </div>
+
+            <div class="row g-2 mb-2" *ngFor="let rule of conditionalRules; let i = index">
+              <div class="col-md-4">
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="rule.condition" 
+                  placeholder="value == 'Mr'">
+              </div>
+              <div class="col-md-3">
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="rule.pdfField" 
+                  placeholder="checkbox_Mr">
+              </div>
+              <div class="col-md-3">
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="rule.setValue" 
+                  placeholder="Yes">
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-sm btn-outline-danger w-100" (click)="removeConditionalRule(i)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="conditionalRules.length === 0" class="alert alert-info">
+              No rules defined. Click "Add Rule" to create conditional mappings.
+            </div>
+          </div>
+
+          <!-- Advanced Tab -->
+          <div class="tab-pane fade" [class.show]="activeTab === 'advanced-tab'" 
+            [class.active]="activeTab === 'advanced-tab'" id="advanced-tab">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Display Order</label>
+                <input type="number" class="form-control" [(ngModel)]="mappingForm.displayOrder" min="0">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="showMappingDialog = false">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveMapping()">
+          {{ isEditMode ? 'Update' : 'Create' }} Mapping
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showMappingDialog" *ngIf="showMappingDialog"></div>
+
+<!-- Template Analysis Modal -->
+<div class="modal fade" [class.show]="showAnalysisDialog" [style.display]="showAnalysisDialog ? 'block' : 'none'" 
+  tabindex="-1" *ngIf="showAnalysisDialog && templateAnalysis">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">PDF Template Analysis</h5>
+        <button type="button" class="btn-close" (click)="showAnalysisDialog = false"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="card bg-light">
+              <div class="card-body">
+                <div class="text-muted small">Total Fields</div>
+                <div class="h4 fw-bold text-primary mb-0">{{ templateAnalysis.totalFields }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card bg-light">
+              <div class="card-body">
+                <div class="text-muted small">Mapped</div>
+                <div class="h4 fw-bold text-success mb-0">{{ templateAnalysis.mappedFields }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card bg-light">
+              <div class="card-body">
+                <div class="text-muted small">Unmapped</div>
+                <div class="h4 fw-bold text-warning mb-0">{{ templateAnalysis.unmappedFields }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Status</th>
+                <th>PDF Field Name</th>
+                <th>Field Type</th>
+                <th>Mapped To</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let field of templateAnalysis.fields || []">
+                <td>
+                  <span class="badge" [ngClass]="field.isMapped ? 'bg-success' : 'bg-warning'">
+                    {{ field.isMapped ? 'Mapped' : 'Unmapped' }}
+                  </span>
+                </td>
+                <td><code>{{ field.fieldName }}</code></td>
+                <td><span class="badge bg-secondary">{{ field.fieldType }}</span></td>
+                <td>
+                  <span *ngIf="field.isMapped" class="text-muted">
+                    {{ field.mappedSourceField }} ({{ field.mappingType }})
+                  </span>
+                  <span *ngIf="!field.isMapped" class="text-muted">-</span>
+                </td>
+                <td>
+                  <button *ngIf="!field.isMapped" class="btn btn-sm btn-outline-primary" 
+                    (click)="createMappingFromTemplate(field); showAnalysisDialog = false">
+                    <i class="bi bi-plus-lg"></i> Create Mapping
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="showAnalysisDialog = false">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showAnalysisDialog" *ngIf="showAnalysisDialog"></div>

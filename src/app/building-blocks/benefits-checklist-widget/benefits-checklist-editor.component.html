@@ -1,0 +1,234 @@
+<div class="benefits-checklist-editor">
+    <!-- General Settings -->
+    <div class="editor-section">
+        <h4 class="section-title">General Settings</h4>
+        
+        <div class="form-group">
+            <label>Widget Title</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.title"
+                   placeholder="e.g., Everything You Need">
+        </div>
+
+        <div class="form-group">
+            <label>Subtitle</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.subtitle"
+                   placeholder="e.g., All in one place">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Title Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.titleColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Subtitle Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.subtitleColor">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" 
+                       class="form-check-input" 
+                       [(ngModel)]="config.settings.useCategories"
+                       id="useCategories">
+                <label class="form-check-label" for="useCategories">
+                    Group Benefits into Categories
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group" *ngIf="config.settings.useCategories">
+            <div class="form-check">
+                <input type="checkbox" 
+                       class="form-check-input" 
+                       [(ngModel)]="config.settings.allowExpand"
+                       id="allowExpand">
+                <label class="form-check-label" for="allowExpand">
+                    Allow Categories to Expand/Collapse
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Number of Columns</label>
+            <select class="form-control" [(ngModel)]="config.settings.columns">
+                <option [value]="1">1 Column</option>
+                <option [value]="2">2 Columns</option>
+                <option [value]="3">3 Columns</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Style Settings -->
+    <div class="editor-section">
+        <h4 class="section-title">Style Settings</h4>
+        
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Background Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.backgroundColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Icon Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.iconColor">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Text Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.textColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Padding (px)</label>
+                <input type="number" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.padding"
+                       min="0" 
+                       max="100">
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple Benefits List (No Categories) -->
+    <div class="editor-section" *ngIf="!config.settings.useCategories">
+        <div class="section-header">
+            <h4 class="section-title">Benefits List</h4>
+            <button type="button" 
+                    class="btn btn-sm btn-success" 
+                    (click)="addBenefit()">
+                <i class="bi bi-plus-circle"></i> Add Benefit
+            </button>
+        </div>
+
+        <div class="benefits-list">
+            <div class="benefit-card" 
+                 *ngFor="let benefit of config.settings.benefits; let i = index">
+                <div class="benefit-content">
+                    <div class="form-group">
+                        <label>Icon</label>
+                        <input type="text" 
+                               class="form-control form-control-sm" 
+                               [(ngModel)]="benefit.icon"
+                               placeholder="e.g., bi bi-check-circle-fill">
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label>Benefit Text</label>
+                        <input type="text" 
+                               class="form-control form-control-sm" 
+                               [(ngModel)]="benefit.text"
+                               placeholder="Describe the benefit">
+                    </div>
+                </div>
+
+                <button type="button" 
+                        class="btn btn-sm btn-link text-danger" 
+                        (click)="removeBenefit(i)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+
+            <div class="text-center text-muted py-3" 
+                 *ngIf="!config.settings.benefits || config.settings.benefits.length === 0">
+                No benefits yet. Click "Add Benefit" to get started.
+            </div>
+        </div>
+    </div>
+
+    <!-- Categorized Benefits -->
+    <div class="editor-section" *ngIf="config.settings.useCategories">
+        <div class="section-header">
+            <h4 class="section-title">Benefit Categories</h4>
+            <button type="button" 
+                    class="btn btn-sm btn-success" 
+                    (click)="addCategory()">
+                <i class="bi bi-plus-circle"></i> Add Category
+            </button>
+        </div>
+
+        <div class="categories-tabs" *ngIf="config.settings.categories?.length > 0">
+            <button type="button"
+                    class="tab-button"
+                    *ngFor="let category of config.settings.categories; let i = index"
+                    [class.active]="activeCategoryIndex === i"
+                    (click)="activeCategoryIndex = i">
+                {{ category.name || 'Category ' + (i + 1) }}
+                <i class="bi bi-x-circle ms-2" 
+                   (click)="removeCategory(i); $event.stopPropagation()"
+                   *ngIf="config.settings.categories.length > 1"></i>
+            </button>
+        </div>
+
+        <div class="category-editor" *ngIf="config.settings.categories[activeCategoryIndex]">
+            <div class="form-group">
+                <label>Category Name</label>
+                <input type="text" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.categories[activeCategoryIndex].name"
+                       placeholder="e.g., Website Features">
+            </div>
+
+            <div class="section-header mt-3">
+                <label class="mb-0">Category Items</label>
+                <button type="button" 
+                        class="btn btn-sm btn-primary" 
+                        (click)="addItemToCategory(activeCategoryIndex)">
+                    <i class="bi bi-plus"></i> Add Item
+                </button>
+            </div>
+
+            <div class="items-list">
+                <div class="benefit-card" 
+                     *ngFor="let item of config.settings.categories[activeCategoryIndex].items; let j = index">
+                    <div class="benefit-content">
+                        <div class="form-group">
+                            <label>Icon</label>
+                            <input type="text" 
+                                   class="form-control form-control-sm" 
+                                   [(ngModel)]="item.icon"
+                                   placeholder="e.g., bi bi-check-circle-fill">
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label>Item Text</label>
+                            <input type="text" 
+                                   class="form-control form-control-sm" 
+                                   [(ngModel)]="item.text"
+                                   placeholder="Describe the item">
+                        </div>
+                    </div>
+
+                    <button type="button" 
+                            class="btn btn-sm btn-link text-danger" 
+                            (click)="removeItemFromCategory(activeCategoryIndex, j)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+
+                <div class="text-center text-muted py-3" 
+                     *ngIf="!config.settings.categories[activeCategoryIndex].items || config.settings.categories[activeCategoryIndex].items.length === 0">
+                    No items yet. Click "Add Item" to get started.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

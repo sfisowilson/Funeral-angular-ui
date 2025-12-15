@@ -1,0 +1,45 @@
+<div class="logo-cloud-widget">
+  <div class="container py-5">
+    <div class="text-center mb-5" *ngIf="title">
+      <h2 class="widget-title">{{ title }}</h2>
+      <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <div class="logo-grid" 
+         [class.layout-centered]="layout === 'centered'"
+         [class.layout-grid]="layout === 'grid'">
+      <div class="row g-4 justify-content-center align-items-center">
+        <div [ngClass]="columnClass" *ngFor="let logo of logos">
+          <div class="logo-item" 
+               [class.logo-grayscale]="grayscale"
+               [class.logo-hover-color]="hoverColor"
+               [class.logo-small]="logoSize === 'small'"
+               [class.logo-medium]="logoSize === 'medium'"
+               [class.logo-large]="logoSize === 'large'">
+            <a *ngIf="logo.link; else noLink" 
+               [href]="logo.link" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               class="logo-link">
+              <img [src]="logo.imageUrl" 
+                   [alt]="logo.altText || logo.name" 
+                   [title]="logo.name"
+                   class="logo-image">
+            </a>
+            <ng-template #noLink>
+              <img [src]="logo.imageUrl" 
+                   [alt]="logo.altText || logo.name" 
+                   [title]="logo.name"
+                   class="logo-image">
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="logo-placeholder" *ngIf="logos.length === 0">
+      <i class="bi bi-images"></i>
+      <p>No logos configured</p>
+    </div>
+  </div>
+</div>

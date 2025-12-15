@@ -1,9 +1,138 @@
-<div class="about-us-widget">
-    <h2>{{ config.settings.title }}</h2>
-    <div class="content-section">
-        <p>{{ config.settings.content }}</p>
-        <div *ngIf="config.settings.imageUrl" class="image-container">
-            <img [src]="getDownloadUrl(config.settings.imageUrl)" alt="About Us Image" />
+<div class="about-us-widget" [style.padding.px]="config.settings?.padding || 60">
+    
+    <!-- Hero Section -->
+    <div class="hero-section" *ngIf="config.settings?.showHero">
+        <div class="hero-content">
+            <h1 class="hero-title">{{ config.settings?.heroTitle || 'About Us' }}</h1>
+            <p class="hero-subtitle">{{ config.settings?.heroSubtitle }}</p>
+        </div>
+        <div class="hero-image" *ngIf="config.settings?.heroImage">
+            <img [src]="getDownloadUrl(config.settings.heroImage)" alt="Hero Image" />
         </div>
     </div>
+
+    <!-- Story Section -->
+    <div class="story-section" *ngIf="config.settings?.showStory">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-badge">{{ config.settings?.storyBadge || 'Our Story' }}</span>
+                <h2 class="section-title">{{ config.settings?.storyTitle }}</h2>
+            </div>
+            <div class="story-content">
+                <div class="story-text">
+                    <p [innerHTML]="config.settings?.storyContent"></p>
+                </div>
+                <div class="story-image" *ngIf="config.settings?.storyImage">
+                    <img [src]="getDownloadUrl(config.settings.storyImage)" alt="Our Story" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission & Vision -->
+    <div class="mission-vision-section" *ngIf="config.settings?.showMissionVision">
+        <div class="section-container">
+            <div class="mission-vision-grid">
+                <div class="mission-card" *ngIf="config.settings?.mission">
+                    <div class="card-icon">
+                        <i class="pi pi-flag"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>{{ config.settings.mission }}</p>
+                </div>
+                <div class="vision-card" *ngIf="config.settings?.vision">
+                    <div class="card-icon">
+                        <i class="pi pi-eye"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>{{ config.settings.vision }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section -->
+    <div class="values-section" *ngIf="config.settings?.showValues && config.settings?.values?.length">
+        <div class="section-container">
+            <div class="section-header centered">
+                <span class="section-badge">{{ config.settings?.valuesBadge || 'Our Values' }}</span>
+                <h2 class="section-title">{{ config.settings?.valuesTitle || 'What We Stand For' }}</h2>
+            </div>
+            <div class="values-grid">
+                <div class="value-card" *ngFor="let value of config.settings.values">
+                    <div class="value-icon">
+                        <i [class]="value.icon || 'pi pi-check-circle'"></i>
+                    </div>
+                    <h4>{{ value.title }}</h4>
+                    <p>{{ value.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section" *ngIf="config.settings?.showStats && config.settings?.stats?.length">
+        <div class="section-container">
+            <div class="stats-grid">
+                <div class="stat-card" *ngFor="let stat of config.settings.stats">
+                    <div class="stat-number">{{ stat.number }}</div>
+                    <div class="stat-label">{{ stat.label }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Section -->
+    <div class="team-section" *ngIf="config.settings?.showTeam && config.settings?.teamMembers?.length">
+        <div class="section-container">
+            <div class="section-header centered">
+                <span class="section-badge">{{ config.settings?.teamBadge || 'Our Team' }}</span>
+                <h2 class="section-title">{{ config.settings?.teamTitle || 'Meet The Team' }}</h2>
+                <p class="section-description">{{ config.settings?.teamDescription }}</p>
+            </div>
+            <div class="team-grid">
+                <div class="team-member-card" *ngFor="let member of config.settings.teamMembers">
+                    <div class="member-image">
+                        <img [src]="getDownloadUrl(member.image)" [alt]="member.name" />
+                    </div>
+                    <div class="member-info">
+                        <h4>{{ member.name }}</h4>
+                        <p class="member-role">{{ member.role }}</p>
+                        <p class="member-bio">{{ member.bio }}</p>
+                        <div class="member-social" *ngIf="member.linkedin || member.twitter">
+                            <a *ngIf="member.linkedin" [href]="member.linkedin" target="_blank">
+                                <i class="pi pi-linkedin"></i>
+                            </a>
+                            <a *ngIf="member.twitter" [href]="member.twitter" target="_blank">
+                                <i class="pi pi-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section" *ngIf="config.settings?.showCTA">
+        <div class="section-container">
+            <div class="cta-content">
+                <h2>{{ config.settings?.ctaTitle || 'Ready to Get Started?' }}</h2>
+                <p>{{ config.settings?.ctaText }}</p>
+                <div class="cta-buttons">
+                    <a *ngIf="config.settings?.ctaPrimaryButton" 
+                       [href]="config.settings.ctaPrimaryButton.link" 
+                       class="cta-button primary">
+                        {{ config.settings.ctaPrimaryButton.text }}
+                    </a>
+                    <a *ngIf="config.settings?.ctaSecondaryButton" 
+                       [href]="config.settings.ctaSecondaryButton.link" 
+                       class="cta-button secondary">
+                        {{ config.settings.ctaSecondaryButton.text }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

@@ -223,4 +223,16 @@ export class LayoutService {
     reset() {
         this.resetSource.next(true);
     }
+
+    closeMenu() {
+        this.layoutState.update((prev) => ({ 
+            ...prev, 
+            overlayMenuActive: false, 
+            staticMenuMobileActive: false, 
+            menuHoverActive: false 
+        }));
+        
+        const newState = this.layoutState();
+        this.stateChangeSource.next(newState);
+    }
 }

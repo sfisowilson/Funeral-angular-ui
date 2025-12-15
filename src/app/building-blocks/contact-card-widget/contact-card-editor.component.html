@@ -1,0 +1,129 @@
+<div class="contact-card-editor">
+  <!-- General Settings -->
+  <div class="editor-section">
+    <h5>General Settings</h5>
+    <div class="mb-3">
+      <label class="form-label">Section Title</label>
+      <input type="text" class="form-control" [(ngModel)]="config.title" (ngModelChange)="emitChange()" placeholder="Get In Touch">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Subtitle</label>
+      <input type="text" class="form-control" [(ngModel)]="config.subtitle" (ngModelChange)="emitChange()" placeholder="We're here to help...">
+    </div>
+  </div>
+
+  <!-- Display Settings -->
+  <div class="editor-section">
+    <h5>Display Settings</h5>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Layout</label>
+        <select class="form-select" [(ngModel)]="config.settings.layout" (ngModelChange)="emitChange()">
+          <option value="single">Single Column</option>
+          <option value="split">Split (with Map)</option>
+        </select>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Background Color</label>
+        <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.backgroundColor" (ngModelChange)="emitChange()">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Icon Color</label>
+        <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.iconColor" (ngModelChange)="emitChange()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Settings -->
+  <div class="editor-section">
+    <h5>Map Settings</h5>
+    <div class="mb-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="showMap" [(ngModel)]="config.settings.showMap" (ngModelChange)="emitChange()">
+        <label class="form-check-label" for="showMap">
+          Show Map
+        </label>
+      </div>
+    </div>
+    <div class="mb-3" *ngIf="config.settings.showMap">
+      <label class="form-label">Map Embed URL</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.mapEmbedUrl" (ngModelChange)="emitChange()" placeholder="https://www.google.com/maps/embed?pb=...">
+      <small class="form-text text-muted">
+        Get embed URL from Google Maps: Share → Embed a map → Copy HTML iframe src
+      </small>
+    </div>
+    <div *ngIf="config.settings.showMap && config.settings.mapEmbedUrl" class="map-preview">
+      <iframe [src]="getSafeMapUrl()" width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <!-- Contact Methods -->
+  <div class="editor-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Contact Methods</h5>
+      <button type="button" class="btn btn-sm btn-primary" (click)="addContactMethod()">
+        <i class="bi bi-plus-lg"></i> Add Contact Method
+      </button>
+    </div>
+
+    <div class="contact-methods-list">
+      <div *ngFor="let method of config.contactMethods; let i = index" class="contact-method-item">
+        <div class="method-header">
+          <div class="method-title">
+            <i class="bi" [ngClass]="method.icon"></i>
+            <strong>{{ method.label }}</strong>
+          </div>
+          <div class="method-actions">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="moveContactMethodUp(i)" [disabled]="i === 0">
+              <i class="bi bi-arrow-up"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="moveContactMethodDown(i)" [disabled]="i === config.contactMethods.length - 1">
+              <i class="bi bi-arrow-down"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeContactMethod(i)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="method-content">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Type</label>
+              <select class="form-select" [(ngModel)]="method.type" (ngModelChange)="onTypeChange(method)">
+                <option value="phone">Phone</option>
+                <option value="email">Email</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="address">Address</option>
+                <option value="hours">Business Hours</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Icon (Bootstrap Icon class)</label>
+              <input type="text" class="form-control" [(ngModel)]="method.icon" (ngModelChange)="emitChange()" placeholder="bi-telephone-fill">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Label</label>
+            <input type="text" class="form-control" [(ngModel)]="method.label" (ngModelChange)="emitChange()" placeholder="Phone">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Value</label>
+            <input type="text" class="form-control" [(ngModel)]="method.value" (ngModelChange)="emitChange()" placeholder="+27 11 123 4567">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Custom Link (optional)</label>
+            <input type="text" class="form-control" [(ngModel)]="method.link" (ngModelChange)="emitChange()" placeholder="https://...">
+            <small class="form-text text-muted">
+              Leave empty to auto-generate links for phone/email/WhatsApp
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

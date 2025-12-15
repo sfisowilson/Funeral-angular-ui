@@ -27,7 +27,10 @@ export class SliderWidgetComponent implements OnInit, OnDestroy {
 
   // Helper to access settings
   get settings(): any {
-    return this.config as any;
+    if (!this.config.settings) {
+      this.config.settings = {};
+    }
+    return this.config.settings;
   }
 
   ngOnInit(): void {

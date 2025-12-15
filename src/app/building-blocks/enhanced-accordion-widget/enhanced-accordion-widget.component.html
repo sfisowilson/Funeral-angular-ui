@@ -1,0 +1,62 @@
+<div class="enhanced-accordion-widget">
+  <div class="container py-5">
+    <div class="text-center mb-4" *ngIf="title">
+      <h2 class="widget-title">{{ title }}</h2>
+      <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <div class="accordion-controls mb-4" *ngIf="enableSearch || expandAllButton">
+      <div class="search-box" *ngIf="enableSearch">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" 
+               class="form-control" 
+               placeholder="Search questions..."
+               (input)="onSearchChange($event)"
+               [value]="searchQuery">
+      </div>
+
+      <button *ngIf="expandAllButton" 
+              class="btn btn-outline-secondary"
+              (click)="allExpanded ? collapseAll() : expandAll()">
+        <i [class]="allExpanded ? 'bi bi-dash-square' : 'bi bi-plus-square'"></i>
+        {{ allExpanded ? 'Collapse All' : 'Expand All' }}
+      </button>
+    </div>
+
+    <div class="accordion-container" *ngIf="filteredItems.length > 0">
+      <div class="accordion-item" 
+           *ngFor="let item of filteredItems"
+           [class.expanded]="item.expanded">
+        <button class="accordion-header" 
+                (click)="toggleItem(item)"
+                type="button">
+          <div class="header-content">
+            <i *ngIf="showIcons && item.icon" 
+               [class]="'bi bi-' + item.icon + ' item-icon'"></i>
+            <span class="item-question">{{ item.question }}</span>
+          </div>
+          <i class="bi chevron-icon" 
+             [class.bi-chevron-down]="!item.expanded"
+             [class.bi-chevron-up]="item.expanded"></i>
+        </button>
+
+        <div class="accordion-collapse" [class.show]="item.expanded">
+          <div class="accordion-body" [innerHTML]="item.answer"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-results" *ngIf="enableSearch && searchQuery && filteredItems.length === 0">
+      <i class="bi bi-search"></i>
+      <p>No questions found matching "{{ searchQuery }}"</p>
+      <button class="btn btn-sm btn-primary" (click)="searchQuery = ''; onSearchChange({target: {value: ''}})">
+        Clear Search
+      </button>
+    </div>
+
+    <div class="accordion-placeholder" *ngIf="items.length === 0">
+      <i class="bi bi-question-circle"></i>
+      <p>No FAQ items configured</p>
+    </div>
+  </div>
+</div>

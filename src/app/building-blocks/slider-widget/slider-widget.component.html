@@ -20,7 +20,7 @@
             {{ slide.subtitle }}
           </p>
           <a 
-            *ngIf="slide.buttonText && slide.buttonLink"
+            *ngIf="settings.showButton && slide.buttonText && slide.buttonLink"
             [href]="slide.buttonLink"
             class="btn slide-button"
             [ngStyle]="getButtonStyles()">

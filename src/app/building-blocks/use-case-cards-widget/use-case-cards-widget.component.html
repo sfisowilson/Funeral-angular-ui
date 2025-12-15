@@ -1,0 +1,35 @@
+<div class="use-case-cards-widget">
+  <div class="container py-5">
+    <div class="text-center mb-5" *ngIf="title">
+      <h2 class="widget-title">{{ title }}</h2>
+      <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <div class="row g-4">
+      <div [ngClass]="columnClass" *ngFor="let card of cards">
+        <div class="use-case-card h-100">
+          <div class="card-icon-wrapper">
+            <i [class]="'bi bi-' + card.icon + ' card-icon'"></i>
+          </div>
+
+          <h3 class="card-title">{{ card.title }}</h3>
+          <p class="card-description">{{ card.description }}</p>
+
+          <ul class="card-features" *ngIf="showFeatures && card.features?.length">
+            <li *ngFor="let feature of card.features">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              <span>{{ feature }}</span>
+            </li>
+          </ul>
+
+          <a *ngIf="showCta && card.ctaText" 
+             [href]="card.ctaLink || '#'" 
+             class="card-cta">
+            {{ card.ctaText }}
+            <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

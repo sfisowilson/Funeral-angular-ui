@@ -74,6 +74,17 @@
                             <option *ngFor="let type of tenantTypes" [value]="type.value">{{ type.label }}</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isStaticSite" formControlName="isStaticSite">
+                            <label class="form-check-label" for="isStaticSite">
+                                <i class="bi bi-file-earmark-text"></i> Static Site (No Login/Registration)
+                            </label>
+                            <small class="d-block mt-1 text-muted">
+                                <i class="bi bi-info-circle"></i> Check this if you want a simple website without member login or registration features.
+                            </small>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Member Registration Form -->

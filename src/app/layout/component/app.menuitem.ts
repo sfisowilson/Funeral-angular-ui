@@ -144,6 +144,11 @@ export class AppMenuitem {
         // toggle active state
         if (this.item.items) {
             this.active = !this.active;
+        } else {
+            // Close mobile menu when clicking a link (item without children)
+            if (this.layoutService.layoutState().staticMenuMobileActive || this.layoutService.layoutState().overlayMenuActive) {
+                this.layoutService.closeMenu();
+            }
         }
 
         this.layoutService.onMenuStateChange({ key: this.key });

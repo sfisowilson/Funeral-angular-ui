@@ -1,0 +1,134 @@
+<div class="use-case-cards-editor">
+  <div class="editor-section">
+    <h5>General Settings</h5>
+    
+    <div class="mb-3">
+      <label class="form-label">Widget Title</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.title" placeholder="Ideal For">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Subtitle</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.subtitle" 
+             placeholder="Optional subtitle text">
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Columns</label>
+        <select class="form-select" [(ngModel)]="config.settings.columns">
+          <option [value]="2">2 Columns</option>
+          <option [value]="3">3 Columns</option>
+          <option [value]="4">4 Columns</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <div class="form-check mt-4">
+          <input type="checkbox" class="form-check-input" id="showFeatures" 
+                 [(ngModel)]="config.settings.showFeatures">
+          <label class="form-check-label" for="showFeatures">
+            Show features list
+          </label>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="form-check mt-4">
+          <input type="checkbox" class="form-check-input" id="showCta" 
+                 [(ngModel)]="config.settings.showCta">
+          <label class="form-check-label" for="showCta">
+            Show CTA links
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Use Case Cards</h5>
+      <button class="btn btn-sm btn-primary" (click)="addCard()">
+        <i class="bi bi-plus-circle me-1"></i> Add Card
+      </button>
+    </div>
+
+    <div class="cards-list">
+      <div class="card-item mb-3" *ngFor="let card of config.cards; let i = index">
+        <div class="card-header-section">
+          <div class="card-controls">
+            <button class="btn btn-sm btn-outline-secondary" 
+                    (click)="moveCardUp(i)" 
+                    [disabled]="i === 0">
+              <i class="bi bi-arrow-up"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" 
+                    (click)="moveCardDown(i)" 
+                    [disabled]="i === config.cards.length - 1">
+              <i class="bi bi-arrow-down"></i>
+            </button>
+          </div>
+
+          <h6>Card {{ i + 1 }}</h6>
+
+          <button class="btn btn-sm btn-danger" (click)="removeCard(i)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-md-4">
+            <label class="form-label">Icon</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="card.icon" 
+                   placeholder="building, rocket, etc.">
+            <small class="text-muted">Bootstrap Icons</small>
+          </div>
+
+          <div class="col-md-8">
+            <label class="form-label">Title</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="card.title" 
+                   placeholder="Card title">
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Description</label>
+          <textarea class="form-control form-control-sm" [(ngModel)]="card.description" 
+                    rows="2" placeholder="Card description"></textarea>
+        </div>
+
+        <div class="features-section mb-2">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Features</strong>
+            <button class="btn btn-sm btn-outline-primary" (click)="addFeature(card)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+
+          <div class="feature-item" *ngFor="let feature of card.features; let fi = index">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="card.features[fi]" 
+                   placeholder="Feature text">
+            <button class="btn btn-sm btn-outline-danger" (click)="removeFeature(card, fi)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="row g-2" *ngIf="config.settings.showCta">
+          <div class="col-md-6">
+            <label class="form-label">CTA Text</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="card.ctaText" 
+                   placeholder="Learn More">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">CTA Link</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="card.ctaLink" 
+                   placeholder="#or /page-url">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

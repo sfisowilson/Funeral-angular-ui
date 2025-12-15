@@ -3,9 +3,22 @@
     <p-confirmDialog></p-confirmDialog>
 
     <div class="p-fluid">
-        <div class="p-field">
+        <div class="p-field mb-3">
             <label for="title">Widget Title</label>
-            <input id="title" type="text" pInputText [(ngModel)]="config.settings.title" />
+            <input id="title" type="text" pInputText [(ngModel)]="config.settings.title" placeholder="Get In Touch" />
+        </div>
+
+        <div class="p-field mb-3">
+            <label for="subtitle">Subtitle (Optional)</label>
+            <input id="subtitle" type="text" pInputText [(ngModel)]="config.settings.subtitle" placeholder="We'd love to hear from you" />
+        </div>
+
+        <div class="p-field-checkbox mb-4">
+            <p-checkbox [(ngModel)]="config.settings.showContactForm" [binary]="true" inputId="showForm"></p-checkbox>
+            <label for="showForm" class="ms-2">
+                <strong>Show Contact Form</strong>
+                <small class="d-block text-muted">Enable a contact form where visitors can send messages directly</small>
+            </label>
         </div>
 
         <div class="card mt-4">

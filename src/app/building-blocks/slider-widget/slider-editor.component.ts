@@ -15,9 +15,13 @@ export class SliderEditorComponent implements OnInit {
   @Input() config!: WidgetConfig;
   uploadingSlideIndex: number | null = null;
 
-  // Helper to access settings
+  // Helper to access settings - properly access the settings property
   get settings(): any {
-    return this.config as any;
+    // Ensure settings object exists
+    if (!this.config.settings) {
+      this.config.settings = {};
+    }
+    return this.config.settings;
   }
 
   constructor(
@@ -68,6 +72,9 @@ export class SliderEditorComponent implements OnInit {
     }
     if (this.settings.buttonTextSize === undefined) {
       this.settings.buttonTextSize = 16;
+    }
+    if (this.settings.showButton === undefined) {
+      this.settings.showButton = true;
     }
     if (!this.settings.arrowBackgroundColor) {
       this.settings.arrowBackgroundColor = 'rgba(0, 0, 0, 0.5)';

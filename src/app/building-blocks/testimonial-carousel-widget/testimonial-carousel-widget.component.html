@@ -1,0 +1,69 @@
+<div class="testimonial-carousel-widget">
+  <div class="container py-5">
+    <div class="text-center mb-5" *ngIf="title">
+      <h2 class="widget-title">{{ title }}</h2>
+      <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <div class="carousel-container" *ngIf="testimonials.length > 0">
+      <div class="testimonials-wrapper" 
+           [class.layout-single]="layout === 'single'"
+           [class.layout-grid]="layout === 'grid'">
+        
+        <div class="testimonial-card" *ngFor="let testimonial of visibleTestimonials">
+          <div class="quote-icon">
+            <i class="bi bi-quote"></i>
+          </div>
+
+          <div class="testimonial-rating" *ngIf="showRatings && testimonial.rating">
+            <i *ngFor="let filled of getStarArray(testimonial.rating)" 
+               [class]="filled ? 'bi bi-star-fill' : 'bi bi-star'"
+               class="star-icon"></i>
+          </div>
+
+          <p class="testimonial-content">{{ testimonial.content }}</p>
+
+          <div class="testimonial-author">
+            <img *ngIf="showImages && testimonial.imageUrl" 
+                 [src]="testimonial.imageUrl" 
+                 [alt]="testimonial.name"
+                 class="author-image">
+            <div class="author-placeholder" *ngIf="showImages && !testimonial.imageUrl">
+              <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="author-info">
+              <div class="author-name">{{ testimonial.name }}</div>
+              <div class="author-role" *ngIf="testimonial.role">
+                {{ testimonial.role }}
+                <span *ngIf="testimonial.company"> at {{ testimonial.company }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-controls" *ngIf="testimonials.length > 1">
+        <button class="control-btn prev" (click)="previous()">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        
+        <div class="carousel-dots" *ngIf="layout === 'single'">
+          <button *ngFor="let testimonial of testimonials; let i = index"
+                  class="dot"
+                  [class.active]="i === currentIndex"
+                  (click)="goToSlide(i)">
+          </button>
+        </div>
+
+        <button class="control-btn next" (click)="next()">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="testimonials-placeholder" *ngIf="testimonials.length === 0">
+      <i class="bi bi-chat-quote"></i>
+      <p>No testimonials configured</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,204 @@
+<div class="feature-grid-editor">
+    <!-- General Settings -->
+    <div class="editor-section">
+        <h4 class="section-title">General Settings</h4>
+        
+        <div class="form-group">
+            <label>Widget Title</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.title"
+                   placeholder="e.g., Powerful Features">
+        </div>
+
+        <div class="form-group">
+            <label>Subtitle</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.subtitle"
+                   placeholder="e.g., Everything you need">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Title Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.titleColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Subtitle Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.subtitleColor">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Number of Columns</label>
+            <select class="form-control" [(ngModel)]="config.settings.columns">
+                <option [value]="2">2 Columns</option>
+                <option [value]="3">3 Columns</option>
+                <option [value]="4">4 Columns</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Icon Size</label>
+            <select class="form-control" [(ngModel)]="config.settings.iconSize">
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" 
+                       class="form-check-input" 
+                       [(ngModel)]="config.settings.hoverEffect"
+                       id="hoverEffect">
+                <label class="form-check-label" for="hoverEffect">
+                    Enable Hover Effect
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Style Settings -->
+    <div class="editor-section">
+        <h4 class="section-title">Style Settings</h4>
+        
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Background Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.backgroundColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Card Background</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.cardBackgroundColor">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Icon Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.iconColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Icon Background</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.iconBackgroundColor">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Title Text Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.titleTextColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Description Text Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.descriptionTextColor">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Padding (px)</label>
+            <input type="number" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.padding"
+                   min="0" 
+                   max="100">
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="editor-section">
+        <div class="section-header">
+            <h4 class="section-title">Features</h4>
+            <button type="button" 
+                    class="btn btn-sm btn-success" 
+                    (click)="addFeature()">
+                <i class="bi bi-plus-circle"></i> Add Feature
+            </button>
+        </div>
+
+        <div class="features-list">
+            <div class="feature-card" 
+                 *ngFor="let feature of config.settings.features; let i = index">
+                <div class="feature-header">
+                    <i [class]="feature.icon" class="preview-icon"></i>
+                    <div class="feature-controls">
+                        <button type="button" 
+                                class="btn btn-sm btn-link" 
+                                (click)="moveFeatureUp(i)"
+                                [disabled]="i === 0">
+                            <i class="bi bi-arrow-up"></i>
+                        </button>
+                        <button type="button" 
+                                class="btn btn-sm btn-link" 
+                                (click)="moveFeatureDown(i)"
+                                [disabled]="i === config.settings.features.length - 1">
+                            <i class="bi bi-arrow-down"></i>
+                        </button>
+                        <button type="button" 
+                                class="btn btn-sm btn-link text-danger" 
+                                (click)="removeFeature(i)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="feature-content">
+                    <div class="form-group">
+                        <label>Icon (Bootstrap Icon class)</label>
+                        <input type="text" 
+                               class="form-control form-control-sm" 
+                               [(ngModel)]="feature.icon"
+                               placeholder="e.g., bi bi-star-fill">
+                        <small class="form-text text-muted">
+                            Browse icons at <a href="https://icons.getbootstrap.com/" target="_blank">icons.getbootstrap.com</a>
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Feature Title</label>
+                        <input type="text" 
+                               class="form-control form-control-sm" 
+                               [(ngModel)]="feature.title"
+                               placeholder="e.g., Professional Website">
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label>Description</label>
+                        <textarea class="form-control form-control-sm" 
+                                  [(ngModel)]="feature.description"
+                                  rows="2"
+                                  placeholder="Brief description of this feature"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center text-muted py-3" 
+                 *ngIf="!config.settings.features || config.settings.features.length === 0">
+                No features yet. Click "Add Feature" to get started.
+            </div>
+        </div>
+    </div>
+</div>

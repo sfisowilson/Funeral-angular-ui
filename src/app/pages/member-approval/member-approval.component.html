@@ -1,0 +1,414 @@
+<div class="container-fluid py-4">
+    <!-- Alert -->
+    @if (alert(); as alertData) {
+        <div class="alert alert-{{ alertData.type }} alert-dismissible fade show" role="alert">
+            {{ alertData.message }}
+            <button type="button" class="btn-close" (click)="alert.set(null)" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Statistics Cards -->
+    @if (stats(); as statsData) {
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card border-primary">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Total Pending</h6>
+                        <h2 class="card-title mb-0">{{ statsData.totalPending }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-success">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Approved Today</h6>
+                        <h2 class="card-title mb-0">{{ statsData.approvedToday }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-danger">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Rejected Today</h6>
+                        <h2 class="card-title mb-0">{{ statsData.rejectedToday }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-warning">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Waiting > 7 Days</h6>
+                        <h2 class="card-title mb-0">{{ statsData.waitingMoreThan7Days }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Pending Members Table -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Pending Member Approvals</h5>
+            <button class="btn btn-sm btn-outline-primary" (click)="loadPendingMembers()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+        <div class="card-body">
+            @if (loading()) {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            } @else if (pendingMembers().length === 0) {
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                    <p class="mt-3">No pending member approvals</p>
+                </div>
+            } @else {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Member ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Policies</th>
+                                <th>ID Verified</th>
+                                <th>Days Waiting</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (member of pendingMembers(); track member.id) {
+                                <tr>
+                                    <td>{{ member.id }}</td>
+                                    <td>{{ member.firstNames }} {{ member.surname }}</td>
+                                    <td>{{ member.email }}</td>
+                                    <td>{{ member.phone1 }}</td>
+                                    <td>
+                                        @for (policy of member.policyNames; track policy) {
+                                            <span class="badge bg-info me-1">{{ policy }}</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (member.isIdVerified) {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Verified
+                                            </span>
+                                        } @else {
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-exclamation-circle"></i> Not Verified
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (member.daysWaiting > 7) {
+                                            <span class="badge bg-danger">{{ member.daysWaiting }} days</span>
+                                        } @else if (member.daysWaiting > 3) {
+                                            <span class="badge bg-warning">{{ member.daysWaiting }} days</span>
+                                        } @else {
+                                            <span class="badge bg-secondary">{{ member.daysWaiting }} days</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                (click)="viewMemberDetails(member.id)">
+                                            <i class="bi bi-eye"></i> Review
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Member Detail Modal -->
+@if (showDetailModal() && selectedMember(); as member) {
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Review Member Application - {{ member.firstNames }} {{ member.surname }}</h5>
+                    <button type="button" class="btn-close" (click)="closeAllModals()"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Member Basic Info -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Personal Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Member ID:</strong> {{ member.id }}</p>
+                                    <p><strong>Full Name:</strong> {{ member.firstNames }} {{ member.surname }}</p>
+                                    <p><strong>Email:</strong> {{ member.email }}</p>
+                                    <p><strong>Phone:</strong> {{ member.phone1 }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>ID Number:</strong> {{ member.identificationNumber }}</p>
+                                    <p><strong>Address:</strong> {{ member.streetAddress }}</p>
+                                    <p><strong>ID Verified:</strong> 
+                                        @if (member.isIdVerified) {
+                                            <span class="badge bg-success">Yes</span>
+                                        } @else {
+                                            <span class="badge bg-warning">No</span>
+                                        }
+                                    </p>
+                                    <p><strong>Registration Date:</strong> {{ member.createdDate?.toJSDate() | date:'medium' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Policy Enrollments -->
+                    @if (member.policyEnrollments && member.policyEnrollments.length > 0) {
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Policy Enrollments</h6>
+                            </div>
+                            <div class="card-body">
+                                @for (policy of member.policyEnrollments; track policy.id) {
+                                    <div class="border-bottom pb-2 mb-2">
+                                        <p class="mb-1"><strong>{{ policy.policyName }}</strong></p>
+                                        <p class="mb-1 text-muted small">
+                                            Status: <span class="badge bg-info">{{ policy.status }}</span> | 
+                                            Enrolled: {{ policy.enrollmentDate?.toJSDate() | date:'shortDate' }}
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Dependents -->
+                    @if (member.dependents && member.dependents.length > 0) {
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Dependents ({{ member.dependents.length }})</h6>
+                            </div>
+                            <div class="card-body">
+                                @for (dependent of member.dependents; track dependent.id) {
+                                    <div class="border-bottom pb-2 mb-2">
+                                        <p class="mb-1"><strong>{{ dependent.name }}</strong></p>
+                                        <p class="mb-1 text-muted small">
+                                            Type: {{ dependent.relationship }} | Age: {{ dependent.age }}
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Beneficiaries -->
+                    @if (member.beneficiaries && member.beneficiaries.length > 0) {
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Beneficiaries ({{ member.beneficiaries.length }})</h6>
+                            </div>
+                            <div class="card-body">
+                                @for (beneficiary of member.beneficiaries; track beneficiary.id) {
+                                    <div class="border-bottom pb-2 mb-2">
+                                        <p class="mb-1"><strong>{{ beneficiary.name }}</strong></p>
+                                        <p class="mb-1 text-muted small">
+                                            Relationship: {{ beneficiary.relationship }} | 
+                                            Allocation: {{ beneficiary.allocationPercentage }}%
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Custom Onboarding Fields -->
+                    @if (member.customFields && member.customFields.length > 0) {
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Additional Information</h6>
+                            </div>
+                            <div class="card-body">
+                                @for (field of member.customFields; track field.fieldKey) {
+                                    <p>
+                                        <strong>{{ field.fieldLabel }}:</strong> 
+                                        {{ field.fieldValue || 'N/A' }}
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeAllModals()">Close</button>
+                    <button type="button" class="btn btn-warning" (click)="openRequestUpdatesModal()">
+                        <i class="bi bi-pencil"></i> Request Updates
+                    </button>
+                    <button type="button" class="btn btn-danger" (click)="openRejectModal()">
+                        <i class="bi bi-x-circle"></i> Reject
+                    </button>
+                    <button type="button" class="btn btn-success" (click)="openApproveModal()">
+                        <i class="bi bi-check-circle"></i> Approve
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Approve Modal -->
+@if (showApproveModal() && selectedMember(); as member) {
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Approve Member</h5>
+                    <button type="button" class="btn-close" (click)="closeAllModals()"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to approve <strong>{{ member.firstNames }} {{ member.surname }}</strong>?</p>
+                    <p class="text-muted small">This will activate their account and all associated policy enrollments.</p>
+                    
+                    <div class="mb-3">
+                        <label for="approvalNotes" class="form-label">Notes (optional)</label>
+                        <textarea 
+                            class="form-control" 
+                            id="approvalNotes" 
+                            rows="3"
+                            [(ngModel)]="approvalNotes"
+                            placeholder="Add any internal notes about this approval..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeAllModals()">Cancel</button>
+                    <button type="button" class="btn btn-success" (click)="approveMember()" [disabled]="loading()">
+                        @if (loading()) {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Confirm Approval
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Reject Modal -->
+@if (showRejectModal() && selectedMember(); as member) {
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Member</h5>
+                    <button type="button" class="btn-close" (click)="closeAllModals()"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to reject <strong>{{ member.firstNames }} {{ member.surname }}</strong>?</p>
+                    
+                    <div class="mb-3">
+                        <label for="rejectionReason" class="form-label">Rejection Reason <span class="text-danger">*</span></label>
+                        <textarea 
+                            class="form-control" 
+                            id="rejectionReason" 
+                            rows="4"
+                            [(ngModel)]="rejectionReason"
+                            placeholder="Please provide a clear reason for rejection..."
+                            required></textarea>
+                        <div class="form-text">This reason will be sent to the member via email.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeAllModals()">Cancel</button>
+                    <button type="button" class="btn btn-danger" (click)="rejectMember()" [disabled]="loading() || !rejectionReason.trim()">
+                        @if (loading()) {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Confirm Rejection
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Request Updates Modal -->
+@if (showRequestUpdatesModal() && selectedMember(); as member) {
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Request Updates</h5>
+                    <button type="button" class="btn-close" (click)="closeAllModals()"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Request updates from <strong>{{ member.firstNames }} {{ member.surname }}</strong></p>
+                    
+                    <div class="mb-3">
+                        <label for="updateMessage" class="form-label">Message <span class="text-danger">*</span></label>
+                        <textarea 
+                            class="form-control" 
+                            id="updateMessage" 
+                            rows="4"
+                            [(ngModel)]="updateRequestMessage"
+                            placeholder="Describe what needs to be updated or corrected..."
+                            required></textarea>
+                        <div class="form-text">This message will be sent to the member via email.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Specific Fields to Update (optional)</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_email" 
+                                   [checked]="isFieldSelected('Email')"
+                                   (change)="toggleUpdateField('Email')">
+                            <label class="form-check-label" for="field_email">Email</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_phone"
+                                   [checked]="isFieldSelected('Phone')"
+                                   (change)="toggleUpdateField('Phone')">
+                            <label class="form-check-label" for="field_phone">Phone Number</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_address"
+                                   [checked]="isFieldSelected('Address')"
+                                   (change)="toggleUpdateField('Address')">
+                            <label class="form-check-label" for="field_address">Address</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_id"
+                                   [checked]="isFieldSelected('ID Number')"
+                                   (change)="toggleUpdateField('ID Number')">
+                            <label class="form-check-label" for="field_id">ID Number</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_dependents"
+                                   [checked]="isFieldSelected('Dependents')"
+                                   (change)="toggleUpdateField('Dependents')">
+                            <label class="form-check-label" for="field_dependents">Dependents</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="field_beneficiaries"
+                                   [checked]="isFieldSelected('Beneficiaries')"
+                                   (change)="toggleUpdateField('Beneficiaries')">
+                            <label class="form-check-label" for="field_beneficiaries">Beneficiaries</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeAllModals()">Cancel</button>
+                    <button type="button" class="btn btn-warning" (click)="requestUpdates()" [disabled]="loading() || !updateRequestMessage.trim()">
+                        @if (loading()) {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Send Request
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,228 @@
+.tabbed-content-widget {
+  .widget-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .widget-subtitle {
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .tabbed-content-container {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+    &.orientation-horizontal {
+      .nav-tabs-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        border-bottom: 2px solid #dee2e6;
+        margin-bottom: 2rem;
+        padding-bottom: 0;
+      }
+
+      &.nav-underline {
+        .nav-tabs-list {
+          border-bottom: 2px solid #dee2e6;
+        }
+      }
+    }
+
+    &.orientation-vertical {
+      display: flex;
+      gap: 2rem;
+
+      .nav-tabs-list {
+        flex-direction: column;
+        min-width: 200px;
+        border-right: 2px solid #dee2e6;
+        padding-right: 1rem;
+      }
+
+      .tab-content {
+        flex: 1;
+      }
+    }
+  }
+
+  .nav-tabs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .nav-item {
+      margin: 0;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: none;
+      color: #6c757d;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+
+      &:hover {
+        color: #495057;
+      }
+
+      &.active {
+        color: #007bff;
+      }
+    }
+
+    &.nav-pills {
+      .nav-link {
+        border-radius: 50px;
+
+        &.active {
+          background: #007bff;
+          color: white;
+        }
+
+        &:hover:not(.active) {
+          background: #f8f9fa;
+        }
+      }
+    }
+
+    &.nav-underline {
+      .nav-link {
+        border-bottom: 3px solid transparent;
+        border-radius: 0;
+
+        &.active {
+          border-bottom-color: #007bff;
+        }
+      }
+    }
+
+    &.nav-buttons {
+      .nav-link {
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        background: white;
+
+        &.active {
+          background: #007bff;
+          border-color: #007bff;
+          color: white;
+        }
+
+        &:hover:not(.active) {
+          border-color: #007bff;
+          background: #f8f9fa;
+        }
+      }
+    }
+  }
+
+  .tab-content {
+    min-height: 200px;
+
+    .tab-pane {
+      animation: fadeIn 0.3s ease;
+
+      :deep(h3) {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      :deep(h4) {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+      }
+
+      :deep(p) {
+        line-height: 1.7;
+        color: #495057;
+        margin-bottom: 1rem;
+      }
+
+      :deep(ul), :deep(ol) {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+
+        li {
+          margin-bottom: 0.5rem;
+          line-height: 1.6;
+        }
+      }
+    }
+  }
+
+  .tabs-placeholder {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    text-align: center;
+    color: #6c757d;
+
+    i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .widget-title {
+      font-size: 2rem;
+    }
+
+    .tabbed-content-container {
+      padding: 1rem;
+
+      &.orientation-vertical {
+        flex-direction: column;
+
+        .nav-tabs-list {
+          border-right: none;
+          border-bottom: 2px solid #dee2e6;
+          padding-right: 0;
+          padding-bottom: 1rem;
+          margin-bottom: 1rem;
+          min-width: auto;
+        }
+      }
+    }
+
+    .nav-tabs-list {
+      .nav-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}

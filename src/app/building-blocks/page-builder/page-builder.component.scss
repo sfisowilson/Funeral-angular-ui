@@ -516,6 +516,74 @@
     }
 }
 
+// SEO Settings Dialog
+.seo-settings-dialog {
+    ::ng-deep .p-dialog-content {
+        padding: 1.5rem;
+    }
+}
+
+.seo-settings-form {
+    .field {
+        margin-bottom: 1.5rem;
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            
+            &:after {
+                content: " *";
+                color: #e53e3e;
+                display: none;
+            }
+        }
+        
+        small {
+            display: block;
+            margin-top: 0.375rem;
+            color: #718096;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+        
+        input[type="text"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+        }
+    }
+    
+    // Show asterisk for required fields
+    #pageTitle + small::before,
+    #metaDescription + small::before {
+        content: "* Required. ";
+        color: #e53e3e;
+        font-weight: 600;
+    }
+    
+    ::ng-deep {
+        .p-divider {
+            margin: 2rem 0 1.5rem 0;
+            
+            .p-divider-content {
+                background-color: #f7fafc;
+                padding: 0 1rem;
+            }
+        }
+        
+        .p-inputtext,
+        .p-inputtextarea {
+            width: 100%;
+        }
+        
+        .p-dropdown {
+            width: 100%;
+        }
+    }
+}
+
 .content-editor {
     padding: 1.5rem;
     min-height: 500px;

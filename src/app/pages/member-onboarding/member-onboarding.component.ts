@@ -141,6 +141,13 @@ export class MemberOnboardingComponent implements OnInit {
         statusObservable.subscribe({
             next: (status) => {
                 this.completionStatus.set(status);
+                
+                // Allow editing if member status is Pending (even if view=true in query params)
+                // This enables members to update their onboarding when admin requests updates
+                if (status.memberStatus === 'Pending' && !this.memberId) {
+                    this.viewMode = false;
+                }
+                
                 // Only auto-determine step on initial load
                 if (!this.initialLoadComplete) {
                     this.determineActiveStep(status);

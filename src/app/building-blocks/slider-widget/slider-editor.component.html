@@ -205,7 +205,18 @@
   <div class="settings-section mb-4 pb-3 border-bottom">
     <h4 class="h6 fw-semibold mb-3">Button Styling</h4>
     
-    <div class="mb-3">
+    <div class="form-check mb-3">
+      <input 
+        type="checkbox" 
+        class="form-check-input"
+        [(ngModel)]="settings.showButton"
+        id="showButton">
+      <label class="form-check-label" for="showButton">
+        Show Action Button
+      </label>
+    </div>
+
+    <div class="mb-3" *ngIf="settings.showButton">
       <label class="form-label">Button Color</label>
       <input 
         type="color" 
@@ -213,7 +224,7 @@
         [(ngModel)]="settings.buttonColor">
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3" *ngIf="settings.showButton">
       <label class="form-label">Button Text Color</label>
       <input 
         type="color" 
@@ -221,7 +232,7 @@
         [(ngModel)]="settings.buttonTextColor">
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3" *ngIf="settings.showButton">
       <label class="form-label">Button Text Size (px)</label>
       <input 
         type="number" 

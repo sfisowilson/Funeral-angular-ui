@@ -22,7 +22,11 @@ export class WhatsappEditorComponent implements OnInit {
   ) {}
 
   get settings(): any {
-    return this.config as any;
+    // Ensure settings object exists
+    if (!this.config.settings) {
+      this.config.settings = {};
+    }
+    return this.config.settings;
   }
 
   ngOnInit(): void {

@@ -1,52 +1,145 @@
 .about-us-editor {
   padding: 1rem;
-}
 
-.p-field {
-  margin-bottom: 1rem;
-}
+  .p-field {
+    margin-bottom: 1.5rem;
 
-.p-field label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-}
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #1a202c;
+    }
 
-.p-fluid .p-field input.p-inputtext, .p-fluid .p-field textarea.p-inputtextarea {
-  width: 100%;
-}
+    input, textarea {
+      width: 100%;
+    }
+  }
 
-.image-preview {
-  text-align: center;
-}
+  .upload-success {
+    color: #10b981;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
 
-.image-preview img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin-top: 1rem;
-}
+  // Item lists (values, stats, team members)
+  .values-list,
+  .stats-list,
+  .team-list {
+    .value-item,
+    .stat-item,
+    .team-member-item {
+      background: #f7fafc;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border: 1px solid #e2e8f0;
 
-.p-button-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
-}
+      .item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e2e8f0;
 
-.p-button-danger:hover {
-  background-color: #c82333;
-  border-color: #bd2130;
-}
+        h4 {
+          margin: 0;
+          font-size: 1rem;
+          font-weight: 700;
+          color: #667eea;
+        }
+      }
+    }
+  }
 
-.p-button-text {
-  background-color: transparent;
-  color: #007bff;
-  border-color: transparent;
-}
+  // CTA buttons config
+  .cta-buttons-config {
+    h4 {
+      margin: 1.5rem 0 1rem 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1a202c;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
 
-.p-button-text:hover {
-  background-color: rgba(0, 123, 255, 0.04);
-}
+  // Accordion customization
+  ::ng-deep {
+    .p-accordion {
+      .p-accordion-header {
+        .p-accordion-header-link {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          font-weight: 600;
+          border-radius: 8px;
+          margin-bottom: 0.5rem;
 
-.p-button-rounded {
-  border-radius: 50%;
+          &:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #65408b 100%);
+          }
+
+          .p-accordion-toggle-icon {
+            color: white;
+          }
+        }
+      }
+
+      .p-accordion-content {
+        border: none;
+        padding: 1.5rem 0.5rem;
+      }
+    }
+
+    .p-button-outlined {
+      width: 100%;
+      margin-top: 1rem;
+      border-color: #667eea;
+      color: #667eea;
+
+      &:hover {
+        background: #667eea;
+        color: white;
+      }
+    }
+  }
+
+  // Save/Cancel actions
+  .editor-actions {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem 0.5rem 0.5rem;
+    margin-top: 2rem;
+    border-top: 2px solid #e2e8f0;
+
+    button {
+      flex: 1;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .p-button-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: none;
+
+      &:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      }
+    }
+
+    .p-button-secondary {
+      background: #6b7280;
+      border: none;
+      color: white;
+
+      &:hover {
+        background: #4b5563;
+      }
+    }
+  }
 }

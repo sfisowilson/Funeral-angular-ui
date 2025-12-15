@@ -1,0 +1,177 @@
+.pricing-cards-widget {
+  padding: 3rem 0;
+
+  .pricing-card {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    &.popular {
+      border-color: var(--primary-color, #007bff);
+      box-shadow: 0 8px 24px rgba(0, 123, 255, 0.15);
+
+      .card-header {
+        background: linear-gradient(135deg, var(--primary-color, #007bff), #0056b3);
+        color: white;
+
+        .tier-description {
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
+      }
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: linear-gradient(135deg, #ffd700, #ffa500);
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-bottom-left-radius: 8px;
+      z-index: 1;
+
+      i {
+        margin-right: 0.25rem;
+      }
+    }
+
+    .card-header {
+      padding: 2rem 1.5rem;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+
+      .tier-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .tier-description {
+        font-size: 0.95rem;
+      }
+    }
+
+    .card-price {
+      padding: 2rem 1.5rem;
+      background: white;
+
+      .original-price {
+        font-size: 1.125rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .current-price {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 0.5rem;
+
+        .price-amount {
+          font-size: 3rem;
+          font-weight: 700;
+          color: var(--primary-color, #007bff);
+        }
+
+        .price-period {
+          font-size: 1rem;
+          color: #6c757d;
+        }
+      }
+    }
+
+    .card-features {
+      padding: 1.5rem;
+      flex-grow: 1;
+
+      ul {
+        margin: 0;
+
+        li {
+          padding: 0.75rem 0;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+
+          i {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+          }
+
+          &.included i {
+            color: #28a745;
+          }
+
+          &.not-included i {
+            color: #dc3545;
+          }
+
+          span {
+            font-size: 0.95rem;
+          }
+        }
+      }
+    }
+
+    .card-footer {
+      padding: 1.5rem;
+      background: white;
+      border-top: 1px solid #e9ecef;
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        border-radius: 8px;
+      }
+    }
+  }
+
+  .btn-group {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+
+    .btn {
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 991px) {
+  .pricing-cards-widget {
+    .pricing-card {
+      .card-header .tier-name {
+        font-size: 1.5rem;
+      }
+
+      .card-price .current-price .price-amount {
+        font-size: 2.5rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .pricing-cards-widget {
+    padding: 2rem 0;
+
+    .pricing-card {
+      .card-price .current-price .price-amount {
+        font-size: 2rem;
+      }
+    }
+  }
+}

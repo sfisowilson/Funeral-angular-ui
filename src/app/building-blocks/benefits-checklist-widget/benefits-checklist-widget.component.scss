@@ -1,0 +1,168 @@
+.benefits-checklist-widget {
+    width: 100%;
+    box-sizing: border-box;
+
+    .widget-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+
+        .widget-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.2;
+        }
+
+        .widget-subtitle {
+            font-size: 1.125rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+    }
+
+    .benefits-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr;
+
+        &.cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        &.cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.875rem;
+            padding: 0.75rem;
+            transition: all 0.2s ease;
+            border-radius: 6px;
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.02);
+                transform: translateX(5px);
+            }
+
+            .benefit-icon {
+                font-size: 1.5rem;
+                flex-shrink: 0;
+                margin-top: 2px;
+            }
+
+            .benefit-text {
+                font-size: 1rem;
+                line-height: 1.6;
+                flex: 1;
+            }
+        }
+    }
+
+    .categories-container {
+        .category-section {
+            margin-bottom: 2rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .category-header {
+                background: #f8f9fa;
+                padding: 1.25rem 1.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #dee2e6;
+
+                &.expandable {
+                    cursor: pointer;
+                    transition: background 0.2s ease;
+
+                    &:hover {
+                        background: #e9ecef;
+                    }
+                }
+
+                .category-title {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin: 0;
+                    color: #212529;
+                }
+
+                i.bi {
+                    font-size: 1.25rem;
+                    color: #6c757d;
+                    transition: transform 0.3s ease;
+                }
+            }
+
+            .category-content {
+                padding: 1.5rem;
+                transition: all 0.3s ease;
+
+                &.collapsed {
+                    max-height: 0;
+                    padding: 0 1.5rem;
+                    overflow: hidden;
+                    opacity: 0;
+                }
+
+                &.expanded {
+                    max-height: 2000px;
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .benefits-checklist-widget {
+        .widget-header {
+            .widget-title {
+                font-size: 1.5rem;
+            }
+
+            .widget-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        .benefits-grid {
+            grid-template-columns: 1fr !important;
+
+            .benefit-item {
+                .benefit-icon {
+                    font-size: 1.25rem;
+                }
+
+                .benefit-text {
+                    font-size: 0.9375rem;
+                }
+            }
+        }
+
+        .categories-container {
+            .category-section {
+                .category-header {
+                    padding: 1rem 1.25rem;
+
+                    .category-title {
+                        font-size: 1.125rem;
+                    }
+                }
+
+                .category-content {
+                    padding: 1.25rem;
+                }
+            }
+        }
+    }
+}

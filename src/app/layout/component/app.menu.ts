@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
 import { AuthService } from '../../auth/auth-service';
+import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 
 @Component({
     selector: 'app-menu',
@@ -18,10 +19,54 @@ import { AuthService } from '../../auth/auth-service';
 })
 export class AppMenu implements OnInit {
     model: MenuItem[] = [];
+    isStaticSite = false;
 
-    constructor(private authService: AuthService) {}
+    constructor(
+        private authService: AuthService,
+        private tenantSettingsService: TenantSettingsService
+    ) {}
 
-    ngOnInit() {
+    async ngOnInit() {
+        // Load tenant settings to check if this is a static site
+        try {
+            const settings = await this.tenantSettingsService.loadSettings();
+            if (settings && settings.settings) {
+                const parsedSettings = JSON.parse(settings.settings);
+                this.isStaticSite = parsedSettings.isStaticSite || false;
+            }
+        } catch (error) {
+            console.error('Error loading tenant settings:', error);
+        }
+
+        this.buildMenu();
+    }
+
+    private buildMenu() {
+        // If this is a static site, only show Landing Page and Tenant Settings (for theme, logo, CSS)
+        if (this.isStaticSite) {
+            this.model = [
+                {
+                    label: 'Website',
+                    items: [
+                        { 
+                            label: 'Landing Page', 
+                            icon: 'pi pi-fw pi-sitemap', 
+                            routerLink: ['/admin/pages/page-builder'], 
+                            visible: this.authService.isAuthenticated() 
+                        },
+                        { 
+                            label: 'Tenant Settings', 
+                            icon: 'pi pi-fw pi-cog', 
+                            routerLink: ['/admin/pages/tenant-settings'], 
+                            visible: this.authService.isAuthenticated() 
+                        }
+                    ]
+                }
+            ];
+            return;
+        }
+
+        // Full menu for regular tenants
         this.model = [
             {
                 label: 'Home',
@@ -47,6 +92,9 @@ export class AppMenu implements OnInit {
                     { label: 'Tenant Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/tenant-settings'], visible: this.authService.isAuthenticated() },
                     { label: 'Onboarding Settings', icon: 'pi pi-fw pi-id-card', routerLink: ['/admin/pages/onboarding-settings'], visible: this.authService.hasPermission('Permission.onboardingFieldConfiguration.view') },
                     { label: 'Dashboard Settings', icon: 'pi pi-fw pi-sliders-h', routerLink: ['/admin/pages/dashboard-settings'], visible: this.authService.isAuthenticated() },
+                    { label: 'PDF Field Mapping', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/pdf-field-mapping'], visible: this.authService.isAuthenticated() },
+                    { label: 'Member Approval', icon: 'pi pi-fw pi-check-circle', routerLink: ['/admin/pages/member-approval'], visible: this.authService.hasPermission('Permission.member.view') },
+                    { label: 'Tenant Approval', icon: 'pi pi-fw pi-building', routerLink: ['/admin/pages/tenant-approval'], visible: this.authService.hasPermission('Permission.tenant.view') },
                     { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/users'], visible: this.authService.hasPermission('Permission.user.view') },
                     { label: 'Tenant Subscriptions', icon: 'pi pi-fw pi-credit-card', routerLink: ['/admin/pages/subscription-plans'], visible: this.authService.hasPermission('Permission.subscription.view') },
                     { label: 'Policies', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/policies'], visible: this.authService.hasPermission('Permission.policy.view') },

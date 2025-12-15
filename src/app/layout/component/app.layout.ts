@@ -147,7 +147,8 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
 
     hideMenu() {
         console.log('=== Hiding Menu ===');
-        this.layoutService.layoutState.update((prev) => ({ ...prev, overlayMenuActive: false, staticMenuMobileActive: false, menuHoverActive: false }));
+        this.layoutService.closeMenu();
+        
         if (this.menuOutsideClickListener) {
             this.menuOutsideClickListener();
             this.menuOutsideClickListener = null;

@@ -1,0 +1,46 @@
+<div class="contact-card-widget" [style.background-color]="backgroundColor">
+  <div class="container">
+    <!-- Header -->
+    <div class="text-center mb-5" *ngIf="title || subtitle">
+      <h2 *ngIf="title" class="mb-3">{{ title }}</h2>
+      <p *ngIf="subtitle" class="lead text-muted">{{ subtitle }}</p>
+    </div>
+
+    <!-- Content Layout -->
+    <div class="row" [class.split-layout]="layout === 'split' && showMap">
+      <!-- Contact Methods -->
+      <div [ngClass]="layout === 'split' && showMap ? 'col-lg-6' : 'col-12'" class="mb-4">
+        <div class="contact-methods">
+          <div *ngFor="let method of contactMethods" class="contact-method">
+            <div class="contact-icon" [style.background-color]="iconColor + '20'" [style.color]="iconColor">
+              <i class="bi" [ngClass]="method.icon"></i>
+            </div>
+            <div class="contact-details">
+              <div class="contact-label">{{ method.label }}</div>
+              <a *ngIf="isClickable(method)" [href]="getContactLink(method)" class="contact-value" [style.color]="iconColor">
+                {{ method.value }}
+              </a>
+              <div *ngIf="!isClickable(method)" class="contact-value text-muted">
+                {{ method.value }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map (if enabled) -->
+      <div *ngIf="showMap && mapEmbedUrl" [ngClass]="layout === 'split' ? 'col-lg-6' : 'col-12'" class="mb-4">
+        <div class="map-container">
+          <iframe [src]="mapEmbedUrl" 
+                  width="100%" 
+                  height="100%" 
+                  style="border:0;" 
+                  allowfullscreen="" 
+                  loading="lazy" 
+                  referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

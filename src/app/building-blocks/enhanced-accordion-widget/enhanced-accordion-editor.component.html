@@ -1,0 +1,136 @@
+<div class="enhanced-accordion-editor">
+  <div class="editor-section">
+    <h5>General Settings</h5>
+    
+    <div class="mb-3">
+      <label class="form-label">Widget Title</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.title" 
+             placeholder="Frequently Asked Questions">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Subtitle</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.subtitle" 
+             placeholder="Optional subtitle text">
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <h5>Features</h5>
+    
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="allowMultiple" 
+                 [(ngModel)]="config.settings.allowMultiple">
+          <label class="form-check-label" for="allowMultiple">
+            Allow multiple items open
+          </label>
+        </div>
+        <small class="text-muted d-block mt-1">
+          If unchecked, opening one item will close others
+        </small>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="showIcons" 
+                 [(ngModel)]="config.settings.showIcons">
+          <label class="form-check-label" for="showIcons">
+            Show item icons
+          </label>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="enableSearch" 
+                 [(ngModel)]="config.settings.enableSearch">
+          <label class="form-check-label" for="enableSearch">
+            Enable search
+          </label>
+        </div>
+        <small class="text-muted d-block mt-1">
+          Allow users to filter questions
+        </small>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="expandAllButton" 
+                 [(ngModel)]="config.settings.expandAllButton">
+          <label class="form-check-label" for="expandAllButton">
+            Show expand/collapse all button
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">FAQ Items</h5>
+      <button class="btn btn-sm btn-primary" (click)="addItem()">
+        <i class="bi bi-plus-circle me-1"></i> Add Item
+      </button>
+    </div>
+
+    <div class="items-list">
+      <div class="faq-item mb-3" *ngFor="let item of config.items; let i = index">
+        <div class="item-header">
+          <div class="item-controls">
+            <button class="btn btn-sm btn-outline-secondary" 
+                    (click)="moveItemUp(i)" 
+                    [disabled]="i === 0"
+                    title="Move up">
+              <i class="bi bi-arrow-up"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" 
+                    (click)="moveItemDown(i)" 
+                    [disabled]="i === config.items.length - 1"
+                    title="Move down">
+              <i class="bi bi-arrow-down"></i>
+            </button>
+          </div>
+
+          <h6>Item {{ i + 1 }}</h6>
+
+          <button class="btn btn-sm btn-danger" (click)="removeItem(i)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-md-3">
+            <label class="form-label">Icon</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="item.icon" 
+                   placeholder="question-circle">
+            <small class="text-muted">Bootstrap Icons</small>
+          </div>
+
+          <div class="col-md-9">
+            <label class="form-label">Question</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="item.question" 
+                   placeholder="Enter the question">
+          </div>
+        </div>
+
+        <div class="mb-2">
+          <label class="form-label">Answer (HTML)</label>
+          <textarea class="form-control form-control-sm" [(ngModel)]="item.answer" 
+                    rows="4" 
+                    placeholder="<p>Your answer here...</p>"></textarea>
+          <small class="text-muted">
+            You can use HTML: &lt;p&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;strong&gt;, &lt;a&gt;, etc.
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    <strong>Tip:</strong> Order questions from most common to least common. Use clear, specific questions 
+    that match what users are actually asking. Consider grouping related questions together.
+  </div>
+</div>

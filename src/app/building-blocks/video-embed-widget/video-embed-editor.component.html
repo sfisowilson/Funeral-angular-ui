@@ -1,0 +1,120 @@
+<div class="video-embed-editor">
+  <div class="editor-section">
+    <h5>General Settings</h5>
+    
+    <div class="mb-3">
+      <label class="form-label">Widget Title</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.title" 
+             placeholder="Watch Our Demo">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Subtitle</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.subtitle" 
+             placeholder="Optional subtitle text">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Video Caption</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.caption" 
+             placeholder="Optional caption below video">
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <h5>Video Configuration</h5>
+    
+    <div class="mb-3">
+      <label class="form-label">Video Provider</label>
+      <select class="form-select" [(ngModel)]="config.settings.provider" (change)="onProviderChange()">
+        <option value="youtube">YouTube</option>
+        <option value="vimeo">Vimeo</option>
+        <option value="custom">Custom Embed URL</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Video URL</label>
+      <input type="url" class="form-control" 
+             [(ngModel)]="config.settings.videoUrl" 
+             [placeholder]="getPlaceholderUrl()"
+             [class.is-invalid]="config.settings.videoUrl && !isValidUrl()">
+      <small class="text-muted d-block mt-1">
+        <span *ngIf="config.settings.provider === 'youtube'">
+          Enter full YouTube URL (e.g., https://www.youtube.com/watch?v=abc123)
+        </span>
+        <span *ngIf="config.settings.provider === 'vimeo'">
+          Enter full Vimeo URL (e.g., https://vimeo.com/123456789)
+        </span>
+        <span *ngIf="config.settings.provider === 'custom'">
+          Enter embed URL from video provider
+        </span>
+      </small>
+      <div class="invalid-feedback" *ngIf="config.settings.videoUrl && !isValidUrl()">
+        URL doesn't match selected provider
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Aspect Ratio</label>
+      <select class="form-select" [(ngModel)]="config.settings.aspectRatio">
+        <option value="16:9">16:9 (Widescreen - Standard)</option>
+        <option value="4:3">4:3 (Traditional)</option>
+        <option value="1:1">1:1 (Square)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <h5>Playback Options</h5>
+    
+    <div class="mb-3">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="autoplay" 
+               [(ngModel)]="config.settings.autoplay">
+        <label class="form-check-label" for="autoplay">
+          Autoplay video
+        </label>
+      </div>
+      <small class="text-muted d-block mt-1">
+        Note: Most browsers block autoplay with sound. Consider muting if using autoplay.
+      </small>
+    </div>
+
+    <div class="mb-3">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="controls" 
+               [(ngModel)]="config.settings.controls">
+        <label class="form-check-label" for="controls">
+          Show player controls
+        </label>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="loop" 
+               [(ngModel)]="config.settings.loop">
+        <label class="form-check-label" for="loop">
+          Loop video
+        </label>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="muted" 
+               [(ngModel)]="config.settings.muted">
+        <label class="form-check-label" for="muted">
+          Mute video by default
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    <strong>Tip:</strong> For best results, upload your videos to YouTube or Vimeo first, 
+    then paste the URL here. This ensures optimal playback across all devices.
+  </div>
+</div>

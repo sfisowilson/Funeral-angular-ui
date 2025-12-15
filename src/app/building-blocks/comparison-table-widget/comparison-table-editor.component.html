@@ -1,0 +1,230 @@
+<div class="comparison-table-editor">
+    <!-- General Settings -->
+    <div class="editor-section">
+        <h4 class="section-title">General Settings</h4>
+        
+        <div class="form-group">
+            <label>Widget Title</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.title"
+                   placeholder="e.g., Cost Comparison">
+        </div>
+
+        <div class="form-group">
+            <label>Subtitle</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.subtitle"
+                   placeholder="e.g., Traditional vs Our Platform">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Title Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.titleColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Subtitle Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.subtitleColor">
+            </div>
+        </div>
+    </div>
+
+    <!-- Style Settings -->
+    <div class="editor-section">
+        <h4 class="section-title">Style Settings</h4>
+        
+        <div class="form-group">
+            <label>Background Color</label>
+            <input type="color" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.backgroundColor">
+        </div>
+
+        <div class="form-group">
+            <label>Column Header Background</label>
+            <input type="color" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.columnHeaderBg">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label>Padding (px)</label>
+                <input type="number" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.padding"
+                       min="0" 
+                       max="100">
+            </div>
+
+            <div class="form-group col-md-4">
+                <label>Border Radius (px)</label>
+                <input type="number" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.borderRadius"
+                       min="0" 
+                       max="50">
+            </div>
+
+            <div class="form-group col-md-4">
+                <label class="d-block">Options</label>
+                <div class="form-check">
+                    <input type="checkbox" 
+                           class="form-check-input" 
+                           [(ngModel)]="config.settings.showBorders"
+                           id="showBorders">
+                    <label class="form-check-label" for="showBorders">
+                        Show Borders
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" 
+                           class="form-check-input" 
+                           [(ngModel)]="config.settings.rowHoverEffect"
+                           id="rowHover">
+                    <label class="form-check-label" for="rowHover">
+                        Row Hover Effect
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columns -->
+    <div class="editor-section">
+        <div class="section-header">
+            <h4 class="section-title">Comparison Columns</h4>
+            <button type="button" 
+                    class="btn btn-sm btn-success" 
+                    (click)="addColumn()">
+                <i class="bi bi-plus-circle"></i> Add Column
+            </button>
+        </div>
+
+        <div class="columns-tabs" *ngIf="config.settings.columns?.length > 0">
+            <button type="button"
+                    class="tab-button"
+                    *ngFor="let column of config.settings.columns; let i = index"
+                    [class.active]="activeColumnIndex === i"
+                    (click)="activeColumnIndex = i">
+                {{ column.title || 'Column ' + (i + 1) }}
+                <i class="bi bi-x-circle ms-2" 
+                   (click)="removeColumn(i); $event.stopPropagation()"
+                   *ngIf="config.settings.columns.length > 1"></i>
+            </button>
+        </div>
+
+        <div class="column-editor" *ngIf="config.settings.columns[activeColumnIndex]">
+            <div class="form-group">
+                <label>Column Title</label>
+                <input type="text" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.columns[activeColumnIndex].title"
+                       placeholder="e.g., Traditional Route">
+            </div>
+
+            <div class="form-group">
+                <label>Column Subtitle</label>
+                <input type="text" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.columns[activeColumnIndex].subtitle"
+                       placeholder="e.g., What you pay separately">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-8">
+                    <label>Highlight Color</label>
+                    <input type="color" 
+                           class="form-control" 
+                           [(ngModel)]="config.settings.columns[activeColumnIndex].highlightColor">
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label class="d-block">Highlight Column</label>
+                    <div class="form-check">
+                        <input type="checkbox" 
+                               class="form-check-input" 
+                               [(ngModel)]="config.settings.columns[activeColumnIndex].isHighlighted"
+                               id="isHighlighted">
+                        <label class="form-check-label" for="isHighlighted">
+                            Winner Column
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Total/Summary</label>
+                <input type="text" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.columns[activeColumnIndex].total"
+                       placeholder="e.g., R15,000-R80,000+">
+            </div>
+
+            <!-- Column Items -->
+            <div class="items-section">
+                <div class="section-header">
+                    <label class="mb-0">Comparison Items</label>
+                    <button type="button" 
+                            class="btn btn-sm btn-primary" 
+                            (click)="addItem(activeColumnIndex)">
+                        <i class="bi bi-plus"></i> Add Item
+                    </button>
+                </div>
+
+                <div class="items-list">
+                    <div class="item-card" 
+                         *ngFor="let item of config.settings.columns[activeColumnIndex].items; let j = index">
+                        <div class="item-controls">
+                            <button type="button" 
+                                    class="btn btn-sm btn-link" 
+                                    (click)="moveItemUp(activeColumnIndex, j)"
+                                    [disabled]="j === 0">
+                                <i class="bi bi-arrow-up"></i>
+                            </button>
+                            <button type="button" 
+                                    class="btn btn-sm btn-link" 
+                                    (click)="moveItemDown(activeColumnIndex, j)"
+                                    [disabled]="j === config.settings.columns[activeColumnIndex].items.length - 1">
+                                <i class="bi bi-arrow-down"></i>
+                            </button>
+                            <button type="button" 
+                                    class="btn btn-sm btn-link text-danger" 
+                                    (click)="removeItem(activeColumnIndex, j)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+
+                        <div class="item-content">
+                            <div class="form-group">
+                                <input type="text" 
+                                       class="form-control form-control-sm" 
+                                       [(ngModel)]="item.label"
+                                       placeholder="Item label">
+                            </div>
+
+                            <div class="form-group mb-0">
+                                <input type="text" 
+                                       class="form-control form-control-sm" 
+                                       [(ngModel)]="item.value"
+                                       placeholder="Item value">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center text-muted py-3" 
+                         *ngIf="!config.settings.columns[activeColumnIndex].items || config.settings.columns[activeColumnIndex].items.length === 0">
+                        No items yet. Click "Add Item" to get started.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

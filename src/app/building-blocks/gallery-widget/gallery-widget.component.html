@@ -1,0 +1,124 @@
+<div class="gallery-widget" [style.padding.px]="settings.padding">
+  <!-- Gallery Title -->
+  <h2 *ngIf="settings.title" class="gallery-title">{{ settings.title }}</h2>
+
+  <!-- Grid Layout -->
+  <div *ngIf="settings.layout === 'grid'" 
+       class="gallery-grid"
+       [class.rounded-corners]="settings.roundedCorners"
+       [style.gap.px]="settings.gap"
+       [style.grid-template-columns]="'repeat(' + settings.columns + ', 1fr)'">
+    <div *ngFor="let image of settings.images; let i = index" 
+         class="gallery-item"
+         [class.hover-effect]="settings.hoverEffect"
+         (click)="settings.enableLightbox ? openLightbox(i) : null">
+      <img [src]="image.src" 
+           [alt]="image.alt" 
+           class="gallery-image"
+           [class.rounded]="settings.roundedCorners" />
+      <div *ngIf="settings.showTitles && (image.title || image.alt)" 
+           class="image-overlay">
+        <span class="image-title">{{ image.title || image.alt }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Masonry Layout -->
+  <div *ngIf="settings.layout === 'masonry'" 
+       class="gallery-masonry"
+       [class.rounded-corners]="settings.roundedCorners"
+       [style.gap.px]="settings.gap"
+       [style.column-count]="settings.columns">
+    <div *ngFor="let image of settings.images; let i = index" 
+         class="masonry-item"
+         [class.hover-effect]="settings.hoverEffect"
+         (click)="settings.enableLightbox ? openLightbox(i) : null">
+      <img [src]="image.src" 
+           [alt]="image.alt" 
+           class="masonry-image"
+           [class.rounded]="settings.roundedCorners" />
+      <div *ngIf="settings.showTitles && (image.title || image.alt)" 
+           class="image-overlay">
+        <span class="image-title">{{ image.title || image.alt }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carousel Layout -->
+  <div *ngIf="settings.layout === 'carousel'" class="gallery-carousel">
+    <div class="carousel-container">
+      <button class="carousel-nav carousel-nav-prev" 
+              (click)="previousSlide()"
+              [disabled]="!settings.images || settings.images.length === 0">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+
+      <div class="carousel-slides">
+        <div *ngFor="let image of settings.images; let i = index" 
+             class="carousel-slide"
+             [class.active]="i === currentSlideIndex"
+             [class.rounded]="settings.roundedCorners">
+          <img [src]="image.src" 
+               [alt]="image.alt" 
+               class="carousel-image"
+               (click)="settings.enableLightbox ? openLightbox(i) : null" />
+          <div *ngIf="settings.showTitles && (image.title || image.alt)" 
+               class="carousel-caption">
+            <h3>{{ image.title || image.alt }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <button class="carousel-nav carousel-nav-next" 
+              (click)="nextSlide()"
+              [disabled]="!settings.images || settings.images.length === 0">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Carousel Indicators -->
+    <div class="carousel-indicators" *ngIf="settings.images && settings.images.length > 1">
+      <button *ngFor="let image of settings.images; let i = index"
+              class="indicator"
+              [class.active]="i === currentSlideIndex"
+              (click)="goToSlide(i)"></button>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div *ngIf="showLightbox && settings.enableLightbox" 
+       class="lightbox-overlay" 
+       (click)="closeLightbox()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <button class="lightbox-close" (click)="closeLightbox()">
+        <i class="pi pi-times"></i>
+      </button>
+
+      <button class="lightbox-nav lightbox-nav-prev" 
+              (click)="previousImage()"
+              [disabled]="lightboxIndex === 0">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+
+      <div class="lightbox-image-container">
+        <img [src]="settings.images[lightboxIndex]?.src" 
+             [alt]="settings.images[lightboxIndex]?.alt"
+             class="lightbox-image" />
+        <div *ngIf="settings.images[lightboxIndex]?.title || settings.images[lightboxIndex]?.alt" 
+             class="lightbox-caption">
+          {{ settings.images[lightboxIndex]?.title || settings.images[lightboxIndex]?.alt }}
+        </div>
+      </div>
+
+      <button class="lightbox-nav lightbox-nav-next" 
+              (click)="nextImage()"
+              [disabled]="lightboxIndex === settings.images?.length - 1">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+
+      <div class="lightbox-counter">
+        {{ lightboxIndex + 1 }} / {{ settings.images?.length }}
+      </div>
+    </div>
+  </div>
+</div>

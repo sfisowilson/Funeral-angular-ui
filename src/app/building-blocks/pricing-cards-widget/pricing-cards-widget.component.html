@@ -1,0 +1,62 @@
+<div class="pricing-cards-widget">
+  <!-- Header Section -->
+  <div class="text-center mb-5" *ngIf="title || subtitle">
+    <h2 *ngIf="title" class="mb-3">{{ title }}</h2>
+    <p *ngIf="subtitle" class="lead text-muted">{{ subtitle }}</p>
+  </div>
+
+  <!-- Billing Toggle (Optional) -->
+  <div class="text-center mb-4" *ngIf="showBillingToggle">
+    <div class="btn-group" role="group" aria-label="Billing period">
+      <button type="button" class="btn btn-outline-secondary">Monthly</button>
+      <button type="button" class="btn btn-outline-secondary">Annual</button>
+    </div>
+    <small class="d-block mt-2 text-muted">Save 20% with annual billing</small>
+  </div>
+
+  <!-- Pricing Cards -->
+  <div class="row justify-content-center">
+    <div *ngFor="let tier of tiers" [ngClass]="columnClass" class="mb-4">
+      <div class="pricing-card h-100" [class.popular]="tier.isPopular">
+        <!-- Popular Badge -->
+        <div class="popular-badge" *ngIf="tier.isPopular">
+          <i class="bi bi-star-fill"></i> Most Popular
+        </div>
+
+        <!-- Card Header -->
+        <div class="card-header text-center">
+          <h3 class="tier-name mb-2">{{ tier.name }}</h3>
+          <p class="tier-description text-muted mb-0" *ngIf="tier.description">{{ tier.description }}</p>
+        </div>
+
+        <!-- Price Section -->
+        <div class="card-price text-center">
+          <div class="original-price" *ngIf="tier.originalPrice">
+            <span class="text-decoration-line-through text-muted">{{ tier.originalPrice }}</span>
+          </div>
+          <div class="current-price">
+            <span class="price-amount">{{ tier.price }}</span>
+            <span class="price-period" *ngIf="tier.pricePeriod">{{ tier.pricePeriod }}</span>
+          </div>
+        </div>
+
+        <!-- Features List -->
+        <div class="card-features">
+          <ul class="list-unstyled">
+            <li *ngFor="let feature of tier.features" [class.included]="feature.included" [class.not-included]="!feature.included">
+              <i class="bi" [ngClass]="feature.included ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
+              <span [class.text-muted]="!feature.included">{{ feature.text }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- CTA Button -->
+        <div class="card-footer text-center" *ngIf="tier.ctaText">
+          <a [href]="tier.ctaLink || '#'" class="btn w-100" [class.btn-primary]="tier.isPopular" [class.btn-outline-primary]="!tier.isPopular">
+            {{ tier.ctaText }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

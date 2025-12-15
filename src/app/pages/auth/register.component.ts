@@ -91,7 +91,8 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                     phone1: [''],
                     phone2: [''],
                     registrationNumber: [''],
-                    tenantType: ['']
+                    tenantType: [''],
+                    isStaticSite: [false]
                 });
             } else {
                 this.form = this.fb.group({
@@ -171,7 +172,8 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 phone2: fv.phone2 || '',
                 registrationNumber: fv.registrationNumber || '',
                 tenantType: fv.tenantType || (0 as any),
-                subscriptionPlanId: fv.subscriptionPlanId || undefined
+                subscriptionPlanId: fv.subscriptionPlanId || undefined,
+                isStaticSite: fv.isStaticSite || false
             });
             if (!tenantRegisterDto.email) {
                 this.showAlertMessage('warning', 'Email is required for tenant registration.');

@@ -38,6 +38,39 @@ import { SliderWidgetComponent } from './slider-widget/slider-widget.component';
 import { SliderEditorComponent } from './slider-widget/slider-editor.component';
 import { WhatsappWidgetComponent } from './whatsapp-widget/whatsapp-widget.component';
 import { WhatsappEditorComponent } from './whatsapp-widget/whatsapp-editor.component';
+// Landing page widgets - High Priority
+import { ComparisonTableWidgetComponent } from './comparison-table-widget/comparison-table-widget.component';
+import { ComparisonTableEditorComponent } from './comparison-table-widget/comparison-table-editor.component';
+import { ProcessStepsWidgetComponent } from './process-steps-widget/process-steps-widget.component';
+import { ProcessStepsEditorComponent } from './process-steps-widget/process-steps-editor.component';
+import { StatsCounterWidgetComponent } from './stats-counter-widget/stats-counter-widget.component';
+import { StatsCounterEditorComponent } from './stats-counter-widget/stats-counter-editor.component';
+import { BenefitsChecklistWidgetComponent } from './benefits-checklist-widget/benefits-checklist-widget.component';
+import { BenefitsChecklistEditorComponent } from './benefits-checklist-widget/benefits-checklist-editor.component';
+import { FeatureGridWidgetComponent } from './feature-grid-widget/feature-grid-widget.component';
+import { FeatureGridEditorComponent } from './feature-grid-widget/feature-grid-editor.component';
+// Landing page widgets - Medium Priority
+import { TimelineComparisonWidgetComponent } from './timeline-comparison-widget/timeline-comparison-widget.component';
+import { TimelineComparisonEditorComponent } from './timeline-comparison-widget/timeline-comparison-editor.component';
+import { UseCaseCardsWidgetComponent } from './use-case-cards-widget/use-case-cards-widget.component';
+import { UseCaseCardsEditorComponent } from './use-case-cards-widget/use-case-cards-editor.component';
+import { VideoEmbedWidgetComponent } from './video-embed-widget/video-embed-widget.component';
+import { VideoEmbedEditorComponent } from './video-embed-widget/video-embed-editor.component';
+import { LogoCloudWidgetComponent } from './logo-cloud-widget/logo-cloud-widget.component';
+import { LogoCloudEditorComponent } from './logo-cloud-widget/logo-cloud-editor.component';
+import { TabbedContentWidgetComponent } from './tabbed-content-widget/tabbed-content-widget.component';
+import { TabbedContentEditorComponent } from './tabbed-content-widget/tabbed-content-editor.component';
+import { EnhancedAccordionWidgetComponent } from './enhanced-accordion-widget/enhanced-accordion-widget.component';
+import { EnhancedAccordionEditorComponent } from './enhanced-accordion-widget/enhanced-accordion-editor.component';
+// Landing page widgets - Nice to Have
+import { TestimonialCarouselWidgetComponent } from './testimonial-carousel-widget/testimonial-carousel-widget.component';
+import { TestimonialCarouselEditorComponent } from './testimonial-carousel-widget/testimonial-carousel-editor.component';
+import { PricingCardsWidgetComponent } from './pricing-cards-widget/pricing-cards-widget.component';
+import { PricingCardsEditorComponent } from './pricing-cards-widget/pricing-cards-editor.component';
+import { CTABannerWidgetComponent } from './cta-banner-widget/cta-banner-widget.component';
+import { CTABannerEditorComponent } from './cta-banner-widget/cta-banner-editor.component';
+import { ContactCardWidgetComponent } from './contact-card-widget/contact-card-widget.component';
+import { ContactCardEditorComponent } from './contact-card-widget/contact-card-editor.component';
 
 export interface WidgetType {
     name: string;
@@ -616,5 +649,690 @@ export const WIDGET_TYPES: WidgetType[] = [
             imageWidth: null
         },
         icon: 'image'
+    },
+    {
+        name: 'comparison-table',
+        component: ComparisonTableWidgetComponent,
+        editorComponent: ComparisonTableEditorComponent,
+        defaultConfig: {
+            title: 'Cost Comparison',
+            subtitle: 'Traditional Website Development vs Our Platform',
+            titleColor: '#000000',
+            subtitleColor: '#6c757d',
+            backgroundColor: '#ffffff',
+            padding: 40,
+            borderRadius: 8,
+            showBorders: true,
+            columnHeaderBg: '#f8f9fa',
+            rowHoverEffect: true,
+            columns: [
+                {
+                    title: 'Traditional Route',
+                    subtitle: 'What you pay separately',
+                    isHighlighted: false,
+                    highlightColor: '#f8d7da',
+                    items: [
+                        { label: 'Domain Purchase', value: 'R150-R500/year' },
+                        { label: 'Web Hosting', value: 'R80-R500/month' },
+                        { label: 'Website Development', value: 'R5,000-R50,000' },
+                        { label: 'Maintenance', value: 'R500-R2,000/month' },
+                        { label: 'Management Software', value: 'R1,500-R5,000/month' }
+                    ],
+                    total: 'R15,000-R80,000+'
+                },
+                {
+                    title: 'Our Platform',
+                    subtitle: 'Everything included',
+                    isHighlighted: true,
+                    highlightColor: '#d4edda',
+                    items: [
+                        { label: 'Custom Subdomain', value: 'Included ✓' },
+                        { label: 'Enterprise Hosting', value: 'Included ✓' },
+                        { label: 'Professional Website', value: 'Included ✓' },
+                        { label: 'Updates & Support', value: 'Included ✓' },
+                        { label: 'Business Tools', value: 'Included ✓' }
+                    ],
+                    total: 'R[Your Price]/month'
+                }
+            ]
+        },
+        icon: 'table'
+    },
+    {
+        name: 'process-steps',
+        component: ProcessStepsWidgetComponent,
+        editorComponent: ProcessStepsEditorComponent,
+        defaultConfig: {
+            title: 'How to Get Started',
+            subtitle: 'Your funeral service platform in 5 simple steps',
+            titleColor: '#000000',
+            subtitleColor: '#6c757d',
+            backgroundColor: '#ffffff',
+            stepBackgroundColor: '#f8f9fa',
+            stepNumberColor: '#0d6efd',
+            iconColor: '#0d6efd',
+            connectorColor: '#dee2e6',
+            padding: 40,
+            layout: 'horizontal',
+            showConnectors: true,
+            showCTA: false,
+            ctaText: 'Get Started Now',
+            ctaUrl: '/auth/register',
+            ctaStyle: 'primary',
+            steps: [
+                {
+                    number: 1,
+                    icon: 'bi bi-person-plus-fill',
+                    title: 'Sign Up',
+                    description: 'Create your account and choose your subdomain in under 2 minutes'
+                },
+                {
+                    number: 2,
+                    icon: 'bi bi-palette-fill',
+                    title: 'Customize',
+                    description: 'Add your logo, colors, and branding with our drag-and-drop builder'
+                },
+                {
+                    number: 3,
+                    icon: 'bi bi-sliders',
+                    title: 'Configure',
+                    description: 'Set up your policies, services, and pricing structure'
+                },
+                {
+                    number: 4,
+                    icon: 'bi bi-rocket-takeoff-fill',
+                    title: 'Publish',
+                    description: 'Go live with one click - your professional website is ready'
+                },
+                {
+                    number: 5,
+                    icon: 'bi bi-graph-up-arrow',
+                    title: 'Grow',
+                    description: 'Register members and manage your business efficiently'
+                }
+            ]
+        },
+        icon: 'list-ol'
+    },
+    {
+        name: 'stats-counter',
+        component: StatsCounterWidgetComponent,
+        editorComponent: StatsCounterEditorComponent,
+        defaultConfig: {
+            title: 'Our Platform by the Numbers',
+            subtitle: 'Trusted by funeral service providers nationwide',
+            titleColor: '#000000',
+            subtitleColor: '#6c757d',
+            backgroundColor: '#f8f9fa',
+            statBackgroundColor: '#ffffff',
+            valueColor: '#0d6efd',
+            labelColor: '#495057',
+            iconColor: '#0d6efd',
+            padding: 60,
+            columns: 4,
+            animateOnScroll: true,
+            stats: [
+                {
+                    icon: 'bi bi-clock-fill',
+                    value: '10',
+                    label: 'Minutes to Setup',
+                    prefix: '',
+                    suffix: ' min'
+                },
+                {
+                    icon: 'bi bi-check-circle-fill',
+                    value: '99.9',
+                    label: 'Uptime Guarantee',
+                    prefix: '',
+                    suffix: '%'
+                },
+                {
+                    icon: 'bi bi-currency-dollar',
+                    value: '15,000',
+                    label: 'Average Savings',
+                    prefix: 'R',
+                    suffix: '+'
+                },
+                {
+                    icon: 'bi bi-people-fill',
+                    value: '500',
+                    label: 'Active Users',
+                    prefix: '',
+                    suffix: '+'
+                }
+            ]
+        },
+        icon: 'bar-chart'
+    },
+    {
+        name: 'benefits-checklist',
+        component: BenefitsChecklistWidgetComponent,
+        editorComponent: BenefitsChecklistEditorComponent,
+        defaultConfig: {
+            title: 'Everything You Need, All in One Place',
+            subtitle: 'No separate systems, no hidden costs, no technical headaches',
+            titleColor: '#000000',
+            subtitleColor: '#6c757d',
+            backgroundColor: '#ffffff',
+            iconColor: '#198754',
+            textColor: '#212529',
+            padding: 40,
+            columns: 2,
+            useCategories: false,
+            allowExpand: true,
+            benefits: [
+                { icon: 'bi bi-check-circle-fill', text: 'Professional website with custom subdomain' },
+                { icon: 'bi bi-check-circle-fill', text: 'Complete member management system' },
+                { icon: 'bi bi-check-circle-fill', text: 'Claims processing workflow' },
+                { icon: 'bi bi-check-circle-fill', text: 'Document management and storage' },
+                { icon: 'bi bi-check-circle-fill', text: 'Payment tracking and reporting' },
+                { icon: 'bi bi-check-circle-fill', text: 'SSL security included' },
+                { icon: 'bi bi-check-circle-fill', text: 'Daily automatic backups' },
+                { icon: 'bi bi-check-circle-fill', text: '24/7 customer support' }
+            ],
+            categories: []
+        },
+        icon: 'check-square'
+    },
+    {
+        name: 'feature-grid',
+        component: FeatureGridWidgetComponent,
+        editorComponent: FeatureGridEditorComponent,
+        defaultConfig: {
+            title: 'Powerful Features for Modern Funeral Services',
+            subtitle: 'Everything you need to run your business professionally',
+            titleColor: '#000000',
+            subtitleColor: '#6c757d',
+            backgroundColor: '#ffffff',
+            cardBackgroundColor: '#f8f9fa',
+            iconColor: '#0d6efd',
+            iconBackgroundColor: '#e7f1ff',
+            titleTextColor: '#212529',
+            descriptionTextColor: '#6c757d',
+            padding: 60,
+            columns: 3,
+            hoverEffect: true,
+            iconSize: 'large',
+            features: [
+                {
+                    icon: 'bi bi-globe',
+                    title: 'Professional Website',
+                    description: 'Beautiful, mobile-responsive website with your custom subdomain'
+                },
+                {
+                    icon: 'bi bi-people',
+                    title: 'Member Management',
+                    description: 'Complete system for registering and managing members'
+                },
+                {
+                    icon: 'bi bi-file-text',
+                    title: 'Claims Processing',
+                    description: 'Streamlined workflow from submission to approval'
+                },
+                {
+                    icon: 'bi bi-shield-check',
+                    title: 'Secure & Compliant',
+                    description: 'Bank-level security with automatic backups'
+                },
+                {
+                    icon: 'bi bi-speedometer2',
+                    title: 'Real-time Analytics',
+                    description: 'Comprehensive dashboards and business insights'
+                },
+                {
+                    icon: 'bi bi-headset',
+                    title: '24/7 Support',
+                    description: 'Always available to help you succeed'
+                }
+            ]
+        },
+        icon: 'grid-3x3'
+    },
+    // Medium-Priority Landing Page Widgets
+    {
+        name: 'timeline-comparison',
+        component: TimelineComparisonWidgetComponent,
+        editorComponent: TimelineComparisonEditorComponent,
+        defaultConfig: {
+            settings: {
+                title: 'Time to Market Comparison',
+                subtitle: 'See how fast you can get your business online',
+                showSteps: true,
+                highlightRecommended: true
+            },
+            options: [
+                {
+                    title: 'Traditional Website Development',
+                    subtitle: 'The conventional approach',
+                    duration: '2-4',
+                    durationUnit: 'months',
+                    steps: [
+                        { label: 'Domain registration & DNS setup', duration: '2-3 days' },
+                        { label: 'Design discussions & mockups', duration: '1-2 weeks' },
+                        { label: 'Development & revisions', duration: '4-12 weeks' },
+                        { label: 'Content creation & population', duration: '1-2 weeks' },
+                        { label: 'Testing & launch', duration: '1 week' }
+                    ],
+                    totalLabel: 'Total Time: 2-4 months',
+                    isRecommended: false
+                },
+                {
+                    title: 'Our Platform',
+                    subtitle: 'Modern, efficient approach',
+                    duration: '10',
+                    durationUnit: 'minutes',
+                    steps: [
+                        { label: 'Sign up & choose subdomain', duration: '2 minutes' },
+                        { label: 'Select professional template', duration: '1 minute' },
+                        { label: 'Customize with drag-and-drop', duration: '5-10 minutes' },
+                        { label: 'Publish your site', duration: '1 click' }
+                    ],
+                    totalLabel: 'Total Time: Under 10 minutes',
+                    isRecommended: true,
+                    highlightColor: '#28a745'
+                }
+            ]
+        },
+        icon: 'clock-history'
+    },
+    {
+        name: 'use-case-cards',
+        component: UseCaseCardsWidgetComponent,
+        editorComponent: UseCaseCardsEditorComponent,
+        defaultConfig: {
+            settings: {
+                title: 'Ideal For',
+                subtitle: 'Who benefits most from our platform',
+                columns: 3,
+                showFeatures: true,
+                showCta: true
+            },
+            cards: [
+                {
+                    icon: 'building',
+                    title: 'Established Funeral Homes',
+                    description: 'Modernize your online presence and streamline operations without massive IT investment.',
+                    features: [
+                        'Professional website in minutes',
+                        'Complete member management',
+                        'Claims processing automation',
+                        'No technical expertise required'
+                    ],
+                    ctaText: 'Learn More',
+                    ctaLink: '#'
+                },
+                {
+                    icon: 'rocket',
+                    title: 'New Funeral Service Businesses',
+                    description: 'Get online quickly with a professional website and complete business management system.',
+                    features: [
+                        'Quick market entry',
+                        'Affordable startup costs',
+                        'All-in-one platform',
+                        'Scalable as you grow'
+                    ],
+                    ctaText: 'Get Started',
+                    ctaLink: '#'
+                },
+                {
+                    icon: 'laptop',
+                    title: 'Funeral Parlours Going Digital',
+                    description: 'Transition from paper-based processes to efficient digital workflows seamlessly.',
+                    features: [
+                        'Easy data migration',
+                        'Digital document management',
+                        'Online member portal',
+                        'Automated workflows'
+                    ],
+                    ctaText: 'Modernize Now',
+                    ctaLink: '#'
+                }
+            ]
+        },
+        icon: 'award'
+    },
+    {
+        name: 'video-embed',
+        component: VideoEmbedWidgetComponent,
+        editorComponent: VideoEmbedEditorComponent,
+        defaultConfig: {
+            settings: {
+                title: 'Watch Our Demo',
+                subtitle: 'See the platform in action',
+                videoUrl: '',
+                provider: 'youtube',
+                aspectRatio: '16:9',
+                autoplay: false,
+                controls: true,
+                loop: false,
+                muted: false,
+                caption: ''
+            }
+        },
+        icon: 'camera-video'
+    },
+    {
+        name: 'logo-cloud',
+        component: LogoCloudWidgetComponent,
+        editorComponent: LogoCloudEditorComponent,
+        defaultConfig: {
+            settings: {
+                title: 'Trusted By Leading Funeral Homes',
+                subtitle: 'Join hundreds of funeral service providers who trust our platform',
+                layout: 'grid',
+                columns: 4,
+                grayscale: true,
+                hoverColor: true,
+                logoSize: 'medium'
+            },
+            logos: [
+                {
+                    name: 'Partner 1',
+                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+1',
+                    link: '',
+                    altText: 'Partner 1 Logo'
+                },
+                {
+                    name: 'Partner 2',
+                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+2',
+                    link: '',
+                    altText: 'Partner 2 Logo'
+                },
+                {
+                    name: 'Partner 3',
+                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+3',
+                    link: '',
+                    altText: 'Partner 3 Logo'
+                },
+                {
+                    name: 'Partner 4',
+                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+4',
+                    link: '',
+                    altText: 'Partner 4 Logo'
+                }
+            ]
+        },
+        icon: 'images'
+    },
+    {
+        name: 'tabbed-content',
+        component: TabbedContentWidgetComponent,
+        editorComponent: TabbedContentEditorComponent,
+        defaultConfig: {
+            settings: {
+                title: 'Our Platform Features',
+                subtitle: 'Everything you need in one place',
+                tabStyle: 'pills',
+                orientation: 'horizontal',
+                showIcons: true
+            },
+            tabs: [
+                {
+                    id: 'tab-1',
+                    title: 'Website Builder',
+                    icon: 'globe',
+                    content: '<h3>Professional Website Builder</h3><p>Create stunning websites with our drag-and-drop builder. No coding required.</p><ul><li>Drag-and-drop interface</li><li>Mobile-responsive designs</li><li>Customizable templates</li></ul>'
+                },
+                {
+                    id: 'tab-2',
+                    title: 'Member Management',
+                    icon: 'people',
+                    content: '<h3>Complete Member Management</h3><p>Manage all your members, policies, and claims in one centralized system.</p><ul><li>Member registration portal</li><li>Policy management</li><li>Claims processing</li></ul>'
+                },
+                {
+                    id: 'tab-3',
+                    title: 'Analytics',
+                    icon: 'bar-chart',
+                    content: '<h3>Business Analytics</h3><p>Get insights into your business performance with real-time analytics and reporting.</p><ul><li>Real-time dashboards</li><li>Custom reports</li><li>Performance metrics</li></ul>'
+                }
+            ]
+        },
+        icon: 'menu-button-wide'
+    },
+    {
+        name: 'enhanced-accordion',
+        component: EnhancedAccordionWidgetComponent,
+        editorComponent: EnhancedAccordionEditorComponent,
+        defaultConfig: {
+            settings: {
+                title: 'Frequently Asked Questions',
+                subtitle: 'Find answers to common questions',
+                allowMultiple: true,
+                showIcons: true,
+                enableSearch: true,
+                expandAllButton: true
+            },
+            items: [
+                {
+                    id: 'faq-1',
+                    icon: 'question-circle',
+                    question: 'How quickly can I get my website online?',
+                    answer: '<p>Your professional website can be live in under 10 minutes! Simply sign up, choose your subdomain, customize your template, and publish. No technical knowledge required.</p>',
+                    expanded: false
+                },
+                {
+                    id: 'faq-2',
+                    icon: 'credit-card',
+                    question: 'What payment methods do you accept?',
+                    answer: '<p>We accept all major credit cards, debit cards, and bank transfers. Payment is processed securely through our encrypted payment gateway.</p>',
+                    expanded: false
+                },
+                {
+                    id: 'faq-3',
+                    icon: 'shield-check',
+                    question: 'Is my data secure?',
+                    answer: '<p>Yes! We use enterprise-grade security including:</p><ul><li>SSL encryption for all data</li><li>Daily automated backups</li><li>Role-based access control</li><li>Complete data isolation</li></ul>',
+                    expanded: false
+                }
+            ]
+        },
+        icon: 'question-circle'
+    },
+    // Landing page widgets - Nice to Have
+    {
+        name: 'testimonial-carousel',
+        component: TestimonialCarouselWidgetComponent,
+        editorComponent: TestimonialCarouselEditorComponent,
+        defaultConfig: {
+            title: 'What Our Clients Say',
+            subtitle: 'Join hundreds of satisfied customers who trust us',
+            settings: {
+                autoPlay: true,
+                autoPlayInterval: 5000,
+                showRatings: true,
+                showImages: true,
+                layout: 'single'
+            },
+            testimonials: [
+                {
+                    name: 'Sarah Mitchell',
+                    role: 'Director',
+                    company: 'Peaceful Rest Funeral Services',
+                    content: 'We had our website up and running in just 8 minutes. The platform is incredibly intuitive, and our members love the self-service portal.',
+                    rating: 5,
+                    imageUrl: 'https://via.placeholder.com/100x100?text=SM'
+                },
+                {
+                    name: 'John Khumalo',
+                    role: 'Owner',
+                    company: 'Heritage Funeral Home',
+                    content: 'The unified platform brought all our tools together. We\'ve reduced administrative time by 60% and can focus more on serving families.',
+                    rating: 5,
+                    imageUrl: 'https://via.placeholder.com/100x100?text=JK'
+                },
+                {
+                    name: 'Patricia Louw',
+                    role: 'Manager',
+                    company: 'Community Burial Society',
+                    content: 'We\'ve saved over R5,000 per month by consolidating our tools. The ROI was clear within the first month!',
+                    rating: 5,
+                    imageUrl: 'https://via.placeholder.com/100x100?text=PL'
+                }
+            ]
+        },
+        icon: 'chat-quote'
+    },
+    {
+        name: 'pricing-cards',
+        component: PricingCardsWidgetComponent,
+        editorComponent: PricingCardsEditorComponent,
+        defaultConfig: {
+            title: 'Choose Your Plan',
+            subtitle: 'Select the perfect plan for your funeral service business',
+            settings: {
+                showBillingToggle: false,
+                billingLabel: 'Monthly / Annual',
+                columns: 3
+            },
+            tiers: [
+                {
+                    name: 'Starter',
+                    description: 'Perfect for small funeral homes',
+                    price: 'R2,999',
+                    pricePeriod: '/ month',
+                    features: [
+                        { text: 'Up to 50 member profiles', included: true },
+                        { text: 'Basic website builder', included: true },
+                        { text: 'Payment processing', included: true },
+                        { text: 'Email support', included: true },
+                        { text: 'Custom domain', included: false },
+                        { text: 'Advanced analytics', included: false },
+                        { text: 'Priority support', included: false }
+                    ],
+                    ctaText: 'Start Free Trial',
+                    ctaLink: '#',
+                    isPopular: false
+                },
+                {
+                    name: 'Professional',
+                    description: 'Most popular choice',
+                    price: 'R5,999',
+                    pricePeriod: '/ month',
+                    originalPrice: 'R7,999',
+                    features: [
+                        { text: 'Up to 500 member profiles', included: true },
+                        { text: 'Advanced website builder', included: true },
+                        { text: 'Payment processing', included: true },
+                        { text: 'Priority email & phone support', included: true },
+                        { text: 'Custom domain', included: true },
+                        { text: 'Advanced analytics', included: true },
+                        { text: 'WhatsApp integration', included: true },
+                        { text: 'Multi-user access', included: false }
+                    ],
+                    ctaText: 'Start Free Trial',
+                    ctaLink: '#',
+                    isPopular: true
+                },
+                {
+                    name: 'Enterprise',
+                    description: 'For established businesses',
+                    price: 'R12,999',
+                    pricePeriod: '/ month',
+                    features: [
+                        { text: 'Unlimited member profiles', included: true },
+                        { text: 'Enterprise website builder', included: true },
+                        { text: 'Payment processing', included: true },
+                        { text: 'Dedicated account manager', included: true },
+                        { text: 'Custom domain & branding', included: true },
+                        { text: 'Advanced analytics & reporting', included: true },
+                        { text: 'WhatsApp & SMS integration', included: true },
+                        { text: 'Multi-user access with roles', included: true },
+                        { text: 'Custom integrations', included: true },
+                        { text: 'SLA guarantee', included: true }
+                    ],
+                    ctaText: 'Contact Sales',
+                    ctaLink: '#',
+                    isPopular: false
+                }
+            ]
+        },
+        icon: 'cash-coin'
+    },
+    {
+        name: 'cta-banner',
+        component: CTABannerWidgetComponent,
+        editorComponent: CTABannerEditorComponent,
+        defaultConfig: {
+            headline: 'Ready to Transform Your Business?',
+            subheadline: 'Join hundreds of funeral service providers who have modernized their operations with our platform.',
+            buttons: [
+                {
+                    text: 'Start Free Trial',
+                    link: '#trial',
+                    isPrimary: true
+                },
+                {
+                    text: 'Schedule Demo',
+                    link: '#demo',
+                    isPrimary: false
+                }
+            ],
+            settings: {
+                backgroundType: 'gradient',
+                backgroundColor: '#007bff',
+                gradientStart: '#007bff',
+                gradientEnd: '#0056b3',
+                backgroundImage: '',
+                overlayOpacity: 0.5,
+                textColor: 'light',
+                alignment: 'center',
+                paddingSize: 'large'
+            }
+        },
+        icon: 'megaphone'
+    },
+    {
+        name: 'contact-card',
+        component: ContactCardWidgetComponent,
+        editorComponent: ContactCardEditorComponent,
+        defaultConfig: {
+            title: 'Get In Touch',
+            subtitle: 'We\'re here to help. Reach out to us through any of these channels.',
+            settings: {
+                showMap: false,
+                mapEmbedUrl: '',
+                layout: 'single',
+                backgroundColor: '#f8f9fa',
+                iconColor: '#007bff'
+            },
+            contactMethods: [
+                {
+                    type: 'phone',
+                    icon: 'bi-telephone-fill',
+                    label: 'Phone',
+                    value: '+27 11 123 4567',
+                    link: ''
+                },
+                {
+                    type: 'email',
+                    icon: 'bi-envelope-fill',
+                    label: 'Email',
+                    value: 'support@funeral.com',
+                    link: ''
+                },
+                {
+                    type: 'whatsapp',
+                    icon: 'bi-whatsapp',
+                    label: 'WhatsApp',
+                    value: '+27 82 123 4567',
+                    link: ''
+                },
+                {
+                    type: 'address',
+                    icon: 'bi-geo-alt-fill',
+                    label: 'Address',
+                    value: '123 Main Street, Johannesburg, 2001',
+                    link: ''
+                },
+                {
+                    type: 'hours',
+                    icon: 'bi-clock-fill',
+                    label: 'Business Hours',
+                    value: 'Monday - Friday: 8:00 AM - 5:00 PM',
+                    link: ''
+                }
+            ]
+        },
+        icon: 'telephone'
     }
 ];

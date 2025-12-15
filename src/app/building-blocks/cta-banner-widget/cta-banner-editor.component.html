@@ -1,0 +1,142 @@
+<div class="cta-banner-editor">
+  <!-- Content Section -->
+  <div class="editor-section">
+    <h5>Content</h5>
+    <div class="mb-3">
+      <label class="form-label">Headline</label>
+      <input type="text" class="form-control" [(ngModel)]="config.headline" (ngModelChange)="emitChange()" placeholder="Ready to Transform Your Business?">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Subheadline</label>
+      <textarea class="form-control" rows="3" [(ngModel)]="config.subheadline" (ngModelChange)="emitChange()" placeholder="Supporting text..."></textarea>
+    </div>
+  </div>
+
+  <!-- Background Settings -->
+  <div class="editor-section">
+    <h5>Background</h5>
+    <div class="mb-3">
+      <label class="form-label">Background Type</label>
+      <select class="form-select" [(ngModel)]="config.settings.backgroundType" (ngModelChange)="emitChange()">
+        <option value="color">Solid Color</option>
+        <option value="gradient">Gradient</option>
+        <option value="image">Image</option>
+      </select>
+    </div>
+
+    <!-- Solid Color -->
+    <div class="mb-3" *ngIf="config.settings.backgroundType === 'color'">
+      <label class="form-label">Background Color</label>
+      <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.backgroundColor" (ngModelChange)="emitChange()">
+    </div>
+
+    <!-- Gradient -->
+    <div *ngIf="config.settings.backgroundType === 'gradient'">
+      <div class="row mb-3">
+        <div class="col-6">
+          <label class="form-label">Gradient Start</label>
+          <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.gradientStart" (ngModelChange)="emitChange()">
+        </div>
+        <div class="col-6">
+          <label class="form-label">Gradient End</label>
+          <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.gradientEnd" (ngModelChange)="emitChange()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Image -->
+    <div *ngIf="config.settings.backgroundType === 'image'">
+      <div class="mb-3">
+        <label class="form-label">Background Image URL</label>
+        <input type="text" class="form-control" [(ngModel)]="config.settings.backgroundImage" (ngModelChange)="emitChange()" placeholder="https://...">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Overlay Opacity ({{ config.settings.overlayOpacity }})</label>
+        <input type="range" class="form-range" min="0" max="1" step="0.1" [(ngModel)]="config.settings.overlayOpacity" (ngModelChange)="emitChange()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Display Settings -->
+  <div class="editor-section">
+    <h5>Display Settings</h5>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Text Color</label>
+        <select class="form-select" [(ngModel)]="config.settings.textColor" (ngModelChange)="emitChange()">
+          <option value="light">Light (White)</option>
+          <option value="dark">Dark (Black)</option>
+        </select>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Text Alignment</label>
+        <select class="form-select" [(ngModel)]="config.settings.alignment" (ngModelChange)="emitChange()">
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Padding Size</label>
+        <select class="form-select" [(ngModel)]="config.settings.paddingSize" (ngModelChange)="emitChange()">
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Buttons -->
+  <div class="editor-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">CTA Buttons</h5>
+      <button type="button" class="btn btn-sm btn-primary" (click)="addButton()">
+        <i class="bi bi-plus-lg"></i> Add Button
+      </button>
+    </div>
+
+    <div class="buttons-list">
+      <div *ngFor="let button of config.buttons; let i = index" class="button-item">
+        <div class="button-header">
+          <div class="button-title">
+            <i class="bi bi-box-arrow-up-right"></i>
+            <strong>{{ button.text }}</strong>
+          </div>
+          <div class="button-actions">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="moveButtonUp(i)" [disabled]="i === 0">
+              <i class="bi bi-arrow-up"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="moveButtonDown(i)" [disabled]="i === config.buttons.length - 1">
+              <i class="bi bi-arrow-down"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeButton(i)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="button-content">
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <label class="form-label">Button Text</label>
+              <input type="text" class="form-control" [(ngModel)]="button.text" (ngModelChange)="emitChange()" placeholder="Get Started">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Button Link</label>
+              <input type="text" class="form-control" [(ngModel)]="button.link" (ngModelChange)="emitChange()" placeholder="#signup">
+            </div>
+          </div>
+          <div class="mb-2">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" [id]="'primary-' + i" [(ngModel)]="button.isPrimary" (ngModelChange)="emitChange()">
+              <label class="form-check-label" [for]="'primary-' + i">
+                Mark as Primary Button
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,80 @@
+.cta-banner-editor {
+  .editor-section {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    h5 {
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e9ecef;
+      font-weight: 600;
+    }
+  }
+
+  .form-control-color {
+    width: 100%;
+    height: 50px;
+    cursor: pointer;
+  }
+
+  .buttons-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .button-item {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .button-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #dee2e6;
+
+      .button-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+
+        i {
+          color: var(--primary-color, #007bff);
+        }
+      }
+
+      .button-actions {
+        display: flex;
+        gap: 0.5rem;
+
+        .btn {
+          padding: 0.25rem 0.5rem;
+        }
+      }
+    }
+
+    .button-content {
+      .form-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .form-control {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}

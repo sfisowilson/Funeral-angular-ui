@@ -1,0 +1,43 @@
+<div class="tabbed-content-widget">
+  <div class="container py-5">
+    <div class="text-center mb-5" *ngIf="title">
+      <h2 class="widget-title">{{ title }}</h2>
+      <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <div class="tabbed-content-container" 
+         [class.orientation-horizontal]="orientation === 'horizontal'"
+         [class.orientation-vertical]="orientation === 'vertical'"
+         *ngIf="tabs.length > 0">
+      
+      <ul class="nav-tabs-list" 
+          [class.nav-pills]="tabStyle === 'pills'"
+          [class.nav-underline]="tabStyle === 'underline'"
+          [class.nav-buttons]="tabStyle === 'buttons'"
+          role="tablist">
+        <li *ngFor="let tab of tabs" class="nav-item">
+          <button class="nav-link" 
+                  [class.active]="isActive(tab.id)"
+                  (click)="setActiveTab(tab.id)"
+                  type="button"
+                  role="tab"
+                  [attr.aria-selected]="isActive(tab.id)">
+            <i *ngIf="showIcons && tab.icon" [class]="'bi bi-' + tab.icon + ' me-2'"></i>
+            {{ tab.title }}
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <div *ngIf="activeTab" class="tab-pane active">
+          <div [innerHTML]="activeTab.content"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs-placeholder" *ngIf="tabs.length === 0">
+      <i class="bi bi-menu-button-wide"></i>
+      <p>No tabs configured</p>
+    </div>
+  </div>
+</div>

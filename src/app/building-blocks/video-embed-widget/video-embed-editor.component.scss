@@ -1,0 +1,54 @@
+.video-embed-editor {
+  .editor-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    h5 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .form-check-label {
+    font-weight: 500;
+    color: #495057;
+  }
+
+  small.text-muted {
+    font-size: 0.8rem;
+  }
+
+  .alert {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+
+    i {
+      vertical-align: middle;
+    }
+  }
+
+  .is-invalid {
+    border-color: #dc3545;
+
+    &:focus {
+      border-color: #dc3545;
+      box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+  }
+
+  .invalid-feedback {
+    display: block;
+    font-size: 0.875rem;
+    color: #dc3545;
+  }
+}

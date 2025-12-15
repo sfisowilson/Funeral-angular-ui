@@ -1,0 +1,254 @@
+.enhanced-accordion-widget {
+  .widget-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .widget-subtitle {
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .accordion-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    .search-box {
+      position: relative;
+      max-width: 400px;
+      flex: 1;
+
+      .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        pointer-events: none;
+      }
+
+      .form-control {
+        padding-left: 2.5rem;
+        border-radius: 50px;
+      }
+    }
+
+    button {
+      white-space: nowrap;
+      border-radius: 50px;
+
+      i {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  .accordion-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .accordion-item {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    &.expanded {
+      border-color: #007bff;
+
+      .accordion-header {
+        background: #f8f9fa;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .accordion-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+
+    &:hover {
+      background: #f8f9fa;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+
+      .item-icon {
+        font-size: 1.5rem;
+        color: #007bff;
+        flex-shrink: 0;
+      }
+
+      .item-question {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #212529;
+      }
+    }
+
+    .chevron-icon {
+      font-size: 1.25rem;
+      color: #6c757d;
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+      margin-left: 1rem;
+    }
+  }
+
+  .accordion-collapse {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+
+    &.show {
+      max-height: 1000px;
+    }
+  }
+
+  .accordion-body {
+    padding: 0 1.5rem 1.25rem 1.5rem;
+    color: #495057;
+    line-height: 1.7;
+
+    :deep(p) {
+      margin-bottom: 1rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    :deep(ul), :deep(ol) {
+      margin: 1rem 0;
+      padding-left: 1.5rem;
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    :deep(strong) {
+      color: #212529;
+    }
+
+    :deep(a) {
+      color: #007bff;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6c757d;
+
+    i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .accordion-placeholder {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    text-align: center;
+    color: #6c757d;
+
+    i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .widget-title {
+      font-size: 2rem;
+    }
+
+    .accordion-controls {
+      flex-direction: column;
+      align-items: stretch;
+
+      .search-box {
+        max-width: none;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+
+    .accordion-header {
+      padding: 1rem;
+
+      .header-content {
+        gap: 0.75rem;
+
+        .item-icon {
+          font-size: 1.25rem;
+        }
+
+        .item-question {
+          font-size: 1rem;
+        }
+      }
+
+      .chevron-icon {
+        font-size: 1rem;
+        margin-left: 0.5rem;
+      }
+    }
+
+    .accordion-body {
+      padding: 0 1rem 1rem 1rem;
+      font-size: 0.95rem;
+    }
+  }
+}

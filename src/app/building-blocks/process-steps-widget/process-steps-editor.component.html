@@ -1,0 +1,229 @@
+<div class="process-steps-editor">
+    <!-- General Settings -->
+    <div class="editor-section">
+        <h4 class="section-title">General Settings</h4>
+        
+        <div class="form-group">
+            <label>Widget Title</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.title"
+                   placeholder="e.g., How to Get Started">
+        </div>
+
+        <div class="form-group">
+            <label>Subtitle</label>
+            <input type="text" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.subtitle"
+                   placeholder="e.g., Your platform in 5 simple steps">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Title Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.titleColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Subtitle Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.subtitleColor">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Layout</label>
+            <select class="form-control" [(ngModel)]="config.settings.layout">
+                <option value="horizontal">Horizontal (Side by side)</option>
+                <option value="vertical">Vertical (Stacked)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" 
+                       class="form-check-input" 
+                       [(ngModel)]="config.settings.showConnectors"
+                       id="showConnectors">
+                <label class="form-check-label" for="showConnectors">
+                    Show Connecting Lines Between Steps
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Style Settings -->
+    <div class="editor-section">
+        <h4 class="section-title">Style Settings</h4>
+        
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Background Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.backgroundColor">
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Step Card Background</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.stepBackgroundColor">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label>Number Badge Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.stepNumberColor">
+            </div>
+
+            <div class="form-group col-md-4">
+                <label>Icon Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.iconColor">
+            </div>
+
+            <div class="form-group col-md-4">
+                <label>Connector Color</label>
+                <input type="color" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.connectorColor">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Padding (px)</label>
+            <input type="number" 
+                   class="form-control" 
+                   [(ngModel)]="config.settings.padding"
+                   min="0" 
+                   max="100">
+        </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="editor-section">
+        <div class="section-header">
+            <h4 class="section-title">Process Steps</h4>
+            <button type="button" 
+                    class="btn btn-sm btn-success" 
+                    (click)="addStep()">
+                <i class="bi bi-plus-circle"></i> Add Step
+            </button>
+        </div>
+
+        <div class="steps-list">
+            <div class="step-card" 
+                 *ngFor="let step of config.settings.steps; let i = index">
+                <div class="step-header">
+                    <span class="step-badge">{{ step.number }}</span>
+                    <div class="step-controls">
+                        <button type="button" 
+                                class="btn btn-sm btn-link" 
+                                (click)="moveStepUp(i)"
+                                [disabled]="i === 0">
+                            <i class="bi bi-arrow-up"></i>
+                        </button>
+                        <button type="button" 
+                                class="btn btn-sm btn-link" 
+                                (click)="moveStepDown(i)"
+                                [disabled]="i === config.settings.steps.length - 1">
+                            <i class="bi bi-arrow-down"></i>
+                        </button>
+                        <button type="button" 
+                                class="btn btn-sm btn-link text-danger" 
+                                (click)="removeStep(i)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="step-content">
+                    <div class="form-group">
+                        <label>Icon (Bootstrap Icon class)</label>
+                        <input type="text" 
+                               class="form-control form-control-sm" 
+                               [(ngModel)]="step.icon"
+                               placeholder="e.g., bi bi-check-circle-fill">
+                        <small class="form-text text-muted">
+                            Browse icons at <a href="https://icons.getbootstrap.com/" target="_blank">icons.getbootstrap.com</a>
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Step Title</label>
+                        <input type="text" 
+                               class="form-control form-control-sm" 
+                               [(ngModel)]="step.title"
+                               placeholder="e.g., Sign Up">
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label>Description</label>
+                        <textarea class="form-control form-control-sm" 
+                                  [(ngModel)]="step.description"
+                                  rows="2"
+                                  placeholder="Brief description of this step"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center text-muted py-3" 
+                 *ngIf="!config.settings.steps || config.settings.steps.length === 0">
+                No steps yet. Click "Add Step" to get started.
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="editor-section">
+        <h4 class="section-title">Call to Action (Optional)</h4>
+        
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" 
+                       class="form-check-input" 
+                       [(ngModel)]="config.settings.showCTA"
+                       id="showCTA">
+                <label class="form-check-label" for="showCTA">
+                    Show Call to Action Button
+                </label>
+            </div>
+        </div>
+
+        <div *ngIf="config.settings.showCTA">
+            <div class="form-group">
+                <label>Button Text</label>
+                <input type="text" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.ctaText"
+                       placeholder="e.g., Get Started Now">
+            </div>
+
+            <div class="form-group">
+                <label>Button URL</label>
+                <input type="text" 
+                       class="form-control" 
+                       [(ngModel)]="config.settings.ctaUrl"
+                       placeholder="/auth/register">
+            </div>
+
+            <div class="form-group">
+                <label>Button Style</label>
+                <select class="form-control" [(ngModel)]="config.settings.ctaStyle">
+                    <option value="primary">Primary (Blue)</option>
+                    <option value="success">Success (Green)</option>
+                    <option value="outline">Outline</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>

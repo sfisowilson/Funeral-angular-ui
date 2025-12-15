@@ -21,6 +21,16 @@
             <button 
                 pButton 
                 type="button"
+                icon="pi pi-search"
+                label="SEO Settings"
+                class="p-button-outlined p-button-secondary"
+                (click)="openSeoSettings()"
+                pTooltip="Manage meta tags and SEO">
+            </button>
+            
+            <button 
+                pButton 
+                type="button"
                 [icon]="gridVisible() ? 'pi pi-eye-slash' : 'pi pi-eye'"
                 [label]="gridVisible() ? 'Hide Grid' : 'Show Grid'"
                 class="p-button-outlined"
@@ -639,6 +649,147 @@
         <div class="content-editor" *ngIf="selectedWidget()">
             <ng-container #editorContainer></ng-container>
         </div>
+    </p-dialog>
+
+    <!-- SEO Settings Dialog -->
+    <p-dialog 
+        [(visible)]="showSeoSettings"
+        header="SEO & Meta Tags Settings"
+        [modal]="true"
+        [style]="{ width: '800px' }"
+        [draggable]="false"
+        [resizable]="false"
+        styleClass="seo-settings-dialog">
+        
+        <div class="seo-settings-form">
+            <div class="field">
+                <label for="pageTitle">Page Title *</label>
+                <input 
+                    type="text" 
+                    pInputText 
+                    id="pageTitle" 
+                    [(ngModel)]="seoSettings().pageTitle"
+                    placeholder="e.g., Complete Funeral Service Platform - Online in Minutes"
+                    class="w-full"
+                    maxlength="60" />
+                <small class="text-muted">Recommended: 50-60 characters. Appears in browser tab and search results.</small>
+            </div>
+
+            <div class="field">
+                <label for="metaDescription">Meta Description *</label>
+                <textarea 
+                    pInputTextarea 
+                    id="metaDescription" 
+                    [(ngModel)]="seoSettings().metaDescription"
+                    placeholder="e.g., Professional website and comprehensive management system for funeral service providers. No technical knowledge required."
+                    class="w-full"
+                    rows="3"
+                    maxlength="160"></textarea>
+                <small class="text-muted">Recommended: 150-160 characters. Appears in search engine results.</small>
+            </div>
+
+            <div class="field">
+                <label for="metaKeywords">Meta Keywords</label>
+                <input 
+                    type="text" 
+                    pInputText 
+                    id="metaKeywords" 
+                    [(ngModel)]="seoSettings().metaKeywords"
+                    placeholder="e.g., funeral service, funeral management, burial society, funeral home"
+                    class="w-full" />
+                <small class="text-muted">Comma-separated keywords. Optional for most search engines.</small>
+            </div>
+
+            <div class="field">
+                <label for="canonicalUrl">Canonical URL</label>
+                <input 
+                    type="url" 
+                    pInputText 
+                    id="canonicalUrl" 
+                    [(ngModel)]="seoSettings().canonicalUrl"
+                    placeholder="https://yourname.funeral.com"
+                    class="w-full" />
+                <small class="text-muted">Preferred URL for this page (helps prevent duplicate content issues).</small>
+            </div>
+
+            <p-divider align="left">
+                <span class="text-lg font-semibold">Social Media (Open Graph)</span>
+            </p-divider>
+
+            <div class="field">
+                <label for="ogTitle">Open Graph Title</label>
+                <input 
+                    type="text" 
+                    pInputText 
+                    id="ogTitle" 
+                    [(ngModel)]="seoSettings().ogTitle"
+                    placeholder="Leave empty to use Page Title"
+                    class="w-full"
+                    maxlength="60" />
+                <small class="text-muted">Title shown when shared on Facebook, LinkedIn, etc.</small>
+            </div>
+
+            <div class="field">
+                <label for="ogDescription">Open Graph Description</label>
+                <textarea 
+                    pInputTextarea 
+                    id="ogDescription" 
+                    [(ngModel)]="seoSettings().ogDescription"
+                    placeholder="Leave empty to use Meta Description"
+                    class="w-full"
+                    rows="2"
+                    maxlength="200"></textarea>
+                <small class="text-muted">Description shown when shared on social media.</small>
+            </div>
+
+            <div class="field">
+                <label for="ogImage">Open Graph Image URL</label>
+                <input 
+                    type="url" 
+                    pInputText 
+                    id="ogImage" 
+                    [(ngModel)]="seoSettings().ogImage"
+                    placeholder="https://yourname.funeral.com/images/og-image.jpg"
+                    class="w-full" />
+                <small class="text-muted">Image shown when shared (recommended: 1200x630px).</small>
+            </div>
+
+            <div class="field">
+                <label for="twitterCard">Twitter Card Type</label>
+                <p-dropdown 
+                    id="twitterCard"
+                    [(ngModel)]="seoSettings().twitterCard"
+                    [options]="[
+                        { label: 'Summary with Large Image', value: 'summary_large_image' },
+                        { label: 'Summary', value: 'summary' },
+                        { label: 'App', value: 'app' },
+                        { label: 'Player', value: 'player' }
+                    ]"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select Twitter card type"
+                    class="w-full"></p-dropdown>
+                <small class="text-muted">Format for Twitter/X posts.</small>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <button 
+                pButton 
+                type="button"
+                label="Cancel"
+                icon="pi pi-times"
+                class="p-button-outlined"
+                (click)="cancelSeoSettings()">
+            </button>
+            <button 
+                pButton 
+                type="button"
+                label="Save SEO Settings"
+                icon="pi pi-check"
+                (click)="saveSeoSettings()">
+            </button>
+        </ng-template>
     </p-dialog>
 
     <!-- Toast & Confirmation Dialog -->

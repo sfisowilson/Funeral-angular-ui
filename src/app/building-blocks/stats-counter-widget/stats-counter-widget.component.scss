@@ -1,0 +1,199 @@
+.stats-counter-widget {
+    width: 100%;
+    box-sizing: border-box;
+
+    .widget-header {
+        text-align: center;
+        margin-bottom: 3rem;
+
+        .widget-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.2;
+        }
+
+        .widget-subtitle {
+            font-size: 1.125rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+    }
+
+    .stats-grid {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: repeat(4, 1fr);
+
+        &.cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        &.cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        &.cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .stat-card {
+            padding: 2.5rem 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #0d6efd 0%, #0dcaf0 100%);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+
+            &:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+                &::before {
+                    opacity: 1;
+                }
+            }
+
+            .stat-icon {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+                animation: fadeInDown 0.6s ease-out;
+
+                i {
+                    display: inline-block;
+                }
+            }
+
+            .stat-value {
+                font-size: 3rem;
+                font-weight: 700;
+                line-height: 1;
+                margin-bottom: 0.75rem;
+                animation: fadeInUp 0.6s ease-out;
+                letter-spacing: -1px;
+
+                &.animating {
+                    animation: countUp 0.3s ease-out;
+                }
+            }
+
+            .stat-label {
+                font-size: 1rem;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                animation: fadeIn 0.6s ease-out 0.2s both;
+            }
+        }
+    }
+}
+
+// Animations
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes countUp {
+    0% {
+        transform: scale(0.95);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+// Responsive
+@media (max-width: 992px) {
+    .stats-counter-widget {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 1.5rem;
+        }
+
+        .widget-header {
+            .widget-title {
+                font-size: 1.75rem;
+            }
+
+            .widget-subtitle {
+                font-size: 1rem;
+            }
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-counter-widget {
+        .stats-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem;
+
+            .stat-card {
+                padding: 2rem 1.5rem;
+
+                .stat-icon {
+                    font-size: 2.5rem;
+                }
+
+                .stat-value {
+                    font-size: 2.5rem;
+                }
+
+                .stat-label {
+                    font-size: 0.9375rem;
+                }
+            }
+        }
+
+        .widget-header {
+            margin-bottom: 2rem;
+
+            .widget-title {
+                font-size: 1.5rem;
+            }
+        }
+    }
+}

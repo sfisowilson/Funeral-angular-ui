@@ -1,0 +1,66 @@
+<div class="process-steps-widget" 
+     [style.background-color]="backgroundColor"
+     [style.padding.px]="padding"
+     [class.layout-horizontal]="layout === 'horizontal'"
+     [class.layout-vertical]="layout === 'vertical'">
+    
+    <!-- Title Section -->
+    <div class="widget-header" *ngIf="title || subtitle">
+        <h2 class="widget-title" 
+            [style.color]="titleColor"
+            *ngIf="title">{{ title }}</h2>
+        <p class="widget-subtitle" 
+           [style.color]="subtitleColor"
+           *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <!-- Steps Container -->
+    <div class="steps-container" 
+         [class.with-connectors]="showConnectors">
+        <div class="step-wrapper" 
+             *ngFor="let step of steps; let i = index; let last = last">
+            
+            <!-- Step Card -->
+            <div class="step-card" 
+                 [style.background-color]="stepBackgroundColor">
+                
+                <!-- Step Number Badge -->
+                <div class="step-number" 
+                     [style.background-color]="stepNumberColor">
+                    {{ step.number }}
+                </div>
+
+                <!-- Step Icon -->
+                <div class="step-icon" 
+                     [style.color]="iconColor"
+                     *ngIf="step.icon">
+                    <i [class]="step.icon"></i>
+                </div>
+
+                <!-- Step Content -->
+                <div class="step-content">
+                    <h3 class="step-title">{{ step.title }}</h3>
+                    <p class="step-description">{{ step.description }}</p>
+                </div>
+            </div>
+
+            <!-- Connector Line -->
+            <div class="connector" 
+                 *ngIf="showConnectors && !last"
+                 [style.background-color]="connectorColor">
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="cta-section" *ngIf="showCTA">
+        <a [href]="ctaUrl" 
+           class="cta-button"
+           [class.btn-primary]="ctaStyle === 'primary'"
+           [class.btn-success]="ctaStyle === 'success'"
+           [class.btn-outline]="ctaStyle === 'outline'">
+            {{ ctaText }}
+            <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+    </div>
+</div>

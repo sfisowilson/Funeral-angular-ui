@@ -1,0 +1,49 @@
+<div class="timeline-comparison-widget">
+  <div class="container py-5">
+    <div class="text-center mb-5" *ngIf="title">
+      <h2 class="widget-title">{{ title }}</h2>
+      <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6" *ngFor="let option of options">
+        <div class="timeline-card" 
+             [class.recommended]="highlightRecommended && option.isRecommended"
+             [style.border-color]="option.isRecommended && option.highlightColor ? option.highlightColor : null">
+          
+          <div class="timeline-header" 
+               [style.background-color]="option.isRecommended && option.highlightColor ? option.highlightColor : null">
+            <h3 class="timeline-title">{{ option.title }}</h3>
+            <p class="timeline-subtitle" *ngIf="option.subtitle">{{ option.subtitle }}</p>
+            
+            <div class="timeline-duration">
+              <div class="duration-value">{{ option.duration }}</div>
+              <div class="duration-unit" *ngIf="option.durationUnit">{{ option.durationUnit }}</div>
+            </div>
+          </div>
+
+          <div class="timeline-body" *ngIf="showSteps && option.steps?.length">
+            <ul class="timeline-steps">
+              <li *ngFor="let step of option.steps" class="timeline-step">
+                <div class="step-label">{{ step.label }}</div>
+                <div class="step-duration">{{ step.duration }}</div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="timeline-footer" *ngIf="option.totalLabel">
+            <div class="total-label">
+              <i class="bi bi-clock-history me-2"></i>
+              <strong>{{ option.totalLabel }}</strong>
+            </div>
+          </div>
+
+          <div class="recommended-badge" *ngIf="option.isRecommended">
+            <i class="bi bi-star-fill me-1"></i>
+            Recommended
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

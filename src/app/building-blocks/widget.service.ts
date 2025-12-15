@@ -14,6 +14,7 @@ export class WidgetService {
     public widgets$: Observable<WidgetConfig[]> = this.widgetsSubject.asObservable();
 
     private readonly SETTINGS_KEY = 'landingPageConfig';
+    private readonly SEO_SETTINGS_KEY = 'seoSettings';
 
     constructor(
         private tenantSettingsService: TenantSettingsService,
@@ -70,7 +71,14 @@ export class WidgetService {
     }
 
     public saveWidgets(widgets: WidgetConfig[]): Observable<any> {
-        this.widgetsSubject.next(widgets);
+        // Deep clone the widgets to avoid reference issues
+        const widgetsToSave = JSON.parse(JSON.stringify(widgets));
+        
+        console.log('=== SAVE WIDGETS CALLED ===');
+        console.log('Widgets being saved:', widgetsToSave);
+        
+        // Update the in-memory state first
+        this.widgetsSubject.next(widgetsToSave);
 
         return from(this.tenantSettingsService.loadSettings()).pipe(
             switchMap((tenantSettingDto: TenantSettingDto) => {
@@ -78,12 +86,19 @@ export class WidgetService {
                 if (tenantSettingDto && tenantSettingDto.settings) {
                     try {
                         currentSettings = JSON.parse(tenantSettingDto.settings);
+                        console.log('Current tenant settings loaded:', currentSettings);
                     } catch (e) {
                         console.error('Error parsing tenant settings value for saving:', e);
                     }
                 }
 
-                const updatedSettings = { ...currentSettings, [this.SETTINGS_KEY]: widgets };
+                // Only update the landingPageConfig key, preserve all other settings
+                const updatedSettings = { 
+                    ...currentSettings, 
+                    [this.SETTINGS_KEY]: widgetsToSave 
+                };
+
+                console.log('Updated settings to be saved:', updatedSettings);
 
                 const updateDto = new TenantSettingDto();
                 if (tenantSettingDto) {
@@ -93,12 +108,13 @@ export class WidgetService {
 
                 return this.tenantSettingServiceProxy.tenantSetting_UpdateTenantSetting(updateDto).pipe(
                     tap(() => {
-                        console.log('Tenant settings updated on backend.');
+                        console.log('✓ Tenant settings updated on backend successfully.');
+                        console.log('✓ Saved widgets count:', widgetsToSave.length);
                     })
                 );
             }),
             catchError((error) => {
-                console.error('Error saving widgets:', error);
+                console.error('✗ Error saving widgets:', error);
                 return throwError(() => new Error('Failed to save widgets'));
             })
         );
@@ -140,5 +156,89 @@ export class WidgetService {
 
     private generateId(): string {
         return Math.random().toString(36).substr(2, 9);
+    }
+
+    // SEO Settings methods
+    public getSeoSettings(): Observable<any> {
+        return from(this.tenantSettingsService.loadSettings()).pipe(
+            switchMap((tenantSettingDto: TenantSettingDto) => {
+                if (tenantSettingDto && tenantSettingDto.settings) {
+                    try {
+                        const settings = JSON.parse(tenantSettingDto.settings);
+                        if (settings[this.SEO_SETTINGS_KEY]) {
+                            return of(settings[this.SEO_SETTINGS_KEY]);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing SEO settings:', e);
+                    }
+                }
+                return of({
+                    pageTitle: '',
+                    metaDescription: '',
+                    metaKeywords: '',
+                    ogTitle: '',
+                    ogDescription: '',
+                    ogImage: '',
+                    twitterCard: 'summary_large_image',
+                    canonicalUrl: ''
+                });
+            }),
+            catchError((error) => {
+                console.error('Error loading SEO settings:', error);
+                return of({
+                    pageTitle: '',
+                    metaDescription: '',
+                    metaKeywords: '',
+                    ogTitle: '',
+                    ogDescription: '',
+                    ogImage: '',
+                    twitterCard: 'summary_large_image',
+                    canonicalUrl: ''
+                });
+            })
+        );
+    }
+
+    public saveSeoSettings(seoSettings: any): Observable<any> {
+        console.log('=== SAVE SEO SETTINGS CALLED ===');
+        console.log('SEO settings being saved:', seoSettings);
+
+        return from(this.tenantSettingsService.loadSettings()).pipe(
+            switchMap((tenantSettingDto: TenantSettingDto) => {
+                let currentSettings: any = {};
+                if (tenantSettingDto && tenantSettingDto.settings) {
+                    try {
+                        currentSettings = JSON.parse(tenantSettingDto.settings);
+                        console.log('Current tenant settings loaded:', currentSettings);
+                    } catch (e) {
+                        console.error('Error parsing tenant settings value for saving SEO:', e);
+                    }
+                }
+
+                // Update only the SEO settings key, preserve all other settings
+                const updatedSettings = { 
+                    ...currentSettings, 
+                    [this.SEO_SETTINGS_KEY]: seoSettings 
+                };
+
+                console.log('Updated settings to be saved:', updatedSettings);
+
+                const updateDto = new TenantSettingDto();
+                if (tenantSettingDto) {
+                    updateDto.init(tenantSettingDto);
+                }
+                updateDto.settings = JSON.stringify(updatedSettings);
+
+                return this.tenantSettingServiceProxy.tenantSetting_UpdateTenantSetting(updateDto).pipe(
+                    tap(() => {
+                        console.log('✓ SEO settings updated on backend successfully.');
+                    })
+                );
+            }),
+            catchError((error) => {
+                console.error('✗ Error saving SEO settings:', error);
+                return throwError(() => new Error('Failed to save SEO settings'));
+            })
+        );
     }
 }

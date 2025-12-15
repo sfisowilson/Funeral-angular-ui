@@ -10,6 +10,7 @@ import { DialogModule } from 'primeng/dialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
+import { CheckboxModule } from 'primeng/checkbox';
 
 interface Branch {
     name: string;
@@ -26,7 +27,7 @@ interface SocialMedia {
 @Component({
     selector: 'app-contact-us-editor',
     standalone: true,
-    imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, TableModule, DialogModule, ConfirmDialogModule, ToastModule],
+    imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, TableModule, DialogModule, ConfirmDialogModule, ToastModule, CheckboxModule],
     providers: [MessageService, ConfirmationService],
     templateUrl: './contact-us-editor.component.html',
     styleUrls: ['./contact-us-editor.component.scss']
@@ -51,6 +52,15 @@ export class ContactUsEditorComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
+        if (!this.config.settings.title) {
+            this.config.settings.title = 'Get In Touch';
+        }
+        if (!this.config.settings.subtitle) {
+            this.config.settings.subtitle = '';
+        }
+        if (this.config.settings.showContactForm === undefined) {
+            this.config.settings.showContactForm = false;
+        }
         if (this.config.settings.branches) {
             this.branches = [...this.config.settings.branches];
         }

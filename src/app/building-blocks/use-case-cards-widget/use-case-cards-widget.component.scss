@@ -1,0 +1,139 @@
+.use-case-cards-widget {
+  background: #f8f9fa;
+
+  .widget-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .widget-subtitle {
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .use-case-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+
+      .card-icon {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .card-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+    color: white;
+    transition: transform 0.3s ease;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #212529;
+  }
+
+  .card-description {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .card-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+
+    li {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+      color: #495057;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      i {
+        font-size: 1rem;
+        margin-top: 0.1rem;
+        flex-shrink: 0;
+      }
+
+      span {
+        flex: 1;
+      }
+    }
+  }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    margin-top: auto;
+
+    &:hover {
+      color: #764ba2;
+      gap: 0.5rem;
+
+      i {
+        transform: translateX(4px);
+      }
+    }
+
+    i {
+      transition: transform 0.2s ease;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .widget-title {
+      font-size: 2rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+    }
+
+    .use-case-card {
+      padding: 1.5rem;
+    }
+
+    .card-icon-wrapper {
+      width: 70px;
+      height: 70px;
+    }
+
+    .card-icon {
+      font-size: 2rem;
+    }
+  }
+}

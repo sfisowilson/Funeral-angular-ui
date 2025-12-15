@@ -3561,6 +3561,70 @@ export class ClaimServiceProxy {
 }
 
 @Injectable()
+export class ContactFormServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    submit(body: ContactFormDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/ContactForm/submit";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubmit(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubmit(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSubmit(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class DashboardWidgetServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -6922,6 +6986,333 @@ export class MemberServiceProxy {
 }
 
 @Injectable()
+export class MemberApprovalServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    memberApproval_GetPendingMembers(): Observable<PendingMemberDto[]> {
+        let url_ = this.baseUrl + "/api/MemberApproval/MemberApproval_GetPendingMembers";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMemberApproval_GetPendingMembers(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMemberApproval_GetPendingMembers(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PendingMemberDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PendingMemberDto[]>;
+        }));
+    }
+
+    protected processMemberApproval_GetPendingMembers(response: HttpResponseBase): Observable<PendingMemberDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PendingMemberDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    memberApproval_GetMemberDetail(memberId: string): Observable<MemberApprovalDetailDto> {
+        let url_ = this.baseUrl + "/api/MemberApproval/MemberApproval_GetMemberDetail/{memberId}";
+        if (memberId === undefined || memberId === null)
+            throw new globalThis.Error("The parameter 'memberId' must be defined.");
+        url_ = url_.replace("{memberId}", encodeURIComponent("" + memberId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMemberApproval_GetMemberDetail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMemberApproval_GetMemberDetail(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MemberApprovalDetailDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MemberApprovalDetailDto>;
+        }));
+    }
+
+    protected processMemberApproval_GetMemberDetail(response: HttpResponseBase): Observable<MemberApprovalDetailDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MemberApprovalDetailDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    memberApproval_ApproveMember(body: ApproveMemberRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/MemberApproval/MemberApproval_ApproveMember";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMemberApproval_ApproveMember(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMemberApproval_ApproveMember(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMemberApproval_ApproveMember(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    memberApproval_RejectMember(body: RejectMemberRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/MemberApproval/MemberApproval_RejectMember";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMemberApproval_RejectMember(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMemberApproval_RejectMember(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMemberApproval_RejectMember(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    memberApproval_RequestUpdates(body: RequestMemberUpdatesRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/MemberApproval/MemberApproval_RequestUpdates";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMemberApproval_RequestUpdates(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMemberApproval_RequestUpdates(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMemberApproval_RequestUpdates(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    memberApproval_GetStats(): Observable<void> {
+        let url_ = this.baseUrl + "/api/MemberApproval/MemberApproval_GetStats";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processMemberApproval_GetStats(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processMemberApproval_GetStats(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processMemberApproval_GetStats(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class MemberBankingDetailServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -9585,6 +9976,349 @@ export class Payment_gatewayServiceProxy {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class PdfFieldMappingServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    pdfFieldMapping_GetAll(): Observable<PdfFieldMappingDto[]> {
+        let url_ = this.baseUrl + "/api/PdfFieldMapping/PdfFieldMapping_GetAll";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPdfFieldMapping_GetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPdfFieldMapping_GetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PdfFieldMappingDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PdfFieldMappingDto[]>;
+        }));
+    }
+
+    protected processPdfFieldMapping_GetAll(response: HttpResponseBase): Observable<PdfFieldMappingDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PdfFieldMappingDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    pdfFieldMapping_GetById(id: string): Observable<PdfFieldMappingDto> {
+        let url_ = this.baseUrl + "/api/PdfFieldMapping/PdfFieldMapping_GetById/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPdfFieldMapping_GetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPdfFieldMapping_GetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PdfFieldMappingDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PdfFieldMappingDto>;
+        }));
+    }
+
+    protected processPdfFieldMapping_GetById(response: HttpResponseBase): Observable<PdfFieldMappingDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PdfFieldMappingDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    pdfFieldMapping_Create(body: CreatePdfFieldMappingRequest | undefined): Observable<PdfFieldMappingDto> {
+        let url_ = this.baseUrl + "/api/PdfFieldMapping/PdfFieldMapping_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPdfFieldMapping_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPdfFieldMapping_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PdfFieldMappingDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PdfFieldMappingDto>;
+        }));
+    }
+
+    protected processPdfFieldMapping_Create(response: HttpResponseBase): Observable<PdfFieldMappingDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PdfFieldMappingDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    pdfFieldMapping_Update(id: string, body: UpdatePdfFieldMappingRequest | undefined): Observable<PdfFieldMappingDto> {
+        let url_ = this.baseUrl + "/api/PdfFieldMapping/PdfFieldMapping_Update/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPdfFieldMapping_Update(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPdfFieldMapping_Update(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PdfFieldMappingDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PdfFieldMappingDto>;
+        }));
+    }
+
+    protected processPdfFieldMapping_Update(response: HttpResponseBase): Observable<PdfFieldMappingDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PdfFieldMappingDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    pdfFieldMapping_Delete(id: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/PdfFieldMapping/PdfFieldMapping_Delete/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPdfFieldMapping_Delete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPdfFieldMapping_Delete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processPdfFieldMapping_Delete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    pdfFieldMapping_AnalyzeTemplate(templateFileId: string): Observable<PdfTemplateAnalysisResult> {
+        let url_ = this.baseUrl + "/api/PdfFieldMapping/PdfFieldMapping_AnalyzeTemplate/{templateFileId}";
+        if (templateFileId === undefined || templateFileId === null)
+            throw new globalThis.Error("The parameter 'templateFileId' must be defined.");
+        url_ = url_.replace("{templateFileId}", encodeURIComponent("" + templateFileId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPdfFieldMapping_AnalyzeTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPdfFieldMapping_AnalyzeTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PdfTemplateAnalysisResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PdfTemplateAnalysisResult>;
+        }));
+    }
+
+    protected processPdfFieldMapping_AnalyzeTemplate(response: HttpResponseBase): Observable<PdfTemplateAnalysisResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PdfTemplateAnalysisResult.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -13219,6 +13953,344 @@ export class TenantServiceProxy {
 }
 
 @Injectable()
+export class TenantApprovalServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    tenantApproval_GetPendingTenants(): Observable<TenantApprovalListDto[]> {
+        let url_ = this.baseUrl + "/api/TenantApproval/TenantApproval_GetPendingTenants";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenantApproval_GetPendingTenants(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenantApproval_GetPendingTenants(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TenantApprovalListDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TenantApprovalListDto[]>;
+        }));
+    }
+
+    protected processTenantApproval_GetPendingTenants(response: HttpResponseBase): Observable<TenantApprovalListDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TenantApprovalListDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    tenantApproval_GetAllTenantRequests(): Observable<TenantApprovalListDto[]> {
+        let url_ = this.baseUrl + "/api/TenantApproval/TenantApproval_GetAllTenantRequests";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenantApproval_GetAllTenantRequests(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenantApproval_GetAllTenantRequests(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TenantApprovalListDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TenantApprovalListDto[]>;
+        }));
+    }
+
+    protected processTenantApproval_GetAllTenantRequests(response: HttpResponseBase): Observable<TenantApprovalListDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TenantApprovalListDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    tenantApproval_GetTenantDetail(tenantId: string): Observable<TenantApprovalDetailDto> {
+        let url_ = this.baseUrl + "/api/TenantApproval/TenantApproval_GetTenantDetail/{tenantId}";
+        if (tenantId === undefined || tenantId === null)
+            throw new globalThis.Error("The parameter 'tenantId' must be defined.");
+        url_ = url_.replace("{tenantId}", encodeURIComponent("" + tenantId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenantApproval_GetTenantDetail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenantApproval_GetTenantDetail(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TenantApprovalDetailDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TenantApprovalDetailDto>;
+        }));
+    }
+
+    protected processTenantApproval_GetTenantDetail(response: HttpResponseBase): Observable<TenantApprovalDetailDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TenantApprovalDetailDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    tenantApproval_ApproveTenant(body: ApproveTenantDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/TenantApproval/TenantApproval_ApproveTenant";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenantApproval_ApproveTenant(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenantApproval_ApproveTenant(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processTenantApproval_ApproveTenant(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    tenantApproval_RejectTenant(body: RejectTenantDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/TenantApproval/TenantApproval_RejectTenant";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenantApproval_RejectTenant(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenantApproval_RejectTenant(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processTenantApproval_RejectTenant(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    tenantApproval_RequestChange(body: RequestTenantChangeDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/TenantApproval/TenantApproval_RequestChange";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenantApproval_RequestChange(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenantApproval_RequestChange(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processTenantApproval_RequestChange(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class Tenant_bankingServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -16382,6 +17454,82 @@ export interface IApproveEnrollmentDto {
     notes: string | undefined;
 }
 
+export class ApproveMemberRequest implements IApproveMemberRequest {
+    memberId!: string;
+    approvalNotes!: string | undefined;
+
+    constructor(data?: IApproveMemberRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.memberId = _data["memberId"];
+            this.approvalNotes = _data["approvalNotes"];
+        }
+    }
+
+    static fromJS(data: any): ApproveMemberRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ApproveMemberRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberId"] = this.memberId;
+        data["approvalNotes"] = this.approvalNotes;
+        return data;
+    }
+}
+
+export interface IApproveMemberRequest {
+    memberId: string;
+    approvalNotes: string | undefined;
+}
+
+export class ApproveTenantDto implements IApproveTenantDto {
+    tenantId!: string;
+
+    constructor(data?: IApproveTenantDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tenantId = _data["tenantId"];
+        }
+    }
+
+    static fromJS(data: any): ApproveTenantDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ApproveTenantDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tenantId"] = this.tenantId;
+        return data;
+    }
+}
+
+export interface IApproveTenantDto {
+    tenantId: string;
+}
+
 export class AssetCheckoutDto implements IAssetCheckoutDto {
     id!: string;
     assetId!: string;
@@ -17054,6 +18202,54 @@ export interface IBeneficiaryInfoDto {
     dateOfBirth: DateTime;
     firstName: string | undefined;
     lastName: string | undefined;
+}
+
+export class BeneficiarySummary implements IBeneficiarySummary {
+    id!: string;
+    name!: string | undefined;
+    relationship!: string | undefined;
+    allocationPercentage!: number | undefined;
+
+    constructor(data?: IBeneficiarySummary) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.relationship = _data["relationship"];
+            this.allocationPercentage = _data["allocationPercentage"];
+        }
+    }
+
+    static fromJS(data: any): BeneficiarySummary {
+        data = typeof data === 'object' ? data : {};
+        let result = new BeneficiarySummary();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["relationship"] = this.relationship;
+        data["allocationPercentage"] = this.allocationPercentage;
+        return data;
+    }
+}
+
+export interface IBeneficiarySummary {
+    id: string;
+    name: string | undefined;
+    relationship: string | undefined;
+    allocationPercentage: number | undefined;
 }
 
 export class CalculatePremiumRequestDto implements ICalculatePremiumRequestDto {
@@ -17944,6 +19140,62 @@ export interface ICompleteMaintenanceDto {
     notes: string | undefined;
 }
 
+export class ContactFormDto implements IContactFormDto {
+    name!: string | undefined;
+    email!: string | undefined;
+    phone!: string | undefined;
+    subject!: string | undefined;
+    message!: string | undefined;
+    tenantSubdomain!: string | undefined;
+
+    constructor(data?: IContactFormDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.subject = _data["subject"];
+            this.message = _data["message"];
+            this.tenantSubdomain = _data["tenantSubdomain"];
+        }
+    }
+
+    static fromJS(data: any): ContactFormDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ContactFormDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["subject"] = this.subject;
+        data["message"] = this.message;
+        data["tenantSubdomain"] = this.tenantSubdomain;
+        return data;
+    }
+}
+
+export interface IContactFormDto {
+    name: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    subject: string | undefined;
+    message: string | undefined;
+    tenantSubdomain: string | undefined;
+}
+
 export class ContractGenerationResult implements IContractGenerationResult {
     contractId!: string;
     pdfUrl!: string | undefined;
@@ -18588,6 +19840,86 @@ export interface ICreateOnboardingFieldConfigurationDto {
     minLength: number | undefined;
 }
 
+export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingRequest {
+    sourceField!: string | undefined;
+    pdfFieldName!: string | undefined;
+    mappingType!: string | undefined;
+    isEnabled!: boolean;
+    displayOrder!: number;
+    description!: string | undefined;
+    conditionalRulesJson!: string | undefined;
+    transformRule!: string | undefined;
+    defaultValue!: string | undefined;
+    checkedValue!: string | undefined;
+    uncheckedValue!: string | undefined;
+    category!: string | undefined;
+
+    constructor(data?: ICreatePdfFieldMappingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sourceField = _data["sourceField"];
+            this.pdfFieldName = _data["pdfFieldName"];
+            this.mappingType = _data["mappingType"];
+            this.isEnabled = _data["isEnabled"];
+            this.displayOrder = _data["displayOrder"];
+            this.description = _data["description"];
+            this.conditionalRulesJson = _data["conditionalRulesJson"];
+            this.transformRule = _data["transformRule"];
+            this.defaultValue = _data["defaultValue"];
+            this.checkedValue = _data["checkedValue"];
+            this.uncheckedValue = _data["uncheckedValue"];
+            this.category = _data["category"];
+        }
+    }
+
+    static fromJS(data: any): CreatePdfFieldMappingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePdfFieldMappingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sourceField"] = this.sourceField;
+        data["pdfFieldName"] = this.pdfFieldName;
+        data["mappingType"] = this.mappingType;
+        data["isEnabled"] = this.isEnabled;
+        data["displayOrder"] = this.displayOrder;
+        data["description"] = this.description;
+        data["conditionalRulesJson"] = this.conditionalRulesJson;
+        data["transformRule"] = this.transformRule;
+        data["defaultValue"] = this.defaultValue;
+        data["checkedValue"] = this.checkedValue;
+        data["uncheckedValue"] = this.uncheckedValue;
+        data["category"] = this.category;
+        return data;
+    }
+}
+
+export interface ICreatePdfFieldMappingRequest {
+    sourceField: string | undefined;
+    pdfFieldName: string | undefined;
+    mappingType: string | undefined;
+    isEnabled: boolean;
+    displayOrder: number;
+    description: string | undefined;
+    conditionalRulesJson: string | undefined;
+    transformRule: string | undefined;
+    defaultValue: string | undefined;
+    checkedValue: string | undefined;
+    uncheckedValue: string | undefined;
+    category: string | undefined;
+}
+
 export class CreateRolePermissionDto implements ICreateRolePermissionDto {
     id!: string;
     roleId!: string;
@@ -18946,6 +20278,58 @@ export interface IDependentInfoDto {
     dateOfBirth: DateTime;
     firstName: string | undefined;
     lastName: string | undefined;
+}
+
+export class DependentSummary implements IDependentSummary {
+    id!: string;
+    name!: string | undefined;
+    relationship!: string | undefined;
+    dateOfBirth!: DateTime | undefined;
+    age!: number | undefined;
+
+    constructor(data?: IDependentSummary) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.relationship = _data["relationship"];
+            this.dateOfBirth = _data["dateOfBirth"] ? DateTime.fromISO(_data["dateOfBirth"].toString()) : undefined as any;
+            this.age = _data["age"];
+        }
+    }
+
+    static fromJS(data: any): DependentSummary {
+        data = typeof data === 'object' ? data : {};
+        let result = new DependentSummary();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["relationship"] = this.relationship;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toString() : undefined as any;
+        data["age"] = this.age;
+        return data;
+    }
+}
+
+export interface IDependentSummary {
+    id: string;
+    name: string | undefined;
+    relationship: string | undefined;
+    dateOfBirth: DateTime | undefined;
+    age: number | undefined;
 }
 
 export enum DependentType {
@@ -20141,6 +21525,14 @@ export interface ILandingPageComponentDto {
 }
 
 export class LandingPageDto implements ILandingPageDto {
+    pageTitle!: string | undefined;
+    metaDescription!: string | undefined;
+    metaKeywords!: string | undefined;
+    ogTitle!: string | undefined;
+    ogDescription!: string | undefined;
+    ogImage!: string | undefined;
+    twitterCard!: string | undefined;
+    canonicalUrl!: string | undefined;
     layouts!: LandingPageLayoutDto[] | undefined;
 
     constructor(data?: ILandingPageDto) {
@@ -20154,6 +21546,14 @@ export class LandingPageDto implements ILandingPageDto {
 
     init(_data?: any) {
         if (_data) {
+            this.pageTitle = _data["pageTitle"];
+            this.metaDescription = _data["metaDescription"];
+            this.metaKeywords = _data["metaKeywords"];
+            this.ogTitle = _data["ogTitle"];
+            this.ogDescription = _data["ogDescription"];
+            this.ogImage = _data["ogImage"];
+            this.twitterCard = _data["twitterCard"];
+            this.canonicalUrl = _data["canonicalUrl"];
             if (Array.isArray(_data["layouts"])) {
                 this.layouts = [] as any;
                 for (let item of _data["layouts"])
@@ -20171,6 +21571,14 @@ export class LandingPageDto implements ILandingPageDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["pageTitle"] = this.pageTitle;
+        data["metaDescription"] = this.metaDescription;
+        data["metaKeywords"] = this.metaKeywords;
+        data["ogTitle"] = this.ogTitle;
+        data["ogDescription"] = this.ogDescription;
+        data["ogImage"] = this.ogImage;
+        data["twitterCard"] = this.twitterCard;
+        data["canonicalUrl"] = this.canonicalUrl;
         if (Array.isArray(this.layouts)) {
             data["layouts"] = [];
             for (let item of this.layouts)
@@ -20181,6 +21589,14 @@ export class LandingPageDto implements ILandingPageDto {
 }
 
 export interface ILandingPageDto {
+    pageTitle: string | undefined;
+    metaDescription: string | undefined;
+    metaKeywords: string | undefined;
+    ogTitle: string | undefined;
+    ogDescription: string | undefined;
+    ogImage: string | undefined;
+    twitterCard: string | undefined;
+    canonicalUrl: string | undefined;
     layouts: LandingPageLayoutDto[] | undefined;
 }
 
@@ -20318,6 +21734,226 @@ export class LookupDto implements ILookupDto {
 export interface ILookupDto {
     name: string | undefined;
     value: number;
+}
+
+export class MemberApprovalDetailDto implements IMemberApprovalDetailDto {
+    id!: string;
+    title!: string | undefined;
+    firstNames!: string | undefined;
+    surname!: string | undefined;
+    identificationNumber!: string | undefined;
+    email!: string | undefined;
+    phone1!: string | undefined;
+    phone2!: string | undefined;
+    dateOfBirth!: DateTime | undefined;
+    age!: number | undefined;
+    streetAddress!: string | undefined;
+    city!: string | undefined;
+    province!: string | undefined;
+    postalCode!: string | undefined;
+    sourceOfIncome!: string | undefined;
+    sourceOfIncomeOther!: string | undefined;
+    occupation!: string | undefined;
+    workPhoneNumber!: string | undefined;
+    nationality!: string | undefined;
+    countryOfResidence!: string | undefined;
+    isForeigner!: boolean;
+    passportNumber!: string | undefined;
+    workPermitNumber!: string | undefined;
+    isReplacingExistingPolicy!: boolean;
+    existingPolicyNumber!: string | undefined;
+    existingInsurerName!: string | undefined;
+    isIdVerified!: boolean;
+    idVerifiedAt!: DateTime | undefined;
+    isLifeVerified!: boolean;
+    lifeVerifiedAt!: DateTime | undefined;
+    signatureDataUrl!: string | undefined;
+    signedAt!: DateTime | undefined;
+    status!: string | undefined;
+    createdDate!: DateTime | undefined;
+    daysWaiting!: number;
+    policyEnrollments!: PolicyEnrollmentSummary[] | undefined;
+    dependents!: DependentSummary[] | undefined;
+    beneficiaries!: BeneficiarySummary[] | undefined;
+    customFields!: OnboardingFieldData[] | undefined;
+
+    constructor(data?: IMemberApprovalDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.firstNames = _data["firstNames"];
+            this.surname = _data["surname"];
+            this.identificationNumber = _data["identificationNumber"];
+            this.email = _data["email"];
+            this.phone1 = _data["phone1"];
+            this.phone2 = _data["phone2"];
+            this.dateOfBirth = _data["dateOfBirth"] ? DateTime.fromISO(_data["dateOfBirth"].toString()) : undefined as any;
+            this.age = _data["age"];
+            this.streetAddress = _data["streetAddress"];
+            this.city = _data["city"];
+            this.province = _data["province"];
+            this.postalCode = _data["postalCode"];
+            this.sourceOfIncome = _data["sourceOfIncome"];
+            this.sourceOfIncomeOther = _data["sourceOfIncomeOther"];
+            this.occupation = _data["occupation"];
+            this.workPhoneNumber = _data["workPhoneNumber"];
+            this.nationality = _data["nationality"];
+            this.countryOfResidence = _data["countryOfResidence"];
+            this.isForeigner = _data["isForeigner"];
+            this.passportNumber = _data["passportNumber"];
+            this.workPermitNumber = _data["workPermitNumber"];
+            this.isReplacingExistingPolicy = _data["isReplacingExistingPolicy"];
+            this.existingPolicyNumber = _data["existingPolicyNumber"];
+            this.existingInsurerName = _data["existingInsurerName"];
+            this.isIdVerified = _data["isIdVerified"];
+            this.idVerifiedAt = _data["idVerifiedAt"] ? DateTime.fromISO(_data["idVerifiedAt"].toString()) : undefined as any;
+            this.isLifeVerified = _data["isLifeVerified"];
+            this.lifeVerifiedAt = _data["lifeVerifiedAt"] ? DateTime.fromISO(_data["lifeVerifiedAt"].toString()) : undefined as any;
+            this.signatureDataUrl = _data["signatureDataUrl"];
+            this.signedAt = _data["signedAt"] ? DateTime.fromISO(_data["signedAt"].toString()) : undefined as any;
+            this.status = _data["status"];
+            this.createdDate = _data["createdDate"] ? DateTime.fromISO(_data["createdDate"].toString()) : undefined as any;
+            this.daysWaiting = _data["daysWaiting"];
+            if (Array.isArray(_data["policyEnrollments"])) {
+                this.policyEnrollments = [] as any;
+                for (let item of _data["policyEnrollments"])
+                    this.policyEnrollments!.push(PolicyEnrollmentSummary.fromJS(item));
+            }
+            if (Array.isArray(_data["dependents"])) {
+                this.dependents = [] as any;
+                for (let item of _data["dependents"])
+                    this.dependents!.push(DependentSummary.fromJS(item));
+            }
+            if (Array.isArray(_data["beneficiaries"])) {
+                this.beneficiaries = [] as any;
+                for (let item of _data["beneficiaries"])
+                    this.beneficiaries!.push(BeneficiarySummary.fromJS(item));
+            }
+            if (Array.isArray(_data["customFields"])) {
+                this.customFields = [] as any;
+                for (let item of _data["customFields"])
+                    this.customFields!.push(OnboardingFieldData.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): MemberApprovalDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MemberApprovalDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["firstNames"] = this.firstNames;
+        data["surname"] = this.surname;
+        data["identificationNumber"] = this.identificationNumber;
+        data["email"] = this.email;
+        data["phone1"] = this.phone1;
+        data["phone2"] = this.phone2;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toString() : undefined as any;
+        data["age"] = this.age;
+        data["streetAddress"] = this.streetAddress;
+        data["city"] = this.city;
+        data["province"] = this.province;
+        data["postalCode"] = this.postalCode;
+        data["sourceOfIncome"] = this.sourceOfIncome;
+        data["sourceOfIncomeOther"] = this.sourceOfIncomeOther;
+        data["occupation"] = this.occupation;
+        data["workPhoneNumber"] = this.workPhoneNumber;
+        data["nationality"] = this.nationality;
+        data["countryOfResidence"] = this.countryOfResidence;
+        data["isForeigner"] = this.isForeigner;
+        data["passportNumber"] = this.passportNumber;
+        data["workPermitNumber"] = this.workPermitNumber;
+        data["isReplacingExistingPolicy"] = this.isReplacingExistingPolicy;
+        data["existingPolicyNumber"] = this.existingPolicyNumber;
+        data["existingInsurerName"] = this.existingInsurerName;
+        data["isIdVerified"] = this.isIdVerified;
+        data["idVerifiedAt"] = this.idVerifiedAt ? this.idVerifiedAt.toString() : undefined as any;
+        data["isLifeVerified"] = this.isLifeVerified;
+        data["lifeVerifiedAt"] = this.lifeVerifiedAt ? this.lifeVerifiedAt.toString() : undefined as any;
+        data["signatureDataUrl"] = this.signatureDataUrl;
+        data["signedAt"] = this.signedAt ? this.signedAt.toString() : undefined as any;
+        data["status"] = this.status;
+        data["createdDate"] = this.createdDate ? this.createdDate.toString() : undefined as any;
+        data["daysWaiting"] = this.daysWaiting;
+        if (Array.isArray(this.policyEnrollments)) {
+            data["policyEnrollments"] = [];
+            for (let item of this.policyEnrollments)
+                data["policyEnrollments"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.dependents)) {
+            data["dependents"] = [];
+            for (let item of this.dependents)
+                data["dependents"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.beneficiaries)) {
+            data["beneficiaries"] = [];
+            for (let item of this.beneficiaries)
+                data["beneficiaries"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.customFields)) {
+            data["customFields"] = [];
+            for (let item of this.customFields)
+                data["customFields"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IMemberApprovalDetailDto {
+    id: string;
+    title: string | undefined;
+    firstNames: string | undefined;
+    surname: string | undefined;
+    identificationNumber: string | undefined;
+    email: string | undefined;
+    phone1: string | undefined;
+    phone2: string | undefined;
+    dateOfBirth: DateTime | undefined;
+    age: number | undefined;
+    streetAddress: string | undefined;
+    city: string | undefined;
+    province: string | undefined;
+    postalCode: string | undefined;
+    sourceOfIncome: string | undefined;
+    sourceOfIncomeOther: string | undefined;
+    occupation: string | undefined;
+    workPhoneNumber: string | undefined;
+    nationality: string | undefined;
+    countryOfResidence: string | undefined;
+    isForeigner: boolean;
+    passportNumber: string | undefined;
+    workPermitNumber: string | undefined;
+    isReplacingExistingPolicy: boolean;
+    existingPolicyNumber: string | undefined;
+    existingInsurerName: string | undefined;
+    isIdVerified: boolean;
+    idVerifiedAt: DateTime | undefined;
+    isLifeVerified: boolean;
+    lifeVerifiedAt: DateTime | undefined;
+    signatureDataUrl: string | undefined;
+    signedAt: DateTime | undefined;
+    status: string | undefined;
+    createdDate: DateTime | undefined;
+    daysWaiting: number;
+    policyEnrollments: PolicyEnrollmentSummary[] | undefined;
+    dependents: DependentSummary[] | undefined;
+    beneficiaries: BeneficiarySummary[] | undefined;
+    customFields: OnboardingFieldData[] | undefined;
 }
 
 export class MemberBankingDetailDto implements IMemberBankingDetailDto {
@@ -21039,6 +22675,54 @@ export interface IOnboardingFieldConfigurationDto {
     updatedAt: DateTime | undefined;
 }
 
+export class OnboardingFieldData implements IOnboardingFieldData {
+    fieldKey!: string | undefined;
+    fieldLabel!: string | undefined;
+    fieldValue!: string | undefined;
+    fieldType!: string | undefined;
+
+    constructor(data?: IOnboardingFieldData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fieldKey = _data["fieldKey"];
+            this.fieldLabel = _data["fieldLabel"];
+            this.fieldValue = _data["fieldValue"];
+            this.fieldType = _data["fieldType"];
+        }
+    }
+
+    static fromJS(data: any): OnboardingFieldData {
+        data = typeof data === 'object' ? data : {};
+        let result = new OnboardingFieldData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fieldKey"] = this.fieldKey;
+        data["fieldLabel"] = this.fieldLabel;
+        data["fieldValue"] = this.fieldValue;
+        data["fieldType"] = this.fieldType;
+        return data;
+    }
+}
+
+export interface IOnboardingFieldData {
+    fieldKey: string | undefined;
+    fieldLabel: string | undefined;
+    fieldValue: string | undefined;
+    fieldType: string | undefined;
+}
+
 export class PaymentGatewayConfigDto implements IPaymentGatewayConfigDto {
     id!: string;
     tenantId!: string;
@@ -21141,6 +22825,326 @@ export enum PaymentMethodType {
 export enum PaymentStatus {
     _0 = 0,
     _1 = 1,
+}
+
+export class PdfFieldMappingDto implements IPdfFieldMappingDto {
+    id!: string;
+    tenantId!: string;
+    sourceField!: string | undefined;
+    pdfFieldName!: string | undefined;
+    mappingType!: string | undefined;
+    isEnabled!: boolean;
+    displayOrder!: number;
+    description!: string | undefined;
+    conditionalRulesJson!: string | undefined;
+    transformRule!: string | undefined;
+    defaultValue!: string | undefined;
+    checkedValue!: string | undefined;
+    uncheckedValue!: string | undefined;
+    category!: string | undefined;
+    createdAt!: DateTime;
+    updatedAt!: DateTime;
+
+    constructor(data?: IPdfFieldMappingDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.sourceField = _data["sourceField"];
+            this.pdfFieldName = _data["pdfFieldName"];
+            this.mappingType = _data["mappingType"];
+            this.isEnabled = _data["isEnabled"];
+            this.displayOrder = _data["displayOrder"];
+            this.description = _data["description"];
+            this.conditionalRulesJson = _data["conditionalRulesJson"];
+            this.transformRule = _data["transformRule"];
+            this.defaultValue = _data["defaultValue"];
+            this.checkedValue = _data["checkedValue"];
+            this.uncheckedValue = _data["uncheckedValue"];
+            this.category = _data["category"];
+            this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
+            this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): PdfFieldMappingDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PdfFieldMappingDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["sourceField"] = this.sourceField;
+        data["pdfFieldName"] = this.pdfFieldName;
+        data["mappingType"] = this.mappingType;
+        data["isEnabled"] = this.isEnabled;
+        data["displayOrder"] = this.displayOrder;
+        data["description"] = this.description;
+        data["conditionalRulesJson"] = this.conditionalRulesJson;
+        data["transformRule"] = this.transformRule;
+        data["defaultValue"] = this.defaultValue;
+        data["checkedValue"] = this.checkedValue;
+        data["uncheckedValue"] = this.uncheckedValue;
+        data["category"] = this.category;
+        data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IPdfFieldMappingDto {
+    id: string;
+    tenantId: string;
+    sourceField: string | undefined;
+    pdfFieldName: string | undefined;
+    mappingType: string | undefined;
+    isEnabled: boolean;
+    displayOrder: number;
+    description: string | undefined;
+    conditionalRulesJson: string | undefined;
+    transformRule: string | undefined;
+    defaultValue: string | undefined;
+    checkedValue: string | undefined;
+    uncheckedValue: string | undefined;
+    category: string | undefined;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
+export class PdfTemplateAnalysisResult implements IPdfTemplateAnalysisResult {
+    templateFileId!: string;
+    totalFields!: number;
+    mappedFields!: number;
+    unmappedFields!: number;
+    fields!: PdfTemplateFieldInfo[] | undefined;
+    suggestedSourceFields!: string[] | undefined;
+
+    constructor(data?: IPdfTemplateAnalysisResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.templateFileId = _data["templateFileId"];
+            this.totalFields = _data["totalFields"];
+            this.mappedFields = _data["mappedFields"];
+            this.unmappedFields = _data["unmappedFields"];
+            if (Array.isArray(_data["fields"])) {
+                this.fields = [] as any;
+                for (let item of _data["fields"])
+                    this.fields!.push(PdfTemplateFieldInfo.fromJS(item));
+            }
+            if (Array.isArray(_data["suggestedSourceFields"])) {
+                this.suggestedSourceFields = [] as any;
+                for (let item of _data["suggestedSourceFields"])
+                    this.suggestedSourceFields!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): PdfTemplateAnalysisResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new PdfTemplateAnalysisResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["templateFileId"] = this.templateFileId;
+        data["totalFields"] = this.totalFields;
+        data["mappedFields"] = this.mappedFields;
+        data["unmappedFields"] = this.unmappedFields;
+        if (Array.isArray(this.fields)) {
+            data["fields"] = [];
+            for (let item of this.fields)
+                data["fields"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.suggestedSourceFields)) {
+            data["suggestedSourceFields"] = [];
+            for (let item of this.suggestedSourceFields)
+                data["suggestedSourceFields"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IPdfTemplateAnalysisResult {
+    templateFileId: string;
+    totalFields: number;
+    mappedFields: number;
+    unmappedFields: number;
+    fields: PdfTemplateFieldInfo[] | undefined;
+    suggestedSourceFields: string[] | undefined;
+}
+
+export class PdfTemplateFieldInfo implements IPdfTemplateFieldInfo {
+    fieldName!: string | undefined;
+    fieldType!: string | undefined;
+    isMapped!: boolean;
+    mappedSourceField!: string | undefined;
+    mappingType!: string | undefined;
+
+    constructor(data?: IPdfTemplateFieldInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fieldName = _data["fieldName"];
+            this.fieldType = _data["fieldType"];
+            this.isMapped = _data["isMapped"];
+            this.mappedSourceField = _data["mappedSourceField"];
+            this.mappingType = _data["mappingType"];
+        }
+    }
+
+    static fromJS(data: any): PdfTemplateFieldInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new PdfTemplateFieldInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fieldName"] = this.fieldName;
+        data["fieldType"] = this.fieldType;
+        data["isMapped"] = this.isMapped;
+        data["mappedSourceField"] = this.mappedSourceField;
+        data["mappingType"] = this.mappingType;
+        return data;
+    }
+}
+
+export interface IPdfTemplateFieldInfo {
+    fieldName: string | undefined;
+    fieldType: string | undefined;
+    isMapped: boolean;
+    mappedSourceField: string | undefined;
+    mappingType: string | undefined;
+}
+
+export class PendingMemberDto implements IPendingMemberDto {
+    id!: string;
+    title!: string | undefined;
+    firstNames!: string | undefined;
+    surname!: string | undefined;
+    identificationNumber!: string | undefined;
+    email!: string | undefined;
+    phone1!: string | undefined;
+    dateOfBirth!: DateTime | undefined;
+    city!: string | undefined;
+    province!: string | undefined;
+    createdDate!: DateTime | undefined;
+    status!: string | undefined;
+    isIdVerified!: boolean;
+    daysWaiting!: number;
+    policyNames!: string[] | undefined;
+
+    constructor(data?: IPendingMemberDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+            this.firstNames = _data["firstNames"];
+            this.surname = _data["surname"];
+            this.identificationNumber = _data["identificationNumber"];
+            this.email = _data["email"];
+            this.phone1 = _data["phone1"];
+            this.dateOfBirth = _data["dateOfBirth"] ? DateTime.fromISO(_data["dateOfBirth"].toString()) : undefined as any;
+            this.city = _data["city"];
+            this.province = _data["province"];
+            this.createdDate = _data["createdDate"] ? DateTime.fromISO(_data["createdDate"].toString()) : undefined as any;
+            this.status = _data["status"];
+            this.isIdVerified = _data["isIdVerified"];
+            this.daysWaiting = _data["daysWaiting"];
+            if (Array.isArray(_data["policyNames"])) {
+                this.policyNames = [] as any;
+                for (let item of _data["policyNames"])
+                    this.policyNames!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): PendingMemberDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PendingMemberDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        data["firstNames"] = this.firstNames;
+        data["surname"] = this.surname;
+        data["identificationNumber"] = this.identificationNumber;
+        data["email"] = this.email;
+        data["phone1"] = this.phone1;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toString() : undefined as any;
+        data["city"] = this.city;
+        data["province"] = this.province;
+        data["createdDate"] = this.createdDate ? this.createdDate.toString() : undefined as any;
+        data["status"] = this.status;
+        data["isIdVerified"] = this.isIdVerified;
+        data["daysWaiting"] = this.daysWaiting;
+        if (Array.isArray(this.policyNames)) {
+            data["policyNames"] = [];
+            for (let item of this.policyNames)
+                data["policyNames"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IPendingMemberDto {
+    id: string;
+    title: string | undefined;
+    firstNames: string | undefined;
+    surname: string | undefined;
+    identificationNumber: string | undefined;
+    email: string | undefined;
+    phone1: string | undefined;
+    dateOfBirth: DateTime | undefined;
+    city: string | undefined;
+    province: string | undefined;
+    createdDate: DateTime | undefined;
+    status: string | undefined;
+    isIdVerified: boolean;
+    daysWaiting: number;
+    policyNames: string[] | undefined;
 }
 
 export class Permission implements IPermission {
@@ -21667,6 +23671,58 @@ export enum PolicyEnrollmentStatus {
     _8 = 8,
 }
 
+export class PolicyEnrollmentSummary implements IPolicyEnrollmentSummary {
+    id!: string;
+    policyName!: string | undefined;
+    monthlyPremium!: number | undefined;
+    status!: string | undefined;
+    enrollmentDate!: DateTime | undefined;
+
+    constructor(data?: IPolicyEnrollmentSummary) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.policyName = _data["policyName"];
+            this.monthlyPremium = _data["monthlyPremium"];
+            this.status = _data["status"];
+            this.enrollmentDate = _data["enrollmentDate"] ? DateTime.fromISO(_data["enrollmentDate"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): PolicyEnrollmentSummary {
+        data = typeof data === 'object' ? data : {};
+        let result = new PolicyEnrollmentSummary();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["policyName"] = this.policyName;
+        data["monthlyPremium"] = this.monthlyPremium;
+        data["status"] = this.status;
+        data["enrollmentDate"] = this.enrollmentDate ? this.enrollmentDate.toString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IPolicyEnrollmentSummary {
+    id: string;
+    policyName: string | undefined;
+    monthlyPremium: number | undefined;
+    status: string | undefined;
+    enrollmentDate: DateTime | undefined;
+}
+
 export class PolicyNumberConfigDto implements IPolicyNumberConfigDto {
     generationStrategy!: string;
     prefix!: string | undefined;
@@ -22019,6 +24075,7 @@ export class ProfileCompletionStatusDto implements IProfileCompletionStatusDto {
     uploadedDocumentsCount!: number;
     requiredDocumentsCount!: number;
     hasAcceptedLatestTerms!: boolean;
+    memberStatus!: string | undefined;
 
     constructor(data?: IProfileCompletionStatusDto) {
         if (data) {
@@ -22050,6 +24107,7 @@ export class ProfileCompletionStatusDto implements IProfileCompletionStatusDto {
             this.uploadedDocumentsCount = _data["uploadedDocumentsCount"];
             this.requiredDocumentsCount = _data["requiredDocumentsCount"];
             this.hasAcceptedLatestTerms = _data["hasAcceptedLatestTerms"];
+            this.memberStatus = _data["memberStatus"];
         }
     }
 
@@ -22081,6 +24139,7 @@ export class ProfileCompletionStatusDto implements IProfileCompletionStatusDto {
         data["uploadedDocumentsCount"] = this.uploadedDocumentsCount;
         data["requiredDocumentsCount"] = this.requiredDocumentsCount;
         data["hasAcceptedLatestTerms"] = this.hasAcceptedLatestTerms;
+        data["memberStatus"] = this.memberStatus;
         return data;
     }
 }
@@ -22097,6 +24156,7 @@ export interface IProfileCompletionStatusDto {
     uploadedDocumentsCount: number;
     requiredDocumentsCount: number;
     hasAcceptedLatestTerms: boolean;
+    memberStatus: string | undefined;
 }
 
 export class RefreshTokenRequest implements IRefreshTokenRequest {
@@ -22295,6 +24355,86 @@ export interface IRejectEnrollmentDto {
     reason: string | undefined;
 }
 
+export class RejectMemberRequest implements IRejectMemberRequest {
+    memberId!: string;
+    rejectionReason!: string | undefined;
+
+    constructor(data?: IRejectMemberRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.memberId = _data["memberId"];
+            this.rejectionReason = _data["rejectionReason"];
+        }
+    }
+
+    static fromJS(data: any): RejectMemberRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new RejectMemberRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberId"] = this.memberId;
+        data["rejectionReason"] = this.rejectionReason;
+        return data;
+    }
+}
+
+export interface IRejectMemberRequest {
+    memberId: string;
+    rejectionReason: string | undefined;
+}
+
+export class RejectTenantDto implements IRejectTenantDto {
+    tenantId!: string;
+    rejectionReason!: string | undefined;
+
+    constructor(data?: IRejectTenantDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tenantId = _data["tenantId"];
+            this.rejectionReason = _data["rejectionReason"];
+        }
+    }
+
+    static fromJS(data: any): RejectTenantDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RejectTenantDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tenantId"] = this.tenantId;
+        data["rejectionReason"] = this.rejectionReason;
+        return data;
+    }
+}
+
+export interface IRejectTenantDto {
+    tenantId: string;
+    rejectionReason: string | undefined;
+}
+
 export class RequestChangesDto implements IRequestChangesDto {
     reason!: string | undefined;
 
@@ -22369,6 +24509,98 @@ export class RequestDependentOtpDto implements IRequestDependentOtpDto {
 export interface IRequestDependentOtpDto {
     idNumber: string;
     contactMethod: string;
+}
+
+export class RequestMemberUpdatesRequest implements IRequestMemberUpdatesRequest {
+    memberId!: string;
+    updatesRequired!: string | undefined;
+    requiredFields!: string[] | undefined;
+
+    constructor(data?: IRequestMemberUpdatesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.memberId = _data["memberId"];
+            this.updatesRequired = _data["updatesRequired"];
+            if (Array.isArray(_data["requiredFields"])) {
+                this.requiredFields = [] as any;
+                for (let item of _data["requiredFields"])
+                    this.requiredFields!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): RequestMemberUpdatesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new RequestMemberUpdatesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["memberId"] = this.memberId;
+        data["updatesRequired"] = this.updatesRequired;
+        if (Array.isArray(this.requiredFields)) {
+            data["requiredFields"] = [];
+            for (let item of this.requiredFields)
+                data["requiredFields"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IRequestMemberUpdatesRequest {
+    memberId: string;
+    updatesRequired: string | undefined;
+    requiredFields: string[] | undefined;
+}
+
+export class RequestTenantChangeDto implements IRequestTenantChangeDto {
+    tenantId!: string;
+    changeRequestReason!: string | undefined;
+
+    constructor(data?: IRequestTenantChangeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tenantId = _data["tenantId"];
+            this.changeRequestReason = _data["changeRequestReason"];
+        }
+    }
+
+    static fromJS(data: any): RequestTenantChangeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RequestTenantChangeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tenantId"] = this.tenantId;
+        data["changeRequestReason"] = this.changeRequestReason;
+        return data;
+    }
+}
+
+export interface IRequestTenantChangeDto {
+    tenantId: string;
+    changeRequestReason: string | undefined;
 }
 
 export class RequiredDocumentDto implements IRequiredDocumentDto {
@@ -23154,6 +25386,181 @@ export interface ISubscriptionPlanDto {
     verificationHistory: boolean;
 }
 
+export class TenantApprovalDetailDto implements ITenantApprovalDetailDto {
+    id!: string;
+    name!: string | undefined;
+    domain!: string | undefined;
+    email!: string | undefined;
+    address!: string | undefined;
+    phone1!: string | undefined;
+    phone2!: string | undefined;
+    registrationNumber!: string | undefined;
+    type!: TenantType;
+    approvalStatus!: TenantApprovalStatus;
+    rejectionReason!: string | undefined;
+    changeRequestReason!: string | undefined;
+    createdAt!: DateTime | undefined;
+    reviewedAt!: DateTime | undefined;
+    reviewedByName!: string | undefined;
+
+    constructor(data?: ITenantApprovalDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.domain = _data["domain"];
+            this.email = _data["email"];
+            this.address = _data["address"];
+            this.phone1 = _data["phone1"];
+            this.phone2 = _data["phone2"];
+            this.registrationNumber = _data["registrationNumber"];
+            this.type = _data["type"];
+            this.approvalStatus = _data["approvalStatus"];
+            this.rejectionReason = _data["rejectionReason"];
+            this.changeRequestReason = _data["changeRequestReason"];
+            this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
+            this.reviewedAt = _data["reviewedAt"] ? DateTime.fromISO(_data["reviewedAt"].toString()) : undefined as any;
+            this.reviewedByName = _data["reviewedByName"];
+        }
+    }
+
+    static fromJS(data: any): TenantApprovalDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TenantApprovalDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["domain"] = this.domain;
+        data["email"] = this.email;
+        data["address"] = this.address;
+        data["phone1"] = this.phone1;
+        data["phone2"] = this.phone2;
+        data["registrationNumber"] = this.registrationNumber;
+        data["type"] = this.type;
+        data["approvalStatus"] = this.approvalStatus;
+        data["rejectionReason"] = this.rejectionReason;
+        data["changeRequestReason"] = this.changeRequestReason;
+        data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
+        data["reviewedAt"] = this.reviewedAt ? this.reviewedAt.toString() : undefined as any;
+        data["reviewedByName"] = this.reviewedByName;
+        return data;
+    }
+}
+
+export interface ITenantApprovalDetailDto {
+    id: string;
+    name: string | undefined;
+    domain: string | undefined;
+    email: string | undefined;
+    address: string | undefined;
+    phone1: string | undefined;
+    phone2: string | undefined;
+    registrationNumber: string | undefined;
+    type: TenantType;
+    approvalStatus: TenantApprovalStatus;
+    rejectionReason: string | undefined;
+    changeRequestReason: string | undefined;
+    createdAt: DateTime | undefined;
+    reviewedAt: DateTime | undefined;
+    reviewedByName: string | undefined;
+}
+
+export class TenantApprovalListDto implements ITenantApprovalListDto {
+    id!: string;
+    name!: string | undefined;
+    domain!: string | undefined;
+    email!: string | undefined;
+    phone1!: string | undefined;
+    registrationNumber!: string | undefined;
+    address!: string | undefined;
+    approvalStatus!: TenantApprovalStatus;
+    createdAt!: DateTime | undefined;
+    rejectionReason!: string | undefined;
+    changeRequestReason!: string | undefined;
+
+    constructor(data?: ITenantApprovalListDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.domain = _data["domain"];
+            this.email = _data["email"];
+            this.phone1 = _data["phone1"];
+            this.registrationNumber = _data["registrationNumber"];
+            this.address = _data["address"];
+            this.approvalStatus = _data["approvalStatus"];
+            this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
+            this.rejectionReason = _data["rejectionReason"];
+            this.changeRequestReason = _data["changeRequestReason"];
+        }
+    }
+
+    static fromJS(data: any): TenantApprovalListDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TenantApprovalListDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["domain"] = this.domain;
+        data["email"] = this.email;
+        data["phone1"] = this.phone1;
+        data["registrationNumber"] = this.registrationNumber;
+        data["address"] = this.address;
+        data["approvalStatus"] = this.approvalStatus;
+        data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
+        data["rejectionReason"] = this.rejectionReason;
+        data["changeRequestReason"] = this.changeRequestReason;
+        return data;
+    }
+}
+
+export interface ITenantApprovalListDto {
+    id: string;
+    name: string | undefined;
+    domain: string | undefined;
+    email: string | undefined;
+    phone1: string | undefined;
+    registrationNumber: string | undefined;
+    address: string | undefined;
+    approvalStatus: TenantApprovalStatus;
+    createdAt: DateTime | undefined;
+    rejectionReason: string | undefined;
+    changeRequestReason: string | undefined;
+}
+
+export enum TenantApprovalStatus {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+}
+
 export class TenantBankingDetailDto implements ITenantBankingDetailDto {
     id!: string;
     tenantId!: string;
@@ -23254,6 +25661,7 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
     registrationNumber!: string | undefined;
     type!: TenantType;
     subscriptionPlanId!: string | undefined;
+    isStaticSite!: boolean;
 
     constructor(data?: ITenantCreateUpdateDto) {
         if (data) {
@@ -23277,6 +25685,7 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
             this.registrationNumber = _data["registrationNumber"];
             this.type = _data["type"];
             this.subscriptionPlanId = _data["subscriptionPlanId"];
+            this.isStaticSite = _data["isStaticSite"];
         }
     }
 
@@ -23300,6 +25709,7 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
         data["registrationNumber"] = this.registrationNumber;
         data["type"] = this.type;
         data["subscriptionPlanId"] = this.subscriptionPlanId;
+        data["isStaticSite"] = this.isStaticSite;
         return data;
     }
 }
@@ -23316,6 +25726,7 @@ export interface ITenantCreateUpdateDto {
     registrationNumber: string | undefined;
     type: TenantType;
     subscriptionPlanId: string | undefined;
+    isStaticSite: boolean;
 }
 
 export class TenantSettingDto implements ITenantSettingDto {
@@ -23922,6 +26333,86 @@ export interface IUpdateOnboardingFieldConfigurationDto {
     defaultValue: string | undefined;
     maxLength: number | undefined;
     minLength: number | undefined;
+}
+
+export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingRequest {
+    sourceField!: string | undefined;
+    pdfFieldName!: string | undefined;
+    mappingType!: string | undefined;
+    isEnabled!: boolean | undefined;
+    displayOrder!: number | undefined;
+    description!: string | undefined;
+    conditionalRulesJson!: string | undefined;
+    transformRule!: string | undefined;
+    defaultValue!: string | undefined;
+    checkedValue!: string | undefined;
+    uncheckedValue!: string | undefined;
+    category!: string | undefined;
+
+    constructor(data?: IUpdatePdfFieldMappingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sourceField = _data["sourceField"];
+            this.pdfFieldName = _data["pdfFieldName"];
+            this.mappingType = _data["mappingType"];
+            this.isEnabled = _data["isEnabled"];
+            this.displayOrder = _data["displayOrder"];
+            this.description = _data["description"];
+            this.conditionalRulesJson = _data["conditionalRulesJson"];
+            this.transformRule = _data["transformRule"];
+            this.defaultValue = _data["defaultValue"];
+            this.checkedValue = _data["checkedValue"];
+            this.uncheckedValue = _data["uncheckedValue"];
+            this.category = _data["category"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePdfFieldMappingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePdfFieldMappingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sourceField"] = this.sourceField;
+        data["pdfFieldName"] = this.pdfFieldName;
+        data["mappingType"] = this.mappingType;
+        data["isEnabled"] = this.isEnabled;
+        data["displayOrder"] = this.displayOrder;
+        data["description"] = this.description;
+        data["conditionalRulesJson"] = this.conditionalRulesJson;
+        data["transformRule"] = this.transformRule;
+        data["defaultValue"] = this.defaultValue;
+        data["checkedValue"] = this.checkedValue;
+        data["uncheckedValue"] = this.uncheckedValue;
+        data["category"] = this.category;
+        return data;
+    }
+}
+
+export interface IUpdatePdfFieldMappingRequest {
+    sourceField: string | undefined;
+    pdfFieldName: string | undefined;
+    mappingType: string | undefined;
+    isEnabled: boolean | undefined;
+    displayOrder: number | undefined;
+    description: string | undefined;
+    conditionalRulesJson: string | undefined;
+    transformRule: string | undefined;
+    defaultValue: string | undefined;
+    checkedValue: string | undefined;
+    uncheckedValue: string | undefined;
+    category: string | undefined;
 }
 
 export class UpdateProfileCompletionStepDto implements IUpdateProfileCompletionStepDto {

@@ -1,0 +1,174 @@
+.feature-grid-widget {
+    width: 100%;
+    box-sizing: border-box;
+
+    .widget-header {
+        text-align: center;
+        margin-bottom: 3rem;
+
+        .widget-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.2;
+        }
+
+        .widget-subtitle {
+            font-size: 1.125rem;
+            margin: 0;
+            line-height: 1.5;
+        }
+    }
+
+    .features-grid {
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: repeat(3, 1fr);
+
+        &.cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        &.cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        &.cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .feature-card {
+            padding: 2.5rem 2rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+            &.with-hover:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+                .feature-icon-wrapper {
+                    transform: scale(1.1);
+                }
+            }
+
+            .feature-icon-wrapper {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 1.5rem;
+                transition: all 0.3s ease;
+
+                &.size-small {
+                    width: 60px;
+                    height: 60px;
+
+                    .feature-icon {
+                        font-size: 1.75rem;
+                    }
+                }
+
+                &.size-medium {
+                    width: 80px;
+                    height: 80px;
+
+                    .feature-icon {
+                        font-size: 2.5rem;
+                    }
+                }
+
+                &.size-large {
+                    width: 100px;
+                    height: 100px;
+
+                    .feature-icon {
+                        font-size: 3rem;
+                    }
+                }
+
+                .feature-icon {
+                    display: inline-block;
+                }
+            }
+
+            .feature-content {
+                .feature-title {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin: 0 0 0.75rem 0;
+                    line-height: 1.3;
+                }
+
+                .feature-description {
+                    font-size: 0.9375rem;
+                    margin: 0;
+                    line-height: 1.6;
+                }
+            }
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 992px) {
+    .feature-grid-widget {
+        .features-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 1.5rem;
+        }
+
+        .widget-header {
+            .widget-title {
+                font-size: 1.75rem;
+            }
+
+            .widget-subtitle {
+                font-size: 1rem;
+            }
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .feature-grid-widget {
+        .features-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem;
+
+            .feature-card {
+                padding: 2rem 1.5rem;
+
+                .feature-icon-wrapper {
+                    width: 70px !important;
+                    height: 70px !important;
+
+                    .feature-icon {
+                        font-size: 2rem !important;
+                    }
+                }
+
+                .feature-content {
+                    .feature-title {
+                        font-size: 1.125rem;
+                    }
+
+                    .feature-description {
+                        font-size: 0.875rem;
+                    }
+                }
+            }
+        }
+
+        .widget-header {
+            margin-bottom: 2rem;
+
+            .widget-title {
+                font-size: 1.5rem;
+            }
+        }
+    }
+}

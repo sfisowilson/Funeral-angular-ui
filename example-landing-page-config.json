@@ -1,0 +1,335 @@
+{
+  "pageTitle": "Complete Funeral Service Platform - Online in Minutes",
+  "pageDescription": "Professional website and comprehensive management system for funeral service providers. No technical knowledge required.",
+  "widgets": [
+    {
+      "id": "hero-1",
+      "type": "hero",
+      "settings": {
+        "title": "Your Complete Funeral Service Platform",
+        "titleSize": 48,
+        "subtitle": "Professional website and comprehensive management system. Online in minutes, not months.",
+        "subtitleSize": 20,
+        "backgroundColor": "#0d6efd",
+        "textColor": "#ffffff",
+        "padding": 80,
+        "showButton": true,
+        "buttonText": "Start Your Free Trial",
+        "buttonLink": "/auth/register",
+        "buttonColor": "#ffffff",
+        "buttonTextColor": "#0d6efd",
+        "buttonTextSize": 18,
+        "buttonPadding": 15
+      }
+    },
+    {
+      "id": "stats-1",
+      "type": "stats-counter",
+      "settings": {
+        "title": "Why Funeral Homes Choose Our Platform",
+        "subtitle": "Join hundreds of funeral service providers who've transformed their business",
+        "titleColor": "#000000",
+        "subtitleColor": "#6c757d",
+        "backgroundColor": "#ffffff",
+        "statBackgroundColor": "#f8f9fa",
+        "valueColor": "#0d6efd",
+        "labelColor": "#495057",
+        "iconColor": "#0d6efd",
+        "padding": 60,
+        "columns": 4,
+        "animateOnScroll": true,
+        "stats": [
+          {
+            "icon": "bi bi-clock-fill",
+            "value": "10",
+            "label": "Minutes to Setup",
+            "prefix": "",
+            "suffix": " min"
+          },
+          {
+            "icon": "bi bi-check-circle-fill",
+            "value": "99.9",
+            "label": "Uptime Guarantee",
+            "prefix": "",
+            "suffix": "%"
+          },
+          {
+            "icon": "bi bi-currency-dollar",
+            "value": "15,000",
+            "label": "Average Savings",
+            "prefix": "R",
+            "suffix": "+"
+          },
+          {
+            "icon": "bi bi-people-fill",
+            "value": "500",
+            "label": "Happy Customers",
+            "prefix": "",
+            "suffix": "+"
+          }
+        ]
+      }
+    },
+    {
+      "id": "comparison-1",
+      "type": "comparison-table",
+      "settings": {
+        "title": "Why Choose Our Platform Over Traditional Website Development?",
+        "subtitle": "Save time, money, and eliminate technical headaches",
+        "titleColor": "#000000",
+        "subtitleColor": "#6c757d",
+        "backgroundColor": "#f8f9fa",
+        "padding": 60,
+        "borderRadius": 12,
+        "showBorders": true,
+        "columnHeaderBg": "#ffffff",
+        "rowHoverEffect": true,
+        "columns": [
+          {
+            "title": "Traditional Website Route",
+            "subtitle": "What you typically pay",
+            "isHighlighted": false,
+            "highlightColor": "#fff3cd",
+            "items": [
+              { "label": "Domain Purchase", "value": "R150-R500/year" },
+              { "label": "Web Hosting", "value": "R80-R500/month" },
+              { "label": "Website Development", "value": "R5,000-R50,000" },
+              { "label": "Maintenance & Updates", "value": "R500-R2,000/month" },
+              { "label": "Business Management Software", "value": "R1,500-R5,000/month" },
+              { "label": "SSL Certificate", "value": "R300-R1,500/year" },
+              { "label": "Technical Support", "value": "Additional fees" }
+            ],
+            "total": "R15,000-R80,000+ First Year"
+          },
+          {
+            "title": "Our Complete Platform",
+            "subtitle": "Everything included",
+            "isHighlighted": true,
+            "highlightColor": "#d4edda",
+            "items": [
+              { "label": "Custom Subdomain", "value": "Included ✓" },
+              { "label": "Enterprise Hosting", "value": "Included ✓" },
+              { "label": "Professional Website", "value": "Included ✓" },
+              { "label": "Automatic Updates", "value": "Included ✓" },
+              { "label": "Complete Business System", "value": "Included ✓" },
+              { "label": "SSL Security", "value": "Included ✓" },
+              { "label": "24/7 Support", "value": "Included ✓" }
+            ],
+            "total": "One Monthly Price"
+          }
+        ]
+      }
+    },
+    {
+      "id": "process-1",
+      "type": "process-steps",
+      "settings": {
+        "title": "Getting Started is Simple",
+        "subtitle": "From sign-up to live website in under 10 minutes",
+        "titleColor": "#000000",
+        "subtitleColor": "#6c757d",
+        "backgroundColor": "#ffffff",
+        "stepBackgroundColor": "#f8f9fa",
+        "stepNumberColor": "#0d6efd",
+        "iconColor": "#0d6efd",
+        "connectorColor": "#dee2e6",
+        "padding": 60,
+        "layout": "horizontal",
+        "showConnectors": true,
+        "showCTA": true,
+        "ctaText": "Start Your Free Trial",
+        "ctaUrl": "/auth/register",
+        "ctaStyle": "primary",
+        "steps": [
+          {
+            "number": 1,
+            "icon": "bi bi-person-plus-fill",
+            "title": "Sign Up",
+            "description": "Create your account at yourname.funeral.com in 2 minutes"
+          },
+          {
+            "number": 2,
+            "icon": "bi bi-palette-fill",
+            "title": "Customize",
+            "description": "Add your logo, colors, and content with drag-and-drop"
+          },
+          {
+            "number": 3,
+            "icon": "bi bi-sliders",
+            "title": "Configure",
+            "description": "Set up your policies, services, and pricing"
+          },
+          {
+            "number": 4,
+            "icon": "bi bi-rocket-takeoff-fill",
+            "title": "Publish",
+            "description": "Go live with one click - your site is ready"
+          },
+          {
+            "number": 5,
+            "icon": "bi bi-graph-up-arrow",
+            "title": "Grow",
+            "description": "Start managing members and processing claims"
+          }
+        ]
+      }
+    },
+    {
+      "id": "features-1",
+      "type": "feature-grid",
+      "settings": {
+        "title": "Everything You Need to Run Your Business",
+        "subtitle": "All-in-one platform designed specifically for funeral service providers",
+        "titleColor": "#000000",
+        "subtitleColor": "#6c757d",
+        "backgroundColor": "#f8f9fa",
+        "cardBackgroundColor": "#ffffff",
+        "iconColor": "#0d6efd",
+        "iconBackgroundColor": "#e7f1ff",
+        "titleTextColor": "#212529",
+        "descriptionTextColor": "#6c757d",
+        "padding": 60,
+        "columns": 3,
+        "hoverEffect": true,
+        "iconSize": "large",
+        "features": [
+          {
+            "icon": "bi bi-globe",
+            "title": "Professional Website",
+            "description": "Beautiful, mobile-responsive website with your custom subdomain and drag-and-drop builder"
+          },
+          {
+            "icon": "bi bi-people",
+            "title": "Member Management",
+            "description": "Complete system for registering members, managing policies, and tracking all member information"
+          },
+          {
+            "icon": "bi bi-file-text",
+            "title": "Claims Processing",
+            "description": "Streamlined workflow from submission to approval with document management"
+          },
+          {
+            "icon": "bi bi-shield-check",
+            "title": "Secure & Compliant",
+            "description": "Bank-level security with SSL encryption, daily backups, and data isolation"
+          },
+          {
+            "icon": "bi bi-speedometer2",
+            "title": "Real-time Analytics",
+            "description": "Comprehensive dashboards showing member growth, revenue, claims, and business metrics"
+          },
+          {
+            "icon": "bi bi-headset",
+            "title": "24/7 Support",
+            "description": "Always available customer service with documentation and video tutorials"
+          },
+          {
+            "icon": "bi bi-calendar-check",
+            "title": "Event Management",
+            "description": "Schedule and coordinate funeral services with venue and guest management"
+          },
+          {
+            "icon": "bi bi-file-earmark-pdf",
+            "title": "Document Management",
+            "description": "Paperless operations with secure document storage and digital signatures"
+          },
+          {
+            "icon": "bi bi-graph-up",
+            "title": "Business Intelligence",
+            "description": "Track trends, generate reports, and make data-driven decisions"
+          }
+        ]
+      }
+    },
+    {
+      "id": "benefits-1",
+      "type": "benefits-checklist",
+      "settings": {
+        "title": "What You Get From Day One",
+        "subtitle": "No hidden costs, no setup fees, no technical knowledge required",
+        "titleColor": "#000000",
+        "subtitleColor": "#6c757d",
+        "backgroundColor": "#ffffff",
+        "iconColor": "#198754",
+        "textColor": "#212529",
+        "padding": 60,
+        "columns": 2,
+        "useCategories": true,
+        "allowExpand": true,
+        "benefits": [],
+        "categories": [
+          {
+            "name": "✨ Instant Professional Website",
+            "expanded": true,
+            "items": [
+              { "icon": "bi bi-check-circle-fill", "text": "Beautiful, mobile-responsive design" },
+              { "icon": "bi bi-check-circle-fill", "text": "Custom subdomain (yourname.funeral.com)" },
+              { "icon": "bi bi-check-circle-fill", "text": "SSL security enabled automatically" },
+              { "icon": "bi bi-check-circle-fill", "text": "Drag-and-drop page builder" },
+              { "icon": "bi bi-check-circle-fill", "text": "Professional templates included" }
+            ]
+          },
+          {
+            "name": "🎯 Complete Business Management",
+            "expanded": true,
+            "items": [
+              { "icon": "bi bi-check-circle-fill", "text": "Member registration portal" },
+              { "icon": "bi bi-check-circle-fill", "text": "Policy management system" },
+              { "icon": "bi bi-check-circle-fill", "text": "Claims processing workflow" },
+              { "icon": "bi bi-check-circle-fill", "text": "Document management" },
+              { "icon": "bi bi-check-circle-fill", "text": "Payment tracking and reporting" }
+            ]
+          },
+          {
+            "name": "📊 Powerful Admin Tools",
+            "expanded": false,
+            "items": [
+              { "icon": "bi bi-check-circle-fill", "text": "Customizable dashboard" },
+              { "icon": "bi bi-check-circle-fill", "text": "Real-time analytics" },
+              { "icon": "bi bi-check-circle-fill", "text": "Report generation" },
+              { "icon": "bi bi-check-circle-fill", "text": "Member insights" },
+              { "icon": "bi bi-check-circle-fill", "text": "Business metrics tracking" }
+            ]
+          },
+          {
+            "name": "🔒 Security & Reliability",
+            "expanded": false,
+            "items": [
+              { "icon": "bi bi-check-circle-fill", "text": "Enterprise-grade hosting" },
+              { "icon": "bi bi-check-circle-fill", "text": "Daily automatic backups" },
+              { "icon": "bi bi-check-circle-fill", "text": "99.9% uptime guarantee" },
+              { "icon": "bi bi-check-circle-fill", "text": "Role-based access control" },
+              { "icon": "bi bi-check-circle-fill", "text": "Complete data isolation" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "cta-final",
+      "type": "cta",
+      "settings": {
+        "title": "Ready to Transform Your Funeral Service Business?",
+        "titleSize": 40,
+        "subtitle": "Get your professional website and complete business management system online in minutes, not months.",
+        "subtitleSize": 18,
+        "backgroundColor": "#0d6efd",
+        "textColor": "#ffffff",
+        "padding": 80,
+        "showButton": true,
+        "buttonText": "Start Your Free Trial",
+        "buttonLink": "/auth/register",
+        "buttonColor": "#ffffff",
+        "buttonTextColor": "#0d6efd",
+        "buttonTextSize": 18,
+        "buttonPadding": 15,
+        "showSecondaryButton": true,
+        "secondaryButtonText": "Schedule a Demo",
+        "secondaryButtonLink": "#contact",
+        "secondaryButtonColor": "transparent",
+        "secondaryButtonTextColor": "#ffffff",
+        "secondaryButtonBorder": "2px solid #ffffff"
+      }
+    }
+  ]
+}

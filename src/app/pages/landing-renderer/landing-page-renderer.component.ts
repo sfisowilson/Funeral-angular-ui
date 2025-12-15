@@ -29,12 +29,12 @@ import { environment } from '../../../environments/environment';
                     </div>
                     <nav class="hidden md:flex space-x-6">
                         <a href="#" class="text-gray-600 hover:text-blue-600 transition">Home</a>
-                        <ng-container *ngIf="!isLoggedIn">
+                        <ng-container *ngIf="!isStaticSite && !isLoggedIn">
                             <a href="/auth/register" class="text-blue-600 hover:underline font-semibold">Register</a>
                             <a href="/auth/login" class="text-blue-600 hover:underline font-semibold">Login</a>
                         </ng-container>
 
-                        <ng-container *ngIf="isLoggedIn">
+                        <ng-container *ngIf="!isStaticSite && isLoggedIn">
                             <a href="/admin/dashboard" class="text-gray-600 hover:text-blue-600 transition">Dashboard</a>
                             <button (click)="logout()" class="text-red-600 hover:underline font-semibold">Logout</button>
                         </ng-container>
@@ -54,11 +54,11 @@ import { environment } from '../../../environments/environment';
                 <nav *ngIf="mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200 shadow-lg">
                     <div class="px-4 py-4 space-y-1">
                         <a href="#" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Home</a>
-                        <ng-container *ngIf="!isLoggedIn">
+                        <ng-container *ngIf="!isStaticSite && !isLoggedIn">
                             <a href="/auth/register" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Register</a>
                             <a href="/auth/login" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Login</a>
                         </ng-container>
-                        <ng-container *ngIf="isLoggedIn">
+                        <ng-container *ngIf="!isStaticSite && isLoggedIn">
                             <a href="/admin/dashboard" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Dashboard</a>
                             <button (click)="logout()" class="block w-full text-left px-3 py-3 text-red-600 hover:bg-red-50 font-semibold transition rounded">Logout</button>
                         </ng-container>
@@ -93,7 +93,7 @@ import { environment } from '../../../environments/environment';
             <!-- Footer -->
             <footer class="bg-gray-100 mt-8">
                 <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm">
-                    <p>&copy; {{ currentYear }} MyApp. All rights reserved.</p>
+                    <p>&copy; {{ currentYear }} Mizo. All rights reserved.</p>
                     <div class="mt-2 md:mt-0 space-x-4">
                         <a href="#" class="hover:text-blue-600">Privacy</a>
                         <a href="#" class="hover:text-blue-600">Terms</a>
@@ -158,6 +158,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     tenantIdHeader!: HttpHeaders;
     _settings: any = {};
     tenantSettings!: TenantSettingDto;
+    isStaticSite = false;
 
     // Separate floating and normal widgets
     get normalWidgets(): WidgetConfig[] {
@@ -188,6 +189,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         .then((data: any) => {
             this.tenantSettings = data;
              this._settings = JSON.parse(this.tenantSettings.settings ?? "{}");
+             this.isStaticSite = this._settings.isStaticSite || false;
         });
 
         this.isLoggedIn = this.authService.isAuthenticated();

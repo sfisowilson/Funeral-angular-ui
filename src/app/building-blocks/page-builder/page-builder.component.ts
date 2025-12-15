@@ -14,6 +14,9 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TabViewModule } from 'primeng/tabview';
 import { PanelModule } from 'primeng/panel';
+import { InputText } from 'primeng/inputtext';
+import { InputTextarea } from 'primeng/inputtextarea';
+import { Divider } from 'primeng/divider';
 import { WidgetConfig } from '../widget-config';
 import { WidgetService } from '../widget.service';
 import { PageLayoutService } from '../page-layout.service';
@@ -36,7 +39,10 @@ import { WIDGET_TYPES, WidgetType } from '../widget-registry';
         CheckboxModule,
         InputNumberModule,
         TabViewModule,
-        PanelModule
+        PanelModule,
+        InputText,
+        InputTextarea,
+        Divider
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './page-builder.component.html',
@@ -56,8 +62,21 @@ export class PageBuilderComponent implements OnInit {
     showWidgetPicker = signal<boolean>(false);
     showLayoutSettings = signal<boolean>(false);
     showContentEditor = signal<boolean>(false);
+    showSeoSettings = signal<boolean>(false);
     
     availableWidgets: WidgetType[] = WIDGET_TYPES;
+    
+    // SEO Meta Tags
+    seoSettings = signal({
+        pageTitle: '',
+        metaDescription: '',
+        metaKeywords: '',
+        ogTitle: '',
+        ogDescription: '',
+        ogImage: '',
+        twitterCard: 'summary_large_image',
+        canonicalUrl: ''
+    });
     
     // Layout options
     columnSpanOptions = [
@@ -126,12 +145,31 @@ export class PageBuilderComponent implements OnInit {
     }
 
     loadWidgets(): void {
-        this.widgetService.widgets$.subscribe(widgets => {
-            // Initialize layout for widgets that don't have one
-            const widgetsWithLayout = widgets.map(w => 
-                this.pageLayoutService.initializeWidgetLayout(w)
-            );
-            this.widgets.set(widgetsWithLayout);
+        // Only load widgets once to avoid overwriting local changes
+        this.widgetService.widgets$.subscribe({
+            next: (widgets) => {
+                console.log('=== WIDGETS$ SUBSCRIPTION FIRED ===');
+                console.log('Widgets received from service:', widgets.length);
+                console.log('Current widgets in component:', this.widgets().length);
+                
+                // Don't overwrite if we already have widgets and we're in edit mode
+                // This prevents losing changes during editing
+                const currentWidgets = this.widgets();
+                if (currentWidgets.length > 0 && (this.showContentEditor() || this.showLayoutSettings())) {
+                    console.log('⚠️ Skipping widget reload - currently editing');
+                    console.log('=== END WIDGETS$ SUBSCRIPTION (SKIPPED) ===');
+                    return;
+                }
+                
+                // Initialize layout for widgets that don't have one
+                const widgetsWithLayout = widgets.map(w => 
+                    this.pageLayoutService.initializeWidgetLayout(w)
+                );
+                
+                console.log('Setting widgets in component:', widgetsWithLayout.length);
+                this.widgets.set(widgetsWithLayout);
+                console.log('=== END WIDGETS$ SUBSCRIPTION ===');
+            }
         });
     }
 
@@ -278,6 +316,15 @@ export class PageBuilderComponent implements OnInit {
             console.log('Loading editor component...');
             this.loadEditor();
         }, 100);
+    }
+
+    saveWidgetContent(): void {
+        this.showContentEditor.set(false);
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Widget content updated successfully'
+        });
     }
 
     private loadEditor(): void {
@@ -509,11 +556,17 @@ export class PageBuilderComponent implements OnInit {
 
     saveWidgets(): void {
         console.log('=== SAVING WIDGETS ===');
-        console.log('Widgets to save:', this.widgets());
+        const widgetsToSave = this.widgets();
+        console.log('Widgets count:', widgetsToSave.length);
+        console.log('Widgets to save:', JSON.stringify(widgetsToSave, null, 2));
         
-        this.widgetService.saveWidgets(this.widgets()).subscribe({
+        // Deep clone to ensure we're saving a clean copy without references
+        const clonedWidgets = JSON.parse(JSON.stringify(widgetsToSave));
+        
+        this.widgetService.saveWidgets(clonedWidgets).subscribe({
             next: () => {
                 console.log('✓ Widgets saved successfully to backend');
+                console.log('✓ Saved widget count:', clonedWidgets.length);
             },
             error: (error) => {
                 console.error('✗ Error saving widgets:', error);
@@ -593,5 +646,48 @@ export class PageBuilderComponent implements OnInit {
         moveItemInArray(widgets, event.previousIndex, event.currentIndex);
         this.widgets.set(widgets);
         this.saveWidgets();
+    }
+
+    // SEO Settings methods
+    openSeoSettings(): void {
+        // Load current SEO settings from the service or storage
+        this.widgetService.getSeoSettings().subscribe({
+            next: (settings) => {
+                if (settings) {
+                    this.seoSettings.set(settings);
+                }
+                this.showSeoSettings.set(true);
+            },
+            error: (error) => {
+                console.error('Error loading SEO settings:', error);
+                this.showSeoSettings.set(true);
+            }
+        });
+    }
+
+    saveSeoSettings(): void {
+        const settings = this.seoSettings();
+        this.widgetService.saveSeoSettings(settings).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'SEO Settings Saved',
+                    detail: 'Meta tags have been updated successfully'
+                });
+                this.showSeoSettings.set(false);
+            },
+            error: (error) => {
+                console.error('Error saving SEO settings:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Save Failed',
+                    detail: 'Failed to save SEO settings'
+                });
+            }
+        });
+    }
+
+    cancelSeoSettings(): void {
+        this.showSeoSettings.set(false);
     }
 }

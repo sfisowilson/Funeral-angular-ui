@@ -1,0 +1,59 @@
+<div class="benefits-checklist-widget" 
+     [style.background-color]="backgroundColor"
+     [style.padding.px]="padding">
+    
+    <!-- Title Section -->
+    <div class="widget-header" *ngIf="title || subtitle">
+        <h2 class="widget-title" 
+            [style.color]="titleColor"
+            *ngIf="title">{{ title }}</h2>
+        <p class="widget-subtitle" 
+           [style.color]="subtitleColor"
+           *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <!-- Simple List (No Categories) -->
+    <div class="benefits-grid" 
+         *ngIf="!useCategories"
+         [class.cols-1]="columns === 1"
+         [class.cols-2]="columns === 2"
+         [class.cols-3]="columns === 3">
+        <div class="benefit-item" *ngFor="let benefit of benefits">
+            <i [class]="benefit.icon" 
+               [style.color]="iconColor" 
+               class="benefit-icon"></i>
+            <span class="benefit-text" [style.color]="textColor">{{ benefit.text }}</span>
+        </div>
+    </div>
+
+    <!-- Categorized List -->
+    <div class="categories-container" *ngIf="useCategories">
+        <div class="category-section" *ngFor="let category of categories">
+            <div class="category-header" 
+                 [class.expandable]="allowExpand"
+                 (click)="toggleCategory(category)">
+                <h3 class="category-title">{{ category.name }}</h3>
+                <i class="bi" 
+                   [class.bi-chevron-down]="!category.expanded"
+                   [class.bi-chevron-up]="category.expanded"
+                   *ngIf="allowExpand"></i>
+            </div>
+
+            <div class="category-content" 
+                 [class.expanded]="category.expanded || !allowExpand"
+                 [class.collapsed]="!category.expanded && allowExpand">
+                <div class="benefits-grid" 
+                     [class.cols-1]="columns === 1"
+                     [class.cols-2]="columns === 2"
+                     [class.cols-3]="columns === 3">
+                    <div class="benefit-item" *ngFor="let benefit of category.items">
+                        <i [class]="benefit.icon" 
+                           [style.color]="iconColor" 
+                           class="benefit-icon"></i>
+                        <span class="benefit-text" [style.color]="textColor">{{ benefit.text }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

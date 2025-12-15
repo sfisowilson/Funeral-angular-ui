@@ -1,0 +1,46 @@
+<div class="feature-grid-widget" 
+     [style.background-color]="backgroundColor"
+     [style.padding.px]="padding">
+    
+    <!-- Title Section -->
+    <div class="widget-header" *ngIf="title || subtitle">
+        <h2 class="widget-title" 
+            [style.color]="titleColor"
+            *ngIf="title">{{ title }}</h2>
+        <p class="widget-subtitle" 
+           [style.color]="subtitleColor"
+           *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="features-grid" 
+         [class.cols-2]="columns === 2"
+         [class.cols-3]="columns === 3"
+         [class.cols-4]="columns === 4">
+        
+        <div class="feature-card" 
+             [class.with-hover]="hoverEffect"
+             [style.background-color]="cardBackgroundColor"
+             *ngFor="let feature of features">
+            
+            <!-- Feature Icon -->
+            <div class="feature-icon-wrapper" 
+                 [style.background-color]="iconBackgroundColor"
+                 [class.size-small]="iconSize === 'small'"
+                 [class.size-medium]="iconSize === 'medium'"
+                 [class.size-large]="iconSize === 'large'">
+                <i [class]="feature.icon" 
+                   [style.color]="iconColor"
+                   class="feature-icon"></i>
+            </div>
+
+            <!-- Feature Content -->
+            <div class="feature-content">
+                <h3 class="feature-title" 
+                    [style.color]="titleTextColor">{{ feature.title }}</h3>
+                <p class="feature-description" 
+                   [style.color]="descriptionTextColor">{{ feature.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>

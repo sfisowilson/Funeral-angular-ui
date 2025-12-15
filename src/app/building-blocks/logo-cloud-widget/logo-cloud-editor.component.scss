@@ -1,0 +1,89 @@
+.logo-cloud-editor {
+  .editor-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    h5 {
+      color: #495057;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .logos-list {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .logo-item {
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  .logo-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+
+    .logo-controls {
+      display: flex;
+      gap: 0.25rem;
+
+      button {
+        padding: 0.25rem 0.5rem;
+      }
+    }
+
+    h6 {
+      flex: 1;
+      margin: 0;
+      color: #495057;
+      font-weight: 600;
+    }
+  }
+
+  .logo-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+
+    .preview-image {
+      max-width: 100%;
+      max-height: 100px;
+      object-fit: contain;
+    }
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  small.text-muted {
+    display: block;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .alert {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+
+    i {
+      vertical-align: middle;
+    }
+  }
+}

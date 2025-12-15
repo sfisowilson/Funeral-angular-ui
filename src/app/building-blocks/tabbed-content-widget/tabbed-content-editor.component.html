@@ -1,0 +1,123 @@
+<div class="tabbed-content-editor">
+  <div class="editor-section">
+    <h5>General Settings</h5>
+    
+    <div class="mb-3">
+      <label class="form-label">Widget Title</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.title" 
+             placeholder="Widget title">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Subtitle</label>
+      <input type="text" class="form-control" [(ngModel)]="config.settings.subtitle" 
+             placeholder="Optional subtitle text">
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <h5>Tab Style</h5>
+    
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Style</label>
+        <select class="form-select" [(ngModel)]="config.settings.tabStyle">
+          <option value="pills">Pills</option>
+          <option value="underline">Underline</option>
+          <option value="buttons">Buttons</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Orientation</label>
+        <select class="form-select" [(ngModel)]="config.settings.orientation">
+          <option value="horizontal">Horizontal</option>
+          <option value="vertical">Vertical</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <div class="form-check mt-4">
+          <input type="checkbox" class="form-check-input" id="showIcons" 
+                 [(ngModel)]="config.settings.showIcons">
+          <label class="form-check-label" for="showIcons">
+            Show icons
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="editor-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="mb-0">Tabs</h5>
+      <button class="btn btn-sm btn-primary" (click)="addTab()">
+        <i class="bi bi-plus-circle me-1"></i> Add Tab
+      </button>
+    </div>
+
+    <div class="tabs-editor">
+      <ul class="tab-list">
+        <li *ngFor="let tab of config.tabs; let i = index" 
+            class="tab-list-item"
+            [class.active]="i === activeEditTabIndex">
+          <button class="tab-button" (click)="setActiveEditTab(i)">
+            <i *ngIf="tab.icon" [class]="'bi bi-' + tab.icon + ' me-2'"></i>
+            {{ tab.title || 'Untitled' }}
+          </button>
+
+          <div class="tab-controls">
+            <button class="btn btn-sm btn-outline-secondary" 
+                    (click)="moveTabUp(i)" 
+                    [disabled]="i === 0"
+                    title="Move up">
+              <i class="bi bi-arrow-up"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" 
+                    (click)="moveTabDown(i)" 
+                    [disabled]="i === config.tabs.length - 1"
+                    title="Move down">
+              <i class="bi bi-arrow-down"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" 
+                    (click)="removeTab(i)"
+                    title="Delete tab">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </li>
+      </ul>
+
+      <div class="tab-editor-panel" *ngIf="config.tabs[activeEditTabIndex] as tab">
+        <div class="mb-3">
+          <label class="form-label">Tab Title</label>
+          <input type="text" class="form-control" [(ngModel)]="tab.title" 
+                 placeholder="Tab title">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Icon</label>
+          <input type="text" class="form-control" [(ngModel)]="tab.icon" 
+                 placeholder="globe, people, etc.">
+          <small class="text-muted">Bootstrap Icons name (without 'bi-' prefix)</small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Content (HTML)</label>
+          <textarea class="form-control" [(ngModel)]="tab.content" 
+                    rows="12" 
+                    placeholder="<h3>Title</h3><p>Content here...</p>"></textarea>
+          <small class="text-muted">
+            You can use HTML tags: &lt;h3&gt;, &lt;h4&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;ol&gt;, &lt;strong&gt;, etc.
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    <strong>Tip:</strong> Use tabs to organize related content like features by category, 
+    different pricing tiers, or FAQ sections. Keep tab titles short and descriptive.
+  </div>
+</div>

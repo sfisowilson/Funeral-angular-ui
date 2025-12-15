@@ -1,0 +1,60 @@
+<div class="comparison-table-widget" 
+     [style.background-color]="backgroundColor"
+     [style.padding.px]="padding">
+    
+    <!-- Title Section -->
+    <div class="widget-header" *ngIf="title || subtitle">
+        <h2 class="widget-title" 
+            [style.color]="titleColor"
+            *ngIf="title">{{ title }}</h2>
+        <p class="widget-subtitle" 
+           [style.color]="subtitleColor"
+           *ngIf="subtitle">{{ subtitle }}</p>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="comparison-table-container">
+        <div class="comparison-table" 
+             [class.with-borders]="showBorders"
+             [style.border-radius.px]="borderRadius">
+            
+            <!-- Column Headers -->
+            <div class="table-header">
+                <div class="column-header" 
+                     *ngFor="let column of columns"
+                     [class.highlighted]="column.isHighlighted"
+                     [style.background-color]="column.isHighlighted ? column.highlightColor : columnHeaderBg">
+                    <h3 class="column-title">{{ column.title }}</h3>
+                    <p class="column-subtitle" *ngIf="column.subtitle">{{ column.subtitle }}</p>
+                </div>
+            </div>
+
+            <!-- Comparison Rows -->
+            <div class="table-body">
+                <div class="comparison-row" 
+                     [class.with-hover]="rowHoverEffect"
+                     *ngFor="let rowIndex of getMaxRows()">
+                    <div class="column-cell" 
+                         *ngFor="let column of columns"
+                         [class.highlighted-column]="column.isHighlighted">
+                        <ng-container *ngIf="column.items[rowIndex]">
+                            <div class="cell-label">{{ column.items[rowIndex].label }}</div>
+                            <div class="cell-value">{{ column.items[rowIndex].value }}</div>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Totals Row -->
+            <div class="table-footer" *ngIf="hasAnyTotal()">
+                <div class="column-footer" 
+                     *ngFor="let column of columns"
+                     [class.highlighted]="column.isHighlighted"
+                     [style.background-color]="column.isHighlighted ? column.highlightColor : columnHeaderBg">
+                    <div class="total-label" *ngIf="column.total">Total:</div>
+                    <div class="total-value">{{ column.total || '—' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
