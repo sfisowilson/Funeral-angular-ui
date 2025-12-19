@@ -10,6 +10,7 @@ import { AuthService } from '@app/auth/auth-service';
 import { HttpHeaders } from '@angular/common/http';
 import { TenantSettingServiceProxy, API_BASE_URL, TenantSettingDto } from '../../core/services/service-proxies';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
+import { TenantService } from '../../core/services/tenant.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -30,7 +31,7 @@ import { environment } from '../../../environments/environment';
                     <nav class="hidden md:flex space-x-6">
                         <a href="#" class="text-gray-600 hover:text-blue-600 transition">Home</a>
                         <ng-container *ngIf="!isStaticSite && !isLoggedIn">
-                            <a href="/auth/register" class="text-blue-600 hover:underline font-semibold">Register</a>
+                            <a [href]="getRegisterUrl()" class="text-blue-600 hover:underline font-semibold">Register</a>
                             <a href="/auth/login" class="text-blue-600 hover:underline font-semibold">Login</a>
                         </ng-container>
 
@@ -55,7 +56,7 @@ import { environment } from '../../../environments/environment';
                     <div class="px-4 py-4 space-y-1">
                         <a href="#" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Home</a>
                         <ng-container *ngIf="!isStaticSite && !isLoggedIn">
-                            <a href="/auth/register" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Register</a>
+                            <a [href]="getRegisterUrl()" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Register</a>
                             <a href="/auth/login" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Login</a>
                         </ng-container>
                         <ng-container *ngIf="!isStaticSite && isLoggedIn">
@@ -178,6 +179,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     constructor(
         private widgetService: WidgetService,
         private tenantSettingService: TenantSettingsService,
+        private tenantService: TenantService,
         private authService: AuthService,
         @Inject(API_BASE_URL) private baseUrl: string,
         private pageLayoutService: PageLayoutService
@@ -296,5 +298,9 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             url += `?X-Tenant-ID=${this.tenantIdHeader.get('X-Tenant-ID')}`;
         }
         return url;
+    }
+
+    getRegisterUrl(): string {
+        return this.tenantService.getTenantType() === 'host' ? '/auth/tenant-register' : '/auth/register';
     }
 }

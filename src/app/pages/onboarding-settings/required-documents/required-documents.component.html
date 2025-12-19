@@ -1,182 +1,196 @@
 <div class="required-documents">
-    <div class="action-bar">
+    <!-- Action Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="mb-0"><i class="bi bi-file-earmark-check me-2"></i>Required Documents</h5>
+            <p class="text-muted small mb-0">Configure documents needed for member onboarding</p>
+        </div>
         <button 
-            pButton 
-            label="Add Required Document" 
-            icon="pi pi-plus" 
-            class="p-button-primary"
+            type="button"
+            class="btn btn-primary"
             (click)="openNewDialog()">
+            <i class="bi bi-plus-lg me-2"></i>Add Required Document
         </button>
     </div>
 
-    <p-table 
-        [value]="documents()" 
-        [loading]="loading()"
-        styleClass="p-datatable-gridlines"
-        [paginator]="true"
-        [rows]="10"
-        [rowsPerPageOptions]="[5, 10, 20]"
-        responsiveLayout="scroll">
-        
-        <ng-template pTemplate="header">
-            <tr>
-                <th>Document Name</th>
-                <th>Type</th>
-                <th>Entity</th>
-                <th>Required</th>
-                <th>File Types</th>
-                <th>Max Size</th>
-                <th style="width: 150px">Actions</th>
-            </tr>
-        </ng-template>
-        
-        <ng-template pTemplate="body" let-doc>
-            <tr>
-                <td>{{ doc.documentName }}</td>
-                <td>{{ getDocumentTypeName(doc.documentType) }}</td>
-                <td>{{ getEntityTypeName(doc.entityType) }}</td>
-                <td>
-                    <span [class]="doc.isRequired ? 'status-badge required' : 'status-badge optional'">
-                        {{ doc.isRequired ? 'Required' : 'Optional' }}
-                    </span>
-                </td>
-                <td>{{ doc.allowedFileTypes || 'Any' }}</td>
-                <td>{{ formatFileSize(doc.maxFileSizeBytes) }}</td>
-                <td>
-                    <button 
-                        pButton 
-                        icon="pi pi-pencil" 
-                        class="p-button-text p-button-info"
-                        pTooltip="Edit"
-                        (click)="editDocument(doc)">
-                    </button>
-                    <button 
-                        pButton 
-                        icon="pi pi-trash" 
-                        class="p-button-text p-button-danger"
-                        pTooltip="Delete"
-                        (click)="deleteDocument(doc)">
-                    </button>
-                </td>
-            </tr>
-        </ng-template>
-        
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="7" class="text-center">No required documents configured</td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
-
-<p-dialog 
-    [(visible)]="showDialog" 
-    [header]="isEditMode() ? 'Edit Required Document' : 'Add Required Document'"
-    [modal]="true" 
-    [style]="{width: '600px'}"
-    [draggable]="false"
-    [resizable]="false">
-    
-    <div class="dialog-content">
-        <div class="form-grid">
-            <div class="form-field full-width">
-                <label for="documentName">Document Name *</label>
-                <input 
-                    id="documentName" 
-                    type="text" 
-                    pInputText 
-                    [(ngModel)]="currentDocument.documentName"
-                    placeholder="Enter document name">
-            </div>
-
-            <div class="form-field">
-                <label for="documentType">Document Type *</label>
-                <p-dropdown 
-                    id="documentType"
-                    [(ngModel)]="currentDocument.documentType"
-                    [options]="documentTypeOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Select type">
-                </p-dropdown>
-            </div>
-
-            <div class="form-field">
-                <label for="entityType">Entity Type *</label>
-                <p-dropdown 
-                    id="entityType"
-                    [(ngModel)]="currentDocument.entityType"
-                    [options]="entityTypeOptions"
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Select entity">
-                </p-dropdown>
-            </div>
-
-            <div class="form-field full-width">
-                <label for="description">Description</label>
-                <input 
-                    id="description" 
-                    type="text" 
-                    pInputText 
-                    [(ngModel)]="currentDocument.description"
-                    placeholder="Optional description">
-            </div>
-
-            <div class="form-field">
-                <label for="allowedFileTypes">Allowed File Types</label>
-                <input 
-                    id="allowedFileTypes" 
-                    type="text" 
-                    pInputText 
-                    [(ngModel)]="currentDocument.allowedFileTypes"
-                    placeholder="e.g., pdf,jpg,png">
-                <small class="help-text">Comma-separated file extensions</small>
-            </div>
-
-            <div class="form-field">
-                <label for="maxFileSize">Max File Size (MB)</label>
-                <p-inputNumber
-                    id="maxFileSize"
-                    [(ngModel)]="currentDocument.maxFileSizeBytes"
-                    mode="decimal"
-                    [min]="0"
-                    [step]="1048576"
-                    suffix=" bytes"
-                    placeholder="5242880">
-                </p-inputNumber>
-                <small class="help-text">5MB = 5242880 bytes</small>
-            </div>
-
-            <div class="form-field full-width">
-                <div class="switch-field">
-                    <label for="isRequired">Required Document</label>
-                    <p-inputSwitch 
-                        [(ngModel)]="currentDocument.isRequired"
-                        inputId="isRequired">
-                    </p-inputSwitch>
-                </div>
-            </div>
+    <!-- Loading Spinner -->
+    <div *ngIf="loading()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
         </div>
     </div>
 
-    <ng-template pTemplate="footer">
-        <button 
-            pButton 
-            label="Cancel" 
-            icon="pi pi-times" 
-            class="p-button-text"
-            (click)="cancel()">
-        </button>
-        <button 
-            pButton 
-            label="Save" 
-            icon="pi pi-check" 
-            class="p-button-primary"
-            (click)="saveDocument()">
-        </button>
-    </ng-template>
-</p-dialog>
+    <!-- Table -->
+    <div *ngIf="!loading()" class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Document Name</th>
+                    <th>Type</th>
+                    <th>Entity</th>
+                    <th>Required</th>
+                    <th>File Types</th>
+                    <th>Max Size</th>
+                    <th style="width: 120px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let doc of documents()">
+                    <td class="fw-semibold">{{ doc.documentName }}</td>
+                    <td><span class="badge bg-info">{{ getDocumentTypeName(doc.documentType) }}</span></td>
+                    <td><span class="badge bg-secondary">{{ getEntityTypeName(doc.entityType) }}</span></td>
+                    <td>
+                        <span class="badge" [class.bg-danger]="doc.isRequired" [class.bg-secondary]="!doc.isRequired">
+                            {{ doc.isRequired ? 'Required' : 'Optional' }}
+                        </span>
+                    </td>
+                    <td><code class="small">{{ doc.allowedFileTypes || 'Any' }}</code></td>
+                    <td>{{ formatFileSize(doc.maxFileSizeBytes) }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button 
+                                type="button"
+                                class="btn btn-outline-primary"
+                                title="Edit"
+                                (click)="editDocument(doc)">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button 
+                                type="button"
+                                class="btn btn-outline-danger"
+                                title="Delete"
+                                (click)="deleteDocument(doc)">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="documents().length === 0">
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        No required documents configured
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" [class.show]="showDialog()" [style.display]="showDialog() ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-earmark-check me-2"></i>{{ isEditMode() ? 'Edit Required Document' : 'Add Required Document' }}
+                </h5>
+                <button type="button" class="btn-close" (click)="cancel()"></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="documentName" class="form-label">Document Name <span class="text-danger">*</span></label>
+                        <input 
+                            id="documentName" 
+                            type="text" 
+                            class="form-control"
+                            [(ngModel)]="currentDocument.documentName"
+                            placeholder="Enter document name">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="documentType" class="form-label">Document Type <span class="text-danger">*</span></label>
+                        <p-dropdown 
+                            id="documentType"
+                            [(ngModel)]="currentDocument.documentType"
+                            [options]="documentTypeOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select type"
+                            styleClass="w-100">
+                        </p-dropdown>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="entityType" class="form-label">Entity Type <span class="text-danger">*</span></label>
+                        <p-dropdown 
+                            id="entityType"
+                            [(ngModel)]="currentDocument.entityType"
+                            [options]="entityTypeOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select entity"
+                            styleClass="w-100">
+                        </p-dropdown>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="description" class="form-label">Description</label>
+                        <input 
+                            id="description" 
+                            type="text" 
+                            class="form-control"
+                            [(ngModel)]="currentDocument.description"
+                            placeholder="Optional description">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="allowedFileTypes" class="form-label">Allowed File Types</label>
+                        <input 
+                            id="allowedFileTypes" 
+                            type="text" 
+                            class="form-control"
+                            [(ngModel)]="currentDocument.allowedFileTypes"
+                            placeholder="e.g., pdf,jpg,png">
+                        <small class="form-text text-muted">Comma-separated file extensions</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="maxFileSize" class="form-label">Max File Size (Bytes)</label>
+                        <p-inputNumber
+                            id="maxFileSize"
+                            [(ngModel)]="currentDocument.maxFileSizeBytes"
+                            mode="decimal"
+                            [min]="0"
+                            [step]="1048576"
+                            suffix=" bytes"
+                            placeholder="5242880"
+                            styleClass="w-100">
+                        </p-inputNumber>
+                        <small class="form-text text-muted">5MB = 5,242,880 bytes</small>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <p-inputSwitch 
+                                [(ngModel)]="currentDocument.isRequired"
+                                inputId="isRequired">
+                            </p-inputSwitch>
+                            <label class="form-check-label ms-2" for="isRequired">Required Document</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button 
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="cancel()">
+                    <i class="bi bi-x-lg me-2"></i>Cancel
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-primary"
+                    (click)="saveDocument()">
+                    <i class="bi bi-check-lg me-2"></i>Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showDialog()" *ngIf="showDialog()"></div>
 
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>

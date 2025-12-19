@@ -1,7 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TabViewModule } from 'primeng/tabview';
-import { CardModule } from 'primeng/card';
 import { TermsManagementComponent } from './terms-management/terms-management.component';
 import { RequiredDocumentsComponent } from './required-documents/required-documents.component';
 import { FieldConfigurationComponent } from './field-configuration/field-configuration.component';
@@ -11,12 +9,11 @@ import { FieldConfigurationComponent } from './field-configuration/field-configu
     standalone: true,
     imports: [
         CommonModule,
-        TabViewModule,
-        CardModule,
         TermsManagementComponent,
         RequiredDocumentsComponent,
         FieldConfigurationComponent
     ],
+    schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './onboarding-settings.component.html',
     styleUrl: './onboarding-settings.component.scss'
 })

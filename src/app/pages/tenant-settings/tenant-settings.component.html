@@ -10,7 +10,7 @@
                     <div class="flex flex-col">
                         <label for="tenantName" class="font-medium text-gray-700 mb-2">Tenant Name</label>
                         <input type="text" id="tenantName" [(ngModel)]="tenantSettings.tenantName" required autofocus class="form-control" />
-                        <small class="p-error mt-1" *ngIf="submitted && !tenantSettings.tenantName">Tenant Name is required.</small>
+                        <small class="text-danger mt-1" *ngIf="submitted && !tenantSettings.tenantName">Tenant Name is required.</small>
                     </div>
 
                     <div class="flex flex-col">
@@ -20,19 +20,78 @@
                         </select>
                     </div>
 
-                    <div class="flex flex-col">
-                        <label for="ozowApiKey" class="font-medium text-gray-700 mb-2">Ozow API Key</label>
-                        <input type="text" id="ozowApiKey" [(ngModel)]="tenantSettings.ozowApiKey" class="form-control" />
+                </div>
+            </div>
+
+            <!-- Payment Gateway Configuration -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-700 mb-1">
+                            <i class="bi bi-credit-card me-2 text-primary"></i>Payment Gateway Configuration
+                        </h2>
+                        <p class="text-sm text-gray-600 mb-0">Configure Ozow payment gateway credentials</p>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label for="ozowApiKey" class="form-label fw-semibold">
+                            <i class="bi bi-key me-1"></i>Ozow API Key
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                            <input 
+                                type="password" 
+                                id="ozowApiKey" 
+                                [(ngModel)]="tenantSettings.ozowApiKey" 
+                                class="form-control" 
+                                placeholder="Enter API Key"
+                            />
+                        </div>
+                        <small class="form-text text-muted">Your Ozow API authentication key</small>
                     </div>
 
-                    <div class="flex flex-col">
-                        <label for="ozowSiteCode" class="font-medium text-gray-700 mb-2">Ozow Site Code</label>
-                        <input type="text" id="ozowSiteCode" [(ngModel)]="tenantSettings.ozowSiteCode" class="form-control" />
+                    <div class="col-md-6">
+                        <label for="ozowSiteCode" class="form-label fw-semibold">
+                            <i class="bi bi-building me-1"></i>Ozow Site Code
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-hash"></i></span>
+                            <input 
+                                type="text" 
+                                id="ozowSiteCode" 
+                                [(ngModel)]="tenantSettings.ozowSiteCode" 
+                                class="form-control" 
+                                placeholder="Enter Site Code"
+                            />
+                        </div>
+                        <small class="form-text text-muted">Your unique Ozow site identifier</small>
                     </div>
 
-                    <div class="flex flex-col">
-                        <label for="ozowPrivateKey" class="font-medium text-gray-700 mb-2">Ozow Private Key</label>
-                        <input type="text" id="ozowPrivateKey" [(ngModel)]="tenantSettings.ozowPrivateKey" class="form-control" />
+                    <div class="col-md-6">
+                        <label for="ozowPrivateKey" class="form-label fw-semibold">
+                            <i class="bi bi-lock me-1"></i>Ozow Private Key
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                            <input 
+                                type="password" 
+                                id="ozowPrivateKey" 
+                                [(ngModel)]="tenantSettings.ozowPrivateKey" 
+                                class="form-control" 
+                                placeholder="Enter Private Key"
+                            />
+                        </div>
+                        <small class="form-text text-muted">Your Ozow private encryption key</small>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <strong>Important:</strong> These credentials are required for payment processing through Ozow. 
+                            Obtain these from your Ozow merchant dashboard at <a href="https://dashboard.ozow.com" target="_blank" class="alert-link">dashboard.ozow.com</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -82,7 +141,7 @@
 
                     <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                         <div class="flex items-start gap-2">
-                            <i class="pi pi-info-circle text-blue-500 mt-1"></i>
+                            <i class="bi bi-info-circle-fill text-primary mt-1"></i>
                             <div class="text-sm text-gray-700">
                                 <p class="font-medium mb-1">About ID Verification:</p>
                                 <ul class="list-disc list-inside space-y-1 text-gray-600">
@@ -663,215 +722,210 @@
     </ng-template>
 </p-dialog>
 
-<!-- Premium Calculation Settings Dialog -->
-<p-dialog header="Premium Calculation Settings" [(visible)]="showPremiumSettingsDialog" [modal]="true" [style]="{ width: '95vw', maxWidth: '1400px' }" [draggable]="false" [resizable]="false">
-    <div *ngIf="loadingPremiumSettings" class="text-center py-8">
-        <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
-        <p class="text-gray-600 mt-4">Loading premium settings...</p>
-    </div>
-
-    <div *ngIf="!loadingPremiumSettings && premiumSettings" class="premium-settings-content space-y-6">
-        <!-- Policy Cover Premium Table -->
-        <div class="bg-white border border-gray-200 rounded-lg p-6">
-            <div class="flex justify-between items-center mb-4">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Policy Cover Premium Table</h3>
-                    <p class="text-sm text-gray-600">Configure premiums with flexible dependent count tiers (e.g., 1-5, 6-9, 10-15)</p>
-                </div>
-                <button type="button" class="btn btn-sm btn-primary" (click)="addCoverRow()">
-                    <i class="pi pi-plus me-2"></i>
-                    Add Cover Amount
-                </button>
+<!-- Premium Calculation Settings Modal (Bootstrap) -->
+<div class="modal fade" [class.show]="showPremiumSettingsDialog" [style.display]="showPremiumSettingsDialog ? 'block' : 'none'" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document" style="max-width: 1400px;">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-calculator me-2"></i>Premium Calculation Settings
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="showPremiumSettingsDialog = false"></button>
             </div>
-
-            <!-- Loop through each cover amount row -->
-            <div *ngFor="let row of premiumSettings.policyCoverTable.rows; let rowIndex = index" class="mb-6 border border-gray-300 rounded-lg p-4 bg-gray-50">
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center space-x-4">
-                        <label class="text-sm font-medium text-gray-700">Cover Amount (R):</label>
-                        <input type="number" pInputText [(ngModel)]="row.coverAmount" class="w-32" placeholder="e.g., 10000" />
+            
+            <div class="modal-body">
+                <div *ngIf="loadingPremiumSettings" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                    <button type="button" class="btn btn-sm btn-danger" (click)="removeCoverRow(rowIndex)">
-                        <i class="pi pi-trash me-1"></i>
-                        Remove Cover
-                    </button>
+                    <p class="text-muted mt-3">Loading premium settings...</p>
                 </div>
 
-                <!-- Dependent Count Tiers Section -->
-                <div class="bg-white rounded-lg p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <h4 class="text-md font-semibold text-gray-700">Dependent Count Tiers</h4>
-                        <button type="button" class="btn btn-sm btn-success" (click)="addDependentTier(rowIndex)">
-                            <i class="pi pi-plus me-1"></i>
-                            Add Tier
-                        </button>
-                    </div>
+                <div *ngIf="!loadingPremiumSettings && premiumSettings" class="premium-settings-content">
+                    <!-- Policy Cover Premium Table -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h5 class="card-title mb-1">Policy Cover Premium Table</h5>
+                                    <p class="text-muted small mb-0">Configure premiums with flexible dependent count tiers (e.g., 1-5, 6-9, 10-15)</p>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" (click)="addCoverRow()">
+                                    <i class="bi bi-plus-lg me-2"></i>Add Cover Amount
+                                </button>
+                            </div>
 
-                    <!-- Show tiers if they exist -->
-                    <div *ngIf="row.dependentCountTiers && row.dependentCountTiers.length > 0" class="space-y-3">
-                        <div *ngFor="let tier of row.dependentCountTiers; let tierIndex = index" class="border border-gray-200 rounded-lg p-3 bg-gray-50">
-                            <div class="grid grid-cols-12 gap-3 items-center mb-3">
-                                <div class="col-span-3">
-                                    <label class="text-xs text-gray-600">Min Dependents</label>
-                                    <input type="number" pInputText [(ngModel)]="tier.minDependents" class="w-full mt-1" placeholder="e.g., 1" />
-                                </div>
-                                <div class="col-span-3">
-                                    <label class="text-xs text-gray-600">Max Dependents</label>
-                                    <input type="number" pInputText [(ngModel)]="tier.maxDependents" class="w-full mt-1" placeholder="e.g., 5" />
-                                </div>
-                                <div class="col-span-5">
-                                    <label class="text-xs text-gray-600">Label</label>
-                                    <input type="text" pInputText [(ngModel)]="tier.label" class="w-full mt-1" placeholder="e.g., 1-5 dependents" />
-                                </div>
-                                <div class="col-span-1 flex justify-end">
-                                    <button type="button" class="btn btn-sm btn-danger" (click)="removeDependentTier(rowIndex, tierIndex)">
-                                        <i class="pi pi-trash"></i>
+                            <!-- Loop through each cover amount row -->
+                            <div *ngFor="let row of premiumSettings.policyCoverTable.rows; let rowIndex = index" class="border rounded p-3 mb-3 bg-light">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <label class="form-label mb-0 fw-semibold">Cover Amount (R):</label>
+                                        <input type="number" class="form-control form-control-sm" style="width: 150px;" [(ngModel)]="row.coverAmount" placeholder="e.g., 10000" />
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-danger" (click)="removeCoverRow(rowIndex)">
+                                        <i class="bi bi-trash me-1"></i>Remove Cover
                                     </button>
+                                </div>
+
+                                <!-- Dependent Count Tiers Section -->
+                                <div class="bg-white rounded p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0">Dependent Count Tiers</h6>
+                                        <button type="button" class="btn btn-sm btn-success" (click)="addDependentTier(rowIndex)">
+                                            <i class="bi bi-plus-lg me-1"></i>Add Tier
+                                        </button>
+                                    </div>
+
+                                    <!-- Show tiers if they exist -->
+                                    <div *ngIf="row.dependentCountTiers && row.dependentCountTiers.length > 0" class="vstack gap-3">
+                                        <div *ngFor="let tier of row.dependentCountTiers; let tierIndex = index" class="border rounded p-3 bg-light">
+                                            <div class="row g-2 align-items-center mb-3">
+                                                <div class="col-md-3">
+                                                    <label class="form-label small text-muted">Min Dependents</label>
+                                                    <input type="number" class="form-control form-control-sm" [(ngModel)]="tier.minDependents" placeholder="e.g., 1" />
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label small text-muted">Max Dependents</label>
+                                                    <input type="number" class="form-control form-control-sm" [(ngModel)]="tier.maxDependents" placeholder="e.g., 5" />
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <label class="form-label small text-muted">Label</label>
+                                                    <input type="text" class="form-control form-control-sm" [(ngModel)]="tier.label" placeholder="e.g., 1-5 dependents" />
+                                                </div>
+                                                <div class="col-md-1 text-end">
+                                                    <button type="button" class="btn btn-sm btn-danger" (click)="removeDependentTier(rowIndex, tierIndex)">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Age Brackets for this tier -->
+                                            <div class="mt-3 ps-3 border-start border-primary border-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <span class="small fw-semibold">Age Brackets</span>
+                                                    <button type="button" class="btn btn-xs btn-sm btn-primary" (click)="addAgeBracket(rowIndex, tierIndex)">
+                                                        <i class="bi bi-plus-lg me-1"></i>Add Age Bracket
+                                                    </button>
+                                                </div>
+
+                                                <div *ngIf="getAgeBracketsArray(tier).length > 0" class="vstack gap-2">
+                                                    <div *ngFor="let bracket of getAgeBracketsArray(tier); trackBy: trackByBracketKey; let bracketIndex = index" class="row g-2 align-items-center bg-white p-2 rounded">
+                                                        <div class="col-md-3">
+                                                            <label class="form-label small text-muted mb-1">Max Age</label>
+                                                            <input type="number" class="form-control form-control-sm" [(ngModel)]="bracket.key" placeholder="e.g., 64" readonly />
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label small text-muted mb-1">Label</label>
+                                                            <input type="text" class="form-control form-control-sm" [(ngModel)]="bracket.value.label" placeholder="e.g., Under 65" />
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label small text-muted mb-1">Premium (R)</label>
+                                                            <input type="number" class="form-control form-control-sm" [(ngModel)]="bracket.value.premium" placeholder="e.g., 220" />
+                                                        </div>
+                                                        <div class="col-md-1 text-end">
+                                                            <button type="button" class="btn btn-xs btn-sm btn-danger" (click)="removeAgeBracket(tier, bracket.key)">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div *ngIf="getAgeBracketsArray(tier).length === 0" class="small text-muted fst-italic py-2">
+                                                    No age brackets defined. Click "Add Age Bracket" to create one.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Empty state for tiers -->
+                                    <div *ngIf="!row.dependentCountTiers || row.dependentCountTiers.length === 0" class="text-center py-4 text-muted small">
+                                        No dependent count tiers defined. Click "Add Tier" to create one (e.g., 1-5, 6-9).
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Age Brackets for this tier -->
-                            <div class="mt-3 pl-4 border-l-2 border-blue-300">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-xs font-medium text-gray-700">Age Brackets</span>
-                                    <button type="button" class="btn btn-xs btn-primary" (click)="addAgeBracket(rowIndex, tierIndex)">
-                                        <i class="pi pi-plus me-1"></i>
-                                        Add Age Bracket
-                                    </button>
-                                </div>
-
-                                <div *ngIf="getAgeBracketsArray(tier).length > 0" class="space-y-2">
-                                    <div *ngFor="let bracket of getAgeBracketsArray(tier); trackBy: trackByBracketKey; let bracketIndex = index" class="grid grid-cols-12 gap-2 items-center bg-white p-2 rounded">
-                                        <div class="col-span-3">
-                                            <label class="text-xs text-gray-500">Max Age</label>
-                                            <input type="number" pInputText [(ngModel)]="bracket.key" class="w-full mt-1 text-sm" placeholder="e.g., 64" readonly />
-                                        </div>
-                                        <div class="col-span-4">
-                                            <label class="text-xs text-gray-500">Label</label>
-                                            <input type="text" pInputText [(ngModel)]="bracket.value.label" class="w-full mt-1 text-sm" placeholder="e.g., Under 65" />
-                                        </div>
-                                        <div class="col-span-4">
-                                            <label class="text-xs text-gray-500">Premium (R)</label>
-                                            <input type="number" pInputText [(ngModel)]="bracket.value.premium" class="w-full mt-1 text-sm" placeholder="e.g., 220" />
-                                        </div>
-                                        <div class="col-span-1 flex justify-end">
-                                            <button type="button" class="btn btn-xs btn-danger" (click)="removeAgeBracket(tier, bracket.key)">
-                                                <i class="pi pi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div *ngIf="getAgeBracketsArray(tier).length === 0" class="text-xs text-gray-500 italic py-2">
-                                    No age brackets defined. Click "Add Age Bracket" to create one.
-                                </div>
+                            <!-- Empty state for cover amounts -->
+                            <div *ngIf="!premiumSettings.policyCoverTable.rows || premiumSettings.policyCoverTable.rows.length === 0" class="text-center py-5 text-muted">
+                                No cover amounts defined. Click "Add Cover Amount" to get started.
                             </div>
                         </div>
                     </div>
 
-                    <!-- Empty state for tiers -->
-                    <div *ngIf="!row.dependentCountTiers || row.dependentCountTiers.length === 0" class="text-center py-4 text-gray-500 text-sm">
-                        No dependent count tiers defined. Click "Add Tier" to create one (e.g., 1-5, 6-9).
+                    <!-- Extended Family Benefit Table -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h5 class="card-title mb-1">Extended Family Benefit Table</h5>
+                                    <p class="text-muted small mb-0">Configure premiums for extended family members based on age ranges and cover amounts</p>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" (click)="addExtendedFamilyRow()">
+                                    <i class="bi bi-plus-lg me-2"></i>Add Row
+                                </button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="small">Min Age</th>
+                                            <th class="small">Max Age</th>
+                                            <th class="small">Age Range</th>
+                                            <th class="small">R5,000 Cover</th>
+                                            <th class="small">R10,000 Cover</th>
+                                            <th class="small">R15,000 Cover</th>
+                                            <th class="small">R20,000 Cover</th>
+                                            <th class="small">R25,000 Cover</th>
+                                            <th class="small">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let row of premiumSettings.extendedFamilyTable.rows; let i = index">
+                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.minAge" placeholder="e.g., 0" /></td>
+                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.maxAge" placeholder="e.g., 20" /></td>
+                                            <td><input type="text" class="form-control form-control-sm" [(ngModel)]="row.ageRange" placeholder="e.g., 0-20" /></td>
+                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_5000_Cover" placeholder="e.g., 50" /></td>
+                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_10000_Cover" placeholder="e.g., 75" /></td>
+                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_15000_Cover" placeholder="e.g., 100" /></td>
+                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_20000_Cover" placeholder="e.g., 125" /></td>
+                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_25000_Cover" placeholder="e.g., 150" /></td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-danger" (click)="removeExtendedFamilyRow(i)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <div class="d-flex align-items-start gap-3">
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+                            <div class="small">
+                                <p class="fw-semibold mb-2">Premium Calculation Guidelines:</p>
+                                <ul class="mb-0">
+                                    <li><strong>Policy Cover Table:</strong> Defines base premiums based on cover amount and dependent count/age brackets</li>
+                                    <li><strong>Extended Family Table:</strong> Additional premiums for extended family members based on their age and selected cover</li>
+                                    <li>Premium amounts should be in the tenant's configured currency ({{currency}})</li>
+                                    <li>Changes take effect immediately for new premium calculations</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Empty state for cover amounts -->
-            <div *ngIf="!premiumSettings.policyCoverTable.rows || premiumSettings.policyCoverTable.rows.length === 0" class="text-center py-8 text-gray-500">
-                No cover amounts defined. Click "Add Cover Amount" to get started.
-            </div>
-        </div>
-
-        <!-- Extended Family Benefit Table -->
-        <div class="bg-white border border-gray-200 rounded-lg p-6">
-            <div class="flex justify-between items-center mb-4">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800">Extended Family Benefit Table</h3>
-                    <p class="text-sm text-gray-600">Configure premiums for extended family members based on age ranges and cover amounts</p>
-                </div>
-                <button type="button" class="btn btn-sm btn-primary" (click)="addExtendedFamilyRow()">
-                    <i class="pi pi-plus me-2"></i>
-                    Add Row
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="showPremiumSettingsDialog = false">
+                    <i class="bi bi-x-lg me-2"></i>Close
                 </button>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Min Age</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max Age</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age Range</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R5,000 Cover</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R10,000 Cover</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R15,000 Cover</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R20,000 Cover</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">R25,000 Cover</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr *ngFor="let row of premiumSettings.extendedFamilyTable.rows; let i = index" class="hover:bg-gray-50">
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <input type="number" pInputText [(ngModel)]="row.minAge" class="w-full" placeholder="e.g., 0" />
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <input type="number" pInputText [(ngModel)]="row.maxAge" class="w-full" placeholder="e.g., 20" />
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <input type="text" pInputText [(ngModel)]="row.ageRange" class="w-full" placeholder="e.g., 0-20" />
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <input type="number" pInputText [(ngModel)]="row.premium_5000_Cover" class="w-full" placeholder="e.g., 50" />
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <input type="number" pInputText [(ngModel)]="row.premium_10000_Cover" class="w-full" placeholder="e.g., 75" />
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <input type="number" pInputText [(ngModel)]="row.premium_15000_Cover" class="w-full" placeholder="e.g., 100" />
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <input type="number" pInputText [(ngModel)]="row.premium_20000_Cover" class="w-full" placeholder="e.g., 125" />
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <input type="number" pInputText [(ngModel)]="row.premium_25000_Cover" class="w-full" placeholder="e.g., 150" />
-                            </td>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <button type="button" class="btn btn-sm btn-danger" (click)="removeExtendedFamilyRow(i)">
-                                    <i class="pi pi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-                <i class="pi pi-info-circle text-blue-600 mt-1"></i>
-                <div class="text-sm text-blue-800">
-                    <p class="font-semibold mb-1">Premium Calculation Guidelines:</p>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li><strong>Policy Cover Table:</strong> Defines base premiums based on cover amount and dependent count/age brackets</li>
-                        <li><strong>Extended Family Table:</strong> Additional premiums for extended family members based on their age and selected cover</li>
-                        <li>Premium amounts should be in the tenant's configured currency ({{currency}})</li>
-                        <li>Changes take effect immediately for new premium calculations</li>
-                    </ul>
-                </div>
+                <button type="button" class="btn btn-success" (click)="savePremiumSettings()">
+                    <i class="bi bi-check-lg me-2"></i>Save Premium Settings
+                </button>
             </div>
         </div>
     </div>
-
-    <ng-template pTemplate="footer">
-        <div class="flex justify-end gap-2">
-            <button type="button" class="btn btn-secondary" (click)="showPremiumSettingsDialog = false">
-                <i class="pi pi-times me-2"></i>
-                Close
-            </button>
-            <button type="button" class="btn btn-success" (click)="savePremiumSettings()">
-                <i class="pi pi-check me-2"></i>
-                Save Premium Settings
-            </button>
-        </div>
-    </ng-template>
-</p-dialog>
+</div>
+<div class="modal-backdrop fade" [class.show]="showPremiumSettingsDialog" *ngIf="showPremiumSettingsDialog"></div>

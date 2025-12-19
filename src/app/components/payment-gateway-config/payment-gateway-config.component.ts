@@ -30,200 +30,266 @@ interface Provider {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="container mx-auto p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">Payment Gateway Configuration</h2>
+    <div class="container-fluid p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="bi bi-credit-card me-2"></i>Payment Gateway Configuration</h2>
         <button (click)="showForm = true; resetForm()"
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-          <span class="mr-2">+</span> Add Gateway
+                class="btn btn-primary">
+          <i class="bi bi-plus-circle me-1"></i> Add Gateway
         </button>
       </div>
 
       <!-- Alert Message -->
-      <div *ngIf="message" [class]="messageClass" class="mb-6 p-4 rounded-lg">
+      <div *ngIf="message" [class]="messageClass" class="alert alert-dismissible fade show mb-4" role="alert">
         {{ message }}
+        <button type="button" class="btn-close" (click)="message = ''" aria-label="Close"></button>
       </div>
 
       <!-- Gateway Configuration Form -->
-      <div *ngIf="showForm" class="bg-white shadow-lg rounded-lg p-6 mb-6">
-        <h3 class="text-lg font-semibold mb-4">
-          {{ editingConfig ? 'Edit' : 'Add' }} Payment Gateway
-        </h3>
-        
-        <form [formGroup]="configForm" (ngSubmit)="saveConfig()">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Provider Selection -->
-            <div>
-              <label class="block text-sm font-medium mb-2">Payment Provider *</label>
-              <select formControlName="provider" 
-                      [disabled]="!!editingConfig"
-                      class="w-full border rounded-lg px-3 py-2 disabled:bg-gray-100">
-                <option value="">Select Provider</option>
-                <option *ngFor="let provider of providers" [value]="provider.value">
-                  {{ provider.displayName }}
-                </option>
-              </select>
+      <div *ngIf="showForm" class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-{{ editingConfig ? 'pencil' : 'plus-circle' }} me-2"></i>
+            {{ editingConfig ? 'Edit' : 'Add' }} Payment Gateway
+          </h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="configForm" (ngSubmit)="saveConfig()">
+            <div class="row g-3">
+              <!-- Provider Selection -->
+              <div class="col-md-6">
+                <label for="provider" class="form-label fw-semibold">
+                  <i class="bi bi-building me-1"></i>Payment Provider *
+                </label>
+                <select id="provider" formControlName="provider" 
+                        [disabled]="!!editingConfig"
+                        class="form-select">
+                  <option value="">Select Provider</option>
+                  <option *ngFor="let provider of providers" [value]="provider.value">
+                    {{ provider.displayName }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Test Mode Toggle -->
+              <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="isTestMode" formControlName="isTestMode">
+                  <label class="form-check-label" for="isTestMode">
+                    <i class="bi bi-bug me-1"></i>Test Mode (Sandbox)
+                  </label>
+                </div>
+              </div>
+
+              <!-- Merchant ID -->
+              <div class="col-md-6">
+                <label for="merchantId" class="form-label fw-semibold">
+                  <i class="bi bi-hash me-1"></i>Merchant ID
+                </label>
+                <input type="text" id="merchantId" formControlName="merchantId"
+                       class="form-control"
+                       placeholder="Enter merchant ID">
+              </div>
+
+              <!-- Site Code (for Ozow) -->
+              <div class="col-md-6">
+                <label for="siteCode" class="form-label fw-semibold">
+                  <i class="bi bi-code-square me-1"></i>Site Code
+                </label>
+                <input type="text" id="siteCode" formControlName="siteCode"
+                       class="form-control"
+                       placeholder="Enter site code (Ozow only)">
+                <div class="form-text">Required for Ozow integration</div>
+              </div>
+
+              <!-- API Key -->
+              <div class="col-md-6">
+                <label for="apiKey" class="form-label fw-semibold">
+                  <i class="bi bi-key me-1"></i>API Key
+                </label>
+                <input type="password" id="apiKey" formControlName="apiKey"
+                       class="form-control"
+                       placeholder="Enter API key">
+                <div class="form-text">Leave blank to keep existing</div>
+              </div>
+
+              <!-- Secret Key -->
+              <div class="col-md-6">
+                <label for="secretKey" class="form-label fw-semibold">
+                  <i class="bi bi-shield-lock me-1"></i>Secret/Merchant Key
+                </label>
+                <input type="password" id="secretKey" formControlName="secretKey"
+                       class="form-control"
+                       placeholder="Enter secret key">
+                <div class="form-text">Leave blank to keep existing</div>
+              </div>
+
+              <!-- Pass Phrase (for PayFast) -->
+              <div class="col-12">
+                <label for="passPhrase" class="form-label fw-semibold">
+                  <i class="bi bi-lock me-1"></i>Pass Phrase (PayFast)
+                </label>
+                <input type="password" id="passPhrase" formControlName="passPhrase"
+                       class="form-control"
+                       placeholder="Enter pass phrase">
+                <div class="form-text">Required for PayFast. Leave blank to keep existing.</div>
+              </div>
+
+              <!-- Webhook URL -->
+              <div class="col-12">
+                <label for="webhookUrl" class="form-label fw-semibold">
+                  <i class="bi bi-arrow-left-right me-1"></i>Webhook URL <span class="badge bg-info">Optional</span>
+                </label>
+                <input type="url" id="webhookUrl" formControlName="webhookUrl"
+                       class="form-control" readonly>
+                <div class="form-text">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <strong>This is YOUR backend URL</strong> where the payment gateway sends notifications.
+                  Copy this URL and paste it in <strong>PayFast/Ozow's dashboard settings</strong>, not the other way around.
+                </div>
+              </div>
+
+              <!-- Return URL -->
+              <div class="col-md-6">
+                <label for="returnUrl" class="form-label fw-semibold">
+                  <i class="bi bi-check-circle me-1"></i>Return URL (Success)
+                </label>
+                <input type="url" id="returnUrl" formControlName="returnUrl"
+                       class="form-control">
+                <div class="form-text">User redirected here after successful payment</div>
+              </div>
+
+              <!-- Cancel URL -->
+              <div class="col-md-6">
+                <label for="cancelUrl" class="form-label fw-semibold">
+                  <i class="bi bi-x-circle me-1"></i>Cancel URL (Failed)
+                </label>
+                <input type="url" id="cancelUrl" formControlName="cancelUrl"
+                       class="form-control">
+                <div class="form-text">User redirected here if payment is cancelled</div>
+              </div>
+
+              <!-- Active Toggle -->
+              <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="isActive" formControlName="isActive">
+                  <label class="form-check-label" for="isActive">
+                    <i class="bi bi-power me-1"></i>Active
+                  </label>
+                </div>
+              </div>
             </div>
 
-            <!-- Test Mode Toggle -->
-            <div class="flex items-center">
-              <label class="flex items-center cursor-pointer">
-                <input type="checkbox" formControlName="isTestMode" class="mr-2">
-                <span class="text-sm font-medium">Test Mode (Sandbox)</span>
-              </label>
+            <div class="d-flex gap-2 mt-4">
+              <button type="submit" 
+                      [disabled]="!configForm.valid || saving"
+                      class="btn btn-primary">
+                <i class="bi bi-{{ saving ? 'arrow-repeat spin' : 'save' }} me-1"></i>
+                {{ saving ? 'Saving...' : (editingConfig ? 'Update' : 'Create') }}
+              </button>
+              <button type="button" 
+                      (click)="cancelEdit()"
+                      class="btn btn-secondary">
+                <i class="bi bi-x-lg me-1"></i>Cancel
+              </button>
             </div>
-
-            <!-- Merchant ID -->
-            <div>
-              <label class="block text-sm font-medium mb-2">Merchant ID</label>
-              <input type="text" formControlName="merchantId"
-                     class="w-full border rounded-lg px-3 py-2"
-                     placeholder="Enter merchant ID">
-            </div>
-
-            <!-- Site Code (for Ozow) -->
-            <div>
-              <label class="block text-sm font-medium mb-2">Site Code</label>
-              <input type="text" formControlName="siteCode"
-                     class="w-full border rounded-lg px-3 py-2"
-                     placeholder="Enter site code (Ozow only)">
-            </div>
-
-            <!-- API Key -->
-            <div>
-              <label class="block text-sm font-medium mb-2">API Key</label>
-              <input type="password" formControlName="apiKey"
-                     class="w-full border rounded-lg px-3 py-2"
-                     placeholder="Enter API key">
-              <p class="text-xs text-gray-500 mt-1">Leave blank to keep existing</p>
-            </div>
-
-            <!-- Secret Key -->
-            <div>
-              <label class="block text-sm font-medium mb-2">Secret/Merchant Key</label>
-              <input type="password" formControlName="secretKey"
-                     class="w-full border rounded-lg px-3 py-2"
-                     placeholder="Enter secret key">
-              <p class="text-xs text-gray-500 mt-1">Leave blank to keep existing</p>
-            </div>
-
-            <!-- Pass Phrase (for PayFast) -->
-            <div class="md:col-span-2">
-              <label class="block text-sm font-medium mb-2">Pass Phrase (PayFast)</label>
-              <input type="password" formControlName="passPhrase"
-                     class="w-full border rounded-lg px-3 py-2"
-                     placeholder="Enter pass phrase">
-              <p class="text-xs text-gray-500 mt-1">Required for PayFast. Leave blank to keep existing.</p>
-            </div>
-
-            <!-- Webhook URL -->
-            <div>
-              <label class="block text-sm font-medium mb-2">Webhook URL</label>
-              <input type="url" formControlName="webhookUrl"
-                     class="w-full border rounded-lg px-3 py-2"
-                     placeholder="https://yourdomain.com/api/payment-gateway/webhook">
-            </div>
-
-            <!-- Return URL -->
-            <div>
-              <label class="block text-sm font-medium mb-2">Return URL</label>
-              <input type="url" formControlName="returnUrl"
-                     class="w-full border rounded-lg px-3 py-2"
-                     placeholder="https://yourdomain.com/payment-success">
-            </div>
-
-            <!-- Cancel URL -->
-            <div>
-              <label class="block text-sm font-medium mb-2">Cancel URL</label>
-              <input type="url" formControlName="cancelUrl"
-                     class="w-full border rounded-lg px-3 py-2"
-                     placeholder="https://yourdomain.com/payment-cancelled">
-            </div>
-
-            <!-- Active Toggle -->
-            <div class="flex items-center">
-              <label class="flex items-center cursor-pointer">
-                <input type="checkbox" formControlName="isActive" class="mr-2">
-                <span class="text-sm font-medium">Active</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="mt-6 flex gap-4">
-            <button type="submit" 
-                    [disabled]="!configForm.valid || saving"
-                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50">
-              {{ saving ? 'Saving...' : (editingConfig ? 'Update' : 'Create') }}
-            </button>
-            <button type="button" 
-                    (click)="cancelEdit()"
-                    class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400">
-              Cancel
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
 
       <!-- Existing Configurations List -->
-      <div class="bg-white shadow rounded-lg overflow-hidden">
-        <table class="min-w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provider</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Merchant ID</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mode</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr *ngFor="let config of configs">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <span class="font-medium">{{ getProviderName(config.provider) }}</span>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">{{ config.merchantId || 'N/A' }}</td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span [class]="config.isTestMode ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'" 
-                      class="px-2 py-1 text-xs rounded-full">
-                  {{ config.isTestMode ? 'Test' : 'Live' }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <button (click)="toggleActive(config)" 
-                        [class]="config.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
-                        class="px-3 py-1 text-xs rounded-full hover:opacity-80">
-                  {{ config.isActive ? 'Active' : 'Inactive' }}
-                </button>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <button (click)="editConfig(config)" class="text-blue-600 hover:text-blue-800 mr-3">
-                  Edit
-                </button>
-                <button (click)="deleteConfig(config)" class="text-red-600 hover:text-red-800">
-                  Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        
-        <div *ngIf="configs.length === 0" class="text-center py-8 text-gray-500">
-          No payment gateways configured. Click "Add Gateway" to get started.
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Configured Gateways</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th><i class="bi bi-building me-1"></i>Provider</th>
+                  <th><i class="bi bi-hash me-1"></i>Merchant ID</th>
+                  <th><i class="bi bi-gear me-1"></i>Mode</th>
+                  <th><i class="bi bi-power me-1"></i>Status</th>
+                  <th><i class="bi bi-tools me-1"></i>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let config of configs">
+                  <td>
+                    <strong>{{ getProviderName(config.provider) }}</strong>
+                  </td>
+                  <td>{{ config.merchantId || 'N/A' }}</td>
+                  <td>
+                    <span [class]="config.isTestMode ? 'badge bg-warning' : 'badge bg-success'">
+                      <i class="bi bi-{{ config.isTestMode ? 'bug' : 'check-circle' }} me-1"></i>
+                      {{ config.isTestMode ? 'Test' : 'Live' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button (click)="toggleActive(config)" 
+                            [class]="config.isActive ? 'badge bg-success border-0' : 'badge bg-secondary border-0'"
+                            style="cursor: pointer;">
+                      <i class="bi bi-{{ config.isActive ? 'check-circle-fill' : 'x-circle' }} me-1"></i>
+                      {{ config.isActive ? 'Active' : 'Inactive' }}
+                    </button>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button (click)="editConfig(config)" class="btn btn-outline-primary" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button (click)="deleteConfig(config)" class="btn btn-outline-danger" title="Delete">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div *ngIf="configs.length === 0" class="text-center py-5 text-muted">
+            <i class="bi bi-inbox display-4 d-block mb-3"></i>
+            <p>No payment gateways configured. Click "Add Gateway" to get started.</p>
+          </div>
         </div>
       </div>
 
       <!-- Configuration Guide -->
-      <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 class="font-semibold text-blue-900 mb-2">Configuration Guide</h3>
-        <ul class="text-sm text-blue-800 space-y-1">
-          <li>• <strong>Ozow:</strong> Requires Site Code, API Key, and Private Key</li>
-          <li>• <strong>PayFast:</strong> Requires Merchant ID, Merchant Key, and Pass Phrase</li>
-          <li>• <strong>Yoco:</strong> Requires Secret Key and Public Key</li>
-          <li>• Configure webhook URLs in your payment provider dashboard</li>
-          <li>• Always test in sandbox mode before going live</li>
-        </ul>
+      <div class="alert alert-info mt-4" role="alert">
+        <h5 class="alert-heading">
+          <i class="bi bi-info-circle-fill me-2"></i>Configuration Guide
+        </h5>
+        <hr>
+        <div class="mb-3">
+          <h6 class="fw-bold">Required Fields by Provider:</h6>
+          <ul class="small mb-2">
+            <li><strong>Ozow:</strong> Site Code, API Key, and Private Key</li>
+            <li><strong>PayFast:</strong> Merchant ID, Merchant Key, and Pass Phrase</li>
+            <li><strong>Yoco:</strong> Secret Key and Public Key</li>
+          </ul>
+        </div>
+        <div class="mb-3">
+          <h6 class="fw-bold">Understanding URLs:</h6>
+          <ul class="small mb-2">
+            <li><strong>Test Mode Toggle:</strong> Use sandbox credentials when enabled, production credentials when disabled</li>
+            <li><strong>Webhook URL:</strong> YOUR backend endpoint that receives payment notifications from the gateway</li>
+            <li><strong>Return URL:</strong> Where users are redirected after successful payment</li>
+            <li><strong>Cancel URL:</strong> Where users are redirected if they cancel the payment</li>
+          </ul>
+        </div>
+        <div>
+          <h6 class="fw-bold">Setup Steps:</h6>
+          <ol class="small mb-0">
+            <li>Enable <strong>Test Mode</strong> and use sandbox credentials from PayFast/Ozow dashboard</li>
+            <li>Copy the <strong>Webhook URL</strong> shown above</li>
+            <li>Go to your PayFast/Ozow dashboard → Settings → Webhooks/Notifications</li>
+            <li>Paste YOUR webhook URL into their system</li>
+            <li>Test payments in sandbox mode</li>
+            <li>When ready, disable Test Mode and update with production credentials</li>
+          </ol>
+        </div>
       </div>
     </div>
   `
@@ -237,11 +303,19 @@ export class PaymentGatewayConfigComponent implements OnInit {
   saving = false;
   message = '';
   messageClass = '';
+  defaultUrls: { webhookUrl: string; returnUrl: string; cancelUrl: string } = {
+    webhookUrl: '',
+    returnUrl: '',
+    cancelUrl: ''
+  };
 
   constructor(
     private fb: FormBuilder,
     private paymentConfigService: Payment_configServiceProxy
   ) {
+    // Get base URL for default placeholders
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com';
+    
     this.configForm = this.fb.group({
       provider: ['', Validators.required],
       merchantId: [''],
@@ -249,12 +323,18 @@ export class PaymentGatewayConfigComponent implements OnInit {
       apiKey: [''],
       secretKey: [''],
       passPhrase: [''],
-      webhookUrl: [''],
-      returnUrl: [''],
-      cancelUrl: [''],
+      webhookUrl: [baseUrl + '/api/payment-gateway/webhook'],
+      returnUrl: [baseUrl + '/payment-success'],
+      cancelUrl: [baseUrl + '/payment-cancelled'],
       isActive: [true],
       isTestMode: [true]
     });
+    
+    this.defaultUrls = {
+      webhookUrl: baseUrl + '/api/payment-gateway/webhook',
+      returnUrl: baseUrl + '/payment-success',
+      cancelUrl: baseUrl + '/payment-cancelled'
+    };
   }
 
   ngOnInit(): void {
@@ -280,16 +360,33 @@ export class PaymentGatewayConfigComponent implements OnInit {
     if (!this.configForm.valid) return;
 
     this.saving = true;
-    const formData = this.configForm.value as PaymentGatewayConfigDto;
+    const formValue = this.configForm.value;
+    
+    // Get base URL for default URLs
+    const baseUrl = window.location.origin;
+    
+    // Construct DTO properly
+    const dto = new PaymentGatewayConfigDto();
+    dto.provider = +formValue.provider; // Convert string to number
+    dto.merchantId = formValue.merchantId || undefined;
+    dto.siteCode = formValue.siteCode || undefined;
+    dto.apiKey = formValue.apiKey || undefined;
+    dto.secretKey = formValue.secretKey || undefined;
+    dto.passPhrase = formValue.passPhrase || undefined;
+    dto.webhookUrl = formValue.webhookUrl || `${baseUrl}/api/payment-gateway/webhook`;
+    dto.returnUrl = formValue.returnUrl || `${baseUrl}/payment-success`;
+    dto.cancelUrl = formValue.cancelUrl || `${baseUrl}/payment-cancelled`;
+    dto.isActive = formValue.isActive ?? true;
+    dto.isTestMode = formValue.isTestMode ?? true;
 
     const request = this.editingConfig
-      ? this.paymentConfigService.gatewayUpdate(this.editingConfig.id!, formData)
-      : this.paymentConfigService.gatewayCreate(formData);
+      ? this.paymentConfigService.gatewayUpdate(this.editingConfig.id!, dto)
+      : this.paymentConfigService.gatewayCreate(dto);
 
     request.subscribe({
       next: () => {
         this.message = `Gateway ${this.editingConfig ? 'updated' : 'created'} successfully!`;
-        this.messageClass = 'bg-green-100 text-green-800 border border-green-300';
+        this.messageClass = 'alert-success';
         this.showForm = false;
         this.loadConfigs();
         this.resetForm();
@@ -297,7 +394,7 @@ export class PaymentGatewayConfigComponent implements OnInit {
       },
       error: (err) => {
         this.message = err.error?.message || 'Error saving configuration';
-        this.messageClass = 'bg-red-100 text-red-800 border border-red-300';
+        this.messageClass = 'alert-danger';
         this.saving = false;
       }
     });
@@ -326,12 +423,12 @@ export class PaymentGatewayConfigComponent implements OnInit {
     this.paymentConfigService.gatewayDelete(config.id!).subscribe({
       next: () => {
         this.message = 'Configuration deleted successfully!';
-        this.messageClass = 'bg-green-100 text-green-800 border border-green-300';
+        this.messageClass = 'alert-success';
         this.loadConfigs();
       },
-      error: (err) => {
+      error: (_err: any) => {
         this.message = 'Error deleting configuration';
-        this.messageClass = 'bg-red-100 text-red-800 border border-red-300';
+        this.messageClass = 'alert-danger';
       }
     });
   }
@@ -340,12 +437,12 @@ export class PaymentGatewayConfigComponent implements OnInit {
     this.paymentConfigService.gatewayToggle(config.id!).subscribe({
       next: (response: any) => {
         this.message = response.message;
-        this.messageClass = 'bg-green-100 text-green-800 border border-green-300';
+        this.messageClass = 'alert-success';
         this.loadConfigs();
       },
       error: (_err: any) => {
         this.message = 'Error toggling configuration';
-        this.messageClass = 'bg-red-100 text-red-800 border border-red-300';
+        this.messageClass = 'alert-danger';
       }
     });
   }

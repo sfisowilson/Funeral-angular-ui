@@ -1,0 +1,32 @@
+.text-green-500 {
+  color: var(--green-500) !important;
+}
+
+.text-red-500 {
+  color: var(--red-500) !important;
+}
+
+.pi-check-circle, .pi-times-circle {
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+h2 {
+  font-weight: 600;
+}
+
+ul {
+  li {
+    line-height: 1.8;
+  }
+}

@@ -1,0 +1,265 @@
+<div class="grid">
+    <div class="col-12">
+        <!-- Stats Cards -->
+        <div class="grid mb-4">
+            <div class="col-12 md:col-6 lg:col-3" *ngIf="stats()">
+                <div class="stat-card">
+                    <div class="stat-icon bg-blue-500">
+                        <i class="pi pi-file"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total Invoices</span>
+                        <span class="stat-value">{{ stats()!.totalInvoices }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-3" *ngIf="stats()">
+                <div class="stat-card">
+                    <div class="stat-icon bg-green-500">
+                        <i class="bi bi-check-lg-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Paid</span>
+                        <span class="stat-value">{{ stats()!.paidInvoices }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-3" *ngIf="stats()">
+                <div class="stat-card">
+                    <div class="stat-icon bg-orange-500">
+                        <i class="pi pi-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Pending</span>
+                        <span class="stat-value">{{ stats()!.pendingInvoices }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-3" *ngIf="stats()">
+                <div class="stat-card">
+                    <div class="stat-icon bg-purple-500">
+                        <i class="pi pi-money-bill"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total Amount</span>
+                        <span class="stat-value">{{ formatCurrency(stats()!.totalAmount) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoices Table -->
+        <div class="card"><div class="card-header" *ngIf="''"></div><div class="card-body">
+            <ng-template pTemplate="header">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h3 class="m-0">Invoice Management</h3>
+                    </ng-template>
+                </ng-template>
+
+            <!-- Filters -->
+            <div class="grid mb-3">
+                <div class="col-12 md:col-4">
+                    <span class="p-input-icon-left w-full">
+                        <i class="bi bi-search"></i>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            [(ngModel)]="searchText"
+                            placeholder="Search by tenant or invoice number..."
+                            class="w-full"
+                            (keyup.enter)="applyFilters()" />
+                    </span>
+                </div>
+                <div class="col-12 md:col-2">
+                    <select class="form-select" [(ngModel)]="statusFilter">
+    <option [ngValue]="undefined">Filter by status</option>
+    <option *ngFor="let item of statusOptions" [ngValue]="item.value">{{ item.label }}</option>
+</select>
+                    
+                </div>
+                <div class="col-12 md:col-2">
+                    <input type="date" class="form-control" [(ngModel)]="dateFrom">
+                    
+                </div>
+                <div class="col-12 md:col-2">
+                    <input type="date" class="form-control" [(ngModel)]="dateTo">
+                    
+                </div>
+                <div class="col-12 md:col-2 flex gap-2">
+                    <p-button 
+                        label="Apply" 
+                        icon="bi bi-check-lg"
+                        styleClass="btn-sm"
+                        (click)="applyFilters()">
+                    
+                    <p-button 
+                        label="Clear" 
+                        icon="bi bi-x-lg"
+                        styleClass="btn-sm btn-outlined"
+                        (click)="clearFilters()">
+                    
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive"><table class="table table-hover table-striped">
+                
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="invoiceNumber">
+                            Invoice # <p-sortIcon field="invoiceNumber"></p-sortIcon>
+                        </th>
+                        <th>Tenant</th>
+                        <th pSortableColumn="issueDate">
+                            Issue Date <p-sortIcon field="issueDate"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="dueDate">
+                            Due Date <p-sortIcon field="dueDate"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="totalAmount">
+                            Amount <p-sortIcon field="totalAmount"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="status">
+                            Status <p-sortIcon field="status"></p-sortIcon>
+                        </th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-invoice>
+                    <tr>
+                        <td>
+                            <code class="invoice-number">{{ invoice.invoiceNumber }}</code>
+                        </td>
+                        <td>{{ invoice.tenantName || 'N/A' }}</td>
+                        <td>{{ formatDate(invoice.issueDate) }}</td>
+                        <td>{{ formatDate(invoice.dueDate) }}</td>
+                        <td>
+                            <div class="font-semibold">{{ formatCurrency(invoice.totalAmount) }}</div>
+                            <div *ngIf="invoice.discountAmount" class="text-sm text-green-600">
+                                Discount: {{ formatCurrency(invoice.discountAmount) }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge" [ngClass]="'bg-' + getStatusSeverity(invoice.status)">{{ invoice.status }}</span>
+                            
+                        </td>
+                        <td>
+                            <div class="flex gap-1 flex-wrap">
+                                <p-button 
+                                    icon="bi bi-download" 
+                                    styleClass="btn-text btn-sm"
+                                    [pTooltip]="'Download PDF'"
+                                    (click)="downloadInvoice(invoice)">
+                                
+                                <p-button 
+                                    icon="pi pi-file-pdf" 
+                                    styleClass="btn-text btn-sm"
+                                    [pTooltip]="'Generate PDF'"
+                                    (click)="generatePdf(invoice)"
+                                    *ngIf="!invoice.pdfUrl">
+                                
+                                <p-button 
+                                    icon="pi pi-send" 
+                                    styleClass="btn-text btn-sm"
+                                    [pTooltip]="'Resend'"
+                                    (click)="resendInvoice(invoice)">
+                                
+                                <p-button 
+                                    icon="bi bi-x-lg" 
+                                    styleClass="btn-text btn-sm btn-danger"
+                                    [pTooltip]="'Void'"
+                                    (click)="openVoidDialog(invoice)"
+                                    [disabled]="!canVoid(invoice)">
+                                
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="7" class="text-center p-5">
+                            <i class="pi pi-info-circle text-4xl text-color-secondary mb-3"></i>
+                            <p class="text-color-secondary m-0">No invoices found.</p>
+                        </td>
+                    </tr>
+                </ng-template>
+            </table></div>
+        </div></div>
+    </div>
+</div>
+
+<!-- Void Dialog -->
+<p-dialog 
+    [(visible)]="showVoidDialog" 
+    header="Void Invoice" 
+    [modal]="true"
+    [style]="{width: '500px'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <div class="flex flex-column gap-3" *ngIf="selectedInvoice">
+        <p-messages class="text-warning">
+            <ng-template pTemplate="content">
+                Voiding an invoice will permanently mark it as cancelled. This action cannot be undone.
+            </ng-template>
+        
+
+        <div class="grid">
+            <div class="col-6">
+                <div class="field">
+                    <label class="font-semibold">Invoice Number</label>
+                    <p>{{ selectedInvoice.invoiceNumber }}</p>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="field">
+                    <label class="font-semibold">Amount</label>
+                    <p>{{ formatCurrency(selectedInvoice.totalAmount) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="voidReason" class="font-semibold">Reason *</label>
+            <textarea 
+                id="voidReason"
+                class="form-control"
+                [(ngModel)]="voidReason"
+                rows="3"
+                placeholder="Explain why this invoice is being voided..."
+                class="w-full"
+                [disabled]="voiding">
+            </textarea>
+        </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+        <p-button 
+            label="Cancel" 
+            icon="bi bi-x-lg" 
+            styleClass="btn-text"
+            (click)="showVoidDialog = false"
+            [disabled]="voiding">
+        
+        <p-button 
+            label="Void Invoice" 
+            icon="bi bi-check-lg"
+            styleClass="btn-danger"
+            (click)="voidInvoice()"
+            [loading]="voiding">
+        
+    </ng-template>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="$1" *ngIf="$1"></div>
+
+<!-- Toast replaced with custom alert system -->
+<!-- ConfirmDialog replaced with custom confirmation system --></p-confirmDialog>

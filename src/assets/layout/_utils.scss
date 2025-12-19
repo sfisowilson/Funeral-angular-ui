@@ -5,16 +5,7 @@
     clear: both;
 }
 
-.card {
-    background: var(--surface-card);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border-radius: var(--content-border-radius);
-
-    &:last-child {
-        margin-bottom: 0;
-    }
-}
+/* Removed PrimeNG card override to use Bootstrap's native .card styles */
 
 .p-toast {
     &.p-toast-top-right,

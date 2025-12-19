@@ -1,0 +1,253 @@
+<div class="grid">
+    <div class="col-12">
+        <!-- Stats Cards -->
+        <div class="grid mb-4">
+            <div class="col-12 md:col-6 lg:col-3" *ngIf="stats()">
+                <div class="stat-card">
+                    <div class="stat-icon bg-blue-500">
+                        <i class="pi pi-credit-card"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total Payments</span>
+                        <span class="stat-value">{{ stats()!.totalPayments }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-3" *ngIf="stats()">
+                <div class="stat-card">
+                    <div class="stat-icon bg-green-500">
+                        <i class="bi bi-check-lg-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Successful</span>
+                        <span class="stat-value">{{ stats()!.successfulPayments }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-3" *ngIf="stats()">
+                <div class="stat-card">
+                    <div class="stat-icon bg-red-500">
+                        <i class="bi bi-x-lg-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Failed</span>
+                        <span class="stat-value">{{ stats()!.failedPayments }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 md:col-6 lg:col-3" *ngIf="stats()">
+                <div class="stat-card">
+                    <div class="stat-icon bg-purple-500">
+                        <i class="pi pi-money-bill"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-label">Total Amount</span>
+                        <span class="stat-value">{{ formatCurrency(stats()!.totalAmount) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Table -->
+        <div class="card"><div class="card-header" *ngIf="''"></div><div class="card-body">
+            <ng-template pTemplate="header">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h3 class="m-0">Payment Management</h3>
+                    </ng-template>
+                </ng-template>
+
+            <!-- Filters -->
+            <div class="grid mb-3">
+                <div class="col-12 md:col-3">
+                    <select class="form-select" [(ngModel)]="statusFilter">
+    <option [ngValue]="undefined">Filter by status</option>
+    <option *ngFor="let item of statusOptions" [ngValue]="item.value">{{ item.label }}</option>
+</select>
+                    
+                </div>
+                <div class="col-12 md:col-3">
+                    <select class="form-select" [(ngModel)]="gatewayFilter">
+    <option [ngValue]="undefined">Filter by gateway</option>
+    <option *ngFor="let item of gatewayOptions" [ngValue]="item.value">{{ item.label }}</option>
+</select>
+                    
+                </div>
+                <div class="col-12 md:col-2">
+                    <input type="date" class="form-control" [(ngModel)]="dateFrom">
+                    
+                </div>
+                <div class="col-12 md:col-2">
+                    <input type="date" class="form-control" [(ngModel)]="dateTo">
+                    
+                </div>
+                <div class="col-12 md:col-2 flex gap-2">
+                    <p-button 
+                        label="Apply" 
+                        icon="bi bi-check-lg"
+                        styleClass="btn-sm"
+                        (click)="applyFilters()">
+                    
+                    <p-button 
+                        label="Clear" 
+                        icon="bi bi-x-lg"
+                        styleClass="btn-sm btn-outlined"
+                        (click)="clearFilters()">
+                    
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive"><table class="table table-hover table-striped">
+                
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="id">
+                            ID <p-sortIcon field="id"></p-sortIcon>
+                        </th>
+                        <th>Tenant</th>
+                        <th pSortableColumn="amount">
+                            Amount <p-sortIcon field="amount"></p-sortIcon>
+                        </th>
+                        <th>Gateway</th>
+                        <th pSortableColumn="status">
+                            Status <p-sortIcon field="status"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="createdAt">
+                            Date <p-sortIcon field="createdAt"></p-sortIcon>
+                        </th>
+                        <th>Transaction ID</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-payment>
+                    <tr>
+                        <td>{{ payment.id }}</td>
+                        <td>{{ payment.tenantName || 'N/A' }}</td>
+                        <td>
+                            <span class="font-semibold">{{ formatCurrency(payment.amount) }}</span>
+                            <div *ngIf="payment.refundAmount" class="text-sm text-red-500">
+                                Refunded: {{ formatCurrency(payment.refundAmount) }}
+                            </div>
+                        </td>
+                        <td>{{ payment.paymentGateway }}</td>
+                        <td>
+                            <span class="badge" [ngClass]="'bg-' + getStatusSeverity(payment.status)">{{ payment.status }}</span>
+                            
+                        </td>
+                        <td>{{ formatDate(payment.createdAt) }}</td>
+                        <td>
+                            <small class="text-color-secondary">{{ payment.paymentGatewayTransactionId || 'N/A' }}</small>
+                        </td>
+                        <td>
+                            <p-button 
+                                icon="pi pi-undo" 
+                                styleClass="btn-text btn-sm btn-warning"
+                                [pTooltip]="'Refund'"
+                                (click)="openRefundDialog(payment)"
+                                [disabled]="!canRefund(payment)">
+                            
+                        </td>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="8" class="text-center p-5">
+                            <i class="pi pi-info-circle text-4xl text-color-secondary mb-3"></i>
+                            <p class="text-color-secondary m-0">No payments found.</p>
+                        </td>
+                    </tr>
+                </ng-template>
+            </table></div>
+        </div></div>
+    </div>
+</div>
+
+<!-- Refund Dialog -->
+<p-dialog 
+    [(visible)]="showRefundDialog" 
+    header="Process Refund" 
+    [modal]="true"
+    [style]="{width: '500px'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <div class="flex flex-column gap-3" *ngIf="selectedPayment">
+        <p-messages class="text-warning">
+            <ng-template pTemplate="content">
+                Processing a refund will return the money to the customer. This action cannot be undone.
+            </ng-template>
+        
+
+        <div class="grid">
+            <div class="col-6">
+                <div class="field">
+                    <label class="font-semibold">Payment ID</label>
+                    <p>{{ selectedPayment.id }}</p>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="field">
+                    <label class="font-semibold">Original Amount</label>
+                    <p>{{ formatCurrency(selectedPayment.amount) }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="field">
+            <label for="refundAmount" class="font-semibold">Refund Amount *</label>
+            <p-inputNumber 
+                id="refundAmount"
+                [(ngModel)]="refundAmount"
+                [min]="0.01"
+                [max]="selectedPayment.amount"
+                prefix="R "
+                class="w-full"
+                [disabled]="refunding">
+            
+            <small class="text-color-secondary">Maximum: {{ formatCurrency(selectedPayment.amount) }}</small>
+        </div>
+
+        <div class="field">
+            <label for="refundReason" class="font-semibold">Reason *</label>
+            <textarea 
+                id="refundReason"
+                class="form-control"
+                [(ngModel)]="refundReason"
+                rows="3"
+                placeholder="Explain why this refund is being processed..."
+                class="w-full"
+                [disabled]="refunding">
+            </textarea>
+        </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+        <p-button 
+            label="Cancel" 
+            icon="bi bi-x-lg" 
+            styleClass="btn-text"
+            (click)="showRefundDialog = false"
+            [disabled]="refunding">
+        
+        <p-button 
+            label="Process Refund" 
+            icon="bi bi-check-lg"
+            styleClass="btn-danger"
+            (click)="processRefund()"
+            [loading]="refunding">
+        
+    </ng-template>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="$1" *ngIf="$1"></div>
+
+<!-- Toast replaced with custom alert system -->
+<!-- ConfirmDialog replaced with custom confirmation system --></p-confirmDialog>

@@ -1,0 +1,323 @@
+<div class="container-fluid py-4">
+    <!-- Alerts -->
+    <div *ngFor="let alert of alerts" class="alert alert-{{alert.type}} alert-dismissible fade show" role="alert">
+        {{ alert.message }}
+        <button type="button" class="btn-close" (click)="dismissAlert(alert)"></button>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <!-- Loading State -->
+            <div *ngIf="loading()" class="text-center p-5">
+                <div class="spinner-border text-primary mb-4" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h3 class="mt-4">Loading your subscription...</h3>
+            </div>
+
+            <!-- No Active Subscription -->
+            <div *ngIf="!loading() && !subscription()">
+                <div class="card">
+                    <div class="card-body text-center p-5">
+                        <i class="bi bi-info-circle text-primary" style="font-size: 4rem;"></i>
+                        <h2 class="mt-3">No Active Subscription</h2>
+                        <p class="mb-4">You don't have an active subscription yet.</p>
+                        <button 
+                            class="btn btn-primary"
+                            (click)="upgradeSubscription()">
+                            <i class="bi bi-cart me-2"></i>
+                            Browse Plans
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Subscription -->
+            <ng-container *ngIf="!loading() && subscription()">
+                <!-- Subscription Overview -->
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">My Subscription</h3>
+                            <span class="badge bg-{{ getStatusSeverity(subscription()!.status) }}">
+                                {{ subscription()!.status?.toString() || '' }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3 mb-4">
+                                <div class="col-12 col-md-6 col-lg-3">
+                                    <div class="d-flex align-items-center p-3 border rounded">
+                                        <div class="flex-shrink-0 bg-primary text-white rounded p-3 me-3">
+                                            <i class="bi bi-box"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Current Plan</small>
+                                            <strong>{{ subscription()!.subscriptionPlan?.name || 'N/A' }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 col-lg-3">
+                                    <div class="d-flex align-items-center p-3 border rounded">
+                                        <div class="flex-shrink-0 bg-success text-white rounded p-3 me-3">
+                                            <i class="bi bi-calendar"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Next Billing Date</small>
+                                            <strong>{{ formatDate(subscription()!.currentPeriodEnd) }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 col-lg-3">
+                                    <div class="d-flex align-items-center p-3 border rounded">
+                                        <div class="flex-shrink-0 bg-info text-white rounded p-3 me-3">
+                                            <i class="bi bi-clock"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Days Remaining</small>
+                                            <strong>{{ getDaysRemaining() }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 col-lg-3">
+                                    <div class="d-flex align-items-center p-3 border rounded">
+                                        <div class="flex-shrink-0 bg-warning text-white rounded p-3 me-3">
+                                            <i class="bi bi-currency-dollar"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Monthly Amount</small>
+                                            <strong>{{ formatCurrency(subscription()!.monthlyAmount || 0) }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex flex-wrap gap-2">
+                                <button 
+                                    class="btn btn-outline-primary"
+                                    (click)="openCouponDialog()">
+                                    <i class="bi bi-tag me-2"></i>
+                                    Apply Coupon
+                                </button>
+                                <button 
+                                    class="btn btn-outline-primary"
+                                    (click)="upgradeSubscription()">
+                                    <i class="bi bi-arrow-up me-2"></i>
+                                    Upgrade Plan
+                                </button>
+                                <button 
+                                    class="btn btn-outline-danger"
+                                    (click)="openCancelDialog()"
+                                    [disabled]="subscription()!.status?.toString() === 'Cancelled'">
+                                    <i class="bi bi-x me-2"></i>
+                                    Cancel Subscription
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment History -->
+                <div class="col-12 col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h3 class="mb-0">Payment History</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let payment of payments().slice(0, 5)">
+                                            <td>{{ formatDate(payment.createdAt) }}</td>
+                                            <td>{{ formatCurrency(payment.amount) }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ getStatusSeverity(payment.status) }}">
+                                                    {{ payment.status }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr *ngIf="payments().length === 0">
+                                            <td colspan="3" class="text-center p-4">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                No payment history available
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoices -->
+                <div class="col-12 col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h3 class="mb-0">Invoices</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice #</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let invoice of invoices().slice(0, 5)">
+                                            <td>{{ invoice.invoiceNumber }}</td>
+                                            <td>{{ formatDate(invoice.issueDate) }}</td>
+                                            <td>{{ formatCurrency(invoice.totalAmount) }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ getStatusSeverity(invoice.status) }}">
+                                                    {{ invoice.status }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button 
+                                                    class="btn btn-sm btn-link"
+                                                    title="Download Invoice"
+                                                    (click)="downloadInvoice(invoice.id)">
+                                                    <i class="bi bi-download"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr *ngIf="invoices().length === 0">
+                                            <td colspan="5" class="text-center p-4">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                No invoices available
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
+
+<!-- Apply Coupon Dialog -->
+<div class="modal fade" [class.show]="showCouponDialog" [style.display]="showCouponDialog ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Apply Coupon Code</h5>
+                <button type="button" class="btn-close" (click)="showCouponDialog = false" [disabled]="applyingCoupon"></button>
+            </div>
+            <div class="modal-body">
+                <p>Enter your coupon code to receive a discount on your next payment.</p>
+                
+                <div class="mb-3">
+                    <label for="couponCode" class="form-label">Coupon Code</label>
+                    <input 
+                        id="couponCode"
+                        type="text"
+                        class="form-control"
+                        [(ngModel)]="couponCode"
+                        placeholder="Enter coupon code"
+                        [disabled]="applyingCoupon" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button 
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="showCouponDialog = false"
+                    [disabled]="applyingCoupon">
+                    <i class="bi bi-x me-2"></i>
+                    Cancel
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-primary"
+                    (click)="applyCoupon()"
+                    [disabled]="!couponCode.trim() || applyingCoupon">
+                    <span *ngIf="applyingCoupon" class="spinner-border spinner-border-sm me-2"></span>
+                    <i *ngIf="!applyingCoupon" class="bi bi-check me-2"></i>
+                    Apply
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showCouponDialog" *ngIf="showCouponDialog"></div>
+
+<!-- Cancel Subscription Dialog -->
+<div class="modal fade" [class.show]="showCancelDialog" [style.display]="showCancelDialog ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Subscription</h5>
+                <button type="button" class="btn-close" (click)="showCancelDialog = false" [disabled]="cancelling"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    Are you sure you want to cancel your subscription? You will lose access to all features at the end of your current billing period.
+                </div>
+                
+                <p>Your subscription will remain active until {{ formatDate(subscription()?.currentPeriodEnd) }}.</p>
+            </div>
+            <div class="modal-footer">
+                <button 
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="showCancelDialog = false"
+                    [disabled]="cancelling">
+                    <i class="bi bi-x me-2"></i>
+                    Keep Subscription
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-danger"
+                    (click)="cancelSubscription()"
+                    [disabled]="cancelling">
+                    <span *ngIf="cancelling" class="spinner-border spinner-border-sm me-2"></span>
+                    <i *ngIf="!cancelling" class="bi bi-check me-2"></i>
+                    Cancel Subscription
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showCancelDialog" *ngIf="showCancelDialog"></div>
+
+<!-- Confirmation Dialog -->
+<div class="modal fade" [class.show]="showConfirmCancelDialog" [style.display]="showConfirmCancelDialog ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Cancellation</h5>
+                <button type="button" class="btn-close" (click)="cancelConfirmAction()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-exclamation-triangle text-warning me-3" style="font-size: 2rem;"></i>
+                    <p class="mb-0">{{ confirmMessage }}</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="cancelConfirmAction()">Cancel</button>
+                <button type="button" class="btn btn-danger" (click)="confirmCancelAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showConfirmCancelDialog" *ngIf="showConfirmCancelDialog"></div>

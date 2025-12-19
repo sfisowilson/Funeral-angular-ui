@@ -1,20 +1,59 @@
-<div class="modern-card">
-    <div class="card-header">
-        <h2>Onboarding Settings</h2>
-        <p>Configure terms & conditions, required documents, and dynamic form fields for member onboarding</p>
+<div class="container-fluid p-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-1"><i class="bi bi-gear-fill me-2 text-primary"></i>Onboarding Settings</h2>
+            <p class="text-muted mb-0">Configure terms & conditions, required documents, and dynamic form fields for member onboarding</p>
+        </div>
     </div>
 
-    <div class="card-content">
-        <p-tabView [(activeIndex)]="activeIndex">
-            <p-tabPanel header="Terms & Conditions">
-                <app-terms-management />
-            </p-tabPanel>
-            <p-tabPanel header="Required Documents">
-                <app-required-documents />
-            </p-tabPanel>
-            <p-tabPanel header="Field Configuration">
-                <app-field-configuration />
-            </p-tabPanel>
-        </p-tabView>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <!-- Bootstrap Nav Tabs with proper borders -->
+            <ul class="nav nav-tabs border-0 px-3 pt-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button 
+                        class="nav-link px-4 py-2" 
+                        [class.active]="activeIndex() === 0"
+                        type="button" 
+                        role="tab"
+                        (click)="activeIndex.set(0)">
+                        <i class="bi bi-file-text me-2"></i>Terms & Conditions
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button 
+                        class="nav-link px-4 py-2" 
+                        [class.active]="activeIndex() === 1"
+                        type="button" 
+                        role="tab"
+                        (click)="activeIndex.set(1)">
+                        <i class="bi bi-file-earmark-check me-2"></i>Required Documents
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button 
+                        class="nav-link px-4 py-2" 
+                        [class.active]="activeIndex() === 2"
+                        type="button" 
+                        role="tab"
+                        (click)="activeIndex.set(2)">
+                        <i class="bi bi-sliders me-2"></i>Field Configuration
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content with proper border -->
+            <div class="tab-content border-top" style="min-height: 400px;">
+                <div class="tab-pane fade p-4" [class.show]="activeIndex() === 0" [class.active]="activeIndex() === 0" role="tabpanel">
+                    <app-terms-management />
+                </div>
+                <div class="tab-pane fade p-4" [class.show]="activeIndex() === 1" [class.active]="activeIndex() === 1" role="tabpanel">
+                    <app-required-documents />
+                </div>
+                <div class="tab-pane fade p-4" [class.show]="activeIndex() === 2" [class.active]="activeIndex() === 2" role="tabpanel">
+                    <app-field-configuration />
+                </div>
+            </div>
+        </div>
     </div>
 </div>

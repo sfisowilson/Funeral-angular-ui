@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
 import { TenantSettingsService } from '../../../core/services/tenant-settings.service';
+import { TenantService } from '../../../core/services/tenant.service';
 import { AuthService } from '../../../auth/auth-service';
 import { CommonModule } from '@angular/common';
 
@@ -51,7 +52,7 @@ import { CommonModule } from '@angular/common';
             <div class="flex border-t lg:border-t-0 border-surface py-4 lg:py-0 mt-4 lg:mt-0 gap-2">
                 <ng-container *ngIf="!isLoggedIn; else loggedInButtons">
                     <button pButton pRipple label="Login" routerLink="/auth/login" [rounded]="true" [text]="true"></button>
-                    <button pButton pRipple label="Register" routerLink="/auth/register" [rounded]="true"></button>
+                    <button pButton pRipple label="Register" (click)="navigateToRegister()" [rounded]="true"></button>
                 </ng-container>
                 <ng-template #loggedInButtons>
                     <button pButton pRipple label="Logout" (click)="logout()" [rounded]="true"></button>
@@ -68,6 +69,7 @@ export class TopbarWidget implements OnInit {
     constructor(
         public router: Router,
         private tenantSettingsService: TenantSettingsService,
+        private tenantService: TenantService,
         private authService: AuthService
     ) {}
 
@@ -81,5 +83,13 @@ export class TopbarWidget implements OnInit {
     logout(): void {
         this.authService.logout();
         this.router.navigate(['/auth/login']);
+    }
+
+    getRegisterUrl(): string {
+        return this.tenantService.getTenantType() === 'host' ? '/auth/tenant-register' : '/auth/register';
+    }
+
+    navigateToRegister(): void {
+        this.router.navigateByUrl(this.getRegisterUrl());
     }
 }

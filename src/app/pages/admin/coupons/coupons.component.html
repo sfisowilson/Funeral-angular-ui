@@ -1,0 +1,161 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <button class="btn btn-success me-2" (click)="openNew()">
+                <i class="bi bi-plus-lg"></i> New
+            </button>
+            <button class="btn btn-secondary" (click)="exportCSV()">
+                <i class="bi bi-download"></i> Export
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-striped">
+            <thead>
+                <tr>
+                    <th style="width: 12%">Code</th>
+                    <th style="width: 15%">Name</th>
+                    <th style="width: 20%">Description</th>
+                    <th style="width: 10%">Type</th>
+                    <th style="width: 10%">Discount</th>
+                    <th style="width: 10%">Redeemed</th>
+                    <th style="width: 12%">Expires</th>
+                    <th style="width: 8%">Active</th>
+                    <th style="width: 8%">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let coupon of coupons()">
+                    <td><span class="fw-bold">{{ coupon.code }}</span></td>
+                    <td>{{ coupon.name }}</td>
+                    <td>{{ coupon.description }}</td>
+                    <td>{{ coupon.discountType === 'Percentage' ? '%' : 'Fixed' }}</td>
+                    <td>
+                        <span *ngIf="coupon.discountType === 'Percentage'">{{ coupon.discountValue }}%</span>
+                        <span *ngIf="coupon.discountType === 'FixedAmount'">R {{ coupon.discountValue | number: '1.2-2' }}</span>
+                    </td>
+                    <td>{{ coupon.currentRedemptions }}<span *ngIf="coupon.maxRedemptions"> / {{ coupon.maxRedemptions }}</span></td>
+                    <td>
+                        <span *ngIf="coupon.validUntil">{{ coupon.validUntil | date: 'short' }}</span>
+                        <span *ngIf="!coupon.validUntil" class="text-secondary">Never</span>
+                    </td>
+                    <td>
+                        <i class="bi" [ngClass]="{ 'bi-check-circle text-success': coupon.isActive, 'bi-x-circle text-danger': !coupon.isActive }"></i>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-success me-1" (click)="editCoupon(coupon)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning" (click)="deleteCoupon(coupon)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" [class.show]="couponDialog" [style.display]="couponDialog ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Coupon Details</h5>
+                <button type="button" class="btn-close" (click)="hideDialog()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="code" class="form-label">Code *</label>
+                        <input type="text" class="form-control" id="code" [(ngModel)]="coupon.code" [disabled]="coupon.id" placeholder="e.g., SAVE20" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="name" [(ngModel)]="coupon.name" placeholder="e.g., Save 20%" />
+                    </div>
+
+                    <div class="col-12">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" [(ngModel)]="coupon.description" rows="3" placeholder="Coupon description..."></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="discountType" class="form-label">Discount Type *</label>
+                        <select class="form-select" id="discountType" [(ngModel)]="coupon.discountType">
+                            <option value="">Select type</option>
+                            <option *ngFor="let type of discountTypes" [value]="type.value">{{ type.label }}</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="discountValue" class="form-label">Discount Value *</label>
+                        <input type="number" class="form-control" id="discountValue" [(ngModel)]="coupon.discountValue" placeholder="0.00" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="validFrom" class="form-label">Valid From *</label>
+                        <input type="date" class="form-control" id="validFrom" [(ngModel)]="coupon.validFrom" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="validUntil" class="form-label">Valid Until</label>
+                        <input type="date" class="form-control" id="validUntil" [(ngModel)]="coupon.validUntil" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="durationInMonths" class="form-label">Duration (Months) *</label>
+                        <input type="number" class="form-control" id="durationInMonths" [(ngModel)]="coupon.durationInMonths" min="1" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="maxRedemptions" class="form-label">Max Redemptions</label>
+                        <input type="number" class="form-control" id="maxRedemptions" [(ngModel)]="coupon.maxRedemptions" min="1" placeholder="Unlimited if empty" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="minimumPurchase" class="form-label">Minimum Purchase Amount</label>
+                        <input type="number" class="form-control" id="minimumPurchase" [(ngModel)]="coupon.minimumPurchaseAmount" placeholder="0.00" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="campaignName" class="form-label">Campaign Name</label>
+                        <input type="text" class="form-control" id="campaignName" [(ngModel)]="coupon.campaignName" placeholder="e.g., BlackFriday2024" />
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="isFirstTimeOnly" [(ngModel)]="coupon.isFirstTimeOnly">
+                            <label class="form-check-label" for="isFirstTimeOnly">First Time Use Only</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12" *ngIf="coupon.id">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="isActive" [(ngModel)]="coupon.isActive">
+                            <label class="form-check-label" for="isActive">Active</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="internalNotes" class="form-label">Internal Notes</label>
+                        <textarea class="form-control" id="internalNotes" [(ngModel)]="coupon.internalNotes" rows="2" placeholder="Notes for team use only..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" (click)="saveCoupon()">
+                    <i class="bi bi-check-lg"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="couponDialog" *ngIf="couponDialog"></div>

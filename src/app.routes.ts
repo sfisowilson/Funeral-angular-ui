@@ -33,6 +33,18 @@ export const appRoutes: Routes = [
         data: { skipProfileCheck: true }
     },
 
+    // Payment result pages (standalone, publicly accessible)
+    {
+        path: 'payment-success',
+        loadComponent: () => import('./app/pages/payment-success/payment-success.component').then((m) => m.PaymentSuccessComponent),
+        data: { skipProfileCheck: true }
+    },
+    {
+        path: 'payment-cancelled',
+        loadComponent: () => import('./app/pages/payment-cancelled/payment-cancelled.component').then((m) => m.PaymentCancelledComponent),
+        data: { skipProfileCheck: true }
+    },
+
     // Host-specific routes
     {
         path: 'admin',

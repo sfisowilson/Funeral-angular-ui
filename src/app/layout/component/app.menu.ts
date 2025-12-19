@@ -111,6 +111,7 @@ export class AppMenu implements OnInit {
                 items: [
                     { label: 'Payment Gateway Config', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/payment-config'], visible: this.authService.hasPermission('Permission.payment.config.view') },
                     { label: 'Payment Settings', icon: 'pi pi-fw pi-credit-card', routerLink: ['/admin/payment-settings'], visible: this.authService.hasPermission('Permission.payment.settings.view') },
+                    { label: 'Coupons', icon: 'pi pi-fw pi-ticket', routerLink: ['/admin/pages/coupons'], visible: this.authService.hasPermission('Permission.coupon.view') },
                     { label: 'Debit Order Management', icon: 'pi pi-fw pi-file-export', routerLink: ['/admin/debit-orders'], visible: this.authService.hasPermission('Permission.debitorder.view') },
                     { label: 'Invoices', icon: 'pi pi-fw pi-money-bill', routerLink: ['/admin/invoices'], visible: this.authService.hasPermission('Permission.invoice.view') }
                 ]

@@ -1,0 +1,72 @@
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-color-secondary);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+  }
+}
+
+.invoice-number {
+  background: var(--surface-100);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+::ng-deep {
+  .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.75rem 1rem;
+  }
+
+  .p-toolbar {
+    padding: 1rem;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .p-dialog .field {
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+  }
+}

@@ -246,4 +246,8 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
             }
         });
     }
+
+    getRegisterRoute(): string {
+        return this.tenantService.getTenantType() === 'host' ? '/auth/tenant-register' : '/auth/register';
+    }
 }

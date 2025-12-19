@@ -1,0 +1,32 @@
+:host ::ng-deep {
+    .p-datepicker {
+        .p-datepicker-trigger {
+            right: 0.5rem;
+        }
+    }
+
+    .formgrid {
+        .field {
+            margin-bottom: 1rem;
+
+            label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+                color: #495057;
+
+                &.flex {
+                    margin-bottom: 0;
+                }
+            }
+
+            input, textarea, .p-dropdown, .p-inputnumber {
+                width: 100%;
+            }
+        }
+    }
+
+    .p-column-header-content {
+        font-weight: 600;
+    }
+}

@@ -22,6 +22,7 @@ import { PageBuilderComponent } from '../building-blocks/page-builder/page-build
 import { PdfFieldMappingComponent } from './pdf-field-mapping/pdf-field-mapping.component';
 import { MemberApprovalComponent } from './member-approval/member-approval.component';
 import { TenantApprovalComponent } from './tenant-approval/tenant-approval.component';
+import { CouponListComponent } from './admin/coupons/coupon-list.component';
 
 export default [
     { path: 'assets', component: AssetsComponent },
@@ -46,6 +47,7 @@ export default [
     { path: 'pdf-field-mapping', component: PdfFieldMappingComponent },
     { path: 'member-approval', component: MemberApprovalComponent },
     { path: 'tenant-approval', component: TenantApprovalComponent },
+    { path: 'coupons', component: CouponListComponent },
     { 
         path: 'page-builder', 
         component: PageBuilderComponent,

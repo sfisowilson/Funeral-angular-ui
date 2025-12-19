@@ -294,7 +294,14 @@ export class PdfFieldMappingComponent implements OnInit {
       defaultValue: this.mappingForm.defaultValue,
       checkedValue: this.mappingForm.checkedValue,
       uncheckedValue: this.mappingForm.uncheckedValue,
-      category: this.mappingForm.category
+      category: this.mappingForm.category,
+      isArrayField: false,
+      arrayName: undefined,
+      arrayFieldPattern: undefined,
+      arrayMaxItems: undefined,
+      sourceArrayPath: undefined,
+      fieldNamePrefix: undefined,
+      usePrefixInPdfFieldName: false
     });
 
     this.pdfFieldMappingService.pdfFieldMapping_Create(request).subscribe({
@@ -325,7 +332,14 @@ export class PdfFieldMappingComponent implements OnInit {
       defaultValue: this.mappingForm.defaultValue,
       checkedValue: this.mappingForm.checkedValue,
       uncheckedValue: this.mappingForm.uncheckedValue,
-      category: this.mappingForm.category
+      category: this.mappingForm.category,
+      isArrayField: false,
+      arrayName: undefined,
+      arrayFieldPattern: undefined,
+      arrayMaxItems: undefined,
+      sourceArrayPath: undefined,
+      fieldNamePrefix: undefined,
+      usePrefixInPdfFieldName: false
     });
 
     this.pdfFieldMappingService.pdfFieldMapping_Update(this.selectedMapping.id, request).subscribe({
@@ -376,7 +390,14 @@ export class PdfFieldMappingComponent implements OnInit {
       defaultValue: mapping.defaultValue,
       checkedValue: mapping.checkedValue,
       uncheckedValue: mapping.uncheckedValue,
-      category: mapping.category
+      category: mapping.category,
+      isArrayField: mapping.isArrayField || false,
+      arrayName: mapping.arrayName,
+      arrayFieldPattern: mapping.arrayFieldPattern,
+      arrayMaxItems: mapping.arrayMaxItems,
+      sourceArrayPath: mapping.sourceArrayPath,
+      fieldNamePrefix: mapping.fieldNamePrefix,
+      usePrefixInPdfFieldName: mapping.usePrefixInPdfFieldName || false
     });
 
     this.pdfFieldMappingService.pdfFieldMapping_Update(mapping.id, request).subscribe({

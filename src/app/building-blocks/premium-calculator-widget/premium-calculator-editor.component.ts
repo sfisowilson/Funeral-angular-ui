@@ -74,7 +74,7 @@ import { AccordionModule } from 'primeng/accordion';
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold">Sign Up URL</label>
-                            <input type="text" class="form-control" [(ngModel)]="config.signupUrl" placeholder="/register" />
+                            <input type="text" class="form-control" [(ngModel)]="config.signupUrl" placeholder="/auth/register (or /auth/tenant-register for host)" />
                         </div>
                     </div>
                 </p-accordionTab>

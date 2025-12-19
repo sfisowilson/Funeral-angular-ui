@@ -1,174 +1,185 @@
 <div class="terms-management">
-    <div class="action-bar">
+    <!-- Action Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="mb-0"><i class="bi bi-file-text me-2"></i>Terms & Conditions Management</h5>
+            <p class="text-muted small mb-0">Manage your terms and conditions versions</p>
+        </div>
         <button 
-            pButton 
-            label="Create New Terms" 
-            icon="pi pi-plus" 
-            class="p-button-primary"
+            type="button"
+            class="btn btn-primary"
             (click)="openNewDialog()">
+            <i class="bi bi-plus-lg me-2"></i>Create New Terms
         </button>
     </div>
 
-    <p-table 
-        [value]="terms()" 
-        [loading]="loading()"
-        styleClass="p-datatable-gridlines"
-        [paginator]="true"
-        [rows]="10"
-        [rowsPerPageOptions]="[5, 10, 20]"
-        responsiveLayout="scroll">
-        
-        <ng-template pTemplate="header">
-            <tr>
-                <th>Title</th>
-                <th>Version</th>
-                <th>Status</th>
-                <th>Effective Date</th>
-                <th>Expiry Date</th>
-                <th style="width: 150px">Actions</th>
-            </tr>
-        </ng-template>
-        
-        <ng-template pTemplate="body" let-term>
-            <tr>
-                <td>{{ term.title }}</td>
-                <td>{{ term.version }}</td>
-                <td>
-                    <span [class]="term.isActive ? 'status-badge active' : 'status-badge inactive'">
-                        {{ term.isActive ? 'Active' : 'Inactive' }}
-                    </span>
-                </td>
-                <td>{{ formatDate(term.effectiveDate) }}</td>
-                <td>{{ formatDate(term.expiryDate) }}</td>
-                <td>
-                    <button 
-                        pButton 
-                        icon="pi pi-eye" 
-                        class="p-button-text p-button-info"
-                        pTooltip="View"
-                        (click)="editTerm(term)">
-                    </button>
-                </td>
-            </tr>
-        </ng-template>
-        
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="6" class="text-center">No terms and conditions found</td>
-            </tr>
-        </ng-template>
-    </p-table>
-</div>
-
-<p-dialog 
-    [(visible)]="showDialog" 
-    [header]="isEditMode() ? 'View Terms & Conditions' : 'Create Terms & Conditions'"
-    [modal]="true" 
-    [style]="{width: '800px'}"
-    [draggable]="false"
-    [resizable]="false">
-    
-    <div class="dialog-content">
-        <div class="form-grid">
-            <div class="form-field">
-                <label for="title">Title *</label>
-                <input 
-                    id="title" 
-                    type="text" 
-                    pInputText 
-                    [(ngModel)]="currentTerm.title"
-                    [disabled]="isEditMode()"
-                    placeholder="Enter title">
-            </div>
-
-            <div class="form-field">
-                <label for="version">Version *</label>
-                <input 
-                    id="version" 
-                    type="text" 
-                    pInputText 
-                    [(ngModel)]="currentTerm.version"
-                    [disabled]="isEditMode()"
-                    placeholder="e.g., 1.0">
-            </div>
-
-            <div class="form-field full-width">
-                <label for="content">Content *</label>
-                <p-editor 
-                    [(ngModel)]="currentTerm.content" 
-                    [style]="{'height':'320px'}"
-                    [readonly]="isEditMode()">
-                    <ng-template pTemplate="header">
-                        <span class="ql-formats">
-                            <button type="button" class="ql-bold" aria-label="Bold"></button>
-                            <button type="button" class="ql-italic" aria-label="Italic"></button>
-                            <button type="button" class="ql-underline" aria-label="Underline"></button>
-                        </span>
-                        <span class="ql-formats">
-                            <button type="button" class="ql-list" value="ordered"></button>
-                            <button type="button" class="ql-list" value="bullet"></button>
-                        </span>
-                        <span class="ql-formats">
-                            <button type="button" class="ql-link"></button>
-                        </span>
-                    </ng-template>
-                </p-editor>
-            </div>
-
-            <div class="form-field">
-                <label for="effectiveDate">Effective Date *</label>
-                <p-calendar 
-                    id="effectiveDate" 
-                    [(ngModel)]="currentTerm.effectiveDate"
-                    [disabled]="isEditMode()"
-                    [showIcon]="true"
-                    dateFormat="mm/dd/yy">
-                </p-calendar>
-            </div>
-
-            <div class="form-field">
-                <label for="expiryDate">Expiry Date</label>
-                <p-calendar 
-                    id="expiryDate" 
-                    [(ngModel)]="currentTerm.expiryDate"
-                    [disabled]="isEditMode()"
-                    [showIcon]="true"
-                    dateFormat="mm/dd/yy">
-                </p-calendar>
-            </div>
-
-            <div class="form-field full-width">
-                <div class="checkbox-field">
-                    <p-checkbox 
-                        [(ngModel)]="currentTerm.isActive" 
-                        [binary]="true"
-                        [disabled]="isEditMode()"
-                        inputId="isActive">
-                    </p-checkbox>
-                    <label for="isActive">Set as Active</label>
-                </div>
-            </div>
+    <!-- Loading Spinner -->
+    <div *ngIf="loading()" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
         </div>
     </div>
 
-    <ng-template pTemplate="footer">
-        <button 
-            pButton 
-            label="Close" 
-            icon="pi pi-times" 
-            class="p-button-text"
-            (click)="cancel()">
-        </button>
-        <button 
-            *ngIf="!isEditMode()"
-            pButton 
-            label="Save" 
-            icon="pi pi-check" 
-            class="p-button-primary"
-            (click)="saveTerm()">
-        </button>
-    </ng-template>
-</p-dialog>
+    <!-- Table -->
+    <div *ngIf="!loading()" class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Version</th>
+                    <th>Status</th>
+                    <th>Effective Date</th>
+                    <th>Expiry Date</th>
+                    <th style="width: 100px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let term of terms()">
+                    <td class="fw-semibold">{{ term.title }}</td>
+                    <td><span class="badge bg-secondary">{{ term.version }}</span></td>
+                    <td>
+                        <span class="badge" [class.bg-success]="term.isActive" [class.bg-secondary]="!term.isActive">
+                            {{ term.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>{{ formatDate(term.effectiveDate) }}</td>
+                    <td>{{ formatDate(term.expiryDate) }}</td>
+                    <td>
+                        <button 
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            title="View"
+                            (click)="editTerm(term)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="terms().length === 0">
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        No terms and conditions found
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" [class.show]="showDialog()" [style.display]="showDialog() ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-text me-2"></i>{{ isEditMode() ? 'View Terms & Conditions' : 'Create Terms & Conditions' }}
+                </h5>
+                <button type="button" class="btn-close" (click)="cancel()"></button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                        <input 
+                            id="title" 
+                            type="text" 
+                            class="form-control"
+                            [(ngModel)]="currentTerm.title"
+                            [disabled]="isEditMode()"
+                            placeholder="Enter title">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="version" class="form-label">Version <span class="text-danger">*</span></label>
+                        <input 
+                            id="version" 
+                            type="text" 
+                            class="form-control"
+                            [(ngModel)]="currentTerm.version"
+                            [disabled]="isEditMode()"
+                            placeholder="e.g., 1.0">
+                    </div>
+
+                    <div class="col-12">
+                        <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
+                        <p-editor 
+                            [(ngModel)]="currentTerm.content" 
+                            [style]="{'height':'320px'}"
+                            [readonly]="isEditMode()">
+                            <ng-template pTemplate="header">
+                                <span class="ql-formats">
+                                    <button type="button" class="ql-bold" aria-label="Bold"></button>
+                                    <button type="button" class="ql-italic" aria-label="Italic"></button>
+                                    <button type="button" class="ql-underline" aria-label="Underline"></button>
+                                </span>
+                                <span class="ql-formats">
+                                    <button type="button" class="ql-list" value="ordered"></button>
+                                    <button type="button" class="ql-list" value="bullet"></button>
+                                </span>
+                                <span class="ql-formats">
+                                    <button type="button" class="ql-link"></button>
+                                </span>
+                            </ng-template>
+                        </p-editor>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="effectiveDate" class="form-label">Effective Date <span class="text-danger">*</span></label>
+                        <p-calendar 
+                            id="effectiveDate" 
+                            [(ngModel)]="currentTerm.effectiveDate"
+                            [disabled]="isEditMode()"
+                            [showIcon]="true"
+                            dateFormat="mm/dd/yy"
+                            styleClass="w-100">
+                        </p-calendar>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="expiryDate" class="form-label">Expiry Date</label>
+                        <p-calendar 
+                            id="expiryDate" 
+                            [(ngModel)]="currentTerm.expiryDate"
+                            [disabled]="isEditMode()"
+                            [showIcon]="true"
+                            dateFormat="mm/dd/yy"
+                            styleClass="w-100">
+                        </p-calendar>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check">
+                            <p-checkbox 
+                                [(ngModel)]="currentTerm.isActive" 
+                                [binary]="true"
+                                [disabled]="isEditMode()"
+                                inputId="isActive">
+                            </p-checkbox>
+                            <label class="form-check-label ms-2" for="isActive">Set as Active</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button 
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="cancel()">
+                    <i class="bi bi-x-lg me-2"></i>Close
+                </button>
+                <button 
+                    *ngIf="!isEditMode()"
+                    type="button"
+                    class="btn btn-primary"
+                    (click)="saveTerm()">
+                    <i class="bi bi-check-lg me-2"></i>Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showDialog()" *ngIf="showDialog()"></div>
 
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>

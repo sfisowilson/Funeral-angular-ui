@@ -1,129 +1,238 @@
-<div class="card">
-    <h5>User Profile</h5>
-
-    <div class="user-profile-container">
-        <h2>My Profile</h2>
-
-        <!-- Authentication Status -->
-        <div class="auth-status" [ngClass]="{ authenticated: authService.isAuthenticated(), 'not-authenticated': !authService.isAuthenticated() }">
-            <p><strong>Authentication Status:</strong> {{ authService.isAuthenticated() ? 'Authenticated' : 'Not Authenticated' }}</p>
-            <p *ngIf="authService.getToken()"><strong>Token Present:</strong> Yes</p>
-            <p *ngIf="!authService.getToken()"><strong>Token Present:</strong> No</p>
-            <p *ngIf="authService.decodeToken()"><strong>User ID:</strong> {{ authService.decodeToken().sub || 'N/A' }}</p>
+<div class="container-fluid p-4">
+  <!-- Not Authenticated State -->
+  <div *ngIf="!authService.isAuthenticated()" class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center p-5">
+          <div class="mb-4">
+            <i class="bi bi-lock-fill text-warning" style="font-size: 4rem;"></i>
+          </div>
+          <h3 class="card-title mb-3">Authentication Required</h3>
+          <p class="text-muted mb-4">Please log in to view and manage your profile.</p>
+          <a href="/auth/login" class="btn btn-primary btn-lg">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Go to Login
+          </a>
         </div>
-
-        <div *ngIf="!authService.isAuthenticated()" class="not-authenticated-message">
-            <h3>Authentication Required</h3>
-            <p>You must be logged in to view your profile.</p>
-
-            <!-- TEMPORARY LOGIN FORM FOR DEBUGGING -->
-            <div class="debug-login-form" style="margin: 20px 0; padding: 20px; border: 2px solid #007bff; border-radius: 8px; background-color: #f8f9fa">
-                <h4>🔧 Debug Login Form</h4>
-                <p><em>Temporary form for testing authentication</em></p>
-
-                <div class="form-group" style="margin-bottom: 15px">
-                    <label for="debugEmail">Email:</label>
-                    <input pInputText id="debugEmail" [(ngModel)]="debugLoginForm.email" placeholder="Enter email address" style="width: 100%; margin-top: 5px" />
-                </div>
-
-                <div class="form-group" style="margin-bottom: 15px">
-                    <label for="debugPassword">Password:</label>
-                    <input pInputText type="password" id="debugPassword" [(ngModel)]="debugLoginForm.password" placeholder="Enter password" style="width: 100%; margin-top: 5px" />
-                </div>
-
-                <button pButton type="button" label="Debug Login" (click)="debugLogin()" [disabled]="debugLoginInProgress" style="margin-right: 10px"></button>
-
-                <p *ngIf="debugLoginInProgress" style="color: #007bff; margin-top: 10px">🔄 Attempting login...</p>
-
-                <p *ngIf="debugLoginMessage" style="margin-top: 10px" [ngStyle]="{ color: debugLoginSuccess ? '#28a745' : '#dc3545' }">
-                    {{ debugLoginMessage }}
-                </p>
-            </div>
-
-            <p><a href="/auth/login" class="login-link">Click here to go to the main login page</a></p>
-            <p><em>Or use the navigation menu to go to the login page.</em></p>
-        </div>
-
-        <div *ngIf="authService.isAuthenticated() && !authService.hasPermission('Permission.UserProfile.View')" class="permission-denied-message">
-            <h3>Access Denied</h3>
-            <p>You don't have permission to view your profile.</p>
-            <p><strong>Required Permission:</strong> Permission.UserProfile.View</p>
-            <p><strong>Your Permissions:</strong></p>
-            <ul>
-                <li *ngFor="let permission of authService.getPermissions()">{{ permission }}</li>
-            </ul>
-            <p *ngIf="authService.getPermissions().length === 0"><em>No permissions assigned</em></p>
-            <p><strong>Your Roles:</strong></p>
-            <ul>
-                <li *ngFor="let role of authService.getRoles()">{{ role }}</li>
-            </ul>
-            <p *ngIf="authService.getRoles().length === 0"><em>No roles assigned</em></p>
-        </div>
-
-        <div *ngIf="isLoading" class="loading-section">
-            <p>Loading profile...</p>
-        </div>
-
-        <div *ngIf="!isLoading && authService.isAuthenticated()" class="profile-form">
-            <!-- PERMISSION CHECK TEMPORARILY COMMENTED OUT FOR DEBUGGING -->
-            <!-- && authService.hasPermission('Permission.UserProfile.View') -->
-            <div class="form-group">
-                <label for="firstName">First Name *</label>
-                <input pInputText id="firstName" [(ngModel)]="updateUserProfileDto.firstName" placeholder="Enter first name" required />
-            </div>
-
-            <div class="form-group">
-                <label for="lastName">Last Name *</label>
-                <input pInputText id="lastName" [(ngModel)]="updateUserProfileDto.lastName" placeholder="Enter last name" required />
-            </div>
-
-            <div class="form-group">
-                <label for="emailAddress">Email Address</label>
-                <input pInputText id="emailAddress" [value]="userProfile.emailAddress" placeholder="Email address" readonly />
-            </div>
-
-            <div class="form-group">
-                <label for="phoneNumber">Phone Number</label>
-                <input pInputText id="phoneNumber" [(ngModel)]="updateUserProfileDto.phoneNumber" placeholder="Enter phone number" />
-            </div>
-
-            <div class="form-group">
-                <label for="address">Address</label>
-                <textarea pInputTextarea id="address" [(ngModel)]="updateUserProfileDto.address" placeholder="Enter address" rows="3"> </textarea>
-            </div>
-
-            <div class="form-actions">
-                <button type="button" class="btn btn-primary" (click)="updateProfile()" [disabled]="isLoading || !isFormValid()">
-                    Update Profile
-                </button>
-
-                <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="isLoading">
-                    Reset
-                </button>
-            </div>
-
-            <!-- Debug Information -->
-            <div class="debug-info">
-                <h3>Debug Information</h3>
-                <p>User ID: {{ userProfile.id || 'Not loaded' }}</p>
-                <p>Email: {{ userProfile.emailAddress || 'Not loaded' }}</p>
-                <p>Loading: {{ isLoading }}</p>
-                <p>Form Valid: {{ isFormValid() }}</p>
-
-                <!-- Team Component Test -->
-                <div style="margin-top: 20px; padding: 15px; border: 2px solid #28a745; border-radius: 8px; background-color: #f8fff8">
-                    <h4>🏢 Team Component Test</h4>
-                    <button pButton type="button" label="Test Team Component" (click)="testTeamComponent()" style="margin-bottom: 10px"></button>
-
-                    <div *ngIf="showTeamTest" style="border: 1px solid #ddd; padding: 10px; margin-top: 10px">
-                        <app-team-editor-widget [config]="testTeamConfig"></app-team-editor-widget>
-                    </div>
-
-                    <p *ngIf="teamTestMessage" style="color: #007bff; margin-top: 10px">
-                        {{ teamTestMessage }}
-                    </p>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Authenticated State -->
+  <div *ngIf="authService.isAuthenticated()">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="mb-0">
+            <i class="bi bi-person-circle me-2"></i>My Profile
+          </h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="row" *ngIf="successMessage || errorMessage">
+      <div class="col-12">
+        <div class="alert alert-success alert-dismissible fade show" *ngIf="successMessage">
+          <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
+          <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" *ngIf="errorMessage">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+          <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="row">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted mb-0">Loading your profile...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Form -->
+    <div *ngIf="!isLoading" class="row">
+      <div class="col-lg-8 col-xl-6">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-semibold">Personal Information</h5>
+          </div>
+          <div class="card-body p-4">
+            <form>
+              <!-- First Name -->
+              <div class="mb-4">
+                <label for="firstName" class="form-label fw-semibold">
+                  First Name <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-person"></i>
+                  </span>
+                  <input 
+                    type="text" 
+                    class="form-control border-start-0" 
+                    id="firstName" 
+                    [(ngModel)]="updateUserProfileDto.firstName"
+                    name="firstName"
+                    placeholder="Enter your first name"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Last Name -->
+              <div class="mb-4">
+                <label for="lastName" class="form-label fw-semibold">
+                  Last Name <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-person"></i>
+                  </span>
+                  <input 
+                    type="text" 
+                    class="form-control border-start-0" 
+                    id="lastName" 
+                    [(ngModel)]="updateUserProfileDto.lastName"
+                    name="lastName"
+                    placeholder="Enter your last name"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Email (Read-only) -->
+              <div class="mb-4">
+                <label for="emailAddress" class="form-label fw-semibold">
+                  Email Address
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-envelope"></i>
+                  </span>
+                  <input 
+                    type="email" 
+                    class="form-control border-start-0 bg-light" 
+                    id="emailAddress" 
+                    [value]="userProfile.emailAddress"
+                    readonly
+                  />
+                </div>
+                <div class="form-text">
+                  <i class="bi bi-info-circle me-1"></i>Email address cannot be changed
+                </div>
+              </div>
+
+              <!-- Phone Number -->
+              <div class="mb-4">
+                <label for="phoneNumber" class="form-label fw-semibold">
+                  Phone Number
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-telephone"></i>
+                  </span>
+                  <input 
+                    type="tel" 
+                    class="form-control border-start-0" 
+                    id="phoneNumber" 
+                    [(ngModel)]="updateUserProfileDto.phoneNumber"
+                    name="phoneNumber"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+              </div>
+
+              <!-- Address -->
+              <div class="mb-4">
+                <label for="address" class="form-label fw-semibold">
+                  Address
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 align-items-start pt-2">
+                    <i class="bi bi-geo-alt"></i>
+                  </span>
+                  <textarea 
+                    class="form-control border-start-0" 
+                    id="address" 
+                    [(ngModel)]="updateUserProfileDto.address"
+                    name="address"
+                    rows="3"
+                    placeholder="Enter your address"
+                  ></textarea>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="d-flex gap-2 justify-content-end pt-3 border-top">
+                <button 
+                  type="button" 
+                  class="btn btn-outline-secondary"
+                  (click)="resetForm()"
+                  [disabled]="isLoading"
+                >
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-primary"
+                  (click)="updateProfile()"
+                  [disabled]="isLoading || !isFormValid()"
+                >
+                  <i class="bi bi-check-circle me-1"></i>Update Profile
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Summary Sidebar -->
+      <div class="col-lg-4 col-xl-6 mt-4 mt-lg-0">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0 fw-semibold">Profile Summary</h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="text-center mb-4">
+              <div class="avatar-circle mx-auto mb-3">
+                {{ (updateUserProfileDto.firstName?.charAt(0) || '') + (updateUserProfileDto.lastName?.charAt(0) || '') }}
+              </div>
+              <h5 class="mb-1">
+                {{ updateUserProfileDto.firstName }} {{ updateUserProfileDto.lastName }}
+              </h5>
+              <p class="text-muted small mb-0">{{ userProfile.emailAddress }}</p>
+            </div>
+
+            <hr class="my-3">
+
+            <div class="profile-info">
+              <div class="d-flex align-items-start mb-3">
+                <i class="bi bi-telephone-fill text-primary me-3 mt-1"></i>
+                <div class="flex-grow-1">
+                  <small class="text-muted d-block">Phone</small>
+                  <span>{{ updateUserProfileDto.phoneNumber || 'Not provided' }}</span>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-start">
+                <i class="bi bi-geo-alt-fill text-primary me-3 mt-1"></i>
+                <div class="flex-grow-1">
+                  <small class="text-muted d-block">Address</small>
+                  <span>{{ updateUserProfileDto.address || 'Not provided' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
