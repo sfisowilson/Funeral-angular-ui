@@ -354,6 +354,69 @@
     .widget-picker-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     }
+
+    // Layout Settings Dialog Responsive
+    .layout-settings {
+        padding: 0.5rem 0.25rem !important;
+        .settings-section {
+            padding: 0.5rem 0 !important;
+        }
+        .form-field {
+            margin-bottom: 1rem !important;
+            label {
+                font-size: 0.95rem !important;
+            }
+            .p-inputnumber,
+            .p-dropdown,
+            .p-inputtext,
+            .p-slider,
+            .color-input {
+                width: 100% !important;
+                min-width: 0 !important;
+                font-size: 1rem !important;
+            }
+        }
+        h4 {
+            font-size: 1.1rem !important;
+            padding-bottom: 0.25rem !important;
+        }
+        .p-panel {
+            margin-bottom: 0.75rem !important;
+        }
+    }
+
+    // Dialog width override for mobile
+    ::ng-deep .p-dialog {
+        width: 98vw !important;
+        max-width: 98vw !important;
+        min-width: unset !important;
+        left: 1vw !important;
+        right: 1vw !important;
+        padding: 0 !important;
+    }
+    ::ng-deep .p-dialog-content {
+        padding: 0.5rem 0.25rem !important;
+    }
+    ::ng-deep .p-tabview-panel {
+        padding: 0.5rem 0.1rem !important;
+    }
+    ::ng-deep .p-panel-content {
+        padding: 0.5rem 0.1rem !important;
+    }
+    .animation-preview {
+        padding: 0.5rem !important;
+        .preview-box {
+            padding: 1rem !important;
+            font-size: 1rem !important;
+        }
+    }
+    .info-box {
+        font-size: 0.9rem !important;
+        padding: 0.5rem !important;
+        i {
+            font-size: 1rem !important;
+        }
+    }
 }
 
 // CDK Drag Drop Styles

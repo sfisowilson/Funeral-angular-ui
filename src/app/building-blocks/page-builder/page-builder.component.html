@@ -618,19 +618,16 @@
         
         <ng-template pTemplate="footer">
             <button 
-                pButton 
                 type="button"
-                label="Cancel"
-                icon="pi pi-times"
-                class="p-button-outlined"
+                class="btn btn-outline-secondary me-2"
                 (click)="showLayoutSettings.set(false)">
+                <i class="pi pi-times me-1"></i> Cancel
             </button>
             <button 
-                pButton 
                 type="button"
-                label="Apply"
-                icon="pi pi-check"
+                class="btn btn-primary"
                 (click)="updateWidgetLayout(); showLayoutSettings.set(false)">
+                <i class="pi pi-check me-1"></i> Apply
             </button>
         </ng-template>
     </p-dialog>
