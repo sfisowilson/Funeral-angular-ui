@@ -205,7 +205,6 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             const validation = await this.couponService.coupon_Validate({
                 couponCode: this.couponCode(),
                 code: this.couponCode(),
-                tenantId: '',
                 subscriptionPlanId: plan.id,
                 amount: amount,
                 planAmount: amount

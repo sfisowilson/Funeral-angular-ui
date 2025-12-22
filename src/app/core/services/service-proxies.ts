@@ -32917,7 +32917,7 @@ export interface IUserRoleInputDto {
 export class ValidateCouponDto implements IValidateCouponDto {
     couponCode!: string | undefined;
     code!: string | undefined;
-    tenantId!: string;
+    tenantId!: string | undefined;
     subscriptionPlanId!: string;
     amount!: number;
     planAmount!: number;
@@ -32964,7 +32964,7 @@ export class ValidateCouponDto implements IValidateCouponDto {
 export interface IValidateCouponDto {
     couponCode: string | undefined;
     code: string | undefined;
-    tenantId: string;
+    tenantId: string | undefined;
     subscriptionPlanId: string;
     amount: number;
     planAmount: number;

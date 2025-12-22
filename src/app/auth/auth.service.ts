@@ -54,18 +54,19 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
     return next(modifiedReq).pipe(
         catchError((error: HttpErrorResponse) => {
             if (error.status === 401) {
-                // Clear the authentication token
+                const isLoginRequest = modifiedReq.url.includes('/auth/login');
+                const isOnLoginPage = router.url.startsWith('/auth/login');
+
                 authService.removeToken();
-                
-                // Navigate to login with session expired message
-                router.navigate(['/auth/login'], {
-                    queryParams: { 
-                        sessionExpired: 'true',
-                        returnUrl: router.url 
-                    }
-                });
-                
-                console.warn('🔒 Session expired - redirecting to login');
+
+                if (!isLoginRequest && !isOnLoginPage) {
+                    router.navigate(['/auth/login'], {
+                        queryParams: {
+                            sessionExpired: 'true',
+                            returnUrl: router.url
+                        }
+                    });
+                }
             }
             
             return throwError(() => error);

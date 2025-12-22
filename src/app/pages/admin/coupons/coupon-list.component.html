@@ -80,7 +80,7 @@
                                 <th>Code</th>
                                 <th>Name</th>
                                 <th>Discount</th>
-                                <th>Duration</th>
+                                <th>Duration (Months)</th>
                                 <th>Redemptions</th>
                                 <th>Valid Period</th>
                                 <th>Status</th>
@@ -96,7 +96,7 @@
                                 <td>
                                     <span class="font-semibold">{{ getDiscountDisplay(coupon) }}</span>
                                 </td>
-                                <td>{{ coupon.duration }}</td>
+                                <td>{{ coupon.durationInMonths }}</td>
                                 <td>
                                     <span>{{ coupon.redemptionCount || 0 }}</span>
                                     <span *ngIf="coupon.maxRedemptions" class="text-color-secondary">
@@ -106,8 +106,8 @@
                                 <td>
                                     <div class="text-sm">
                                         <div *ngIf="coupon.validFrom">From: {{ formatDate(coupon.validFrom) }}</div>
-                                        <div *ngIf="coupon.validTo">To: {{ formatDate(coupon.validTo) }}</div>
-                                        <div *ngIf="!coupon.validFrom && !coupon.validTo">No restrictions</div>
+                                        <div *ngIf="coupon.validUntil">To: {{ formatDate(coupon.validUntil) }}</div>
+                                        <div *ngIf="!coupon.validFrom && !coupon.validUntil">No restrictions</div>
                                     </div>
                                 </td>
                                 <td>
@@ -215,9 +215,9 @@
 
                     <!-- Duration -->
                     <div class="col-12" *ngIf="!isEditMode">
-                        <label for="duration" class="form-label fw-semibold">Duration *</label>
+                        <label for="durationInMonths" class="form-label fw-semibold">Duration *</label>
                         <select 
-                            id="duration"
+                            id="durationInMonths"
                             class="form-select"
                             [(ngModel)]="couponForm.duration"
                             [disabled]="saving">
@@ -245,14 +245,14 @@
 
                     <!-- Minimum Amount -->
                     <div class="col-md-6">
-                        <label for="minimumAmount" class="form-label fw-semibold">Minimum Amount</label>
+                        <label for="minimumPurchaseAmount" class="form-label fw-semibold">Minimum Amount</label>
                         <div class="input-group">
                             <span class="input-group-text">R</span>
                             <input 
-                                id="minimumAmount"
+                                id="minimumPurchaseAmount"
                                 type="number"
                                 class="form-control"
-                                [(ngModel)]="couponForm.minimumAmount"
+                                [(ngModel)]="couponForm.minimumPurchaseAmount"
                                 [min]="0"
                                 placeholder="No minimum"
                                 [disabled]="saving" />
@@ -276,10 +276,10 @@
                         <div class="form-text">Start date for coupon validity</div>
                     </div>
                     <div class="col-md-6">
-                        <label for="validTo" class="form-label fw-semibold">Valid To</label>
+                        <label for="validUntil" class="form-label fw-semibold">Valid To</label>
                         <p-calendar 
-                            id="validTo"
-                            [(ngModel)]="couponForm.validTo"
+                            id="validUntil"
+                            [(ngModel)]="couponForm.validUntil"
                             dateFormat="yy-mm-dd"
                             [showIcon]="true"
                             [iconDisplay]="'input'"

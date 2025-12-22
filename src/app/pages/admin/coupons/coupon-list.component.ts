@@ -57,12 +57,12 @@ export class CouponListComponent implements OnInit {
     name: '',
     discountType: '',
     discountValue: 0,
-    duration: '',
+    durationInMonths: '',
     maxRedemptions: null,
     validFrom: null,
-    validTo: null,
+    validUntil: null,
     isActive: true,
-    minimumAmount: null,
+    minimumPurchaseAmount: null,
     firstTimeOnly: false,
     allowedPlans: []
   };
@@ -159,7 +159,7 @@ export class CouponListComponent implements OnInit {
     this.showDialog = true;
   }
 
-  openEditDialog(coupon: any) {
+  openEditDialog(coupon: Coupon) {
     this.dialogTitle = 'Edit Coupon';
     this.isEditMode = true;
     this.couponForm = {
@@ -168,12 +168,12 @@ export class CouponListComponent implements OnInit {
       name: coupon.name,
       discountType: coupon.discountType,
       discountValue: coupon.discountValue,
-      duration: coupon.duration || 'Once',
+      durationInMonths: coupon.durationInMonths || 'Once',
       maxRedemptions: coupon.maxRedemptions,
       validFrom: coupon.validFrom ? new Date(coupon.validFrom.toString()) : null,
-      validTo: coupon.validTo ? new Date(coupon.validTo.toString()) : null,
+      validUntil: coupon.validUntil ? new Date(coupon.validUntil.toString()) : null,
       isActive: coupon.isActive,
-      minimumAmount: coupon.minimumAmount || null,
+      minimumPurchaseAmount: coupon.minimumPurchaseAmount || null,
       firstTimeOnly: coupon.isFirstTimeOnly || false,
       allowedPlans: []
     };
@@ -187,12 +187,12 @@ export class CouponListComponent implements OnInit {
       name: '',
       discountType: 'Percentage',
       discountValue: 0,
-      duration: 'Once',
+      durationInMonths: 'Once',
       maxRedemptions: null,
       validFrom: null,
-      validTo: null,
+      validUntil: null,
       isActive: true,
-      minimumAmount: null,
+      minimumPurchaseAmount: null,
       firstTimeOnly: false,
       allowedPlans: []
     };
@@ -214,7 +214,7 @@ export class CouponListComponent implements OnInit {
         const updateDto = {
           name: this.couponForm.name,
           description: this.couponForm.description,
-          validUntil: this.couponForm.validTo,
+          validUntil: this.couponForm.validUntil,
           maxRedemptions: this.couponForm.maxRedemptions,
           isActive: this.couponForm.isActive,
           internalNotes: this.couponForm.internalNotes
@@ -228,12 +228,12 @@ export class CouponListComponent implements OnInit {
           description: this.couponForm.description,
           discountType: parseInt(this.couponForm.discountType),
           discountValue: parseFloat(this.couponForm.discountValue),
-          durationInMonths: parseInt(this.couponForm.duration),
+          durationInMonths: parseInt(this.couponForm.durationInMonths),
           maxRedemptions: this.couponForm.maxRedemptions ? parseInt(this.couponForm.maxRedemptions) : null,
           validFrom: this.couponForm.validFrom ? new Date(this.couponForm.validFrom) : new Date(),
-          validUntil: this.couponForm.validTo ? new Date(this.couponForm.validTo) : null,
+          validUntil: this.couponForm.validUntil ? new Date(this.couponForm.validUntil) : null,
           applicablePlanIds: this.couponForm.allowedPlans || [],
-          minimumPurchaseAmount: this.couponForm.minimumAmount ? parseFloat(this.couponForm.minimumAmount) : null,
+          minimumPurchaseAmount: this.couponForm.minimumPurchaseAmount ? parseFloat(this.couponForm.minimumPurchaseAmount) : null,
           isFirstTimeOnly: this.couponForm.firstTimeOnly || false,
           internalNotes: this.couponForm.internalNotes,
           campaignName: this.couponForm.campaignName
@@ -279,8 +279,8 @@ export class CouponListComponent implements OnInit {
       return false;
     }
 
-    if (!this.couponForm.duration && !this.isEditMode) {
-      this.showAlert('Duration is required', 'warning');
+    if (!this.couponForm.durationInMonths && !this.isEditMode) {
+      this.showAlert('durationInMonths is required', 'warning');
       return false;
     }
 

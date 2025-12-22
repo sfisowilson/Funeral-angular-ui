@@ -17,6 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { ChangePasswordDialogComponent } from './change-password-dialog/change-password-dialog.component';
+import { take } from 'rxjs';
 
 @Component({
     selector: 'app-login',
@@ -62,19 +63,43 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
 
     override ngOnInit(): Promise<void> {
         return new Promise<void>((resolve) => {
-            // Check for session expired query parameter
-            this.route.queryParams.subscribe(params => {
-                if (params['sessionExpired'] === 'true') {
+            this.route.queryParams
+                .pipe(take(1))
+                .subscribe(params => {
+                const sessionExpired = params['sessionExpired'] === 'true';
+                const rawReturnUrl = params['returnUrl'];
+
+                if (sessionExpired) {
                     this.sessionExpired.set(true);
-                    this.returnUrl = params['returnUrl'] || null;
-                    
-                    // Auto-hide the message after 10 seconds
+
+                    // Sanitize returnUrl
+                    if (rawReturnUrl && !rawReturnUrl.startsWith('/auth/login')) {
+                    this.returnUrl = rawReturnUrl;
+                    } else {
+                    this.returnUrl = null;
+                    }
+
+                    // Clear URL state immediately
+                    this.clearAuthQueryParams();
+
+                    // Optional UI auto-hide
                     setTimeout(() => {
-                        this.sessionExpired.set(false);
+                    this.sessionExpired.set(false);
                     }, 10000);
+
                 }
                 resolve();
             });
+        });
+    }
+    private clearAuthQueryParams(): void {
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+            sessionExpired: null,
+            returnUrl: null
+            },
+            replaceUrl: true
         });
     }
 

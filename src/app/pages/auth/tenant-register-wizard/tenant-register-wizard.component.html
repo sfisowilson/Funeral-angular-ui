@@ -64,41 +64,41 @@
                             </div>
 
                             <!-- Email -->
-                            <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="email">Email Address *</label>
-                                <input 
-                                    id="email" 
-                                    type="email" 
-                                    class="form-control" 
-                                    formControlName="email"
-                                    [class.ng-invalid]="isFieldInvalid('email')"
-                                    placeholder="admin@example.com">
-                                <small *ngIf="isFieldInvalid('email')" class="p-error">
-                                    {{ getFieldError('email') }}
-                                </small>
-                            </div>
-
-                            <!-- Domain -->
-                            <div class="form-field">
-                                <label for="domain" class="form-label">Domain (Subdomain) *</label>
-                                <input 
-                                    id="domain" 
-                                    type="text" 
-                                    class="form-control" 
-                                    formControlName="domain"
-                                    [class.is-invalid]="isFieldInvalid('domain')"
-                                    placeholder="yourcompany">
-                                <small class="form-text text-muted">Your site will be: yourcompany.yourdomain.com</small>
-                                <div *ngIf="isFieldInvalid('domain')" class="invalid-feedback">
-                                    {{ getFieldError('domain') }}
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input 
+                                        id="email" 
+                                        type="email" 
+                                        class="form-control" 
+                                        formControlName="email"
+                                        [class.is-invalid]="isFieldInvalid('email')"
+                                        placeholder="admin@example.com">
+                                    <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
+                                        {{ getFieldError('email') }}
+                                    </div>
                                 </div>
-                            </div>
+
+                                <!-- Domain -->
+                                <div class="col-md-6">
+                                    <label for="domain" class="form-label">Domain (Subdomain) *</label>
+                                    <input 
+                                        id="domain" 
+                                        type="text" 
+                                        class="form-control" 
+                                        formControlName="domain"
+                                        [class.is-invalid]="isFieldInvalid('domain')"
+                                        placeholder="yourcompany">
+                                    <small class="form-text text-muted">Your site will be: yourcompany.yourdomain.com</small>
+                                    <div *ngIf="isFieldInvalid('domain')" class="invalid-feedback">
+                                        {{ getFieldError('domain') }}
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Password -->
-                            <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
                                 <label for="password" class="form-label">Password *</label>
                                 <input 
                                     id="password"
@@ -126,10 +126,9 @@
                                     Passwords do not match
                                 </div>
                             </div>
-                            </div>
 
                             <!-- Registration Number -->
-                            <div class="row g-3">
+                            <div class="row g-3 mt-3">
                             <div class="col-md-12">
                                 <label for="registrationNumber" class="form-label">Registration Number *</label>
                                 <input 
@@ -146,8 +145,8 @@
                             </div>
 
                             <!-- Phone 1 -->
-                            <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
                                 <label for="phone1" class="form-label">Primary Phone *</label>
                                 <input 
                                     id="phone1" 
@@ -161,34 +160,37 @@
                                 </div>
                             </div>
 
-                            <!-- Phone 2 -->
-                            <div class="col-md-6">
-                                <label for="phone2">Secondary Phone</label>
-                                <input 
-                                    id="phone2" 
-                                    type="tel" 
-                                    class="form-control" 
-                                    formControlName="phone2"
-                                    placeholder="+27987654321">
+                                <!-- Phone 2 -->
+                                <div class="col-md-6">
+                                    <label for="phone2" class="form-label">Secondary Phone</label>
+                                    <input 
+                                        id="phone2" 
+                                        type="tel" 
+                                        class="form-control" 
+                                        formControlName="phone2"
+                                        placeholder="+27987654321">
+                                </div>
                             </div>
 
                             <!-- Address -->
-                            <div class="form-field full-width">
-                                <label for="address">Physical Address *</label>
-                                <input 
-                                    id="address" 
-                                    type="text" 
-                                    class="form-control" 
-                                    formControlName="address"
-                                    [class.ng-invalid]="isFieldInvalid('address')"
-                                    placeholder="123 Main Street, City, Province, 0000">
-                                <small *ngIf="isFieldInvalid('address')" class="p-error">
-                                    {{ getFieldError('address') }}
-                                </small>
+                            <div class="row g-3 mt-3">
+                                <div class="col-12">
+                                    <label for="address" class="form-label">Physical Address *</label>
+                                    <input 
+                                        id="address" 
+                                        type="text" 
+                                        class="form-control" 
+                                        formControlName="address"
+                                        [class.is-invalid]="isFieldInvalid('address')"
+                                        placeholder="123 Main Street, City, Province, 0000">
+                                    <div *ngIf="isFieldInvalid('address')" class="invalid-feedback">
+                                        {{ getFieldError('address') }}
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Terms and Conditions -->
-                            <div class="row g-3">
+                            <div class="row g-3 mt-3">
                             <div class="col-12">
                                 <div class="form-check">
                                     <input 
@@ -203,11 +205,11 @@
                                 <div *ngIf="isFieldInvalid('agreeToTerms')" class="invalid-feedback d-block">
                                     You must agree to the terms and conditions
                                 </div>
+                                </div>
+                                </div>
                             </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                        </form>
+                    </div>
 
                 <!-- Step 2: Plan Selection -->
                 <div *ngIf="activeIndex() === 1" class="step-content">
@@ -275,26 +277,27 @@
                     </div>
 
                     <!-- Coupon Code Section -->
-                    <div *ngIf="selectedPlan()" class="coupon-section">
-                        <h4>Have a coupon code?</h4>
-                        <div class="coupon-input-group">
+                    <div *ngIf="selectedPlan()" class="coupon-section mt-4">
+                        <h4 class="mb-3">Have a coupon code?</h4>
+                        <div class="input-group">
                             <input 
                                 type="text" 
                                 class="form-control" 
                                 [(ngModel)]="couponCode"
                                 placeholder="Enter coupon code"
-                                class="coupon-input">
+                                [disabled]="couponLoading()">
                             <button 
-                                label="Apply"
-                                [loading]="couponLoading()"
-                                [disabled]="!couponCode()"
-                                (click)="validateCoupon()"
-                                class="apply-coupon-btn">
+                                type="button"
+                                class="btn btn-primary"
+                                [disabled]="!couponCode() || couponLoading()"
+                                (click)="validateCoupon()">
+                                <span *ngIf="couponLoading()" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                Apply
                             </button>
                         </div>
                         
-                        <div *ngIf="couponValidation()?.isValid" class="coupon-success">
-                            <i class="bi bi-check-lg-circle"></i>
+                        <div *ngIf="couponValidation()?.isValid" class="alert alert-success mt-3 d-flex align-items-center" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
                             <span>{{ couponValidation()?.message }}</span>
                         </div>
                     </div>
