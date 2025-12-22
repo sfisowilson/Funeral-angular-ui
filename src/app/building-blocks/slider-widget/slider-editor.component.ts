@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Inject } from '@angular/core';
+import { Component, Input, OnInit, Inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
@@ -14,6 +14,8 @@ import { FileUploadServiceProxy, API_BASE_URL } from '../../core/services/servic
 export class SliderEditorComponent implements OnInit {
   @Input() config!: WidgetConfig;
   uploadingSlideIndex: number | null = null;
+
+  @Output() update = new EventEmitter<any>();
 
   // Helper to access settings - properly access the settings property
   get settings(): any {
@@ -150,5 +152,10 @@ export class SliderEditorComponent implements OnInit {
       alert('Failed to upload image. Please try again.');
       this.uploadingSlideIndex = null;
     }
+  }
+
+  saveSettings() {
+    // Emit the updated settings object to the parent (like cta-editor)
+    this.update.emit(this.settings);
   }
 }
