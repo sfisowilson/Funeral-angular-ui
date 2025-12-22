@@ -199,7 +199,14 @@
         [modal]="true"
         [style]="{ width: '600px' }"
         [draggable]="false"
-        [resizable]="false">
+        [resizable]="false"
+        [closable]="false">
+        <ng-template pTemplate="header">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <span>Widget Layout Settings</span>
+                <button type="button" class="btn-close" aria-label="Close" (click)="showLayoutSettings.set(false)"></button>
+            </div>
+        </ng-template>
         
         <div *ngIf="selectedWidget()" class="layout-settings">
             <p-tabView>
@@ -269,6 +276,9 @@
                                 label="Full Width"
                                 inputId="fullWidth">
                             </p-checkbox>
+                            <small class="text-gray-600 block mt-1">
+                                Stretch widget to span entire width of the page
+                            </small>
                         </div>
                     </div>
                 </p-tabPanel>
@@ -617,18 +627,20 @@
         </div>
         
         <ng-template pTemplate="footer">
-            <button 
-                type="button"
-                class="btn btn-outline-secondary me-2"
-                (click)="showLayoutSettings.set(false)">
-                <i class="pi pi-times me-1"></i> Cancel
-            </button>
-            <button 
-                type="button"
-                class="btn btn-primary"
-                (click)="updateWidgetLayout(); showLayoutSettings.set(false)">
-                <i class="pi pi-check me-1"></i> Apply
-            </button>
+            <div class="py-4 d-flex flex-row justify-items-end">
+                <button 
+                    type="button"
+                    class="btn btn-outline-secondary me-2"
+                    (click)="showLayoutSettings.set(false)">
+                    <i class="pi pi-times me-1"></i> Cancel
+                </button>
+                <button 
+                    type="button"
+                    class="btn btn-primary"
+                    (click)="updateWidgetLayout(); showLayoutSettings.set(false)">
+                    <i class="pi pi-check me-1"></i> Apply
+                </button>
+            </div>
         </ng-template>
     </p-dialog>
     
@@ -771,21 +783,23 @@
         </div>
 
         <ng-template pTemplate="footer">
-            <button 
-                pButton 
-                type="button"
-                label="Cancel"
-                icon="pi pi-times"
-                class="p-button-outlined"
-                (click)="cancelSeoSettings()">
-            </button>
-            <button 
-                pButton 
-                type="button"
-                label="Save SEO Settings"
-                icon="pi pi-check"
-                (click)="saveSeoSettings()">
-            </button>
+            <div class="py-4 d-flex flex-row justify-items-end">
+                <button 
+                    pButton 
+                    type="button"
+                    label="Cancel"
+                    icon="pi pi-times"
+                    class="p-button-outlined"
+                    (click)="cancelSeoSettings()">
+                </button>
+                <button 
+                    pButton 
+                    type="button"
+                    label="Save SEO Settings"
+                    icon="pi pi-check"
+                    (click)="saveSeoSettings()">
+                </button>
+            </div>
         </ng-template>
     </p-dialog>
 
