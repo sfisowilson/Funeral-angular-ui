@@ -8,7 +8,7 @@
       <input 
         type="text" 
         class="form-control" 
-        [(ngModel)]="settings.phoneNumber"
+        [(ngModel)]="localSettings.phoneNumber"
         (blur)="formatPhoneNumber()"
         placeholder="27821234567">
       <small class="form-text text-muted">
@@ -20,7 +20,7 @@
       <label class="form-label">Default Message</label>
       <textarea 
         class="form-control" 
-        [(ngModel)]="settings.defaultMessage"
+        [(ngModel)]="localSettings.defaultMessage"
         rows="3"
         placeholder="Hi, I would like to get in touch."></textarea>
       <small class="form-text text-muted">
@@ -38,15 +38,15 @@
       <input 
         type="text" 
         class="form-control" 
-        [(ngModel)]="settings.agentName"
+        [(ngModel)]="localSettings.agentName"
         placeholder="Support Team">
     </div>
 
     <div class="form-group mb-3">
       <label class="form-label">Agent Photo</label>
       <div class="photo-upload">
-        <div class="current-photo" *ngIf="settings.agentPhoto">
-          <img [src]="settings.agentPhoto" alt="Agent photo">
+        <div class="current-photo" *ngIf="localSettings.agentPhoto">
+          <img [src]="localSettings.agentPhoto" alt="Agent photo">
           <button 
             type="button"
             class="btn btn-sm btn-danger"
@@ -54,7 +54,7 @@
             <i class="bi bi-trash"></i> Remove
           </button>
         </div>
-        <div class="upload-area" *ngIf="!settings.agentPhoto">
+        <div class="upload-area" *ngIf="!localSettings.agentPhoto">
           <input 
             type="file" 
             id="agentPhotoInput"
@@ -77,7 +77,7 @@
       <label class="form-label">Welcome Message</label>
       <textarea 
         class="form-control" 
-        [(ngModel)]="settings.welcomeMessage"
+        [(ngModel)]="localSettings.welcomeMessage"
         rows="3"
         placeholder="Hi there! How can we help you today?"></textarea>
     </div>
@@ -87,7 +87,7 @@
         type="checkbox" 
         class="form-check-input" 
         id="showOnlineStatus"
-        [(ngModel)]="settings.showOnlineStatus">
+        [(ngModel)]="localSettings.showOnlineStatus">
       <label class="form-check-label" for="showOnlineStatus">
         Show as Online
       </label>
@@ -103,7 +103,7 @@
       <input 
         type="text" 
         class="form-control" 
-        [(ngModel)]="settings.buttonText"
+        [(ngModel)]="localSettings.buttonText"
         placeholder="Start Chat">
     </div>
 
@@ -112,26 +112,26 @@
       <input 
         type="color" 
         class="form-control form-control-color" 
-        [(ngModel)]="settings.buttonColor">
+        [(ngModel)]="localSettings.buttonColor">
     </div>
 
     <div class="form-group mb-3">
-      <label class="form-label">Button Size: {{ settings.buttonSize }}px</label>
+      <label class="form-label">Button Size: {{ localSettings.buttonSize }}px</label>
       <input 
         type="range" 
         class="form-range" 
-        [(ngModel)]="settings.buttonSize"
+        [(ngModel)]="localSettings.buttonSize"
         min="50"
         max="80"
         step="5">
     </div>
 
     <div class="form-group mb-3">
-      <label class="form-label">Border Radius: {{ settings.borderRadius }}%</label>
+      <label class="form-label">Border Radius: {{ localSettings.borderRadius }}%</label>
       <input 
         type="range" 
         class="form-range" 
-        [(ngModel)]="settings.borderRadius"
+        [(ngModel)]="localSettings.borderRadius"
         min="0"
         max="50"
         step="5">
@@ -144,29 +144,29 @@
 
     <div class="form-group mb-3">
       <label class="form-label">Screen Position</label>
-      <select class="form-select" [(ngModel)]="settings.position">
+      <select class="form-select" [(ngModel)]="localSettings.position">
         <option value="left">Left Side</option>
         <option value="right">Right Side</option>
       </select>
     </div>
 
     <div class="form-group mb-3">
-      <label class="form-label">Distance from Side: {{ settings.sidePosition }}px</label>
+      <label class="form-label">Distance from Side: {{ localSettings.sidePosition }}px</label>
       <input 
         type="range" 
         class="form-range" 
-        [(ngModel)]="settings.sidePosition"
+        [(ngModel)]="localSettings.sidePosition"
         min="10"
         max="100"
         step="5">
     </div>
 
     <div class="form-group mb-3">
-      <label class="form-label">Distance from Bottom: {{ settings.bottomPosition }}px</label>
+      <label class="form-label">Distance from Bottom: {{ localSettings.bottomPosition }}px</label>
       <input 
         type="range" 
         class="form-range" 
-        [(ngModel)]="settings.bottomPosition"
+        [(ngModel)]="localSettings.bottomPosition"
         min="10"
         max="200"
         step="5">
@@ -177,7 +177,7 @@
       <input 
         type="number" 
         class="form-control" 
-        [(ngModel)]="settings.zIndex"
+        [(ngModel)]="localSettings.zIndex"
         min="0"
         max="9999"
         placeholder="1000">
@@ -197,7 +197,7 @@
         <input 
           type="color" 
           class="form-control form-control-color" 
-          [(ngModel)]="settings.headerBackgroundColor">
+          [(ngModel)]="localSettings.headerBackgroundColor">
       </div>
 
       <div class="col-md-6 mb-3">
@@ -205,7 +205,7 @@
         <input 
           type="color" 
           class="form-control form-control-color" 
-          [(ngModel)]="settings.headerTextColor">
+          [(ngModel)]="localSettings.headerTextColor">
       </div>
 
       <div class="col-md-6 mb-3">
@@ -213,7 +213,7 @@
         <input 
           type="color" 
           class="form-control form-control-color" 
-          [(ngModel)]="settings.expandedBackgroundColor">
+          [(ngModel)]="localSettings.expandedBackgroundColor">
       </div>
 
       <div class="col-md-6 mb-3">
@@ -221,8 +221,15 @@
         <input 
           type="color" 
           class="form-control form-control-color" 
-          [(ngModel)]="settings.expandedTextColor">
+          [(ngModel)]="localSettings.expandedTextColor">
       </div>
     </div>
+  </div>
+
+  <div class="mt-4 d-flex justify-content-end gap-2">
+    <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+    <button type="button" class="btn btn-success" (click)="saveChanges()">
+        <i class="pi pi-check me-2"></i>Save Changes
+    </button>
   </div>
 </div>

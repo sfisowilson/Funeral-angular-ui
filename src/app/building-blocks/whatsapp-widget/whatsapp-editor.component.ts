@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
@@ -14,6 +14,10 @@ import { Inject } from '@angular/core';
 })
 export class WhatsappEditorComponent implements OnInit {
   @Input() config!: WidgetConfig;
+  @Output() update = new EventEmitter<any>();
+  @Output() cancel = new EventEmitter<void>();
+
+  localSettings: any = {};
   uploadingPhoto = false;
 
   constructor(
@@ -21,34 +25,29 @@ export class WhatsappEditorComponent implements OnInit {
     @Inject(API_BASE_URL) private baseUrl: string
   ) {}
 
-  get settings(): any {
-    // Ensure settings object exists
-    if (!this.config.settings) {
-      this.config.settings = {};
-    }
-    return this.config.settings;
-  }
-
   ngOnInit(): void {
-    // Initialize default values
-    if (!this.settings.phoneNumber) this.settings.phoneNumber = '';
-    if (!this.settings.agentName) this.settings.agentName = 'Support Team';
-    if (!this.settings.agentPhoto) this.settings.agentPhoto = '';
-    if (!this.settings.welcomeMessage) this.settings.welcomeMessage = 'Hi there! How can we help you today?';
-    if (!this.settings.defaultMessage) this.settings.defaultMessage = 'Hi, I would like to get in touch.';
-    if (!this.settings.buttonText) this.settings.buttonText = 'Start Chat';
-    if (!this.settings.position) this.settings.position = 'right';
-    if (this.settings.sidePosition === undefined) this.settings.sidePosition = 20;
-    if (this.settings.bottomPosition === undefined) this.settings.bottomPosition = 20;
-    if (!this.settings.buttonColor) this.settings.buttonColor = '#25d366';
-    if (this.settings.buttonSize === undefined) this.settings.buttonSize = 60;
-    if (this.settings.borderRadius === undefined) this.settings.borderRadius = 50;
-    if (!this.settings.headerBackgroundColor) this.settings.headerBackgroundColor = '#075e54';
-    if (!this.settings.headerTextColor) this.settings.headerTextColor = '#ffffff';
-    if (!this.settings.expandedBackgroundColor) this.settings.expandedBackgroundColor = '#f0f0f0';
-    if (!this.settings.expandedTextColor) this.settings.expandedTextColor = '#333333';
-    if (this.settings.showOnlineStatus === undefined) this.settings.showOnlineStatus = true;
-    if (this.settings.zIndex === undefined) this.settings.zIndex = 1000;
+    // Deep copy config.settings to localSettings to work on a mutable copy
+    this.localSettings = JSON.parse(JSON.stringify(this.config.settings || {}));
+
+    // Initialize default values on localSettings
+    if (!this.localSettings.phoneNumber) this.localSettings.phoneNumber = '';
+    if (!this.localSettings.agentName) this.localSettings.agentName = 'Support Team';
+    if (!this.localSettings.agentPhoto) this.localSettings.agentPhoto = '';
+    if (!this.localSettings.welcomeMessage) this.localSettings.welcomeMessage = 'Hi there! How can we help you today?';
+    if (!this.localSettings.defaultMessage) this.localSettings.defaultMessage = 'Hi, I would like to get in touch.';
+    if (!this.localSettings.buttonText) this.localSettings.buttonText = 'Start Chat';
+    if (!this.localSettings.position) this.localSettings.position = 'right';
+    if (this.localSettings.sidePosition === undefined) this.localSettings.sidePosition = 20;
+    if (this.localSettings.bottomPosition === undefined) this.localSettings.bottomPosition = 20;
+    if (!this.localSettings.buttonColor) this.localSettings.buttonColor = '#25d366';
+    if (this.localSettings.buttonSize === undefined) this.localSettings.buttonSize = 60;
+    if (this.localSettings.borderRadius === undefined) this.localSettings.borderRadius = 50;
+    if (!this.localSettings.headerBackgroundColor) this.localSettings.headerBackgroundColor = '#075e54';
+    if (!this.localSettings.headerTextColor) this.localSettings.headerTextColor = '#ffffff';
+    if (!this.localSettings.expandedBackgroundColor) this.localSettings.expandedBackgroundColor = '#f0f0f0';
+    if (!this.localSettings.expandedTextColor) this.localSettings.expandedTextColor = '#333333';
+    if (this.localSettings.showOnlineStatus === undefined) this.localSettings.showOnlineStatus = true;
+    if (this.localSettings.zIndex === undefined) this.localSettings.zIndex = 1000;
   }
 
   onPhotoSelected(event: any): void {
@@ -61,7 +60,7 @@ export class WhatsappEditorComponent implements OnInit {
     this.fileUploadService.file_UploadFile('WhatsAppAgent', '', undefined, undefined, false, fileParameter)
       .subscribe({
         next: (result: any) => {
-          this.settings.agentPhoto = `${this.baseUrl}/api/file-upload/download/${result.id}`;
+          this.localSettings.agentPhoto = `${this.baseUrl}/api/file-upload/download/${result.id}`;
           this.uploadingPhoto = false;
         },
         error: (error) => {
@@ -72,14 +71,25 @@ export class WhatsappEditorComponent implements OnInit {
   }
 
   removePhoto(): void {
-    this.settings.agentPhoto = '';
+    this.localSettings.agentPhoto = '';
   }
 
   formatPhoneNumber(): void {
     // Remove all non-digit characters for validation
-    const cleaned = this.settings.phoneNumber.replace(/\D/g, '');
+    const cleaned = this.localSettings.phoneNumber.replace(/\D/g, '');
     if (cleaned.length > 0) {
-      this.settings.phoneNumber = cleaned;
+      this.localSettings.phoneNumber = cleaned;
     }
   }
+
+  saveChanges(): void {
+    // Deep copy local changes back to the config object
+    this.config.settings = JSON.parse(JSON.stringify(this.localSettings));
+    this.update.emit(this.config.settings);
+  }
+
+  onCancel(): void {
+    this.cancel.emit();
+  }
 }
+
