@@ -34,6 +34,7 @@ interface SocialMedia {
 })
 export class ContactUsEditorComponent implements OnInit {
     @Input() config!: WidgetConfig;
+    settings: any;
 
     branches: Branch[] = [];
     socialMediaHandles: SocialMedia[] = [];
@@ -52,26 +53,26 @@ export class ContactUsEditorComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        if (!this.config.settings.title) {
-            this.config.settings.title = 'Get In Touch';
+        this.settings = JSON.parse(JSON.stringify(this.config.settings || {}));
+
+        if (!this.settings.title) {
+            this.settings.title = 'Get In Touch';
         }
-        if (!this.config.settings.subtitle) {
-            this.config.settings.subtitle = '';
+        if (!this.settings.subtitle) {
+            this.settings.subtitle = '';
         }
-        if (this.config.settings.showContactForm === undefined) {
-            this.config.settings.showContactForm = false;
+        if (this.settings.showContactForm === undefined) {
+            this.settings.showContactForm = false;
         }
-        if (this.config.settings.branches) {
-            this.branches = [...this.config.settings.branches];
-        }
-        if (this.config.settings.socialMediaHandles) {
-            this.socialMediaHandles = [...this.config.settings.socialMediaHandles];
-        }
+        
+        this.branches = this.settings.branches ? [...this.settings.branches] : [];
+        this.socialMediaHandles = this.settings.socialMediaHandles ? [...this.settings.socialMediaHandles] : [];
     }
 
     saveSettings(): void {
-        this.config.settings.branches = this.branches;
-        this.config.settings.socialMediaHandles = this.socialMediaHandles;
+        this.settings.branches = this.branches;
+        this.settings.socialMediaHandles = this.socialMediaHandles;
+        this.config.settings = this.settings;
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Contact Us settings updated' });
     }
 
@@ -94,7 +95,6 @@ export class ContactUsEditorComponent implements OnInit {
         } else {
             this.branches[this.branchIndex] = this.branch;
         }
-        this.saveSettings();
         this.displayBranchDialog = false;
     }
 
@@ -105,7 +105,6 @@ export class ContactUsEditorComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.branches.splice(index, 1);
-                this.saveSettings();
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Branch Deleted' });
             }
         });
@@ -130,7 +129,6 @@ export class ContactUsEditorComponent implements OnInit {
         } else {
             this.socialMediaHandles[this.socialMediaIndex] = this.socialMedia;
         }
-        this.saveSettings();
         this.displaySocialMediaDialog = false;
     }
 
@@ -141,7 +139,6 @@ export class ContactUsEditorComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.socialMediaHandles.splice(index, 1);
-                this.saveSettings();
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Social Media Handle Deleted' });
             }
         });

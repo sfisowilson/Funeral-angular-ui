@@ -4,10 +4,12 @@
         <p *ngIf="config.settings.subtitle" class="subtitle">{{ config.settings.subtitle }}</p>
     </div>
 
-    <div class="contact-content" [class.has-form]="config.settings.showContactForm">
-        <!-- Contact Information Section -->
-        <div class="contact-info-section" [class.half-width]="config.settings.showContactForm">
-            <div *ngIf="branches.length > 0" class="branches-section">
+    <div class="contact-content">
+        <div class="row g-4">
+            <!-- Contact Information Section -->
+            <div class="contact-info-section" 
+                 [ngClass]="config.settings.showContactForm ? 'col-12 col-lg-6' : 'col-12'">
+                <div *ngIf="branches.length > 0" class="branches-section">
                 <h3><i class="pi pi-map-marker"></i> Our Locations</h3>
                 <div class="branches-grid">
                     <div *ngFor="let branch of branches" class="branch-card">

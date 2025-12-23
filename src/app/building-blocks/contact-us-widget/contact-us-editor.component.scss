@@ -1,5 +1,35 @@
+
 .contact-us-editor {
   padding: 1rem;
+}
+
+// Responsive form wrapper
+.contact-us-form-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (max-width: 767.98px) {
+  .contact-us-form-wrapper .row {
+    flex-direction: column;
+  }
+  .contact-us-form-wrapper .col-12,
+  .contact-us-form-wrapper .col-md-6 {
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+  .card {
+    padding: 1rem;
+  }
+  .p-table {
+    font-size: 0.95rem;
+  }
+  .p-button,
+  .w-100 {
+    width: 100% !important;
+  }
 }
 
 .card {

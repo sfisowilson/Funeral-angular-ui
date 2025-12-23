@@ -27,31 +27,10 @@
     }
 
     .contact-content {
-        display: flex;
-        gap: 40px;
-        align-items: flex-start;
 
-        &.has-form {
-            @media (max-width: 992px) {
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 992px) {
-            gap: 30px;
-        }
     }
 
     .contact-info-section {
-        flex: 1;
-
-        &.half-width {
-            flex: 0 0 45%;
-
-            @media (max-width: 992px) {
-                flex: 1;
-            }
-        }
 
         h3 {
             font-size: 1.5rem;
@@ -74,10 +53,7 @@
         .branches-grid {
             display: grid;
             gap: 20px;
-
-            @media (min-width: 768px) {
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            }
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         }
 
         .branch-card {
