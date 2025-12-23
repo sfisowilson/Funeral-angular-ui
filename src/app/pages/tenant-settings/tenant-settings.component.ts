@@ -230,57 +230,58 @@ export class TenantSettingsComponent implements OnInit {
                 this.currency = this._settings.currency || 'ZAR';
 
                 // Set default values for new settings if they are not present
-                this._settings.primaryColor = this._settings.primaryColor || '#f5a623';
+                this._settings.primaryColor = this._settings.primaryColor || '#667eea';
                 this._settings.secondaryColor = this._settings.secondaryColor || '#f8e0c0';
-                this._settings.accentColor = this._settings.accentColor || ''; // No default in example.css
-                this._settings.textColor = this._settings.textColor || '#333';
-                this._settings.backgroundColor = this._settings.backgroundColor || '#f7efe7';
-                this._settings.borderColor = this._settings.borderColor || '#ddd';
-                this._settings.buttonPrimaryHoverBackground = this._settings.buttonPrimaryHoverBackground || '#d38304';
-                this._settings.primaryActiveColor = this._settings.primaryActiveColor || '#d67d08';
+                this._settings.accentColor = this._settings.accentColor || '#764ba2';
+                this._settings.textColor = this._settings.textColor || '#333333';
+                this._settings.backgroundColor = this._settings.backgroundColor || '#ffffff';
+                this._settings.borderColor = this._settings.borderColor || '#e5e7eb';
+                this._settings.buttonPrimaryHoverBackground = this._settings.buttonPrimaryHoverBackground || '#5568d3';
+                this._settings.primaryActiveColor = this._settings.primaryActiveColor || '#4355b8';
 
                 // Button styling defaults
-                this._settings.buttonPrimaryBackground = this._settings.buttonPrimaryBackground || '';
-                this._settings.buttonPrimaryBorder = this._settings.buttonPrimaryBorder || '';
-                this._settings.buttonPrimaryColor = this._settings.buttonPrimaryColor || '';
-                this._settings.buttonSecondaryBackground = this._settings.buttonSecondaryBackground || '';
-                this._settings.buttonSecondaryBorder = this._settings.buttonSecondaryBorder || '';
-                this._settings.buttonSecondaryColor = this._settings.buttonSecondaryColor || '';
-                this._settings.buttonBorderRadius = this._settings.buttonBorderRadius || '';
-                this._settings.buttonPadding = this._settings.buttonPadding || '';
-                this._settings.buttonFontSize = this._settings.buttonFontSize || '';
-                this._settings.buttonFontWeight = this._settings.buttonFontWeight || '';
+                this._settings.buttonPrimaryBackground = this._settings.buttonPrimaryBackground || '#667eea';
+                this._settings.buttonPrimaryBorder = this._settings.buttonPrimaryBorder || '#667eea';
+                this._settings.buttonPrimaryColor = this._settings.buttonPrimaryColor || '#ffffff';
+                this._settings.buttonSecondaryBackground = this._settings.buttonSecondaryBackground || '#6b7280';
+                this._settings.buttonSecondaryBorder = this._settings.buttonSecondaryBorder || '#6b7280';
+                this._settings.buttonSecondaryColor = this._settings.buttonSecondaryColor || '#ffffff';
+                this._settings.buttonBorderRadius = this._settings.buttonBorderRadius || '6px';
+                this._settings.buttonPadding = this._settings.buttonPadding || '0.5rem 1rem';
+                this._settings.buttonFontSize = this._settings.buttonFontSize || '1rem';
+                this._settings.buttonFontWeight = this._settings.buttonFontWeight || '500';
 
-                // Font settings - no defaults found in example.css, so keep them as empty strings or undefined
-                this._settings.fontFamily = this._settings.fontFamily || '';
-                this._settings.fontSize = this._settings.fontSize || '';
-                this._settings.fontWeight = this._settings.fontWeight || '';
-                this._settings.lineHeight = this._settings.lineHeight || '';
+                // Font settings
+                this._settings.fontFamily = this._settings.fontFamily || 'Inter, sans-serif';
+                this._settings.fontSize = this._settings.fontSize || '1rem';
+                this._settings.fontWeight = this._settings.fontWeight || '400';
+                this._settings.lineHeight = this._settings.lineHeight || '1.5';
 
-                // Common variables - no defaults found in example.css, so keep them as empty strings or undefined
-                this._settings.primaryContrastColor = this._settings.primaryContrastColor || '';
-                this._settings.textMutedColor = this._settings.textMutedColor || '';
-                this._settings.contentBorderColor = this._settings.contentBorderColor || '';
-                this._settings.contentBackground = this._settings.contentBackground || '';
-                this._settings.contentHoverBackground = this._settings.contentHoverBackground || '';
-                this._settings.overlayPopoverBackground = this._settings.overlayPopoverBackground || '';
-                this._settings.transitionDuration = this._settings.transitionDuration || '';
-                this._settings.maskBackground = this._settings.maskBackground || '';
-                this._settings.contentBorderRadius = this._settings.contentBorderRadius || '';
-                this._settings.layoutSectionTransitionDuration = this._settings.layoutSectionTransitionDuration || '';
-                this._settings.elementTransitionDuration = this._settings.elementTransitionDuration || '';
-                this._settings.focusRingWidth = this._settings.focusRingWidth || '';
-                this._settings.focusRingStyle = this._settings.focusRingStyle || '';
-                this._settings.focusRingColor = this._settings.focusRingColor || '';
-                this._settings.focusRingOffset = this._settings.focusRingOffset || '';
-                this._settings.focusRingShadow = this._settings.focusRingShadow || '';
+                // Common variables
+                this._settings.primaryContrastColor = this._settings.primaryContrastColor || '#ffffff';
+                this._settings.textMutedColor = this._settings.textMutedColor || '#6b7280';
+                this._settings.contentBorderColor = this._settings.contentBorderColor || '#e5e7eb';
+                this._settings.contentBackground = this._settings.contentBackground || '#ffffff';
+                this._settings.contentHoverBackground = this._settings.contentHoverBackground || '#f9fafb';
+                this._settings.overlayPopoverBackground = this._settings.overlayPopoverBackground || '#ffffff';
+                this._settings.transitionDuration = this._settings.transitionDuration || '0.2s';
+                this._settings.maskBackground = this._settings.maskBackground || 'rgba(0, 0, 0, 0.4)';
+                this._settings.contentBorderRadius = this._settings.contentBorderRadius || '6px';
+                this._settings.layoutSectionTransitionDuration = this._settings.layoutSectionTransitionDuration || '0.2s';
+                this._settings.elementTransitionDuration = this._settings.elementTransitionDuration || '0.2s';
+                
+                // Focus Ring
+                this._settings.focusRingWidth = this._settings.focusRingWidth || '2px';
+                this._settings.focusRingStyle = this._settings.focusRingStyle || 'solid';
+                this._settings.focusRingColor = this._settings.focusRingColor || this._settings.primaryColor;
+                this._settings.focusRingOffset = this._settings.focusRingOffset || '0px';
 
-                // Dark/Light theme variables - no defaults found in example.css, so keep them as empty strings or undefined
-                this._settings.surface950 = this._settings.surface950 || '';
-                this._settings.surface800 = this._settings.surface800 || '';
-                this._settings.surface100 = this._settings.surface100 || '';
-                this._settings.surface900 = this._settings.surface900 || '';
-                this._settings.surface200 = this._settings.surface200 || '';
+                // Dark/Light theme variables
+                this._settings.surface950 = this._settings.surface950 || '#1f2937';
+                this._settings.surface800 = this._settings.surface800 || '#374151';
+                this._settings.surface100 = this._settings.surface100 || '#f3f4f6';
+                this._settings.surface900 = this._settings.surface900 || '#111827';
+                this._settings.surface200 = this._settings.surface200 || '#e5e7eb';
 
                 // Initialize team members
                 this.teamMembers = this._settings.teamMembers || [];
