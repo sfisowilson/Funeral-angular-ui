@@ -38,10 +38,15 @@ import { ButtonModule } from 'primeng/button';
                             </p>
 
                             <ul *ngIf="service.features && service.features.length > 0" class="service-features mb-6">
-                                <li *ngFor="let feature of service.features" class="flex items-center mb-2">
-                                    <i class="pi pi-check mr-2" [style.color]="config.settings.checkmarkColor"></i>
-                                    <span [style.color]="config.settings.featureTextColor" [style.font-size.px]="config.settings.featureTextSize">
-                                        {{ feature }}
+                                <li *ngFor="let feature of service.features" class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center">
+                                        <i class="pi pi-check mr-2" [style.color]="config.settings.checkmarkColor"></i>
+                                        <span [style.color]="config.settings.featureTextColor" [style.font-size.px]="config.settings.featureTextSize">
+                                            {{ feature.description }}
+                                        </span>
+                                    </div>
+                                    <span *ngIf="feature.price" class="font-semibold" [style.color]="config.settings.featureTextColor" [style.font-size.px]="config.settings.featureTextSize">
+                                        {{ config.settings.currency || 'R' }}{{ feature.price }}
                                     </span>
                                 </li>
                             </ul>

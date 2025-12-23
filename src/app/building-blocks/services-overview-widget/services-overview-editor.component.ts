@@ -188,7 +188,9 @@ import { TenantService } from '../../core/services/tenant.service';
                                 <div class="col-12" *ngFor="let feature of service.features; let j = index; trackBy: trackByFn">
                                     <div class="input-group mb-2">
                                         <span class="input-group-text"><i class="pi pi-check-circle text-success"></i></span>
-                                        <input type="text" [(ngModel)]="service.features[j]" class="form-control" placeholder="Feature description" />
+                                        <input type="text" [(ngModel)]="feature.description" class="form-control" placeholder="Feature description" />
+                                        <span class="input-group-text">R</span>
+                                        <input type="number" [(ngModel)]="feature.price" class="form-control" placeholder="Price (optional)" style="max-width: 150px;" />
                                         <button type="button" class="btn btn-outline-danger" (click)="removeFeature(i, j)">
                                             <i class="pi pi-trash"></i>
                                         </button>
@@ -330,8 +332,9 @@ export class ServicesOverviewEditorComponent implements OnChanges {
                     this.settings.services = [];
                 }
 
-                // Migrate legacy button properties to new button object structure
+                // Migrate legacy button properties and feature strings
                 this.settings.services.forEach((service: any) => {
+                    // Migrate button properties
                     if (service.buttonText !== undefined && service.button === undefined) {
                         service.button = {
                             text: service.buttonText,
@@ -339,6 +342,11 @@ export class ServicesOverviewEditorComponent implements OnChanges {
                         };
                         delete service.buttonText;
                         delete service.buttonLink;
+                    }
+
+                    // Migrate feature strings to objects
+                    if (service.features && service.features.length > 0 && typeof service.features[0] === 'string') {
+                        service.features = service.features.map((feature: string) => ({ description: feature }));
                     }
                 });
                 
@@ -361,7 +369,7 @@ export class ServicesOverviewEditorComponent implements OnChanges {
             description: 'Service description...',
             icon: 'pi pi-shield',
             imageUrl: '',
-            features: ['Feature 1', 'Feature 2'],
+            features: [{ description: 'Feature 1' }, { description: 'Feature 2' }],
             button: {
                 text: 'Learn More',
                 link: ''
@@ -379,7 +387,7 @@ export class ServicesOverviewEditorComponent implements OnChanges {
         if (!this.settings.services[serviceIndex].features) {
             this.settings.services[serviceIndex].features = [];
         }
-        this.settings.services[serviceIndex].features.push('New Feature');
+        this.settings.services[serviceIndex].features.push({ description: 'New Feature' });
     }
 
     removeFeature(serviceIndex: number, featureIndex: number): void {

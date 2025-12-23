@@ -290,6 +290,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             const formValue = this.accountForm.value;
             const selectedPlan = this.selectedPlan();
             
+            
             // Create tenant DTO
             const tenantDto: TenantCreateUpdateDto = TenantCreateUpdateDto.fromJS({
                 id: '00000000-0000-0000-0000-000000000000',
@@ -303,7 +304,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 registrationNumber: formValue.registrationNumber,
                 tenantType: formValue.tenantType,
                 subscriptionPlanId: selectedPlan?.id,
-                isStaticSite: formValue.tenantType === 3
+                isStaticSite: formValue.tenantType == 3
             });
             
             // Register tenant
