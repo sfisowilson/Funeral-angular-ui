@@ -121,6 +121,7 @@ export const WIDGET_TYPES: WidgetType[] = [
             autoplay: true,
             autoplaySpeed: 5000,
             showArrows: true,
+            showButton: false,
             showDots: true,
             arrowBackgroundColor: 'rgba(0, 0, 0, 0.5)',
             arrowColor: '#ffffff',

@@ -185,7 +185,7 @@ import { TenantService } from '../../core/services/tenant.service';
                                         <i class="pi pi-plus me-1"></i>Add Feature
                                     </button>
                                 </div>
-                                <div class="col-12" *ngFor="let feature of service.features; let j = index">
+                                <div class="col-12" *ngFor="let feature of service.features; let j = index; trackBy: trackByFn">
                                     <div class="input-group mb-2">
                                         <span class="input-group-text"><i class="pi pi-check-circle text-success"></i></span>
                                         <input type="text" [(ngModel)]="service.features[j]" class="form-control" placeholder="Feature description" />
@@ -226,16 +226,22 @@ import { TenantService } from '../../core/services/tenant.service';
                                 
                                 <!-- CTA Button Section -->
                                 <div class="col-12">
-                                    <h5 class="text-primary mb-3">Call-to-Action Button</h5>
+                                    <h5 class="text-primary mb-3">Call-to-Action Button (Optional)</h5>
+                                    <div class="form-check">
+                                        <input type="checkbox" [ngModel]="service.button !== null && service.button !== undefined" (ngModelChange)="service.button ? removeCta(i) : addCta(i)" class="form-check-input" [id]="'serviceCta' + i" />
+                                        <label class="form-check-label" [for]="'serviceCta' + i">Include Call-to-Action Button</label>
+                                    </div>
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <label [for]="'serviceButtonText' + i" class="form-label fw-semibold">Button Text</label>
-                                    <input type="text" [id]="'serviceButtonText' + i" [(ngModel)]="service.buttonText" class="form-control" placeholder="Learn More" />
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label [for]="'serviceButtonLink' + i" class="form-label fw-semibold">Button Link</label>
-                                    <input type="text" [id]="'serviceButtonLink' + i" [(ngModel)]="service.buttonLink" class="form-control" placeholder="/contact" />
-                                </div>
+                                <ng-container *ngIf="service.button">
+                                    <div class="col-12 col-md-6">
+                                        <label [for]="'serviceButtonText' + i" class="form-label fw-semibold">Button Text</label>
+                                        <input type="text" [id]="'serviceButtonText' + i" [(ngModel)]="service.button.text" class="form-control" placeholder="Learn More" />
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label [for]="'serviceButtonLink' + i" class="form-label fw-semibold">Button Link</label>
+                                        <input type="text" [id]="'serviceButtonLink' + i" [(ngModel)]="service.button.link" class="form-control" placeholder="/contact" />
+                                    </div>
+                                </ng-container>
                                 
                                 <div class="col-12"><p-divider></p-divider></div>
                                 
@@ -290,7 +296,11 @@ export class ServicesOverviewEditorComponent implements OnChanges {
     // Image upload properties
     selectedFiles: { [key: number]: File | null } = {};
     uploadingServices: { [key: number]: boolean } = {};
-    uploadProgress: { [key: number]: number } = {};
+    uploadProgress: { [key:number]: number } = {};
+
+    trackByFn(index: number, item: any) {
+        return index;
+    }
 
     constructor(
         private messageService: MessageService,
@@ -319,6 +329,18 @@ export class ServicesOverviewEditorComponent implements OnChanges {
                     console.warn('No services array found, initializing empty array');
                     this.settings.services = [];
                 }
+
+                // Migrate legacy button properties to new button object structure
+                this.settings.services.forEach((service: any) => {
+                    if (service.buttonText !== undefined && service.button === undefined) {
+                        service.button = {
+                            text: service.buttonText,
+                            link: service.buttonLink
+                        };
+                        delete service.buttonText;
+                        delete service.buttonLink;
+                    }
+                });
                 
                 console.log('Final services count:', this.settings.services?.length || 0);
                 console.log('Final settings object:', this.settings);
@@ -340,8 +362,10 @@ export class ServicesOverviewEditorComponent implements OnChanges {
             icon: 'pi pi-shield',
             imageUrl: '',
             features: ['Feature 1', 'Feature 2'],
-            buttonText: 'Learn More',
-            buttonLink: '',
+            button: {
+                text: 'Learn More',
+                link: ''
+            },
             featured: false,
             pricing: null
         });
@@ -372,6 +396,17 @@ export class ServicesOverviewEditorComponent implements OnChanges {
 
     removePricing(serviceIndex: number): void {
         this.settings.services[serviceIndex].pricing = null;
+    }
+
+    addCta(serviceIndex: number): void {
+        this.settings.services[serviceIndex].button = {
+            text: 'Learn More',
+            link: '/contact'
+        };
+    }
+
+    removeCta(serviceIndex: number): void {
+        this.settings.services[serviceIndex].button = null;
     }
 
     updateWidget(): void {
