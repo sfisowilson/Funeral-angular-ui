@@ -110,6 +110,7 @@ export class WidgetService {
                     tap(() => {
                         console.log('✓ Tenant settings updated on backend successfully.');
                         console.log('✓ Saved widgets count:', widgetsToSave.length);
+                        this.tenantSettingsService.refreshSettings();
                     })
                 );
             }),

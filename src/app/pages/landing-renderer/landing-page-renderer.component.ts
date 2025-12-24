@@ -121,12 +121,7 @@ import { environment } from '../../../environments/environment';
             .widget-item {
                 position: relative;
                 overflow: hidden;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-                
-                &:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                }
+                /* The transition is now handled by the specific hover effect classes */
             }
 
             /* Responsive breakpoints */
