@@ -38,6 +38,15 @@ import { TenantService } from '../../core/services/tenant.service';
                             <label for="subtitle" class="form-label fw-semibold">Subtitle</label>
                             <input type="text" id="subtitle" [(ngModel)]="settings.subtitle" class="form-control" placeholder="Optional tagline" />
                         </div>
+                        <div class="col-12 col-md-6">
+                            <label for="columns" class="form-label fw-semibold">Number of Columns</label>
+                            <select id="columns" [(ngModel)]="settings.columns" class="form-select">
+                                <option [ngValue]="1">1</option>
+                                <option [ngValue]="2">2</option>
+                                <option [ngValue]="3">3</option>
+                                <option [ngValue]="4">4</option>
+                            </select>
+                        </div>
                         <div class="col-12 col-md-4">
                             <label for="currency" class="form-label fw-semibold">Currency Symbol</label>
                             <input type="text" id="currency" [(ngModel)]="settings.currency" class="form-control" placeholder="R" />
@@ -323,6 +332,10 @@ export class ServicesOverviewEditorComponent implements OnChanges {
                 // Always reload when config changes - deep copy to avoid mutating the original
                 this.settings = JSON.parse(JSON.stringify(this.config.settings));
                 
+                if (!this.settings.columns) {
+                    this.settings.columns = 3; // Default to 3 columns
+                }
+
                 console.log('Settings after deep copy:', this.settings);
                 console.log('Services in settings:', this.settings.services);
                 

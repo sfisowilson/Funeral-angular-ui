@@ -18,7 +18,7 @@ import { ButtonModule } from 'primeng/button';
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8" [ngClass]="gridColsClass">
                     <div *ngFor="let service of config.settings.services" class="service-card bg-white rounded-lg shadow-lg overflow-hidden group" [style.background-color]="config.settings.cardBackgroundColor">
                         <div class="service-image" *ngIf="service.imageUrl">
                             <img [src]="service.imageUrl" [alt]="service.title" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -102,6 +102,21 @@ import { ButtonModule } from 'primeng/button';
 })
 export class ServicesOverviewWidgetComponent {
     @Input() config: any = {};
+
+    get gridColsClass(): string {
+        const cols = this.config?.settings?.columns || 3;
+        switch (Number(cols)) {
+            case 1:
+                return 'lg:grid-cols-1';
+            case 2:
+                return 'lg:grid-cols-2';
+            case 4:
+                return 'lg:grid-cols-4';
+            case 3:
+            default:
+                return 'lg:grid-cols-3';
+        }
+    }
 
     onServiceSelect(service: any): void {
         if (service.buttonLink) {
