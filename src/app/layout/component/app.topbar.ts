@@ -26,7 +26,7 @@ import { TenantSettingDto, UserProfileServiceProxy, UserProfileDto } from '../..
             </a>
         </div>
 
-        <div class="layout-topbar-actions">
+        <div class="layout-topbar-actions" *ngIf="false">
             <div class="layout-config-menu">
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>

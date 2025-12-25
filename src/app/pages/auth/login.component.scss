@@ -3,7 +3,7 @@
 .login-container {
   min-height: 100vh;
   min-width: 100vw;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--auth-bg-start, #667eea) 0%, var(--auth-bg-end, #764ba2) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,7 +12,7 @@
 }
 
 .login-wrapper {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--auth-wrapper-bg, rgba(255, 255, 255, 0.95));
   backdrop-filter: blur(20px);
   border-radius: 24px;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
@@ -51,7 +51,7 @@
     width: auto;
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
     transition: all 0.3s ease;
 
     &:hover {
@@ -75,7 +75,7 @@
 .brand-title {
   font-size: 2rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--auth-bg-start, #667eea) 0%, var(--auth-bg-end, #764ba2) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -87,8 +87,8 @@
   }
 }
 
-.brand-subtitle {
-  color: #6b7280;
+  .brand-subtitle {
+  color: var(--auth-text-color, #6b7280);
   font-size: 1.1rem;
   font-weight: 500;
   margin: 0;
@@ -104,12 +104,12 @@
         align-items: center;
         gap: 0.5rem;
         font-weight: 600;
-        color: #374151;
+      color: var(--auth-text-color, #374151);
         margin-bottom: 0.75rem;
         font-size: 0.95rem;
         
         i {
-          color: #667eea;
+          color: var(--primary-color, #667eea);
           font-size: 1rem;
         }
       }
@@ -117,20 +117,20 @@
       .form-input {
         width: 100%;
         padding: 0.875rem 1rem;
-        border: 2px solid #e5e7eb;
+      border: 2px solid var(--auth-input-border, #e5e7eb);
         border-radius: 12px;
         font-size: 1rem;
         transition: all 0.2s ease;
         background: #ffffff;
         
-        &:focus {
-          border-color: #667eea;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          &:focus {
+          border-color: var(--primary-color, #667eea);
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.08);
           outline: none;
         }
         
         &::placeholder {
-          color: #9ca3af;
+          color: var(--auth-placeholder-color, #9ca3af);
         }
       }
       
@@ -152,11 +152,11 @@
             }
           }
           
-          .p-password-toggle {
-            color: #6b7280;
+            .p-password-toggle {
+            color: var(--auth-placeholder-color, #6b7280);
             
             &:hover {
-              color: #667eea;
+              color: var(--primary-color, #667eea);
             }
           }
         }
@@ -165,7 +165,7 @@
   }
 }
 
-.form-links {
+  .form-links {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -191,7 +191,7 @@
     }
     
     &.register-link {
-      color: #059669;
+      color: var(--secondary-color, #059669);
       
       &:hover {
         color: #047857;
@@ -200,10 +200,10 @@
     }
     
     &.forgot-link {
-      color: #667eea;
+      color: var(--primary-color, #667eea);
       
       &:hover {
-        color: #5b6bc0;
+        color: var(--primary-active-color, #5b6bc0);
         transform: translateX(2px);
       }
     }
@@ -214,22 +214,22 @@
   :deep(.login-button) {
     width: 100%;
     
-    .p-button {
+      .p-button {
       width: 100%;
       padding: 1rem 1.5rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--auth-button-start, #667eea) 0%, var(--auth-button-end, #764ba2) 100%);
       border: none;
       border-radius: 12px;
       font-size: 1rem;
       font-weight: 600;
-      color: white;
+      color: var(--primary-contrast-color, white);
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
       
       &:enabled:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        background: linear-gradient(135deg, var(--auth-button-end, #5a6fd8) 0%, var(--auth-button-start, #6a4190) 100%);
       }
       
       &:enabled:active {
@@ -262,8 +262,8 @@
     border: 1px solid rgba(55, 65, 81, 0.3);
   }
   
-  .brand-subtitle {
-    color: #9ca3af;
+      .brand-subtitle {
+    color: var(--auth-placeholder-color, #9ca3af);
   }
   
   .form-label {

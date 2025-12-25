@@ -3,7 +3,7 @@
 .register-container {
   min-height: 100vh;
   min-width: 100vw;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--auth-bg-start, #667eea) 0%, var(--auth-bg-end, #764ba2) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,7 +13,7 @@
 
 .register-wrapper {
   @extend .modern-card;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--auth-wrapper-bg, rgba(255, 255, 255, 0.95));
   backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 3rem;
@@ -50,7 +50,7 @@
     width: auto;
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
     transition: all 0.3s ease;
 
     &:hover {
@@ -74,7 +74,7 @@
 .brand-title {
   font-size: 2rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--auth-bg-start, #667eea) 0%, var(--auth-bg-end, #764ba2) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -87,21 +87,21 @@
 }
 
 .brand-subtitle {
-  color: #6b7280;
+  color: var(--auth-text-color, #6b7280);
   font-size: 1.1rem;
   font-weight: 500;
   margin: 0;
 }
 
-.form-section {
+  .form-section {
   .form-label {
     font-weight: 600;
-    color: #374151;
+    color: var(--auth-text-color, #374151);
     margin-bottom: 0.75rem;
     font-size: 0.95rem;
     
     i {
-      color: #667eea;
+      color: var(--primary-color, #667eea);
       font-size: 1rem;
       margin-right: 0.5rem;
     }
@@ -110,20 +110,20 @@
   .form-control,
   .form-select {
     padding: 0.875rem 1rem;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--auth-input-border, #e5e7eb);
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.2s ease;
     
     &:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: var(--primary-color, #667eea);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
       transform: translateY(-1px);
     }
 
     &::placeholder {
-      color: #9ca3af;
+      color: var(--auth-placeholder-color, #9ca3af);
     }
 
     &:disabled {
@@ -161,7 +161,7 @@
     }
   }
 
-  .btn {
+    .btn {
     padding: 0.875rem 1.5rem;
     border-radius: 12px;
     font-weight: 600;
@@ -169,11 +169,11 @@
     border: none;
 
     &.btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--auth-button-start, #667eea) 0%, var(--auth-button-end, #764ba2) 100%);
       
       &:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
       }
 
       &:disabled {
@@ -183,12 +183,12 @@
     }
 
     &.btn-secondary {
-      background-color: #f3f4f6;
-      color: #374151;
-      border: 2px solid #e5e7eb;
+      background-color: var(--surface-card, #f3f4f6);
+      color: var(--auth-text-color, #374151);
+      border: 2px solid var(--auth-input-border, #e5e7eb);
 
       &:hover:not(:disabled) {
-        background-color: #e5e7eb;
+        background-color: var(--surface-hover, #e5e7eb);
         transform: translateY(-2px);
       }
     }

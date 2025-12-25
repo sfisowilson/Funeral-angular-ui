@@ -1,6 +1,6 @@
 .registration-wizard-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--auth-bg-start, #667eea) 0%, var(--auth-bg-end, #764ba2) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -13,7 +13,8 @@
     
     :host ::ng-deep .p-card {
         border-radius: 1rem;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        background: var(--auth-wrapper-bg, #fff);
     }
 }
 
@@ -23,14 +24,14 @@
     
     h2 {
         margin: 0 0 0.5rem 0;
-        color: #495057;
+        color: var(--auth-text-color, #495057);
         font-size: 2rem;
         font-weight: 600;
     }
     
     p {
         margin: 0;
-        color: #6c757d;
+        color: var(--text-color-secondary, #6c757d);
         font-size: 1rem;
     }
 }
@@ -62,7 +63,7 @@
 }
 
 // Step 1: Account Form
-.registration-form {
+    .registration-form {
     .form-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -80,7 +81,7 @@
         
         label {
             font-weight: 500;
-            color: #495057;
+            color: var(--auth-text-color, #495057);
             font-size: 0.95rem;
         }
         
@@ -89,7 +90,7 @@
         }
         
         .field-help {
-            color: #6c757d;
+            color: var(--text-color-secondary, #6c757d);
             font-size: 0.85rem;
         }
         
@@ -109,7 +110,7 @@
             font-weight: normal;
             
             a {
-                color: #667eea;
+                color: var(--primary-color, #667eea);
                 text-decoration: none;
                 
                 &:hover {
@@ -135,24 +136,24 @@
     margin-bottom: 2rem;
 }
 
-.plan-card {
-    border: 2px solid #e9ecef;
+    .plan-card {
+    border: 2px solid var(--surface-border, #e9ecef);
     border-radius: 0.75rem;
     padding: 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: #fff;
+    background: var(--auth-wrapper-bg, #fff);
     
     &:hover {
-        border-color: #667eea;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        border-color: var(--primary-color, #667eea);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         transform: translateY(-2px);
     }
     
     &.selected {
-        border-color: #667eea;
-        background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+        border-color: var(--primary-color, #667eea);
+        background: linear-gradient(135deg, var(--primary-color, #667eea)10 0%, var(--auth-button-end, #764ba2)10 100%);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     }
     
     .plan-header {

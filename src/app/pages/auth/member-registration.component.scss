@@ -2,7 +2,7 @@
 
 .registration-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--auth-bg-start, #667eea) 0%, var(--auth-bg-end, #764ba2) 100%);
     padding: 2rem 1rem;
     display: flex;
     align-items: center;
@@ -14,7 +14,7 @@
 }
 
 .registration-card {
-    background: white;
+    background: var(--auth-wrapper-bg, white);
     border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
     max-width: 900px;
@@ -28,8 +28,8 @@
 }
 
 .registration-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--auth-bg-start, #667eea) 0%, var(--auth-bg-end, #764ba2) 100%);
+    color: var(--primary-contrast-color, white);
     padding: 2rem;
     text-align: center;
 
@@ -65,7 +65,7 @@
     margin: 0;
     font-size: 1.1rem;
     opacity: 0.9;
-
+    color: var(--auth-text-color, #111);
     @media (max-width: 768px) {
         font-size: 1rem;
     }
@@ -83,19 +83,19 @@
     text-align: center;
     margin-bottom: 2rem;
 
-    h2 {
+        h2 {
         margin: 0 0 0.5rem 0;
         font-size: 1.75rem;
-        color: #333;
+        color: var(--auth-text-color, #333);
 
         @media (max-width: 768px) {
             font-size: 1.5rem;
         }
     }
 
-    p {
+        p {
         margin: 0;
-        color: #666;
+        color: var(--text-color-secondary, #666);
         font-size: 1rem;
 
         @media (max-width: 768px) {
@@ -111,25 +111,25 @@
         display: block;
         margin-bottom: 0.5rem;
         font-weight: 600;
-        color: #333;
+        color: var(--auth-text-color, #333);
         font-size: 0.95rem;
     }
 
-    input, ::ng-deep .p-inputtext, ::ng-deep .p-password input {
+        input, ::ng-deep .p-inputtext, ::ng-deep .p-password input {
         width: 100%;
         padding: 0.75rem;
-        border: 2px solid #e2e8f0;
+        border: 2px solid var(--auth-input-border, #e2e8f0);
         border-radius: 8px;
         font-size: 1rem;
         transition: all 0.2s ease;
 
         &:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--primary-color, #667eea);
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
         }
 
-        &.invalid {
+            &.invalid {
             border-color: #f56565;
         }
     }
@@ -196,26 +196,26 @@
     }
 }
 
-.policy-card {
+    .policy-card {
     position: relative;
     padding: 1.5rem;
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--auth-input-border, #e2e8f0);
     border-radius: 12px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
     background: white;
 
-    &:hover {
-        border-color: #667eea;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        &:hover {
+        border-color: var(--primary-color, #667eea);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         transform: translateY(-2px);
     }
 
     &.selected {
-        border-color: #667eea;
-        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: var(--primary-color, #667eea);
+        background: linear-gradient(135deg, var(--surface-card, #f7fafc) 0%, #edf2f7 100%);
+        box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
     }
 
     &.recommended {
@@ -244,10 +244,10 @@
     gap: 0.25rem;
 }
 
-.policy-amount {
+    .policy-amount {
     font-size: 2rem;
     font-weight: 700;
-    color: #667eea;
+    color: var(--primary-color, #667eea);
     margin-bottom: 0.5rem;
 
     @media (max-width: 768px) {

@@ -184,6 +184,45 @@ export class ThemeService {
 `;
         }
 
+        // Auth page specific variables (map existing tenant settings to auth-specific CSS vars)
+        // Background gradient for auth pages
+        if (settings.primaryColor) {
+            cssVariables += `--auth-bg-start: ${settings.primaryColor};\n`;
+        }
+        if (settings.accentColor) {
+            cssVariables += `--auth-bg-end: ${settings.accentColor};\n`;
+        } else if (settings.secondaryColor) {
+            cssVariables += `--auth-bg-end: ${settings.secondaryColor};\n`;
+        }
+
+        // Auth wrapper (card) background and text
+        if (settings.contentBackground) {
+            cssVariables += `--auth-wrapper-bg: ${settings.contentBackground};\n`;
+        }
+        if (settings.textColor) {
+            cssVariables += `--auth-text-color: ${settings.textColor};\n`;
+        }
+
+        // Auth button styles
+        if (settings.buttonPrimaryBackground) {
+            cssVariables += `--auth-button-start: ${settings.buttonPrimaryBackground};\n`;
+        } else if (settings.primaryColor) {
+            cssVariables += `--auth-button-start: ${settings.primaryColor};\n`;
+        }
+        if (settings.primaryActiveColor) {
+            cssVariables += `--auth-button-end: ${settings.primaryActiveColor};\n`;
+        } else if (settings.accentColor) {
+            cssVariables += `--auth-button-end: ${settings.accentColor};\n`;
+        }
+
+        // Input and placeholder colors
+        if (settings.contentBorderColor) {
+            cssVariables += `--auth-input-border: ${settings.contentBorderColor};\n`;
+        }
+        if (settings.textMutedColor) {
+            cssVariables += `--auth-placeholder-color: ${settings.textMutedColor};\n`;
+        }
+
         style.innerHTML = `:root {\n${cssVariables}}`;
     }
 
