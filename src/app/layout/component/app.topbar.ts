@@ -26,8 +26,8 @@ import { TenantSettingDto, UserProfileServiceProxy, UserProfileDto } from '../..
             </a>
         </div>
 
-        <div class="layout-topbar-actions" *ngIf="false">
-            <div class="layout-config-menu">
+        <div class="layout-topbar-actions">
+            <div class="layout-config-menu" *ngIf="false">
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
@@ -53,11 +53,11 @@ import { TenantSettingDto, UserProfileServiceProxy, UserProfileDto } from '../..
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
+                    <button type="button" class="layout-topbar-action" *ngIf="false">
                         <i class="pi pi-calendar"></i>
                         <span>Calendar</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
+                    <button type="button" class="layout-topbar-action" *ngIf="false">
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
                     </button>

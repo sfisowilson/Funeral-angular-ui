@@ -287,6 +287,11 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     }
 
     showPolicySelection() {
+        if (this.policies.length === 0) {
+            this.showModal = false;
+            return;
+        }
+        
         this.showModal = true;
     }
     onPolicySelected(policy: PolicyDto) {
