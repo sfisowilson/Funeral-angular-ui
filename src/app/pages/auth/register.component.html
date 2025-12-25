@@ -26,7 +26,7 @@
                     </g>
                 </svg>
             </div>
-            <h1 class="brand-title">{{ tenantName }}</h1>
+            <h1 class="brand-title" *ngIf="!tenantLogo">{{ tenantName }}</h1>
             <p class="brand-subtitle">Create your account to get started</p>
         </div>
 

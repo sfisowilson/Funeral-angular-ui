@@ -66,6 +66,14 @@ import { EditorModule } from 'primeng/editor';
                         <label for="answerSize">Answer Text Size</label>
                         <p-inputNumber [(ngModel)]="settings.answerSize" [min]="10" [max]="24" class="w-full"></p-inputNumber>
                     </div>
+                    <div class="field">
+                        <label for="accordionHeaderColor">Accordion Header Color</label>
+                        <p-colorPicker [(ngModel)]="settings.accordionHeaderColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="accordionTextColor">Accordion Text Color</label>
+                        <p-colorPicker [(ngModel)]="settings.accordionTextColor" class="w-full"></p-colorPicker>
+                    </div>
                 </div>
             </p-fieldset>
 

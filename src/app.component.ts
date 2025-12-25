@@ -6,6 +6,7 @@ import { ThemeService } from './app/core/services/theme.service';
 import { filter } from 'rxjs/operators';
 import { TenantSettingsService } from './app/core/services/tenant-settings.service';
 import { API_BASE_URL, TenantSettingDto } from './app/core/services/service-proxies';
+import { Title } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-root',
@@ -20,7 +21,8 @@ export class AppComponent implements OnInit {
         private themeService: ThemeService,
         private router: Router,
         private tenantSettingsService: TenantSettingsService,
-        @Inject(API_BASE_URL) private baseUrl: string
+        @Inject(API_BASE_URL) private baseUrl: string,
+        private titleService: Title
     ) {}
 
     ngOnInit(): void {
@@ -56,6 +58,15 @@ export class AppComponent implements OnInit {
                         link.setAttribute('href', faviconUrl);
                         document.getElementsByTagName('head')[0].appendChild(link);
                     }
+                }
+
+                // Set document title from tenant settings or fallback
+                const tenantTitle = (this.jsonSettings && (this.jsonSettings.siteTitle || this.jsonSettings.title)) || settings.tenantName || 'Funeral App';
+                // debugger;
+                try {
+                    this.titleService.setTitle(tenantTitle);
+                } catch (e) {
+                    console.warn('Unable to set document title:', e);
                 }
             })
             .catch((error) => {

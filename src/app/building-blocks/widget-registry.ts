@@ -71,6 +71,8 @@ import { CTABannerWidgetComponent } from './cta-banner-widget/cta-banner-widget.
 import { CTABannerEditorComponent } from './cta-banner-widget/cta-banner-editor.component';
 import { ContactCardWidgetComponent } from './contact-card-widget/contact-card-widget.component';
 import { ContactCardEditorComponent } from './contact-card-widget/contact-card-editor.component';
+import { PolicyCoverPremiumTableWidgetComponent } from './policy-cover-premium-table-widget/policy-cover-premium-table-widget.component';
+import { PolicyCoverPremiumTableEditorComponent } from './policy-cover-premium-table-widget/policy-cover-premium-table-editor.component';
 
 export interface WidgetType {
     name: string;
@@ -82,6 +84,16 @@ export interface WidgetType {
 }
 
 export const WIDGET_TYPES: WidgetType[] = [
+    {
+        name: 'policy-cover-premium-table',
+        component: PolicyCoverPremiumTableWidgetComponent,
+        editorComponent: PolicyCoverPremiumTableEditorComponent,
+        defaultConfig: {
+            title: 'Policy Cover Premiums',
+            subtitle: '',
+        },
+        icon: 'table'
+    },
     {
         name: 'whatsapp',
         component: WhatsappWidgetComponent,

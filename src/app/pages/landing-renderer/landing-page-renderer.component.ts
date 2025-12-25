@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy, Inject } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { WidgetService } from '@app/building-blocks/widget.service';
 import { WidgetConfig } from '@app/building-blocks/widget-config';
@@ -176,6 +177,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         private tenantSettingService: TenantSettingsService,
         private tenantService: TenantService,
         private authService: AuthService,
+        private titleService: Title,
         @Inject(API_BASE_URL) private baseUrl: string,
         private pageLayoutService: PageLayoutService
     ) {}
@@ -187,6 +189,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             this.tenantSettings = data;
              this._settings = JSON.parse(this.tenantSettings.settings ?? "{}");
              this.isStaticSite = this._settings.isStaticSite || false;
+             this.titleService.setTitle(this._settings.TenantName || 'Mizo');
         });
 
         this.isLoggedIn = this.authService.isAuthenticated();
