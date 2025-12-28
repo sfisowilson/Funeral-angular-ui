@@ -93,7 +93,7 @@ export class SliderWidgetComponent implements OnInit, OnDestroy {
   getSlideStyles(slide: SlideItem): any {
     return {
       'background-image': slide.imageUrl ? `url(${slide.imageUrl})` : 'none',
-      'background-color': !slide.imageUrl ? '#e9ecef' : 'transparent'
+      'background-color': !slide.imageUrl ? 'var(--surface-hover, #e9ecef)' : 'transparent'
     };
   }
 
@@ -106,28 +106,28 @@ export class SliderWidgetComponent implements OnInit, OnDestroy {
 
   getContentStyles(): any {
     return {
-      'color': this.settings.textColor || '#ffffff'
+      'color': this.settings.textColor || 'var(--primary-contrast-color, #ffffff)'
     };
   }
 
   getTitleStyles(): any {
     return {
       'font-size': `${this.settings.titleSize || 48}px`,
-      'color': this.settings.titleColor || '#ffffff'
+      'color': this.settings.titleColor || 'var(--primary-contrast-color, #ffffff)'
     };
   }
 
   getSubtitleStyles(): any {
     return {
       'font-size': `${this.settings.subtitleSize || 20}px`,
-      'color': this.settings.subtitleColor || '#ffffff'
+      'color': this.settings.subtitleColor || 'var(--primary-contrast-color, #ffffff)'
     };
   }
 
   getButtonStyles(): any {
     return {
-      'background-color': this.settings.buttonColor || '#007bff',
-      'color': this.settings.buttonTextColor || '#ffffff',
+      'background-color': this.settings.buttonColor || 'var(--primary-color, #007bff)',
+      'color': this.settings.buttonTextColor || 'var(--primary-contrast-color, #ffffff)',
       'font-size': `${this.settings.buttonTextSize || 16}px`
     };
   }
@@ -135,7 +135,7 @@ export class SliderWidgetComponent implements OnInit, OnDestroy {
   getNavButtonStyles(): any {
     return {
       'background-color': this.settings.arrowBackgroundColor || 'rgba(0, 0, 0, 0.5)',
-      'color': this.settings.arrowColor || '#ffffff'
+      'color': this.settings.arrowColor || 'var(--primary-contrast-color, #ffffff)'
     };
   }
 
@@ -152,7 +152,7 @@ export class SliderWidgetComponent implements OnInit, OnDestroy {
       'width': `${this.settings.dotSize || 12}px`,
       'height': `${this.settings.dotSize || 12}px`,
       'background-color': isActive 
-        ? (this.settings.dotActiveColor || '#ffffff') 
+        ? (this.settings.dotActiveColor || 'var(--primary-contrast-color, #ffffff)') 
         : (this.settings.dotColor || 'rgba(255, 255, 255, 0.5)')
     };
   }

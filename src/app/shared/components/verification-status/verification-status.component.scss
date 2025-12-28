@@ -2,8 +2,8 @@
 
 .verification-status {
   .card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--auth-bg-start, #667eea) 0%, var(--auth-bg-end, #764ba2) 100%);
+    color: var(--primary-contrast-color, #ffffff);
     padding: 1.5rem;
     border-radius: 16px 16px 0 0;
     margin: -1.5rem -1.5rem 1.5rem -1.5rem;

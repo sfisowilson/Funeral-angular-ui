@@ -205,9 +205,7 @@
                             Click the button below to synchronize onboarding form fields. This will add any new fields (like Title, Occupation, Marital Status) to your tenant's configuration.
                         </div>
                         <div>
-                            <button (click)="syncFieldConfigurations()" class="btn btn-primary">
-                                <i class="bi bi-arrow-repeat me-1"></i> Sync Field Configurations
-                            </button>
+                            <button (click)="syncFieldConfigurations()" class="btn-primary-theme"><i class="bi bi-arrow-repeat me-1"></i> Sync Field Configurations</button>
                         </div>
                     </div>
                 </div>
@@ -858,9 +856,33 @@
                                     <h5 class="card-title mb-1">Extended Family Benefit Table</h5>
                                     <p class="text-muted small mb-0">Configure premiums for extended family members based on age ranges and cover amounts</p>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-primary" (click)="addExtendedFamilyRow()">
-                                    <i class="bi bi-plus-lg me-2"></i>Add Row
-                                </button>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addExtendedFamilyColumn()" title="Add Cover Column">
+                                        <i class="bi bi-plus-lg me-2"></i>Add Column
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-primary" (click)="addExtendedFamilyRow()">
+                                        <i class="bi bi-plus-lg me-2"></i>Add Row
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Column Management -->
+                            <div class="mb-3 p-3 bg-light rounded" *ngIf="extendedFamilyColumns.length > 0">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0 fw-semibold">Cover Amount Columns</h6>
+                                    <small class="text-muted">Click the X to remove a column</small>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span *ngFor="let column of extendedFamilyColumns; let i = index" 
+                                          class="badge bg-primary text-white d-flex align-items-center gap-2">
+                                        {{column.label}}
+                                        <button type="button" class="btn btn-sm btn-link text-white p-0 m-0" 
+                                                (click)="removeExtendedFamilyColumn(i)" 
+                                                title="Remove this column">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
 
                             <div class="table-responsive">
@@ -870,11 +892,14 @@
                                             <th class="small">Min Age</th>
                                             <th class="small">Max Age</th>
                                             <th class="small">Age Range</th>
-                                            <th class="small">R5,000 Cover</th>
-                                            <th class="small">R10,000 Cover</th>
-                                            <th class="small">R15,000 Cover</th>
-                                            <th class="small">R20,000 Cover</th>
-                                            <th class="small">R25,000 Cover</th>
+                                            <th class="small" *ngFor="let column of extendedFamilyColumns; let colIndex = index">
+                                                {{column.label}}
+                                                <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1" 
+                                                        (click)="removeExtendedFamilyColumn(colIndex)" 
+                                                        title="Remove this column">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </th>
                                             <th class="small">Actions</th>
                                         </tr>
                                     </thead>
@@ -883,11 +908,13 @@
                                             <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.minAge" placeholder="e.g., 0" /></td>
                                             <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.maxAge" placeholder="e.g., 20" /></td>
                                             <td><input type="text" class="form-control form-control-sm" [(ngModel)]="row.ageRange" placeholder="e.g., 0-20" /></td>
-                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_5000_Cover" placeholder="e.g., 50" /></td>
-                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_10000_Cover" placeholder="e.g., 75" /></td>
-                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_15000_Cover" placeholder="e.g., 100" /></td>
-                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_20000_Cover" placeholder="e.g., 125" /></td>
-                                            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="row.premium_25000_Cover" placeholder="e.g., 150" /></td>
+                                            <td *ngFor="let column of extendedFamilyColumns">
+                                                <input type="number" 
+                                                       class="form-control form-control-sm" 
+                                                       [value]="getRowPropertyValue(row, column.key)"
+                                                       (input)="setRowPropertyValue(row, column.key, $any($event.target).value)"
+                                                       placeholder="e.g., 50" />
+                                            </td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-danger" (click)="removeExtendedFamilyRow(i)">
                                                     <i class="bi bi-trash"></i>
@@ -896,6 +923,16 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <!-- Empty state -->
+                            <div *ngIf="!premiumSettings.extendedFamilyTable.rows || premiumSettings.extendedFamilyTable.rows.length === 0" 
+                                 class="text-center py-5 text-muted">
+                                <i class="bi bi-table fs-1 mb-3 d-block"></i>
+                                <p class="mb-3">No age ranges defined. Click "Add Row" to get started.</p>
+                                <button type="button" class="btn btn-outline-primary" (click)="addExtendedFamilyRow()">
+                                    <i class="bi bi-plus-lg me-2"></i>Add First Row
+                                </button>
                             </div>
                         </div>
                     </div>

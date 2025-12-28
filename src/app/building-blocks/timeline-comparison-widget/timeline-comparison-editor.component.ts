@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TimelineOption, TimelineStep } from './timeline-comparison-widget.component';
@@ -12,6 +12,8 @@ import { TimelineOption, TimelineStep } from './timeline-comparison-widget.compo
 })
 export class TimelineComparisonEditorComponent implements OnInit {
   @Input() config: any = {};
+  @Output() update = new EventEmitter<any>();
+
 
   ngOnInit() {
     if (!this.config.settings) {
@@ -53,7 +55,7 @@ export class TimelineComparisonEditorComponent implements OnInit {
           ],
           totalLabel: 'Total Time: Under 10 minutes',
           isRecommended: true,
-          highlightColor: '#28a745'
+          highlightColor: 'var(--success-color, #28a745)'
         }
       ];
     }
@@ -104,5 +106,9 @@ export class TimelineComparisonEditorComponent implements OnInit {
       option.steps[index] = option.steps[index + 1];
       option.steps[index + 1] = temp;
     }
+  }
+
+  onSave() {
+    this.update.emit(this.config.settings);
   }
 }

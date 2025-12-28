@@ -36,7 +36,7 @@
 
   .video-caption {
     font-size: 1rem;
-    color: #6c757d;
+    color: var(--muted-color, #6c757d);
     font-style: italic;
   }
 
@@ -44,11 +44,11 @@
     max-width: 600px;
     margin: 0 auto;
     padding: 4rem 2rem;
-    background: #f8f9fa;
-    border: 2px dashed #dee2e6;
+    background: var(--surface-ground, #f8f9fa);
+    border: 2px dashed var(--surface-border, #dee2e6);
     border-radius: 12px;
     text-align: center;
-    color: #6c757d;
+    color: var(--muted-color, #6c757d);
 
     i {
       font-size: 4rem;

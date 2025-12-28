@@ -24,6 +24,10 @@ import { HttpHeaders } from '@angular/common/http';
     styleUrls: ['./about-us-editor.component.scss']
 })
 export class AboutUsEditorComponent implements OnInit {
+        @Output() save = new EventEmitter<any>();
+        onSave() {
+            this.save.emit(this.config);
+        }
     @Input() config!: WidgetConfig;
     @Output() update = new EventEmitter<any>();
     tenantIdHeader!: HttpHeaders;

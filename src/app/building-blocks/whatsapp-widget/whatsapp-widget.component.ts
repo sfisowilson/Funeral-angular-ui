@@ -78,7 +78,7 @@ export class WhatsappWidgetComponent implements OnInit {
   getActionButtonStyles(): any {
     return {
       'background-color': this.settings.buttonColor,
-      'color': '#ffffff'
+      'color': 'var(--primary-contrast-color, #ffffff)'
     };
   }
 }

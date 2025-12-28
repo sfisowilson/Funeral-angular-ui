@@ -22,6 +22,8 @@ export class PricingCardsEditorComponent implements OnInit {
     }
   };
   @Output() configChange = new EventEmitter<PricingCardsConfig>();
+  @Output() update = new EventEmitter<any>();
+
 
   ngOnInit() {
     if (!this.config.title) {
@@ -177,5 +179,9 @@ export class PricingCardsEditorComponent implements OnInit {
       tier.features[index + 1] = temp;
       this.emitChange();
     }
+  }
+
+  onSave() {
+    this.update.emit(this.config.settings);
   }
 }

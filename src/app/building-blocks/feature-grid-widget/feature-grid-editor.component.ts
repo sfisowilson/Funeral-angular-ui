@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FeatureGridItem } from './feature-grid-widget.component';
@@ -11,8 +11,8 @@ import { FeatureGridItem } from './feature-grid-widget.component';
     styleUrls: ['./feature-grid-editor.component.scss']
 })
 export class FeatureGridEditorComponent implements OnInit {
-    config: any;
-
+    @Output() update = new EventEmitter<any>();
+    @Input() config: any;
     ngOnInit() {
         if (!this.config.settings) {
             this.config.settings = {};
@@ -67,35 +67,35 @@ export class FeatureGridEditorComponent implements OnInit {
         }
 
         if (this.config.settings.titleColor === undefined) {
-            this.config.settings.titleColor = '#000000';
+            this.config.settings.titleColor = 'var(--text-color, #000000)';
         }
 
         if (this.config.settings.subtitleColor === undefined) {
-            this.config.settings.subtitleColor = '#6c757d';
+            this.config.settings.subtitleColor = 'var(--muted-color, #6c757d)';
         }
 
         if (this.config.settings.backgroundColor === undefined) {
-            this.config.settings.backgroundColor = '#ffffff';
+            this.config.settings.backgroundColor = 'var(--surface-card, #ffffff)';
         }
 
         if (this.config.settings.cardBackgroundColor === undefined) {
-            this.config.settings.cardBackgroundColor = '#f8f9fa';
+            this.config.settings.cardBackgroundColor = 'var(--surface-ground, #f8f9fa)';
         }
 
         if (this.config.settings.iconColor === undefined) {
-            this.config.settings.iconColor = '#0d6efd';
+            this.config.settings.iconColor = 'var(--primary-color, #0d6efd)';
         }
 
         if (this.config.settings.iconBackgroundColor === undefined) {
-            this.config.settings.iconBackgroundColor = '#e7f1ff';
+            this.config.settings.iconBackgroundColor = 'var(--surface-ground, #e7f1ff)';
         }
 
         if (this.config.settings.titleTextColor === undefined) {
-            this.config.settings.titleTextColor = '#212529';
+            this.config.settings.titleTextColor = 'var(--text-color, #212529)';
         }
 
         if (this.config.settings.descriptionTextColor === undefined) {
-            this.config.settings.descriptionTextColor = '#6c757d';
+            this.config.settings.descriptionTextColor = 'var(--muted-color, #6c757d)';
         }
 
         if (this.config.settings.padding === undefined) {
@@ -139,5 +139,9 @@ export class FeatureGridEditorComponent implements OnInit {
             [this.config.settings.features[index], this.config.settings.features[index + 1]] = 
             [this.config.settings.features[index + 1], this.config.settings.features[index]];
         }
+    }
+
+    onSave() {
+        this.update.emit(this.config.settings);
     }
 }

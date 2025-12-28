@@ -36,12 +36,12 @@ export class ContactCardWidgetComponent {
     title: '',
     subtitle: '',
     contactMethods: [],
-    settings: {
+      settings: {
       showMap: false,
       mapEmbedUrl: '',
       layout: 'single',
-      backgroundColor: '#f8f9fa',
-      iconColor: '#007bff'
+      backgroundColor: 'var(--surface-ground, #f8f9fa)',
+      iconColor: 'var(--primary-color, #007bff)'
     }
   };
 
@@ -74,11 +74,11 @@ export class ContactCardWidgetComponent {
   }
 
   get backgroundColor(): string {
-    return this.settings.backgroundColor || '#f8f9fa';
+    return this.settings.backgroundColor || 'var(--surface-ground, #f8f9fa)';
   }
 
   get iconColor(): string {
-    return this.settings.iconColor || '#007bff';
+    return this.settings.iconColor || 'var(--primary-color, #007bff)';
   }
 
   getContactLink(method: ContactMethod): string {

@@ -247,4 +247,8 @@ export class GalleryEditorComponent implements OnInit {
             this.update.emit(this.form.value);
         }
     }
+
+    onSave() {
+        this.update.emit(this.config.settings);
+    }
 }

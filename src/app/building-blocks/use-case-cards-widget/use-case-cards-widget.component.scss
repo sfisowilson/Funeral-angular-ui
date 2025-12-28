@@ -1,5 +1,5 @@
 .use-case-cards-widget {
-  background: #f8f9fa;
+  background: var(--surface-ground, #f8f9fa);
 
   .widget-title {
     font-size: 2.5rem;
@@ -14,7 +14,7 @@
   }
 
   .use-case-card {
-    background: white;
+    background: var(--surface-card, #ffffff);
     border-radius: 12px;
     padding: 2rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -35,7 +35,7 @@
   .card-icon-wrapper {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--primary-dark, #764ba2) 100%);
     border-radius: 16px;
     display: flex;
     align-items: center;
@@ -45,7 +45,7 @@
 
   .card-icon {
     font-size: 2.5rem;
-    color: white;
+    color: var(--primary-contrast-color, #ffffff);
     transition: transform 0.3s ease;
   }
 
@@ -53,11 +53,11 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    color: #212529;
+    color: var(--text-color, #212529);
   }
 
   .card-description {
-    color: #6c757d;
+    color: var(--muted-color, #6c757d);
     margin-bottom: 1.5rem;
     line-height: 1.6;
     flex: 1;
@@ -73,7 +73,7 @@
       align-items: flex-start;
       margin-bottom: 0.75rem;
       font-size: 0.95rem;
-      color: #495057;
+      color: var(--text-dark, #495057);
 
       &:last-child {
         margin-bottom: 0;
@@ -94,14 +94,14 @@
   .card-cta {
     display: inline-flex;
     align-items: center;
-    color: #667eea;
+    color: var(--primary-color, #667eea);
     font-weight: 600;
     text-decoration: none;
     transition: all 0.2s ease;
     margin-top: auto;
 
     &:hover {
-      color: #764ba2;
+      color: var(--primary-dark, #764ba2);
       gap: 0.5rem;
 
       i {

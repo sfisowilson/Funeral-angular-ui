@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StatCounter } from './stats-counter-widget.component';
@@ -11,7 +11,8 @@ import { StatCounter } from './stats-counter-widget.component';
     styleUrls: ['./stats-counter-editor.component.scss']
 })
 export class StatsCounterEditorComponent implements OnInit {
-    config: any;
+    @Input() config: any;
+    @Output() update = new EventEmitter<any>();
 
     ngOnInit() {
         if (!this.config.settings) {
@@ -65,31 +66,31 @@ export class StatsCounterEditorComponent implements OnInit {
         }
 
         if (this.config.settings.titleColor === undefined) {
-            this.config.settings.titleColor = '#000000';
+            this.config.settings.titleColor = 'var(--text-color, #000000)';
         }
 
         if (this.config.settings.subtitleColor === undefined) {
-            this.config.settings.subtitleColor = '#6c757d';
+            this.config.settings.subtitleColor = 'var(--muted-color, #6c757d)';
         }
 
         if (this.config.settings.backgroundColor === undefined) {
-            this.config.settings.backgroundColor = '#f8f9fa';
+            this.config.settings.backgroundColor = 'var(--surface-ground, #f8f9fa)';
         }
 
         if (this.config.settings.statBackgroundColor === undefined) {
-            this.config.settings.statBackgroundColor = '#ffffff';
+            this.config.settings.statBackgroundColor = 'var(--surface-card, #ffffff)';
         }
 
         if (this.config.settings.valueColor === undefined) {
-            this.config.settings.valueColor = '#0d6efd';
+            this.config.settings.valueColor = 'var(--primary-color, #0d6efd)';
         }
 
         if (this.config.settings.labelColor === undefined) {
-            this.config.settings.labelColor = '#495057';
+            this.config.settings.labelColor = 'var(--muted-color, #495057)';
         }
 
         if (this.config.settings.iconColor === undefined) {
-            this.config.settings.iconColor = '#0d6efd';
+            this.config.settings.iconColor = 'var(--primary-color, #0d6efd)';
         }
 
         if (this.config.settings.padding === undefined) {
@@ -131,5 +132,9 @@ export class StatsCounterEditorComponent implements OnInit {
             [this.config.settings.stats[index], this.config.settings.stats[index + 1]] = 
             [this.config.settings.stats[index + 1], this.config.settings.stats[index]];
         }
+    }
+
+    onSave() {
+        this.update.emit(this.config.settings);
     }
 }

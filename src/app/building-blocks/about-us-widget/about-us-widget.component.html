@@ -1,4 +1,4 @@
-<div class="about-us-widget" [style.padding.px]="config.settings?.padding || 60">
+<div class="about-us-widget" [style.padding.px]="config.settings?.padding || 60" [ngStyle]="customStyles">
     
     <!-- Hero Section -->
     <div class="hero-section" *ngIf="config.settings?.showHero">

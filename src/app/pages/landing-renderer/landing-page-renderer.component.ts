@@ -27,7 +27,7 @@ import { environment } from '../../../environments/environment';
                 
                     <div class="text-xl font-bold text-gray-800 d-flex items-center">
                         <img *ngIf="_settings.logo" [src]="getDownloadUrl(_settings.logo)" alt="Logo" class="mt-4 rounded-md" style="max-height: 70px" />
-                        <span *ngIf="!_settings.logo"> {{_settings.TenantName ?? 'Mizo'}}</span>
+                        <span *ngIf="!_settings.logo"> {{_settings.siteTitle || _settings.title || tenantSettings?.tenantName || 'Mizo'}}</span>
                     </div>
                     <nav class="hidden md:flex space-x-6">
                         <a href="#" class="text-gray-600 hover:text-blue-600 transition">Home</a>
@@ -189,7 +189,9 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             this.tenantSettings = data;
              this._settings = JSON.parse(this.tenantSettings.settings ?? "{}");
              this.isStaticSite = this._settings.isStaticSite || false;
-             this.titleService.setTitle(this._settings.TenantName || 'Mizo');
+             const tenantTitle = this._settings.siteTitle || this._settings.title || this.tenantSettings.tenantName || 'Mizo';
+             console.log('Landing page - Setting document title to:', tenantTitle);
+             this.titleService.setTitle(tenantTitle);
         });
 
         this.isLoggedIn = this.authService.isAuthenticated();

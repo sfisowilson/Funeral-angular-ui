@@ -1,7 +1,7 @@
 .cta-banner-editor {
   .editor-section {
-    background: white;
-    border: 1px solid #dee2e6;
+    background: var(--surface-card, #ffffff);
+    border: 1px solid var(--surface-border, #dee2e6);
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -9,7 +9,7 @@
     h5 {
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
-      border-bottom: 2px solid #e9ecef;
+      border-bottom: 2px solid var(--surface-border, #e9ecef);
       font-weight: 600;
     }
   }
@@ -26,8 +26,8 @@
   }
 
   .button-item {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
+    background: var(--surface-ground, #f8f9fa);
+    border: 1px solid var(--surface-border, #dee2e6);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;

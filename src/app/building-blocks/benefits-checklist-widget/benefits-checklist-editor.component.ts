@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BenefitItem, BenefitCategory } from './benefits-checklist-widget.component';
@@ -11,8 +11,12 @@ import { BenefitItem, BenefitCategory } from './benefits-checklist-widget.compon
     styleUrls: ['./benefits-checklist-editor.component.scss']
 })
 export class BenefitsChecklistEditorComponent implements OnInit {
-    config: any;
+    @Input() config: any;
+    @Output() update = new EventEmitter<any>();
+    @Output() cancel = new EventEmitter<void>();
+
     activeCategoryIndex = 0;
+    settings: any;
 
     ngOnInit() {
         if (!this.config.settings) {
@@ -54,23 +58,23 @@ export class BenefitsChecklistEditorComponent implements OnInit {
         }
 
         if (this.config.settings.titleColor === undefined) {
-            this.config.settings.titleColor = '#000000';
+            this.config.settings.titleColor = 'var(--text-color, #000000)';
         }
 
         if (this.config.settings.subtitleColor === undefined) {
-            this.config.settings.subtitleColor = '#6c757d';
+            this.config.settings.subtitleColor = 'var(--muted-color, #6c757d)';
         }
 
         if (this.config.settings.backgroundColor === undefined) {
-            this.config.settings.backgroundColor = '#ffffff';
+            this.config.settings.backgroundColor = 'var(--surface-card, #ffffff)';
         }
 
         if (this.config.settings.iconColor === undefined) {
-            this.config.settings.iconColor = '#198754';
+            this.config.settings.iconColor = 'var(--success-color, #198754)';
         }
 
         if (this.config.settings.textColor === undefined) {
-            this.config.settings.textColor = '#212529';
+            this.config.settings.textColor = 'var(--text-color, #212529)';
         }
 
         if (this.config.settings.padding === undefined) {
@@ -80,6 +84,16 @@ export class BenefitsChecklistEditorComponent implements OnInit {
         if (this.config.settings.allowExpand === undefined) {
             this.config.settings.allowExpand = true;
         }
+    }
+
+    
+    onSave() {
+        console.log('BenefitsChecklistEditorComponent onSave called', this.config);
+        
+        if (this.config.settings) {
+            this.settings = JSON.parse(JSON.stringify(this.config.settings));
+        }
+        this.update.emit(this.settings);
     }
 
     addBenefit() {

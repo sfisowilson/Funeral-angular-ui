@@ -42,15 +42,15 @@ export class ComparisonTableWidgetComponent {
     }
 
     get titleColor(): string {
-        return this.settings.titleColor || '#000000';
+        return this.settings.titleColor || 'var(--text-color, #000000)';
     }
 
     get subtitleColor(): string {
-        return this.settings.subtitleColor || '#6c757d';
+        return this.settings.subtitleColor || 'var(--muted-color, #6c757d)';
     }
 
     get backgroundColor(): string {
-        return this.settings.backgroundColor || '#ffffff';
+        return this.settings.backgroundColor || 'var(--surface-card, #ffffff)';
     }
 
     get padding(): number {
@@ -66,7 +66,7 @@ export class ComparisonTableWidgetComponent {
     }
 
     get columnHeaderBg(): string {
-        return this.settings.columnHeaderBg || '#f8f9fa';
+        return this.settings.columnHeaderBg || 'var(--surface-ground, #f8f9fa)';
     }
 
     get rowHoverEffect(): boolean {

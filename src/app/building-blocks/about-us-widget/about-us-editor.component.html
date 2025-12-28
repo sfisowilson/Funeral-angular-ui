@@ -1,8 +1,41 @@
 <div class="about-us-editor">
+        <div class="editor-section d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-success" (click)="onSave()">
+                <i class="bi bi-save"></i> Save
+            </button>
+        </div>
     <p-toast></p-toast>
 
     <p-accordion [multiple]="true" [activeIndex]="[0]">
         
+        <!-- Color Settings -->
+        <!-- <p-accordionTab header="Color Settings">
+            <div class="p-field">
+                <label>Primary Color (Leave empty to use theme default)</label>
+                <input type="color" pInputText [(ngModel)]="config.settings.primaryColor" 
+                       placeholder="Use theme primary color" />
+                <small *ngIf="!config.settings.primaryColor" class="text-muted">Will use theme primary color</small>
+            </div>
+            <div class="p-field">
+                <label>Secondary Color (Leave empty to use theme default)</label>
+                <input type="color" pInputText [(ngModel)]="config.settings.secondaryColor" 
+                       placeholder="Use theme secondary color" />
+                <small *ngIf="!config.settings.secondaryColor" class="text-muted">Will use theme secondary/accent color</small>
+            </div>
+            <div class="p-field">
+                <label>Text Color (Leave empty to use theme default)</label>
+                <input type="color" pInputText [(ngModel)]="config.settings.textColor" 
+                       placeholder="Use theme text color" />
+                <small *ngIf="!config.settings.textColor" class="text-muted">Will use theme text color</small>
+            </div>
+            <div class="p-field">
+                <label>Background Color (Leave empty to use theme default)</label>
+                <input type="color" pInputText [(ngModel)]="config.settings.backgroundColor" 
+                       placeholder="Use theme background color" />
+                <small *ngIf="!config.settings.backgroundColor" class="text-muted">Will use theme background color</small>
+            </div>
+        </p-accordionTab> -->
+
         <!-- General Settings -->
         <p-accordionTab header="General Settings">
             <div class="p-field">

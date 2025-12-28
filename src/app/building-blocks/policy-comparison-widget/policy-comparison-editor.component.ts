@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
 import { InputTextModule } from 'primeng/inputtext';
@@ -27,6 +27,8 @@ import { PolicyDto, PolicyServiceProxy } from '../../core/services/service-proxi
 })
 export class PolicyComparisonEditorComponent implements OnInit {
     @Input() config!: WidgetConfig;
+    @Output() update = new EventEmitter<any>();
+
     availablePolicies: PolicyDto[] = [];
 
     constructor(private policyService: PolicyServiceProxy) {}
@@ -35,5 +37,9 @@ export class PolicyComparisonEditorComponent implements OnInit {
         this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe((policies) => {
             this.availablePolicies = policies;
         });
+    }
+
+    onSave() {
+        this.update.emit(this.config.settings);
     }
 }

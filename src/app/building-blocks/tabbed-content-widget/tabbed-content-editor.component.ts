@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TabItem } from './tabbed-content-widget.component';
@@ -12,6 +12,8 @@ import { TabItem } from './tabbed-content-widget.component';
 })
 export class TabbedContentEditorComponent implements OnInit {
   @Input() config: any = {};
+  @Output() update = new EventEmitter<any>();
+
   activeEditTabIndex: number = 0;
 
   ngOnInit() {
@@ -95,5 +97,9 @@ export class TabbedContentEditorComponent implements OnInit {
 
   setActiveEditTab(index: number) {
     this.activeEditTabIndex = index;
+  }
+
+  onSave() {
+    this.update.emit(this.config.settings);
   }
 }

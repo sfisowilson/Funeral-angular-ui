@@ -3,10 +3,10 @@
 }
 
 .card {
-  background: #ffffff;
+  background: var(--surface-card, #ffffff);
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .p-field {
@@ -28,23 +28,23 @@
 }
 
 .p-button-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
+  background-color: var(--danger-color, #dc3545);
+  border-color: var(--danger-color, #dc3545);
 }
 
 .p-button-danger:hover {
-  background-color: #c82333;
-  border-color: #bd2130;
+  background-color: var(--danger-color-dark, #c82333);
+  border-color: var(--danger-border-color, #bd2130);
 }
 
 .p-button-text {
   background-color: transparent;
-  color: #007bff;
+  color: var(--primary-color, #007bff);
   border-color: transparent;
 }
 
 .p-button-text:hover {
-  background-color: rgba(0, 123, 255, 0.04);
+  background-color: var(--primary-hover-bg, rgba(0, 123, 255, 0.04));
 }
 
 .p-button-rounded {

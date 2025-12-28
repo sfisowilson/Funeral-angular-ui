@@ -52,23 +52,23 @@ export class BenefitsChecklistWidgetComponent {
     }
 
     get titleColor(): string {
-        return this.settings.titleColor || '#000000';
+        return this.settings.titleColor || 'var(--text-color, #000000)';
     }
 
     get subtitleColor(): string {
-        return this.settings.subtitleColor || '#6c757d';
+        return this.settings.subtitleColor || 'var(--muted-color, #6c757d)';
     }
 
     get backgroundColor(): string {
-        return this.settings.backgroundColor || '#ffffff';
+        return this.settings.backgroundColor || 'var(--surface-card, #ffffff)';
     }
 
     get iconColor(): string {
-        return this.settings.iconColor || '#198754';
+        return this.settings.iconColor || 'var(--success-color, #198754)';
     }
 
     get textColor(): string {
-        return this.settings.textColor || '#212529';
+        return this.settings.textColor || 'var(--text-color, #212529)';
     }
 
     get padding(): number {

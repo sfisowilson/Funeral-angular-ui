@@ -2,14 +2,14 @@
     .editor-section {
         margin-bottom: 2rem;
         padding: 1.5rem;
-        background: #f8f9fa;
+        background: var(--surface-ground, #f8f9fa);
         border-radius: 8px;
 
         .section-title {
             font-size: 1.125rem;
             font-weight: 600;
             margin-bottom: 1rem;
-            color: #212529;
+            color: var(--text-color, #212529);
         }
 
         .section-header {
@@ -27,21 +27,21 @@
             display: block;
             font-weight: 500;
             margin-bottom: 0.5rem;
-            color: #495057;
+            color: var(--text-dark, #495057);
             font-size: 0.875rem;
         }
 
         .form-control {
             width: 100%;
             padding: 0.5rem 0.75rem;
-            border: 1px solid #ced4da;
+            border: 1px solid var(--surface-border, #ced4da);
             border-radius: 4px;
             font-size: 0.875rem;
 
-            &:focus {
+                &:focus {
                 outline: none;
-                border-color: #0d6efd;
-                box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+                border-color: var(--primary-color, #0d6efd);
+                box-shadow: 0 0 0 0.2rem var(--primary-focus-ring, rgba(13, 110, 253, 0.25));
             }
         }
 
@@ -78,9 +78,9 @@
     }
 
     .stats-list {
-        .stat-card {
-            background: white;
-            border: 1px solid #dee2e6;
+                .stat-card {
+            background: var(--surface-card, #ffffff);
+            border: 1px solid var(--surface-border, #dee2e6);
             border-radius: 8px;
             padding: 1.5rem;
             margin-bottom: 1rem;
@@ -93,9 +93,9 @@
                 padding-bottom: 0.75rem;
                 border-bottom: 1px solid #dee2e6;
 
-                .preview-icon {
+                    .preview-icon {
                     font-size: 2rem;
-                    color: #0d6efd;
+                    color: var(--primary-color, #0d6efd);
                 }
 
                 .stat-controls {
@@ -120,7 +120,7 @@
                 }
 
                 .stat-preview {
-                    background: #f8f9fa;
+                    background: var(--surface-ground, #f8f9fa);
                     border-radius: 6px;
                     padding: 1.5rem;
                     text-align: center;
@@ -129,7 +129,7 @@
                     .preview-value {
                         font-size: 2rem;
                         font-weight: 700;
-                        color: #0d6efd;
+                        color: var(--primary-color, #0d6efd);
                         margin-bottom: 0.5rem;
                         letter-spacing: -1px;
                     }
@@ -137,7 +137,7 @@
                     .preview-label {
                         font-size: 0.9375rem;
                         font-weight: 500;
-                        color: #495057;
+                        color: var(--text-dark, #495057);
                         text-transform: uppercase;
                         letter-spacing: 0.5px;
                     }
@@ -159,17 +159,17 @@
         transition: all 0.2s ease;
 
         &.btn-success {
-            background: #198754;
-            color: white;
+            background: var(--success-color, #198754);
+            color: var(--primary-contrast-color, #ffffff);
 
             &:hover {
-                background: #157347;
+                background: var(--success-dark, #157347);
             }
         }
 
         &.btn-link {
             background: transparent;
-            color: #0d6efd;
+            color: var(--primary-color, #0d6efd);
             padding: 0.25rem 0.5rem;
 
             &:hover {
@@ -177,11 +177,11 @@
                 text-decoration: underline;
             }
 
-            &.text-danger {
-                color: #dc3545;
+                &.text-danger {
+                color: var(--danger-color, #dc3545);
 
                 &:hover {
-                    color: #bb2d3b;
+                    color: var(--danger-dark, #bb2d3b);
                 }
             }
         }

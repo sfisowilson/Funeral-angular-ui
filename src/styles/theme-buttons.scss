@@ -1,0 +1,178 @@
+/* Theme-aware button styles */
+
+/* Base button styles */
+.btn-theme {
+    border-radius: var(--button-border-radius, 4px);
+    padding: var(--button-padding, 0.5rem 1rem);
+    font-size: var(--button-font-size, 0.875rem);
+    font-weight: var(--button-font-weight, 500);
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    min-height: 2.5rem;
+}
+
+/* Primary button theme */
+.btn-theme-primary {
+    background-color: var(--button-primary-background, #007bff);
+    border-color: var(--button-primary-border, #007bff);
+    color: var(--button-primary-color, #ffffff);
+}
+
+.btn-theme-primary:hover {
+    background-color: var(--button-primary-hover-background, #0056b3);
+    border-color: var(--button-primary-hover-background, #0056b3);
+    color: var(--button-primary-color, #ffffff);
+}
+
+.btn-theme-primary:focus,
+.btn-theme-primary:active {
+    background-color: var(--primary-active-color, #004085);
+    border-color: var(--primary-active-color, #004085);
+    color: var(--button-primary-color, #ffffff);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Secondary button theme */
+.btn-theme-secondary {
+    background-color: var(--button-secondary-background, #6c757d);
+    border-color: var(--button-secondary-border, #6c757d);
+    color: var(--button-secondary-color, #ffffff);
+}
+
+.btn-theme-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    color: var(--button-secondary-color, #ffffff);
+}
+
+.btn-theme-secondary:focus,
+.btn-theme-secondary:active {
+    background-color: #545b62;
+    border-color: #545b62;
+    color: var(--button-secondary-color, #ffffff);
+    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+}
+
+/* Outline variants */
+.btn-theme-outline-primary {
+    background-color: transparent;
+    border-color: var(--button-primary-background, #007bff);
+    color: var(--button-primary-background, #007bff);
+}
+
+.btn-theme-outline-primary:hover {
+    background-color: var(--button-primary-background, #007bff);
+    color: var(--button-primary-color, #ffffff);
+}
+
+.btn-theme-outline-secondary {
+    background-color: transparent;
+    border-color: var(--button-secondary-background, #6c757d);
+    color: var(--button-secondary-background, #6c757d);
+}
+
+.btn-theme-outline-secondary:hover {
+    background-color: var(--button-secondary-background, #6c757d);
+    color: var(--button-secondary-color, #ffffff);
+}
+
+/* Size variants */
+.btn-theme-sm {
+    padding: var(--button-padding, 0.25rem 0.5rem);
+    font-size: 0.75rem;
+    min-height: 2rem;
+}
+
+.btn-theme-lg {
+    padding: var(--button-padding, 0.75rem 1.5rem);
+    font-size: 1rem;
+    min-height: 3rem;
+}
+
+/* Utility classes for combining styles */
+.btn-primary-theme {
+    @extend .btn-theme;
+    @extend .btn-theme-primary;
+}
+
+.btn-secondary-theme {
+    @extend .btn-theme;
+    @extend .btn-theme-secondary;
+}
+
+.btn-outline-primary-theme {
+    @extend .btn-theme;
+    @extend .btn-theme-outline-primary;
+}
+
+.btn-outline-secondary-theme {
+    @extend .btn-theme;
+    @extend .btn-theme-outline-secondary;
+}
+
+/* Disabled state */
+.btn-theme:disabled,
+.btn-theme.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Loading state */
+.btn-theme.loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-theme.loading::after {
+    content: '';
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    top: 50%;
+    left: 50%;
+    margin-left: -0.5rem;
+    margin-top: -0.5rem;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Group styles */
+.btn-theme-group {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.btn-theme-group .btn-theme {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.btn-theme-group .btn-theme:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.btn-theme-group .btn-theme:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: -1px;
+}
+
+.btn-theme-group .btn-theme:hover,
+.btn-theme-group .btn-theme:focus,
+.btn-theme-group .btn-theme:active {
+    z-index: 1;
+}

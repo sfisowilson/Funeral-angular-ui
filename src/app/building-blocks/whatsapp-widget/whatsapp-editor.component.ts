@@ -39,13 +39,14 @@ export class WhatsappEditorComponent implements OnInit {
     if (!this.localSettings.position) this.localSettings.position = 'right';
     if (this.localSettings.sidePosition === undefined) this.localSettings.sidePosition = 20;
     if (this.localSettings.bottomPosition === undefined) this.localSettings.bottomPosition = 20;
-    if (!this.localSettings.buttonColor) this.localSettings.buttonColor = '#25d366';
+    if (!this.localSettings.buttonColor) this.localSettings.buttonColor = 'var(--primary-color, #25d366)';
     if (this.localSettings.buttonSize === undefined) this.localSettings.buttonSize = 60;
     if (this.localSettings.borderRadius === undefined) this.localSettings.borderRadius = 50;
-    if (!this.localSettings.headerBackgroundColor) this.localSettings.headerBackgroundColor = '#075e54';
-    if (!this.localSettings.headerTextColor) this.localSettings.headerTextColor = '#ffffff';
-    if (!this.localSettings.expandedBackgroundColor) this.localSettings.expandedBackgroundColor = '#f0f0f0';
-    if (!this.localSettings.expandedTextColor) this.localSettings.expandedTextColor = '#333333';
+    if (!this.localSettings.headerBackgroundColor) this.localSettings.headerBackgroundColor = 'var(--primary-dark, #075e54)';
+    if (!this.localSettings.headerTextColor) this.localSettings.headerTextColor = 'var(--primary-contrast-color, #ffffff)';
+    if (!this.localSettings.expandedBackgroundColor) this.localSettings.expandedBackgroundColor = 'var(--surface-card, #f0f0f0)';
+    if (!this.localSettings.expandedTextColor) this.localSettings.expandedTextColor = 'var(--text-dark, #333333)';
+
     if (this.localSettings.showOnlineStatus === undefined) this.localSettings.showOnlineStatus = true;
     if (this.localSettings.zIndex === undefined) this.localSettings.zIndex = 1000;
   }

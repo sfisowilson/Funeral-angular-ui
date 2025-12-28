@@ -12,8 +12,8 @@
   }
 
   .timeline-card {
-    background: #fff;
-    border: 3px solid #e0e0e0;
+    background: var(--surface-card, #ffffff);
+    border: 3px solid var(--surface-border, #e0e0e0);
     border-radius: 12px;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -28,20 +28,20 @@
     }
 
     &.recommended {
-      border-color: #28a745;
+      border-color: var(--success-color, #28a745);
       border-width: 4px;
       box-shadow: 0 5px 20px rgba(40, 167, 69, 0.2);
     }
   }
 
   .timeline-header {
-    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--muted-color, #6c757d) 0%, var(--text-dark, #495057) 100%);
+    color: var(--primary-contrast-color, #ffffff);
     padding: 2rem;
     text-align: center;
 
     .recommended & {
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      background: linear-gradient(135deg, var(--success-color, #28a745) 0%, var(--success-color-dark, #20c997) 100%);
     }
   }
 
@@ -88,7 +88,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 1rem;
-      border-bottom: 1px solid #e9ecef;
+      border-bottom: 1px solid var(--surface-border, #e9ecef);
       transition: background-color 0.2s ease;
 
       &:last-child {
@@ -96,7 +96,7 @@
       }
 
       &:hover {
-        background-color: #f8f9fa;
+        background-color: var(--surface-ground, #f8f9fa);
       }
 
       .step-label {
@@ -105,7 +105,7 @@
       }
 
       .step-duration {
-        color: #6c757d;
+        color: var(--muted-color, #6c757d);
         font-size: 0.9rem;
         white-space: nowrap;
         margin-left: 1rem;
@@ -115,18 +115,18 @@
 
   .timeline-footer {
     padding: 1.5rem;
-    background-color: #f8f9fa;
-    border-top: 2px solid #e9ecef;
+    background-color: var(--surface-ground, #f8f9fa);
+    border-top: 2px solid var(--surface-border, #e9ecef);
 
     .total-label {
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.1rem;
-      color: #495057;
+      color: var(--text-dark, #495057);
 
       i {
-        color: #007bff;
+        color: var(--primary-color, #007bff);
       }
     }
   }
@@ -135,8 +135,8 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background-color: #ffc107;
-    color: #000;
+    background-color: var(--warning-color, #ffc107);
+    color: var(--text-color, #000000);
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-weight: 600;

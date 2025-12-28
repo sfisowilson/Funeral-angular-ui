@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ComparisonColumn } from './comparison-table-widget.component';
@@ -11,8 +11,13 @@ import { ComparisonColumn } from './comparison-table-widget.component';
     styleUrls: ['./comparison-table-editor.component.scss']
 })
 export class ComparisonTableEditorComponent implements OnInit {
+    @Output() update = new EventEmitter<any>();
     config: any;
     activeColumnIndex = 0;
+    
+    onSave() {
+        this.update.emit(this.config.settings);
+    }
 
     ngOnInit() {
         if (!this.config.settings) {
@@ -34,7 +39,7 @@ export class ComparisonTableEditorComponent implements OnInit {
                     title: 'Traditional Route',
                     subtitle: 'What you pay separately',
                     isHighlighted: false,
-                    highlightColor: '#f8d7da',
+                    highlightColor: 'var(--danger-bg, #f8d7da)',
                     items: [
                         { label: 'Domain Purchase', value: 'R150-R500/year' },
                         { label: 'Web Hosting', value: 'R80-R500/month' },
@@ -48,7 +53,7 @@ export class ComparisonTableEditorComponent implements OnInit {
                     title: 'Our Platform',
                     subtitle: 'Everything included',
                     isHighlighted: true,
-                    highlightColor: '#d4edda',
+                    highlightColor: 'var(--success-bg, #d4edda)',
                     items: [
                         { label: 'Custom Subdomain', value: 'Included ✓' },
                         { label: 'Enterprise Hosting', value: 'Included ✓' },
@@ -62,15 +67,15 @@ export class ComparisonTableEditorComponent implements OnInit {
         }
 
         if (this.config.settings.titleColor === undefined) {
-            this.config.settings.titleColor = '#000000';
+            this.config.settings.titleColor = 'var(--text-color, #000000)';
         }
 
         if (this.config.settings.subtitleColor === undefined) {
-            this.config.settings.subtitleColor = '#6c757d';
+            this.config.settings.subtitleColor = 'var(--muted-color, #6c757d)';
         }
 
         if (this.config.settings.backgroundColor === undefined) {
-            this.config.settings.backgroundColor = '#ffffff';
+            this.config.settings.backgroundColor = 'var(--surface-card, #ffffff)';
         }
 
         if (this.config.settings.padding === undefined) {
@@ -86,7 +91,7 @@ export class ComparisonTableEditorComponent implements OnInit {
         }
 
         if (this.config.settings.columnHeaderBg === undefined) {
-            this.config.settings.columnHeaderBg = '#f8f9fa';
+            this.config.settings.columnHeaderBg = 'var(--surface-ground, #f8f9fa)';
         }
 
         if (this.config.settings.rowHoverEffect === undefined) {
@@ -103,7 +108,7 @@ export class ComparisonTableEditorComponent implements OnInit {
             title: 'New Column',
             subtitle: '',
             isHighlighted: false,
-            highlightColor: '#e3f2fd',
+            highlightColor: 'var(--info-bg, #e3f2fd)',
             items: [],
             total: ''
         });

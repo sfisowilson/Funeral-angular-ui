@@ -24,7 +24,7 @@ import { CdkDrag } from '@angular/cdk/drag-drop';
     styles: [
         `
             .widget-box {
-                border: 1px dashed #ccc;
+                border: 1px dashed var(--surface-border, #cccccc);
                 margin-bottom: 10px;
                 position: relative;
                 padding: 10px;

@@ -123,8 +123,8 @@ import { ToastModule } from 'primeng/toast';
         }
 
         .total-premium-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, var(--auth-bg-start, #667eea) 0%, var(--auth-bg-end, #764ba2) 100%);
+            color: var(--primary-contrast-color, #ffffff);
             padding: 2rem;
             border-radius: 12px;
             text-align: center;

@@ -88,13 +88,13 @@ export class FeaturesEditorComponent {
     constructor(private fb: FormBuilder) {
         this.form = this.fb.group({
             title: [''],
-            titleColor: ['#000000'],
-            backgroundColor: ['#ffffff'],
+            titleColor: ['var(--text-color, #000000)'],
+            backgroundColor: ['var(--surface-card, #ffffff)'],
             padding: [20],
             iconSize: [48],
-            iconColor: ['#007bff'],
-            featureTitleColor: ['#000000'],
-            featureTextColor: ['#6c757d'],
+            iconColor: ['var(--primary-color, #007bff)'],
+            featureTitleColor: ['var(--text-color, #000000)'],
+            featureTextColor: ['var(--muted-color, #6c757d)'],
             features: this.fb.array([])
         });
     }

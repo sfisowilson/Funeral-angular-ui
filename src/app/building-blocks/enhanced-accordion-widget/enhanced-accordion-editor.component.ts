@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccordionItem } from './enhanced-accordion-widget.component';
@@ -11,6 +11,8 @@ import { AccordionItem } from './enhanced-accordion-widget.component';
   styleUrls: ['./enhanced-accordion-editor.component.scss']
 })
 export class EnhancedAccordionEditorComponent implements OnInit {
+  @Output() update = new EventEmitter<any>();
+
   @Input() config: any = {};
 
   ngOnInit() {
@@ -81,5 +83,9 @@ export class EnhancedAccordionEditorComponent implements OnInit {
       this.config.items[index] = this.config.items[index + 1];
       this.config.items[index + 1] = temp;
     }
+  }
+
+  onSave() {
+    this.update.emit(this.config.settings);
   }
 }

@@ -11,20 +11,21 @@ import { CTABannerConfig, CTAButton } from './cta-banner-widget.component';
   styleUrl: './cta-banner-editor.component.scss'
 })
 export class CTABannerEditorComponent implements OnInit {
+  @Output() update = new EventEmitter<any>();
   @Input() config: CTABannerConfig = {
     headline: '',
     subheadline: '',
     buttons: [],
-    settings: {
-      backgroundType: 'gradient',
-      backgroundColor: '#007bff',
-      gradientStart: '#007bff',
-      gradientEnd: '#0056b3',
-      overlayOpacity: 0.5,
-      textColor: 'light',
-      alignment: 'center',
-      paddingSize: 'large'
-    }
+      settings: {
+        backgroundType: 'gradient',
+        backgroundColor: 'var(--primary-color, #007bff)',
+        gradientStart: 'var(--primary-color, #007bff)',
+        gradientEnd: 'var(--primary-dark, #0056b3)',
+        overlayOpacity: 0.5,
+        textColor: 'light',
+        alignment: 'center',
+        paddingSize: 'large'
+      }
   };
   @Output() configChange = new EventEmitter<CTABannerConfig>();
 
@@ -52,9 +53,9 @@ export class CTABannerEditorComponent implements OnInit {
     if (!this.config.settings) {
       this.config.settings = {
         backgroundType: 'gradient',
-        backgroundColor: '#007bff',
-        gradientStart: '#007bff',
-        gradientEnd: '#0056b3',
+        backgroundColor: 'var(--primary-color, #007bff)',
+        gradientStart: 'var(--primary-color, #007bff)',
+        gradientEnd: 'var(--primary-dark, #0056b3)',
         overlayOpacity: 0.5,
         textColor: 'light',
         alignment: 'center',
@@ -98,5 +99,9 @@ export class CTABannerEditorComponent implements OnInit {
       this.config.buttons[index + 1] = temp;
       this.emitChange();
     }
+  }
+
+  onSave() {
+    this.update.emit(this.config.settings);
   }
 }

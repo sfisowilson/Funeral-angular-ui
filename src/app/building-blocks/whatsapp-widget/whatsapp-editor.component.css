@@ -6,7 +6,7 @@
 .section {
   padding-bottom: 20px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--surface-border, #e0e0e0);
 }
 
 .section:last-child {
@@ -17,14 +17,14 @@
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #333;
+  color: var(--text-dark, #333333);
 }
 
 .form-label {
   font-weight: 500;
   font-size: 14px;
   margin-bottom: 6px;
-  color: #555;
+  color: var(--text-color, #495057);
 }
 
 .form-control-color {
@@ -42,7 +42,7 @@
   align-items: center;
   gap: 16px;
   padding: 12px;
-  background-color: #f8f9fa;
+  background-color: var(--surface-ground, #f8f9fa);
   border-radius: 8px;
 }
 
@@ -70,26 +70,26 @@
   align-items: center;
   gap: 8px;
   padding: 24px;
-  border: 2px dashed #ccc;
+  border: 2px dashed var(--surface-border, #cccccc);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  background-color: #f8f9fa;
+  background-color: var(--surface-ground, #f8f9fa);
 }
 
 .upload-label:hover {
-  border-color: #007bff;
-  background-color: #e7f1ff;
+  border-color: var(--primary-color, #007bff);
+  background-color: var(--surface-card, #e7f1ff);
 }
 
 .upload-label i {
   font-size: 32px;
-  color: #007bff;
+  color: var(--primary-color, #007bff);
 }
 
 .upload-label span {
   font-size: 14px;
-  color: #666;
+  color: var(--muted-color, #6c757d);
 }
 
 .form-text {

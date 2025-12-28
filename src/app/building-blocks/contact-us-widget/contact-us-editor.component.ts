@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
 import { InputTextModule } from 'primeng/inputtext';
@@ -34,6 +34,7 @@ interface SocialMedia {
 })
 export class ContactUsEditorComponent implements OnInit {
     @Input() config!: WidgetConfig;
+    @Output() update = new EventEmitter<any>();
     settings: any;
 
     branches: Branch[] = [];
@@ -74,6 +75,7 @@ export class ContactUsEditorComponent implements OnInit {
         this.settings.socialMediaHandles = this.socialMediaHandles;
         this.config.settings = this.settings;
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Contact Us settings updated' });
+        this.update.emit(this.settings);
     }
 
     // Branch methods

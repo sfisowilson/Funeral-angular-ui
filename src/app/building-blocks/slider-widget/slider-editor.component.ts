@@ -61,16 +61,16 @@ export class SliderEditorComponent implements OnInit {
       this.settings.overlayOpacity = 0.4;
     }
     if (!this.settings.titleColor) {
-      this.settings.titleColor = '#ffffff';
+      this.settings.titleColor = 'var(--primary-contrast-color, #ffffff)';
     }
     if (!this.settings.subtitleColor) {
-      this.settings.subtitleColor = '#ffffff';
+      this.settings.subtitleColor = 'var(--primary-contrast-color, #ffffff)';
     }
     if (!this.settings.buttonColor) {
-      this.settings.buttonColor = '#007bff';
+      this.settings.buttonColor = 'var(--primary-color, #007bff)';
     }
     if (!this.settings.buttonTextColor) {
-      this.settings.buttonTextColor = '#ffffff';
+      this.settings.buttonTextColor = 'var(--primary-contrast-color, #ffffff)';
     }
     if (this.settings.buttonTextSize === undefined) {
       this.settings.buttonTextSize = 16;
@@ -82,7 +82,7 @@ export class SliderEditorComponent implements OnInit {
       this.settings.arrowBackgroundColor = 'rgba(0, 0, 0, 0.5)';
     }
     if (!this.settings.arrowColor) {
-      this.settings.arrowColor = '#ffffff';
+      this.settings.arrowColor = 'var(--primary-contrast-color, #ffffff)';
     }
     if (this.settings.dotSize === undefined) {
       this.settings.dotSize = 12;
@@ -91,7 +91,7 @@ export class SliderEditorComponent implements OnInit {
       this.settings.dotColor = 'rgba(255, 255, 255, 0.5)';
     }
     if (!this.settings.dotActiveColor) {
-      this.settings.dotActiveColor = '#ffffff';
+      this.settings.dotActiveColor = 'var(--primary-contrast-color, #ffffff)';
     }
     if (!this.settings.dotsBackgroundColor) {
       this.settings.dotsBackgroundColor = 'rgba(0, 0, 0, 0.3)';

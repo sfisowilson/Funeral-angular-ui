@@ -45,31 +45,31 @@ export class StatsCounterWidgetComponent implements OnInit, AfterViewInit {
     }
 
     get titleColor(): string {
-        return this.settings.titleColor || '#000000';
+        return this.settings.titleColor || 'var(--text-color, #000000)';
     }
 
     get subtitleColor(): string {
-        return this.settings.subtitleColor || '#6c757d';
+        return this.settings.subtitleColor || 'var(--muted-color, #6c757d)';
     }
 
     get backgroundColor(): string {
-        return this.settings.backgroundColor || '#f8f9fa';
+        return this.settings.backgroundColor || 'var(--surface-ground, #f8f9fa)';
     }
 
     get statBackgroundColor(): string {
-        return this.settings.statBackgroundColor || '#ffffff';
+        return this.settings.statBackgroundColor || 'var(--surface-card, #ffffff)';
     }
 
     get valueColor(): string {
-        return this.settings.valueColor || '#0d6efd';
+        return this.settings.valueColor || 'var(--primary-color, #0d6efd)';
     }
 
     get labelColor(): string {
-        return this.settings.labelColor || '#495057';
+        return this.settings.labelColor || 'var(--text-dark, #495057)';
     }
 
     get iconColor(): string {
-        return this.settings.iconColor || '#0d6efd';
+        return this.settings.iconColor || 'var(--primary-color, #0d6efd)';
     }
 
     get padding(): number {

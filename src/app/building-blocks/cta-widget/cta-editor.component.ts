@@ -82,13 +82,13 @@ export class CtaEditorComponent {
         this.form = this.fb.group({
             title: [''],
             text: [''],
-            textColor: ['#ffffff'],
-            backgroundColor: ['#007bff'],
+            textColor: ['var(--text-color, #ffffff)'],
+            backgroundColor: ['var(--primary-color, #007bff)'],
             padding: [40],
             buttonText: ['Get Started'],
             buttonLink: ['#'],
-            buttonColor: ['#ffffff'],
-            buttonTextColor: ['#007bff']
+            buttonColor: ['var(--primary-contrast-color, #ffffff)'],
+            buttonTextColor: ['var(--primary-color, #007bff)']
         });
     }
 

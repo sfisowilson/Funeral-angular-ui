@@ -62,6 +62,8 @@ export class ThemeService {
         }
 
         let cssVariables = '';
+        
+        // Theme colors
         if (settings.primaryColor) {
             cssVariables += `--primary-color: ${settings.primaryColor};\n`;
         }
@@ -80,12 +82,46 @@ export class ThemeService {
         if (settings.borderColor) {
             cssVariables += `--border-color: ${settings.borderColor};\n`;
         }
-        if (settings.buttonPrimaryHoverBackground) {
-            cssVariables += `--button-primary-hover-background: ${settings.buttonPrimaryHoverBackground};\n`;
-        }
         if (settings.primaryActiveColor) {
             cssVariables += `--primary-active-color: ${settings.primaryActiveColor};\n`;
         }
+        
+        // Button-specific variables
+        if (settings.buttonPrimaryBackground) {
+            cssVariables += `--button-primary-background: ${settings.buttonPrimaryBackground};\n`;
+        }
+        if (settings.buttonPrimaryBorder) {
+            cssVariables += `--button-primary-border: ${settings.buttonPrimaryBorder};\n`;
+        }
+        if (settings.buttonPrimaryColor) {
+            cssVariables += `--button-primary-color: ${settings.buttonPrimaryColor};\n`;
+        }
+        if (settings.buttonPrimaryHoverBackground) {
+            cssVariables += `--button-primary-hover-background: ${settings.buttonPrimaryHoverBackground};\n`;
+        }
+        if (settings.buttonSecondaryBackground) {
+            cssVariables += `--button-secondary-background: ${settings.buttonSecondaryBackground};\n`;
+        }
+        if (settings.buttonSecondaryBorder) {
+            cssVariables += `--button-secondary-border: ${settings.buttonSecondaryBorder};\n`;
+        }
+        if (settings.buttonSecondaryColor) {
+            cssVariables += `--button-secondary-color: ${settings.buttonSecondaryColor};\n`;
+        }
+        if (settings.buttonBorderRadius) {
+            cssVariables += `--button-border-radius: ${settings.buttonBorderRadius};\n`;
+        }
+        if (settings.buttonPadding) {
+            cssVariables += `--button-padding: ${settings.buttonPadding};\n`;
+        }
+        if (settings.buttonFontSize) {
+            cssVariables += `--button-font-size: ${settings.buttonFontSize};\n`;
+        }
+        if (settings.buttonFontWeight) {
+            cssVariables += `--button-font-weight: ${settings.buttonFontWeight};\n`;
+        }
+        
+        // Typography
         if (settings.fontFamily) {
             cssVariables += `--font-family: ${settings.fontFamily};\n`;
         }
@@ -114,6 +150,8 @@ export class ThemeService {
         if (settings.contentBackground) {
             cssVariables += `--surface-card: ${settings.contentBackground};
 `;
+            // Bootstrap card background compatibility variable (used by tenant-register)
+            cssVariables += `--bs-card-bg: ${settings.contentBackground};\n`;
         }
         if (settings.contentHoverBackground) {
             cssVariables += `--surface-hover: ${settings.contentHoverBackground};
@@ -170,6 +208,38 @@ export class ThemeService {
         if (settings.surface800) {
             cssVariables += `--code-background: ${settings.surface800};
 `;
+
+        // Common semantic colors
+        if (settings.successColor) {
+            cssVariables += `--success-color: ${settings.successColor};\n`;
+        }
+        if (settings.errorColor) {
+            cssVariables += `--error-color: ${settings.errorColor};\n`;
+        }
+        if (settings.warningColor) {
+            cssVariables += `--warning-color: ${settings.warningColor};\n`;
+        }
+        if (settings.infoColor) {
+            cssVariables += `--info-color: ${settings.infoColor};\n`;
+        }
+        if (settings.mutedColor) {
+            cssVariables += `--muted-color: ${settings.mutedColor};\n`;
+        }
+        if (settings.textDarkColor) {
+            cssVariables += `--text-dark: ${settings.textDarkColor};\n`;
+        }
+        if (settings.whiteColor) {
+            cssVariables += `--white: ${settings.whiteColor};\n`;
+        }
+        if (settings.blackColor) {
+            cssVariables += `--black: ${settings.blackColor};\n`;
+        }
+        if (settings.spinnerBorderColor) {
+            cssVariables += `--spinner-border: ${settings.spinnerBorderColor};\n`;
+        }
+        if (settings.spinnerTopColor) {
+            cssVariables += `--spinner-top: ${settings.spinnerTopColor};\n`;
+        }
         }
         if (settings.surface100) {
             cssVariables += `--code-color: ${settings.surface100};

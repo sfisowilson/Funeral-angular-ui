@@ -16,6 +16,13 @@ import { TenantSettingDto, TenantSettingServiceProxy, FileUploadServiceProxy, Fi
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { TeamEditorComponent } from '../../building-blocks/team-editor-widget/team-editor.component';
 import { WidgetConfig } from '../../building-blocks/widget-config';
+
+// Extended Family Column Configuration Interface
+interface ExtendedFamilyColumn {
+    key: string;
+    label: string;
+    coverAmount: number;
+}
 import { WidgetService } from '../../building-blocks/widget.service';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -145,6 +152,15 @@ export class TenantSettingsComponent implements OnInit {
     showPremiumSettingsDialog: boolean = false;
     premiumSettings: PremiumCalculationSettingsDto | null = null;
     loadingPremiumSettings: boolean = false;
+
+    // Extended Family Table Column Configuration
+    extendedFamilyColumns: ExtendedFamilyColumn[] = [
+        { key: 'premium_5000_Cover', label: 'R5,000 Cover', coverAmount: 5000 },
+        { key: 'premium_10000_Cover', label: 'R10,000 Cover', coverAmount: 10000 },
+        { key: 'premium_15000_Cover', label: 'R15,000 Cover', coverAmount: 15000 },
+        { key: 'premium_20000_Cover', label: 'R20,000 Cover', coverAmount: 20000 },
+        { key: 'premium_25000_Cover', label: 'R25,000 Cover', coverAmount: 25000 }
+    ];
 
     constructor(
         private messageService: MessageService,
@@ -878,6 +894,10 @@ export class TenantSettingsComponent implements OnInit {
         this.premiumCalculationService.premiumCalculation_GetSettings().subscribe({
             next: (settings) => {
                 this.premiumSettings = settings;
+                
+                // Initialize extended family columns from existing data if needed
+                this.initializeExtendedFamilyColumns();
+                
                 this.loadingPremiumSettings = false;
             },
             error: (error) => {
@@ -886,6 +906,31 @@ export class TenantSettingsComponent implements OnInit {
                 this.loadingPremiumSettings = false;
             }
         });
+    }
+
+    initializeExtendedFamilyColumns(): void {
+        if (!this.premiumSettings?.extendedFamilyTable?.rows || this.premiumSettings.extendedFamilyTable.rows.length === 0) {
+            return; // No data to initialize from
+        }
+
+        // Check if we have any existing row data to extract column structure
+        const firstRow = this.premiumSettings.extendedFamilyTable.rows[0];
+        const existingColumns = Object.keys(firstRow)
+            .filter(key => key.startsWith('premium_') && key.endsWith('_Cover'))
+            .map(key => {
+                const coverAmount = parseInt(key.replace('premium_', '').replace('_Cover', ''));
+                return {
+                    key: key,
+                    label: `R${coverAmount.toLocaleString()} Cover`,
+                    coverAmount: coverAmount
+                };
+            })
+            .sort((a, b) => a.coverAmount - b.coverAmount);
+
+        // Update columns if we found existing data
+        if (existingColumns.length > 0) {
+            this.extendedFamilyColumns = existingColumns;
+        }
     }
 
     savePremiumSettings(): void {
@@ -1003,11 +1048,11 @@ export class TenantSettingsComponent implements OnInit {
         newRow.minAge = 0;
         newRow.maxAge = 0;
         newRow.ageRange = '0-0';
-        newRow.premium_5000_Cover = 0;
-        newRow.premium_10000_Cover = 0;
-        newRow.premium_15000_Cover = 0;
-        newRow.premium_20000_Cover = 0;
-        newRow.premium_25000_Cover = 0;
+        
+        // Initialize all current columns
+        this.extendedFamilyColumns.forEach(column => {
+            (newRow as any)[column.key] = 0;
+        });
         
         this.premiumSettings.extendedFamilyTable.rows.push(newRow);
     }
@@ -1015,6 +1060,61 @@ export class TenantSettingsComponent implements OnInit {
     removeExtendedFamilyRow(index: number): void {
         if (!this.premiumSettings?.extendedFamilyTable?.rows) return;
         this.premiumSettings.extendedFamilyTable.rows.splice(index, 1);
+    }
+
+    // Extended Family Column Management Methods
+    addExtendedFamilyColumn(): void {
+        const newCoverAmount = this.getNextCoverAmount();
+        const newColumnKey = `premium_${newCoverAmount}_Cover`;
+        const newColumnLabel = `R${newCoverAmount.toLocaleString()} Cover`;
+        
+        // Add to columns configuration
+        this.extendedFamilyColumns.push({
+            key: newColumnKey,
+            label: newColumnLabel,
+            coverAmount: newCoverAmount
+        });
+        
+        // Add the new property to all existing rows
+        if (this.premiumSettings?.extendedFamilyTable?.rows) {
+            this.premiumSettings.extendedFamilyTable.rows.forEach(row => {
+                (row as any)[newColumnKey] = 0;
+            });
+        }
+    }
+
+    removeExtendedFamilyColumn(index: number): void {
+        if (index < 0 || index >= this.extendedFamilyColumns.length) return;
+        
+        const columnToRemove = this.extendedFamilyColumns[index];
+        
+        // Remove from columns configuration
+        this.extendedFamilyColumns.splice(index, 1);
+        
+        // Remove the property from all existing rows
+        if (this.premiumSettings?.extendedFamilyTable?.rows) {
+            this.premiumSettings.extendedFamilyTable.rows.forEach(row => {
+                delete (row as any)[columnToRemove.key];
+            });
+        }
+    }
+
+    getNextCoverAmount(): number {
+        if (this.extendedFamilyColumns.length === 0) {
+            return 5000;
+        }
+        
+        // Find the highest cover amount and add 5000
+        const maxCover = Math.max(...this.extendedFamilyColumns.map(col => col.coverAmount));
+        return maxCover + 5000;
+    }
+
+    getRowPropertyValue(row: ExtendedFamilyBenefitRowDto, propertyKey: string): number {
+        return (row as any)[propertyKey] || 0;
+    }
+
+    setRowPropertyValue(row: ExtendedFamilyBenefitRowDto, propertyKey: string, value: number): void {
+        (row as any)[propertyKey] = value;
     }
 
     // Apply a color preset

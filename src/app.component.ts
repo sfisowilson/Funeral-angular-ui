@@ -62,7 +62,7 @@ export class AppComponent implements OnInit {
 
                 // Set document title from tenant settings or fallback
                 const tenantTitle = (this.jsonSettings && (this.jsonSettings.siteTitle || this.jsonSettings.title)) || settings.tenantName || 'Funeral App';
-                // debugger;
+                console.log('Setting document title to:', tenantTitle, 'from settings:', settings);
                 try {
                     this.titleService.setTitle(tenantTitle);
                 } catch (e) {

@@ -43,31 +43,31 @@ export class ProcessStepsWidgetComponent {
     }
 
     get titleColor(): string {
-        return this.settings.titleColor || '#000000';
+        return this.settings.titleColor || 'var(--text-color, #000000)';
     }
 
     get subtitleColor(): string {
-        return this.settings.subtitleColor || '#6c757d';
+        return this.settings.subtitleColor || 'var(--muted-color, #6c757d)';
     }
 
     get backgroundColor(): string {
-        return this.settings.backgroundColor || '#ffffff';
+        return this.settings.backgroundColor || 'var(--surface-card, #ffffff)';
     }
 
     get stepBackgroundColor(): string {
-        return this.settings.stepBackgroundColor || '#f8f9fa';
+        return this.settings.stepBackgroundColor || 'var(--surface-ground, #f8f9fa)';
     }
 
     get stepNumberColor(): string {
-        return this.settings.stepNumberColor || '#0d6efd';
+        return this.settings.stepNumberColor || 'var(--primary-color, #0d6efd)';
     }
 
     get iconColor(): string {
-        return this.settings.iconColor || '#0d6efd';
+        return this.settings.iconColor || 'var(--primary-color, #0d6efd)';
     }
 
     get connectorColor(): string {
-        return this.settings.connectorColor || '#dee2e6';
+        return this.settings.connectorColor || 'var(--surface-border, #dee2e6)';
     }
 
     get padding(): number {

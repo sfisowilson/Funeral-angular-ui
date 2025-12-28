@@ -113,14 +113,14 @@ export class HeroEditorComponent implements OnInit, OnChanges {
             titleSize: [24],
             subtitle: [''],
             subtitleSize: [16],
-            backgroundColor: ['#ffffff'],
-            textColor: ['#000000'],
+            backgroundColor: ['var(--surface-card, #ffffff)'],
+            textColor: ['var(--text-color, #000000)'],
             padding: [20],
             showButton: [true],
             buttonText: ['Click Me'],
             buttonLink: ['#'],
-            buttonColor: ['#007bff'],
-            buttonTextColor: ['#ffffff'],
+            buttonColor: ['var(--primary-color, #007bff)'],
+            buttonTextColor: ['var(--primary-contrast-color, #ffffff)'],
             buttonTextSize: [16],
             buttonPadding: [10]
         });

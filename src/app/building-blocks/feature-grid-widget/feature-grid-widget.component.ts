@@ -38,35 +38,35 @@ export class FeatureGridWidgetComponent {
     }
 
     get titleColor(): string {
-        return this.settings.titleColor || '#000000';
+        return this.settings.titleColor || 'var(--text-color, #000000)';
     }
 
     get subtitleColor(): string {
-        return this.settings.subtitleColor || '#6c757d';
+        return this.settings.subtitleColor || 'var(--muted-color, #6c757d)';
     }
 
     get backgroundColor(): string {
-        return this.settings.backgroundColor || '#ffffff';
+        return this.settings.backgroundColor || 'var(--surface-card, #ffffff)';
     }
 
     get cardBackgroundColor(): string {
-        return this.settings.cardBackgroundColor || '#f8f9fa';
+        return this.settings.cardBackgroundColor || 'var(--surface-ground, #f8f9fa)';
     }
 
     get iconColor(): string {
-        return this.settings.iconColor || '#0d6efd';
+        return this.settings.iconColor || 'var(--primary-color, #0d6efd)';
     }
 
     get iconBackgroundColor(): string {
-        return this.settings.iconBackgroundColor || '#e7f1ff';
+        return this.settings.iconBackgroundColor || 'var(--surface-ground, #e7f1ff)';
     }
 
     get titleTextColor(): string {
-        return this.settings.titleTextColor || '#212529';
+        return this.settings.titleTextColor || 'var(--text-color, #212529)';
     }
 
     get descriptionTextColor(): string {
-        return this.settings.descriptionTextColor || '#6c757d';
+        return this.settings.descriptionTextColor || 'var(--muted-color, #6c757d)';
     }
 
     get padding(): number {

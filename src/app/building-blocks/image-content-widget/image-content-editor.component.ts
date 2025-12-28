@@ -341,7 +341,11 @@ import { TenantService } from '../../core/services/tenant.service';
 
                 <!-- Save Button -->
                 <div class="flex justify-end pt-4">
-                    <p-button type="submit" label="Save Changes" icon="pi pi-check" severity="success"></p-button>
+                    <button class="btn-primary-theme">
+                    <i class="pi pi-check"></i><span class="p-2"></span> 
+                        Save Changes
+                    </button>
+
                 </div>
             </form>
         </div>
@@ -400,23 +404,23 @@ export class ImageContentEditorComponent implements OnChanges {
             imageBorderRadius: [8],
             enableImageShadow: [true],
             title: ['Section Title'],
-            titleColor: ['#000000'],
+            titleColor: ['var(--text-color, #000000)'],
             titleSize: [32],
             subtitle: [''],
-            subtitleColor: ['#333333'],
+            subtitleColor: ['var(--text-dark, #333333)'],
             subtitleSize: [20],
             text: ['Add your content here. This section combines an image with compelling content, title, subtitle, and a call-to-action button.'],
-            textColor: ['#666666'],
+            textColor: ['var(--muted-color, #666666)'],
             textSize: [16],
             lineHeight: ['1.6'],
             showButton: [true],
             buttonText: ['Learn More'],
             buttonLink: ['#'],
-            buttonColor: ['#007bff'],
-            buttonTextColor: ['#ffffff'],
+            buttonColor: ['var(--primary-color, #007bff)'],
+            buttonTextColor: ['var(--primary-contrast-color, #ffffff)'],
             buttonTextSize: [16],
             buttonPadding: ['12px 24px'],
-            backgroundColor: ['#ffffff'],
+            backgroundColor: ['var(--surface-card, #ffffff)'],
             padding: [40],
             titleMarginBottom: [16],
             subtitleMarginBottom: [12],

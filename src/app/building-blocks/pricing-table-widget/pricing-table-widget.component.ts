@@ -63,7 +63,7 @@ import { ButtonModule } from 'primeng/button';
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             }
             .pricing-card.featured {
-                border: 2px solid #f97316;
+                border: 2px solid var(--warning-color, #f97316);
             }
             .featured-badge {
                 border-bottom-left-radius: 0.5rem;

@@ -38,11 +38,11 @@ export class CTABannerWidgetComponent {
     headline: '',
     subheadline: '',
     buttons: [],
-    settings: {
+      settings: {
       backgroundType: 'gradient',
-      backgroundColor: '#007bff',
-      gradientStart: '#007bff',
-      gradientEnd: '#0056b3',
+      backgroundColor: 'var(--primary-color, #007bff)',
+      gradientStart: 'var(--primary-color, #007bff)',
+      gradientEnd: 'var(--primary-dark, #0056b3)',
       overlayOpacity: 0.5,
       textColor: 'light',
       alignment: 'center',
@@ -71,15 +71,15 @@ export class CTABannerWidgetComponent {
   }
 
   get backgroundColor(): string {
-    return this.settings.backgroundColor || '#007bff';
+    return this.settings.backgroundColor || 'var(--primary-color, #007bff)';
   }
 
   get gradientStart(): string {
-    return this.settings.gradientStart || '#007bff';
+    return this.settings.gradientStart || 'var(--primary-color, #007bff)';
   }
 
   get gradientEnd(): string {
-    return this.settings.gradientEnd || '#0056b3';
+    return this.settings.gradientEnd || 'var(--primary-dark, #0056b3)';
   }
 
   get backgroundImage(): string {

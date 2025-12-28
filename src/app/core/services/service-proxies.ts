@@ -24821,7 +24821,8 @@ export class ExtendedFamilyBenefitRowDto implements IExtendedFamilyBenefitRowDto
     premium_10000_Cover!: number;
     premium_15000_Cover!: number;
     premium_20000_Cover!: number;
-    premium_25000_Cover!: number;
+
+    [key: string]: any;
 
     constructor(data?: IExtendedFamilyBenefitRowDto) {
         if (data) {
@@ -24834,6 +24835,10 @@ export class ExtendedFamilyBenefitRowDto implements IExtendedFamilyBenefitRowDto
 
     init(_data?: any) {
         if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
             this.minAge = _data["minAge"];
             this.maxAge = _data["maxAge"];
             this.ageRange = _data["ageRange"];
@@ -24841,7 +24846,6 @@ export class ExtendedFamilyBenefitRowDto implements IExtendedFamilyBenefitRowDto
             this.premium_10000_Cover = _data["premium_10000_Cover"];
             this.premium_15000_Cover = _data["premium_15000_Cover"];
             this.premium_20000_Cover = _data["premium_20000_Cover"];
-            this.premium_25000_Cover = _data["premium_25000_Cover"];
         }
     }
 
@@ -24854,6 +24858,10 @@ export class ExtendedFamilyBenefitRowDto implements IExtendedFamilyBenefitRowDto
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
         data["minAge"] = this.minAge;
         data["maxAge"] = this.maxAge;
         data["ageRange"] = this.ageRange;
@@ -24861,7 +24869,6 @@ export class ExtendedFamilyBenefitRowDto implements IExtendedFamilyBenefitRowDto
         data["premium_10000_Cover"] = this.premium_10000_Cover;
         data["premium_15000_Cover"] = this.premium_15000_Cover;
         data["premium_20000_Cover"] = this.premium_20000_Cover;
-        data["premium_25000_Cover"] = this.premium_25000_Cover;
         return data;
     }
 }
@@ -24874,7 +24881,8 @@ export interface IExtendedFamilyBenefitRowDto {
     premium_10000_Cover: number;
     premium_15000_Cover: number;
     premium_20000_Cover: number;
-    premium_25000_Cover: number;
+
+    [key: string]: any;
 }
 
 export class ExtendedFamilyBenefitTableDto implements IExtendedFamilyBenefitTableDto {

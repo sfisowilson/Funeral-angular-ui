@@ -12,17 +12,18 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   styleUrl: './contact-card-editor.component.scss'
 })
 export class ContactCardEditorComponent implements OnInit {
-  @Input() config: ContactCardConfig = {
+    @Output() update = new EventEmitter<ContactCardConfig>();
+    @Input() config: any = {
     title: '',
     subtitle: '',
     contactMethods: [],
-    settings: {
-      showMap: false,
-      mapEmbedUrl: '',
-      layout: 'single',
-      backgroundColor: '#f8f9fa',
-      iconColor: '#007bff'
-    }
+      settings: {
+        showMap: false,
+        mapEmbedUrl: '',
+        layout: 'single',
+        backgroundColor: 'var(--surface-ground, #f8f9fa)',
+        iconColor: 'var(--primary-color, #007bff)'
+      }
   };
   @Output() configChange = new EventEmitter<ContactCardConfig>();
 
@@ -79,8 +80,8 @@ export class ContactCardEditorComponent implements OnInit {
         showMap: false,
         mapEmbedUrl: '',
         layout: 'single',
-        backgroundColor: '#f8f9fa',
-        iconColor: '#007bff'
+        backgroundColor: 'var(--surface-ground, #f8f9fa)',
+        iconColor: 'var(--primary-color, #007bff)'
       };
     }
     this.emitChange();
@@ -143,5 +144,10 @@ export class ContactCardEditorComponent implements OnInit {
       return this.sanitizer.bypassSecurityTrustResourceUrl(this.config.settings.mapEmbedUrl);
     }
     return null;
+  }
+
+  
+  onSave() {
+    this.update.emit(this.config.settings);
   }
 }

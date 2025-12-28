@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Inject } from '@angular/core';
+import { Component, Input, OnInit, Inject, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LogoItem } from './logo-cloud-widget.component';
@@ -14,6 +14,8 @@ import { FileUploadServiceProxy, FileParameter, FileMetadataDto, API_BASE_URL } 
 })
 export class LogoCloudEditorComponent implements OnInit {
   @Input() config: any = {};
+  @Output() update = new EventEmitter<any>();
+
   uploadingIndex: number | null = null;
   baseUrl: string;
 
@@ -126,5 +128,9 @@ export class LogoCloudEditorComponent implements OnInit {
         this.uploadingIndex = null;
       }
     });
+  }
+
+  onSave() {
+    this.update.emit(this.config.settings);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UseCaseCard } from './use-case-cards-widget.component';
@@ -12,6 +12,8 @@ import { UseCaseCard } from './use-case-cards-widget.component';
 })
 export class UseCaseCardsEditorComponent implements OnInit {
   @Input() config: any = {};
+  @Output() update = new EventEmitter<any>();
+
 
   ngOnInit() {
     if (!this.config.settings) {
@@ -67,6 +69,10 @@ export class UseCaseCardsEditorComponent implements OnInit {
         }
       ];
     }
+  }
+
+  onSave() {
+    this.update.emit(this.config.settings);
   }
 
   addCard() {

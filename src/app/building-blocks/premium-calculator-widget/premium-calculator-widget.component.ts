@@ -160,9 +160,9 @@ interface BreakdownItem {
                                         type="button"
                                         class="btn btn-lg px-4"
                                         [ngStyle]="{
-                                            backgroundColor: config.settings?.signupButtonColor || '#28a745',
-                                            borderColor: config.settings?.signupButtonColor || '#28a745',
-                                            color: config.settings?.signupButtonTextColor || '#ffffff'
+                                                backgroundColor: config.settings?.signupButtonColor || 'var(--success-color, #28a745)',
+                                                borderColor: config.settings?.signupButtonColor || 'var(--success-color, #28a745)',
+                                                color: config.settings?.signupButtonTextColor || 'var(--primary-contrast-color, #ffffff)'
                                         }"
                                         (click)="navigateToSignup()">
                                         {{ config.settings?.signupButtonText || 'Sign Up Now' }}

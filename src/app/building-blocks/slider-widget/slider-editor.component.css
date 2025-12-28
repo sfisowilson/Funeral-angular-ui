@@ -8,7 +8,7 @@
 }
 
 .slide-editor {
-  background-color: #f8f9fa;
+  background-color: var(--surface-ground, #f8f9fa);
 }
 
 .form-control-color {
