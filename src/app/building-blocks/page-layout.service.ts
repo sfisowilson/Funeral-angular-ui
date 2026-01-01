@@ -41,7 +41,8 @@ export class PageLayoutService {
                 fullWidth: false,
                 padding: 16,
                 margin: 0,
-                zIndex: 1
+                zIndex: 1,
+                autoHeight: true
             };
         }
         return widget;

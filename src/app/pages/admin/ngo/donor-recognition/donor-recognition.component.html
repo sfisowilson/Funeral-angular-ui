@@ -1,0 +1,142 @@
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h2>Donor Recognition Management</h2>
+    <button type="button" class="btn btn-primary" (click)="openNewDialog()">
+      <i class="bi bi-plus-circle"></i> New Recognition
+    </button>
+  </div>
+  
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover table-striped">
+        <thead class="table-light">
+          <tr>
+            <th>Donor Name</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Level</th>
+            <th>Campaign</th>
+            <th style="width: 12rem">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let donor of donorRecognitions">
+            <td>
+              <div class="fw-medium" *ngIf="!donor.isAnonymous">{{ donor.donorName }}</div>
+              <div class="fw-medium" *ngIf="donor.isAnonymous"><em>Anonymous</em></div>
+              <small class="text-muted">{{ donor.donorType }}</small>
+            </td>
+            <td>{{ donor.donorType }}</td>
+            <td class="fw-medium">{{ donor.donationAmount | currency: 'ZAR' }}</td>
+            <td>{{ donor.donationDate | date: 'short' }}</td>
+            <td>
+              <span 
+                class="badge" 
+                [ngClass]="{
+                  'bg-warning': donor.recognitionLevel === 'Bronze',
+                  'bg-secondary': donor.recognitionLevel === 'Silver',
+                  'bg-success': donor.recognitionLevel === 'Gold',
+                  'bg-info': donor.recognitionLevel === 'Platinum',
+                  'bg-danger': donor.recognitionLevel === 'Diamond'
+                }"
+              >
+                {{ donor.recognitionLevel }}
+              </span>
+            </td>
+            <td>{{ donor.campaign || '-' }}</td>
+            <td>
+              <button type="button" class="btn btn-sm btn-info" (click)="openEditDialog(donor)" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-danger" (click)="deleteDonor(donor)" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="donorRecognitions.length === 0" class="alert alert-info text-center">
+        No donor recognitions found
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Create/Edit -->
+<div class="modal fade" [class.show]="displayDialog" [style.display]="displayDialog ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEdit ? 'Edit Donor Recognition' : 'New Donor Recognition' }}</h5>
+        <button type="button" class="btn-close" (click)="closeDialog()"></button>
+      </div>
+      
+      <div class="modal-body" *ngIf="selectedDonor">
+        <form [formGroup]="donorForm">
+          <div class="row">
+            <div class="col-12 mb-3">
+              <label for="donorName" class="form-label">Donor Name</label>
+              <input type="text" class="form-control" id="donorName" formControlName="donorName" [disabled]="donorForm.get('isAnonymous')?.value" />
+            </div>
+            
+            <div class="col-12 col-md-6 mb-3">
+              <label for="donorType" class="form-label">Donor Type</label>
+              <select class="form-select" id="donorType" formControlName="donorType">
+                <option value="">Select Type</option>
+                <option *ngFor="let option of donorTypeOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="col-12 col-md-6 mb-3">
+              <label for="donationAmount" class="form-label">Donation Amount (ZAR)</label>
+              <input type="number" class="form-control" id="donationAmount" formControlName="donationAmount" min="0" step="0.01" />
+            </div>
+            
+            <div class="col-12 col-md-6 mb-3">
+              <label for="donationDate" class="form-label">Donation Date</label>
+              <input type="date" class="form-control" id="donationDate" formControlName="donationDate" />
+            </div>
+            
+            <div class="col-12 col-md-6 mb-3">
+              <label for="campaign" class="form-label">Campaign</label>
+              <input type="text" class="form-control" id="campaign" formControlName="campaign" />
+            </div>
+            
+            <div class="col-12 col-md-6 mb-3">
+              <label for="recognitionLevel" class="form-label">Recognition Level</label>
+              <select class="form-select" id="recognitionLevel" formControlName="recognitionLevel">
+                <option value="">Select Level</option>
+                <option *ngFor="let option of recognitionLevelOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="col-12 col-md-6 mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="isAnonymous" formControlName="isAnonymous" />
+                <label class="form-check-label" for="isAnonymous">Anonymous Donation</label>
+              </div>
+            </div>
+            
+            <div class="col-12 mb-3">
+              <label for="notes" class="form-label">Notes</label>
+              <textarea class="form-control" id="notes" formControlName="notes" rows="3"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveDonor()" [disabled]="loading">
+          {{ loading ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="displayDialog" *ngIf="displayDialog"></div>

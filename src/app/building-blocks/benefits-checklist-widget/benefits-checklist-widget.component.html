@@ -12,9 +12,14 @@
            *ngIf="subtitle">{{ subtitle }}</p>
     </div>
 
+    <!-- Empty State -->
+    <div *ngIf="benefits.length === 0 && !useCategories" class="text-center p-8">
+        <p class="text-muted">No benefits available. Configure your widget to display benefits and features.</p>
+    </div>
+
     <!-- Simple List (No Categories) -->
     <div class="benefits-grid" 
-         *ngIf="!useCategories"
+         *ngIf="!useCategories && benefits.length > 0"
          [class.cols-1]="columns === 1"
          [class.cols-2]="columns === 2"
          [class.cols-3]="columns === 3">

@@ -110,7 +110,8 @@ export class StatisticsEditorComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['config'] && this.config) {
-            this.settings = { ...this.config.settings };
+            // Fix: Use config directly instead of config.settings
+            this.settings = { ...this.config };
         }
     }
 

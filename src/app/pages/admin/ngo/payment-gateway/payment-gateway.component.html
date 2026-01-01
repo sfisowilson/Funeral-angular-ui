@@ -1,0 +1,179 @@
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h2 class="mb-0">Payment Gateway Configuration</h2>
+    <button class="btn btn-success" (click)="openNew()">
+      <i class="bi bi-plus-circle me-2"></i>New Gateway
+    </button>
+  </div>
+
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover table-striped">
+        <thead class="table-light">
+          <tr>
+            <th>Provider</th>
+            <th>Merchant ID</th>
+            <th>Status</th>
+            <th>Mode</th>
+            <th>Webhook URL</th>
+            <th style="width: 120px">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let gateway of gateways">
+            <td class="fw-medium">{{ getProviderLabel(gateway.provider) }}</td>
+            <td><code>{{ gateway.merchantId || 'N/A' }}</code></td>
+            <td>
+              <span 
+                class="badge"
+                [ngClass]="gateway.isActive ? 'bg-success' : 'bg-secondary'"
+              >
+                {{ gateway.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <span 
+                class="badge"
+                [ngClass]="gateway.isTestMode ? 'bg-warning text-dark' : 'bg-info'"
+              >
+                {{ gateway.isTestMode ? 'Test' : 'Live' }}
+              </span>
+            </td>
+            <td><small class="text-muted">{{ gateway.webhookUrl || 'Not configured' }}</small></td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="editGateway(gateway)" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-warning me-2" (click)="testConnection(gateway)" title="Test">
+                <i class="bi bi-arrow-repeat"></i>
+              </button>
+              <button 
+                class="btn btn-sm"
+                [ngClass]="gateway.isActive ? 'btn-outline-danger' : 'btn-outline-success'"
+                (click)="toggleStatus(gateway)" 
+                [title]="gateway.isActive ? 'Deactivate' : 'Activate'"
+              >
+                <i [ngClass]="gateway.isActive ? 'bi bi-ban' : 'bi bi-check'"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!gateways || gateways.length === 0" class="text-center py-5 text-muted">
+        <p>No payment gateways configured</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Create/Edit -->
+<div class="modal fade" tabindex="-1" [class.show]="displayDialog" [style.display]="displayDialog ? 'block' : 'none'">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEditMode ? 'Edit Gateway' : 'New Gateway' }}</h5>
+        <button type="button" class="btn-close" (click)="hideDialog()"></button>
+      </div>
+      
+      <div class="modal-body">
+        <form [formGroup]="gatewayForm" (ngSubmit)="saveGateway()">
+          <div class="mb-3">
+            <label for="provider" class="form-label">Payment Provider *</label>
+            <select class="form-select" id="provider" formControlName="provider" [disabled]="isEditMode">
+              <option value="">Select provider</option>
+              <option value="1">PayPal</option>
+              <option value="2">Stripe</option>
+              <option value="3">PayFast</option>
+              <option value="4">Square</option>
+              <option value="5">Paystack</option>
+            </select>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <div class="form-check form-switch">
+                  <input type="checkbox" class="form-check-input" id="isActive" formControlName="isActive">
+                  <label class="form-check-label" for="isActive">Active</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="mb-3">
+                <div class="form-check form-switch">
+                  <input type="checkbox" class="form-check-input" id="isTestMode" formControlName="isTestMode">
+                  <label class="form-check-label" for="isTestMode">Test Mode</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="merchantId" class="form-label">Merchant ID</label>
+            <input type="text" class="form-control" id="merchantId" formControlName="merchantId" placeholder="Enter merchant ID">
+            <small class="text-muted">Provided by your payment gateway</small>
+          </div>
+          
+          <div class="mb-3">
+            <label for="siteCode" class="form-label">Site Code (PayFast)</label>
+            <input type="text" class="form-control" id="siteCode" formControlName="siteCode" placeholder="Enter site code">
+          </div>
+          
+          <div class="mb-3">
+            <label for="apiKey" class="form-label">API Key</label>
+            <input type="password" class="form-control" id="apiKey" formControlName="apiKey" placeholder="Enter API key">
+            <small class="text-danger">⚠️ Keep this confidential</small>
+          </div>
+          
+          <div class="mb-3">
+            <label for="secretKey" class="form-label">Secret Key</label>
+            <input type="password" class="form-control" id="secretKey" formControlName="secretKey" placeholder="Enter secret key">
+            <small class="text-danger">⚠️ Keep this confidential</small>
+          </div>
+          
+          <div class="mb-3">
+            <label for="passPhrase" class="form-label">Pass Phrase</label>
+            <input type="password" class="form-control" id="passPhrase" formControlName="passPhrase" placeholder="Enter pass phrase">
+          </div>
+          
+          <hr>
+          <h6>URL Configuration</h6>
+          
+          <div class="mb-3">
+            <label for="webhookUrl" class="form-label">Webhook URL</label>
+            <input type="url" class="form-control" id="webhookUrl" formControlName="webhookUrl" placeholder="https://yourdomain.com/webhook/payment">
+            <small class="text-muted">URL to receive payment notifications</small>
+          </div>
+          
+          <div class="mb-3">
+            <label for="returnUrl" class="form-label">Return URL</label>
+            <input type="url" class="form-control" id="returnUrl" formControlName="returnUrl" placeholder="https://yourdomain.com/payment/success">
+            <small class="text-muted">URL to redirect after successful payment</small>
+          </div>
+          
+          <div class="mb-3">
+            <label for="cancelUrl" class="form-label">Cancel URL</label>
+            <input type="url" class="form-control" id="cancelUrl" formControlName="cancelUrl" placeholder="https://yourdomain.com/payment/cancel">
+            <small class="text-muted">URL to redirect when payment is cancelled</small>
+          </div>
+          
+          <div class="alert alert-warning">
+            <strong>Security Notice:</strong> All sensitive credentials are encrypted before storage. Ensure webhook URLs use HTTPS in production.
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="hideDialog()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveGateway()" [disabled]="gatewayForm.invalid || loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop -->
+<div class="modal-backdrop fade" [class.show]="displayDialog" *ngIf="displayDialog"></div>

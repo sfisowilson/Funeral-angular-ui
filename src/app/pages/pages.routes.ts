@@ -15,6 +15,9 @@ import { TenantSettingsComponent } from './tenant-settings/tenant-settings.compo
 import { MemberManagementComponent } from './member-management/member-management.component';
 import { PolicyComponent } from './policy/policy.component';
 import { AssetManagementComponent } from './asset-management/asset-management.component';
+import { TenantTypePermissionsComponent } from './admin/tenant-type-permissions/tenant-type-permissions.component';
+import { LandingPageGeneratorComponent } from './admin/landing-page-generator/landing-page-generator.component';
+import { BookingManagementComponent } from './admin/booking-management/booking-management.component';
 
 import { OnboardingSettingsComponent } from './onboarding-settings/onboarding-settings.component';
 import { DashboardSettingsComponent } from './dashboard-settings/dashboard-settings.component';
@@ -41,6 +44,9 @@ export default [
     { path: 'personnel', component: PersonnelComponent },
     { path: 'timesheets', component: TimesheetsComponent },
     { path: 'roles', component: RolesComponent },
+    { path: 'tenant-type-permissions', component: TenantTypePermissionsComponent },
+    { path: 'landing-page-generator', component: LandingPageGeneratorComponent },
+    { path: 'booking-management', component: BookingManagementComponent },
 
     { path: 'onboarding-settings', component: OnboardingSettingsComponent },
     { path: 'dashboard-settings', component: DashboardSettingsComponent },
@@ -52,6 +58,13 @@ export default [
         path: 'page-builder', 
         component: PageBuilderComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+    },
+
+    // NGO Premium Features
+    {
+        path: 'ngo',
+        loadChildren: () => import('./admin/ngo/ngo.module').then((m) => m.NgoModule),
+        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
     },
 
     // Legacy Widget Editor - replaced by Visual Page Builder

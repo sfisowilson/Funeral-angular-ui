@@ -103,7 +103,11 @@
         <div class="flex flex-col gap-6">
             <div>
                 <label for="permissions" class="block font-bold mb-3">Permissions</label>
-                <p-multiSelect [style]="{ width: '100%' }" [options]="availablePermissions()" [(ngModel)]="selectedPermissions" optionLabel="name" placeholder="Select Permissions"></p-multiSelect>
+                <p-multiSelect [style]="{ width: '100%' }" [options]="currentTenantType !== null ? filteredPermissions() : availablePermissions()" [(ngModel)]="selectedPermissions" optionLabel="name" placeholder="Select Permissions"></p-multiSelect>
+                <small class="text-muted mt-2 block" *ngIf="currentTenantType !== null">
+                    <i class="pi pi-info-circle me-2"></i>
+                    Showing permissions available for current tenant type only.
+                </small>
             </div>
         </div>
     </ng-template>

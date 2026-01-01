@@ -19,25 +19,28 @@ export class BenefitsChecklistEditorComponent implements OnInit {
     settings: any;
 
     ngOnInit() {
-        if (!this.config.settings) {
-            this.config.settings = {};
+        console.log('BenefitsChecklistEditorComponent initialized with config:', this.config);
+        
+        // Fix: Use config directly instead of config.settings
+        if (!this.config) {
+            this.config = {};
         }
 
         // Initialize defaults
-        if (!this.config.settings.title) {
-            this.config.settings.title = 'Everything You Need, All in One Place';
+        if (!this.config.title) {
+            this.config.title = 'Everything You Need, All in One Place';
         }
 
-        if (!this.config.settings.subtitle) {
-            this.config.settings.subtitle = 'No separate systems, no hidden costs, no technical headaches';
+        if (!this.config.subtitle) {
+            this.config.subtitle = 'No separate systems, no hidden costs, no technical headaches';
         }
 
-        if (this.config.settings.useCategories === undefined) {
-            this.config.settings.useCategories = false;
+        if (this.config.useCategories === undefined) {
+            this.config.useCategories = false;
         }
 
-        if (!this.config.settings.benefits || this.config.settings.benefits.length === 0) {
-            this.config.settings.benefits = [
+        if (!this.config.benefits || this.config.benefits.length === 0) {
+            this.config.benefits = [
                 { icon: 'bi bi-check-circle-fill', text: 'Professional website with custom subdomain' },
                 { icon: 'bi bi-check-circle-fill', text: 'Complete member management system' },
                 { icon: 'bi bi-check-circle-fill', text: 'Claims processing workflow' },
@@ -49,40 +52,40 @@ export class BenefitsChecklistEditorComponent implements OnInit {
             ];
         }
 
-        if (!this.config.settings.categories) {
-            this.config.settings.categories = [];
+        if (!this.config.categories) {
+            this.config.categories = [];
         }
 
-        if (this.config.settings.columns === undefined) {
-            this.config.settings.columns = 2;
+        if (this.config.columns === undefined) {
+            this.config.columns = 2;
         }
 
-        if (this.config.settings.titleColor === undefined) {
-            this.config.settings.titleColor = 'var(--text-color, #000000)';
+        if (this.config.titleColor === undefined) {
+            this.config.titleColor = 'var(--text-color, #000000)';
         }
 
-        if (this.config.settings.subtitleColor === undefined) {
-            this.config.settings.subtitleColor = 'var(--muted-color, #6c757d)';
+        if (this.config.subtitleColor === undefined) {
+            this.config.subtitleColor = 'var(--muted-color, #6c757d)';
         }
 
-        if (this.config.settings.backgroundColor === undefined) {
-            this.config.settings.backgroundColor = 'var(--surface-card, #ffffff)';
+        if (this.config.backgroundColor === undefined) {
+            this.config.backgroundColor = 'var(--surface-card, #ffffff)';
         }
 
-        if (this.config.settings.iconColor === undefined) {
-            this.config.settings.iconColor = 'var(--success-color, #198754)';
+        if (this.config.iconColor === undefined) {
+            this.config.iconColor = 'var(--success-color, #198754)';
         }
 
-        if (this.config.settings.textColor === undefined) {
-            this.config.settings.textColor = 'var(--text-color, #212529)';
+        if (this.config.textColor === undefined) {
+            this.config.textColor = 'var(--text-color, #212529)';
         }
 
-        if (this.config.settings.padding === undefined) {
-            this.config.settings.padding = 40;
+        if (this.config.padding === undefined) {
+            this.config.padding = 40;
         }
 
-        if (this.config.settings.allowExpand === undefined) {
-            this.config.settings.allowExpand = true;
+        if (this.config.allowExpand === undefined) {
+            this.config.allowExpand = true;
         }
     }
 
@@ -90,60 +93,59 @@ export class BenefitsChecklistEditorComponent implements OnInit {
     onSave() {
         console.log('BenefitsChecklistEditorComponent onSave called', this.config);
         
-        if (this.config.settings) {
-            this.settings = JSON.parse(JSON.stringify(this.config.settings));
-        }
+        // Fix: Use config directly instead of config.settings
+        this.settings = JSON.parse(JSON.stringify(this.config));
         this.update.emit(this.settings);
     }
 
     addBenefit() {
-        if (!this.config.settings.benefits) {
-            this.config.settings.benefits = [];
+        if (!this.config.benefits) {
+            this.config.benefits = [];
         }
 
-        this.config.settings.benefits.push({
+        this.config.benefits.push({
             icon: 'bi bi-check-circle-fill',
             text: 'New benefit'
         });
     }
 
     removeBenefit(index: number) {
-        this.config.settings.benefits.splice(index, 1);
+        this.config.benefits.splice(index, 1);
     }
 
     addCategory() {
-        if (!this.config.settings.categories) {
-            this.config.settings.categories = [];
+        if (!this.config.categories) {
+            this.config.categories = [];
         }
 
-        this.config.settings.categories.push({
+        this.config.categories.push({
             name: 'New Category',
             items: [],
             expanded: true
         });
 
-        this.activeCategoryIndex = this.config.settings.categories.length - 1;
+        this.activeCategoryIndex = this.config.categories.length - 1;
     }
 
     removeCategory(index: number) {
-        this.config.settings.categories.splice(index, 1);
-        if (this.activeCategoryIndex >= this.config.settings.categories.length) {
-            this.activeCategoryIndex = Math.max(0, this.config.settings.categories.length - 1);
+        this.config.categories.splice(index, 1);
+        if (this.activeCategoryIndex >= this.config.categories.length) {
+            this.activeCategoryIndex = Math.max(0, this.config.categories.length - 1);
         }
     }
 
     addItemToCategory(categoryIndex: number) {
-        if (!this.config.settings.categories[categoryIndex].items) {
-            this.config.settings.categories[categoryIndex].items = [];
+        if (!this.config.categories[categoryIndex].items) {
+            this.config.categories[categoryIndex].items = [];
         }
 
-        this.config.settings.categories[categoryIndex].items.push({
+        this.config.categories[categoryIndex].items.push({
             icon: 'bi bi-check-circle-fill',
             text: 'New item'
         });
     }
 
     removeItemFromCategory(categoryIndex: number, itemIndex: number) {
-        this.config.settings.categories[categoryIndex].items.splice(itemIndex, 1);
+        this.config.categories[categoryIndex].items.splice(itemIndex, 1);
     }
 }

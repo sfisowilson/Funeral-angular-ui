@@ -32,7 +32,7 @@ interface ExportColumn {
 @Component({
     selector: 'app-subscription-plans',
     standalone: true,
-    imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule],
+    imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule, InputNumberModule],
     providers: [MessageService, ConfirmationService, SubscriptionPlanServiceProxy, LookupServiceProxy],
     templateUrl: './subscription-plans.component.html'
 })

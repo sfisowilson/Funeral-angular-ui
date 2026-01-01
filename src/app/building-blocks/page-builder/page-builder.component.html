@@ -50,6 +50,16 @@
             <button 
                 pButton 
                 type="button"
+                icon="pi pi-refresh"
+                label="Reset Page"
+                class="p-button-outlined p-button-danger"
+                (click)="resetPage()"
+                pTooltip="Remove all widgets and reset theme">
+            </button>
+            
+            <button 
+                pButton 
+                type="button"
                 [icon]="previewMode() ? 'pi pi-pencil' : 'pi pi-eye'"
                 [label]="previewMode() ? 'Edit Mode' : 'Preview'"
                 [class]="previewMode() ? 'p-button-outlined' : 'p-button-info'"
@@ -802,6 +812,134 @@
             </div>
         </ng-template>
     </p-dialog>
+
+    <!-- Post-Reset Modal (Bootstrap) -->
+    <div class="modal fade" 
+         [class.show]="showPostResetDialog()" 
+         [style.display]="showPostResetDialog() ? 'block' : 'none'"
+         [style.background]="showPostResetDialog() ? 'rgba(0,0,0,0.5)' : 'transparent'"
+         tabindex="-1" 
+         [attr.aria-hidden]="!showPostResetDialog()">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Start Fresh</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-arrow-clockwise text-primary" style="font-size: 3rem;"></i>
+                        <h3 class="mt-3">Your page has been reset!</h3>
+                        <p class="text-muted">How would you like to start building your landing page?</p>
+                    </div>
+                    
+                    <div class="d-grid gap-3">
+                        <button type="button" 
+                                class="btn btn-outline-primary w-100"
+                                (click)="startWithBlankPage()">
+                            <i class="bi bi-file-earmark me-2"></i>
+                            Start with Blank Page
+                            <small class="d-block text-muted">Build everything from scratch</small>
+                        </button>
+                        
+                        <button type="button" 
+                                class="btn btn-outline-primary w-100"
+                                (click)="selectTheme()">
+                            <i class="bi bi-palette me-2"></i>
+                            Select a Theme
+                            <small class="d-block text-muted">Choose a pre-designed theme</small>
+                        </button>
+                        
+                        <button type="button" 
+                                class="btn btn-outline-primary w-100"
+                                (click)="loadTemplate()">
+                            <i class="bi bi-stack me-2"></i>
+                            Use a Template
+                            <small class="d-block text-muted">Start with a complete template</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Selection Modal (Bootstrap) -->
+    <div class="modal fade" 
+         [class.show]="showTemplateDialog()" 
+         [style.display]="showTemplateDialog() ? 'block' : 'none'"
+         [style.background]="showTemplateDialog() ? 'rgba(0,0,0,0.5)' : 'transparent'"
+         tabindex="-1" 
+         [attr.aria-hidden]="!showTemplateDialog()">
+        <div class="modal-dialog modal-lg" style="max-width: 900px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select a Template</h5>
+                    <button type="button" 
+                            class="btn-close" 
+                            (click)="cancelTemplateSelection()"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                    <div class="mb-4">
+                        <p class="text-muted">Choose a template to quickly set up your landing page with pre-configured widgets and layouts.</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div *ngFor="let template of availableTemplates()" 
+                             class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 cursor-pointer" 
+                                 [class.border-primary]="selectedTemplate()?.id === template.id"
+                                 (click)="selectTemplate(template)"
+                                 (mouseover)="onCardHover($event, true)"
+                                 (mouseout)="onCardHover($event, false)">
+                                
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                     style="height: 150px;">
+                                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ template.name }}</h5>
+                                    <p class="card-text text-muted small">{{ template.description }}</p>
+                                    
+                                    <div class="mb-2">
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <span *ngFor="let feature of template.features.slice(0, 3)" 
+                                                  class="badge bg-light text-dark me-1">
+                                                {{ feature }}
+                                            </span>
+                                            <span *ngIf="template.features.length > 3" 
+                                                  class="badge bg-light text-dark">
+                                                +{{ template.features.length - 3 }} more
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">{{ template.category }}</small>
+                                        <span *ngIf="template.isPremium" class="badge bg-warning text-dark">
+                                            Premium
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div *ngIf="availableTemplates().length === 0" class="text-center py-5">
+                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-3">No templates available for your subscription tier.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" 
+                            class="btn btn-outline-secondary" 
+                            (click)="cancelTemplateSelection()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast & Confirmation Dialog -->
     <p-toast></p-toast>

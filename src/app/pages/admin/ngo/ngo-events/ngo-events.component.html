@@ -1,0 +1,181 @@
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h2 class="mb-0">NGO Events Management</h2>
+    <button class="btn btn-primary" (click)="openNewDialog()">
+      <i class="bi bi-plus-circle me-2"></i>New Event
+    </button>
+  </div>
+  
+  <div class="card-body">
+    <!-- Events Table -->
+    <div class="table-responsive">
+      <table class="table table-hover table-striped">
+        <thead class="table-light">
+          <tr>
+            <th>Event Title</th>
+            <th>Category</th>
+            <th>Date Range</th>
+            <th>Location</th>
+            <th>Attendees</th>
+            <th>Status</th>
+            <th style="width: 120px">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of ngoEvents">
+            <td>
+              <div class="fw-medium">{{ event.title }}</div>
+              <small class="text-muted">{{ event.description | slice:0:50 }}...</small>
+            </td>
+            <td>
+              <span class="badge bg-info text-dark">{{ event.category }}</span>
+            </td>
+            <td>
+              <small>{{ formatDate(event.startDate) }} - {{ formatDate(event.endDate) }}</small>
+            </td>
+            <td>{{ event.location }}</td>
+            <td>{{ event.currentAttendees }}/{{ event.maxAttendees }}</td>
+            <td>
+              <span 
+                class="badge"
+                [ngClass]="{
+                  'bg-success': event.status === 'Scheduled',
+                  'bg-warning text-dark': event.status === 'Ongoing',
+                  'bg-danger': event.status === 'Cancelled',
+                  'bg-secondary': event.status === 'Completed'
+                }"
+              >
+                {{ event.status }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="viewEvent(event)" title="View">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-warning me-2" (click)="openEditDialog(event)" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteEvent(event)" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Create/Edit -->
+<div class="modal fade" id="eventModal" tabindex="-1" [class.show]="displayDialog" [style.display]="displayDialog ? 'block' : 'none'">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEdit ? 'Edit Event' : 'New Event' }}</h5>
+        <button type="button" class="btn-close" (click)="closeDialog()"></button>
+      </div>
+      
+      <div class="modal-body">
+        <form [formGroup]="eventForm" *ngIf="selectedEvent">
+          <div class="mb-3">
+            <label for="title" class="form-label">Event Title</label>
+            <input type="text" class="form-control" id="title" formControlName="title">
+          </div>
+          
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" formControlName="description" rows="3"></textarea>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select class="form-select" id="category" formControlName="category">
+                  <option value="">Select Category</option>
+                  <option value="Fundraising">Fundraising</option>
+                  <option value="Educational">Educational</option>
+                  <option value="Awareness">Awareness</option>
+                  <option value="Community">Community</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" formControlName="status">
+                  <option value="">Select Status</option>
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Ongoing">Ongoing</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" class="form-control" id="location" formControlName="location">
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="maxAttendees" class="form-label">Max Attendees</label>
+                <input type="number" class="form-control" id="maxAttendees" formControlName="maxAttendees" min="1">
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="startDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="startDate" formControlName="startDate">
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="endDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="endDate" formControlName="endDate">
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="registrationRequired" formControlName="registrationRequired">
+              <label class="form-check-label" for="registrationRequired">Registration Required</label>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="registrationDeadline" class="form-label">Registration Deadline</label>
+            <input type="date" class="form-control" id="registrationDeadline" formControlName="registrationDeadline">
+          </div>
+          
+          <div class="mb-3">
+            <label for="imageUrl" class="form-label">Event Image URL</label>
+            <input type="text" class="form-control" id="imageUrl" formControlName="imageUrl">
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveEvent()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop -->
+<div class="modal-backdrop fade" [class.show]="displayDialog" *ngIf="displayDialog"></div>

@@ -73,6 +73,19 @@ import { ContactCardWidgetComponent } from './contact-card-widget/contact-card-w
 import { ContactCardEditorComponent } from './contact-card-widget/contact-card-editor.component';
 import { PolicyCoverPremiumTableWidgetComponent } from './policy-cover-premium-table-widget/policy-cover-premium-table-widget.component';
 import { PolicyCoverPremiumTableEditorComponent } from './policy-cover-premium-table-widget/policy-cover-premium-table-editor.component';
+// NGO Feature Widgets
+import { NgoEventsWidgetComponent } from './ngo-events-widget/ngo-events-widget.component';
+import { NgoEventsEditorComponent } from './ngo-events-widget/ngo-events-editor.component';
+import { NgoBlogWidgetComponent } from './ngo-blog-widget/ngo-blog-widget.component';
+import { NgoBlogEditorComponent } from './ngo-blog-widget/ngo-blog-editor.component';
+import { NgoDonorRecognitionWidgetComponent } from './ngo-donor-recognition-widget/ngo-donor-recognition-widget.component';
+import { NgoDonorRecognitionEditorComponent } from './ngo-donor-recognition-widget/ngo-donor-recognition-editor.component';
+import { NgoImpactReportsWidgetComponent } from './ngo-impact-reports-widget/ngo-impact-reports-widget.component';
+import { NgoImpactReportsEditorComponent } from './ngo-impact-reports-widget/ngo-impact-reports-editor.component';
+import { NgoGrantApplicationsWidgetComponent } from './ngo-grant-applications-widget/ngo-grant-applications-widget.component';
+import { NgoGrantApplicationsEditorComponent } from './ngo-grant-applications-widget/ngo-grant-applications-editor.component';
+import { NgoDonationWidgetComponent } from './ngo-donation-widget/ngo-donation-widget.component';
+import { NgoDonationEditorComponent } from './ngo-donation-widget/ngo-donation-editor.component';
 
 export interface WidgetType {
     name: string;
@@ -402,7 +415,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     excerpt: 'We are excited to announce new flexible policy options designed to meet diverse customer needs.',
                     author: 'Admin Team',
                     category: 'Product Update',
-                    publishDate: new Date(),
+                    publishDate: new Date().toISOString(),
                     imageUrl: '',
                     url: ''
                 },
@@ -411,7 +424,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     excerpt: 'Our company is launching a new community support program to help families in need.',
                     author: 'Community Relations',
                     category: 'Community',
-                    publishDate: new Date(Date.now() - 86400000), // Yesterday
+                    publishDate: new Date(Date.now() - 86400000).toISOString(), // Yesterday
                     imageUrl: '',
                     url: ''
                 }
@@ -1347,5 +1360,149 @@ export const WIDGET_TYPES: WidgetType[] = [
             ]
         },
         icon: 'telephone'
+    },
+    // NGO Feature Widgets
+    {
+        name: 'ngo-events',
+        component: NgoEventsWidgetComponent,
+        editorComponent: NgoEventsEditorComponent,
+        defaultConfig: {
+            title: 'Upcoming Events',
+            subtitle: 'Join us for community engagement',
+            backgroundColor: '#f9fafb',
+            padding: 40,
+            titleColor: '#111827',
+            titleSize: 32,
+            subtitleColor: '#6b7280',
+            subtitleSize: 16,
+            cardBackgroundColor: '#ffffff',
+            buttonColor: '#3b82f6',
+            buttonTextColor: '#ffffff',
+            registerButtonText: 'Register Now',
+            viewAllButtonText: 'View All Events',
+            showViewAllButton: true,
+            eventsUrl: '/ngo/events'
+        },
+        icon: 'calendar'
+    },
+    {
+        name: 'ngo-blog',
+        component: NgoBlogWidgetComponent,
+        editorComponent: NgoBlogEditorComponent,
+        defaultConfig: {
+            title: 'Latest Blog Posts',
+            subtitle: '',
+            backgroundColor: '#f9fafb',
+            padding: 40,
+            titleColor: '#111827',
+            titleSize: 32,
+            subtitleColor: '#6b7280',
+            subtitleSize: 16,
+            cardBackgroundColor: '#ffffff',
+            buttonColor: '#3b82f6',
+            buttonTextColor: '#ffffff',
+            readMoreText: 'Read More',
+            viewAllButtonText: 'View All Posts',
+            showViewAllButton: true,
+            blogUrl: '/ngo/blog'
+        },
+        icon: 'newspaper'
+    },
+    {
+        name: 'ngo-donor-recognition',
+        component: NgoDonorRecognitionWidgetComponent,
+        editorComponent: NgoDonorRecognitionEditorComponent,
+        defaultConfig: {
+            title: 'Our Donors',
+            subtitle: 'With gratitude to those who support our mission',
+            backgroundColor: '#f9fafb',
+            padding: 40,
+            titleColor: '#111827',
+            titleSize: 32,
+            subtitleColor: '#6b7280',
+            subtitleSize: 16,
+            donorNameColor: '#111827',
+            amountColor: '#059669',
+            donateButtonColor: '#059669',
+            donateButtonTextColor: '#ffffff',
+            donateButtonText: 'Make a Donation',
+            showDonateButton: true,
+            donationUrl: '/ngo/donate'
+        },
+        icon: 'heart'
+    },
+    {
+        name: 'ngo-impact-reports',
+        component: NgoImpactReportsWidgetComponent,
+        editorComponent: NgoImpactReportsEditorComponent,
+        defaultConfig: {
+            title: 'Our Impact',
+            subtitle: 'See the difference we\'re making together',
+            backgroundColor: '#f9fafb',
+            padding: 40,
+            titleColor: '#111827',
+            titleSize: 32,
+            subtitleColor: '#6b7280',
+            subtitleSize: 16,
+            cardBackgroundColor: '#ffffff',
+            accentColor: '#0891b2',
+            buttonColor: '#0891b2',
+            buttonTextColor: '#ffffff',
+            readMoreText: 'View Full Report',
+            viewAllButtonText: 'View All Reports',
+            showViewAllButton: true,
+            reportUrl: '/ngo/impact-reports'
+        },
+        icon: 'graph'
+    },
+    {
+        name: 'ngo-grant-applications',
+        component: NgoGrantApplicationsWidgetComponent,
+        editorComponent: NgoGrantApplicationsEditorComponent,
+        defaultConfig: {
+            title: 'Funding Opportunities',
+            subtitle: 'Explore available grants and funding opportunities',
+            backgroundColor: '#f9fafb',
+            padding: 40,
+            titleColor: '#111827',
+            titleSize: 32,
+            subtitleColor: '#6b7280',
+            subtitleSize: 16,
+            cardBackgroundColor: '#ffffff',
+            accentColor: '#7c3aed',
+            buttonColor: '#7c3aed',
+            buttonTextColor: '#ffffff',
+            viewDetailsText: 'View Details',
+            applyButtonText: 'Apply Now',
+            viewAllButtonText: 'View All Grants',
+            showViewAllButton: true,
+            grantsUrl: '/ngo/grant-applications'
+        },
+        icon: 'pencil'
+    },
+    {
+        name: 'ngo-donation',
+        component: NgoDonationWidgetComponent,
+        editorComponent: NgoDonationEditorComponent,
+        defaultConfig: {
+            title: 'Make a Donation',
+            subtitle: 'Support our mission and create lasting change',
+            backgroundColor: '#f9fafb',
+            padding: 40,
+            cardBackgroundColor: '#ffffff',
+            titleColor: '#111827',
+            titleSize: 32,
+            subtitleColor: '#6b7280',
+            accentColor: '#059669',
+            donateButtonColor: '#059669',
+            donateButtonTextColor: '#ffffff',
+            missionStatement: 'Your generous donation directly supports our mission to create meaningful change in our community.',
+            showImpactStats: true,
+            totalDonations: 'R245,000',
+            donorCount: '1,234',
+            projectsSupported: '42',
+            donationUrl: '/ngo/donate'
+        },
+        icon: 'gift'
     }
 ];

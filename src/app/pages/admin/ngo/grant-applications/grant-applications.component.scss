@@ -1,0 +1,123 @@
+:host {
+  display: block;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.p-button-outlined {
+  background: transparent;
+  border: 2px solid #007ad9;
+  color: #007ad9;
+}
+
+.p-button-outlined:hover {
+  background: #007ad9;
+  color: white;
+}
+
+.p-button-rounded {
+  border-radius: 20px;
+}
+
+.p-button-text {
+  padding: 0.5rem 1rem;
+}
+
+.p-button-danger {
+  background: #dc3545;
+  border-color: #dc3545;
+}
+
+.p-button-danger:hover {
+  background: #c82333;
+  border-color: #c82333;
+}
+
+:ng-deep .p-table {
+  .p-datatable-thead > tr > th {
+    background: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  .p-datatable-tbody > tr > td {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .p-datatable-tbody > tr:hover > td {
+    background: #f8f9fa;
+  }
+}
+
+:ng-deep .p-dialog {
+  .p-dialog-header {
+    background: #007ad9;
+    color: white;
+    border-bottom: 1px solid #0056b3;
+  }
+  
+  .p-dialog-header h3 {
+    margin: 0;
+    color: white;
+  }
+  
+  .p-dialog-content {
+    padding: 2rem;
+  }
+}
+
+.p-fluid {
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid > div {
+  padding: 0.5rem 0;
+}
+
+.col-12 {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .md\:col-6 {
+    grid-column: 1 / -2;
+  }
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}

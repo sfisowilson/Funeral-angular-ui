@@ -12,8 +12,9 @@ import { Table, TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { RoleServiceProxy, Role, PermissionServiceProxy, Permission, RolePermissionServiceProxy, RolePermission, RoleDto, PermissionDto, RoleInput, CreateRolePermissionDto } from '../../core/services/service-proxies';
+import { RoleServiceProxy, Role, PermissionServiceProxy, Permission, RolePermissionServiceProxy, RolePermission, RoleDto, PermissionDto, RoleInput, CreateRolePermissionDto, TenantTypePermissionServiceProxy, TenantTypePermission, TenantSettingServiceProxy, TenantSettingDto, TenantType } from '../../core/services/service-proxies';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { TenantService } from '../../core/services/tenant.service';
 
 @Component({
     selector: 'app-roles',
@@ -37,6 +38,11 @@ export class RolesComponent {
     selectedPermissions: Permission[] = [];
     originalRolePermissions: RolePermission[] = [];
 
+    // Tenant-type aware properties
+    currentTenantType: TenantType | null = null;
+    tenantTypePermissions: TenantTypePermission[] = [];
+    filteredPermissions = signal<Permission[]>([]);
+
     submitted: boolean = false;
 
     @ViewChild('dt') dt!: Table;
@@ -46,12 +52,41 @@ export class RolesComponent {
         private confirmationService: ConfirmationService,
         private roleService: RoleServiceProxy,
         private permissionService: PermissionServiceProxy,
-        private rolePermissionService: RolePermissionServiceProxy
+        private rolePermissionService: RolePermissionServiceProxy,
+        private tenantTypePermissionService: TenantTypePermissionServiceProxy,
+        private tenantSettingService: TenantSettingServiceProxy,
+        private tenantService: TenantService
     ) {}
 
     ngOnInit() {
         this.loadRoles();
-        this.loadPermissions();
+        this.loadCurrentTenantType();
+    }
+
+    loadCurrentTenantType() {
+        this.tenantSettingService.tenantSetting_GetCurrentTenantSettings().subscribe({
+            next: (tenantSettings: TenantSettingDto) => {
+                // Get tenant ID from settings or tenant service
+                const tenantId = this.tenantService.getTenantId();
+                if (tenantId && tenantId !== 'host') {
+                    // For non-host tenants, we need to get the tenant details to get the type
+                    // For now, let's assume we can get it from somewhere or default to Basic
+                    // TODO: Implement proper current tenant type retrieval
+                    this.currentTenantType = TenantType._0; // Default to Basic for now
+                    this.loadPermissions();
+                } else {
+                    // For host, show all permissions
+                    this.currentTenantType = null;
+                    this.loadPermissions();
+                }
+            },
+            error: (error: any) => {
+                console.error('Error loading current tenant settings:', error);
+                // Default to showing all permissions if we can't determine tenant type
+                this.currentTenantType = null;
+                this.loadPermissions();
+            }
+        });
     }
 
     loadRoles() {
@@ -61,8 +96,39 @@ export class RolesComponent {
     }
 
     loadPermissions() {
-        this.permissionService.permission_GetAllPermissions().subscribe((permissions) => {
-            this.availablePermissions.set(permissions);
+        this.permissionService.permission_GetAllPermissions().subscribe({
+            next: (allPermissions: Permission[]) => {
+                this.availablePermissions.set(allPermissions);
+                
+                if (this.currentTenantType !== null) {
+                    // Load tenant type permissions and filter the available permissions
+                    this.tenantTypePermissionService.getPermissionsByTenantType(this.currentTenantType).subscribe({
+                        next: (tenantTypePerms: TenantTypePermission[]) => {
+                            this.tenantTypePermissions = tenantTypePerms;
+                            
+                            // Filter available permissions to only show those allowed for this tenant type
+                            const allowedPermissionNames = tenantTypePerms.map(ttp => ttp.permissionName);
+                            const filteredPerms = allPermissions.filter(permission => 
+                                allowedPermissionNames.includes(permission.name)
+                            );
+                            this.filteredPermissions.set(filteredPerms);
+                        },
+                        error: (error: any) => {
+                            console.error('Error loading tenant type permissions:', error);
+                            // If we can't load tenant type permissions, show all permissions
+                            this.filteredPermissions.set(allPermissions);
+                        }
+                    });
+                } else {
+                    // For host or when tenant type is not determined, show all permissions
+                    this.filteredPermissions.set(allPermissions);
+                }
+            },
+            error: (error: any) => {
+                console.error('Error loading all permissions:', error);
+                this.availablePermissions.set([]);
+                this.filteredPermissions.set([]);
+            }
         });
     }
 
@@ -84,7 +150,12 @@ export class RolesComponent {
     openPermissionDialog(role: RoleDto) {
         this.role = RoleDto.fromJS(role);
         this.originalRolePermissions = (role.permissions || []).map((p) => RolePermission.fromJS({ roleId: role.id, permissionId: p.id }));
-        this.selectedPermissions = this.availablePermissions().filter((permission) => this.originalRolePermissions.some((rp) => rp.permissionId === permission.id));
+        
+        // Use filtered permissions based on tenant type
+        const permissionsToUse = this.currentTenantType !== null ? this.filteredPermissions() : this.availablePermissions();
+        this.selectedPermissions = permissionsToUse.filter((permission) => 
+            this.originalRolePermissions.some((rp) => rp.permissionId === permission.id)
+        );
         this.permissionDialog = true;
     }
 

@@ -4,9 +4,13 @@
             <i class="pi pi-plus me-2"></i>
             New Tenant
         </button>
-        <button type="button" class="btn btn-outline-danger" (click)="deleteSelectedTenants()" [disabled]="!selectedTenants || !selectedTenants.length">
+        <button type="button" class="btn btn-outline-danger me-2" (click)="deleteSelectedTenants()" [disabled]="!selectedTenants || !selectedTenants.length">
             <i class="pi pi-trash me-2"></i>
             Delete
+        </button>
+        <button type="button" class="btn btn-outline-warning me-2" (click)="seedDefaultPermissions()" title="Seed default permissions for all tenant types">
+            <i class="pi pi-key me-2"></i>
+            Seed Default Permissions
         </button>
     </ng-template>
 

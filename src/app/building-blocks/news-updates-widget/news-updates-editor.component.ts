@@ -126,7 +126,8 @@ export class NewsUpdatesEditorComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['config'] && this.config) {
-            this.settings = { ...this.config.settings };
+            // Fix: Use config directly instead of config.settings
+            this.settings = { ...this.config };
         }
     }
 
@@ -139,7 +140,7 @@ export class NewsUpdatesEditorComponent implements OnChanges {
             excerpt: 'Article excerpt...',
             author: '',
             category: 'News',
-            publishDate: new Date(),
+            publishDate: new Date().toISOString(),
             imageUrl: '',
             url: ''
         });

@@ -1,0 +1,244 @@
+<div class="surface-section">
+    <!-- Header Section -->
+    <div class="preview-section">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold mb-3">Generate Your Landing Page</h1>
+            <p class="text-xl mb-4">Choose from our professional templates designed specifically for your industry</p>
+            <p class="text-lg opacity-90">Get started quickly with pre-built components and layouts tailored to your business type</p>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <p-toolbar styleClass="mb-4">
+        <ng-template #start>
+            <div class="flex align-items-center gap-3">
+                <label for="categoryFilter" class="font-bold">Category:</label>
+                <p-dropdown 
+                    id="categoryFilter"
+                    [options]="categories()" 
+                    optionLabel="name" 
+                    optionValue="name" 
+                    placeholder="All Categories" 
+                    [(ngModel)]="selectedCategory"
+                    (onChange)="selectedTemplate = null"
+                    [style]="{'width': '200px'}"
+                    appendTo="body">
+                    <ng-template let-option pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                            <i [class]="option.icon"></i>
+                            <span>{{option.name}}</span>
+                        </div>
+                    </ng-template>
+                </p-dropdown>
+                
+                <button 
+                    type="button" 
+                    class="btn btn-outline-secondary" 
+                    (click)="selectedCategory = null; selectedTemplate = null">
+                    <i class="pi pi-refresh me-2"></i>
+                    Clear Filter
+                </button>
+            </div>
+        </ng-template>
+
+        <ng-template #end>
+            <div class="flex align-items-center gap-2">
+                <span class="text-muted">{{filteredTemplates.length}} templates available</span>
+                <button 
+                    type="button" 
+                    class="btn btn-primary" 
+                    (click)="generateLandingPage()"
+                    [disabled]="!selectedTemplate || isGenerating()">
+                    <i class="pi pi-magic me-2"></i>
+                    <span *ngIf="!isGenerating()">Generate Landing Page</span>
+                    <span *ngIf="isGenerating()">
+                        <i class="pi pi-spin pi-spinner me-2"></i>
+                        Generating...
+                    </span>
+                </button>
+            </div>
+        </ng-template>
+    </p-toolbar>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="text-center p-8">
+        <p-progressSpinner [style]="{'width': '50px', 'height': '50px'}"></p-progressSpinner>
+        <p class="mt-3 text-muted">Loading templates...</p>
+    </div>
+
+    <!-- Templates Grid -->
+    <div *ngIf="!isLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div 
+            *ngFor="let template of filteredTemplates" 
+            class="template-card border-round border-1 surface-card p-4"
+            [class.selected]="selectedTemplate?.id === template.id"
+            (click)="selectTemplate(template)">
+            
+            <!-- Template Header -->
+            <div class="flex justify-content-between align-items-start mb-3">
+                <div class="flex align-items-center gap-2">
+                    <i [class]="getCategoryIcon(template.category)" class="text-primary"></i>
+                    <span class="font-semibold">{{template.category}}</span>
+                </div>
+                <div class="flex gap-2">
+                    <p-tag 
+                        [value]="getTenantTypeLabel(template.tenantTypes)"
+                        [severity]="getTenantTypeBadgeClass(template.tenantTypes)"
+                        class="category-badge">
+                    </p-tag>
+                    <p-tag 
+                        *ngIf="template.isPremium" 
+                        value="Premium" 
+                        severity="warning"
+                        class="category-badge">
+                    </p-tag>
+                </div>
+            </div>
+
+            <!-- Template Thumbnail -->
+            <div class="mb-3">
+                <p-image 
+                    [src]="template.thumbnail" 
+                    [alt]="template.name"
+                    class="template-thumbnail"
+                    imageClass="template-thumbnail"
+                    [preview]="true">
+                    <ng-template pTemplate="indicator">
+                        <i class="pi pi-eye"></i>
+                    </ng-template>
+                </p-image>
+            </div>
+
+            <!-- Template Info -->
+            <div class="mb-3">
+                <h3 class="text-lg font-semibold mb-2">{{template.name}}</h3>
+                <p class="text-muted text-sm mb-3">{{template.description}}</p>
+            </div>
+
+            <!-- Template Features -->
+            <div class="mb-3">
+                <h4 class="text-sm font-semibold mb-2">Features:</h4>
+                <ul class="feature-list text-sm">
+                    <li *ngFor="let feature of template.features.slice(0, 3)">{{feature}}</li>
+                    <li *ngIf="template.features.length > 3">+{{template.features.length - 3}} more</li>
+                </ul>
+            </div>
+
+            <!-- Template Actions -->
+            <div class="flex gap-2">
+                <button 
+                    type="button" 
+                    class="btn btn-outline-primary flex-1"
+                    (click)="previewTemplate(template); $event.stopPropagation()">
+                    <i class="pi pi-eye me-2"></i>
+                    Preview
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn-primary flex-1"
+                    (click)="selectTemplate(template); $event.stopPropagation()">
+                    <i class="pi pi-check me-2"></i>
+                    Select
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading() && filteredTemplates.length === 0" class="text-center p-8">
+        <i class="pi pi-search text-4xl text-500 mb-3"></i>
+        <p class="text-500 text-lg mb-2">No templates found</p>
+        <p class="text-400">Try selecting a different category or clearing the filter</p>
+    </div>
+</div>
+
+<!-- Preview Dialog -->
+<p-dialog 
+    [(visible)]="showPreviewDialog" 
+    [style]="{ width: '90vw', maxWidth: '1200px', height: '80vh' }" 
+    [header]="'Preview: ' + (selectedTemplate?.name || '')" 
+    [modal]="true"
+    [dismissableMask]="true">
+    
+    <ng-template #content>
+        <div *ngIf="selectedTemplate" class="flex gap-4">
+            <!-- Preview Image -->
+            <div class="flex-1">
+                <p-image 
+                    [src]="selectedTemplate.thumbnail" 
+                    [alt]="selectedTemplate.name"
+                    class="w-full"
+                    imageClass="w-full border-round"
+                    [preview]="true">
+                </p-image>
+            </div>
+            
+            <!-- Template Details -->
+            <div class="w-96">
+                <div class="mb-4">
+                    <h3 class="text-xl font-semibold mb-2">{{selectedTemplate.name}}</h3>
+                    <p class="text-muted">{{selectedTemplate.description}}</p>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="font-semibold mb-2">Category</h4>
+                    <div class="flex align-items-center gap-2">
+                        <i [class]="getCategoryIcon(selectedTemplate.category)" class="text-primary"></i>
+                        <span>{{selectedTemplate.category}}</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="font-semibold mb-2">Tenant Types</h4>
+                    <div class="flex gap-2">
+                        <p-tag 
+                            *ngFor="let type of selectedTemplate.tenantTypes"
+                            [value]="type"
+                            severity="info">
+                        </p-tag>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="font-semibold mb-2">Features</h4>
+                    <ul class="feature-list">
+                        <li *ngFor="let feature of selectedTemplate.features">{{feature}}</li>
+                    </ul>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="font-semibold mb-2">Components</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <p-tag 
+                            *ngFor="let component of selectedTemplate.components"
+                            [value]="component"
+                            severity="secondary"
+                            class="category-badge">
+                        </p-tag>
+                    </div>
+                </div>
+
+                <div *ngIf="selectedTemplate.isPremium" class="mb-4">
+                    <p-tag value="Premium Template" severity="warning" class="mb-2"></p-tag>
+                    <p class="text-sm text-muted">This template includes advanced features and requires a Standard or Premium plan.</p>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button type="button" class="btn btn-secondary" (click)="showPreviewDialog = false">
+            <i class="pi pi-times me-2"></i>
+            Close
+        </button>
+        <button 
+            type="button" 
+            class="btn btn-primary" 
+            (click)="showPreviewDialog = false; selectTemplate(selectedTemplate!)">
+            <i class="pi pi-check me-2"></i>
+            Use This Template
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }" />

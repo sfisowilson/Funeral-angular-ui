@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 
@@ -10,14 +10,18 @@ import { ButtonModule } from 'primeng/button';
         <div class="news-updates-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
             <div class="container mx-auto">
                 <h2 class="text-center mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
-                    {{ config.title }}
+                    {{ title }}
                 </h2>
-                <p *ngIf="config.subtitle" class="text-center mb-12" [style.color]="config.subtitleColor" [style.font-size.px]="config.subtitleSize">
-                    {{ config.subtitle }}
+                <p *ngIf="subtitle" class="text-center mb-12" [style.color]="config.subtitleColor" [style.font-size.px]="config.subtitleSize">
+                    {{ subtitle }}
                 </p>
 
+                <div *ngIf="articles.length === 0" class="text-center p-8">
+                    <p class="text-muted">No articles available. Configure your widget to display news articles.</p>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <article *ngFor="let article of config.articles" class="news-card bg-white rounded-lg shadow-lg overflow-hidden" [style.background-color]="config.cardBackgroundColor">
+                    <article *ngFor="let article of articles" class="news-card bg-white rounded-lg shadow-lg overflow-hidden" [style.background-color]="config.cardBackgroundColor">
                         <div *ngIf="article.imageUrl" class="article-image">
                             <img [src]="article.imageUrl" [alt]="article.title" class="w-full h-48 object-cover" />
                         </div>
@@ -78,27 +82,82 @@ import { ButtonModule } from 'primeng/button';
         `
     ]
 })
-export class NewsUpdatesWidgetComponent {
+export class NewsUpdatesWidgetComponent implements OnInit {
     @Input() config: any = {};
+
+    constructor() {
+        console.log('NewsUpdatesWidgetComponent initialized');
+    }
+
+    ngOnInit() {
+        console.log('News widget config:', this.config);
+        console.log('Articles:', this.articles);
+    }
+
+    get articles(): any[] {
+        const articles = this.config.articles || [];
+        console.log('Getting articles:', articles);
+        
+        // If no articles provided, show default ones
+        if (articles.length === 0) {
+            console.log('No articles found, showing defaults');
+            return [
+                {
+                    title: 'Welcome to Our News Section',
+                    excerpt: 'This is a default news article. Configure your widget to display your latest news and updates.',
+                    author: 'Admin',
+                    category: 'Welcome',
+                    publishDate: new Date().toISOString(),
+                    imageUrl: '',
+                    url: ''
+                },
+                {
+                    title: 'Getting Started',
+                    excerpt: 'Learn how to configure and customize your news widget to display your content effectively.',
+                    author: 'Support Team',
+                    category: 'Tutorial',
+                    publishDate: new Date(Date.now() - 86400000).toISOString(),
+                    imageUrl: '',
+                    url: ''
+                }
+            ];
+        }
+        
+        return articles;
+    }
+
+    get title(): string {
+        return this.config.title || 'Latest News & Updates';
+    }
+
+    get subtitle(): string {
+        return this.config.subtitle || '';
+    }
 
     formatDate(dateString: string): string {
         if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Invalid Date';
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (error) {
+            console.error('Date formatting error:', error);
+            return 'Invalid Date';
+        }
     }
 
     openArticle(article: any): void {
-        if (article.url) {
+        if (article && article.url) {
             window.open(article.url, '_blank');
         }
     }
 
     viewAllNews(): void {
-        if (this.config.allNewsUrl) {
+        if (this.config && this.config.allNewsUrl) {
             window.open(this.config.allNewsUrl, '_blank');
         }
     }

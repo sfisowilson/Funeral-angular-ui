@@ -1,0 +1,220 @@
+<div class="booking-widget">
+    <p-card header="Book an Appointment" *ngIf="!bookingComplete()">
+        <!-- Step 1: Select Date -->
+        <div *ngIf="currentStep() === 1" class="form-section">
+            <h3 class="section-title">Select Date</h3>
+            <p-calendar 
+                [(ngModel)]="selectedDate" 
+                (onSelect)="onDateSelect()"
+                [disabledDates]="[date => !isDateSelectable(date)]"
+                [inline]="true"
+                [showWeek]="true"
+                [minDate]="new Date()">
+            </p-calendar>
+            
+            <div class="flex justify-content-end mt-3">
+                <button 
+                    type="button" 
+                    class="btn btn-primary" 
+                    (click)="nextStep()"
+                    [disabled]="!selectedDate">
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Select Time Slot -->
+        <div *ngIf="currentStep() === 2" class="form-section">
+            <h3 class="section-title">Select Time</h3>
+            
+            <div class="mb-3">
+                <strong>Selected Date:</strong> {{selectedDate | date:'longDate'}}
+            </div>
+
+            <div *ngIf="isLoading()" class="text-center p-4">
+                <p-progressSpinner [style]="{'width': '40px', 'height': '40px'}"></p-progressSpinner>
+                <p class="mt-2">Loading available times...</p>
+            </div>
+
+            <div *ngIf="!isLoading()" class="time-slots-grid">
+                <div 
+                    *ngFor="let slot of availableTimeSlots()" 
+                    class="time-slot"
+                    [class.selected]="selectedTimeSlot?.time === slot.time"
+                    [class.disabled]="!slot.available"
+                    (click)="selectTimeSlot(slot)">
+                    {{formatTime(slot.time)}}
+                </div>
+            </div>
+
+            <div class="flex justify-content-between mt-3">
+                <button 
+                    type="button" 
+                    class="btn btn-secondary" 
+                    (click)="previousStep()">
+                    Back
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn-primary" 
+                    (click)="nextStep()"
+                    [disabled]="!selectedTimeSlot">
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Select Services -->
+        <div *ngIf="currentStep() === 3" class="form-section">
+            <h3 class="section-title">Select Services</h3>
+            
+            <div class="mb-3">
+                <strong>Selected Date:</strong> {{selectedDate | date:'longDate'}} at {{formatTime(selectedTimeSlot!.time)}}
+            </div>
+
+            <div *ngIf="services.length === 0" class="text-center p-4 text-muted">
+                <i class="pi pi-info-circle text-2xl mb-2"></i>
+                <p>No services available. Please contact us directly.</p>
+            </div>
+
+            <div *ngIf="services.length > 0">
+                <div 
+                    *ngFor="let service of services" 
+                    class="service-item"
+                    [class.selected]="selectedServices.some(s => s.id === service.id)"
+                    (click)="selectService(service)">
+                    <div class="flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">{{service.name}}</h5>
+                            <p class="text-muted mb-0">{{service.description}}</p>
+                        </div>
+                        <div class="text-right">
+                            <strong>${{service.price || 0}}</strong>
+                            <div class="text-muted small">{{service.duration || 30}} min</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-content-between mt-3">
+                <button 
+                    type="button" 
+                    class="btn btn-secondary" 
+                    (click)="previousStep()">
+                    Back
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn-primary" 
+                    (click)="nextStep()"
+                    [disabled]="selectedServices.length === 0">
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Customer Information -->
+        <div *ngIf="currentStep() === 4" class="form-section">
+            <h3 class="section-title">Your Information</h3>
+            
+            <div class="booking-summary">
+                <h5>Booking Summary</h5>
+                <p><strong>Date:</strong> {{selectedDate | date:'longDate'}}</p>
+                <p><strong>Time:</strong> {{formatTime(selectedTimeSlot!.time)}}</p>
+                <p><strong>Services:</strong></p>
+                <ul>
+                    <li *ngFor="let service of selectedServices">
+                        {{service.name}} - ${{service.price || 0}} ({{service.duration || 30}} min)
+                    </li>
+                </ul>
+                <p><strong>Total Duration:</strong> {{getTotalDuration()}} minutes</p>
+                <p><strong>Total Price:</strong> ${{getTotalPrice()}}</p>
+            </div>
+
+            <div class="form-group">
+                <label for="customerName" class="block font-bold mb-2">Full Name *</label>
+                <input 
+                    type="text" 
+                    id="customerName" 
+                    class="form-control w-full"
+                    [(ngModel)]="customerInfo.name"
+                    (ngModelChange)="validateForm()"
+                    placeholder="Enter your full name"
+                    required>
+            </div>
+
+            <div class="form-group" *ngIf="config?.requireEmail">
+                <label for="customerEmail" class="block font-bold mb-2">Email Address *</label>
+                <input 
+                    type="email" 
+                    id="customerEmail" 
+                    class="form-control w-full"
+                    [(ngModel)]="customerInfo.email"
+                    (ngModelChange)="validateForm()"
+                    placeholder="Enter your email address"
+                    required>
+            </div>
+
+            <div class="form-group" *ngIf="config?.requirePhone">
+                <label for="customerPhone" class="block font-bold mb-2">Phone Number *</label>
+                <input 
+                    type="tel" 
+                    id="customerPhone" 
+                    class="form-control w-full"
+                    [(ngModel)]="customerInfo.phone"
+                    (ngModelChange)="validateForm()"
+                    placeholder="Enter your phone number"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="customerNotes" class="block font-bold mb-2">Additional Notes</label>
+                <textarea 
+                    id="customerNotes" 
+                    class="form-control w-full"
+                    [(ngModel)]="customerInfo.notes"
+                    rows="3"
+                    placeholder="Any special requests or notes..."></textarea>
+            </div>
+
+            <div class="flex justify-content-between mt-3">
+                <button 
+                    type="button" 
+                    class="btn btn-secondary" 
+                    (click)="previousStep()">
+                    Back
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn-primary" 
+                    (click)="submitBooking()"
+                    [disabled]="!isFormValid() || isLoading()">
+                    <span *ngIf="!isLoading()">
+                        <i class="pi pi-check me-2"></i>
+                        Confirm Booking
+                    </span>
+                    <span *ngIf="isLoading()">
+                        <i class="pi pi-spin pi-spinner me-2"></i>
+                        Processing...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </p-card>
+
+    <!-- Booking Complete -->
+    <p-card header="Booking Confirmed!" *ngIf="bookingComplete()" class="text-center">
+        <div class="text-success">
+            <i class="pi pi-check-circle text-5xl mb-3"></i>
+            <h4>Your appointment has been successfully booked!</h4>
+            <p class="text-muted">
+                A confirmation email has been sent to {{customerInfo.email}} with all the details.
+            </p>
+            <p class="text-muted">
+                We look forward to seeing you on {{selectedDate | date:'longDate'}} at {{formatTime(selectedTimeSlot!.time)}}.
+            </p>
+        </div>
+    </p-card>
+</div>
+
+<p-toast></p-toast>

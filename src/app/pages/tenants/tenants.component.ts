@@ -19,7 +19,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { TenantCreateUpdateDto, TenantServiceProxy, TenantType, LookupServiceProxy } from '../../core/services/service-proxies';
+import { TenantCreateUpdateDto, TenantServiceProxy, TenantType, LookupServiceProxy, TenantTypePermissionServiceProxy } from '../../core/services/service-proxies';
 
 interface Column {
     field: string;
@@ -36,7 +36,7 @@ interface ExportColumn {
     selector: 'app-tenants',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule],
-    providers: [MessageService, ConfirmationService, TenantServiceProxy, LookupServiceProxy],
+    providers: [MessageService, ConfirmationService, TenantServiceProxy, LookupServiceProxy, TenantTypePermissionServiceProxy],
     templateUrl: './tenants.component.html'
 })
 export class TenantsComponent {
@@ -62,7 +62,8 @@ export class TenantsComponent {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private tenantService: TenantServiceProxy,
-        private lookupService: LookupServiceProxy
+        private lookupService: LookupServiceProxy,
+        private tenantTypePermissionService: TenantTypePermissionServiceProxy
     ) {
         this.tenantTypes = []; // Initialize as empty, will be populated by lookup
     }
@@ -247,5 +248,34 @@ export class TenantsComponent {
             this.tenantDialog = false;
             this.tenant = new TenantCreateUpdateDto();
         }
+    }
+
+    seedDefaultPermissions() {
+        this.confirmationService.confirm({
+            message: 'Are you sure you want to seed default permissions for all tenant types? This will create the standard permission sets for Basic, Standard, and Premium tenants.',
+            header: 'Confirm Seed Default Permissions',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.tenantTypePermissionService.seedDefaultPermissions().subscribe({
+                    next: () => {
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Success',
+                            detail: 'Default permissions seeded successfully for all tenant types',
+                            life: 5000
+                        });
+                    },
+                    error: (error) => {
+                        console.error('Error seeding default permissions:', error);
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to seed default permissions',
+                            life: 3000
+                        });
+                    }
+                });
+            }
+        });
     }
 }

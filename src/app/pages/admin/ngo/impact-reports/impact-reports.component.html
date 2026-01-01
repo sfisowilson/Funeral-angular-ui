@@ -1,0 +1,153 @@
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h2 class="mb-0">Impact Reports Management</h2>
+    <button class="btn btn-primary" (click)="openNewDialog()">
+      <i class="bi bi-plus-circle me-2"></i>New Report
+    </button>
+  </div>
+  
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover table-striped">
+        <thead class="table-light">
+          <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Period</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th style="width: 120px">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let report of impactReports">
+            <td class="fw-medium">{{ report.title }}</td>
+            <td><span class="badge bg-info text-dark">{{ report.category }}</span></td>
+            <td>{{ report.period }}</td>
+            <td>{{ report.reportDate | date: 'short' }}</td>
+            <td>
+              <span 
+                class="badge"
+                [ngClass]="{
+                  'bg-success': report.isPublished,
+                  'bg-warning text-dark': !report.isPublished
+                }"
+              >
+                {{ report.isPublished ? 'Published' : 'Draft' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="viewReport(report)" title="View">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-warning me-2" (click)="openEditDialog(report)" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteReport(report)" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="impactReports.length === 0" class="alert alert-info text-center">
+        No impact reports found
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Create/Edit -->
+<div class="modal fade" tabindex="-1" [class.show]="displayDialog" [style.display]="displayDialog ? 'block' : 'none'">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEdit ? 'Edit Report' : 'New Report' }}</h5>
+        <button type="button" class="btn-close" (click)="closeDialog()"></button>
+      </div>
+      
+      <div class="modal-body" *ngIf="selectedReport">
+        <form [formGroup]="reportForm">
+          <div class="mb-3">
+            <label for="title" class="form-label">Report Title</label>
+            <input type="text" class="form-control" id="title" formControlName="title">
+          </div>
+          
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" formControlName="description" rows="3"></textarea>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="category" class="form-label">Category</label>
+              <select class="form-select" id="category" formControlName="category">
+                <option value="">Select Category</option>
+                <option *ngFor="let option of categoryOptions" [value]="option.value">{{ option.label }}</option>
+              </select>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label for="period" class="form-label">Period</label>
+              <select class="form-select" id="period" formControlName="period">
+                <option value="">Select Period</option>
+                <option *ngFor="let option of periodOptions" [value]="option.value">{{ option.label }}</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="reportDate" class="form-label">Report Date</label>
+              <input type="date" class="form-control" id="reportDate" formControlName="reportDate">
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" id="isPublished" formControlName="isPublished">
+                <label class="form-check-label" for="isPublished">Published</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Impact Metrics Section -->
+          <div class="border-top pt-3 mt-3 mb-3" formGroupName="metrics">
+            <h6 class="fw-bold mb-3">Impact Metrics</h6>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="beneficiariesReached" class="form-label">Beneficiaries Reached</label>
+                <input type="number" class="form-control" id="beneficiariesReached" formControlName="beneficiariesReached" min="0">
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="fundsUtilized" class="form-label">Funds Utilized (ZAR)</label>
+                <input type="number" class="form-control" id="fundsUtilized" formControlName="fundsUtilized" min="0" step="0.01">
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="projectsCompleted" class="form-label">Projects Completed</label>
+                <input type="number" class="form-control" id="projectsCompleted" formControlName="projectsCompleted" min="0">
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="volunteerHours" class="form-label">Volunteer Hours</label>
+                <input type="number" class="form-control" id="volunteerHours" formControlName="volunteerHours" min="0" step="0.5">
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="saveReport()" [disabled]="loading">
+          {{ loading ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop -->
+<div class="modal-backdrop fade" [class.show]="displayDialog" *ngIf="displayDialog"></div>

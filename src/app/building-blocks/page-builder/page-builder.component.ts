@@ -21,6 +21,8 @@ import { WidgetConfig } from '../widget-config';
 import { WidgetService } from '../widget.service';
 import { PageLayoutService } from '../page-layout.service';
 import { WIDGET_TYPES, WidgetType } from '../widget-registry';
+import { ThemeService } from '../../core/services/theme.service';
+import { LandingPageTemplateService, LandingPageTemplate } from '../../pages/admin/landing-page-generator/landing-page-template.service';
 
 @Component({
     selector: 'app-page-builder',
@@ -65,6 +67,11 @@ export class PageBuilderComponent implements OnInit {
     showSeoSettings = signal<boolean>(false);
     
     availableWidgets: WidgetType[] = WIDGET_TYPES;
+    
+    showPostResetDialog = signal<boolean>(false);
+    showTemplateDialog = signal<boolean>(false);
+    availableTemplates = signal<LandingPageTemplate[]>([]);
+    selectedTemplate = signal<LandingPageTemplate | null>(null);
     
     // SEO Meta Tags
     seoSettings = signal({
@@ -137,7 +144,9 @@ export class PageBuilderComponent implements OnInit {
         private widgetService: WidgetService,
         private pageLayoutService: PageLayoutService,
         private messageService: MessageService,
-        private confirmationService: ConfirmationService
+        private confirmationService: ConfirmationService,
+        private themeService: ThemeService,
+        private landingPageTemplateService: LandingPageTemplateService
     ) {}
 
     ngOnInit(): void {
@@ -217,8 +226,14 @@ export class PageBuilderComponent implements OnInit {
                 fullWidth: false,
                 padding: 16,
                 margin: 0,
-                zIndex: 1
+                zIndex: 1,
+                autoHeight: true
             };
+        }
+        
+        // Ensure autoHeight is set
+        if (widget.layout.autoHeight === undefined) {
+            widget.layout.autoHeight = true;
         }
         
         // Ensure responsive config exists
@@ -689,5 +704,210 @@ export class PageBuilderComponent implements OnInit {
 
     cancelSeoSettings(): void {
         this.showSeoSettings.set(false);
+    }
+
+    resetPage(): void {
+        this.confirmationService.confirm({
+            message: 'This will remove all widgets from the page, reset the theme to defaults, and clear all SEO settings. This action cannot be undone. Are you sure you want to continue?',
+            header: 'Reset Page',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                // Clear all widgets
+                this.widgets.set([]);
+                this.selectedWidget.set(null);
+                this.showLayoutSettings.set(false);
+                this.showContentEditor.set(false);
+                this.showWidgetPicker.set(false);
+                
+                // Reset SEO settings to defaults
+                this.seoSettings.set({
+                    pageTitle: '',
+                    metaDescription: '',
+                    metaKeywords: '',
+                    ogTitle: '',
+                    ogDescription: '',
+                    ogImage: '',
+                    twitterCard: 'summary_large_image',
+                    canonicalUrl: ''
+                });
+                
+                // Reset theme to defaults by clearing custom CSS and theme colors
+                this.resetThemeToDefaults();
+                
+                // Save the empty state to backend
+                this.saveWidgets();
+                
+                // Save reset SEO settings
+                this.widgetService.saveSeoSettings(this.seoSettings()).subscribe({
+                    next: () => {
+                        console.log('SEO settings reset successfully');
+                    },
+                    error: (error) => {
+                        console.error('Error resetting SEO settings:', error);
+                    }
+                });
+                
+                // Show post-reset dialog for theme selection
+                this.showPostResetDialog.set(true);
+                
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Page Reset Complete',
+                    detail: 'Page has been reset to defaults. Choose how you\'d like to start building.'
+                });
+            },
+            reject: () => {
+                // User cancelled - do nothing
+            }
+        });
+    }
+
+    private resetThemeToDefaults(): void {
+        // Remove custom theme CSS
+        const customThemeStyle = document.getElementById('tenant-theme-colors');
+        if (customThemeStyle) {
+            customThemeStyle.remove();
+        }
+        
+        // Remove custom CSS
+        const customCssStyle = document.getElementById('tenant-custom-css');
+        if (customCssStyle) {
+            customCssStyle.remove();
+        }
+        
+        // Clear tenant settings in the service to force reload of defaults
+        // This will trigger the theme service to load default theme
+        this.themeService.loadTenantCss();
+        
+        console.log('Theme reset to defaults');
+    }
+
+    startWithBlankPage(): void {
+        this.showPostResetDialog.set(false);
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Blank Page',
+            detail: 'You can now start adding widgets to build your page from scratch.'
+        });
+    }
+
+    selectTheme(): void {
+        this.showPostResetDialog.set(false);
+        // TODO: Implement theme selection dialog
+        // For now, show widget picker so they can start with themed widgets
+        this.openWidgetPicker();
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Theme Selection',
+            detail: 'Choose widgets to start building your themed page. Full theme selection coming soon!'
+        });
+    }
+
+    loadTemplate(): void {
+        this.showPostResetDialog.set(false);
+        this.loadAvailableTemplates();
+        this.showTemplateDialog.set(true);
+    }
+
+    private loadAvailableTemplates(): void {
+        // Get funeral-specific templates
+        const allTemplates = this.landingPageTemplateService.getStaticTemplates();
+        console.log('All templates available:', allTemplates);
+        
+        const funeralTemplates = allTemplates.filter(template => 
+            template.category === 'Funeral'
+            // Remove tenant type filter temporarily to show all funeral templates
+        );
+        console.log('Funeral templates filtered:', funeralTemplates);
+        this.availableTemplates.set(funeralTemplates);
+    }
+
+    selectTemplate(template: LandingPageTemplate): void {
+        this.selectedTemplate.set(template);
+        this.applyTemplate(template);
+    }
+
+    private applyTemplate(template: LandingPageTemplate): void {
+        try {
+            const components = this.landingPageTemplateService.generatePageComponents(template.id);
+            
+            // Convert template components to widget configs
+            const widgetConfigs: WidgetConfig[] = components.map(component => {
+                // Find matching widget type
+                const widgetType = this.findWidgetTypeForComponent(component.type);
+                if (!widgetType) {
+                    console.warn(`No widget type found for component: ${component.type}`);
+                    return null;
+                }
+
+                return {
+                    id: this.generateId(),
+                    type: widgetType.name,
+                    title: component.properties['title'] || widgetType.name,
+                    settings: {
+                        ...widgetType.defaultConfig,
+                        ...component.properties,
+                        ...component.content
+                    }
+                };
+            }).filter(widget => widget !== null) as WidgetConfig[];
+
+            // Apply layout to all widgets
+            const widgetsWithLayout = widgetConfigs.map(widget => 
+                this.pageLayoutService.initializeWidgetLayout(widget)
+            );
+
+            // Set the widgets
+            this.widgets.set(widgetsWithLayout);
+            this.saveWidgets();
+
+            this.showTemplateDialog.set(false);
+            this.selectedTemplate.set(null);
+
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Template Applied',
+                detail: `${template.name} template has been applied successfully. You can now customize the widgets.`
+            });
+        } catch (error) {
+            console.error('Error applying template:', error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Template Error',
+                detail: 'Failed to apply the selected template. Please try again.'
+            });
+        }
+    }
+
+    private findWidgetTypeForComponent(componentType: string): WidgetType | undefined {
+        // Map template component types to widget types
+        const typeMapping: Record<string, string> = {
+            'hero': 'hero-section',
+            'about': 'about-section',
+            'services': 'services-overview',
+            'obituaries': 'news-updates',
+            'contact': 'contact-form',
+            'preplanning': 'benefits-checklist',
+            'resources': 'services-overview',
+            'memorial': 'services-overview',
+            'pricing': 'pricing-table',
+            'faq': 'faq-section'
+        };
+
+        const widgetTypeName = typeMapping[componentType];
+        return WIDGET_TYPES.find(type => type.name === widgetTypeName);
+    }
+
+    cancelTemplateSelection(): void {
+        this.showTemplateDialog.set(false);
+        this.selectedTemplate.set(null);
+    }
+
+    onCardHover(event: MouseEvent, isHovering: boolean): void {
+        const element = event.currentTarget as HTMLElement;
+        if (element) {
+            element.style.transform = isHovering ? 'translateY(-4px)' : 'translateY(0)';
+            element.style.transition = 'transform 0.2s, box-shadow 0.2s';
+        }
     }
 }

@@ -1,0 +1,159 @@
+<p-toolbar styleClass="mb-6">
+    <ng-template #start>
+        <div class="flex align-items-center gap-2">
+            <label for="tenantTypeFilter" class="font-bold">Tenant Type:</label>
+            <p-dropdown 
+                id="tenantTypeFilter"
+                [options]="tenantTypes" 
+                optionLabel="label" 
+                optionValue="value" 
+                placeholder="Select Tenant Type" 
+                [(ngModel)]="selectedTenantType"
+                (onChange)="onTenantTypeChange()"
+                [style]="{'width': '200px'}"
+                appendTo="body">
+            </p-dropdown>
+        </div>
+        <button type="button" class="btn btn-primary me-2" (click)="openPermissionDialog()" [disabled]="!selectedTenantType">
+            <i class="pi pi-key me-2"></i>
+            Manage Permissions
+        </button>
+        <button type="button" class="btn btn-outline-primary me-2" (click)="openNew()" [disabled]="!selectedTenantType">
+            <i class="pi pi-plus me-2"></i>
+            New Permission
+        </button>
+        <button type="button" class="btn btn-outline-danger me-2" (click)="deleteSelectedPermissions()" [disabled]="!selectedPermissions || !selectedPermissions.length">
+            <i class="pi pi-trash me-2"></i>
+            Delete Selected
+        </button>
+        <button type="button" class="btn btn-outline-warning me-2" (click)="seedDefaultPermissions()" title="Seed default permissions for all tenant types">
+            <i class="pi pi-refresh me-2"></i>
+            Seed Default Permissions
+        </button>
+    </ng-template>
+
+    <ng-template #end>
+        <button type="button" class="btn btn-secondary" (click)="exportCSV()">
+            <i class="pi pi-upload me-2"></i>
+            Export
+        </button>
+    </ng-template>
+</p-toolbar>
+
+<p-table
+    #dt
+    [value]="permissions()"
+    [rows]="10"
+    [columns]="cols"
+    [paginator]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedPermissions"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} permissions"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between">
+            <h5 class="m-0">Manage Tenant Type Permissions</h5>
+            <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search permissions..." />
+            </p-iconfield>
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem">
+                <p-tableHeaderCheckbox />
+            </th>
+            <th pSortableColumn="permissionName" style="min-width: 20rem">
+                Permission Name
+                <p-sortIcon field="permissionName" />
+            </th>
+            <th pSortableColumn="description" style="min-width: 25rem">
+                Description
+                <p-sortIcon field="description" />
+            </th>
+            <th pSortableColumn="tenantType" style="min-width: 12rem">
+                Tenant Type
+                <p-sortIcon field="tenantType" />
+            </th>
+            <th pSortableColumn="createdAt" style="min-width: 15rem">
+                Created At
+                <p-sortIcon field="createdAt" />
+            </th>
+            <th style="min-width: 8rem"></th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-permission>
+        <tr>
+            <td style="width: 3rem">
+                <p-tableCheckbox [value]="permission" />
+            </td>
+            <td>
+                <span class="font-semibold">{{ permission.permissionName }}</span>
+            </td>
+            <td>{{ permission.description }}</td>
+            <td>
+                <p-tag [value]="getTenantTypeName(permission.tenantType)" [severity]="getTenantTypeSeverity(permission.tenantType)" />
+            </td>
+            <td>{{ formatDate(permission.createdAt) }}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deletePermission(permission)" title="Remove Permission">
+                    <i class="pi pi-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+        <div class="text-center p-4">
+            <i class="pi pi-info-circle text-4xl text-500 mb-3"></i>
+            <p class="text-500">No permissions found for the selected tenant type.</p>
+            <p class="text-400">Select a tenant type to view permissions or add new ones.</p>
+        </div>
+    </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="permissionDialog" [style]="{ width: '600px', height: '500px' }" header="Manage Permissions" [modal]="true">
+    <ng-template #content>
+        <div class="flex flex-col gap-6">
+            <div>
+                <label for="tenantType" class="block font-bold mb-3">Tenant Type</label>
+                <p-tag [value]="getTenantTypeName(selectedTenantType!)" [severity]="getTenantTypeSeverity(selectedTenantType!)" *ngIf="selectedTenantType"></p-tag>
+            </div>
+            <div>
+                <label for="permissions" class="block font-bold mb-3">Permissions</label>
+                <p-multiSelect 
+                    [style]="{ width: '100%' }" 
+                    [options]="availablePermissions()" 
+                    [(ngModel)]="selectedPermissionsForTenantType" 
+                    optionLabel="name" 
+                    placeholder="Select Permissions"
+                    [scrollHeight]="'300px'"
+                    appendTo="body"
+                    [baseZIndex]="10000">
+                </p-multiSelect>
+                <small class="text-muted mt-2 block">
+                    <i class="pi pi-info-circle me-2"></i>
+                    Select all permissions that should be available for this tenant type. 
+                    Currently assigned permissions are pre-selected.
+                </small>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #footer>
+        <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+            <i class="pi pi-times me-2"></i>
+            Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="savePermissions()">
+            <i class="pi pi-check me-2"></i>
+            Save Changes
+        </button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }" />

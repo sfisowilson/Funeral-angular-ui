@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface BenefitItem {
@@ -20,23 +20,51 @@ export interface BenefitCategory {
     templateUrl: './benefits-checklist-widget.component.html',
     styleUrls: ['./benefits-checklist-widget.component.scss']
 })
-export class BenefitsChecklistWidgetComponent {
+export class BenefitsChecklistWidgetComponent implements OnInit {
     @Input() config: any;
 
+    constructor() {
+        console.log('BenefitsChecklistWidgetComponent initialized');
+    }
+
+    ngOnInit() {
+        console.log('Benefits widget config:', this.config);
+        console.log('Benefits:', this.benefits);
+    }
+
     get settings() {
-        return this.config?.settings || {};
+        // Fix: Use config directly instead of config.settings
+        return this.config || {};
     }
 
     get title(): string {
-        return this.settings.title || '';
+        return this.settings.title || 'Everything You Need, All in One Place';
     }
 
     get subtitle(): string {
-        return this.settings.subtitle || '';
+        return this.settings.subtitle || 'No separate systems, no hidden costs, no technical headaches';
     }
 
     get benefits(): BenefitItem[] {
-        return this.settings.benefits || [];
+        const benefits = this.settings.benefits || [];
+        console.log('Getting benefits:', benefits);
+        
+        // If no benefits provided, show default ones
+        if (benefits.length === 0) {
+            console.log('No benefits found, showing defaults');
+            return [
+                { icon: 'bi bi-check-circle-fill', text: 'Professional website with custom subdomain' },
+                { icon: 'bi bi-check-circle-fill', text: 'Complete member management system' },
+                { icon: 'bi bi-check-circle-fill', text: 'Claims processing workflow' },
+                { icon: 'bi bi-check-circle-fill', text: 'Document management and storage' },
+                { icon: 'bi bi-check-circle-fill', text: 'Payment tracking and reporting' },
+                { icon: 'bi bi-check-circle-fill', text: 'SSL security included' },
+                { icon: 'bi bi-check-circle-fill', text: 'Daily automatic backups' },
+                { icon: 'bi bi-check-circle-fill', text: '24/7 customer support' }
+            ];
+        }
+        
+        return benefits;
     }
 
     get categories(): BenefitCategory[] {
