@@ -86,6 +86,15 @@ import { NgoGrantApplicationsWidgetComponent } from './ngo-grant-applications-wi
 import { NgoGrantApplicationsEditorComponent } from './ngo-grant-applications-widget/ngo-grant-applications-editor.component';
 import { NgoDonationWidgetComponent } from './ngo-donation-widget/ngo-donation-widget.component';
 import { NgoDonationEditorComponent } from './ngo-donation-widget/ngo-donation-editor.component';
+import { CareersWidgetComponent } from './careers-widget/careers-widget.component';
+import { CareersEditorComponent } from './careers-widget/careers-editor.component';
+// Ecommerce Widgets
+import { ProductsWidgetComponent } from './products-widget/products-widget.component';
+import { ProductsEditorComponent } from './products-widget/products-editor.component';
+import { FeaturedProductsWidgetComponent } from './featured-products-widget/featured-products-widget.component';
+import { FeaturedProductsEditorComponent } from './featured-products-widget/featured-products-editor.component';
+import { ProductCategoriesWidgetComponent } from './product-categories-widget/product-categories-widget.component';
+import { ProductCategoriesEditorComponent } from './product-categories-widget/product-categories-editor.component';
 
 export interface WidgetType {
     name: string;
@@ -1504,5 +1513,105 @@ export const WIDGET_TYPES: WidgetType[] = [
             donationUrl: '/ngo/donate'
         },
         icon: 'gift'
+    },
+    {
+        name: 'careers',
+        component: CareersWidgetComponent,
+        editorComponent: CareersEditorComponent,
+        defaultConfig: {
+            title: 'Join Our Team',
+            subtitle: 'Discover exciting career opportunities and grow with us',
+            layout: 'grid',
+            showFilters: true,
+            showDepartmentFilter: true,
+            showTypeFilter: true,
+            showLocationFilter: true,
+            showSalary: true,
+            showDeadline: true,
+            showDetailModal: true,
+            showViewDetailsButton: true,
+            descriptionLength: 200,
+            applyButtonText: 'Apply Now',
+            viewDetailsText: 'View Details',
+            emptyStateText: 'No open positions at the moment. Check back soon!',
+            backgroundColor: '#f8f9fa',
+            primaryColor: '#0d6efd',
+            titleColor: '#212529',
+            subtitleColor: '#6c757d',
+            cardBackgroundColor: '#ffffff',
+            buttonColor: '#0d6efd',
+            buttonTextColor: '#ffffff',
+            fullTimeColor: '#0d6efd',
+            partTimeColor: '#17a2b8',
+            contractColor: '#ffc107',
+            internshipColor: '#6c757d',
+            titleSize: 42,
+            subtitleSize: 18,
+            cardTitleSize: 22,
+            descriptionSize: 15,
+            padding: 60,
+            containerWidth: 1200,
+            applicationEmail: '',
+            applicationUrl: ''
+        },
+        icon: 'briefcase'
+    },
+    // Ecommerce Widgets
+    {
+        name: 'products',
+        component: ProductsWidgetComponent,
+        editorComponent: ProductsEditorComponent,
+        defaultConfig: {
+            title: 'Our Products',
+            subtitle: 'Browse our collection',
+            showTitle: true,
+            showSubtitle: true,
+            showFilters: true,
+            showCategoryFilter: true,
+            showDescription: true,
+            showViewAll: true,
+            viewAllLink: '/products',
+            productsToShow: 8,
+            columns: 4,
+            buttonText: 'Add to Cart',
+            backgroundColor: '#ffffff',
+            titleColor: '#333333',
+            priceColor: '#000000',
+            buttonColor: '#007bff',
+            buttonTextColor: '#ffffff',
+            badgeColor: '#dc3545',
+            cardBackground: '#ffffff'
+        },
+        icon: 'shopping-cart'
+    },
+    {
+        name: 'featured-products',
+        component: FeaturedProductsWidgetComponent,
+        editorComponent: FeaturedProductsEditorComponent,
+        defaultConfig: {
+            title: 'Featured Products',
+            showTitle: true,
+            productsToShow: 3,
+            buttonText: 'Shop Now',
+            backgroundColor: '#f8f9fa',
+            titleColor: '#333333',
+            buttonColor: '#28a745',
+            buttonTextColor: '#ffffff'
+        },
+        icon: 'star'
+    },
+    {
+        name: 'product-categories',
+        component: ProductCategoriesWidgetComponent,
+        editorComponent: ProductCategoriesEditorComponent,
+        defaultConfig: {
+            title: 'Shop by Category',
+            showTitle: true,
+            columns: 4,
+            backgroundColor: '#ffffff',
+            titleColor: '#333333',
+            cardBackground: '#f8f9fa'
+        },
+        icon: 'grid'
     }
 ];

@@ -238,6 +238,52 @@ export class LandingPageTemplateService {
                 features: ['Consulting Services', 'Case Studies', 'Client Portal', 'Blog', 'Speaking'],
                 components: ['Hero Section', 'Services', 'Case Studies', 'About', 'Blog', 'Speaking', 'Contact'],
                 isPremium: true
+            },
+
+            // Ecommerce Templates
+            {
+                id: 'ecommerce-basic',
+                name: 'Basic Online Store',
+                category: 'Ecommerce',
+                description: 'Simple and effective online store for small businesses',
+                thumbnail: '/assets/templates/ecommerce-basic.jpg',
+                tenantTypes: ['Ecommerce'],
+                features: ['Product Catalog', 'Shopping Cart', 'Checkout', 'Contact', 'About'],
+                components: ['Hero Section', 'Featured Products', 'Categories', 'About', 'Contact'],
+                isPremium: false
+            },
+            {
+                id: 'ecommerce-fashion',
+                name: 'Fashion Store',
+                category: 'Ecommerce',
+                description: 'Elegant ecommerce site for fashion and apparel brands',
+                thumbnail: '/assets/templates/ecommerce-fashion.jpg',
+                tenantTypes: ['Ecommerce'],
+                features: ['Collections', 'Lookbook', 'Product Filters', 'Wishlist', 'Reviews'],
+                components: ['Hero Section', 'Featured Products', 'Collections', 'Testimonials', 'Newsletter'],
+                isPremium: true
+            },
+            {
+                id: 'ecommerce-electronics',
+                name: 'Electronics Store',
+                category: 'Ecommerce',
+                description: 'Modern electronics and gadgets store with advanced features',
+                thumbnail: '/assets/templates/ecommerce-electronics.jpg',
+                tenantTypes: ['Ecommerce'],
+                features: ['Product Comparison', 'Specifications', 'Reviews', 'Deals', 'Support'],
+                components: ['Hero Section', 'Featured Products', 'Categories', 'Deals Banner', 'Support'],
+                isPremium: true
+            },
+            {
+                id: 'ecommerce-marketplace',
+                name: 'Multi-Vendor Marketplace',
+                category: 'Ecommerce',
+                description: 'Complete marketplace solution for multi-vendor platforms',
+                thumbnail: '/assets/templates/ecommerce-marketplace.jpg',
+                tenantTypes: ['Ecommerce'],
+                features: ['Vendor Management', 'Multi-Category', 'Advanced Search', 'Ratings', 'Messaging'],
+                components: ['Hero Section', 'Categories', 'Featured Vendors', 'Products Grid', 'How It Works'],
+                isPremium: true
             }
         ];
     }
@@ -607,6 +653,120 @@ export class LandingPageTemplateService {
                         email: 'info@cremationservices.com',
                         address: '789 Memorial Lane, City, State 12345',
                         hours: '24/7 Emergency Service Available'
+                    }
+                }
+            ],
+            'ecommerce-basic': [
+                {
+                    id: 'hero-1',
+                    type: 'hero',
+                    position: 0,
+                    properties: {
+                        title: 'Shop Our Collection',
+                        subtitle: 'Quality Products at Great Prices',
+                        backgroundImage: '/assets/ecommerce-hero.jpg',
+                        ctaText: 'Shop Now',
+                        ctaLink: '#products'
+                    },
+                    content: {}
+                },
+                {
+                    id: 'featured-products-1',
+                    type: 'featured-products',
+                    position: 1,
+                    properties: {
+                        title: 'Featured Products',
+                        showTitle: true,
+                        productsToShow: 3
+                    },
+                    content: {}
+                },
+                {
+                    id: 'categories-1',
+                    type: 'product-categories',
+                    position: 2,
+                    properties: {
+                        title: 'Shop by Category',
+                        columns: 4
+                    },
+                    content: {}
+                },
+                {
+                    id: 'products-1',
+                    type: 'products',
+                    position: 3,
+                    properties: {
+                        title: 'All Products',
+                        productsToShow: 8,
+                        columns: 4,
+                        showFilters: true
+                    },
+                    content: {}
+                },
+                {
+                    id: 'contact-1',
+                    type: 'contact',
+                    position: 4,
+                    properties: {
+                        title: 'Contact Us',
+                        showMap: true,
+                        showHours: true
+                    },
+                    content: {
+                        phone: '(555) 123-4567',
+                        email: 'info@shop.com',
+                        address: '123 Commerce St, City, State 12345',
+                        hours: 'Mon-Sat: 9AM-8PM, Sun: 10AM-6PM'
+                    }
+                }
+            ],
+            'ecommerce-fashion': [
+                {
+                    id: 'hero-1',
+                    type: 'hero',
+                    position: 0,
+                    properties: {
+                        title: 'New Season Collection',
+                        subtitle: 'Discover the Latest Trends',
+                        backgroundImage: '/assets/fashion-hero.jpg',
+                        ctaText: 'Explore Collection',
+                        ctaLink: '#collection'
+                    },
+                    content: {}
+                },
+                {
+                    id: 'featured-1',
+                    type: 'featured-products',
+                    position: 1,
+                    properties: {
+                        title: 'Must-Have Pieces',
+                        productsToShow: 4
+                    },
+                    content: {}
+                },
+                {
+                    id: 'categories-1',
+                    type: 'product-categories',
+                    position: 2,
+                    properties: {
+                        title: 'Shop by Style',
+                        columns: 3
+                    },
+                    content: {}
+                },
+                {
+                    id: 'testimonials-1',
+                    type: 'testimonials',
+                    position: 3,
+                    properties: {
+                        title: 'What Our Customers Say',
+                        layout: 'carousel'
+                    },
+                    content: {
+                        testimonials: [
+                            { name: 'Emma S.', text: 'Love the quality and style!', rating: 5 },
+                            { name: 'Michael R.', text: 'Fast shipping, great prices!', rating: 5 }
+                        ]
                     }
                 }
             ]

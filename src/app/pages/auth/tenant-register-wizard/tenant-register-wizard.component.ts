@@ -8,7 +8,9 @@ import {
     SubscriptionPlanServiceProxy,
     PaymentServiceProxy,
     CouponServiceProxy,
-    TenantType
+    TenantType,
+    TenantServiceProxy,
+    TenantTypeDto
 } from '../../../core/services/service-proxies';
 import { TenantBaseComponent } from '../../../core/tenant-base.component';
 
@@ -30,7 +32,8 @@ interface Alert {
         AuthServiceProxy,
         SubscriptionPlanServiceProxy,
         PaymentServiceProxy,
-        CouponServiceProxy
+        CouponServiceProxy,
+        TenantServiceProxy
     ],
     schemas: [NO_ERRORS_SCHEMA], templateUrl: './tenant-register-wizard.component.html',
     styleUrls: ['./tenant-register-wizard.component.scss']
@@ -54,13 +57,8 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     couponValidation = signal<any | null>(null);
     couponLoading = signal<boolean>(false);
     
-    // Tenant types
-    tenantTypes: { label: string; value: number }[] = [
-        { label: 'Funeral Parlour', value: 0 },
-        { label: 'Burial Society', value: 1 },
-        { label: 'Static Website', value: 3 },
-        { label: 'Other', value: 2 }
-    ];
+    // Tenant types (loaded dynamically from API)
+    tenantTypes = signal<TenantTypeDto[]>([]);
     
     // Wizard steps
     wizardSteps = ['Account Information', 'Select Plan', 'Payment'];
@@ -83,6 +81,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         private planService: SubscriptionPlanServiceProxy,
         private paymentService: PaymentServiceProxy,
         private couponService: CouponServiceProxy,
+        private tenantProxy: TenantServiceProxy,
         protected override injector: Injector
     ) {
         super(injector);
@@ -91,6 +90,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     override async ngOnInit(): Promise<void> {
         await super.ngOnInit();
         this.initializeForms();
+        this.loadTenantTypes();
         this.loadPlans();
         this.checkForIncompleteRegistration();
     }
@@ -180,6 +180,23 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             this.showAlert('Failed to load subscription plans', 'danger');
         } finally {
             this.wizardLoading.set(false);
+        }
+    }
+
+    async loadTenantTypes(): Promise<void> {
+        try {
+            const types = await this.tenantProxy.tenant_GetTenantTypes().toPromise();
+            this.tenantTypes.set(types || []);
+        } catch (error: any) {
+            console.error('Failed to load tenant types:', error);
+            // Fallback to default types if API call fails
+            const fallbackTypes: any[] = [
+                { value: 0, name: 'Basic', label: 'Funeral Parlour', description: '' },
+                { value: 1, name: 'Standard', label: 'Burial Society', description: '' },
+                { value: 2, name: 'Premium', label: 'Other', description: '' },
+                { value: 3, name: 'Ecommerce', label: 'E-commerce Store', description: '' }
+            ];
+            this.tenantTypes.set(fallbackTypes as any);
         }
     }
 

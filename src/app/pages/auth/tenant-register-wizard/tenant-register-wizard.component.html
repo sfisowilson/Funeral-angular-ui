@@ -55,7 +55,7 @@
                                         [class.is-invalid]="isFieldInvalid('tenantType')"
                                         formControlName="tenantType">
                                         <option value="">Select type</option>
-                                        <option *ngFor="let type of tenantTypes" [value]="type.value">{{type.label}}</option>
+                                        <option *ngFor="let type of tenantTypes()" [value]="type.value">{{type.label}}</option>
                                     </select>
                                     <div *ngIf="isFieldInvalid('tenantType')" class="invalid-feedback">
                                         {{ getFieldError('tenantType') }}

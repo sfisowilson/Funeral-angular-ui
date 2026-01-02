@@ -26,6 +26,10 @@ import { PdfFieldMappingComponent } from './pdf-field-mapping/pdf-field-mapping.
 import { MemberApprovalComponent } from './member-approval/member-approval.component';
 import { TenantApprovalComponent } from './tenant-approval/tenant-approval.component';
 import { CouponListComponent } from './admin/coupons/coupon-list.component';
+import { CareersComponent } from './admin/careers/careers.component';
+import { ProductManagementComponent } from './admin/product-management/product-management.component';
+import { OrderManagementComponent } from './admin/order-management/order-management.component';
+import { CustomerManagementComponent } from './admin/customer-management/customer-management.component';
 
 export default [
     { path: 'assets', component: AssetsComponent },
@@ -54,6 +58,27 @@ export default [
     { path: 'member-approval', component: MemberApprovalComponent },
     { path: 'tenant-approval', component: TenantApprovalComponent },
     { path: 'coupons', component: CouponListComponent },
+    { 
+        path: 'careers', 
+        component: CareersComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+    },
+    // Ecommerce Management (Premium)
+    {
+        path: 'products',
+        component: ProductManagementComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+    },
+    {
+        path: 'orders',
+        component: OrderManagementComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+    },
+    {
+        path: 'customers',
+        component: CustomerManagementComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+    },
     { 
         path: 'page-builder', 
         component: PageBuilderComponent,

@@ -4251,6 +4251,353 @@ export class CouponServiceProxy {
 }
 
 @Injectable()
+export class CustomerServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param isActive (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    customer_GetAll(isActive: boolean | undefined, search: string | undefined): Observable<CustomerDto[]> {
+        let url_ = this.baseUrl + "/api/Customer/Customer_GetAll?";
+        if (isActive === null)
+            throw new globalThis.Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "isActive=" + encodeURIComponent("" + isActive) + "&";
+        if (search === null)
+            throw new globalThis.Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCustomer_GetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCustomer_GetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CustomerDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CustomerDto[]>;
+        }));
+    }
+
+    protected processCustomer_GetAll(response: HttpResponseBase): Observable<CustomerDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CustomerDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    customer_GetById(id: string): Observable<CustomerDto> {
+        let url_ = this.baseUrl + "/api/Customer/Customer_GetById/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCustomer_GetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCustomer_GetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CustomerDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CustomerDto>;
+        }));
+    }
+
+    protected processCustomer_GetById(response: HttpResponseBase): Observable<CustomerDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CustomerDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Created
+     */
+    customer_Create(body: CreateCustomerDto | undefined): Observable<CustomerDto> {
+        let url_ = this.baseUrl + "/api/Customer/Customer_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCustomer_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCustomer_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CustomerDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CustomerDto>;
+        }));
+    }
+
+    protected processCustomer_Create(response: HttpResponseBase): Observable<CustomerDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = CustomerDto.fromJS(resultData201);
+            return _observableOf(result201);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    customer_Update(body: UpdateCustomerDto | undefined): Observable<CustomerDto> {
+        let url_ = this.baseUrl + "/api/Customer/Customer_Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCustomer_Update(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCustomer_Update(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CustomerDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CustomerDto>;
+        }));
+    }
+
+    protected processCustomer_Update(response: HttpResponseBase): Observable<CustomerDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CustomerDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    customer_Delete(id: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/Customer/Customer_Delete/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCustomer_Delete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCustomer_Delete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCustomer_Delete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    customer_GetStats(): Observable<CustomerStatsDto> {
+        let url_ = this.baseUrl + "/api/Customer/Customer_GetStats";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCustomer_GetStats(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCustomer_GetStats(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CustomerStatsDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CustomerStatsDto>;
+        }));
+    }
+
+    protected processCustomer_GetStats(response: HttpResponseBase): Observable<CustomerStatsDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CustomerStatsDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class DashboardWidgetServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -11709,6 +12056,294 @@ export class OnboardingPdfServiceProxy {
 }
 
 @Injectable()
+export class OrderServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param status (optional) 
+     * @return OK
+     */
+    order_GetAll(status: OrderStatus | undefined): Observable<OrderDto[]> {
+        let url_ = this.baseUrl + "/api/Order/Order_GetAll?";
+        if (status === null)
+            throw new globalThis.Error("The parameter 'status' cannot be null.");
+        else if (status !== undefined)
+            url_ += "status=" + encodeURIComponent("" + status) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrder_GetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrder_GetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<OrderDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<OrderDto[]>;
+        }));
+    }
+
+    protected processOrder_GetAll(response: HttpResponseBase): Observable<OrderDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(OrderDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    order_GetById(id: string): Observable<OrderDto> {
+        let url_ = this.baseUrl + "/api/Order/Order_GetById/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrder_GetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrder_GetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<OrderDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<OrderDto>;
+        }));
+    }
+
+    protected processOrder_GetById(response: HttpResponseBase): Observable<OrderDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = OrderDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Created
+     */
+    order_Create(body: CreateOrderDto | undefined): Observable<OrderDto> {
+        let url_ = this.baseUrl + "/api/Order/Order_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrder_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrder_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<OrderDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<OrderDto>;
+        }));
+    }
+
+    protected processOrder_Create(response: HttpResponseBase): Observable<OrderDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = OrderDto.fromJS(resultData201);
+            return _observableOf(result201);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    order_UpdateStatus(body: UpdateOrderStatusDto | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Order/Order_UpdateStatus";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrder_UpdateStatus(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrder_UpdateStatus(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processOrder_UpdateStatus(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    order_GetStats(): Observable<OrderStatsDto> {
+        let url_ = this.baseUrl + "/api/Order/Order_GetStats";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrder_GetStats(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrder_GetStats(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<OrderStatsDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<OrderStatsDto>;
+        }));
+    }
+
+    protected processOrder_GetStats(response: HttpResponseBase): Observable<OrderStatsDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = OrderStatsDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class PaymentServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -13237,6 +13872,397 @@ export class PersonnelServiceProxy {
                 result200 = null as any;
             }
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class PlanConfigurationServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    planConfiguration_GetAll(): Observable<SubscriptionPlanConfigurationDto[]> {
+        let url_ = this.baseUrl + "/api/PlanConfiguration/PlanConfiguration_GetAll";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPlanConfiguration_GetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPlanConfiguration_GetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubscriptionPlanConfigurationDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubscriptionPlanConfigurationDto[]>;
+        }));
+    }
+
+    protected processPlanConfiguration_GetAll(response: HttpResponseBase): Observable<SubscriptionPlanConfigurationDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SubscriptionPlanConfigurationDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    planConfiguration_GetByType(tenantType: number): Observable<SubscriptionPlanConfigurationDto> {
+        let url_ = this.baseUrl + "/api/PlanConfiguration/PlanConfiguration_GetByType/{tenantType}";
+        if (tenantType === undefined || tenantType === null)
+            throw new globalThis.Error("The parameter 'tenantType' must be defined.");
+        url_ = url_.replace("{tenantType}", encodeURIComponent("" + tenantType));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPlanConfiguration_GetByType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPlanConfiguration_GetByType(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubscriptionPlanConfigurationDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubscriptionPlanConfigurationDto>;
+        }));
+    }
+
+    protected processPlanConfiguration_GetByType(response: HttpResponseBase): Observable<SubscriptionPlanConfigurationDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SubscriptionPlanConfigurationDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    planConfiguration_GetActive(): Observable<SubscriptionPlanConfigurationDto[]> {
+        let url_ = this.baseUrl + "/api/PlanConfiguration/PlanConfiguration_GetActive";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPlanConfiguration_GetActive(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPlanConfiguration_GetActive(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubscriptionPlanConfigurationDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubscriptionPlanConfigurationDto[]>;
+        }));
+    }
+
+    protected processPlanConfiguration_GetActive(response: HttpResponseBase): Observable<SubscriptionPlanConfigurationDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(SubscriptionPlanConfigurationDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    planConfiguration_Create(body: CreatePlanConfigurationDto | undefined): Observable<SubscriptionPlanConfigurationDto> {
+        let url_ = this.baseUrl + "/api/PlanConfiguration/PlanConfiguration_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPlanConfiguration_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPlanConfiguration_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubscriptionPlanConfigurationDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubscriptionPlanConfigurationDto>;
+        }));
+    }
+
+    protected processPlanConfiguration_Create(response: HttpResponseBase): Observable<SubscriptionPlanConfigurationDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SubscriptionPlanConfigurationDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    planConfiguration_Update(body: UpdatePlanConfigurationDto | undefined): Observable<SubscriptionPlanConfigurationDto> {
+        let url_ = this.baseUrl + "/api/PlanConfiguration/PlanConfiguration_Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPlanConfiguration_Update(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPlanConfiguration_Update(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SubscriptionPlanConfigurationDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SubscriptionPlanConfigurationDto>;
+        }));
+    }
+
+    protected processPlanConfiguration_Update(response: HttpResponseBase): Observable<SubscriptionPlanConfigurationDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SubscriptionPlanConfigurationDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    planConfiguration_Delete(id: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/PlanConfiguration/PlanConfiguration_Delete/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPlanConfiguration_Delete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPlanConfiguration_Delete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processPlanConfiguration_Delete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    planConfiguration_InitializeDefaults(): Observable<void> {
+        let url_ = this.baseUrl + "/api/PlanConfiguration/PlanConfiguration_InitializeDefaults";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPlanConfiguration_InitializeDefaults(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPlanConfiguration_InitializeDefaults(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processPlanConfiguration_InitializeDefaults(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -14911,6 +15937,474 @@ export class PremiumCalculationServiceProxy {
 }
 
 @Injectable()
+export class ProductServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param isActive (optional) 
+     * @param categoryId (optional) 
+     * @return OK
+     */
+    product_GetAll(isActive: boolean | undefined, categoryId: string | undefined): Observable<ProductDto[]> {
+        let url_ = this.baseUrl + "/api/Product/Product_GetAll?";
+        if (isActive === null)
+            throw new globalThis.Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "isActive=" + encodeURIComponent("" + isActive) + "&";
+        if (categoryId === null)
+            throw new globalThis.Error("The parameter 'categoryId' cannot be null.");
+        else if (categoryId !== undefined)
+            url_ += "categoryId=" + encodeURIComponent("" + categoryId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processProduct_GetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processProduct_GetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ProductDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ProductDto[]>;
+        }));
+    }
+
+    protected processProduct_GetAll(response: HttpResponseBase): Observable<ProductDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ProductDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    product_GetById(id: string): Observable<ProductDto> {
+        let url_ = this.baseUrl + "/api/Product/Product_GetById/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processProduct_GetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processProduct_GetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ProductDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ProductDto>;
+        }));
+    }
+
+    protected processProduct_GetById(response: HttpResponseBase): Observable<ProductDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ProductDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Created
+     */
+    product_Create(body: CreateProductDto | undefined): Observable<ProductDto> {
+        let url_ = this.baseUrl + "/api/Product/Product_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processProduct_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processProduct_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ProductDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ProductDto>;
+        }));
+    }
+
+    protected processProduct_Create(response: HttpResponseBase): Observable<ProductDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = ProductDto.fromJS(resultData201);
+            return _observableOf(result201);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    product_Update(body: UpdateProductDto | undefined): Observable<ProductDto> {
+        let url_ = this.baseUrl + "/api/Product/Product_Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processProduct_Update(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processProduct_Update(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ProductDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ProductDto>;
+        }));
+    }
+
+    protected processProduct_Update(response: HttpResponseBase): Observable<ProductDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ProductDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    product_Delete(id: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/Product/Product_Delete/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processProduct_Delete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processProduct_Delete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processProduct_Delete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    product_GetStats(): Observable<ProductStatsDto> {
+        let url_ = this.baseUrl + "/api/Product/Product_GetStats";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processProduct_GetStats(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processProduct_GetStats(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ProductStatsDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ProductStatsDto>;
+        }));
+    }
+
+    protected processProduct_GetStats(response: HttpResponseBase): Observable<ProductStatsDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ProductStatsDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    category_GetAll(): Observable<CategoryDto[]> {
+        let url_ = this.baseUrl + "/api/Product/Category_GetAll";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCategory_GetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCategory_GetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CategoryDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CategoryDto[]>;
+        }));
+    }
+
+    protected processCategory_GetAll(response: HttpResponseBase): Observable<CategoryDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CategoryDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Created
+     */
+    category_Create(body: CreateCategoryDto | undefined): Observable<CategoryDto> {
+        let url_ = this.baseUrl + "/api/Product/Category_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCategory_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCategory_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CategoryDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CategoryDto>;
+        }));
+    }
+
+    protected processCategory_Create(response: HttpResponseBase): Observable<CategoryDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 201) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result201: any = null;
+            let resultData201 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result201 = CategoryDto.fromJS(resultData201);
+            return _observableOf(result201);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class RequiredDocumentServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -16362,6 +17856,64 @@ export class TenantServiceProxy {
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
         this.http = http;
         this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    tenant_GetTenantTypes(): Observable<TenantTypeDto[]> {
+        let url_ = this.baseUrl + "/api/Tenant/Tenant_GetTenantTypes";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenant_GetTenantTypes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenant_GetTenantTypes(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TenantTypeDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TenantTypeDto[]>;
+        }));
+    }
+
+    protected processTenant_GetTenantTypes(response: HttpResponseBase): Observable<TenantTypeDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(TenantTypeDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
     }
 
     /**
@@ -21150,6 +22702,62 @@ export interface IAcceptTermsDto {
     userAgent: string | undefined;
 }
 
+export class AddressDto implements IAddressDto {
+    addressLine1!: string;
+    addressLine2!: string | undefined;
+    city!: string;
+    state!: string;
+    postalCode!: string;
+    country!: string;
+
+    constructor(data?: IAddressDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.addressLine1 = _data["addressLine1"];
+            this.addressLine2 = _data["addressLine2"];
+            this.city = _data["city"];
+            this.state = _data["state"];
+            this.postalCode = _data["postalCode"];
+            this.country = _data["country"];
+        }
+    }
+
+    static fromJS(data: any): AddressDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddressDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["addressLine1"] = this.addressLine1;
+        data["addressLine2"] = this.addressLine2;
+        data["city"] = this.city;
+        data["state"] = this.state;
+        data["postalCode"] = this.postalCode;
+        data["country"] = this.country;
+        return data;
+    }
+}
+
+export interface IAddressDto {
+    addressLine1: string;
+    addressLine2: string | undefined;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+}
+
 export class ApplyCouponRequest implements IApplyCouponRequest {
     couponCode!: string | undefined;
 
@@ -22307,6 +23915,90 @@ export interface ICancelSubscriptionDto {
     tenantId: string;
     reason: string | undefined;
     cancelImmediately: boolean;
+}
+
+export class CategoryDto implements ICategoryDto {
+    id!: string;
+    name!: string | undefined;
+    description!: string | undefined;
+    imageUrl!: string | undefined;
+    parentCategoryId!: string | undefined;
+    parentCategoryName!: string | undefined;
+    displayOrder!: number;
+    isActive!: boolean;
+    metaTitle!: string | undefined;
+    metaDescription!: string | undefined;
+    productCount!: number;
+    createdAt!: DateTime;
+    updatedAt!: DateTime;
+
+    constructor(data?: ICategoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.imageUrl = _data["imageUrl"];
+            this.parentCategoryId = _data["parentCategoryId"];
+            this.parentCategoryName = _data["parentCategoryName"];
+            this.displayOrder = _data["displayOrder"];
+            this.isActive = _data["isActive"];
+            this.metaTitle = _data["metaTitle"];
+            this.metaDescription = _data["metaDescription"];
+            this.productCount = _data["productCount"];
+            this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
+            this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): CategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["imageUrl"] = this.imageUrl;
+        data["parentCategoryId"] = this.parentCategoryId;
+        data["parentCategoryName"] = this.parentCategoryName;
+        data["displayOrder"] = this.displayOrder;
+        data["isActive"] = this.isActive;
+        data["metaTitle"] = this.metaTitle;
+        data["metaDescription"] = this.metaDescription;
+        data["productCount"] = this.productCount;
+        data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
+        return data;
+    }
+}
+
+export interface ICategoryDto {
+    id: string;
+    name: string | undefined;
+    description: string | undefined;
+    imageUrl: string | undefined;
+    parentCategoryId: string | undefined;
+    parentCategoryName: string | undefined;
+    displayOrder: number;
+    isActive: boolean;
+    metaTitle: string | undefined;
+    metaDescription: string | undefined;
+    productCount: number;
+    createdAt: DateTime;
+    updatedAt: DateTime;
 }
 
 export class ChangePasswordRequest implements IChangePasswordRequest {
@@ -24506,6 +26198,70 @@ export interface ICreateBatchRequest {
     processingDate: DateTime;
 }
 
+export class CreateCategoryDto implements ICreateCategoryDto {
+    name!: string;
+    description!: string | undefined;
+    imageUrl!: string | undefined;
+    parentCategoryId!: string | undefined;
+    displayOrder!: number;
+    isActive!: boolean;
+    metaTitle!: string | undefined;
+    metaDescription!: string | undefined;
+
+    constructor(data?: ICreateCategoryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.imageUrl = _data["imageUrl"];
+            this.parentCategoryId = _data["parentCategoryId"];
+            this.displayOrder = _data["displayOrder"];
+            this.isActive = _data["isActive"];
+            this.metaTitle = _data["metaTitle"];
+            this.metaDescription = _data["metaDescription"];
+        }
+    }
+
+    static fromJS(data: any): CreateCategoryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCategoryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["imageUrl"] = this.imageUrl;
+        data["parentCategoryId"] = this.parentCategoryId;
+        data["displayOrder"] = this.displayOrder;
+        data["isActive"] = this.isActive;
+        data["metaTitle"] = this.metaTitle;
+        data["metaDescription"] = this.metaDescription;
+        return data;
+    }
+}
+
+export interface ICreateCategoryDto {
+    name: string;
+    description: string | undefined;
+    imageUrl: string | undefined;
+    parentCategoryId: string | undefined;
+    displayOrder: number;
+    isActive: boolean;
+    metaTitle: string | undefined;
+    metaDescription: string | undefined;
+}
+
 export class CreateClaimDto implements ICreateClaimDto {
     memberId!: string;
     policyId!: string;
@@ -24684,6 +26440,154 @@ export interface ICreateCouponDto {
     isFirstTimeOnly: boolean;
     internalNotes: string | undefined;
     campaignName: string | undefined;
+}
+
+export class CreateCustomerAddressDto implements ICreateCustomerAddressDto {
+    label!: string | undefined;
+    addressLine1!: string;
+    addressLine2!: string | undefined;
+    city!: string;
+    state!: string;
+    postalCode!: string;
+    country!: string;
+    isDefault!: boolean;
+    isShipping!: boolean;
+    isBilling!: boolean;
+
+    constructor(data?: ICreateCustomerAddressDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.label = _data["label"];
+            this.addressLine1 = _data["addressLine1"];
+            this.addressLine2 = _data["addressLine2"];
+            this.city = _data["city"];
+            this.state = _data["state"];
+            this.postalCode = _data["postalCode"];
+            this.country = _data["country"];
+            this.isDefault = _data["isDefault"];
+            this.isShipping = _data["isShipping"];
+            this.isBilling = _data["isBilling"];
+        }
+    }
+
+    static fromJS(data: any): CreateCustomerAddressDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCustomerAddressDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["label"] = this.label;
+        data["addressLine1"] = this.addressLine1;
+        data["addressLine2"] = this.addressLine2;
+        data["city"] = this.city;
+        data["state"] = this.state;
+        data["postalCode"] = this.postalCode;
+        data["country"] = this.country;
+        data["isDefault"] = this.isDefault;
+        data["isShipping"] = this.isShipping;
+        data["isBilling"] = this.isBilling;
+        return data;
+    }
+}
+
+export interface ICreateCustomerAddressDto {
+    label: string | undefined;
+    addressLine1: string;
+    addressLine2: string | undefined;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    isDefault: boolean;
+    isShipping: boolean;
+    isBilling: boolean;
+}
+
+export class CreateCustomerDto implements ICreateCustomerDto {
+    firstName!: string;
+    lastName!: string;
+    email!: string;
+    phone!: string | undefined;
+    dateOfBirth!: DateTime | undefined;
+    isActive!: boolean;
+    acceptsMarketing!: boolean;
+    notes!: string | undefined;
+    addresses!: CreateCustomerAddressDto[] | undefined;
+
+    constructor(data?: ICreateCustomerDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.dateOfBirth = _data["dateOfBirth"] ? DateTime.fromISO(_data["dateOfBirth"].toString()) : undefined as any;
+            this.isActive = _data["isActive"];
+            this.acceptsMarketing = _data["acceptsMarketing"];
+            this.notes = _data["notes"];
+            if (Array.isArray(_data["addresses"])) {
+                this.addresses = [] as any;
+                for (let item of _data["addresses"])
+                    this.addresses!.push(CreateCustomerAddressDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateCustomerDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCustomerDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toString() : undefined as any;
+        data["isActive"] = this.isActive;
+        data["acceptsMarketing"] = this.acceptsMarketing;
+        data["notes"] = this.notes;
+        if (Array.isArray(this.addresses)) {
+            data["addresses"] = [];
+            for (let item of this.addresses)
+                data["addresses"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ICreateCustomerDto {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string | undefined;
+    dateOfBirth: DateTime | undefined;
+    isActive: boolean;
+    acceptsMarketing: boolean;
+    notes: string | undefined;
+    addresses: CreateCustomerAddressDto[] | undefined;
 }
 
 export class CreateDashboardWidgetSettingDto implements ICreateDashboardWidgetSettingDto {
@@ -25066,6 +26970,131 @@ export interface ICreateOnboardingFieldConfigurationDto {
     minLength: number | undefined;
 }
 
+export class CreateOrderDto implements ICreateOrderDto {
+    customerId!: string;
+    orderItems!: CreateOrderItemDto[];
+    customerNote!: string | undefined;
+    shippingAddress!: AddressDto;
+    billingAddress!: AddressDto;
+    paymentMethod!: string;
+    taxAmount!: number | undefined;
+    shippingAmount!: number | undefined;
+    discountAmount!: number | undefined;
+
+    constructor(data?: ICreateOrderDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.orderItems = [];
+            this.shippingAddress = new AddressDto();
+            this.billingAddress = new AddressDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.customerId = _data["customerId"];
+            if (Array.isArray(_data["orderItems"])) {
+                this.orderItems = [] as any;
+                for (let item of _data["orderItems"])
+                    this.orderItems!.push(CreateOrderItemDto.fromJS(item));
+            }
+            this.customerNote = _data["customerNote"];
+            this.shippingAddress = _data["shippingAddress"] ? AddressDto.fromJS(_data["shippingAddress"]) : new AddressDto();
+            this.billingAddress = _data["billingAddress"] ? AddressDto.fromJS(_data["billingAddress"]) : new AddressDto();
+            this.paymentMethod = _data["paymentMethod"];
+            this.taxAmount = _data["taxAmount"];
+            this.shippingAmount = _data["shippingAmount"];
+            this.discountAmount = _data["discountAmount"];
+        }
+    }
+
+    static fromJS(data: any): CreateOrderDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateOrderDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["customerId"] = this.customerId;
+        if (Array.isArray(this.orderItems)) {
+            data["orderItems"] = [];
+            for (let item of this.orderItems)
+                data["orderItems"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["customerNote"] = this.customerNote;
+        data["shippingAddress"] = this.shippingAddress ? this.shippingAddress.toJSON() : undefined as any;
+        data["billingAddress"] = this.billingAddress ? this.billingAddress.toJSON() : undefined as any;
+        data["paymentMethod"] = this.paymentMethod;
+        data["taxAmount"] = this.taxAmount;
+        data["shippingAmount"] = this.shippingAmount;
+        data["discountAmount"] = this.discountAmount;
+        return data;
+    }
+}
+
+export interface ICreateOrderDto {
+    customerId: string;
+    orderItems: CreateOrderItemDto[];
+    customerNote: string | undefined;
+    shippingAddress: AddressDto;
+    billingAddress: AddressDto;
+    paymentMethod: string;
+    taxAmount: number | undefined;
+    shippingAmount: number | undefined;
+    discountAmount: number | undefined;
+}
+
+export class CreateOrderItemDto implements ICreateOrderItemDto {
+    productId!: string;
+    productVariantId!: string | undefined;
+    quantity!: number;
+
+    constructor(data?: ICreateOrderItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.productId = _data["productId"];
+            this.productVariantId = _data["productVariantId"];
+            this.quantity = _data["quantity"];
+        }
+    }
+
+    static fromJS(data: any): CreateOrderItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateOrderItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["productId"] = this.productId;
+        data["productVariantId"] = this.productVariantId;
+        data["quantity"] = this.quantity;
+        return data;
+    }
+}
+
+export interface ICreateOrderItemDto {
+    productId: string;
+    productVariantId: string | undefined;
+    quantity: number;
+}
+
 export class CreatePaymentSessionDto implements ICreatePaymentSessionDto {
     tenantId!: string;
     subscriptionPlanId!: string;
@@ -25270,6 +27299,434 @@ export interface ICreatePdfFieldMappingRequest {
     usePrefixInPdfFieldName: boolean;
 }
 
+export class CreatePlanConfigurationDto implements ICreatePlanConfigurationDto {
+    tenantType!: number;
+    planName!: string;
+    description!: string | undefined;
+    monthlyPrice!: number;
+    yearlyPrice!: number;
+    maxUsers!: number;
+    maxStorageMB!: number;
+    maxProducts!: number | undefined;
+    maxMembers!: number | undefined;
+    maxProductImagesPerProduct!: number | undefined;
+    maxActiveOrders!: number | undefined;
+    apiRateLimitPerMinute!: number;
+    apiRateLimitPerDay!: number;
+    overageUserPrice!: number;
+    overageStoragePricePerGB!: number;
+    overageProductPricePer100!: number | undefined;
+    overageMemberPricePer100!: number | undefined;
+    canUploadFiles!: boolean;
+    canCreateSubAccounts!: boolean;
+    canExportData!: boolean;
+    canUseAPI!: boolean;
+    canUseLandingPageBuilder!: boolean;
+    canUseCustomDomain!: boolean;
+    canAccessAdvancedReports!: boolean;
+    canUseWhiteLabel!: boolean;
+    hasPrioritySupport!: boolean;
+    allowOverage!: boolean;
+    sendUsageAlerts!: boolean;
+    usageAlertThresholdPercent!: number;
+    trialDays!: number;
+    requiresCreditCard!: boolean;
+    canDowngrade!: boolean;
+    canUpgrade!: boolean;
+    maxLandingPages!: number;
+    maxEmailTemplates!: number;
+    maxCustomForms!: number;
+    displayOrder!: number;
+    isActive!: boolean;
+
+    constructor(data?: ICreatePlanConfigurationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tenantType = _data["tenantType"];
+            this.planName = _data["planName"];
+            this.description = _data["description"];
+            this.monthlyPrice = _data["monthlyPrice"];
+            this.yearlyPrice = _data["yearlyPrice"];
+            this.maxUsers = _data["maxUsers"];
+            this.maxStorageMB = _data["maxStorageMB"];
+            this.maxProducts = _data["maxProducts"];
+            this.maxMembers = _data["maxMembers"];
+            this.maxProductImagesPerProduct = _data["maxProductImagesPerProduct"];
+            this.maxActiveOrders = _data["maxActiveOrders"];
+            this.apiRateLimitPerMinute = _data["apiRateLimitPerMinute"];
+            this.apiRateLimitPerDay = _data["apiRateLimitPerDay"];
+            this.overageUserPrice = _data["overageUserPrice"];
+            this.overageStoragePricePerGB = _data["overageStoragePricePerGB"];
+            this.overageProductPricePer100 = _data["overageProductPricePer100"];
+            this.overageMemberPricePer100 = _data["overageMemberPricePer100"];
+            this.canUploadFiles = _data["canUploadFiles"];
+            this.canCreateSubAccounts = _data["canCreateSubAccounts"];
+            this.canExportData = _data["canExportData"];
+            this.canUseAPI = _data["canUseAPI"];
+            this.canUseLandingPageBuilder = _data["canUseLandingPageBuilder"];
+            this.canUseCustomDomain = _data["canUseCustomDomain"];
+            this.canAccessAdvancedReports = _data["canAccessAdvancedReports"];
+            this.canUseWhiteLabel = _data["canUseWhiteLabel"];
+            this.hasPrioritySupport = _data["hasPrioritySupport"];
+            this.allowOverage = _data["allowOverage"];
+            this.sendUsageAlerts = _data["sendUsageAlerts"];
+            this.usageAlertThresholdPercent = _data["usageAlertThresholdPercent"];
+            this.trialDays = _data["trialDays"];
+            this.requiresCreditCard = _data["requiresCreditCard"];
+            this.canDowngrade = _data["canDowngrade"];
+            this.canUpgrade = _data["canUpgrade"];
+            this.maxLandingPages = _data["maxLandingPages"];
+            this.maxEmailTemplates = _data["maxEmailTemplates"];
+            this.maxCustomForms = _data["maxCustomForms"];
+            this.displayOrder = _data["displayOrder"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CreatePlanConfigurationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePlanConfigurationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tenantType"] = this.tenantType;
+        data["planName"] = this.planName;
+        data["description"] = this.description;
+        data["monthlyPrice"] = this.monthlyPrice;
+        data["yearlyPrice"] = this.yearlyPrice;
+        data["maxUsers"] = this.maxUsers;
+        data["maxStorageMB"] = this.maxStorageMB;
+        data["maxProducts"] = this.maxProducts;
+        data["maxMembers"] = this.maxMembers;
+        data["maxProductImagesPerProduct"] = this.maxProductImagesPerProduct;
+        data["maxActiveOrders"] = this.maxActiveOrders;
+        data["apiRateLimitPerMinute"] = this.apiRateLimitPerMinute;
+        data["apiRateLimitPerDay"] = this.apiRateLimitPerDay;
+        data["overageUserPrice"] = this.overageUserPrice;
+        data["overageStoragePricePerGB"] = this.overageStoragePricePerGB;
+        data["overageProductPricePer100"] = this.overageProductPricePer100;
+        data["overageMemberPricePer100"] = this.overageMemberPricePer100;
+        data["canUploadFiles"] = this.canUploadFiles;
+        data["canCreateSubAccounts"] = this.canCreateSubAccounts;
+        data["canExportData"] = this.canExportData;
+        data["canUseAPI"] = this.canUseAPI;
+        data["canUseLandingPageBuilder"] = this.canUseLandingPageBuilder;
+        data["canUseCustomDomain"] = this.canUseCustomDomain;
+        data["canAccessAdvancedReports"] = this.canAccessAdvancedReports;
+        data["canUseWhiteLabel"] = this.canUseWhiteLabel;
+        data["hasPrioritySupport"] = this.hasPrioritySupport;
+        data["allowOverage"] = this.allowOverage;
+        data["sendUsageAlerts"] = this.sendUsageAlerts;
+        data["usageAlertThresholdPercent"] = this.usageAlertThresholdPercent;
+        data["trialDays"] = this.trialDays;
+        data["requiresCreditCard"] = this.requiresCreditCard;
+        data["canDowngrade"] = this.canDowngrade;
+        data["canUpgrade"] = this.canUpgrade;
+        data["maxLandingPages"] = this.maxLandingPages;
+        data["maxEmailTemplates"] = this.maxEmailTemplates;
+        data["maxCustomForms"] = this.maxCustomForms;
+        data["displayOrder"] = this.displayOrder;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ICreatePlanConfigurationDto {
+    tenantType: number;
+    planName: string;
+    description: string | undefined;
+    monthlyPrice: number;
+    yearlyPrice: number;
+    maxUsers: number;
+    maxStorageMB: number;
+    maxProducts: number | undefined;
+    maxMembers: number | undefined;
+    maxProductImagesPerProduct: number | undefined;
+    maxActiveOrders: number | undefined;
+    apiRateLimitPerMinute: number;
+    apiRateLimitPerDay: number;
+    overageUserPrice: number;
+    overageStoragePricePerGB: number;
+    overageProductPricePer100: number | undefined;
+    overageMemberPricePer100: number | undefined;
+    canUploadFiles: boolean;
+    canCreateSubAccounts: boolean;
+    canExportData: boolean;
+    canUseAPI: boolean;
+    canUseLandingPageBuilder: boolean;
+    canUseCustomDomain: boolean;
+    canAccessAdvancedReports: boolean;
+    canUseWhiteLabel: boolean;
+    hasPrioritySupport: boolean;
+    allowOverage: boolean;
+    sendUsageAlerts: boolean;
+    usageAlertThresholdPercent: number;
+    trialDays: number;
+    requiresCreditCard: boolean;
+    canDowngrade: boolean;
+    canUpgrade: boolean;
+    maxLandingPages: number;
+    maxEmailTemplates: number;
+    maxCustomForms: number;
+    displayOrder: number;
+    isActive: boolean;
+}
+
+export class CreateProductDto implements ICreateProductDto {
+    name!: string;
+    sku!: string | undefined;
+    description!: string | undefined;
+    price!: number;
+    compareAtPrice!: number | undefined;
+    cost!: number | undefined;
+    stockQuantity!: number;
+    lowStockThreshold!: number | undefined;
+    trackInventory!: boolean;
+    isActive!: boolean;
+    isFeatured!: boolean;
+    categoryId!: string | undefined;
+    metaTitle!: string | undefined;
+    metaDescription!: string | undefined;
+    metaKeywords!: string | undefined;
+    weight!: number | undefined;
+    length!: number | undefined;
+    width!: number | undefined;
+    height!: number | undefined;
+    weightUnit!: string | undefined;
+    dimensionUnit!: string | undefined;
+    images!: CreateProductImageDto[] | undefined;
+    variants!: CreateProductVariantDto[] | undefined;
+
+    constructor(data?: ICreateProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.sku = _data["sku"];
+            this.description = _data["description"];
+            this.price = _data["price"];
+            this.compareAtPrice = _data["compareAtPrice"];
+            this.cost = _data["cost"];
+            this.stockQuantity = _data["stockQuantity"];
+            this.lowStockThreshold = _data["lowStockThreshold"];
+            this.trackInventory = _data["trackInventory"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.categoryId = _data["categoryId"];
+            this.metaTitle = _data["metaTitle"];
+            this.metaDescription = _data["metaDescription"];
+            this.metaKeywords = _data["metaKeywords"];
+            this.weight = _data["weight"];
+            this.length = _data["length"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.weightUnit = _data["weightUnit"];
+            this.dimensionUnit = _data["dimensionUnit"];
+            if (Array.isArray(_data["images"])) {
+                this.images = [] as any;
+                for (let item of _data["images"])
+                    this.images!.push(CreateProductImageDto.fromJS(item));
+            }
+            if (Array.isArray(_data["variants"])) {
+                this.variants = [] as any;
+                for (let item of _data["variants"])
+                    this.variants!.push(CreateProductVariantDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CreateProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["sku"] = this.sku;
+        data["description"] = this.description;
+        data["price"] = this.price;
+        data["compareAtPrice"] = this.compareAtPrice;
+        data["cost"] = this.cost;
+        data["stockQuantity"] = this.stockQuantity;
+        data["lowStockThreshold"] = this.lowStockThreshold;
+        data["trackInventory"] = this.trackInventory;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["categoryId"] = this.categoryId;
+        data["metaTitle"] = this.metaTitle;
+        data["metaDescription"] = this.metaDescription;
+        data["metaKeywords"] = this.metaKeywords;
+        data["weight"] = this.weight;
+        data["length"] = this.length;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["weightUnit"] = this.weightUnit;
+        data["dimensionUnit"] = this.dimensionUnit;
+        if (Array.isArray(this.images)) {
+            data["images"] = [];
+            for (let item of this.images)
+                data["images"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.variants)) {
+            data["variants"] = [];
+            for (let item of this.variants)
+                data["variants"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ICreateProductDto {
+    name: string;
+    sku: string | undefined;
+    description: string | undefined;
+    price: number;
+    compareAtPrice: number | undefined;
+    cost: number | undefined;
+    stockQuantity: number;
+    lowStockThreshold: number | undefined;
+    trackInventory: boolean;
+    isActive: boolean;
+    isFeatured: boolean;
+    categoryId: string | undefined;
+    metaTitle: string | undefined;
+    metaDescription: string | undefined;
+    metaKeywords: string | undefined;
+    weight: number | undefined;
+    length: number | undefined;
+    width: number | undefined;
+    height: number | undefined;
+    weightUnit: string | undefined;
+    dimensionUnit: string | undefined;
+    images: CreateProductImageDto[] | undefined;
+    variants: CreateProductVariantDto[] | undefined;
+}
+
+export class CreateProductImageDto implements ICreateProductImageDto {
+    imageUrl!: string;
+    altText!: string | undefined;
+    displayOrder!: number;
+    isPrimary!: boolean;
+
+    constructor(data?: ICreateProductImageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.imageUrl = _data["imageUrl"];
+            this.altText = _data["altText"];
+            this.displayOrder = _data["displayOrder"];
+            this.isPrimary = _data["isPrimary"];
+        }
+    }
+
+    static fromJS(data: any): CreateProductImageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateProductImageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["imageUrl"] = this.imageUrl;
+        data["altText"] = this.altText;
+        data["displayOrder"] = this.displayOrder;
+        data["isPrimary"] = this.isPrimary;
+        return data;
+    }
+}
+
+export interface ICreateProductImageDto {
+    imageUrl: string;
+    altText: string | undefined;
+    displayOrder: number;
+    isPrimary: boolean;
+}
+
+export class CreateProductVariantDto implements ICreateProductVariantDto {
+    name!: string;
+    variantType!: string | undefined;
+    sku!: string | undefined;
+    priceAdjustment!: number | undefined;
+    stockQuantity!: number;
+    isActive!: boolean;
+
+    constructor(data?: ICreateProductVariantDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.variantType = _data["variantType"];
+            this.sku = _data["sku"];
+            this.priceAdjustment = _data["priceAdjustment"];
+            this.stockQuantity = _data["stockQuantity"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CreateProductVariantDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateProductVariantDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["variantType"] = this.variantType;
+        data["sku"] = this.sku;
+        data["priceAdjustment"] = this.priceAdjustment;
+        data["stockQuantity"] = this.stockQuantity;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ICreateProductVariantDto {
+    name: string;
+    variantType: string | undefined;
+    sku: string | undefined;
+    priceAdjustment: number | undefined;
+    stockQuantity: number;
+    isActive: boolean;
+}
+
 export class CreateRolePermissionDto implements ICreateRolePermissionDto {
     id!: string;
     roleId!: string;
@@ -25432,6 +27889,246 @@ export interface ICreateVerificationRequestDto {
     userId: string | undefined;
     memberId: string | undefined;
     claimId: string | undefined;
+}
+
+export class CustomerAddressDto implements ICustomerAddressDto {
+    id!: string;
+    customerId!: string;
+    label!: string | undefined;
+    addressLine1!: string | undefined;
+    addressLine2!: string | undefined;
+    city!: string | undefined;
+    state!: string | undefined;
+    postalCode!: string | undefined;
+    country!: string | undefined;
+    isDefault!: boolean;
+    isShipping!: boolean;
+    isBilling!: boolean;
+
+    constructor(data?: ICustomerAddressDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.customerId = _data["customerId"];
+            this.label = _data["label"];
+            this.addressLine1 = _data["addressLine1"];
+            this.addressLine2 = _data["addressLine2"];
+            this.city = _data["city"];
+            this.state = _data["state"];
+            this.postalCode = _data["postalCode"];
+            this.country = _data["country"];
+            this.isDefault = _data["isDefault"];
+            this.isShipping = _data["isShipping"];
+            this.isBilling = _data["isBilling"];
+        }
+    }
+
+    static fromJS(data: any): CustomerAddressDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomerAddressDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["customerId"] = this.customerId;
+        data["label"] = this.label;
+        data["addressLine1"] = this.addressLine1;
+        data["addressLine2"] = this.addressLine2;
+        data["city"] = this.city;
+        data["state"] = this.state;
+        data["postalCode"] = this.postalCode;
+        data["country"] = this.country;
+        data["isDefault"] = this.isDefault;
+        data["isShipping"] = this.isShipping;
+        data["isBilling"] = this.isBilling;
+        return data;
+    }
+}
+
+export interface ICustomerAddressDto {
+    id: string;
+    customerId: string;
+    label: string | undefined;
+    addressLine1: string | undefined;
+    addressLine2: string | undefined;
+    city: string | undefined;
+    state: string | undefined;
+    postalCode: string | undefined;
+    country: string | undefined;
+    isDefault: boolean;
+    isShipping: boolean;
+    isBilling: boolean;
+}
+
+export class CustomerDto implements ICustomerDto {
+    id!: string;
+    firstName!: string | undefined;
+    lastName!: string | undefined;
+    fullName!: string | undefined;
+    email!: string | undefined;
+    phone!: string | undefined;
+    dateOfBirth!: DateTime | undefined;
+    isActive!: boolean;
+    acceptsMarketing!: boolean;
+    notes!: string | undefined;
+    totalOrders!: number;
+    totalSpent!: number;
+    lastOrderDate!: DateTime | undefined;
+    addresses!: CustomerAddressDto[] | undefined;
+    createdAt!: DateTime;
+    updatedAt!: DateTime;
+
+    constructor(data?: ICustomerDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.fullName = _data["fullName"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.dateOfBirth = _data["dateOfBirth"] ? DateTime.fromISO(_data["dateOfBirth"].toString()) : undefined as any;
+            this.isActive = _data["isActive"];
+            this.acceptsMarketing = _data["acceptsMarketing"];
+            this.notes = _data["notes"];
+            this.totalOrders = _data["totalOrders"];
+            this.totalSpent = _data["totalSpent"];
+            this.lastOrderDate = _data["lastOrderDate"] ? DateTime.fromISO(_data["lastOrderDate"].toString()) : undefined as any;
+            if (Array.isArray(_data["addresses"])) {
+                this.addresses = [] as any;
+                for (let item of _data["addresses"])
+                    this.addresses!.push(CustomerAddressDto.fromJS(item));
+            }
+            this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
+            this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): CustomerDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomerDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["fullName"] = this.fullName;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toString() : undefined as any;
+        data["isActive"] = this.isActive;
+        data["acceptsMarketing"] = this.acceptsMarketing;
+        data["notes"] = this.notes;
+        data["totalOrders"] = this.totalOrders;
+        data["totalSpent"] = this.totalSpent;
+        data["lastOrderDate"] = this.lastOrderDate ? this.lastOrderDate.toString() : undefined as any;
+        if (Array.isArray(this.addresses)) {
+            data["addresses"] = [];
+            for (let item of this.addresses)
+                data["addresses"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
+        return data;
+    }
+}
+
+export interface ICustomerDto {
+    id: string;
+    firstName: string | undefined;
+    lastName: string | undefined;
+    fullName: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    dateOfBirth: DateTime | undefined;
+    isActive: boolean;
+    acceptsMarketing: boolean;
+    notes: string | undefined;
+    totalOrders: number;
+    totalSpent: number;
+    lastOrderDate: DateTime | undefined;
+    addresses: CustomerAddressDto[] | undefined;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
+export class CustomerStatsDto implements ICustomerStatsDto {
+    totalCustomers!: number;
+    activeCustomers!: number;
+    newCustomersThisMonth!: number;
+    totalCustomerValue!: number;
+    averageCustomerValue!: number;
+    customersWithOrders!: number;
+
+    constructor(data?: ICustomerStatsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalCustomers = _data["totalCustomers"];
+            this.activeCustomers = _data["activeCustomers"];
+            this.newCustomersThisMonth = _data["newCustomersThisMonth"];
+            this.totalCustomerValue = _data["totalCustomerValue"];
+            this.averageCustomerValue = _data["averageCustomerValue"];
+            this.customersWithOrders = _data["customersWithOrders"];
+        }
+    }
+
+    static fromJS(data: any): CustomerStatsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomerStatsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalCustomers"] = this.totalCustomers;
+        data["activeCustomers"] = this.activeCustomers;
+        data["newCustomersThisMonth"] = this.newCustomersThisMonth;
+        data["totalCustomerValue"] = this.totalCustomerValue;
+        data["averageCustomerValue"] = this.averageCustomerValue;
+        data["customersWithOrders"] = this.customersWithOrders;
+        return data;
+    }
+}
+
+export interface ICustomerStatsDto {
+    totalCustomers: number;
+    activeCustomers: number;
+    newCustomersThisMonth: number;
+    totalCustomerValue: number;
+    averageCustomerValue: number;
+    customersWithOrders: number;
 }
 
 export class DashboardWidgetSettingDto implements IDashboardWidgetSettingDto {
@@ -26518,6 +29215,15 @@ export class ForgotPasswordRequest implements IForgotPasswordRequest {
 
 export interface IForgotPasswordRequest {
     email: string | undefined;
+}
+
+export enum FulfillmentStatus {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+    _5 = 5,
 }
 
 export class FuneralEventDto implements IFuneralEventDto {
@@ -29231,6 +31937,314 @@ export interface IOnboardingFieldData {
     fieldType: string | undefined;
 }
 
+export class OrderDto implements IOrderDto {
+    id!: string;
+    orderNumber!: string | undefined;
+    customerId!: string;
+    customerName!: string | undefined;
+    customerEmail!: string | undefined;
+    orderDate!: DateTime;
+    status!: OrderStatus;
+    paymentStatus!: OrderPaymentStatus;
+    fulfillmentStatus!: FulfillmentStatus;
+    subtotal!: number;
+    taxAmount!: number;
+    shippingAmount!: number;
+    discountAmount!: number;
+    totalAmount!: number;
+    customerNote!: string | undefined;
+    internalNote!: string | undefined;
+    shippingAddress!: AddressDto;
+    billingAddress!: AddressDto;
+    paymentMethod!: string | undefined;
+    transactionId!: string | undefined;
+    paidAt!: DateTime | undefined;
+    shippedAt!: DateTime | undefined;
+    deliveredAt!: DateTime | undefined;
+    cancelledAt!: DateTime | undefined;
+    cancellationReason!: string | undefined;
+    orderItems!: OrderItemDto[] | undefined;
+    createdAt!: DateTime;
+    updatedAt!: DateTime;
+
+    constructor(data?: IOrderDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.orderNumber = _data["orderNumber"];
+            this.customerId = _data["customerId"];
+            this.customerName = _data["customerName"];
+            this.customerEmail = _data["customerEmail"];
+            this.orderDate = _data["orderDate"] ? DateTime.fromISO(_data["orderDate"].toString()) : undefined as any;
+            this.status = _data["status"];
+            this.paymentStatus = _data["paymentStatus"];
+            this.fulfillmentStatus = _data["fulfillmentStatus"];
+            this.subtotal = _data["subtotal"];
+            this.taxAmount = _data["taxAmount"];
+            this.shippingAmount = _data["shippingAmount"];
+            this.discountAmount = _data["discountAmount"];
+            this.totalAmount = _data["totalAmount"];
+            this.customerNote = _data["customerNote"];
+            this.internalNote = _data["internalNote"];
+            this.shippingAddress = _data["shippingAddress"] ? AddressDto.fromJS(_data["shippingAddress"]) : undefined as any;
+            this.billingAddress = _data["billingAddress"] ? AddressDto.fromJS(_data["billingAddress"]) : undefined as any;
+            this.paymentMethod = _data["paymentMethod"];
+            this.transactionId = _data["transactionId"];
+            this.paidAt = _data["paidAt"] ? DateTime.fromISO(_data["paidAt"].toString()) : undefined as any;
+            this.shippedAt = _data["shippedAt"] ? DateTime.fromISO(_data["shippedAt"].toString()) : undefined as any;
+            this.deliveredAt = _data["deliveredAt"] ? DateTime.fromISO(_data["deliveredAt"].toString()) : undefined as any;
+            this.cancelledAt = _data["cancelledAt"] ? DateTime.fromISO(_data["cancelledAt"].toString()) : undefined as any;
+            this.cancellationReason = _data["cancellationReason"];
+            if (Array.isArray(_data["orderItems"])) {
+                this.orderItems = [] as any;
+                for (let item of _data["orderItems"])
+                    this.orderItems!.push(OrderItemDto.fromJS(item));
+            }
+            this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
+            this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): OrderDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["orderNumber"] = this.orderNumber;
+        data["customerId"] = this.customerId;
+        data["customerName"] = this.customerName;
+        data["customerEmail"] = this.customerEmail;
+        data["orderDate"] = this.orderDate ? this.orderDate.toString() : undefined as any;
+        data["status"] = this.status;
+        data["paymentStatus"] = this.paymentStatus;
+        data["fulfillmentStatus"] = this.fulfillmentStatus;
+        data["subtotal"] = this.subtotal;
+        data["taxAmount"] = this.taxAmount;
+        data["shippingAmount"] = this.shippingAmount;
+        data["discountAmount"] = this.discountAmount;
+        data["totalAmount"] = this.totalAmount;
+        data["customerNote"] = this.customerNote;
+        data["internalNote"] = this.internalNote;
+        data["shippingAddress"] = this.shippingAddress ? this.shippingAddress.toJSON() : undefined as any;
+        data["billingAddress"] = this.billingAddress ? this.billingAddress.toJSON() : undefined as any;
+        data["paymentMethod"] = this.paymentMethod;
+        data["transactionId"] = this.transactionId;
+        data["paidAt"] = this.paidAt ? this.paidAt.toString() : undefined as any;
+        data["shippedAt"] = this.shippedAt ? this.shippedAt.toString() : undefined as any;
+        data["deliveredAt"] = this.deliveredAt ? this.deliveredAt.toString() : undefined as any;
+        data["cancelledAt"] = this.cancelledAt ? this.cancelledAt.toString() : undefined as any;
+        data["cancellationReason"] = this.cancellationReason;
+        if (Array.isArray(this.orderItems)) {
+            data["orderItems"] = [];
+            for (let item of this.orderItems)
+                data["orderItems"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IOrderDto {
+    id: string;
+    orderNumber: string | undefined;
+    customerId: string;
+    customerName: string | undefined;
+    customerEmail: string | undefined;
+    orderDate: DateTime;
+    status: OrderStatus;
+    paymentStatus: OrderPaymentStatus;
+    fulfillmentStatus: FulfillmentStatus;
+    subtotal: number;
+    taxAmount: number;
+    shippingAmount: number;
+    discountAmount: number;
+    totalAmount: number;
+    customerNote: string | undefined;
+    internalNote: string | undefined;
+    shippingAddress: AddressDto;
+    billingAddress: AddressDto;
+    paymentMethod: string | undefined;
+    transactionId: string | undefined;
+    paidAt: DateTime | undefined;
+    shippedAt: DateTime | undefined;
+    deliveredAt: DateTime | undefined;
+    cancelledAt: DateTime | undefined;
+    cancellationReason: string | undefined;
+    orderItems: OrderItemDto[] | undefined;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
+export class OrderItemDto implements IOrderItemDto {
+    id!: string;
+    orderId!: string;
+    productId!: string;
+    productVariantId!: string | undefined;
+    productName!: string | undefined;
+    variantName!: string | undefined;
+    sku!: string | undefined;
+    quantity!: number;
+    unitPrice!: number;
+    totalPrice!: number;
+    discountAmount!: number | undefined;
+
+    constructor(data?: IOrderItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.orderId = _data["orderId"];
+            this.productId = _data["productId"];
+            this.productVariantId = _data["productVariantId"];
+            this.productName = _data["productName"];
+            this.variantName = _data["variantName"];
+            this.sku = _data["sku"];
+            this.quantity = _data["quantity"];
+            this.unitPrice = _data["unitPrice"];
+            this.totalPrice = _data["totalPrice"];
+            this.discountAmount = _data["discountAmount"];
+        }
+    }
+
+    static fromJS(data: any): OrderItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["orderId"] = this.orderId;
+        data["productId"] = this.productId;
+        data["productVariantId"] = this.productVariantId;
+        data["productName"] = this.productName;
+        data["variantName"] = this.variantName;
+        data["sku"] = this.sku;
+        data["quantity"] = this.quantity;
+        data["unitPrice"] = this.unitPrice;
+        data["totalPrice"] = this.totalPrice;
+        data["discountAmount"] = this.discountAmount;
+        return data;
+    }
+}
+
+export interface IOrderItemDto {
+    id: string;
+    orderId: string;
+    productId: string;
+    productVariantId: string | undefined;
+    productName: string | undefined;
+    variantName: string | undefined;
+    sku: string | undefined;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+    discountAmount: number | undefined;
+}
+
+export enum OrderPaymentStatus {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+}
+
+export class OrderStatsDto implements IOrderStatsDto {
+    totalOrders!: number;
+    pendingOrders!: number;
+    processingOrders!: number;
+    completedOrders!: number;
+    totalRevenue!: number;
+    averageOrderValue!: number;
+    todayRevenue!: number;
+    todayOrders!: number;
+
+    constructor(data?: IOrderStatsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalOrders = _data["totalOrders"];
+            this.pendingOrders = _data["pendingOrders"];
+            this.processingOrders = _data["processingOrders"];
+            this.completedOrders = _data["completedOrders"];
+            this.totalRevenue = _data["totalRevenue"];
+            this.averageOrderValue = _data["averageOrderValue"];
+            this.todayRevenue = _data["todayRevenue"];
+            this.todayOrders = _data["todayOrders"];
+        }
+    }
+
+    static fromJS(data: any): OrderStatsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderStatsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalOrders"] = this.totalOrders;
+        data["pendingOrders"] = this.pendingOrders;
+        data["processingOrders"] = this.processingOrders;
+        data["completedOrders"] = this.completedOrders;
+        data["totalRevenue"] = this.totalRevenue;
+        data["averageOrderValue"] = this.averageOrderValue;
+        data["todayRevenue"] = this.todayRevenue;
+        data["todayOrders"] = this.todayOrders;
+        return data;
+    }
+}
+
+export interface IOrderStatsDto {
+    totalOrders: number;
+    pendingOrders: number;
+    processingOrders: number;
+    completedOrders: number;
+    totalRevenue: number;
+    averageOrderValue: number;
+    todayRevenue: number;
+    todayOrders: number;
+}
+
+export enum OrderStatus {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+}
+
 export class Payment implements IPayment {
     id!: string;
     createdAt!: DateTime;
@@ -31336,6 +34350,338 @@ export interface IProblemDetails {
     [key: string]: any;
 }
 
+export class ProductDto implements IProductDto {
+    id!: string;
+    name!: string | undefined;
+    sku!: string | undefined;
+    description!: string | undefined;
+    price!: number;
+    compareAtPrice!: number | undefined;
+    cost!: number | undefined;
+    stockQuantity!: number;
+    lowStockThreshold!: number | undefined;
+    trackInventory!: boolean;
+    isActive!: boolean;
+    isFeatured!: boolean;
+    categoryId!: string | undefined;
+    categoryName!: string | undefined;
+    metaTitle!: string | undefined;
+    metaDescription!: string | undefined;
+    metaKeywords!: string | undefined;
+    weight!: number | undefined;
+    length!: number | undefined;
+    width!: number | undefined;
+    height!: number | undefined;
+    weightUnit!: string | undefined;
+    dimensionUnit!: string | undefined;
+    images!: ProductImageDto[] | undefined;
+    variants!: ProductVariantDto[] | undefined;
+    createdAt!: DateTime;
+    updatedAt!: DateTime;
+
+    constructor(data?: IProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.sku = _data["sku"];
+            this.description = _data["description"];
+            this.price = _data["price"];
+            this.compareAtPrice = _data["compareAtPrice"];
+            this.cost = _data["cost"];
+            this.stockQuantity = _data["stockQuantity"];
+            this.lowStockThreshold = _data["lowStockThreshold"];
+            this.trackInventory = _data["trackInventory"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.categoryId = _data["categoryId"];
+            this.categoryName = _data["categoryName"];
+            this.metaTitle = _data["metaTitle"];
+            this.metaDescription = _data["metaDescription"];
+            this.metaKeywords = _data["metaKeywords"];
+            this.weight = _data["weight"];
+            this.length = _data["length"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.weightUnit = _data["weightUnit"];
+            this.dimensionUnit = _data["dimensionUnit"];
+            if (Array.isArray(_data["images"])) {
+                this.images = [] as any;
+                for (let item of _data["images"])
+                    this.images!.push(ProductImageDto.fromJS(item));
+            }
+            if (Array.isArray(_data["variants"])) {
+                this.variants = [] as any;
+                for (let item of _data["variants"])
+                    this.variants!.push(ProductVariantDto.fromJS(item));
+            }
+            this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
+            this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): ProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["sku"] = this.sku;
+        data["description"] = this.description;
+        data["price"] = this.price;
+        data["compareAtPrice"] = this.compareAtPrice;
+        data["cost"] = this.cost;
+        data["stockQuantity"] = this.stockQuantity;
+        data["lowStockThreshold"] = this.lowStockThreshold;
+        data["trackInventory"] = this.trackInventory;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["categoryId"] = this.categoryId;
+        data["categoryName"] = this.categoryName;
+        data["metaTitle"] = this.metaTitle;
+        data["metaDescription"] = this.metaDescription;
+        data["metaKeywords"] = this.metaKeywords;
+        data["weight"] = this.weight;
+        data["length"] = this.length;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["weightUnit"] = this.weightUnit;
+        data["dimensionUnit"] = this.dimensionUnit;
+        if (Array.isArray(this.images)) {
+            data["images"] = [];
+            for (let item of this.images)
+                data["images"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.variants)) {
+            data["variants"] = [];
+            for (let item of this.variants)
+                data["variants"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
+        return data;
+    }
+}
+
+export interface IProductDto {
+    id: string;
+    name: string | undefined;
+    sku: string | undefined;
+    description: string | undefined;
+    price: number;
+    compareAtPrice: number | undefined;
+    cost: number | undefined;
+    stockQuantity: number;
+    lowStockThreshold: number | undefined;
+    trackInventory: boolean;
+    isActive: boolean;
+    isFeatured: boolean;
+    categoryId: string | undefined;
+    categoryName: string | undefined;
+    metaTitle: string | undefined;
+    metaDescription: string | undefined;
+    metaKeywords: string | undefined;
+    weight: number | undefined;
+    length: number | undefined;
+    width: number | undefined;
+    height: number | undefined;
+    weightUnit: string | undefined;
+    dimensionUnit: string | undefined;
+    images: ProductImageDto[] | undefined;
+    variants: ProductVariantDto[] | undefined;
+    createdAt: DateTime;
+    updatedAt: DateTime;
+}
+
+export class ProductImageDto implements IProductImageDto {
+    id!: string;
+    productId!: string;
+    imageUrl!: string | undefined;
+    altText!: string | undefined;
+    displayOrder!: number;
+    isPrimary!: boolean;
+
+    constructor(data?: IProductImageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.productId = _data["productId"];
+            this.imageUrl = _data["imageUrl"];
+            this.altText = _data["altText"];
+            this.displayOrder = _data["displayOrder"];
+            this.isPrimary = _data["isPrimary"];
+        }
+    }
+
+    static fromJS(data: any): ProductImageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductImageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["productId"] = this.productId;
+        data["imageUrl"] = this.imageUrl;
+        data["altText"] = this.altText;
+        data["displayOrder"] = this.displayOrder;
+        data["isPrimary"] = this.isPrimary;
+        return data;
+    }
+}
+
+export interface IProductImageDto {
+    id: string;
+    productId: string;
+    imageUrl: string | undefined;
+    altText: string | undefined;
+    displayOrder: number;
+    isPrimary: boolean;
+}
+
+export class ProductStatsDto implements IProductStatsDto {
+    totalProducts!: number;
+    activeProducts!: number;
+    lowStockProducts!: number;
+    totalInventoryValue!: number;
+    featuredProducts!: number;
+    totalCategories!: number;
+
+    constructor(data?: IProductStatsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.totalProducts = _data["totalProducts"];
+            this.activeProducts = _data["activeProducts"];
+            this.lowStockProducts = _data["lowStockProducts"];
+            this.totalInventoryValue = _data["totalInventoryValue"];
+            this.featuredProducts = _data["featuredProducts"];
+            this.totalCategories = _data["totalCategories"];
+        }
+    }
+
+    static fromJS(data: any): ProductStatsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductStatsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["totalProducts"] = this.totalProducts;
+        data["activeProducts"] = this.activeProducts;
+        data["lowStockProducts"] = this.lowStockProducts;
+        data["totalInventoryValue"] = this.totalInventoryValue;
+        data["featuredProducts"] = this.featuredProducts;
+        data["totalCategories"] = this.totalCategories;
+        return data;
+    }
+}
+
+export interface IProductStatsDto {
+    totalProducts: number;
+    activeProducts: number;
+    lowStockProducts: number;
+    totalInventoryValue: number;
+    featuredProducts: number;
+    totalCategories: number;
+}
+
+export class ProductVariantDto implements IProductVariantDto {
+    id!: string;
+    productId!: string;
+    name!: string | undefined;
+    variantType!: string | undefined;
+    sku!: string | undefined;
+    priceAdjustment!: number | undefined;
+    stockQuantity!: number;
+    isActive!: boolean;
+
+    constructor(data?: IProductVariantDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.productId = _data["productId"];
+            this.name = _data["name"];
+            this.variantType = _data["variantType"];
+            this.sku = _data["sku"];
+            this.priceAdjustment = _data["priceAdjustment"];
+            this.stockQuantity = _data["stockQuantity"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): ProductVariantDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProductVariantDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["productId"] = this.productId;
+        data["name"] = this.name;
+        data["variantType"] = this.variantType;
+        data["sku"] = this.sku;
+        data["priceAdjustment"] = this.priceAdjustment;
+        data["stockQuantity"] = this.stockQuantity;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IProductVariantDto {
+    id: string;
+    productId: string;
+    name: string | undefined;
+    variantType: string | undefined;
+    sku: string | undefined;
+    priceAdjustment: number | undefined;
+    stockQuantity: number;
+    isActive: boolean;
+}
+
 export class ProfileCompletionStatusDto implements IProfileCompletionStatusDto {
     isComplete!: boolean;
     completionPercentage!: number;
@@ -32811,6 +36157,206 @@ export interface ISubscriptionPlan {
     maxVerificationsPerMonth: number;
 }
 
+export class SubscriptionPlanConfigurationDto implements ISubscriptionPlanConfigurationDto {
+    id!: string;
+    tenantType!: number;
+    tenantTypeName!: string | undefined;
+    planName!: string | undefined;
+    description!: string | undefined;
+    isActive!: boolean;
+    monthlyPrice!: number;
+    yearlyPrice!: number;
+    displayOrder!: number;
+    maxUsers!: number;
+    maxStorageMB!: number;
+    maxProducts!: number | undefined;
+    maxMembers!: number | undefined;
+    maxProductImagesPerProduct!: number | undefined;
+    maxActiveOrders!: number | undefined;
+    apiRateLimitPerMinute!: number;
+    apiRateLimitPerDay!: number;
+    overageUserPrice!: number;
+    overageStoragePricePerGB!: number;
+    overageProductPricePer100!: number | undefined;
+    overageMemberPricePer100!: number | undefined;
+    canUploadFiles!: boolean;
+    canCreateSubAccounts!: boolean;
+    canExportData!: boolean;
+    canUseAPI!: boolean;
+    canUseLandingPageBuilder!: boolean;
+    canUseCustomDomain!: boolean;
+    canAccessAdvancedReports!: boolean;
+    canUseWhiteLabel!: boolean;
+    hasPrioritySupport!: boolean;
+    allowOverage!: boolean;
+    sendUsageAlerts!: boolean;
+    usageAlertThresholdPercent!: number;
+    trialDays!: number;
+    requiresCreditCard!: boolean;
+    canDowngrade!: boolean;
+    canUpgrade!: boolean;
+    maxLandingPages!: number;
+    maxEmailTemplates!: number;
+    maxCustomForms!: number;
+    createdAt!: DateTime | undefined;
+    updatedAt!: DateTime | undefined;
+
+    constructor(data?: ISubscriptionPlanConfigurationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantType = _data["tenantType"];
+            this.tenantTypeName = _data["tenantTypeName"];
+            this.planName = _data["planName"];
+            this.description = _data["description"];
+            this.isActive = _data["isActive"];
+            this.monthlyPrice = _data["monthlyPrice"];
+            this.yearlyPrice = _data["yearlyPrice"];
+            this.displayOrder = _data["displayOrder"];
+            this.maxUsers = _data["maxUsers"];
+            this.maxStorageMB = _data["maxStorageMB"];
+            this.maxProducts = _data["maxProducts"];
+            this.maxMembers = _data["maxMembers"];
+            this.maxProductImagesPerProduct = _data["maxProductImagesPerProduct"];
+            this.maxActiveOrders = _data["maxActiveOrders"];
+            this.apiRateLimitPerMinute = _data["apiRateLimitPerMinute"];
+            this.apiRateLimitPerDay = _data["apiRateLimitPerDay"];
+            this.overageUserPrice = _data["overageUserPrice"];
+            this.overageStoragePricePerGB = _data["overageStoragePricePerGB"];
+            this.overageProductPricePer100 = _data["overageProductPricePer100"];
+            this.overageMemberPricePer100 = _data["overageMemberPricePer100"];
+            this.canUploadFiles = _data["canUploadFiles"];
+            this.canCreateSubAccounts = _data["canCreateSubAccounts"];
+            this.canExportData = _data["canExportData"];
+            this.canUseAPI = _data["canUseAPI"];
+            this.canUseLandingPageBuilder = _data["canUseLandingPageBuilder"];
+            this.canUseCustomDomain = _data["canUseCustomDomain"];
+            this.canAccessAdvancedReports = _data["canAccessAdvancedReports"];
+            this.canUseWhiteLabel = _data["canUseWhiteLabel"];
+            this.hasPrioritySupport = _data["hasPrioritySupport"];
+            this.allowOverage = _data["allowOverage"];
+            this.sendUsageAlerts = _data["sendUsageAlerts"];
+            this.usageAlertThresholdPercent = _data["usageAlertThresholdPercent"];
+            this.trialDays = _data["trialDays"];
+            this.requiresCreditCard = _data["requiresCreditCard"];
+            this.canDowngrade = _data["canDowngrade"];
+            this.canUpgrade = _data["canUpgrade"];
+            this.maxLandingPages = _data["maxLandingPages"];
+            this.maxEmailTemplates = _data["maxEmailTemplates"];
+            this.maxCustomForms = _data["maxCustomForms"];
+            this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
+            this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): SubscriptionPlanConfigurationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SubscriptionPlanConfigurationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantType"] = this.tenantType;
+        data["tenantTypeName"] = this.tenantTypeName;
+        data["planName"] = this.planName;
+        data["description"] = this.description;
+        data["isActive"] = this.isActive;
+        data["monthlyPrice"] = this.monthlyPrice;
+        data["yearlyPrice"] = this.yearlyPrice;
+        data["displayOrder"] = this.displayOrder;
+        data["maxUsers"] = this.maxUsers;
+        data["maxStorageMB"] = this.maxStorageMB;
+        data["maxProducts"] = this.maxProducts;
+        data["maxMembers"] = this.maxMembers;
+        data["maxProductImagesPerProduct"] = this.maxProductImagesPerProduct;
+        data["maxActiveOrders"] = this.maxActiveOrders;
+        data["apiRateLimitPerMinute"] = this.apiRateLimitPerMinute;
+        data["apiRateLimitPerDay"] = this.apiRateLimitPerDay;
+        data["overageUserPrice"] = this.overageUserPrice;
+        data["overageStoragePricePerGB"] = this.overageStoragePricePerGB;
+        data["overageProductPricePer100"] = this.overageProductPricePer100;
+        data["overageMemberPricePer100"] = this.overageMemberPricePer100;
+        data["canUploadFiles"] = this.canUploadFiles;
+        data["canCreateSubAccounts"] = this.canCreateSubAccounts;
+        data["canExportData"] = this.canExportData;
+        data["canUseAPI"] = this.canUseAPI;
+        data["canUseLandingPageBuilder"] = this.canUseLandingPageBuilder;
+        data["canUseCustomDomain"] = this.canUseCustomDomain;
+        data["canAccessAdvancedReports"] = this.canAccessAdvancedReports;
+        data["canUseWhiteLabel"] = this.canUseWhiteLabel;
+        data["hasPrioritySupport"] = this.hasPrioritySupport;
+        data["allowOverage"] = this.allowOverage;
+        data["sendUsageAlerts"] = this.sendUsageAlerts;
+        data["usageAlertThresholdPercent"] = this.usageAlertThresholdPercent;
+        data["trialDays"] = this.trialDays;
+        data["requiresCreditCard"] = this.requiresCreditCard;
+        data["canDowngrade"] = this.canDowngrade;
+        data["canUpgrade"] = this.canUpgrade;
+        data["maxLandingPages"] = this.maxLandingPages;
+        data["maxEmailTemplates"] = this.maxEmailTemplates;
+        data["maxCustomForms"] = this.maxCustomForms;
+        data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
+        return data;
+    }
+}
+
+export interface ISubscriptionPlanConfigurationDto {
+    id: string;
+    tenantType: number;
+    tenantTypeName: string | undefined;
+    planName: string | undefined;
+    description: string | undefined;
+    isActive: boolean;
+    monthlyPrice: number;
+    yearlyPrice: number;
+    displayOrder: number;
+    maxUsers: number;
+    maxStorageMB: number;
+    maxProducts: number | undefined;
+    maxMembers: number | undefined;
+    maxProductImagesPerProduct: number | undefined;
+    maxActiveOrders: number | undefined;
+    apiRateLimitPerMinute: number;
+    apiRateLimitPerDay: number;
+    overageUserPrice: number;
+    overageStoragePricePerGB: number;
+    overageProductPricePer100: number | undefined;
+    overageMemberPricePer100: number | undefined;
+    canUploadFiles: boolean;
+    canCreateSubAccounts: boolean;
+    canExportData: boolean;
+    canUseAPI: boolean;
+    canUseLandingPageBuilder: boolean;
+    canUseCustomDomain: boolean;
+    canAccessAdvancedReports: boolean;
+    canUseWhiteLabel: boolean;
+    hasPrioritySupport: boolean;
+    allowOverage: boolean;
+    sendUsageAlerts: boolean;
+    usageAlertThresholdPercent: number;
+    trialDays: number;
+    requiresCreditCard: boolean;
+    canDowngrade: boolean;
+    canUpgrade: boolean;
+    maxLandingPages: number;
+    maxEmailTemplates: number;
+    maxCustomForms: number;
+    createdAt: DateTime | undefined;
+    updatedAt: DateTime | undefined;
+}
+
 export class SubscriptionPlanDto implements ISubscriptionPlanDto {
     id!: string;
     name!: string | undefined;
@@ -33663,6 +37209,55 @@ export enum TenantType {
     _0 = 0,
     _1 = 1,
     _2 = 2,
+    _3 = 3,
+}
+
+export class TenantTypeDto implements ITenantTypeDto {
+    value!: number;
+    name!: string | undefined;
+    label!: string | undefined;
+    description!: string | undefined;
+
+    constructor(data?: ITenantTypeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.value = _data["value"];
+            this.name = _data["name"];
+            this.label = _data["label"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): TenantTypeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TenantTypeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        data["name"] = this.name;
+        data["label"] = this.label;
+        data["description"] = this.description;
+        return data;
+    }
+}
+
+export interface ITenantTypeDto {
+    value: number;
+    name: string | undefined;
+    label: string | undefined;
+    description: string | undefined;
 }
 
 export class TenantTypePermission implements ITenantTypePermission {
@@ -34113,6 +37708,86 @@ export interface IUpdateCouponDto {
     internalNotes: string | undefined;
 }
 
+export class UpdateCustomerDto implements IUpdateCustomerDto {
+    firstName!: string;
+    lastName!: string;
+    email!: string;
+    phone!: string | undefined;
+    dateOfBirth!: DateTime | undefined;
+    isActive!: boolean;
+    acceptsMarketing!: boolean;
+    notes!: string | undefined;
+    addresses!: CreateCustomerAddressDto[] | undefined;
+    id!: string;
+
+    constructor(data?: IUpdateCustomerDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.dateOfBirth = _data["dateOfBirth"] ? DateTime.fromISO(_data["dateOfBirth"].toString()) : undefined as any;
+            this.isActive = _data["isActive"];
+            this.acceptsMarketing = _data["acceptsMarketing"];
+            this.notes = _data["notes"];
+            if (Array.isArray(_data["addresses"])) {
+                this.addresses = [] as any;
+                for (let item of _data["addresses"])
+                    this.addresses!.push(CreateCustomerAddressDto.fromJS(item));
+            }
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCustomerDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCustomerDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toString() : undefined as any;
+        data["isActive"] = this.isActive;
+        data["acceptsMarketing"] = this.acceptsMarketing;
+        data["notes"] = this.notes;
+        if (Array.isArray(this.addresses)) {
+            data["addresses"] = [];
+            for (let item of this.addresses)
+                data["addresses"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IUpdateCustomerDto {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string | undefined;
+    dateOfBirth: DateTime | undefined;
+    isActive: boolean;
+    acceptsMarketing: boolean;
+    notes: string | undefined;
+    addresses: CreateCustomerAddressDto[] | undefined;
+    id: string;
+}
+
 export class UpdateDashboardWidgetSettingDto implements IUpdateDashboardWidgetSettingDto {
     id!: string;
     isVisible!: boolean;
@@ -34365,6 +38040,50 @@ export interface IUpdateOnboardingFieldConfigurationDto {
     minLength: number | undefined;
 }
 
+export class UpdateOrderStatusDto implements IUpdateOrderStatusDto {
+    orderId!: string;
+    status!: OrderStatus;
+    note!: string | undefined;
+
+    constructor(data?: IUpdateOrderStatusDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.orderId = _data["orderId"];
+            this.status = _data["status"];
+            this.note = _data["note"];
+        }
+    }
+
+    static fromJS(data: any): UpdateOrderStatusDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateOrderStatusDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["orderId"] = this.orderId;
+        data["status"] = this.status;
+        data["note"] = this.note;
+        return data;
+    }
+}
+
+export interface IUpdateOrderStatusDto {
+    orderId: string;
+    status: OrderStatus;
+    note: string | undefined;
+}
+
 export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingRequest {
     sourceField!: string | undefined;
     pdfFieldName!: string | undefined;
@@ -34471,6 +38190,338 @@ export interface IUpdatePdfFieldMappingRequest {
     sourceArrayPath: string | undefined;
     fieldNamePrefix: string | undefined;
     usePrefixInPdfFieldName: boolean | undefined;
+}
+
+export class UpdatePlanConfigurationDto implements IUpdatePlanConfigurationDto {
+    tenantType!: number;
+    planName!: string;
+    description!: string | undefined;
+    monthlyPrice!: number;
+    yearlyPrice!: number;
+    maxUsers!: number;
+    maxStorageMB!: number;
+    maxProducts!: number | undefined;
+    maxMembers!: number | undefined;
+    maxProductImagesPerProduct!: number | undefined;
+    maxActiveOrders!: number | undefined;
+    apiRateLimitPerMinute!: number;
+    apiRateLimitPerDay!: number;
+    overageUserPrice!: number;
+    overageStoragePricePerGB!: number;
+    overageProductPricePer100!: number | undefined;
+    overageMemberPricePer100!: number | undefined;
+    canUploadFiles!: boolean;
+    canCreateSubAccounts!: boolean;
+    canExportData!: boolean;
+    canUseAPI!: boolean;
+    canUseLandingPageBuilder!: boolean;
+    canUseCustomDomain!: boolean;
+    canAccessAdvancedReports!: boolean;
+    canUseWhiteLabel!: boolean;
+    hasPrioritySupport!: boolean;
+    allowOverage!: boolean;
+    sendUsageAlerts!: boolean;
+    usageAlertThresholdPercent!: number;
+    trialDays!: number;
+    requiresCreditCard!: boolean;
+    canDowngrade!: boolean;
+    canUpgrade!: boolean;
+    maxLandingPages!: number;
+    maxEmailTemplates!: number;
+    maxCustomForms!: number;
+    displayOrder!: number;
+    isActive!: boolean;
+    id!: string;
+
+    constructor(data?: IUpdatePlanConfigurationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tenantType = _data["tenantType"];
+            this.planName = _data["planName"];
+            this.description = _data["description"];
+            this.monthlyPrice = _data["monthlyPrice"];
+            this.yearlyPrice = _data["yearlyPrice"];
+            this.maxUsers = _data["maxUsers"];
+            this.maxStorageMB = _data["maxStorageMB"];
+            this.maxProducts = _data["maxProducts"];
+            this.maxMembers = _data["maxMembers"];
+            this.maxProductImagesPerProduct = _data["maxProductImagesPerProduct"];
+            this.maxActiveOrders = _data["maxActiveOrders"];
+            this.apiRateLimitPerMinute = _data["apiRateLimitPerMinute"];
+            this.apiRateLimitPerDay = _data["apiRateLimitPerDay"];
+            this.overageUserPrice = _data["overageUserPrice"];
+            this.overageStoragePricePerGB = _data["overageStoragePricePerGB"];
+            this.overageProductPricePer100 = _data["overageProductPricePer100"];
+            this.overageMemberPricePer100 = _data["overageMemberPricePer100"];
+            this.canUploadFiles = _data["canUploadFiles"];
+            this.canCreateSubAccounts = _data["canCreateSubAccounts"];
+            this.canExportData = _data["canExportData"];
+            this.canUseAPI = _data["canUseAPI"];
+            this.canUseLandingPageBuilder = _data["canUseLandingPageBuilder"];
+            this.canUseCustomDomain = _data["canUseCustomDomain"];
+            this.canAccessAdvancedReports = _data["canAccessAdvancedReports"];
+            this.canUseWhiteLabel = _data["canUseWhiteLabel"];
+            this.hasPrioritySupport = _data["hasPrioritySupport"];
+            this.allowOverage = _data["allowOverage"];
+            this.sendUsageAlerts = _data["sendUsageAlerts"];
+            this.usageAlertThresholdPercent = _data["usageAlertThresholdPercent"];
+            this.trialDays = _data["trialDays"];
+            this.requiresCreditCard = _data["requiresCreditCard"];
+            this.canDowngrade = _data["canDowngrade"];
+            this.canUpgrade = _data["canUpgrade"];
+            this.maxLandingPages = _data["maxLandingPages"];
+            this.maxEmailTemplates = _data["maxEmailTemplates"];
+            this.maxCustomForms = _data["maxCustomForms"];
+            this.displayOrder = _data["displayOrder"];
+            this.isActive = _data["isActive"];
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePlanConfigurationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePlanConfigurationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tenantType"] = this.tenantType;
+        data["planName"] = this.planName;
+        data["description"] = this.description;
+        data["monthlyPrice"] = this.monthlyPrice;
+        data["yearlyPrice"] = this.yearlyPrice;
+        data["maxUsers"] = this.maxUsers;
+        data["maxStorageMB"] = this.maxStorageMB;
+        data["maxProducts"] = this.maxProducts;
+        data["maxMembers"] = this.maxMembers;
+        data["maxProductImagesPerProduct"] = this.maxProductImagesPerProduct;
+        data["maxActiveOrders"] = this.maxActiveOrders;
+        data["apiRateLimitPerMinute"] = this.apiRateLimitPerMinute;
+        data["apiRateLimitPerDay"] = this.apiRateLimitPerDay;
+        data["overageUserPrice"] = this.overageUserPrice;
+        data["overageStoragePricePerGB"] = this.overageStoragePricePerGB;
+        data["overageProductPricePer100"] = this.overageProductPricePer100;
+        data["overageMemberPricePer100"] = this.overageMemberPricePer100;
+        data["canUploadFiles"] = this.canUploadFiles;
+        data["canCreateSubAccounts"] = this.canCreateSubAccounts;
+        data["canExportData"] = this.canExportData;
+        data["canUseAPI"] = this.canUseAPI;
+        data["canUseLandingPageBuilder"] = this.canUseLandingPageBuilder;
+        data["canUseCustomDomain"] = this.canUseCustomDomain;
+        data["canAccessAdvancedReports"] = this.canAccessAdvancedReports;
+        data["canUseWhiteLabel"] = this.canUseWhiteLabel;
+        data["hasPrioritySupport"] = this.hasPrioritySupport;
+        data["allowOverage"] = this.allowOverage;
+        data["sendUsageAlerts"] = this.sendUsageAlerts;
+        data["usageAlertThresholdPercent"] = this.usageAlertThresholdPercent;
+        data["trialDays"] = this.trialDays;
+        data["requiresCreditCard"] = this.requiresCreditCard;
+        data["canDowngrade"] = this.canDowngrade;
+        data["canUpgrade"] = this.canUpgrade;
+        data["maxLandingPages"] = this.maxLandingPages;
+        data["maxEmailTemplates"] = this.maxEmailTemplates;
+        data["maxCustomForms"] = this.maxCustomForms;
+        data["displayOrder"] = this.displayOrder;
+        data["isActive"] = this.isActive;
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IUpdatePlanConfigurationDto {
+    tenantType: number;
+    planName: string;
+    description: string | undefined;
+    monthlyPrice: number;
+    yearlyPrice: number;
+    maxUsers: number;
+    maxStorageMB: number;
+    maxProducts: number | undefined;
+    maxMembers: number | undefined;
+    maxProductImagesPerProduct: number | undefined;
+    maxActiveOrders: number | undefined;
+    apiRateLimitPerMinute: number;
+    apiRateLimitPerDay: number;
+    overageUserPrice: number;
+    overageStoragePricePerGB: number;
+    overageProductPricePer100: number | undefined;
+    overageMemberPricePer100: number | undefined;
+    canUploadFiles: boolean;
+    canCreateSubAccounts: boolean;
+    canExportData: boolean;
+    canUseAPI: boolean;
+    canUseLandingPageBuilder: boolean;
+    canUseCustomDomain: boolean;
+    canAccessAdvancedReports: boolean;
+    canUseWhiteLabel: boolean;
+    hasPrioritySupport: boolean;
+    allowOverage: boolean;
+    sendUsageAlerts: boolean;
+    usageAlertThresholdPercent: number;
+    trialDays: number;
+    requiresCreditCard: boolean;
+    canDowngrade: boolean;
+    canUpgrade: boolean;
+    maxLandingPages: number;
+    maxEmailTemplates: number;
+    maxCustomForms: number;
+    displayOrder: number;
+    isActive: boolean;
+    id: string;
+}
+
+export class UpdateProductDto implements IUpdateProductDto {
+    name!: string;
+    sku!: string | undefined;
+    description!: string | undefined;
+    price!: number;
+    compareAtPrice!: number | undefined;
+    cost!: number | undefined;
+    stockQuantity!: number;
+    lowStockThreshold!: number | undefined;
+    trackInventory!: boolean;
+    isActive!: boolean;
+    isFeatured!: boolean;
+    categoryId!: string | undefined;
+    metaTitle!: string | undefined;
+    metaDescription!: string | undefined;
+    metaKeywords!: string | undefined;
+    weight!: number | undefined;
+    length!: number | undefined;
+    width!: number | undefined;
+    height!: number | undefined;
+    weightUnit!: string | undefined;
+    dimensionUnit!: string | undefined;
+    images!: CreateProductImageDto[] | undefined;
+    variants!: CreateProductVariantDto[] | undefined;
+    id!: string;
+
+    constructor(data?: IUpdateProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.sku = _data["sku"];
+            this.description = _data["description"];
+            this.price = _data["price"];
+            this.compareAtPrice = _data["compareAtPrice"];
+            this.cost = _data["cost"];
+            this.stockQuantity = _data["stockQuantity"];
+            this.lowStockThreshold = _data["lowStockThreshold"];
+            this.trackInventory = _data["trackInventory"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.categoryId = _data["categoryId"];
+            this.metaTitle = _data["metaTitle"];
+            this.metaDescription = _data["metaDescription"];
+            this.metaKeywords = _data["metaKeywords"];
+            this.weight = _data["weight"];
+            this.length = _data["length"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.weightUnit = _data["weightUnit"];
+            this.dimensionUnit = _data["dimensionUnit"];
+            if (Array.isArray(_data["images"])) {
+                this.images = [] as any;
+                for (let item of _data["images"])
+                    this.images!.push(CreateProductImageDto.fromJS(item));
+            }
+            if (Array.isArray(_data["variants"])) {
+                this.variants = [] as any;
+                for (let item of _data["variants"])
+                    this.variants!.push(CreateProductVariantDto.fromJS(item));
+            }
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): UpdateProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["sku"] = this.sku;
+        data["description"] = this.description;
+        data["price"] = this.price;
+        data["compareAtPrice"] = this.compareAtPrice;
+        data["cost"] = this.cost;
+        data["stockQuantity"] = this.stockQuantity;
+        data["lowStockThreshold"] = this.lowStockThreshold;
+        data["trackInventory"] = this.trackInventory;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["categoryId"] = this.categoryId;
+        data["metaTitle"] = this.metaTitle;
+        data["metaDescription"] = this.metaDescription;
+        data["metaKeywords"] = this.metaKeywords;
+        data["weight"] = this.weight;
+        data["length"] = this.length;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["weightUnit"] = this.weightUnit;
+        data["dimensionUnit"] = this.dimensionUnit;
+        if (Array.isArray(this.images)) {
+            data["images"] = [];
+            for (let item of this.images)
+                data["images"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.variants)) {
+            data["variants"] = [];
+            for (let item of this.variants)
+                data["variants"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["id"] = this.id;
+        return data;
+    }
+}
+
+export interface IUpdateProductDto {
+    name: string;
+    sku: string | undefined;
+    description: string | undefined;
+    price: number;
+    compareAtPrice: number | undefined;
+    cost: number | undefined;
+    stockQuantity: number;
+    lowStockThreshold: number | undefined;
+    trackInventory: boolean;
+    isActive: boolean;
+    isFeatured: boolean;
+    categoryId: string | undefined;
+    metaTitle: string | undefined;
+    metaDescription: string | undefined;
+    metaKeywords: string | undefined;
+    weight: number | undefined;
+    length: number | undefined;
+    width: number | undefined;
+    height: number | undefined;
+    weightUnit: string | undefined;
+    dimensionUnit: string | undefined;
+    images: CreateProductImageDto[] | undefined;
+    variants: CreateProductVariantDto[] | undefined;
+    id: string;
 }
 
 export class UpdateProfileCompletionStepDto implements IUpdateProfileCompletionStepDto {
