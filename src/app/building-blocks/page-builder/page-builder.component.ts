@@ -570,6 +570,16 @@ export class PageBuilderComponent implements OnInit {
     }
 
     saveWidgets(): void {
+        // Only save if auto-save is enabled (for landing pages)
+        // Custom pages have auto-save disabled and handle saving manually
+        if (!this.widgetService.isAutoSaveEnabled()) {
+            console.log('⊘ Auto-save disabled - widgets not saved to tenant settings');
+            // Just update the in-memory state
+            const widgetsToSave = this.widgets();
+            this.widgetService.loadWidgetsFromSource(widgetsToSave);
+            return;
+        }
+        
         console.log('=== SAVING WIDGETS ===');
         const widgetsToSave = this.widgets();
         console.log('Widgets count:', widgetsToSave.length);

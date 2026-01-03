@@ -32,66 +32,11 @@
                         </h2>
                         <p class="text-sm text-gray-600 mb-0">Configure Ozow payment gateway credentials</p>
                     </div>
-                </div>
-
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <label for="ozowApiKey" class="form-label fw-semibold">
-                            <i class="bi bi-key me-1"></i>Ozow API Key
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
-                            <input 
-                                type="password" 
-                                id="ozowApiKey" 
-                                [(ngModel)]="tenantSettings.ozowApiKey" 
-                                class="form-control" 
-                                placeholder="Enter API Key"
-                            />
-                        </div>
-                        <small class="form-text text-muted">Your Ozow API authentication key</small>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="ozowSiteCode" class="form-label fw-semibold">
-                            <i class="bi bi-building me-1"></i>Ozow Site Code
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-hash"></i></span>
-                            <input 
-                                type="text" 
-                                id="ozowSiteCode" 
-                                [(ngModel)]="tenantSettings.ozowSiteCode" 
-                                class="form-control" 
-                                placeholder="Enter Site Code"
-                            />
-                        </div>
-                        <small class="form-text text-muted">Your unique Ozow site identifier</small>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="ozowPrivateKey" class="form-label fw-semibold">
-                            <i class="bi bi-lock me-1"></i>Ozow Private Key
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
-                            <input 
-                                type="password" 
-                                id="ozowPrivateKey" 
-                                [(ngModel)]="tenantSettings.ozowPrivateKey" 
-                                class="form-control" 
-                                placeholder="Enter Private Key"
-                            />
-                        </div>
-                        <small class="form-text text-muted">Your Ozow private encryption key</small>
-                    </div>
-
-                    <div class="col-12">
-                        <div class="alert alert-info mb-0">
-                            <i class="bi bi-info-circle-fill me-2"></i>
-                            <strong>Important:</strong> These credentials are required for payment processing through Ozow. 
-                            Obtain these from your Ozow merchant dashboard at <a href="https://dashboard.ozow.com" target="_blank" class="alert-link">dashboard.ozow.com</a>
-                        </div>
+                    
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <strong>Important:</strong> Payment gateway configuration has been moved to backend settings. 
+                        Contact your administrator to configure payment credentials.
                     </div>
                 </div>
             </div>
@@ -176,7 +121,7 @@
                         <label for="cssFile" class="font-medium text-gray-700 mb-2">Custom CSS File</label>
                         <div class="flex items-center gap-4">
                             <input type="file" name="cssFile" accept=".css" class="form-control" (change)="onCssFileUpload($event)" />
-                            <a *ngIf="customCssId" (click)="downloadCss()" class="btn btn-secondary mt-2">Download CSS</a>
+                            <a *ngIf="customCssId" (click)="downloadCss()" class="btn-secondary-theme mt-2">Download CSS</a>
                         </div>
                     </div>
 
@@ -188,7 +133,7 @@
                         </div>
                         <div class="flex items-center gap-4">
                             <input type="file" name="contractTemplate" accept=".pdf" class="form-control" (change)="onContractTemplateUpload($event)" />
-                            <button *ngIf="_settings.contractTemplateFileId" (click)="removeContractTemplate()" class="btn btn-danger">
+                            <button *ngIf="_settings.contractTemplateFileId" (click)="removeContractTemplate()" class="btn-danger-theme">
                                 <i class="bi bi-trash me-1"></i> Remove Template
                             </button>
                         </div>
@@ -216,10 +161,6 @@
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Theme Colors</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="flex flex-col">
-                        <label for="testcolour" class="font-medium text-gray-700 mb-2">test_colour</label>
-                        <input type="color" [(ngModel)]="_settings.testcolour" class="form-control form-control-color" />
-                    </div>
-                    <div class="flex flex-col">
                         <label for="primaryColor" class="font-medium text-gray-700 mb-2">Primary Color</label>
                         <input type="color" [(ngModel)]="_settings.primaryColor" class="form-control form-control-color" />
                     </div>
@@ -242,10 +183,6 @@
                     <div class="flex flex-col">
                         <label for="borderColor" class="font-medium text-gray-700 mb-2">Border Color</label>
                         <input type="color" [(ngModel)]="_settings.borderColor" class="form-control form-control-color" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="buttonPrimaryHoverBackground" class="font-medium text-gray-700 mb-2">Button Primary Hover Background</label>
-                        <input type="color" [(ngModel)]="_settings.buttonPrimaryHoverBackground" class="form-control form-control-color" />
                     </div>
                     <div class="flex flex-col">
                         <label for="primaryActiveColor" class="font-medium text-gray-700 mb-2">Primary Active Color</label>
@@ -310,22 +247,12 @@
                             <div class="flex flex-col">
                                 <label for="buttonPrimaryBackground" class="font-medium text-gray-700 mb-2">Background Color</label>
                                 <p-colorPicker [(ngModel)]="_settings.buttonPrimaryBackground"></p-colorPicker>
-                                <small class="text-gray-500 mt-1">Default button background</small>
-                            </div>
-                            <div class="flex flex-col">
-                                <label for="buttonPrimaryBorder" class="font-medium text-gray-700 mb-2">Border Color</label>
-                                <p-colorPicker [(ngModel)]="_settings.buttonPrimaryBorder"></p-colorPicker>
-                                <small class="text-gray-500 mt-1">Button border color</small>
+                                <small class="text-gray-500 mt-1">Main action buttons (border auto-matches)</small>
                             </div>
                             <div class="flex flex-col">
                                 <label for="buttonPrimaryColor" class="font-medium text-gray-700 mb-2">Text Color</label>
                                 <p-colorPicker [(ngModel)]="_settings.buttonPrimaryColor"></p-colorPicker>
                                 <small class="text-gray-500 mt-1">Button text color</small>
-                            </div>
-                            <div class="flex flex-col">
-                                <label for="buttonPrimaryHoverBackground" class="font-medium text-gray-700 mb-2">Hover Background</label>
-                                <p-colorPicker [(ngModel)]="_settings.buttonPrimaryHoverBackground"></p-colorPicker>
-                                <small class="text-gray-500 mt-1">Background on hover</small>
                             </div>
                         </div>
                     </div>
@@ -337,17 +264,46 @@
                             <div class="flex flex-col">
                                 <label for="buttonSecondaryBackground" class="font-medium text-gray-700 mb-2">Background Color</label>
                                 <p-colorPicker [(ngModel)]="_settings.buttonSecondaryBackground"></p-colorPicker>
-                                <small class="text-gray-500 mt-1">Secondary button background</small>
-                            </div>
-                            <div class="flex flex-col">
-                                <label for="buttonSecondaryBorder" class="font-medium text-gray-700 mb-2">Border Color</label>
-                                <p-colorPicker [(ngModel)]="_settings.buttonSecondaryBorder"></p-colorPicker>
-                                <small class="text-gray-500 mt-1">Secondary border color</small>
+                                <small class="text-gray-500 mt-1">Secondary actions (border auto-matches)</small>
                             </div>
                             <div class="flex flex-col">
                                 <label for="buttonSecondaryColor" class="font-medium text-gray-700 mb-2">Text Color</label>
                                 <p-colorPicker [(ngModel)]="_settings.buttonSecondaryColor"></p-colorPicker>
                                 <small class="text-gray-500 mt-1">Secondary text color</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Button Styles -->
+                    <div class="border-l-4 border-red-500 pl-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">Danger Button</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col">
+                                <label for="buttonDangerBackground" class="font-medium text-gray-700 mb-2">Background Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonDangerBackground"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Delete/destructive actions</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonDangerColor" class="font-medium text-gray-700 mb-2">Text Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonDangerColor"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Danger text color</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warning Button Styles -->
+                    <div class="border-l-4 border-yellow-500 pl-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">Warning Button</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex flex-col">
+                                <label for="buttonWarningBackground" class="font-medium text-gray-700 mb-2">Background Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonWarningBackground"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Warning/caution actions</small>
+                            </div>
+                            <div class="flex flex-col">
+                                <label for="buttonWarningColor" class="font-medium text-gray-700 mb-2">Text Color</label>
+                                <p-colorPicker [(ngModel)]="_settings.buttonWarningColor"></p-colorPicker>
+                                <small class="text-gray-500 mt-1">Warning text color</small>
                             </div>
                         </div>
                     </div>
@@ -386,7 +342,7 @@
                             <button 
                                 class="preview-button primary"
                                 [style.background-color]="_settings.buttonPrimaryBackground"
-                                [style.border-color]="_settings.buttonPrimaryBorder"
+                                [style.border-color]="_settings.buttonPrimaryBackground"
                                 [style.color]="_settings.buttonPrimaryColor"
                                 [style.border-radius]="_settings.buttonBorderRadius"
                                 [style.padding]="_settings.buttonPadding"
@@ -397,13 +353,35 @@
                             <button 
                                 class="preview-button secondary"
                                 [style.background-color]="_settings.buttonSecondaryBackground"
-                                [style.border-color]="_settings.buttonSecondaryBorder"
+                                [style.border-color]="_settings.buttonSecondaryBackground"
                                 [style.color]="_settings.buttonSecondaryColor"
                                 [style.border-radius]="_settings.buttonBorderRadius"
                                 [style.padding]="_settings.buttonPadding"
                                 [style.font-size]="_settings.buttonFontSize"
                                 [style.font-weight]="_settings.buttonFontWeight">
                                 Secondary Button
+                            </button>
+                            <button 
+                                class="preview-button danger"
+                                [style.background-color]="_settings.buttonDangerBackground"
+                                [style.border-color]="_settings.buttonDangerBackground"
+                                [style.color]="_settings.buttonDangerColor"
+                                [style.border-radius]="_settings.buttonBorderRadius"
+                                [style.padding]="_settings.buttonPadding"
+                                [style.font-size]="_settings.buttonFontSize"
+                                [style.font-weight]="_settings.buttonFontWeight">
+                                Danger Button
+                            </button>
+                            <button 
+                                class="preview-button warning"
+                                [style.background-color]="_settings.buttonWarningBackground"
+                                [style.border-color]="_settings.buttonWarningBackground"
+                                [style.color]="_settings.buttonWarningColor"
+                                [style.border-radius]="_settings.buttonBorderRadius"
+                                [style.padding]="_settings.buttonPadding"
+                                [style.font-size]="_settings.buttonFontSize"
+                                [style.font-weight]="_settings.buttonFontWeight">
+                                Warning Button
                             </button>
                         </div>
                         <div class="flex gap-3 mt-4">
@@ -443,104 +421,17 @@
             <!-- Common Variables -->
             <div class="bg-white p-6 rounded-lg shadow">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Common Variables</h2>
+                <p class="text-sm text-gray-600 mb-4">Advanced styling options. Most values auto-generate from theme colors above.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="flex flex-col">
-                        <label for="primaryContrastColor" class="font-medium text-gray-700 mb-2">Primary Contrast Color</label>
-                        <input type="text" id="primaryContrastColor" [(ngModel)]="_settings.primaryContrastColor" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="textMutedColor" class="font-medium text-gray-700 mb-2">Text Muted Color</label>
-                        <input type="text" id="textMutedColor" [(ngModel)]="_settings.textMutedColor" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="contentBorderColor" class="font-medium text-gray-700 mb-2">Content Border Color</label>
-                        <input type="text" id="contentBorderColor" [(ngModel)]="_settings.contentBorderColor" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="contentBackground" class="font-medium text-gray-700 mb-2">Content Background</label>
-                        <input type="text" id="contentBackground" [(ngModel)]="_settings.contentBackground" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="contentHoverBackground" class="font-medium text-gray-700 mb-2">Content Hover Background</label>
-                        <input type="text" id="contentHoverBackground" [(ngModel)]="_settings.contentHoverBackground" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="overlayPopoverBackground" class="font-medium text-gray-700 mb-2">Overlay Popover Background</label>
-                        <input type="text" id="overlayPopoverBackground" [(ngModel)]="_settings.overlayPopoverBackground" class="form-control" />
+                        <label for="contentBorderRadius" class="font-medium text-gray-700 mb-2">Content Border Radius</label>
+                        <input type="text" id="contentBorderRadius" [(ngModel)]="_settings.contentBorderRadius" class="form-control" placeholder="6px" />
+                        <small class="text-gray-500 mt-1">Rounded corners for cards and panels</small>
                     </div>
                     <div class="flex flex-col">
                         <label for="transitionDuration" class="font-medium text-gray-700 mb-2">Transition Duration</label>
-                        <input type="text" id="transitionDuration" [(ngModel)]="_settings.transitionDuration" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="maskBackground" class="font-medium text-gray-700 mb-2">Mask Background</label>
-                        <input type="text" id="maskBackground" [(ngModel)]="_settings.maskBackground" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="contentBorderRadius" class="font-medium text-gray-700 mb-2">Content Border Radius</label>
-                        <input type="text" id="contentBorderRadius" [(ngModel)]="_settings.contentBorderRadius" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="layoutSectionTransitionDuration" class="font-medium text-gray-700 mb-2">Layout Section Transition Duration</label>
-                        <input type="text" id="layoutSectionTransitionDuration" [(ngModel)]="_settings.layoutSectionTransitionDuration" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="elementTransitionDuration" class="font-medium text-gray-700 mb-2">Element Transition Duration</label>
-                        <input type="text" id="elementTransitionDuration" [(ngModel)]="_settings.elementTransitionDuration" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="focusRingWidth" class="font-medium text-gray-700 mb-2">Focus Ring Width</label>
-                        <input type="text" id="focusRingWidth" [(ngModel)]="_settings.focusRingWidth" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="focusRingStyle" class="font-medium text-gray-700 mb-2">Focus Ring Style</label>
-                        <input type="text" id="focusRingStyle" [(ngModel)]="_settings.focusRingStyle" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="focusRingColor" class="font-medium text-gray-700 mb-2">Focus Ring Color</label>
-                        <input type="text" id="focusRingColor" [(ngModel)]="_settings.focusRingColor" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="focusRingOffset" class="font-medium text-gray-700 mb-2">Focus Ring Offset</label>
-                        <input type="text" id="focusRingOffset" [(ngModel)]="_settings.focusRingOffset" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="focusRingShadow" class="font-medium text-gray-700 mb-2">Focus Ring Shadow</label>
-                        <input type="text" id="focusRingShadow" [(ngModel)]="_settings.focusRingShadow" class="form-control" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dark Theme Variables -->
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">Dark Theme Variables</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="flex flex-col">
-                        <label for="surface950" class="font-medium text-gray-700 mb-2">Surface 950 (Dark)</label>
-                        <input type="text" id="surface950" [(ngModel)]="_settings.surface950" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="surface800" class="font-medium text-gray-700 mb-2">Surface 800 (Dark)</label>
-                        <input type="text" id="surface800" [(ngModel)]="_settings.surface800" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="surface100" class="font-medium text-gray-700 mb-2">Surface 100 (Dark)</label>
-                        <input type="text" id="surface100" [(ngModel)]="_settings.surface100" class="form-control" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Light Theme Variables -->
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">Light Theme Variables</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="flex flex-col">
-                        <label for="surface900" class="font-medium text-gray-700 mb-2">Surface 900 (Light)</label>
-                        <input type="text" id="surface900" [(ngModel)]="_settings.surface900" class="form-control" />
-                    </div>
-                    <div class="flex flex-col">
-                        <label for="surface200" class="font-medium text-gray-700 mb-2">Surface 200 (Light)</label>
-                        <input type="text" id="surface200" [(ngModel)]="_settings.surface200" class="form-control" />
+                        <input type="text" id="transitionDuration" [(ngModel)]="_settings.transitionDuration" class="form-control" placeholder="0.2s" />
+                        <small class="text-gray-500 mt-1">Animation speed for hover effects</small>
                     </div>
                 </div>
             </div>
@@ -672,7 +563,7 @@
                 <div *ngIf="teamMembers.length === 0" class="text-center py-8">
                     <i class="pi pi-users text-4xl text-gray-300 mb-4"></i>
                     <p class="text-gray-500 mb-4">No team members have been added yet</p>
-                    <button type="button" class="btn btn-primary" (click)="openTeamManagement()">
+                    <button type="button" class="btn-primary-theme" (click)="openTeamManagement()">
                         <i class="pi pi-plus me-2"></i>
                         Add First Team Member
                     </button>
@@ -689,7 +580,7 @@
             </div>
 
             <div class="flex justify-end pt-6">
-                <button type="button" class="btn btn-primary" (click)="saveSettings()">
+                <button type="button" class="btn-primary-theme" (click)="saveSettings()">
                     <i class="pi pi-check me-2"></i>
                     Save
                 </button>
@@ -708,11 +599,11 @@
 
     <ng-template pTemplate="footer">
         <div class="flex justify-end gap-2">
-            <button type="button" class="btn btn-secondary" (click)="showTeamManagementDialog = false">
+            <button type="button" class="btn-secondary-theme" (click)="showTeamManagementDialog = false">
                 <i class="pi pi-times me-2"></i>
                 Close
             </button>
-            <button type="button" class="btn btn-success" (click)="saveTeamChanges()">
+            <button type="button" class="btn-primary-theme" (click)="saveTeamChanges()">
                 <i class="pi pi-check me-2"></i>
                 Save Changes
             </button>
@@ -748,7 +639,7 @@
                                     <h5 class="card-title mb-1">Policy Cover Premium Table</h5>
                                     <p class="text-muted small mb-0">Configure premiums with flexible dependent count tiers (e.g., 1-5, 6-9, 10-15)</p>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-primary" (click)="addCoverRow()">
+                                <button type="button" class="btn-primary-theme btn-sm" (click)="addCoverRow()">
                                     <i class="bi bi-plus-lg me-2"></i>Add Cover Amount
                                 </button>
                             </div>
@@ -760,7 +651,7 @@
                                         <label class="form-label mb-0 fw-semibold">Cover Amount (R):</label>
                                         <input type="number" class="form-control form-control-sm" style="width: 150px;" [(ngModel)]="row.coverAmount" placeholder="e.g., 10000" />
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-danger" (click)="removeCoverRow(rowIndex)">
+                                    <button type="button" class="btn-danger-theme btn-sm" (click)="removeCoverRow(rowIndex)">
                                         <i class="bi bi-trash me-1"></i>Remove Cover
                                     </button>
                                 </div>
@@ -769,7 +660,7 @@
                                 <div class="bg-white rounded p-3">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h6 class="mb-0">Dependent Count Tiers</h6>
-                                        <button type="button" class="btn btn-sm btn-success" (click)="addDependentTier(rowIndex)">
+                                        <button type="button" class="btn-primary-theme btn-sm" (click)="addDependentTier(rowIndex)">
                                             <i class="bi bi-plus-lg me-1"></i>Add Tier
                                         </button>
                                     </div>
@@ -791,7 +682,7 @@
                                                     <input type="text" class="form-control form-control-sm" [(ngModel)]="tier.label" placeholder="e.g., 1-5 dependents" />
                                                 </div>
                                                 <div class="col-md-1 text-end">
-                                                    <button type="button" class="btn btn-sm btn-danger" (click)="removeDependentTier(rowIndex, tierIndex)">
+                                                    <button type="button" class="btn-danger-theme btn-sm" (click)="removeDependentTier(rowIndex, tierIndex)">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
@@ -801,7 +692,7 @@
                                             <div class="mt-3 ps-3 border-start border-primary border-3">
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <span class="small fw-semibold">Age Brackets</span>
-                                                    <button type="button" class="btn btn-xs btn-sm btn-primary" (click)="addAgeBracket(rowIndex, tierIndex)">
+                                                    <button type="button" class="btn-primary-theme btn-xs btn-sm" (click)="addAgeBracket(rowIndex, tierIndex)">
                                                         <i class="bi bi-plus-lg me-1"></i>Add Age Bracket
                                                     </button>
                                                 </div>
@@ -821,7 +712,7 @@
                                                             <input type="number" class="form-control form-control-sm" [(ngModel)]="bracket.value.premium" placeholder="e.g., 220" />
                                                         </div>
                                                         <div class="col-md-1 text-end">
-                                                            <button type="button" class="btn btn-xs btn-sm btn-danger" (click)="removeAgeBracket(tier, bracket.key)">
+                                                            <button type="button" class="btn-danger-theme btn-xs btn-sm" (click)="removeAgeBracket(tier, bracket.key)">
                                                                 <i class="bi bi-trash"></i>
                                                             </button>
                                                         </div>
@@ -857,10 +748,10 @@
                                     <p class="text-muted small mb-0">Configure premiums for extended family members based on age ranges and cover amounts</p>
                                 </div>
                                 <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addExtendedFamilyColumn()" title="Add Cover Column">
+                                    <button type="button" class="btn-outline-primary-theme btn-sm" (click)="addExtendedFamilyColumn()" title="Add Cover Column">
                                         <i class="bi bi-plus-lg me-2"></i>Add Column
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-primary" (click)="addExtendedFamilyRow()">
+                                    <button type="button" class="btn-primary-theme btn-sm" (click)="addExtendedFamilyRow()">
                                         <i class="bi bi-plus-lg me-2"></i>Add Row
                                     </button>
                                 </div>
@@ -916,7 +807,7 @@
                                                        placeholder="e.g., 50" />
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-danger" (click)="removeExtendedFamilyRow(i)">
+                                                <button type="button" class="btn-danger-theme btn-sm" (click)="removeExtendedFamilyRow(i)">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>
@@ -955,10 +846,10 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="showPremiumSettingsDialog = false">
+                <button type="button" class="btn-secondary-theme" (click)="showPremiumSettingsDialog = false">
                     <i class="bi bi-x-lg me-2"></i>Close
                 </button>
-                <button type="button" class="btn btn-success" (click)="savePremiumSettings()">
+                <button type="button" class="btn-primary-theme" (click)="savePremiumSettings()">
                     <i class="bi bi-check-lg me-2"></i>Save Premium Settings
                 </button>
             </div>

@@ -1,17 +1,17 @@
 <p-toolbar styleClass="mb-6 modern-toolbar">
     <ng-template #start>
-        <button type="button" class="btn btn-primary me-2" (click)="openNew()">
+        <button type="button" class="btn-primary-theme me-2" (click)="openNew()">
             <i class="pi pi-plus me-2"></i>
             New Policy
         </button>
-        <button type="button" class="btn btn-outline-danger" (click)="deleteSelectedPolicies()" [disabled]="!selectedPolicies || !selectedPolicies.length">
+        <button type="button" class="btn-outline-danger-theme" (click)="deleteSelectedPolicies()" [disabled]="!selectedPolicies || !selectedPolicies.length">
             <i class="pi pi-trash me-2"></i>
             Delete
         </button>
     </ng-template>
 
     <ng-template #end>
-        <button type="button" class="btn btn-secondary" (click)="exportCSV()">
+        <button type="button" class="btn-secondary-theme" (click)="exportCSV()">
             <i class="pi pi-upload me-2"></i>
             Export
         </button>
@@ -74,10 +74,10 @@
             <td>{{ policy.price | currency: currency }}</td>
             <td>{{ policy.payoutAmount | currency: currency }}</td>
             <td>
-                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editPolicy(policy)">
+                <button type="button" class="btn-outline-primary-theme btn-theme-sm me-2 rounded-circle" (click)="editPolicy(policy)">
                     <i class="pi pi-pencil"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deletePolicy(policy)">
+                <button type="button" class="btn-outline-danger-theme btn-theme-sm rounded-circle" (click)="deletePolicy(policy)">
                     <i class="pi pi-trash"></i>
                 </button>
             </td>

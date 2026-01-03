@@ -22,9 +22,9 @@
             <div class="flex justify-content-between align-items-center mb-3">
                 <h3>Team Settings & Members</h3>
                 <div class="flex gap-2">
-                    <button pButton label="Add from Users" icon="pi pi-plus" class="p-button-primary" (click)="openAddMemberDialog()"></button>
-                    <button pButton label="Create New Member" icon="pi pi-user-plus" class="p-button-success" (click)="openCreateMemberDialog()"></button>
-                    <button pButton label="Import Team" icon="pi pi-upload" class="p-button-info" (click)="openImportDialog()"></button>
+                    <button pButton label="Add from Users" icon="pi pi-plus" class="btn-primary-theme" (click)="openAddMemberDialog()"></button>
+                    <button pButton label="Create New Member" icon="pi pi-user-plus" class="btn-primary-theme" (click)="openCreateMemberDialog()"></button>
+                    <button pButton label="Import Team" icon="pi pi-upload" class="btn-primary-theme" (click)="openImportDialog()"></button>
                 </div>
             </div>
 
@@ -101,9 +101,9 @@
                         <td>{{ formatDate(member.dateAdded) }}</td>
                         <td>
                             <div class="flex align-items-center gap-2">
-                                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info" (click)="editMember(member)" pTooltip="Edit Member"></button>
-                                <button pButton icon="pi pi-eye" class="p-button-rounded p-button-text p-button-secondary" (click)="viewMember(member)" pTooltip="View Details"></button>
-                                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="deleteMember(rowIndex)" pTooltip="Remove Member"></button>
+                                <button pButton icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme" (click)="editMember(member)" pTooltip="Edit Member"></button>
+                                <button pButton icon="pi pi-eye" class="btn-rounded btn-outline-primary-theme" (click)="viewMember(member)" pTooltip="View Details"></button>
+                                <button pButton icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" (click)="deleteMember(rowIndex)" pTooltip="Remove Member"></button>
                             </div>
                         </td>
                     </tr>
@@ -165,8 +165,8 @@
             </div>
         </div>
         <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" (click)="closeAddMemberDialog()" class="p-button-text"></p-button>
-            <p-button label="Add Selected ({{ selectedUsers.length }})" icon="pi pi-check" (click)="addSelectedUsers()" [disabled]="selectedUsers.length === 0"></p-button>
+            <p-button label="Cancel" icon="pi pi-times" (click)="closeAddMemberDialog()" class="btn-secondary-theme"></p-button>
+            <p-button label="Add Selected ({{ selectedUsers.length }})" icon="pi pi-check" (click)="addSelectedUsers()" class="btn-primary-theme" [disabled]="selectedUsers.length === 0"></p-button>
         </ng-template>
     </p-dialog>
 
@@ -207,8 +207,8 @@
             </div>
         </div>
         <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" (click)="closeCreateMemberDialog()" class="p-button-text"></p-button>
-            <p-button label="Create Member" icon="pi pi-check" (click)="createNewMember()" [disabled]="!isNewMemberValid()"></p-button>
+            <p-button label="Cancel" icon="pi pi-times" (click)="closeCreateMemberDialog()" class="btn-secondary-theme"></p-button>
+            <p-button label="Create Member" icon="pi pi-check" (click)="createNewMember()" class="btn-primary-theme" [disabled]="!isNewMemberValid()"></p-button>
         </ng-template>
     </p-dialog>
 
@@ -252,9 +252,9 @@
             </div>
         </div>
         <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" (click)="closeImportDialog()" class="p-button-text"></p-button>
-            <p-button label="Download Template" icon="pi pi-download" (click)="downloadTemplate()" class="p-button-secondary"></p-button>
-            <p-button label="Import" icon="pi pi-upload" (click)="importTeamData()" [disabled]="!canImport()"></p-button>
+            <p-button label="Cancel" icon="pi pi-times" (click)="closeImportDialog()" class="btn-secondary-theme"></p-button>
+            <p-button label="Download Template" icon="pi pi-download" (click)="downloadTemplate()" class="btn-secondary-theme"></p-button>
+            <p-button label="Import" icon="pi pi-upload" (click)="importTeamData()" class="btn-primary-theme" [disabled]="!canImport()"></p-button>
         </ng-template>
     </p-dialog>
 </div>

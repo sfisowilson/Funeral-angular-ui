@@ -1,17 +1,17 @@
 <p-toolbar styleClass="mb-6 modern-toolbar">
     <ng-template #start>
-        <button type="button" class="btn btn-primary me-2" (click)="openNew()">
+        <button type="button" class="btn-primary-theme me-2" (click)="openNew()">
             <i class="pi pi-plus me-2"></i>
             New User
         </button>
-        <button type="button" class="btn btn-outline-danger" (click)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length">
+        <button type="button" class="btn-outline-danger-theme" (click)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length">
             <i class="pi pi-trash me-2"></i>
             Delete
         </button>
     </ng-template>
 
     <ng-template #end>
-        <button type="button" class="btn btn-secondary" (click)="exportCSV()">
+        <button type="button" class="btn-secondary-theme" (click)="exportCSV()">
             <i class="pi pi-upload me-2"></i>
             Export
         </button>
@@ -79,10 +79,10 @@
             <td>{{ user.firstName }}</td>
             <td>{{ getUserRolesDisplay(user) }}</td>
             <td>
-                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editUser(user)">
+                <button type="button" class="btn-outline-primary-theme btn-theme-sm me-2 rounded-circle" (click)="editUser(user)">
                     <i class="pi pi-pencil"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deleteUser(user)">
+                <button type="button" class="btn-outline-danger-theme btn-theme-sm rounded-circle" (click)="deleteUser(user)">
                     <i class="pi pi-trash"></i>
                 </button>
             </td>
@@ -154,11 +154,11 @@
 
     <ng-template #footer>
         <div class="flex justify-end gap-3 p-6 bg-gray-50 border-t border-gray-200">
-            <button type="button" class="btn btn-outline-secondary btn-lg px-4" (click)="hideDialog()">
+            <button type="button" class="btn-outline-secondary-theme btn-theme-lg px-4" (click)="hideDialog()">
                 <i class="pi pi-times me-2"></i>
                 Cancel
             </button>
-            <button type="button" class="btn btn-primary btn-lg px-4" (click)="saveUser()">
+            <button type="button" class="btn-primary-theme btn-theme-lg px-4" (click)="saveUser()">
                 <i class="pi pi-check me-2"></i>
                 Save User
             </button>

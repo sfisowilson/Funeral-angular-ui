@@ -62,8 +62,8 @@ import { ButtonModule } from 'primeng/button';
                                     *ngIf="service.buttonText"
                                     pButton
                                     [label]="service.buttonText"
-                                    [style.background-color]="service.featured ? config.settings.featuredButtonColor : config.settings.buttonColor"
-                                    [style.color]="service.featured ? config.settings.featuredButtonTextColor : config.settings.buttonTextColor"
+                                    [style.background-color]="service.featured ? (config.settings.featuredButtonColor || 'var(--button-primary-background, #007bff)') : (config.settings.buttonColor || 'var(--button-secondary-background, #6c757d)')"
+                                    [style.color]="service.featured ? (config.settings.featuredButtonTextColor || 'var(--button-primary-color, #ffffff)') : (config.settings.buttonTextColor || 'var(--button-secondary-color, #ffffff)')"
                                     class="w-full"
                                     (click)="onServiceSelect(service)"
                                 ></button>
@@ -77,7 +77,12 @@ import { ButtonModule } from 'primeng/button';
                 </div>
 
                 <div *ngIf="config.settings.showViewAllButton" class="text-center mt-12">
-                    <button pButton [label]="config.settings.viewAllButtonText || 'View All Services'" [style.background-color]="config.settings.viewAllButtonColor" [style.color]="config.settings.viewAllButtonTextColor" size="large" (click)="viewAllServices()"></button>
+                    <button pButton 
+                        [label]="config.settings.viewAllButtonText || 'View All Services'" 
+                        [style.background-color]="config.settings.viewAllButtonColor || 'var(--button-primary-background, #007bff)'" 
+                        [style.color]="config.settings.viewAllButtonTextColor || 'var(--button-primary-color, #ffffff)'" 
+                        size="large" 
+                        (click)="viewAllServices()"></button>
                 </div>
             </div>
         </div>

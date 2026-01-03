@@ -7,7 +7,7 @@
         </div>
         <button 
             type="button"
-            class="btn btn-primary"
+            class="btn-primary-theme"
             (click)="openNewDialog()">
             <i class="bi bi-plus-lg me-2"></i>Create New Terms
         </button>
@@ -47,7 +47,7 @@
                     <td>
                         <button 
                             type="button"
-                            class="btn btn-sm btn-outline-primary"
+                            class="btn btn-sm btn-outline-primary-theme"
                             title="View"
                             (click)="editTerm(term)">
                             <i class="bi bi-eye"></i>
@@ -164,14 +164,14 @@
             <div class="modal-footer">
                 <button 
                     type="button"
-                    class="btn btn-secondary"
+                    class="btn-secondary-theme"
                     (click)="cancel()">
                     <i class="bi bi-x-lg me-2"></i>Close
                 </button>
                 <button 
                     *ngIf="!isEditMode()"
                     type="button"
-                    class="btn btn-primary"
+                    class="btn-primary-theme"
                     (click)="saveTerm()">
                     <i class="bi bi-check-lg me-2"></i>Save
                 </button>

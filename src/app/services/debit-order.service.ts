@@ -1,37 +1,18 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { 
+  Debit_orderServiceProxy, 
+  DebitOrderBatchDto,
+  DebitOrderTransactionDto
+} from '../core/services/service-proxies';
 
-export interface DebitOrderBatch {
-  id: string;
-  batchNumber: string;
-  processingDate: string;
-  submittedAt?: string;
-  totalTransactions: number;
-  totalAmount: number;
-  successfulTransactions: number;
-  failedTransactions: number;
-  status: string;
-  batchFilePath?: string;
-  responseFilePath?: string;
-}
-
-export interface DebitOrderTransaction {
-  id: string;
-  batchId: string;
-  invoiceId: string;
-  invoiceNumber?: string;
-  tenantId: string;
-  tenantName?: string;
-  amount: number;
-  accountNumber: string;
-  bankName: string;
-  status: string;
-  failureReason?: string;
-  bankReference?: string;
-  processedAt?: string;
-}
+// Re-export DTOs for backward compatibility
+export { 
+  DebitOrderBatchDto as DebitOrderBatch,
+  DebitOrderTransactionDto as DebitOrderTransaction
+} from '../core/services/service-proxies';
 
 export interface CreateBatchRequest {
   processingDate: string;
@@ -42,35 +23,40 @@ export interface CreateBatchRequest {
 })
 export class DebitOrderService {
   private apiUrl = `${environment.apiUrl}/debit-order`;
+  private http: HttpClient;
 
-  constructor(private http: HttpClient) {}
-
-  createBatch(request: CreateBatchRequest): Observable<DebitOrderBatch> {
-    return this.http.post<DebitOrderBatch>(`${this.apiUrl}/batch/create`, request);
+  constructor(
+    private proxy: Debit_orderServiceProxy,
+    http: HttpClient
+  ) {
+    this.http = http;
   }
 
-  getBatches(page: number = 1, pageSize: number = 20): Observable<DebitOrderBatch[]> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
-    
-    return this.http.get<DebitOrderBatch[]>(`${this.apiUrl}/batch`, { params });
+  // NOTE: createBatch() not yet in generated proxy - using direct HTTP call
+  createBatch(request: CreateBatchRequest): Observable<DebitOrderBatchDto> {
+    return this.http.post<DebitOrderBatchDto>(`${this.apiUrl}/batch/create`, request);
   }
 
-  getBatchById(batchId: string): Observable<DebitOrderBatch> {
-    return this.http.get<DebitOrderBatch>(`${this.apiUrl}/batch/${batchId}`);
+  getBatches(page: number = 1, pageSize: number = 20): Observable<DebitOrderBatchDto[]> {
+    return this.proxy.batchList(page, pageSize);
   }
 
-  getBatchTransactions(batchId: string): Observable<DebitOrderTransaction[]> {
-    return this.http.get<DebitOrderTransaction[]>(`${this.apiUrl}/batch/${batchId}/transactions`);
+  getBatchById(batchId: string): Observable<DebitOrderBatchDto> {
+    return this.proxy.batchById(batchId);
   }
 
+  getBatchTransactions(batchId: string): Observable<DebitOrderTransactionDto[]> {
+    return this.proxy.batchTransactions(batchId);
+  }
+
+  // NOTE: generateNAEDOFile() returns File, not available in proxy - using direct HTTP call
   generateNAEDOFile(batchId: string): Observable<Blob> {
     return this.http.post(`${this.apiUrl}/batch/${batchId}/generate-file`, {}, {
       responseType: 'blob'
     });
   }
 
+  // NOTE: processResponse() uses FormData, not available in proxy - using direct HTTP call
   processResponse(file: File): Observable<{ message: string }> {
     const formData = new FormData();
     formData.append('responseFile', file);

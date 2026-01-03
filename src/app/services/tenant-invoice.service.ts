@@ -1,20 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { map } from 'rxjs/operators';
+import { Tenant_invoiceServiceProxy, InvoiceDto } from '../core/services/service-proxies';
 
-export interface TenantInvoice {
-  id: string;
-  invoiceNumber?: string;
-  amountDue: number;
-  amountPaid: number;
-  dueDate: string;
-  issueDate: string;
-  status: string;
-  isPaid: boolean;
-  description?: string;
-  tenantId: string;
-}
+// Re-export DTOs for backward compatibility
+export { InvoiceDto as TenantInvoice } from '../core/services/service-proxies';
 
 export interface InvoiceSummary {
   totalInvoices: number;
@@ -29,46 +19,25 @@ export interface InvoiceSummary {
   providedIn: 'root'
 })
 export class TenantInvoiceService {
-  private apiUrl = `${environment.apiUrl}/tenant-invoice`;
+  constructor(private proxy: Tenant_invoiceServiceProxy) {}
 
-  constructor(private http: HttpClient) {}
-
-  getMyInvoices(status?: string, page: number = 1, pageSize: number = 20): Observable<TenantInvoice[]> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
-    
-    if (status) {
-      params = params.set('status', status);
-    }
-
-    return this.http.get<TenantInvoice[]>(`${this.apiUrl}/my-invoices`, { params });
+  getMyInvoices(status?: string, page: number = 1, pageSize: number = 20): Observable<InvoiceDto[]> {
+    return this.proxy.invoiceList(status, page, pageSize);
   }
 
-  getInvoiceById(invoiceId: string): Observable<TenantInvoice> {
-    return this.http.get<TenantInvoice>(`${this.apiUrl}/${invoiceId}`);
+  getInvoiceById(invoiceId: string): Observable<InvoiceDto> {
+    return this.proxy.invoiceById(invoiceId);
   }
 
-  getUnpaidInvoices(): Observable<TenantInvoice[]> {
-    return this.http.get<TenantInvoice[]>(`${this.apiUrl}/unpaid`);
+  getUnpaidInvoices(): Observable<InvoiceDto[]> {
+    return this.proxy.invoiceUnpaid();
   }
 
   getInvoiceSummary(): Observable<InvoiceSummary> {
-    return this.http.get<InvoiceSummary>(`${this.apiUrl}/summary`);
+    return this.proxy.invoiceSummary();
   }
 
   getAllTenantInvoices(tenantId?: string, status?: string, page: number = 1, pageSize: number = 20): Observable<any[]> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
-    
-    if (tenantId) {
-      params = params.set('tenantId', tenantId);
-    }
-    if (status) {
-      params = params.set('status', status);
-    }
-
-    return this.http.get<any[]>(`${this.apiUrl}/all`, { params });
+    return this.proxy.invoiceAll(tenantId, status, page, pageSize);
   }
 }

@@ -44,7 +44,7 @@
             <!-- Toolbar -->
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="start">
-                    <button pButton pRipple label="New Asset" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                    <button pButton pRipple label="New Asset" icon="pi pi-plus" class="btn-primary-theme mr-2" (click)="openNew()"></button>
                 </ng-template>
                 <ng-template pTemplate="end">
                     <p-iconField iconPosition="left">
@@ -82,12 +82,12 @@
                             <p-tag [value]="getAssetStatusName(asset.status)" [severity]="getStatusSeverity(asset.status)"></p-tag>
                         </td>
                         <td>
-                            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editAsset(asset)"></button>
-                            <button pButton pRipple icon="pi pi-sign-out" class="p-button-rounded p-button-info mr-2" (click)="checkoutAsset(asset)"
+                            <button pButton pRipple icon="pi pi-pencil" class="btn-rounded btn-primary-theme mr-2" (click)="editAsset(asset)"></button>
+                            <button pButton pRipple icon="pi pi-sign-out" class="btn-rounded btn-primary-theme mr-2" (click)="checkoutAsset(asset)"
                                 *ngIf="asset.status === 0" pTooltip="Checkout Asset"></button>
-                            <button pButton pRipple icon="pi pi-wrench" class="p-button-rounded p-button-warning mr-2" (click)="scheduleMaintenance(asset)"
+                            <button pButton pRipple icon="pi pi-wrench" class="btn-rounded btn-warning-theme mr-2" (click)="scheduleMaintenance(asset)"
                                 pTooltip="Schedule Maintenance"></button>
-                            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteAsset(asset)"></button>
+                            <button pButton pRipple icon="pi pi-trash" class="btn-rounded btn-danger-theme" (click)="deleteAsset(asset)"></button>
                         </td>
                     </tr>
                 </ng-template>
@@ -136,7 +136,7 @@
                             <p-tag [value]="checkout.statusName" [severity]="getCheckoutStatusSeverity(checkout.status)"></p-tag>
                         </td>
                         <td>
-                            <button pButton pRipple icon="pi pi-sign-in" class="p-button-rounded p-button-success" 
+                            <button pButton pRipple icon="pi pi-sign-in" class="btn-rounded btn-primary-theme" 
                                 (click)="checkinAsset(checkout)" *ngIf="checkout.status === 0" pTooltip="Check In Asset"></button>
                         </td>
                     </tr>
@@ -234,8 +234,8 @@
     </ng-template>
 
     <ng-template #footer>
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveAsset()"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="btn-secondary-theme" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="btn-primary-theme" (click)="saveAsset()"></button>
     </ng-template>
 </p-dialog>
 
@@ -277,8 +277,8 @@
     </ng-template>
 
     <ng-template #footer>
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton pRipple label="Checkout" icon="pi pi-check" class="p-button-text" (click)="saveCheckout()"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="btn-secondary-theme" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Checkout" icon="pi pi-check" class="btn-primary-theme" (click)="saveCheckout()"></button>
     </ng-template>
 </p-dialog>
 
@@ -315,8 +315,8 @@
     </ng-template>
 
     <ng-template #footer>
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton pRipple label="Check In" icon="pi pi-check" class="p-button-text" (click)="saveCheckin()"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="btn-secondary-theme" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Check In" icon="pi pi-check" class="btn-primary-theme" (click)="saveCheckin()"></button>
     </ng-template>
 </p-dialog>
 
@@ -340,8 +340,8 @@
     </ng-template>
 
     <ng-template #footer>
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton pRipple label="Schedule" icon="pi pi-check" class="p-button-text" (click)="saveMaintenance()"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="btn-secondary-theme" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Schedule" icon="pi pi-check" class="btn-primary-theme" (click)="saveMaintenance()"></button>
     </ng-template>
 </p-dialog>
 

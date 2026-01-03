@@ -201,7 +201,7 @@
             <div class="form-actions mt-3">
                 <button 
                     type="submit"
-                    class="btn btn-primary"
+                    class="btn-primary-theme"
                     [disabled]="saving() || loading()"
                 >
                     <span *ngIf="saving()" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -246,7 +246,7 @@
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <button type="button" class="btn btn-primary w-100" [disabled]="!selectedFile || !selectedDocumentType || uploading()" (click)="uploadMemberDocument()">
+                                <button type="button" class="btn-primary-theme w-100" [disabled]="!selectedFile || !selectedDocumentType || uploading()" (click)="uploadMemberDocument()">
                                     <span *ngIf="uploading()" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                                     <i class="bi bi-upload me-1"></i> Upload
                                 </button>
@@ -281,10 +281,10 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-outline-primary btn-sm" (click)="downloadDocument(doc.filePath || '')" title="Download">
+                                                <button type="button" class="btn btn-sm btn-outline-primary-theme" (click)="downloadDocument(doc.filePath || '')" title="Download">
                                                     <i class="bi bi-download"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteMemberDocument(doc.id)" [disabled]="viewMode" title="Delete">
+                                                <button type="button" class="btn btn-sm btn-outline-danger-theme" (click)="deleteMemberDocument(doc.id)" [disabled]="viewMode" title="Delete">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </div>

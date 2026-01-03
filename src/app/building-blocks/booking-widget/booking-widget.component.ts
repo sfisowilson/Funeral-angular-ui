@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { BookingService, BookingRequest, TimeSlot, Booking, BookingWidgetConfig } from '../booking-widget/booking.service';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
@@ -15,7 +16,7 @@ import { TenantSettingsService } from '../../core/services/tenant-settings.servi
 @Component({
     selector: 'app-booking-widget',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, CalendarModule, DropdownModule, InputTextModule, TextareaModule, CardModule, ToastModule],
+    imports: [CommonModule, FormsModule, ButtonModule, CalendarModule, DropdownModule, InputTextModule, TextareaModule, CardModule, ToastModule, ProgressSpinnerModule],
     providers: [MessageService],
     templateUrl: './booking-widget.component.html',
     styles: [`
@@ -92,6 +93,8 @@ export class BookingWidgetComponent implements OnInit {
     selectedDate: Date | null = null;
     selectedTimeSlot: TimeSlot | null = null;
     selectedServices: any[] = [];
+    minDate = new Date(); // For calendar min date
+    disabledDates: Date[] = []; // For calendar disabled dates
     customerInfo = {
         name: '',
         email: '',
@@ -146,6 +149,11 @@ export class BookingWidgetComponent implements OnInit {
         if (this.selectedDate) {
             this.loadTimeSlots();
         }
+    }
+
+    isServiceSelected(serviceId: string | undefined): boolean {
+        if (!serviceId) return false;
+        return this.selectedServices.some(s => s.id === serviceId);
     }
 
     private loadTimeSlots(): void {

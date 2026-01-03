@@ -112,7 +112,7 @@
       <div class="d-flex justify-content-between mt-4">
         <button
           type="button"
-          class="btn btn-secondary"
+          class="btn-secondary-theme"
           (click)="skipStep()"
           [disabled]="loading()"
         >
@@ -122,7 +122,7 @@
         
         <button
           type="submit"
-          class="btn btn-primary btn-lg"
+          class="btn-primary-theme btn-theme-lg"
           [disabled]="loading()"
         >
           <ng-container *ngIf="loading(); else notLoading">

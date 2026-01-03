@@ -8,10 +8,12 @@ import { TenantSettingsService } from '../../../core/services/tenant-settings.se
 import { TenantService } from '../../../core/services/tenant.service';
 import { AuthService } from '../../../auth/auth-service';
 import { CommonModule } from '@angular/common';
+import { CustomPagesServiceProxy, PageListItemDto } from '../../../core/services/service-proxies';
 
 @Component({
     selector: 'topbar-widget',
     imports: [RouterModule, StyleClassModule, ButtonModule, RippleModule, CommonModule],
+    providers: [CustomPagesServiceProxy],
     template: `<a class="flex items-center" href="#">
             <img [src]="logoUrl" class="h-12 mr-2" />
             <span class="text-surface-900 dark:text-surface-0 font-medium text-2xl leading-normal mr-20">{{ tenantName }}</span>
@@ -43,6 +45,11 @@ import { CommonModule } from '@angular/common';
                         <span>Pricing</span>
                     </a>
                 </li>
+                <li *ngFor="let page of customPages">
+                    <a [routerLink]="['/' + page.slug]" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
+                        <span>{{ page.name }}</span>
+                    </a>
+                </li>
                 <li *ngIf="isLoggedIn">
                     <a (click)="router.navigate(['/admin'], { fragment: 'admin' })" pRipple class="px-0 py-4 text-surface-900 dark:text-surface-0 font-medium text-xl">
                         <span>Dashboard</span>
@@ -65,12 +72,14 @@ export class TopbarWidget implements OnInit {
     logoUrl: string = '';
     tenantName: string = '';
     isLoggedIn: boolean = false;
+    customPages: PageListItemDto[] = [];
 
     constructor(
         public router: Router,
         private tenantSettingsService: TenantSettingsService,
         private tenantService: TenantService,
-        private authService: AuthService
+        private authService: AuthService,
+        private customPagesService: CustomPagesServiceProxy
     ) {}
 
     ngOnInit(): void {
@@ -78,6 +87,18 @@ export class TopbarWidget implements OnInit {
         this.logoUrl = settings.logoUrl;
         this.tenantName = settings.tenantName;
         this.isLoggedIn = this.authService.isAuthenticated();
+        
+        // Load custom pages for navigation
+        this.customPagesService.all().subscribe({
+            next: (pages) => {
+                this.customPages = pages
+                    .filter((p: any) => p.isActive && p.showInNavbar)
+                    .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
+            },
+            error: (error) => {
+                console.error('Error loading custom pages:', error);
+            }
+        });
     }
 
     logout(): void {

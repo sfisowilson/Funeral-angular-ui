@@ -3,8 +3,8 @@
     <p-toolbar styleClass="mb-4">
         <ng-template pTemplate="left">
             <div class="my-2">
-                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
-                <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedDependents()" [disabled]="!selectedDependents || !selectedDependents.length"></button>
+                <button pButton pRipple label="New" icon="pi pi-plus" class="btn-primary-theme mr-2" (click)="openNew()"></button>
+                <button pButton pRipple label="Delete" icon="pi pi-trash" class="btn-danger-theme" (click)="deleteSelectedDependents()" [disabled]="!selectedDependents || !selectedDependents.length"></button>
             </div>
         </ng-template>
     </p-toolbar>
@@ -63,9 +63,9 @@
                 </td>
                 <td>
                     <div class="flex">
-                        <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editDependent(dependent)"></button>
-                        <button pButton pRipple icon="pi pi-shield" class="p-button-rounded p-button-info mr-2" (click)="verifyDependentIdentity(dependent)"></button>
-                        <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteDependent(dependent)"></button>
+                        <button pButton pRipple icon="pi pi-pencil" class="btn-rounded btn-primary-theme mr-2" (click)="editDependent(dependent)"></button>
+                        <button pButton pRipple icon="pi pi-shield" class="btn-rounded btn-primary-theme mr-2" (click)="verifyDependentIdentity(dependent)"></button>
+                        <button pButton pRipple icon="pi pi-trash" class="btn-rounded btn-danger-theme" (click)="deleteDependent(dependent)"></button>
                     </div>
                 </td>
             </tr>
@@ -151,8 +151,8 @@
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveDependent()"></button>
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="btn-secondary-theme" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="btn-primary-theme" (click)="saveDependent()"></button>
     </ng-template>
 </p-dialog>
 
@@ -183,7 +183,7 @@
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Skip for Now" icon="pi pi-times" class="p-button-text" (click)="closeVerificationDialog()"></button>
+        <button pButton pRipple label="Skip for Now" icon="pi pi-times" class="btn-secondary-theme" (click)="closeVerificationDialog()"></button>
     </ng-template>
 </p-dialog>
 

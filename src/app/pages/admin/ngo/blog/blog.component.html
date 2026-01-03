@@ -5,7 +5,7 @@
 
   <div class="card-body">
     <div class="mb-4">
-      <button type="button" class="btn btn-success" (click)="openNew()">
+      <button type="button" class="btn-primary-theme" (click)="openNew()">
         <i class="bi bi-plus-circle"></i> New Blog Post
       </button>
     </div>
@@ -47,13 +47,13 @@
                 {{ post.status }}
               </span>
             </td>
-            <td>{{ post.publishDate?.toJSDate?.() | date: 'short' }}</td>
+            <td>{{ toDate(post.publishDate) | date: 'short' }}</td>
             <td>{{ post.viewCount }}</td>
             <td>
-              <button type="button" class="btn btn-sm btn-info" (click)="editPost(post)" title="Edit">
+              <button type="button" class="btn-primary-theme btn-sm" (click)="editPost(post)" title="Edit">
                 <i class="bi bi-pencil"></i>
               </button>
-              <button type="button" class="btn btn-sm btn-danger" (click)="deletePost(post)" title="Delete">
+              <button type="button" class="btn-danger-theme btn-sm" (click)="deletePost(post)" title="Delete">
                 <i class="bi bi-trash"></i>
               </button>
             </td>
@@ -176,8 +176,8 @@
           </div>
 
           <div class="d-flex justify-content-end gap-2 border-top pt-3 mt-3">
-            <button type="button" class="btn btn-secondary" (click)="hideDialog()">Cancel</button>
-            <button type="submit" class="btn btn-success" [disabled]="blogForm.invalid || loading">
+            <button type="button" class="btn-secondary-theme" (click)="hideDialog()">Cancel</button>
+            <button type="submit" class="btn-primary-theme" [disabled]="blogForm.invalid || loading">
               {{ loading ? 'Saving...' : 'Save' }}
             </button>
           </div>

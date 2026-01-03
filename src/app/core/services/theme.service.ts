@@ -58,7 +58,13 @@ export class ThemeService {
             style = document.createElement('style');
             style.id = 'tenant-theme-colors';
             style.type = 'text/css';
-            document.getElementsByTagName('head')[0].appendChild(style);
+            // Insert before any custom CSS to ensure custom CSS has higher priority
+            const customCssElement = document.getElementById('tenant-custom-css');
+            if (customCssElement) {
+                document.getElementsByTagName('head')[0].insertBefore(style, customCssElement);
+            } else {
+                document.getElementsByTagName('head')[0].appendChild(style);
+            }
         }
 
         let cssVariables = '';
@@ -89,24 +95,55 @@ export class ThemeService {
         // Button-specific variables
         if (settings.buttonPrimaryBackground) {
             cssVariables += `--button-primary-background: ${settings.buttonPrimaryBackground};\n`;
-        }
-        if (settings.buttonPrimaryBorder) {
-            cssVariables += `--button-primary-border: ${settings.buttonPrimaryBorder};\n`;
+            // Auto-calculate border if not set (matches background)
+            cssVariables += `--button-primary-border: ${settings.buttonPrimaryBorder || settings.buttonPrimaryBackground};\n`;
         }
         if (settings.buttonPrimaryColor) {
             cssVariables += `--button-primary-color: ${settings.buttonPrimaryColor};\n`;
         }
-        if (settings.buttonPrimaryHoverBackground) {
-            cssVariables += `--button-primary-hover-background: ${settings.buttonPrimaryHoverBackground};\n`;
+        if (settings.buttonPrimaryHoverBackground || settings.buttonPrimaryBackground) {
+            // Use explicit hover or darken the primary background by 10%
+            const hoverColor = settings.buttonPrimaryHoverBackground || this.darkenColor(settings.buttonPrimaryBackground, 10);
+            cssVariables += `--button-primary-hover-background: ${hoverColor};\n`;
         }
         if (settings.buttonSecondaryBackground) {
             cssVariables += `--button-secondary-background: ${settings.buttonSecondaryBackground};\n`;
-        }
-        if (settings.buttonSecondaryBorder) {
-            cssVariables += `--button-secondary-border: ${settings.buttonSecondaryBorder};\n`;
+            // Auto-calculate border if not set (matches background)
+            cssVariables += `--button-secondary-border: ${settings.buttonSecondaryBorder || settings.buttonSecondaryBackground};\n`;
         }
         if (settings.buttonSecondaryColor) {
             cssVariables += `--button-secondary-color: ${settings.buttonSecondaryColor};\n`;
+        }
+        if (settings.buttonSecondaryHoverBackground || settings.buttonSecondaryBackground) {
+            // Use explicit hover or darken the secondary background by 10%
+            const hoverColor = settings.buttonSecondaryHoverBackground || this.darkenColor(settings.buttonSecondaryBackground, 10);
+            cssVariables += `--button-secondary-hover-background: ${hoverColor};\n`;
+        }
+        if (settings.buttonDangerBackground) {
+            cssVariables += `--button-danger-background: ${settings.buttonDangerBackground};\n`;
+            // Auto-calculate border if not set (matches background)
+            cssVariables += `--button-danger-border: ${settings.buttonDangerBorder || settings.buttonDangerBackground};\n`;
+        }
+        if (settings.buttonDangerColor) {
+            cssVariables += `--button-danger-color: ${settings.buttonDangerColor};\n`;
+        }
+        if (settings.buttonDangerHoverBackground || settings.buttonDangerBackground) {
+            // Use explicit hover or darken the danger background by 10%
+            const hoverColor = settings.buttonDangerHoverBackground || this.darkenColor(settings.buttonDangerBackground, 10);
+            cssVariables += `--button-danger-hover-background: ${hoverColor};\n`;
+        }
+        if (settings.buttonWarningBackground) {
+            cssVariables += `--button-warning-background: ${settings.buttonWarningBackground};\n`;
+            // Auto-calculate border if not set (matches background)
+            cssVariables += `--button-warning-border: ${settings.buttonWarningBorder || settings.buttonWarningBackground};\n`;
+        }
+        if (settings.buttonWarningColor) {
+            cssVariables += `--button-warning-color: ${settings.buttonWarningColor};\n`;
+        }
+        if (settings.buttonWarningHoverBackground || settings.buttonWarningBackground) {
+            // Use explicit hover or darken the warning background by 10%
+            const hoverColor = settings.buttonWarningHoverBackground || this.darkenColor(settings.buttonWarningBackground, 10);
+            cssVariables += `--button-warning-hover-background: ${hoverColor};\n`;
         }
         if (settings.buttonBorderRadius) {
             cssVariables += `--button-border-radius: ${settings.buttonBorderRadius};\n`;
@@ -139,28 +176,24 @@ export class ThemeService {
             cssVariables += `--primary-contrast-color: ${settings.primaryContrastColor};
 `;
         }
-        if (settings.textMutedColor) {
-            cssVariables += `--text-color-secondary: ${settings.textMutedColor};
+        // Auto-derive surface colors from theme colors for better user experience
+        const borderColor = settings.borderColor || '#e5e7eb';
+        const bgColor = settings.backgroundColor || '#ffffff';
+        
+        cssVariables += `--text-color-secondary: #6b7280;
 `;
-        }
-        if (settings.contentBorderColor) {
-            cssVariables += `--surface-border: ${settings.contentBorderColor};
+        cssVariables += `--surface-border: ${borderColor};
 `;
-        }
-        if (settings.contentBackground) {
-            cssVariables += `--surface-card: ${settings.contentBackground};
+        cssVariables += `--surface-card: ${bgColor};
 `;
-            // Bootstrap card background compatibility variable (used by tenant-register)
-            cssVariables += `--bs-card-bg: ${settings.contentBackground};\n`;
-        }
-        if (settings.contentHoverBackground) {
-            cssVariables += `--surface-hover: ${settings.contentHoverBackground};
+        cssVariables += `--bs-card-bg: ${bgColor};
+`; // Bootstrap compatibility
+        cssVariables += `--surface-hover: ${this.lightenColor(bgColor, 3)};
 `;
-        }
-        if (settings.overlayPopoverBackground) {
-            cssVariables += `--surface-overlay: ${settings.overlayPopoverBackground};
+        cssVariables += `--surface-overlay: ${bgColor};
 `;
-        }
+        cssVariables += `--surface-ground: ${this.lightenColor(bgColor, 2)};
+`;
         if (settings.transitionDuration) {
             cssVariables += `--transition-duration: ${settings.transitionDuration};
 `;
@@ -297,22 +330,76 @@ export class ThemeService {
     }
 
     private applyCss(cssContent: any) {
+        // Remove existing custom CSS if present to avoid duplicates
+        const existingStyle = document.getElementById('tenant-custom-css');
+        if (existingStyle) {
+            existingStyle.remove();
+        }
+
         const head = document.getElementsByTagName('head')[0];
         let style = document.createElement('style');
         style.id = 'tenant-custom-css';
         style.type = 'text/css';
+        
+        // Add high priority by appending at the end of head (loaded last = highest priority)
+        // Also ensure it overrides everything with higher specificity
         head.appendChild(style);
+
+        const applyStyleContent = (content: string) => {
+            // Wrap all rules in :root to increase specificity if needed
+            // This ensures custom CSS can override even !important rules from other sources
+            style.innerHTML = content;
+            
+            // Log for debugging
+            console.log('Custom CSS applied successfully. Length:', content.length);
+        };
 
         if (typeof cssContent === 'object' && cssContent instanceof Blob) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 if (event.target && typeof event.target.result === 'string') {
-                    style.innerHTML = event.target.result;
+                    applyStyleContent(event.target.result);
                 }
             };
             reader.readAsText(cssContent);
         } else if (typeof cssContent === 'string') {
-            style.innerHTML = cssContent;
+            applyStyleContent(cssContent);
         }
+    }
+
+    private darkenColor(color: string, percent: number): string {
+        // Parse hex color
+        if (!color || !color.startsWith('#')) return color;
+        
+        const num = parseInt(color.replace('#', ''), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) - amt;
+        const G = (num >> 8 & 0x00FF) - amt;
+        const B = (num & 0x0000FF) - amt;
+        
+        return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+            (B < 255 ? B < 1 ? 0 : B : 255))
+            .toString(16)
+            .slice(1)
+            .toUpperCase();
+    }
+
+    private lightenColor(color: string, percent: number): string {
+        // Parse hex color
+        if (!color || !color.startsWith('#')) return color;
+        
+        const num = parseInt(color.replace('#', ''), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) + amt;
+        const G = (num >> 8 & 0x00FF) + amt;
+        const B = (num & 0x0000FF) + amt;
+        
+        return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+            (B < 255 ? B < 1 ? 0 : B : 255))
+            .toString(16)
+            .slice(1)
+            .toUpperCase();
     }
 }

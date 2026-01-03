@@ -20,7 +20,7 @@
             <h5 class="mb-3">Policy Attributes</h5>
             <p-toolbar styleClass="mb-3">
                 <ng-template #start>
-                    <p-button *ngIf="policy.id" label="Add Attribute" icon="pi pi-plus" severity="secondary" (onClick)="openNewAttribute()" />
+                    <p-button *ngIf="policy.id" label="Add Attribute" icon="pi pi-plus" class="btn-secondary-theme" (onClick)="openNewAttribute()" />
                 </ng-template>
             </p-toolbar>
             <p-table
@@ -53,8 +53,8 @@
                             <i class="pi" [ngClass]="{ 'true-icon pi-check-circle': attribute.isIncluded, 'false-icon pi-times-circle': !attribute.isIncluded }"></i>
                         </td>
                         <td>
-                            <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editPolicyAttribute(attribute)" />
-                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deletePolicyAttribute(attribute)" />
+                            <p-button icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme mr-2" (click)="editPolicyAttribute(attribute)" />
+                            <p-button icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" (click)="deletePolicyAttribute(attribute)" />
                         </td>
                     </tr>
                 </ng-template>
@@ -68,7 +68,7 @@
     </div>
 
     <div class="flex justify-end mt-6">
-        <p-button label="Save" icon="pi pi-check" (click)="savePolicy()" />
+        <p-button label="Save" icon="pi pi-check" class="btn-primary-theme" (click)="savePolicy()" />
     </div>
 </div>
 
@@ -99,8 +99,8 @@
     </ng-template>
 
     <ng-template #footer>
-        <p-button label="Cancel" icon="pi pi-times" text (click)="hideAttributeDialog()" />
-        <p-button label="Save" icon="pi pi-check" (click)="savePolicyAttribute()" />
+        <p-button label="Cancel" icon="pi pi-times" class="btn-secondary-theme" (click)="hideAttributeDialog()" />
+        <p-button label="Save" icon="pi pi-check" class="btn-primary-theme" (click)="savePolicyAttribute()" />
     </ng-template>
 </p-dialog>
 

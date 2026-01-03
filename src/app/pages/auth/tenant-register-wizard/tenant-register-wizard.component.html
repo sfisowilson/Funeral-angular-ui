@@ -26,7 +26,7 @@
                 </ul>
 
                 <div class="wizard-content">
-                    <!-- Step 1: Account Information -->
+                    <!-- Step 1: Account Information & Organization Type Selection -->
                     <div *ngIf="activeIndex() === 0 && accountForm" class="step-content">
                         <h3>Account Information</h3>
                         <form [formGroup]="accountForm" class="registration-form">
@@ -46,25 +46,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Tenant Type -->
-                                <div class="col-md-6">
-                                    <label for="tenantType" class="form-label">Organization Type *</label>
-                                    <select 
-                                        id="tenantType"
-                                        class="form-select"
-                                        [class.is-invalid]="isFieldInvalid('tenantType')"
-                                        formControlName="tenantType">
-                                        <option value="">Select type</option>
-                                        <option *ngFor="let type of tenantTypes()" [value]="type.value">{{type.label}}</option>
-                                    </select>
-                                    <div *ngIf="isFieldInvalid('tenantType')" class="invalid-feedback">
-                                        {{ getFieldError('tenantType') }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Email -->
-                            <div class="row g-3 mt-3">
+                                <!-- Email -->
                                 <div class="col-md-6">
                                     <label for="email" class="form-label">Email Address *</label>
                                     <input 
@@ -78,8 +60,42 @@
                                         {{ getFieldError('email') }}
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Domain -->
+                            <!-- Password -->
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
+                                    <label for="password" class="form-label">Password *</label>
+                                    <input 
+                                        id="password"
+                                        type="password"
+                                        class="form-control"
+                                        formControlName="password"
+                                        [class.is-invalid]="isFieldInvalid('password')"
+                                        placeholder="Enter password">
+                                    <div *ngIf="isFieldInvalid('password')" class="invalid-feedback">
+                                        {{ getFieldError('password') }}
+                                    </div>
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div class="col-md-6">
+                                    <label for="confirmPassword" class="form-label">Confirm Password *</label>
+                                    <input 
+                                        id="confirmPassword"
+                                        type="password"
+                                        class="form-control"
+                                        formControlName="confirmPassword"
+                                        [class.is-invalid]="accountForm.errors?.['passwordMismatch'] && accountForm.get('confirmPassword')?.touched"
+                                        placeholder="Confirm password">
+                                    <div *ngIf="accountForm.errors?.['passwordMismatch'] && accountForm.get('confirmPassword')?.touched" class="invalid-feedback">
+                                        Passwords do not match
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Domain & Registration Number -->
+                            <div class="row g-3 mt-3">
                                 <div class="col-md-6">
                                     <label for="domain" class="form-label">Domain (Subdomain) *</label>
                                     <input 
@@ -94,73 +110,38 @@
                                         {{ getFieldError('domain') }}
                                     </div>
                                 </div>
+
+                                <div class="col-md-6">
+                                    <label for="registrationNumber" class="form-label">Registration Number *</label>
+                                    <input 
+                                        id="registrationNumber" 
+                                        type="text" 
+                                        class="form-control" 
+                                        formControlName="registrationNumber"
+                                        [class.is-invalid]="isFieldInvalid('registrationNumber')"
+                                        placeholder="2023/123456/07">
+                                    <div *ngIf="isFieldInvalid('registrationNumber')" class="invalid-feedback">
+                                        {{ getFieldError('registrationNumber') }}
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Password -->
+                            <!-- Phone Numbers -->
                             <div class="row g-3 mt-3">
                                 <div class="col-md-6">
-                                <label for="password" class="form-label">Password *</label>
-                                <input 
-                                    id="password"
-                                    type="password"
-                                    class="form-control"
-                                    formControlName="password"
-                                    [class.is-invalid]="isFieldInvalid('password')"
-                                    placeholder="Enter password">
-                                <div *ngIf="isFieldInvalid('password')" class="invalid-feedback">
-                                    {{ getFieldError('password') }}
+                                    <label for="phone1" class="form-label">Primary Phone *</label>
+                                    <input 
+                                        id="phone1" 
+                                        type="tel" 
+                                        class="form-control" 
+                                        formControlName="phone1"
+                                        [class.is-invalid]="isFieldInvalid('phone1')"
+                                        placeholder="+27123456789">
+                                    <div *ngIf="isFieldInvalid('phone1')" class="invalid-feedback">
+                                        {{ getFieldError('phone1') }}
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Confirm Password -->
-                            <div class="col-md-6">
-                                <label for="confirmPassword" class="form-label">Confirm Password *</label>
-                                <input 
-                                    id="confirmPassword"
-                                    type="password"
-                                    class="form-control"
-                                    formControlName="confirmPassword"
-                                    [class.is-invalid]="accountForm.errors?.['passwordMismatch'] && accountForm.get('confirmPassword')?.touched"
-                                    placeholder="Confirm password">
-                                <div *ngIf="accountForm.errors?.['passwordMismatch'] && accountForm.get('confirmPassword')?.touched" class="invalid-feedback">
-                                    Passwords do not match
-                                </div>
-                            </div>
-
-                            <!-- Registration Number -->
-                            <div class="row g-3 mt-3">
-                            <div class="col-md-12">
-                                <label for="registrationNumber" class="form-label">Registration Number *</label>
-                                <input 
-                                    id="registrationNumber" 
-                                    type="text" 
-                                    class="form-control" 
-                                    formControlName="registrationNumber"
-                                    [class.is-invalid]="isFieldInvalid('registrationNumber')"
-                                    placeholder="2023/123456/07">
-                                <div *ngIf="isFieldInvalid('registrationNumber')" class="invalid-feedback">
-                                    {{ getFieldError('registrationNumber') }}
-                                </div>
-                            </div>
-                            </div>
-
-                            <!-- Phone 1 -->
-                            <div class="row g-3 mt-3">
-                                <div class="col-md-6">
-                                <label for="phone1" class="form-label">Primary Phone *</label>
-                                <input 
-                                    id="phone1" 
-                                    type="tel" 
-                                    class="form-control" 
-                                    formControlName="phone1"
-                                    [class.is-invalid]="isFieldInvalid('phone1')"
-                                    placeholder="+27123456789">
-                                <div *ngIf="isFieldInvalid('phone1')" class="invalid-feedback">
-                                    {{ getFieldError('phone1') }}
-                                </div>
-                            </div>
-
-                                <!-- Phone 2 -->
                                 <div class="col-md-6">
                                     <label for="phone2" class="form-label">Secondary Phone</label>
                                     <input 
@@ -189,31 +170,261 @@
                                 </div>
                             </div>
 
+                            <!-- Organization Type Selection -->
+                            <div class="row g-3 mt-4">
+                                <div class="col-12">
+                                    <h4 class="mb-3">Select Your Organization Type *</h4>
+                                    <p class="text-muted">Choose the type that best describes your organization</p>
+                                    
+                                    <!-- Funeral Services -->
+                                    <div class="org-type-category mb-4">
+                                        <h5 class="category-title"><i class="bi bi-flower1 me-2"></i>Funeral Services</h5>
+                                        <div class="row g-3">
+                                            <div class="col-md-6 col-lg-3" *ngFor="let orgType of getOrganizationTypesByCategory('funeral')">
+                                                <div class="org-type-card" 
+                                                     [class.selected]="selectedOrganizationType()?.value === orgType.value"
+                                                     (click)="onOrganizationTypeSelected(orgType)">
+                                                    <div class="org-icon">
+                                                        <i class="{{orgType.icon}}"></i>
+                                                    </div>
+                                                    <h6>{{orgType.label}}</h6>
+                                                    <p class="small text-muted">{{orgType.description}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Non-Profit Organizations -->
+                                    <div class="org-type-category mb-4">
+                                        <h5 class="category-title"><i class="bi bi-heart me-2"></i>Non-Profit Organizations</h5>
+                                        <div class="row g-3">
+                                            <div class="col-md-6 col-lg-3" *ngFor="let orgType of getOrganizationTypesByCategory('nonprofit')">
+                                                <div class="org-type-card" 
+                                                     [class.selected]="selectedOrganizationType()?.value === orgType.value"
+                                                     (click)="onOrganizationTypeSelected(orgType)">
+                                                    <div class="org-icon">
+                                                        <i class="{{orgType.icon}}"></i>
+                                                    </div>
+                                                    <h6>{{orgType.label}}</h6>
+                                                    <p class="small text-muted">{{orgType.description}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Business Services -->
+                                    <div class="org-type-category mb-4">
+                                        <h5 class="category-title"><i class="bi bi-briefcase me-2"></i>Business Services</h5>
+                                        <div class="row g-3">
+                                            <div class="col-md-6 col-lg-3" *ngFor="let orgType of getOrganizationTypesByCategory('business')">
+                                                <div class="org-type-card" 
+                                                     [class.selected]="selectedOrganizationType()?.value === orgType.value"
+                                                     (click)="onOrganizationTypeSelected(orgType)">
+                                                    <div class="org-icon">
+                                                        <i class="{{orgType.icon}}"></i>
+                                                    </div>
+                                                    <h6>{{orgType.label}}</h6>
+                                                    <p class="small text-muted">{{orgType.description}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Terms and Conditions -->
                             <div class="row g-3 mt-3">
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input 
-                                        type="checkbox"
-                                        class="form-check-input"
-                                        formControlName="agreeToTerms"
-                                        id="agreeToTerms">
-                                    <label for="agreeToTerms" class="form-check-label">
-                                        I agree to the <a href="/terms" target="_blank">Terms and Conditions</a> and <a href="/privacy" target="_blank">Privacy Policy</a> *
-                                    </label>
-                                </div>
-                                <div *ngIf="isFieldInvalid('agreeToTerms')" class="invalid-feedback d-block">
-                                    You must agree to the terms and conditions
-                                </div>
-                                </div>
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input 
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            formControlName="agreeToTerms"
+                                            id="agreeToTerms">
+                                        <label for="agreeToTerms" class="form-check-label">
+                                            I agree to the <a href="/terms" target="_blank">Terms and Conditions</a> and <a href="/privacy" target="_blank">Privacy Policy</a> *
+                                        </label>
+                                    </div>
+                                    <div *ngIf="isFieldInvalid('agreeToTerms')" class="invalid-feedback d-block">
+                                        You must agree to the terms and conditions
+                                    </div>
                                 </div>
                             </div>
                         </form>
                     </div>
 
-                <!-- Step 2: Plan Selection -->
-                <div *ngIf="activeIndex() === 1" class="step-content">
-                    <h3>Choose Your Subscription Plan</h3>
+                    <!-- Step 2: Organization-Specific Questions -->
+                    <div *ngIf="activeIndex() === 1" class="step-content">
+                        <div *ngIf="selectedOrganizationType()" class="organization-questions">
+                            <div class="mb-4 text-center">
+                                <div class="org-icon-large mb-3">
+                                    <i class="{{selectedOrganizationType()!.icon}}"></i>
+                                </div>
+                                <h3>{{selectedOrganizationType()!.label}}</h3>
+                                <p class="text-muted">{{selectedOrganizationType()!.description}}</p>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Help us understand your needs better. Your answers will help us customize your experience and provide accurate pricing.
+                            </div>
+
+                            <form [formGroup]="organizationQuestionsForm" class="questions-form">
+                                <div class="row g-4">
+                                    <div class="col-md-12" *ngFor="let question of orgTypeQuestions()">
+                                        <div class="question-card">
+                                            <label class="form-label">
+                                                {{question.label}}
+                                                <span *ngIf="question.required" class="text-danger">*</span>
+                                            </label>
+                                            <small *ngIf="question.helpText" class="form-text text-muted d-block mb-2">
+                                                {{question.helpText}}
+                                            </small>
+
+                                            <!-- Text Input -->
+                                            <input *ngIf="question.type === 'text'" 
+                                                   type="text" 
+                                                   class="form-control" 
+                                                   [formControlName]="question.id"
+                                                   [placeholder]="question.placeholder || ''"
+                                                   [class.is-invalid]="organizationQuestionsForm.get(question.id)?.invalid && organizationQuestionsForm.get(question.id)?.touched">
+
+                                            <!-- Number Input -->
+                                            <input *ngIf="question.type === 'number'" 
+                                                   type="number" 
+                                                   class="form-control" 
+                                                   [formControlName]="question.id"
+                                                   [placeholder]="question.placeholder || ''"
+                                                   [class.is-invalid]="organizationQuestionsForm.get(question.id)?.invalid && organizationQuestionsForm.get(question.id)?.touched">
+
+                                            <!-- Select Dropdown -->
+                                            <select *ngIf="question.type === 'select'" 
+                                                    class="form-select" 
+                                                    [formControlName]="question.id"
+                                                    [class.is-invalid]="organizationQuestionsForm.get(question.id)?.invalid && organizationQuestionsForm.get(question.id)?.touched">
+                                                <option value="">Select an option</option>
+                                                <option *ngFor="let option of question.options" [value]="option.value">
+                                                    {{option.label}}
+                                                </option>
+                                            </select>
+
+                                            <!-- Radio Buttons -->
+                                            <div *ngIf="question.type === 'radio'" class="radio-group">
+                                                <div class="form-check" *ngFor="let option of question.options">
+                                                    <input class="form-check-input" 
+                                                           type="radio" 
+                                                           [formControlName]="question.id"
+                                                           [value]="option.value"
+                                                           [id]="question.id + '_' + option.value">
+                                                    <label class="form-check-label" [for]="question.id + '_' + option.value">
+                                                        {{option.label}}
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Checkboxes -->
+                                            <div *ngIf="question.type === 'checkbox'" class="checkbox-group">
+                                                <div class="form-check" *ngFor="let option of question.options">
+                                                    <input class="form-check-input" 
+                                                           type="checkbox" 
+                                                           [value]="option.value"
+                                                           [id]="question.id + '_' + option.value"
+                                                           (change)="onCheckboxChange($event, question.id, option.value)">
+                                                    <label class="form-check-label" [for]="question.id + '_' + option.value">
+                                                        {{option.label}}
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Textarea -->
+                                            <textarea *ngIf="question.type === 'textarea'" 
+                                                      class="form-control" 
+                                                      [formControlName]="question.id"
+                                                      [placeholder]="question.placeholder || ''"
+                                                      rows="4"
+                                                      [class.is-invalid]="organizationQuestionsForm.get(question.id)?.invalid && organizationQuestionsForm.get(question.id)?.touched">
+                                            </textarea>
+
+                                            <div class="invalid-feedback">
+                                                This field is required
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <!-- Features Preview -->
+                            <div class="features-preview mt-4">
+                                <h5>Features Included for {{selectedOrganizationType()!.label}}</h5>
+                                <div class="row">
+                                    <div class="col-md-6" *ngFor="let feature of selectedOrganizationType()!.features">
+                                        <div class="feature-item">
+                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                            {{feature}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Plan Selection with Real-Time Pricing -->
+                    <div *ngIf="activeIndex() === 2" class="step-content">
+                        <h3>Choose Your Subscription Plan</h3>
+                        
+                        <!-- Real-Time Pricing Calculator -->
+                        <div class="price-calculator card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Your Custom Pricing</h5>
+                                <div class="price-breakdown">
+                                    <div class="breakdown-row">
+                                        <span>Base Price:</span>
+                                        <strong>R {{priceBreakdown().basePrice | number:'1.2-2'}}/month</strong>
+                                    </div>
+                                    <div class="breakdown-row" *ngIf="priceBreakdown().organizationModifier !== 1">
+                                        <span>Organization Type ({{selectedOrganizationType()?.label}}):</span>
+                                        <strong>×{{priceBreakdown().organizationModifier | number:'1.2-2'}}</strong>
+                                    </div>
+                                    <div class="breakdown-row" *ngFor="let modifier of priceBreakdown().volumeModifiers">
+                                        <span>{{modifier.label}}:</span>
+                                        <strong>{{modifier.impact}}</strong>
+                                    </div>
+                                    <div class="breakdown-row" *ngIf="priceBreakdown().couponDiscount > 0">
+                                        <span>Coupon Discount:</span>
+                                        <strong class="text-success">-R {{priceBreakdown().couponDiscount | number:'1.2-2'}}</strong>
+                                    </div>
+                                    <hr>
+                                    <div class="breakdown-row total">
+                                        <span>Total Monthly:</span>
+                                        <strong class="text-primary fs-4">R {{calculatedPrice().monthly | number:'1.2-2'}}</strong>
+                                    </div>
+                                    <div class="breakdown-row total">
+                                        <span>Total Yearly (Save {{calculatedPrice().yearlyDiscount}}%):</span>
+                                        <strong class="text-success fs-4">R {{calculatedPrice().yearly | number:'1.2-2'}}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Billing Cycle Selection -->
+                        <div class="billing-cycle-section mb-4">
+                            <h5>Select Billing Cycle</h5>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="billingCycle" id="monthly" [value]="'monthly'" [(ngModel)]="selectedBillingCycle" autocomplete="off">
+                                <label class="btn btn-outline-primary-theme" for="monthly">
+                                    <div>Monthly</div>
+                                    <div class="fs-5 fw-bold">R {{calculatedPrice().monthly | number:'1.2-2'}}</div>
+                                    <small>Billed monthly</small>
+                                </label>
+
+                                <input type="radio" class="btn-check" name="billingCycle" id="yearly" [value]="'yearly'" [(ngModel)]="selectedBillingCycle" autocomplete="off">
+                                <label class="btn btn-outline-primary-theme" for="yearly">
+                                    <div>Yearly <span class="badge bg-success">Save {{calculatedPrice().yearlyDiscount}}%</span></div>
+                                    <div class="fs-5 fw-bold">R {{calculatedPrice().yearly | number:'1.2-2'}}</div>
+                                    <small>Billed annually</small>
+                                </label>
+                            </div>
+                        </div>
                     
                     <div *ngIf="wizardLoading()" class="loading-container">
                         <div class="spinner-border" role="status"></div>
@@ -268,10 +479,13 @@
                                 </div>
                             </div>
                             <button 
-                                [label]="selectedPlan()?.id === plan.id ? 'Selected' : 'Select Plan'"
-                                [class]="selectedPlan()?.id === plan.id ? 'btn-success' : 'btn-outlined'"
-                                [icon]="selectedPlan()?.id === plan.id ? 'bi bi-check-lg' : ''"
-                                class="select-plan-btn">
+                                type="button"
+                                class="btn w-100 mt-3"
+                                [class.btn-primary-theme]="selectedPlan()?.id === plan.id"
+                                [class.btn-outline-primary-theme]="selectedPlan()?.id !== plan.id"
+                                (click)="selectPlan(plan)">
+                                <i class="bi bi-check-lg me-2" *ngIf="selectedPlan()?.id === plan.id"></i>
+                                {{ selectedPlan()?.id === plan.id ? 'Selected' : 'Select Plan' }}
                             </button>
                         </div>
                     </div>
@@ -288,7 +502,7 @@
                                 [disabled]="couponLoading()">
                             <button 
                                 type="button"
-                                class="btn btn-primary"
+                                class="btn-primary-theme"
                                 [disabled]="!couponCode() || couponLoading()"
                                 (click)="validateCoupon()">
                                 <span *ngIf="couponLoading()" class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -302,21 +516,12 @@
                         </div>
                     </div>
 
-                    <!-- Billing cycle selection -->
-                    <div *ngIf="selectedPlan()" class="billing-cycle-section" style="margin-top:1rem;">
-                        <label class="billing-label">Billing frequency:</label>
-                        <div style="display:flex; gap:1rem; margin-top:0.5rem;">
-                            <label><input type="radio" name="billingCycle" [value]="0" [(ngModel)]="billingCycle" (change)="onBillingCycleChange()"> Monthly</label>
-                            <label><input type="radio" name="billingCycle" [value]="1" [(ngModel)]="billingCycle" (change)="onBillingCycleChange()"> Yearly</label>
-                        </div>
-                    </div>
-
                     <!-- Price Summary -->
-                    <div *ngIf="selectedPlan()" class="price-summary">
+                    <div *ngIf="selectedPlan()" class="price-summary mt-4">
                         <div class="summary-row">
                             <span>Plan:</span>
-                            <span *ngIf="billingCycle === 0">R {{ selectedPlan()?.monthlyPrice | number:'1.2-2' }}/month</span>
-                            <span *ngIf="billingCycle === 1">R {{ selectedPlan()?.yearlyPrice | number:'1.2-2' }}/year</span>
+                            <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ calculatedPrice().monthly | number:'1.2-2' }}/month</span>
+                            <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ calculatedPrice().yearly | number:'1.2-2' }}/year</span>
                         </div>
                         <div *ngIf="getDiscountAmount() > 0" class="summary-row discount">
                             <span>Discount:</span>
@@ -325,14 +530,14 @@
                         <hr class="my-3">
                         <div class="summary-row total">
                             <span>Total:</span>
-                            <span *ngIf="billingCycle === 0">R {{ getFinalPrice() | number:'1.2-2' }}/month</span>
-                            <span *ngIf="billingCycle === 1">R {{ getFinalPrice() | number:'1.2-2' }}/year</span>
+                            <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ getFinalPrice() | number:'1.2-2' }}/month</span>
+                            <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ getFinalPrice() | number:'1.2-2' }}/year</span>
                         </div>
                     </div>
                 </div>
 
-                    <!-- Step 3: Payment Processing -->
-                    <div *ngIf="activeIndex() === 2" class="step-content">
+                    <!-- Step 4: Payment Processing -->
+                    <div *ngIf="activeIndex() === 3" class="step-content">
                     <div class="payment-processing">
                         <div class="spinner-border" role="status"></div>
                         <h3>Processing Payment...</h3>
@@ -344,11 +549,12 @@
             <div class="card-footer">
                 <div class="wizard-actions">
                     <button 
-                        label="Back"
-                        icon="pi pi-arrow-left"
-                        class="btn-text"
+                        type="button"
+                        class="btn-outline-secondary-theme"
                         [disabled]="activeIndex() === 0 || wizardLoading()"
                         (click)="previousStep()">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back
                     </button>
                     
                     <div class="right-actions">
@@ -358,11 +564,13 @@
                         
                         <button 
                             type="button"
-                            class="btn btn-primary"
-                            [disabled]="wizardLoading()"
+                            class="btn-primary-theme"
+                            [disabled]="wizardLoading() || (activeIndex() === 0 && !selectedOrganizationType())"
                             (click)="nextStep()">
-                            <span *ngIf="!wizardLoading()">{{ activeIndex() === 1 ? 'Proceed to Payment' : 'Continue' }}</span>
                             <span *ngIf="wizardLoading()" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span *ngIf="!wizardLoading()">
+                                {{ activeIndex() === 2 ? 'Proceed to Payment' : 'Continue' }}
+                            </span>
                             <i class="bi bi-arrow-right ms-2" *ngIf="!wizardLoading()"></i>
                         </button>
                     </div>

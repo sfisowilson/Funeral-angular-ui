@@ -6,16 +6,16 @@
             <p-calendar 
                 [(ngModel)]="selectedDate" 
                 (onSelect)="onDateSelect()"
-                [disabledDates]="[date => !isDateSelectable(date)]"
+                [disabledDates]="disabledDates"
                 [inline]="true"
                 [showWeek]="true"
-                [minDate]="new Date()">
+                [minDate]="minDate">
             </p-calendar>
             
             <div class="flex justify-content-end mt-3">
                 <button 
                     type="button" 
-                    class="btn btn-primary" 
+                    class="btn-primary-theme" 
                     (click)="nextStep()"
                     [disabled]="!selectedDate">
                     Next
@@ -50,13 +50,13 @@
             <div class="flex justify-content-between mt-3">
                 <button 
                     type="button" 
-                    class="btn btn-secondary" 
+                    class="btn-secondary-theme" 
                     (click)="previousStep()">
                     Back
                 </button>
                 <button 
                     type="button" 
-                    class="btn btn-primary" 
+                    class="btn-primary-theme" 
                     (click)="nextStep()"
                     [disabled]="!selectedTimeSlot">
                     Next
@@ -81,7 +81,7 @@
                 <div 
                     *ngFor="let service of services" 
                     class="service-item"
-                    [class.selected]="selectedServices.some(s => s.id === service.id)"
+                    [class.selected]="isServiceSelected(service.id)"
                     (click)="selectService(service)">
                     <div class="flex justify-content-between align-items-center">
                         <div>
@@ -99,13 +99,13 @@
             <div class="flex justify-content-between mt-3">
                 <button 
                     type="button" 
-                    class="btn btn-secondary" 
+                    class="btn-secondary-theme" 
                     (click)="previousStep()">
                     Back
                 </button>
                 <button 
                     type="button" 
-                    class="btn btn-primary" 
+                    class="btn-primary-theme" 
                     (click)="nextStep()"
                     [disabled]="selectedServices.length === 0">
                     Next
@@ -180,13 +180,13 @@
             <div class="flex justify-content-between mt-3">
                 <button 
                     type="button" 
-                    class="btn btn-secondary" 
+                    class="btn-secondary-theme" 
                     (click)="previousStep()">
                     Back
                 </button>
                 <button 
                     type="button" 
-                    class="btn btn-primary" 
+                    class="btn-primary-theme" 
                     (click)="submitBooking()"
                     [disabled]="!isFormValid() || isLoading()">
                     <span *ngIf="!isLoading()">

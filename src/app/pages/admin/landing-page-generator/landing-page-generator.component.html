@@ -46,7 +46,7 @@
                 <span class="text-muted">{{filteredTemplates.length}} templates available</span>
                 <button 
                     type="button" 
-                    class="btn btn-primary" 
+                    class="btn-primary-theme" 
                     (click)="generateLandingPage()"
                     [disabled]="!selectedTemplate || isGenerating()">
                     <i class="pi pi-magic me-2"></i>
@@ -135,7 +135,7 @@
                 </button>
                 <button 
                     type="button" 
-                    class="btn btn-primary flex-1"
+                    class="btn-primary-theme flex-1"
                     (click)="selectTemplate(template); $event.stopPropagation()">
                     <i class="pi pi-check me-2"></i>
                     Select
@@ -227,13 +227,13 @@
     </ng-template>
 
     <ng-template #footer>
-        <button type="button" class="btn btn-secondary" (click)="showPreviewDialog = false">
+        <button type="button" class="btn-secondary-theme" (click)="showPreviewDialog = false">
             <i class="pi pi-times me-2"></i>
             Close
         </button>
         <button 
             type="button" 
-            class="btn btn-primary" 
+            class="btn-primary-theme" 
             (click)="showPreviewDialog = false; selectTemplate(selectedTemplate!)">
             <i class="pi pi-check me-2"></i>
             Use This Template

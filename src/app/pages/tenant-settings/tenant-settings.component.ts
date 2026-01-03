@@ -45,21 +45,20 @@ interface Settings extends SmtpSettings, NotificationSettings {
     logo?: string;
     favicon?: string;
     primaryColor?: string;
-    testcolour?: string;
-    inputBackgroundColor?: string;
     secondaryColor?: string;
     accentColor?: string;
     textColor?: string;
     backgroundColor?: string;
     borderColor?: string;
-    buttonPrimaryHoverBackground?: string;
     primaryActiveColor?: string;
     buttonPrimaryBackground?: string;
-    buttonPrimaryBorder?: string;
     buttonPrimaryColor?: string;
     buttonSecondaryBackground?: string;
-    buttonSecondaryBorder?: string;
     buttonSecondaryColor?: string;
+    buttonDangerBackground?: string;
+    buttonDangerColor?: string;
+    buttonWarningBackground?: string;
+    buttonWarningColor?: string;
     buttonBorderRadius?: string;
     buttonPadding?: string;
     buttonFontSize?: string;
@@ -68,27 +67,8 @@ interface Settings extends SmtpSettings, NotificationSettings {
     fontSize?: string;
     fontWeight?: string;
     lineHeight?: string;
-    primaryContrastColor?: string;
-    textMutedColor?: string;
-    contentBorderColor?: string;
-    contentBackground?: string;
-    contentHoverBackground?: string;
-    overlayPopoverBackground?: string;
     transitionDuration?: string;
-    maskBackground?: string;
     contentBorderRadius?: string;
-    layoutSectionTransitionDuration?: string;
-    elementTransitionDuration?: string;
-    focusRingWidth?: string;
-    focusRingStyle?: string;
-    focusRingColor?: string;
-    focusRingOffset?: string;
-    focusRingShadow?: string;
-    surface950?: string;
-    surface800?: string;
-    surface100?: string;
-    surface900?: string;
-    surface200?: string;
     teamMembers?: TeamMember[];
     enableIdVerification?: boolean;
     requireIdVerificationForRegistration?: boolean;
@@ -252,16 +232,17 @@ export class TenantSettingsComponent implements OnInit {
                 this._settings.textColor = this._settings.textColor || '#333333';
                 this._settings.backgroundColor = this._settings.backgroundColor || '#ffffff';
                 this._settings.borderColor = this._settings.borderColor || '#e5e7eb';
-                this._settings.buttonPrimaryHoverBackground = this._settings.buttonPrimaryHoverBackground || '#5568d3';
                 this._settings.primaryActiveColor = this._settings.primaryActiveColor || '#4355b8';
 
                 // Button styling defaults
                 this._settings.buttonPrimaryBackground = this._settings.buttonPrimaryBackground || '#667eea';
-                this._settings.buttonPrimaryBorder = this._settings.buttonPrimaryBorder || '#667eea';
                 this._settings.buttonPrimaryColor = this._settings.buttonPrimaryColor || '#ffffff';
                 this._settings.buttonSecondaryBackground = this._settings.buttonSecondaryBackground || '#6b7280';
-                this._settings.buttonSecondaryBorder = this._settings.buttonSecondaryBorder || '#6b7280';
                 this._settings.buttonSecondaryColor = this._settings.buttonSecondaryColor || '#ffffff';
+                this._settings.buttonDangerBackground = this._settings.buttonDangerBackground || '#dc2626';
+                this._settings.buttonDangerColor = this._settings.buttonDangerColor || '#ffffff';
+                this._settings.buttonWarningBackground = this._settings.buttonWarningBackground || '#f59e0b';
+                this._settings.buttonWarningColor = this._settings.buttonWarningColor || '#ffffff';
                 this._settings.buttonBorderRadius = this._settings.buttonBorderRadius || '6px';
                 this._settings.buttonPadding = this._settings.buttonPadding || '0.5rem 1rem';
                 this._settings.buttonFontSize = this._settings.buttonFontSize || '1rem';
@@ -273,31 +254,9 @@ export class TenantSettingsComponent implements OnInit {
                 this._settings.fontWeight = this._settings.fontWeight || '400';
                 this._settings.lineHeight = this._settings.lineHeight || '1.5';
 
-                // Common variables
-                this._settings.primaryContrastColor = this._settings.primaryContrastColor || '#ffffff';
-                this._settings.textMutedColor = this._settings.textMutedColor || '#6b7280';
-                this._settings.contentBorderColor = this._settings.contentBorderColor || '#e5e7eb';
-                this._settings.contentBackground = this._settings.contentBackground || '#ffffff';
-                this._settings.contentHoverBackground = this._settings.contentHoverBackground || '#f9fafb';
-                this._settings.overlayPopoverBackground = this._settings.overlayPopoverBackground || '#ffffff';
+                // Common variables (minimal, most auto-derived from theme colors)
                 this._settings.transitionDuration = this._settings.transitionDuration || '0.2s';
-                this._settings.maskBackground = this._settings.maskBackground || 'rgba(0, 0, 0, 0.4)';
                 this._settings.contentBorderRadius = this._settings.contentBorderRadius || '6px';
-                this._settings.layoutSectionTransitionDuration = this._settings.layoutSectionTransitionDuration || '0.2s';
-                this._settings.elementTransitionDuration = this._settings.elementTransitionDuration || '0.2s';
-                
-                // Focus Ring
-                this._settings.focusRingWidth = this._settings.focusRingWidth || '2px';
-                this._settings.focusRingStyle = this._settings.focusRingStyle || 'solid';
-                this._settings.focusRingColor = this._settings.focusRingColor || this._settings.primaryColor;
-                this._settings.focusRingOffset = this._settings.focusRingOffset || '0px';
-
-                // Dark/Light theme variables
-                this._settings.surface950 = this._settings.surface950 || '#1f2937';
-                this._settings.surface800 = this._settings.surface800 || '#374151';
-                this._settings.surface100 = this._settings.surface100 || '#f3f4f6';
-                this._settings.surface900 = this._settings.surface900 || '#111827';
-                this._settings.surface200 = this._settings.surface200 || '#e5e7eb';
 
                 // Initialize team members
                 this.teamMembers = this._settings.teamMembers || [];
@@ -332,21 +291,20 @@ export class TenantSettingsComponent implements OnInit {
             existingSettings.logo = this._settings.logo;
             existingSettings.favicon = this._settings.favicon;
             existingSettings.primaryColor = this._settings.primaryColor;
-            existingSettings.testcolour = this._settings.testcolour;
-            existingSettings.inputBackgroundColor = this._settings.inputBackgroundColor;
             existingSettings.secondaryColor = this._settings.secondaryColor;
             existingSettings.accentColor = this._settings.accentColor;
             existingSettings.textColor = this._settings.textColor;
             existingSettings.backgroundColor = this._settings.backgroundColor;
             existingSettings.borderColor = this._settings.borderColor;
-            existingSettings.buttonPrimaryHoverBackground = this._settings.buttonPrimaryHoverBackground;
             existingSettings.primaryActiveColor = this._settings.primaryActiveColor;
             existingSettings.buttonPrimaryBackground = this._settings.buttonPrimaryBackground;
-            existingSettings.buttonPrimaryBorder = this._settings.buttonPrimaryBorder;
             existingSettings.buttonPrimaryColor = this._settings.buttonPrimaryColor;
             existingSettings.buttonSecondaryBackground = this._settings.buttonSecondaryBackground;
-            existingSettings.buttonSecondaryBorder = this._settings.buttonSecondaryBorder;
             existingSettings.buttonSecondaryColor = this._settings.buttonSecondaryColor;
+            existingSettings.buttonDangerBackground = this._settings.buttonDangerBackground;
+            existingSettings.buttonDangerColor = this._settings.buttonDangerColor;
+            existingSettings.buttonWarningBackground = this._settings.buttonWarningBackground;
+            existingSettings.buttonWarningColor = this._settings.buttonWarningColor;
             existingSettings.buttonBorderRadius = this._settings.buttonBorderRadius;
             existingSettings.buttonPadding = this._settings.buttonPadding;
             existingSettings.buttonFontSize = this._settings.buttonFontSize;
@@ -355,27 +313,8 @@ export class TenantSettingsComponent implements OnInit {
             existingSettings.fontSize = this._settings.fontSize;
             existingSettings.fontWeight = this._settings.fontWeight;
             existingSettings.lineHeight = this._settings.lineHeight;
-            existingSettings.primaryContrastColor = this._settings.primaryContrastColor;
-            existingSettings.textMutedColor = this._settings.textMutedColor;
-            existingSettings.contentBorderColor = this._settings.contentBorderColor;
-            existingSettings.contentBackground = this._settings.contentBackground;
-            existingSettings.contentHoverBackground = this._settings.contentHoverBackground;
-            existingSettings.overlayPopoverBackground = this._settings.overlayPopoverBackground;
             existingSettings.transitionDuration = this._settings.transitionDuration;
-            existingSettings.maskBackground = this._settings.maskBackground;
             existingSettings.contentBorderRadius = this._settings.contentBorderRadius;
-            existingSettings.layoutSectionTransitionDuration = this._settings.layoutSectionTransitionDuration;
-            existingSettings.elementTransitionDuration = this._settings.elementTransitionDuration;
-            existingSettings.focusRingWidth = this._settings.focusRingWidth;
-            existingSettings.focusRingStyle = this._settings.focusRingStyle;
-            existingSettings.focusRingColor = this._settings.focusRingColor;
-            existingSettings.focusRingOffset = this._settings.focusRingOffset;
-            existingSettings.focusRingShadow = this._settings.focusRingShadow;
-            existingSettings.surface950 = this._settings.surface950;
-            existingSettings.surface800 = this._settings.surface800;
-            existingSettings.surface100 = this._settings.surface100;
-            existingSettings.surface900 = this._settings.surface900;
-            existingSettings.surface200 = this._settings.surface200;
 
             existingSettings.smtpServer = this.smtpSettings.smtpServer;
             existingSettings.smtpPort = this.smtpSettings.smtpPort;
@@ -392,9 +331,6 @@ export class TenantSettingsComponent implements OnInit {
             const tenantSettingDtoToSend: TenantSettingDto = new TenantSettingDto();
             tenantSettingDtoToSend.id = this.tenantSettings.id;
             tenantSettingDtoToSend.tenantName = this.tenantSettings.tenantName;
-            tenantSettingDtoToSend.ozowApiKey = this.tenantSettings.ozowApiKey;
-            tenantSettingDtoToSend.ozowSiteCode = this.tenantSettings.ozowSiteCode;
-            tenantSettingDtoToSend.ozowPrivateKey = this.tenantSettings.ozowPrivateKey;
             tenantSettingDtoToSend.settings = JSON.stringify(existingSettings); // Stringify the combined settings
 
             this.tenantSettingService.tenantSetting_UpdateTenantSetting(tenantSettingDtoToSend).subscribe({
@@ -645,10 +581,7 @@ export class TenantSettingsComponent implements OnInit {
     // Generate CSS variables for PrimeNG theme
     generateThemeCSS(): string {
         const primaryColor = this._settings.primaryColor || this._settings.buttonPrimaryBackground || '#667eea';
-        const testcolour = this._settings.testcolour ||  'red';
-        const inputBackgroundColor = this._settings.inputBackgroundColor ||  'white';
-        debugger;
-        const primaryHover = this._settings.buttonPrimaryHoverBackground || this.darkenColor(primaryColor, 10);
+        const primaryHover = this.darkenColor(primaryColor, 10);
         const primaryActive = this._settings.primaryActiveColor || this.darkenColor(primaryColor, 15);
         const secondaryColor = this._settings.secondaryColor || this._settings.buttonSecondaryBackground || '#6b7280';
         const textColor = this._settings.textColor || '#374151';
@@ -660,16 +593,16 @@ export class TenantSettingsComponent implements OnInit {
     /* Primary Colors */
     --p-primary-color: ${primaryColor};
     
-    --surface-card: ${testcolour} !important;
-    --surface-overlay: ${testcolour} !important;
-    --p-dialog-background: ${testcolour} !important;
-    --p-inputtext-background: ${inputBackgroundColor} !important;
-    --p-multiselect-background: ${inputBackgroundColor} !important;
-    --p-multiselect-option-focus-background: ${inputBackgroundColor} !important;
+    --surface-card: ${backgroundColor} !important;
+    --surface-overlay: ${backgroundColor} !important;
+    --p-dialog-background: ${backgroundColor} !important;
+    --p-inputtext-background: ${backgroundColor} !important;
+    --p-multiselect-background: ${backgroundColor} !important;
+    --p-multiselect-option-focus-background: ${backgroundColor} !important;
     --p-multiselect-option-focus-color: ${textColor} !important;
-    --p-dropdown-background: ${inputBackgroundColor} !important;
-    --p-dropdown-panel-background: ${inputBackgroundColor} !important;
-    --p-dropdown-item-hover-background: ${inputBackgroundColor} !important;
+    --p-dropdown-background: ${backgroundColor} !important;
+    --p-dropdown-panel-background: ${backgroundColor} !important;
+    --p-dropdown-item-hover-background: ${backgroundColor} !important;
     --p-dropdown-item-hover-color: ${textColor} !important;
     --p-inputtext-border-color: ${borderColor} !important;
 
@@ -677,7 +610,7 @@ export class TenantSettingsComponent implements OnInit {
     
     /* Button Primary */
     --p-button-primary-background: ${this._settings.buttonPrimaryBackground || primaryColor};
-    --p-button-primary-border-color: ${this._settings.buttonPrimaryBorder || primaryColor};
+    --p-button-primary-border-color: ${this._settings.buttonPrimaryBackground || primaryColor};
     --p-button-primary-color: ${this._settings.buttonPrimaryColor || '#ffffff'};
     --p-button-primary-hover-background: ${primaryHover};
     --p-button-primary-hover-border-color: ${primaryHover};
@@ -686,7 +619,7 @@ export class TenantSettingsComponent implements OnInit {
     
     /* Button Secondary */
     --p-button-secondary-background: ${this._settings.buttonSecondaryBackground || secondaryColor};
-    --p-button-secondary-border-color: ${this._settings.buttonSecondaryBorder || secondaryColor};
+    --p-button-secondary-border-color: ${this._settings.buttonSecondaryBackground || secondaryColor};
     --p-button-secondary-color: ${this._settings.buttonSecondaryColor || '#ffffff'};
     --p-button-secondary-hover-background: ${this.darkenColor(secondaryColor, 10)};
     --p-button-secondary-hover-border-color: ${this.darkenColor(secondaryColor, 10)};
@@ -728,7 +661,7 @@ export class TenantSettingsComponent implements OnInit {
     
     /* Text Colors */
     --p-text-color: ${textColor};
-    --p-text-muted-color: ${this._settings.textMutedColor || '#6b7280'};
+    --p-text-muted-color: #6b7280;
     
     /* Surface Colors */
     --p-content-background: ${backgroundColor};
@@ -1122,64 +1055,58 @@ export class TenantSettingsComponent implements OnInit {
         switch (preset) {
             case 'purple':
                 this._settings.buttonPrimaryBackground = '#667eea';
-                this._settings.buttonPrimaryBorder = '#667eea';
                 this._settings.buttonPrimaryColor = '#ffffff';
-                this._settings.buttonPrimaryHoverBackground = '#5568d3';
                 this._settings.buttonSecondaryBackground = '#6b7280';
-                this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
+                this._settings.buttonDangerBackground = '#dc2626';
+                this._settings.buttonDangerColor = '#ffffff';
+                this._settings.buttonWarningBackground = '#f59e0b';
+                this._settings.buttonWarningColor = '#ffffff';
                 this._settings.primaryColor = '#667eea';
-                this._settings.testcolour = 'red';
-                this._settings.inputBackgroundColor = 'white';
                 break;
             case 'green':
                 this._settings.buttonPrimaryBackground = '#10b981';
-                this._settings.buttonPrimaryBorder = '#10b981';
                 this._settings.buttonPrimaryColor = '#ffffff';
-                this._settings.buttonPrimaryHoverBackground = '#059669';
                 this._settings.buttonSecondaryBackground = '#6b7280';
-                this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
+                this._settings.buttonDangerBackground = '#dc2626';
+                this._settings.buttonDangerColor = '#ffffff';
+                this._settings.buttonWarningBackground = '#f59e0b';
+                this._settings.buttonWarningColor = '#ffffff';
                 this._settings.primaryColor = '#10b981';
-                this._settings.testcolour = 'red';
-                this._settings.inputBackgroundColor = 'white';
-
                 break;
             case 'blue':
                 this._settings.buttonPrimaryBackground = '#3b82f6';
-                this._settings.buttonPrimaryBorder = '#3b82f6';
                 this._settings.buttonPrimaryColor = '#ffffff';
-                this._settings.buttonPrimaryHoverBackground = '#2563eb';
                 this._settings.buttonSecondaryBackground = '#6b7280';
-                this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
+                this._settings.buttonDangerBackground = '#dc2626';
+                this._settings.buttonDangerColor = '#ffffff';
+                this._settings.buttonWarningBackground = '#f59e0b';
+                this._settings.buttonWarningColor = '#ffffff';
                 this._settings.primaryColor = '#3b82f6';
-                this._settings.testcolour = 'red';
-                this._settings.inputBackgroundColor = 'white';
                 break;
             case 'orange':
                 this._settings.buttonPrimaryBackground = '#f59e0b';
-                this._settings.buttonPrimaryBorder = '#f59e0b';
                 this._settings.buttonPrimaryColor = '#ffffff';
-                this._settings.buttonPrimaryHoverBackground = '#d97706';
                 this._settings.buttonSecondaryBackground = '#6b7280';
-                this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
+                this._settings.buttonDangerBackground = '#dc2626';
+                this._settings.buttonDangerColor = '#ffffff';
+                this._settings.buttonWarningBackground = '#f59e0b';
+                this._settings.buttonWarningColor = '#ffffff';
                 this._settings.primaryColor = '#f59e0b';
-                this._settings.testcolour = 'red';
-                this._settings.inputBackgroundColor = 'white';
                 break;
             case 'dark':
                 this._settings.buttonPrimaryBackground = '#1f2937';
-                this._settings.buttonPrimaryBorder = '#1f2937';
                 this._settings.buttonPrimaryColor = '#ffffff';
-                this._settings.buttonPrimaryHoverBackground = '#374151';
                 this._settings.buttonSecondaryBackground = '#6b7280';
-                this._settings.buttonSecondaryBorder = '#6b7280';
                 this._settings.buttonSecondaryColor = '#ffffff';
+                this._settings.buttonDangerBackground = '#dc2626';
+                this._settings.buttonDangerColor = '#ffffff';
+                this._settings.buttonWarningBackground = '#f59e0b';
+                this._settings.buttonWarningColor = '#ffffff';
                 this._settings.primaryColor = '#1f2937';
-                this._settings.testcolour = 'red';
-                this._settings.inputBackgroundColor = 'white';
                 break;
         }
         

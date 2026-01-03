@@ -14,20 +14,18 @@
 <!-- Modern Toolbar -->
 <div class="modern-toolbar">
     <div class="toolbar-section">
-        <p-button label="New Policy Attribute" icon="pi pi-plus" styleClass="modern-primary-button" (onClick)="openNew()" />
+        <p-button label="New Policy Attribute" icon="pi pi-plus" class="btn-primary-theme" (onClick)="openNew()" />
         <p-button
             label="Delete Selected"
             icon="pi pi-trash"
-            severity="danger"
-            styleClass="modern-danger-button"
-            [outlined]="true"
+            class="btn-outline-danger-theme"
             (onClick)="deleteSelectedPolicyAttributes()"
             [disabled]="!selectedPolicyAttributes || !selectedPolicyAttributes.length"
         />
     </div>
 
     <div class="toolbar-section">
-        <p-button label="Export" icon="pi pi-upload" styleClass="modern-secondary-button" [outlined]="true" (onClick)="exportCSV()" />
+        <p-button label="Export" icon="pi pi-upload" class="btn-outline-secondary-theme" (onClick)="exportCSV()" />
     </div>
 </div>
 
@@ -149,8 +147,8 @@
                 </td>
                 <td class="actions-cell">
                     <div class="action-buttons">
-                        <p-button icon="pi pi-pencil" styleClass="action-button edit-button" [rounded]="true" [outlined]="true" size="small" pTooltip="Edit policy attribute" (click)="editPolicyAttribute(attribute)" />
-                        <p-button icon="pi pi-trash" severity="danger" styleClass="action-button delete-button" [rounded]="true" [outlined]="true" size="small" pTooltip="Delete policy attribute" (click)="deletePolicyAttribute(attribute)" />
+                        <p-button icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme" pTooltip="Edit policy attribute" (click)="editPolicyAttribute(attribute)" />
+                        <p-button icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" pTooltip="Delete policy attribute" (click)="deletePolicyAttribute(attribute)" />
                     </div>
                 </td>
             </tr>
@@ -230,8 +228,8 @@
 
     <ng-template #footer>
         <div class="dialog-actions">
-            <p-button label="Cancel" icon="pi pi-times" styleClass="cancel-button" [outlined]="true" (click)="hideDialog()" />
-            <p-button label="Save Policy Attribute" icon="pi pi-check" styleClass="save-button" (click)="savePolicyAttribute()" />
+            <p-button label="Cancel" icon="pi pi-times" class="btn-outline-secondary-theme" (click)="hideDialog()" />
+            <p-button label="Save Policy Attribute" icon="pi pi-check" class="btn-primary-theme" (click)="savePolicyAttribute()" />
         </div>
     </ng-template>
 </p-dialog>

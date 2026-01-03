@@ -36,7 +36,7 @@
                                     <p>{{ plan.description }}</p>
                                 </div>
                                 <div class="card-footer">
-                                    <button class="btn btn-primary w-100" (click)="selectPlan(plan)">
+                                    <button class="btn-primary-theme w-100" (click)="selectPlan(plan)">
                                         <i class="bi bi-check-circle me-2"></i>
                                         Select Plan
                                     </button>
@@ -118,7 +118,7 @@
                                             (keyup.enter)="validateCoupon()" />
                                         <button 
                                             type="button"
-                                            class="btn btn-primary"
+                                            class="btn-primary-theme"
                                             *ngIf="!couponValidation?.isValid"
                                             [disabled]="!couponCode || validatingCoupon"
                                             (click)="validateCoupon()">
@@ -127,7 +127,7 @@
                                         </button>
                                         <button 
                                             type="button"
-                                            class="btn btn-danger"
+                                            class="btn-secondary-theme"
                                             *ngIf="couponValidation?.isValid"
                                             (click)="removeCoupon()">
                                             <i class="bi bi-x"></i>
@@ -193,7 +193,7 @@
                                 </div>
                                 <div class="card-footer d-grid gap-2">
                                     <button 
-                                        class="btn btn-primary"
+                                        class="btn-primary-theme"
                                         [disabled]="processingPayment"
                                         (click)="proceedToPayment()">
                                         <span *ngIf="processingPayment" class="spinner-border spinner-border-sm me-2"></span>
@@ -201,7 +201,7 @@
                                         Proceed to Payment
                                     </button>
                                     <button 
-                                        class="btn btn-secondary"
+                                        class="btn-secondary-theme"
                                         [disabled]="processingPayment"
                                         (click)="selectedPlan = null">
                                         <i class="bi bi-arrow-left me-2"></i>

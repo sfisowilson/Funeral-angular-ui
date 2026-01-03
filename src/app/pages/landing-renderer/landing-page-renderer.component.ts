@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy, Inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { WidgetService } from '@app/building-blocks/widget.service';
 import { WidgetConfig } from '@app/building-blocks/widget-config';
 import { WIDGET_TYPES } from '@app/building-blocks/widget-registry';
@@ -9,7 +10,7 @@ import { ScrollRevealDirective } from '@app/building-blocks/scroll-reveal.direct
 import { Subscription } from 'rxjs';
 import { AuthService } from '@app/auth/auth-service';
 import { HttpHeaders } from '@angular/common/http';
-import { TenantSettingServiceProxy, API_BASE_URL, TenantSettingDto } from '../../core/services/service-proxies';
+import { TenantSettingServiceProxy, API_BASE_URL, TenantSettingDto, CustomPagesServiceProxy, PageListItemDto } from '../../core/services/service-proxies';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { TenantService } from '../../core/services/tenant.service';
 import { environment } from '../../../environments/environment';
@@ -17,8 +18,8 @@ import { environment } from '../../../environments/environment';
 @Component({
     selector: 'app-landing-page-renderer',
     standalone: true,
-    imports: [CommonModule, ScrollRevealDirective],
-    providers: [TenantSettingsService],
+    imports: [CommonModule, ScrollRevealDirective, RouterModule],
+    providers: [TenantSettingsService, CustomPagesServiceProxy],
     template: `
         <div class="flex flex-col min-h-screen">
             <!-- Header -->
@@ -31,6 +32,7 @@ import { environment } from '../../../environments/environment';
                     </div>
                     <nav class="hidden md:flex space-x-6">
                         <a href="#" class="text-gray-600 hover:text-blue-600 transition">Home</a>
+                        <a *ngFor="let page of navbarPages" [routerLink]="['/' + page.slug]" class="text-gray-600 hover:text-blue-600 transition">{{ page.name }}</a>
                         <ng-container *ngIf="!isStaticSite && !isLoggedIn">
                             <a [href]="getRegisterUrl()" class="text-blue-600 hover:underline font-semibold">Register</a>
                             <a href="/auth/login" class="text-blue-600 hover:underline font-semibold">Login</a>
@@ -156,6 +158,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     _settings: any = {};
     tenantSettings!: TenantSettingDto;
     isStaticSite = false;
+    navbarPages: PageListItemDto[] = [];
 
     // Separate floating and normal widgets
     get normalWidgets(): WidgetConfig[] {
@@ -179,7 +182,8 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         private authService: AuthService,
         private titleService: Title,
         @Inject(API_BASE_URL) private baseUrl: string,
-        private pageLayoutService: PageLayoutService
+        private pageLayoutService: PageLayoutService,
+        private customPagesService: CustomPagesServiceProxy
     ) {}
 
     ngOnInit(): void {
@@ -195,6 +199,19 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         });
 
         this.isLoggedIn = this.authService.isAuthenticated();
+        
+        // Load custom pages for navigation
+        this.customPagesService.all().subscribe({
+            next: (pages) => {
+                this.navbarPages = pages
+                    .filter((p: any) => p.isActive && p.showInNavbar)
+                    .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
+            },
+            error: (error) => {
+                console.error('Error loading custom pages:', error);
+            }
+        });
+        
         // Use subdomain if present, otherwise use hostSubdomain from environment
         const host = window.location.hostname;
         const subdomain = host.split('.')[0];

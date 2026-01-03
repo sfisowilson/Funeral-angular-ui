@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+// NOTE: TenantServiceProxy exists but doesn't include tenant_GetCurrentTenantFeatures method
+// This endpoint may need to be added to the backend's Swagger documentation
+
 export interface TenantFeaturesDto {
     identityVerification: boolean;
     maxVerificationsPerMonth: number;

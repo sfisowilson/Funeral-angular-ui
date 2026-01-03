@@ -1,7 +1,7 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h2>Donor Recognition Management</h2>
-    <button type="button" class="btn btn-primary" (click)="openNewDialog()">
+    <button type="button" class="btn-primary-theme" (click)="openNewDialog()">
       <i class="bi bi-plus-circle"></i> New Recognition
     </button>
   </div>
@@ -131,8 +131,8 @@
       </div>
       
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="saveDonor()" [disabled]="loading">
+        <button type="button" class="btn-secondary-theme" (click)="closeDialog()">Cancel</button>
+        <button type="button" class="btn-primary-theme" (click)="saveDonor()" [disabled]="loading">
           {{ loading ? 'Saving...' : 'Save' }}
         </button>
       </div>

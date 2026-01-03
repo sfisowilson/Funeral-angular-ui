@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { CustomPagesServiceProxy, PageListItemDto } from '../../../core/services/service-proxies';
 
 @Component({
     selector: 'footer-widget',
-    imports: [RouterModule],
+    imports: [RouterModule, CommonModule],
+    providers: [CustomPagesServiceProxy],
     template: `
         <div class="py-12 px-12 mx-0 mt-20 lg:mx-20">
             <div class="grid grid-cols-12 gap-4">
@@ -62,12 +65,35 @@ import { Router, RouterModule } from '@angular/router';
                             <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Privacy Policy</a>
                             <a class="leading-normal text-xl block cursor-pointer text-surface-700 dark:text-surface-100">Terms of Service</a>
                         </div>
+                        
+                        <div class="col-span-12 md:col-span-3" *ngIf="footerPages.length > 0">
+                            <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Pages</h4>
+                            <a *ngFor="let page of footerPages" [routerLink]="['/' + page.slug]" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">{{ page.name }}</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     `
 })
-export class FooterWidget {
-    constructor(public router: Router) {}
+export class FooterWidget implements OnInit {
+    footerPages: PageListItemDto[] = [];
+    
+    constructor(
+        public router: Router,
+        private customPagesService: CustomPagesServiceProxy
+    ) {}
+    
+    ngOnInit(): void {
+        this.customPagesService.all().subscribe({
+            next: (pages) => {
+                this.footerPages = pages
+                    .filter((p: any) => p.isActive && p.showInFooter)
+                    .sort((a: any, b: any) => (a.footerOrder || 999) - (b.footerOrder || 999));
+            },
+            error: (error) => {
+                console.error('Error loading custom pages for footer:', error);
+            }
+        });
+    }
 }

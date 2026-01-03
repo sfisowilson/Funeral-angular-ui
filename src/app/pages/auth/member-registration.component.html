@@ -44,9 +44,10 @@
 
                 <div class="form-actions">
                     <button pButton type="submit" label="Continue" icon="pi pi-arrow-right" iconPos="right" 
+                            class="btn-primary-theme"
                             [disabled]="idCheckForm.invalid || isProcessing()" [loading]="isProcessing()"></button>
                     <button pButton type="button" label="Back to Login" icon="pi pi-arrow-left" 
-                            class="p-button-text" (click)="goToLogin()"></button>
+                            class="btn-secondary-theme" (click)="goToLogin()"></button>
                 </div>
             </form>
         </div>
@@ -118,10 +119,11 @@
 
                 <div class="form-actions">
                     <button pButton type="submit" label="Register" icon="pi pi-check" 
+                            class="btn-primary-theme"
                             [disabled]="newMemberForm.invalid || !selectedPolicy() || isProcessing()" 
                             [loading]="isProcessing()"></button>
                     <button pButton type="button" label="Back" icon="pi pi-arrow-left" 
-                            class="p-button-secondary" (click)="goBack()"></button>
+                            class="btn-secondary-theme" (click)="goBack()"></button>
                 </div>
             </form>
         </div>
@@ -164,9 +166,10 @@
 
                 <div class="form-actions">
                     <button pButton type="submit" label="Send Code" icon="pi pi-send" 
+                            class="btn-primary-theme"
                             [disabled]="otpForm.invalid || isProcessing()" [loading]="isProcessing()"></button>
                     <button pButton type="button" label="Back" icon="pi pi-arrow-left" 
-                            class="p-button-secondary" (click)="goBack()"></button>
+                            class="btn-secondary-theme" (click)="goBack()"></button>
                 </div>
             </form>
         </div>
@@ -213,9 +216,10 @@
 
                 <div class="form-actions">
                     <button pButton type="submit" label="Create Account" icon="pi pi-check" 
+                            class="btn-primary-theme"
                             [disabled]="accountForm.invalid || isProcessing()" [loading]="isProcessing()"></button>
                     <button pButton type="button" label="Resend Code" icon="pi pi-refresh" 
-                            class="p-button-text" (click)="sendOtp()"></button>
+                            class="btn-secondary-theme" (click)="sendOtp()"></button>
                 </div>
             </form>
         </div>

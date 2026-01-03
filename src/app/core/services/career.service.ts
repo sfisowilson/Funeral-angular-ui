@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+// NOTE: No generated proxy exists for Career API endpoints
+// Backend may not have Career controller exposed in Swagger
+
 export interface Career {
     id: string;
     jobTitle: string;

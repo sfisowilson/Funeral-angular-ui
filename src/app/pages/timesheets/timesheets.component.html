@@ -11,7 +11,7 @@
 
     <div class="card-body">
         <div class="mb-6">
-            <button type="button" class="btn btn-primary" (click)="openNew()">
+            <button type="button" class="btn-primary-theme" (click)="openNew()">
                 <i class="pi pi-plus me-2"></i>
                 New Entry
             </button>
@@ -56,10 +56,10 @@
                     </td>
                     <td>
                         <div class="flex gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-circle" (click)="editTimesheetEntry(entry)" title="Edit Entry">
+                            <button type="button" class="btn-outline-primary-theme btn-theme-sm rounded-circle" (click)="editTimesheetEntry(entry)" title="Edit Entry">
                                 <i class="pi pi-pencil"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deleteTimesheetEntry(entry)" title="Delete Entry">
+                            <button type="button" class="btn-outline-danger-theme btn-theme-sm rounded-circle" (click)="deleteTimesheetEntry(entry)" title="Delete Entry">
                                 <i class="pi pi-trash"></i>
                             </button>
                         </div>
@@ -90,11 +90,11 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+                <button type="button" class="btn-secondary-theme" (click)="hideDialog()">
                     <i class="pi pi-times me-2"></i>
                     Cancel
                 </button>
-                <button type="button" class="btn btn-primary" (click)="saveTimesheetEntry()">
+                <button type="button" class="btn-primary-theme" (click)="saveTimesheetEntry()">
                     <i class="pi pi-check me-2"></i>
                     Save
                 </button>

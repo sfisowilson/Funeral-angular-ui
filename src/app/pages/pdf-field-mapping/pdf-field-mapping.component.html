@@ -13,11 +13,11 @@
       <p class="text-muted">Configure how database fields map to PDF form fields</p>
     </div>
     <div class="col-md-4 text-md-end">
-      <button class="btn btn-outline-secondary me-2" (click)="loadCurrentTemplate()" 
+      <button class="btn-outline-secondary-theme me-2" (click)="loadCurrentTemplate()" 
         [disabled]="!currentTemplateFileId">
         <i class="bi bi-search"></i> Analyze Template
       </button>
-      <button class="btn btn-primary" (click)="openCreateDialog()">
+      <button class="btn-primary-theme" (click)="openCreateDialog()">
         <i class="bi bi-plus-lg"></i> Create Mapping
       </button>
     </div>
@@ -47,10 +47,10 @@
         </div>
         <div class="col-md-4 text-md-end">
           <input type="file" #fileInput class="d-none" accept=".pdf" (change)="onTemplateUpload($event)">
-          <button class="btn btn-outline-primary me-2" (click)="fileInput.click()">
+          <button class="btn-outline-primary-theme me-2" (click)="fileInput.click()">
             <i class="bi bi-upload"></i> Upload Template
           </button>
-          <button *ngIf="currentTemplateFileId" class="btn btn-outline-danger" (click)="removeTemplate()">
+          <button *ngIf="currentTemplateFileId" class="btn-outline-danger-theme" (click)="removeTemplate()">
             <i class="bi bi-trash"></i> Remove
           </button>
         </div>
@@ -100,10 +100,10 @@
       <h5 class="mb-0">Quick Setup Templates</h5>
     </div>
     <div class="card-body">
-      <button class="btn btn-outline-primary me-2" (click)="quickMapTitleCheckboxes()">
+      <button class="btn-outline-primary-theme me-2" (click)="quickMapTitleCheckboxes()">
         <i class="bi bi-check-square"></i> Title → Checkboxes
       </button>
-      <button class="btn btn-outline-primary" (click)="quickMapGenderCheckboxes()">
+      <button class="btn-outline-primary-theme" (click)="quickMapGenderCheckboxes()">
         <i class="bi bi-check-square"></i> Gender → Checkboxes
       </button>
     </div>
@@ -162,10 +162,10 @@
                 <small class="text-muted">{{ mapping.description || '-' }}</small>
               </td>
               <td>
-                <button class="btn btn-sm btn-outline-primary me-1" (click)="openEditDialog(mapping)" title="Edit">
+                <button class="btn btn-sm btn-outline-primary-theme me-1" (click)="openEditDialog(mapping)" title="Edit">
                   <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger" (click)="deleteMapping(mapping)" title="Delete">
+                <button class="btn btn-sm btn-outline-danger-theme" (click)="deleteMapping(mapping)" title="Delete">
                   <i class="bi bi-trash"></i>
                 </button>
               </td>
@@ -297,7 +297,7 @@
             [class.active]="activeTab === 'rules-tab'" id="rules-tab" 
             *ngIf="mappingForm.mappingType === 'Conditional'">
             <div class="mb-3">
-              <button class="btn btn-sm btn-outline-primary" (click)="addConditionalRule()">
+              <button class="btn btn-sm btn-outline-primary-theme" (click)="addConditionalRule()">
                 <i class="bi bi-plus-lg"></i> Add Rule
               </button>
             </div>
@@ -316,7 +316,7 @@
                   placeholder="Yes">
               </div>
               <div class="col-md-2">
-                <button class="btn btn-sm btn-outline-danger w-100" (click)="removeConditionalRule(i)">
+                <button class="btn btn-sm btn-outline-danger-theme w-100" (click)="removeConditionalRule(i)">
                   <i class="bi bi-trash"></i>
                 </button>
               </div>
@@ -340,8 +340,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="showMappingDialog = false">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="saveMapping()">
+        <button type="button" class="btn-secondary-theme" (click)="showMappingDialog = false">Cancel</button>
+        <button type="button" class="btn-primary-theme" (click)="saveMapping()">
           {{ isEditMode ? 'Update' : 'Create' }} Mapping
         </button>
       </div>
@@ -414,7 +414,7 @@
                   <span *ngIf="!field.isMapped" class="text-muted">-</span>
                 </td>
                 <td>
-                  <button *ngIf="!field.isMapped" class="btn btn-sm btn-outline-primary" 
+                  <button *ngIf="!field.isMapped" class="btn btn-sm btn-outline-primary-theme" 
                     (click)="createMappingFromTemplate(field); showAnalysisDialog = false">
                     <i class="bi bi-plus-lg"></i> Create Mapping
                   </button>
@@ -425,7 +425,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="showAnalysisDialog = false">Close</button>
+        <button type="button" class="btn-secondary-theme" (click)="showAnalysisDialog = false">Close</button>
       </div>
     </div>
   </div>

@@ -1,21 +1,21 @@
 <p-toolbar styleClass="mb-6">
     <ng-template #start>
-        <button type="button" class="btn btn-primary me-2" (click)="openNew()">
+        <button type="button" class="btn-primary-theme me-2" (click)="openNew()">
             <i class="pi pi-plus me-2"></i>
             New Tenant
         </button>
-        <button type="button" class="btn btn-outline-danger me-2" (click)="deleteSelectedTenants()" [disabled]="!selectedTenants || !selectedTenants.length">
+        <button type="button" class="btn-outline-danger-theme me-2" (click)="deleteSelectedTenants()" [disabled]="!selectedTenants || !selectedTenants.length">
             <i class="pi pi-trash me-2"></i>
             Delete
         </button>
-        <button type="button" class="btn btn-outline-warning me-2" (click)="seedDefaultPermissions()" title="Seed default permissions for all tenant types">
+        <button type="button" class="btn-outline-warning-theme me-2" (click)="seedDefaultPermissions()" title="Seed default permissions for all tenant types">
             <i class="pi pi-key me-2"></i>
             Seed Default Permissions
         </button>
     </ng-template>
 
     <ng-template #end>
-        <button type="button" class="btn btn-secondary" (click)="exportCSV()">
+        <button type="button" class="btn-secondary-theme" (click)="exportCSV()">
             <i class="pi pi-upload me-2"></i>
             Export
         </button>
@@ -99,10 +99,10 @@
             <td>{{ tenant.registrationNumber }}</td>
             <td>{{ getTenantTypeName(tenant.type) }}</td>
             <td>
-                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editTenant(tenant)">
+                <button type="button" class="btn-outline-primary-theme btn-theme-sm me-2 rounded-circle" (click)="editTenant(tenant)">
                     <i class="pi pi-pencil"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deleteTenant(tenant)">
+                <button type="button" class="btn-outline-danger-theme btn-theme-sm rounded-circle" (click)="deleteTenant(tenant)">
                     <i class="pi pi-trash"></i>
                 </button>
             </td>
@@ -160,11 +160,11 @@
     </ng-template>
 
     <ng-template #footer>
-        <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+        <button type="button" class="btn-secondary-theme" (click)="hideDialog()">
             <i class="pi pi-times me-2"></i>
             Cancel
         </button>
-        <button type="button" class="btn btn-primary" (click)="saveTenant()">
+        <button type="button" class="btn-primary-theme" (click)="saveTenant()">
             <i class="pi pi-check me-2"></i>
             Save
         </button>

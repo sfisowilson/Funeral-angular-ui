@@ -51,13 +51,13 @@
                                 [severity]="getStatusSeverity(tenant.approvalStatus)">
                             </p-tag>
                         </td>
-                        <td>{{ tenant.createdAt | date:'short' }}</td>
+                        <td>{{ toDate(tenant.createdAt) | date:'short' }}</td>
                         <td>
                             <button 
                                 pButton 
                                 type="button" 
                                 icon="pi pi-eye" 
-                                class="p-button-rounded p-button-text"
+                                class="btn-rounded btn-outline-primary-theme"
                                 (click)="viewTenantDetails(tenant.id)"
                                 pTooltip="View Details">
                             </button>
@@ -128,11 +128,11 @@
                         </div>
                         <div class="col-12 md:col-6">
                             <strong>Registered:</strong><br>
-                            {{ selectedTenant()!.createdAt | date:'medium' }}
+                            {{ toDate(selectedTenant()!.createdAt) | date:'medium' }}
                         </div>
                         <div class="col-12 md:col-6" *ngIf="selectedTenant()!.reviewedAt">
                             <strong>Reviewed:</strong><br>
-                            {{ selectedTenant()!.reviewedAt | date:'medium' }}
+                            {{ toDate(selectedTenant()!.reviewedAt) | date:'medium' }}
                         </div>
                         <div class="col-12 md:col-6" *ngIf="selectedTenant()!.reviewedByName">
                             <strong>Reviewed By:</strong><br>
@@ -157,34 +157,34 @@
             type="button" 
             label="Approve" 
             icon="pi pi-check" 
-            class="p-button-success"
+            class="btn-primary-theme"
             (click)="openApproveDialog()"
-            *ngIf="selectedTenant()?.approvalStatus === TenantApprovalStatus.Pending || selectedTenant()?.approvalStatus === TenantApprovalStatus.ChangeRequested">
+            *ngIf="selectedTenant()?.approvalStatus === TenantApprovalStatus._0 || selectedTenant()?.approvalStatus === TenantApprovalStatus._3">
         </button>
         <button 
             pButton 
             type="button" 
             label="Request Changes" 
             icon="pi pi-pencil" 
-            class="p-button-info"
+            class="btn-primary-theme"
             (click)="openRequestChangeDialog()"
-            *ngIf="selectedTenant()?.approvalStatus === TenantApprovalStatus.Pending">
+            *ngIf="selectedTenant()?.approvalStatus === TenantApprovalStatus._0">
         </button>
         <button 
             pButton 
             type="button" 
             label="Reject" 
             icon="pi pi-times" 
-            class="p-button-danger"
+            class="btn-danger-theme"
             (click)="openRejectDialog()"
-            *ngIf="selectedTenant()?.approvalStatus === TenantApprovalStatus.Pending || selectedTenant()?.approvalStatus === TenantApprovalStatus.ChangeRequested">
+            *ngIf="selectedTenant()?.approvalStatus === TenantApprovalStatus._0 || selectedTenant()?.approvalStatus === TenantApprovalStatus._3">
         </button>
         <button 
             pButton 
             type="button" 
             label="Close" 
             icon="pi pi-times" 
-            class="p-button-text"
+            class="btn-secondary-theme"
             (click)="closeAllDialogs()">
         </button>
     </ng-template>
@@ -204,7 +204,7 @@
             type="button" 
             label="Cancel" 
             icon="pi pi-times" 
-            class="p-button-text"
+            class="btn-secondary-theme"
             (click)="showApproveDialog.set(false)">
         </button>
         <button 
@@ -212,7 +212,7 @@
             type="button" 
             label="Approve" 
             icon="pi pi-check" 
-            class="p-button-success"
+            class="btn-primary-theme"
             [disabled]="loading()"
             (click)="approveTenant()">
         </button>
@@ -242,7 +242,7 @@
             type="button" 
             label="Cancel" 
             icon="pi pi-times" 
-            class="p-button-text"
+            class="btn-secondary-theme"
             (click)="showRejectDialog.set(false)">
         </button>
         <button 
@@ -250,7 +250,7 @@
             type="button" 
             label="Reject" 
             icon="pi pi-times" 
-            class="p-button-danger"
+            class="btn-danger-theme"
             [disabled]="loading() || !rejectionReason.trim()"
             (click)="rejectTenant()">
         </button>
@@ -280,7 +280,7 @@
             type="button" 
             label="Cancel" 
             icon="pi pi-times" 
-            class="p-button-text"
+            class="btn-secondary-theme"
             (click)="showRequestChangeDialog.set(false)">
         </button>
         <button 
@@ -288,7 +288,7 @@
             type="button" 
             label="Send Request" 
             icon="pi pi-send" 
-            class="p-button-info"
+            class="btn-primary-theme"
             [disabled]="loading() || !changeRequestReason.trim()"
             (click)="requestChange()">
         </button>

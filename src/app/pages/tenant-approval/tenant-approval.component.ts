@@ -105,9 +105,9 @@ export class TenantApprovalComponent implements OnInit {
         const tenant = this.selectedTenant();
         if (!tenant) return;
 
-        const dto: ApproveTenantDto = {
+        const dto = ApproveTenantDto.fromJS({
             tenantId: tenant.id
-        };
+        });
 
         this.loading.set(true);
         this.tenantApprovalService.approveTenant(dto).subscribe({
@@ -130,10 +130,10 @@ export class TenantApprovalComponent implements OnInit {
             return;
         }
 
-        const dto: RejectTenantDto = {
+        const dto = RejectTenantDto.fromJS({
             tenantId: tenant.id,
             rejectionReason: this.rejectionReason
-        };
+        });
 
         this.loading.set(true);
         this.tenantApprovalService.rejectTenant(dto).subscribe({
@@ -156,10 +156,10 @@ export class TenantApprovalComponent implements OnInit {
             return;
         }
 
-        const dto: RequestTenantChangeDto = {
+        const dto = RequestTenantChangeDto.fromJS({
             tenantId: tenant.id,
             changeRequestReason: this.changeRequestReason
-        };
+        });
 
         this.loading.set(true);
         this.tenantApprovalService.requestChange(dto).subscribe({
@@ -186,13 +186,13 @@ export class TenantApprovalComponent implements OnInit {
 
     getStatusSeverity(status: TenantApprovalStatus): string {
         switch (status) {
-            case TenantApprovalStatus.Pending:
+            case TenantApprovalStatus._0: // Pending
                 return 'warning';
-            case TenantApprovalStatus.Approved:
+            case TenantApprovalStatus._1: // Approved
                 return 'success';
-            case TenantApprovalStatus.Rejected:
+            case TenantApprovalStatus._2: // Rejected
                 return 'danger';
-            case TenantApprovalStatus.ChangeRequested:
+            case TenantApprovalStatus._3: // ChangeRequested
                 return 'info';
             default:
                 return 'secondary';
@@ -201,16 +201,24 @@ export class TenantApprovalComponent implements OnInit {
 
     getStatusLabel(status: TenantApprovalStatus): string {
         switch (status) {
-            case TenantApprovalStatus.Pending:
+            case TenantApprovalStatus._0: // Pending
                 return 'Pending';
-            case TenantApprovalStatus.Approved:
+            case TenantApprovalStatus._1: // Approved
                 return 'Approved';
-            case TenantApprovalStatus.Rejected:
+            case TenantApprovalStatus._2: // Rejected
                 return 'Rejected';
-            case TenantApprovalStatus.ChangeRequested:
+            case TenantApprovalStatus._3: // ChangeRequested
                 return 'Change Requested';
             default:
                 return 'Unknown';
         }
+    }
+
+    toDate(dateTime: any): Date | null {
+        if (!dateTime) return null;
+        if (dateTime.toJSDate) {
+            return dateTime.toJSDate();
+        }
+        return dateTime;
     }
 }

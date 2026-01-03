@@ -5,11 +5,13 @@ import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
 import { AuthService } from '../../auth/auth-service';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
+import { CustomPagesServiceProxy } from '../../core/services/service-proxies';
 
 @Component({
     selector: 'app-menu',
     standalone: true,
     imports: [CommonModule, AppMenuitem, RouterModule],
+    providers: [CustomPagesServiceProxy],
     template: `<ul class="layout-menu">
         <ng-container *ngFor="let item of model; let i = index">
             <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
@@ -23,7 +25,8 @@ export class AppMenu implements OnInit {
 
     constructor(
         private authService: AuthService,
-        private tenantSettingsService: TenantSettingsService
+        private tenantSettingsService: TenantSettingsService,
+        private customPagesService: CustomPagesServiceProxy
     ) {}
 
     async ngOnInit() {
@@ -38,10 +41,28 @@ export class AppMenu implements OnInit {
             console.error('Error loading tenant settings:', error);
         }
 
-        this.buildMenu();
+        await this.buildMenu();
     }
 
-    private buildMenu() {
+    private async buildMenu() {
+        // Load custom pages for navigation
+        let customPageItems: MenuItem[] = [];
+        try {
+            const pages = await this.customPagesService.all().toPromise();
+            if (pages) {
+                customPageItems = pages
+                    .filter((p: any) => p.isActive && p.showInNavbar)
+                    .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999))
+                    .map((p: any) => ({
+                        label: p.name || p.slug,
+                        icon: 'pi pi-fw pi-file',
+                        routerLink: [`/${p.slug}`]
+                    }));
+            }
+        } catch (error) {
+            console.error('Error loading custom pages for menu:', error);
+        }
+        
         // If this is a static site, only show Landing Page and Tenant Settings (for theme, logo, CSS)
         if (this.isStaticSite) {
             this.model = [
@@ -105,7 +126,8 @@ export class AppMenu implements OnInit {
                     { label: 'Member Management', icon: 'pi pi-users', routerLink: ['/admin/pages/member-management'], visible: this.authService.hasPermission('Permission.member.view') },
                     { label: 'Claims', icon: 'pi pi-fw pi-file', routerLink: ['/admin/pages/claims'], visible: this.authService.hasPermission('Permission.claim.view') },
                     { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'], visible: this.authService.hasPermission('Permission.funeralEvent.view') },
-                    { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: this.authService.isAuthenticated() }
+                    { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: this.authService.isAuthenticated() },
+                    { label: 'Custom Pages', icon: 'pi pi-fw pi-file-edit', routerLink: ['/admin/custom-pages'], visible: this.authService.isAuthenticated() }
                 ]
             },
             {

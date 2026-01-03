@@ -14,7 +14,7 @@
 <!-- Modern Toolbar -->
 <div class="modern-toolbar">
     <div class="toolbar-section">
-        <button type="button" class="btn btn-primary" (click)="openNew()">
+        <button type="button" class="btn-primary-theme" (click)="openNew()">
             <i class="pi pi-plus me-2"></i>
             New Role
         </button>
@@ -62,10 +62,10 @@
             </td>
             <td>{{ role.name }}</td>
             <td>
-                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editRole(role)">
+                <button type="button" class="btn-outline-primary-theme btn-theme-sm me-2 rounded-circle" (click)="editRole(role)">
                     <i class="pi pi-pencil"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-info rounded-circle" (click)="openPermissionDialog(role)">
+                <button type="button" class="btn-outline-secondary-theme btn-theme-sm rounded-circle" (click)="openPermissionDialog(role)">
                     <i class="pi pi-shield"></i>
                 </button>
             </td>
@@ -85,11 +85,11 @@
     </ng-template>
 
     <ng-template #footer>
-        <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+        <button type="button" class="btn-secondary-theme" (click)="hideDialog()">
             <i class="pi pi-times me-2"></i>
             Cancel
         </button>
-        <button type="button" class="btn btn-primary" (click)="saveRole()">
+        <button type="button" class="btn-primary-theme" (click)="saveRole()">
             <i class="pi pi-check me-2"></i>
             Save
         </button>
@@ -113,11 +113,11 @@
     </ng-template>
 
     <ng-template #footer>
-        <button type="button" class="btn btn-secondary" (click)="hidePermissionDialog()">
+        <button type="button" class="btn-secondary-theme" (click)="hidePermissionDialog()">
             <i class="pi pi-times me-2"></i>
             Cancel
         </button>
-        <button type="button" class="btn btn-primary" (click)="savePermissions()">
+        <button type="button" class="btn-primary-theme" (click)="savePermissions()">
             <i class="pi pi-check me-2"></i>
             Save
         </button>

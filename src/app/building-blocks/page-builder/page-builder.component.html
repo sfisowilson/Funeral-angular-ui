@@ -14,7 +14,7 @@
                 type="button"
                 icon="pi pi-plus"
                 label="Add Widget"
-                class="p-button-success"
+                class="btn-primary-theme"
                 (click)="openWidgetPicker()">
             </button>
             
@@ -23,7 +23,7 @@
                 type="button"
                 icon="pi pi-search"
                 label="SEO Settings"
-                class="p-button-outlined p-button-secondary"
+                class="btn-outline-secondary-theme"
                 (click)="openSeoSettings()"
                 pTooltip="Manage meta tags and SEO">
             </button>
@@ -33,7 +33,7 @@
                 type="button"
                 [icon]="gridVisible() ? 'pi pi-eye-slash' : 'pi pi-eye'"
                 [label]="gridVisible() ? 'Hide Grid' : 'Show Grid'"
-                class="p-button-outlined"
+                class="btn-outline-primary-theme"
                 (click)="toggleGrid()">
             </button>
             
@@ -42,7 +42,7 @@
                 type="button"
                 icon="pi pi-arrows-v"
                 label="Compact"
-                class="p-button-outlined"
+                class="btn-outline-primary-theme"
                 (click)="compactLayout()"
                 pTooltip="Remove empty spaces">
             </button>
@@ -52,7 +52,7 @@
                 type="button"
                 icon="pi pi-refresh"
                 label="Reset Page"
-                class="p-button-outlined p-button-danger"
+                class="btn-outline-danger-theme"
                 (click)="resetPage()"
                 pTooltip="Remove all widgets and reset theme">
             </button>
@@ -62,7 +62,7 @@
                 type="button"
                 [icon]="previewMode() ? 'pi pi-pencil' : 'pi pi-eye'"
                 [label]="previewMode() ? 'Edit Mode' : 'Preview'"
-                [class]="previewMode() ? 'p-button-outlined' : 'p-button-info'"
+                [class]="previewMode() ? 'btn-outline-primary-theme' : 'btn-primary-theme'"
                 (click)="togglePreview()">
             </button>
         </div>
@@ -97,7 +97,7 @@
                                 pButton 
                                 type="button"
                                 icon="pi pi-pencil"
-                                class="p-button-rounded p-button-text p-button-sm"
+                                class="btn-rounded btn-outline-primary-theme btn-sm"
                                 (click)="editWidgetContent(widget)"
                                 pTooltip="Edit Content">
                             </button>
@@ -105,7 +105,7 @@
                                 pButton 
                                 type="button"
                                 icon="pi pi-cog"
-                                class="p-button-rounded p-button-text p-button-sm"
+                                class="btn-rounded btn-outline-primary-theme btn-sm"
                                 (click)="selectWidget(widget)"
                                 pTooltip="Layout Settings">
                             </button>
@@ -113,7 +113,7 @@
                                 pButton 
                                 type="button"
                                 icon="pi pi-clone"
-                                class="p-button-rounded p-button-text p-button-sm"
+                                class="btn-rounded btn-outline-primary-theme btn-sm"
                                 (click)="duplicateWidget(widget)"
                                 pTooltip="Duplicate">
                             </button>
@@ -121,7 +121,7 @@
                                 pButton 
                                 type="button"
                                 icon="pi pi-arrow-up"
-                                class="p-button-rounded p-button-text p-button-sm"
+                                class="btn-rounded btn-outline-primary-theme btn-sm"
                                 (click)="moveWidgetUp(widget)"
                                 pTooltip="Move Up">
                             </button>
@@ -129,7 +129,7 @@
                                 pButton 
                                 type="button"
                                 icon="pi pi-arrow-down"
-                                class="p-button-rounded p-button-text p-button-sm"
+                                class="btn-rounded btn-outline-primary-theme btn-sm"
                                 (click)="moveWidgetDown(widget)"
                                 pTooltip="Move Down">
                             </button>
@@ -137,7 +137,7 @@
                                 pButton 
                                 type="button"
                                 icon="pi pi-arrows-h"
-                                class="p-button-rounded p-button-text p-button-sm"
+                                class="btn-rounded btn-outline-primary-theme btn-sm"
                                 (click)="setWidgetFullWidth(widget)"
                                 pTooltip="Full Width">
                             </button>
@@ -145,7 +145,7 @@
                                 pButton 
                                 type="button"
                                 icon="pi pi-trash"
-                                class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                                class="btn-rounded btn-outline-danger-theme btn-sm"
                                 (click)="deleteWidget(widget)"
                                 pTooltip="Delete">
                             </button>
@@ -646,7 +646,7 @@
                 </button>
                 <button 
                     type="button"
-                    class="btn btn-primary"
+                    class="btn-primary-theme"
                     (click)="updateWidgetLayout(); showLayoutSettings.set(false)">
                     <i class="pi pi-check me-1"></i> Apply
                 </button>
@@ -799,7 +799,7 @@
                     type="button"
                     label="Cancel"
                     icon="pi pi-times"
-                    class="p-button-outlined"
+                    class="btn-outline-secondary-theme"
                     (click)="cancelSeoSettings()">
                 </button>
                 <button 
@@ -807,6 +807,7 @@
                     type="button"
                     label="Save SEO Settings"
                     icon="pi pi-check"
+                    class="btn-primary-theme"
                     (click)="saveSeoSettings()">
                 </button>
             </div>

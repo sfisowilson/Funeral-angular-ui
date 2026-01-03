@@ -1,6 +1,6 @@
 <div class="about-us-editor">
         <div class="editor-section d-flex justify-content-end mb-3">
-            <button type="button" class="btn btn-success" (click)="onSave()">
+            <button type="button" class="btn-primary-theme" (click)="onSave()">
                 <i class="bi bi-save"></i> Save
             </button>
         </div>
@@ -144,7 +144,7 @@
                     <div *ngFor="let value of config.settings.values; let i = index" class="value-item">
                         <div class="item-header">
                             <h4>Value {{ i + 1 }}</h4>
-                            <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" 
+                            <button pButton icon="pi pi-trash" class="btn-danger-theme btn-sm" 
                                     (click)="removeValue(i)"></button>
                         </div>
                         <div class="p-field">
@@ -164,7 +164,7 @@
                         </div>
                     </div>
                     <button pButton label="Add Value" icon="pi pi-plus" 
-                            class="p-button-outlined" (click)="addValue()"></button>
+                            class="btn-outline-primary-theme" (click)="addValue()"></button>
                 </div>
             </div>
         </p-accordionTab>
@@ -180,7 +180,7 @@
                     <div *ngFor="let stat of config.settings.stats; let i = index" class="stat-item">
                         <div class="item-header">
                             <h4>Stat {{ i + 1 }}</h4>
-                            <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" 
+                            <button pButton icon="pi pi-trash" class="btn-danger-theme btn-sm" 
                                     (click)="removeStat(i)"></button>
                         </div>
                         <div class="p-field">
@@ -195,7 +195,7 @@
                         </div>
                     </div>
                     <button pButton label="Add Statistic" icon="pi pi-plus" 
-                            class="p-button-outlined" (click)="addStat()"></button>
+                            class="btn-outline-primary-theme" (click)="addStat()"></button>
                 </div>
             </div>
         </p-accordionTab>
@@ -226,7 +226,7 @@
                     <div *ngFor="let member of config.settings.teamMembers; let i = index" class="team-member-item">
                         <div class="item-header">
                             <h4>Team Member {{ i + 1 }}</h4>
-                            <button pButton icon="pi pi-trash" class="p-button-danger p-button-sm" 
+                            <button pButton icon="pi pi-trash" class="btn-danger-theme btn-sm" 
                                     (click)="removeTeamMember(i)"></button>
                         </div>
                         <div class="p-field">
@@ -264,7 +264,7 @@
                         </div>
                     </div>
                     <button pButton label="Add Team Member" icon="pi pi-plus" 
-                            class="p-button-outlined" (click)="addTeamMember()"></button>
+                            class="btn-outline-primary-theme" (click)="addTeamMember()"></button>
                 </div>
             </div>
         </p-accordionTab>
@@ -319,8 +319,8 @@
     <!-- Save/Cancel Buttons -->
     <div class="editor-actions">
         <button pButton label="Save Changes" icon="pi pi-check" 
-                class="p-button-success" (click)="onSubmit()"></button>
+                class="btn-primary-theme" (click)="onSubmit()"></button>
         <button pButton label="Cancel" icon="pi pi-times" 
-                class="p-button-secondary" (click)="onCancel()"></button>
+                class="btn-secondary-theme" (click)="onCancel()"></button>
     </div>
 </div>

@@ -3,7 +3,7 @@
     <p-toast></p-toast>
     
     <div class="step-header d-flex align-items-center justify-content-between mb-3">
-        <button type="button" class="btn btn-success" (click)="showAddDialog()">
+        <button type="button" class="btn-primary-theme" (click)="showAddDialog()">
             <i class="bi bi-plus-lg me-1"></i> Add Beneficiary
         </button>
         <div>
@@ -51,10 +51,10 @@
                         <td>-</td>
                         <td>
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-outline-primary btn-sm" (click)="editBeneficiary(beneficiary)" title="Edit">
+                                <button type="button" class="btn btn-sm btn-outline-primary-theme" (click)="editBeneficiary(beneficiary)" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteBeneficiary(beneficiary.id)" title="Delete">
+                                <button type="button" class="btn btn-sm btn-outline-danger-theme" (click)="deleteBeneficiary(beneficiary.id)" title="Delete">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -134,7 +134,7 @@
                                         <input type="file" (change)="onFileSelect($event.target)" accept=".pdf,.jpg,.jpeg,.png" class="form-control" />
                                         <div *ngIf="selectedFile" class="text-success mt-1"><i class="bi bi-check"></i> {{ selectedFile.name }}</div>
                                     </div>
-                                    <button type="button" class="btn btn-primary" (click)="uploadBeneficiaryDocument()" [disabled]="!selectedDocumentType || !selectedFile">
+                                    <button type="button" class="btn-primary-theme" (click)="uploadBeneficiaryDocument()" [disabled]="!selectedDocumentType || !selectedFile">
                                         <span *ngIf="uploading(); else notUploading"><span class="spinner-border spinner-border-sm me-2"></span>Uploading...</span><ng-template #notUploading><i class="bi bi-upload"></i> Upload Document</ng-template>
                                     </button>
                                 </form>
@@ -147,7 +147,7 @@
                                         <strong>{{ doc.description || 'Document' }}</strong>
                                         <small class="text-muted ms-2">{{ doc.fileName }}</small>
                                     </div>
-                                    <button type="button" class="btn btn-outline-danger btn-sm ms-2" (click)="deleteBeneficiaryDocument(doc.id)" title="Delete">
+                                    <button type="button" class="btn btn-sm btn-outline-danger-theme ms-2" (click)="deleteBeneficiaryDocument(doc.id)" title="Delete">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
@@ -156,8 +156,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" (click)="displayDialog = false"><i class="bi bi-x"></i> Cancel</button>
-                    <button type="button" class="btn btn-primary" (click)="saveBeneficiary()"><i class="bi bi-check"></i> Save</button>
+                    <button type="button" class="btn-secondary-theme" (click)="displayDialog = false"><i class="bi bi-x"></i> Cancel</button>
+                    <button type="button" class="btn-primary-theme" (click)="saveBeneficiary()"><i class="bi bi-check"></i> Save</button>
                 </div>
             </div>
         </div>

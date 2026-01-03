@@ -11,7 +11,7 @@
 
     <div class="card-body">
         <div class="mb-6">
-            <button type="button" class="btn btn-primary" (click)="openNew()">
+            <button type="button" class="btn-primary-theme" (click)="openNew()">
                 <i class="pi pi-plus me-2"></i>
                 New Personnel
             </button>
@@ -58,13 +58,13 @@
                     </td>
                     <td>
                         <div class="flex gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-info rounded-circle" (click)="viewSchedule(person)" title="View Schedule">
+                            <button type="button" class="btn btn-sm btn-outline-primary-theme rounded-circle" (click)="viewSchedule(person)" title="View Schedule">
                                 <i class="pi pi-calendar"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-circle" (click)="editPersonnel(person)" title="Edit Personnel">
+                            <button type="button" class="btn btn-sm btn-outline-primary-theme rounded-circle" (click)="editPersonnel(person)" title="Edit Personnel">
                                 <i class="pi pi-pencil"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deletePersonnel(person)" title="Delete Personnel">
+                            <button type="button" class="btn btn-sm btn-outline-danger-theme rounded-circle" (click)="deletePersonnel(person)" title="Delete Personnel">
                                 <i class="pi pi-trash"></i>
                             </button>
                         </div>
@@ -111,11 +111,11 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+                <button type="button" class="btn-secondary-theme" (click)="hideDialog()">
                     <i class="pi pi-times me-2"></i>
                     Cancel
                 </button>
-                <button type="button" class="btn btn-primary" (click)="savePersonnel()">
+                <button type="button" class="btn-primary-theme" (click)="savePersonnel()">
                     <i class="pi pi-check me-2"></i>
                     Save
                 </button>
@@ -148,7 +148,7 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button type="button" class="btn btn-secondary" (click)="hideScheduleDialog()">
+                <button type="button" class="btn-secondary-theme" (click)="hideScheduleDialog()">
                     <i class="pi pi-times me-2"></i>
                     Close
                 </button>

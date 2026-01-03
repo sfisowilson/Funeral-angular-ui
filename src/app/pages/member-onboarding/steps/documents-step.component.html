@@ -6,7 +6,7 @@
             label="Upload Document" 
             icon="pi pi-upload"
             (onClick)="showUploadDialog()"
-            styleClass="p-button-success">
+            class="btn-primary-theme">
         </p-button>
     </div>
 
@@ -174,7 +174,7 @@
                         <td>
                             <a [href]="'/api/FileUpload/File_DownloadFile/' + file.id" 
                                target="_blank"
-                               class="p-button p-button-rounded p-button-text p-button-icon-only">
+                               class="btn-rounded btn-outline-primary-theme">
                                 <i class="pi pi-download"></i>
                             </a>
                         </td>
@@ -274,13 +274,14 @@
                 label="Cancel" 
                 icon="pi pi-times" 
                 (onClick)="displayDialog = false" 
-                styleClass="p-button-text"
+                class="btn-secondary-theme"
                 [disabled]="uploading()">
             </p-button>
             <p-button 
                 label="Upload & Submit for Verification" 
                 icon="pi pi-upload" 
                 (onClick)="uploadDocument()"
+                class="btn-primary-theme"
                 [loading]="uploading()">
             </p-button>
         </ng-template>

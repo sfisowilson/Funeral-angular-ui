@@ -44,7 +44,7 @@ import { DebitOrderService, DebitOrderBatch } from '../../services/debit-order.s
           <tbody class="bg-white divide-y divide-gray-200">
             <tr *ngFor="let batch of batches">
               <td class="px-6 py-4 whitespace-nowrap text-sm">{{ batch.batchNumber }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">{{ batch.processingDate | date:'short' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">{{ toDate(batch.processingDate) | date:'short' }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm">
                 {{ batch.totalTransactions }} 
                 <span class="text-gray-500">({{ batch.successfulTransactions }} / {{ batch.failedTransactions }})</span>
@@ -159,7 +159,8 @@ export class DebitOrderManagementComponent implements OnInit {
     console.log('View batch:', batchId);
   }
 
-  getStatusClass(status: string): string {
+  getStatusClass(status: string | undefined): string {
+    if (!status) return 'bg-gray-100 text-gray-800';
     const classes: any = {
       'Draft': 'bg-gray-100 text-gray-800',
       'Submitted': 'bg-blue-100 text-blue-800',
@@ -169,5 +170,13 @@ export class DebitOrderManagementComponent implements OnInit {
       'Failed': 'bg-red-100 text-red-800'
     };
     return classes[status] || 'bg-gray-100 text-gray-800';
+  }
+
+  toDate(dateTime: any): Date | null {
+    if (!dateTime) return null;
+    if (dateTime.toJSDate) {
+      return dateTime.toJSDate();
+    }
+    return dateTime;
   }
 }

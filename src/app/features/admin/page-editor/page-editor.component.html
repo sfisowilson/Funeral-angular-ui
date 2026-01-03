@@ -1,0 +1,112 @@
+<div class="page-editor-container">
+  <p-toast />
+
+  @if (loading()) {
+    <div class="flex justify-center items-center min-h-screen">
+      <p-progressSpinner />
+    </div>
+  } @else if (page()) {
+    <div class="editor-layout">
+      <!-- Header -->
+      <div class="editor-header p-4 bg-white shadow-sm mb-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-bold">{{ page()!.name }}</h1>
+            <div class="flex items-center gap-2 text-gray-600">
+              <p>Edit page content and settings</p>
+              @if (hasUnsavedChanges()) {
+                <span class="text-orange-600 text-sm">• Saving...</span>
+              } @else if (lastSaved()) {
+                <span class="text-green-600 text-sm">• Saved {{ getTimeSince(lastSaved()!) }}</span>
+              }
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button
+              pButton
+              label="Cancel"
+              icon="pi pi-times"
+              class="p-button-text"
+              (click)="cancel()"
+            ></button>
+            <button
+              pButton
+              label="Save Page"
+              icon="pi pi-save"
+              [loading]="saving()"
+              (click)="savePage()"
+            ></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Section -->
+      <div class="settings-section p-4 bg-white shadow-sm mb-4">
+        <h3 class="text-lg font-semibold mb-3">Page Settings</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Page Name</label>
+            <input
+              pInputText
+              [(ngModel)]="page()!.name"
+              (ngModelChange)="onNameChange($event)"
+              class="w-full"
+              placeholder="Enter page name"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Slug (URL)</label>
+            <input
+              pInputText
+              [(ngModel)]="page()!.slug"
+              class="w-full"
+              placeholder="page-url"
+            />
+            <small class="text-gray-500">URL: /{{ page()!.slug }}</small>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Page Title (SEO)</label>
+            <input
+              pInputText
+              [(ngModel)]="page()!.title"
+              class="w-full"
+              placeholder="SEO title"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Description (SEO)</label>
+            <textarea
+              pInputTextarea
+              [(ngModel)]="page()!.description"
+              class="w-full"
+              rows="2"
+              placeholder="SEO description"
+            ></textarea>
+          </div>
+          <div class="flex items-center gap-4">
+            <p-checkbox
+              [(ngModel)]="page()!.isPublic"
+              [binary]="true"
+              label="Public Page"
+            />
+            <p-checkbox
+              [(ngModel)]="page()!.showInNavbar"
+              [binary]="true"
+              label="Show in Navbar"
+            />
+            <p-checkbox
+              [(ngModel)]="page()!.showInFooter"
+              [binary]="true"
+              label="Show in Footer"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Builder Component -->
+      <div class="builder-section">
+        <app-page-builder></app-page-builder>
+      </div>
+    </div>
+  }
+</div>

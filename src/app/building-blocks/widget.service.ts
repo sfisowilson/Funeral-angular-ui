@@ -15,6 +15,9 @@ export class WidgetService {
 
     private readonly SETTINGS_KEY = 'landingPageConfig';
     private readonly SEO_SETTINGS_KEY = 'seoSettings';
+    
+    // Flag to prevent auto-saving when editing custom pages
+    private autoSaveEnabled = true;
 
     constructor(
         private tenantSettingsService: TenantSettingsService,
@@ -125,6 +128,28 @@ export class WidgetService {
         return this.widgetsSubject.getValue();
     }
 
+    /**
+     * Load widgets from an external source (e.g., custom pages) without saving to tenant settings
+     */
+    loadWidgetsFromSource(widgets: WidgetConfig[]): void {
+        this.widgetsSubject.next(widgets);
+    }
+    
+    /**
+     * Enable or disable auto-saving to tenant settings
+     * Use this when editing custom pages to prevent saving to tenant settings
+     */
+    setAutoSaveEnabled(enabled: boolean): void {
+        this.autoSaveEnabled = enabled;
+    }
+    
+    /**
+     * Check if auto-save is currently enabled
+     */
+    isAutoSaveEnabled(): boolean {
+        return this.autoSaveEnabled;
+    }
+
     addWidget(type: string): void {
         const widgetType: WidgetType | undefined = WIDGET_TYPES.find((t) => t.name === type);
         if (!widgetType) {
@@ -138,7 +163,11 @@ export class WidgetService {
         };
 
         const currentWidgets = this.getWidgets();
-        this.saveWidgets([...currentWidgets, newWidget]).subscribe();
+        if (this.autoSaveEnabled) {
+            this.saveWidgets([...currentWidgets, newWidget]).subscribe();
+        } else {
+            this.widgetsSubject.next([...currentWidgets, newWidget]);
+        }
     }
 
     updateWidget(widget: WidgetConfig): void {
@@ -146,13 +175,21 @@ export class WidgetService {
         const index = currentWidgets.findIndex((w) => w.id === widget.id);
         if (index > -1) {
             currentWidgets[index] = widget;
-            this.saveWidgets([...currentWidgets]).subscribe();
+            if (this.autoSaveEnabled) {
+                this.saveWidgets([...currentWidgets]).subscribe();
+            } else {
+                this.widgetsSubject.next([...currentWidgets]);
+            }
         }
     }
 
     removeWidget(id: string): void {
         const currentWidgets = this.getWidgets().filter((w) => w.id !== id);
-        this.saveWidgets(currentWidgets).subscribe();
+        if (this.autoSaveEnabled) {
+            this.saveWidgets(currentWidgets).subscribe();
+        } else {
+            this.widgetsSubject.next(currentWidgets);
+        }
     }
 
     private generateId(): string {

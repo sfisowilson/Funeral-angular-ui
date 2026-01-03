@@ -42,6 +42,7 @@ export class IdentityVerificationComponent implements OnInit {
     loading = signal(false);
     submitting = signal(false);
     quickVerifying = signal(false);
+    maxDate = new Date(); // For calendar max date
 
     verificationTypes: VerificationTypeOption[] = [
         {

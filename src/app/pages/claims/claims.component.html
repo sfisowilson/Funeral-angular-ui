@@ -11,7 +11,7 @@
 
     <div class="card-body">
         <div class="mb-6">
-            <p-button icon="pi pi-plus" label="New Claim" class="modern-button primary" (click)="openNew()"></p-button>
+            <p-button icon="pi pi-plus" label="New Claim" class="btn-primary-theme" (click)="openNew()"></p-button>
         </div>
 
         <p-table
@@ -57,9 +57,9 @@
                     </td>
                     <td>
                         <div class="flex gap-2">
-                            <p-button icon="pi pi-pencil" class="modern-button secondary" [rounded]="true" [outlined]="true" (click)="editClaim(claim)" pTooltip="Edit Claim"></p-button>
-                            <p-button icon="pi pi-history" class="modern-button secondary" [rounded]="true" [outlined]="true" (click)="viewHistory(claim)" pTooltip="View History"></p-button>
-                            <p-button icon="pi pi-trash" class="modern-button danger" [rounded]="true" [outlined]="true" (click)="deleteClaim(claim)" pTooltip="Delete Claim"></p-button>
+                            <p-button icon="pi pi-pencil" class="btn-outline-primary-theme" [rounded]="true" (click)="editClaim(claim)" pTooltip="Edit Claim"></p-button>
+                            <p-button icon="pi pi-history" class="btn-outline-primary-theme" [rounded]="true" (click)="viewHistory(claim)" pTooltip="View History"></p-button>
+                            <p-button icon="pi pi-trash" class="btn-outline-danger-theme" [rounded]="true" (click)="deleteClaim(claim)" pTooltip="Delete Claim"></p-button>
                         </div>
                     </td>
                 </tr>
@@ -99,8 +99,8 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <p-button label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></p-button>
-                <p-button label="Save" icon="pi pi-check" class="p-button-text" (click)="saveClaim()"></p-button>
+                <p-button label="Cancel" icon="pi pi-times" class="btn-secondary-theme" (click)="hideDialog()"></p-button>
+                <p-button label="Save" icon="pi pi-check" class="btn-primary-theme" (click)="saveClaim()"></p-button>
             </ng-template>
         </p-dialog>
 
@@ -111,7 +111,7 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <p-button label="Close" icon="pi pi-times" class="p-button-text" (click)="hideHistoryDialog()"></p-button>
+                <p-button label="Close" icon="pi pi-times" class="btn-secondary-theme" (click)="hideHistoryDialog()"></p-button>
             </ng-template>
         </p-dialog>
     </div>

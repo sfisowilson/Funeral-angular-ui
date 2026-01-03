@@ -11,7 +11,7 @@
 
     <div class="card-body">
         <div class="mb-6">
-            <p-button icon="pi pi-plus" label="New Event" class="modern-button primary" (click)="openNew()"></p-button>
+            <p-button icon="pi pi-plus" label="New Event" class="btn-primary-theme" (click)="openNew()"></p-button>
         </div>
 
         <p-table
@@ -55,8 +55,8 @@
                     </td>
                     <td>
                         <div class="flex gap-2">
-                            <p-button icon="pi pi-pencil" class="modern-button secondary" [rounded]="true" [outlined]="true" (click)="editEvent(event)" pTooltip="Edit Event"></p-button>
-                            <p-button icon="pi pi-trash" class="modern-button danger" [rounded]="true" [outlined]="true" (click)="deleteEvent(event)" pTooltip="Delete Event"></p-button>
+                            <p-button icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme" (click)="editEvent(event)" pTooltip="Edit Event"></p-button>
+                            <p-button icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" (click)="deleteEvent(event)" pTooltip="Delete Event"></p-button>
                         </div>
                     </td>
                 </tr>
@@ -98,8 +98,8 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <p-button label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></p-button>
-                <p-button label="Save" icon="pi pi-check" class="p-button-text" (click)="saveEvent()"></p-button>
+                <p-button label="Cancel" icon="pi pi-times" class="btn-secondary-theme" (click)="hideDialog()"></p-button>
+                <p-button label="Save" icon="pi pi-check" class="btn-primary-theme" (click)="saveEvent()"></p-button>
             </ng-template>
         </p-dialog>
     </div>

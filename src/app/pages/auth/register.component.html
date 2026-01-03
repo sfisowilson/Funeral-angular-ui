@@ -91,10 +91,10 @@
                 <div *ngIf="!isHostTenant">
                     <div *ngIf="selectedPolicy" class="alert alert-info mb-3">
                         <strong>Policy:</strong> {{ selectedPolicy.name }}
-                        <button type="button" class="btn btn-sm btn-secondary float-end" (click)="showPolicySelection()">Change</button>
+                        <button type="button" class="btn-secondary-theme btn-sm float-end" (click)="showPolicySelection()">Change</button>
                     </div>
                     <div *ngIf="!selectedPolicy && policies.length > 0" class="mb-3">
-                        <button type="button" class="btn btn-primary w-100" (click)="showPolicySelection()">Select Policy</button>
+                        <button type="button" class="btn-primary-theme w-100" (click)="showPolicySelection()">Select Policy</button>
                     </div>
                                         <!-- Policy Selection Bootstrap Modal -->
                                         <div class="modal fade show" tabindex="-1" [ngStyle]="{ display: showModal ? 'block' : 'none', background: 'rgba(0,0,0,0.5)' }" *ngIf="showModal">
@@ -126,7 +126,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" (click)="closePolicyModal()">Cancel</button>
+                                                        <button type="button" class="btn-secondary-theme" (click)="closePolicyModal()">Cancel</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -171,7 +171,7 @@
 
                 <!-- Form Actions -->
                 <div class="mt-4">
-                    <button type="button" class="btn btn-primary w-100" [disabled]="isBusy || (!isHostTenant && form.value.identificationNumber && idInfo() && !idInfo()!.isValid)" (click)="register()">
+                    <button type="button" class="btn-primary-theme w-100" [disabled]="isBusy || (!isHostTenant && form.value.identificationNumber && idInfo() && !idInfo()!.isValid)" (click)="register()">
                         <span *ngIf="isBusy" class="spinner-border spinner-border-sm me-2"></span>
                         {{ isBusy ? 'Creating Account...' : 'Create Account' }}
                     </button>
@@ -219,7 +219,7 @@
                 </app-identity-verification-form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" (click)="skipVerificationAndContinue()">Skip for Now</button>
+                <button type="button" class="btn-secondary-theme" (click)="skipVerificationAndContinue()">Skip for Now</button>
             </div>
         </div>
     </div>

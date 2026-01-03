@@ -47,8 +47,8 @@
                         <td>{{ branch.email }}</td>
                         <td>
                             <div class="flex align-items-center gap-2">
-                                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editBranch(branch, rowIndex)"></button>
-                                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="deleteBranch(rowIndex)"></button>
+                                <button pButton icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme" (click)="editBranch(branch, rowIndex)"></button>
+                                <button pButton icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" (click)="deleteBranch(rowIndex)"></button>
                             </div>
                         </td>
                     </tr>
@@ -78,8 +78,8 @@
                         <td>{{ handle.url }}</td>
                         <td>
                             <div class="flex align-items-center gap-2">
-                                <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editSocialMedia(handle, rowIndex)"></button>
-                                <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="deleteSocialMedia(rowIndex)"></button>
+                                <button pButton icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme" (click)="editSocialMedia(handle, rowIndex)"></button>
+                                <button pButton icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" (click)="deleteSocialMedia(rowIndex)"></button>
                             </div>
                         </td>
                     </tr>
@@ -94,7 +94,7 @@
         </div>
         <!-- Save button at the end -->
         <div class="mt-4 d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-success" (click)="saveSettings()">
+            <button type="button" class="btn-primary-theme" (click)="saveSettings()">
                 <i class="pi pi-check me-2"></i>Save Changes
             </button>
         </div>
@@ -120,8 +120,8 @@
             </div>
         </div>
         <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" (click)="displayBranchDialog = false" class="p-button-text"></p-button>
-            <p-button label="Save" icon="pi pi-check" (click)="saveBranch()"></p-button>
+            <p-button label="Cancel" icon="pi pi-times" (click)="displayBranchDialog = false" class="btn-secondary-theme"></p-button>
+            <p-button label="Save" icon="pi pi-check" (click)="saveBranch()" class="btn-primary-theme"></p-button>
         </ng-template>
     </p-dialog>
 
@@ -137,8 +137,8 @@
             </div>
         </div>
         <ng-template pTemplate="footer">
-            <p-button label="Cancel" icon="pi pi-times" (click)="displaySocialMediaDialog = false" class="p-button-text"></p-button>
-            <p-button label="Save" icon="pi pi-check" (click)="saveSocialMedia()"></p-button>
+            <p-button label="Cancel" icon="pi pi-times" (click)="displaySocialMediaDialog = false" class="btn-secondary-theme"></p-button>
+            <p-button label="Save" icon="pi pi-check" (click)="saveSocialMedia()" class="btn-primary-theme"></p-button>
         </ng-template>
     </p-dialog>
 </div>

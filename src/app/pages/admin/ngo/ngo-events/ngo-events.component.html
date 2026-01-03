@@ -1,7 +1,7 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center">
     <h2 class="mb-0">NGO Events Management</h2>
-    <button class="btn btn-primary" (click)="openNewDialog()">
+    <button class="btn-primary-theme" (click)="openNewDialog()">
       <i class="bi bi-plus-circle me-2"></i>New Event
     </button>
   </div>
@@ -167,8 +167,8 @@
       </div>
       
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeDialog()">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="saveEvent()" [disabled]="loading">
+        <button type="button" class="btn-secondary-theme" (click)="closeDialog()">Cancel</button>
+        <button type="button" class="btn-primary-theme" (click)="saveEvent()" [disabled]="loading">
           <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
           Save
         </button>

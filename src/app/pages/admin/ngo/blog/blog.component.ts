@@ -173,4 +173,12 @@ export class BlogComponent implements OnInit {
   get dialogTitle(): string {
     return this.isEditMode ? 'Edit Blog Post' : 'New Blog Post';
   }
+
+  toDate(dateTime: any): Date | null {
+    if (!dateTime) return null;
+    if (dateTime.toJSDate) {
+      return dateTime.toJSDate();
+    }
+    return dateTime;
+  }
 }

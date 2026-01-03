@@ -4,6 +4,7 @@ import { NotAuthenticatedGuard } from './app/auth/not-authenticated-guard';
 import { tenantMatcher } from './app/core/tenant.matcher';
 import { PermissionGuard } from './app/core/guards/permission-guard';
 import { ProfileCompletionGuard } from './app/core/guards/profile-completion.guard';
+import { pageAuthGuard } from './app/core/guards/page-auth.guard';
 
 export const appRoutes: Routes = [
     // Landing page routes
@@ -56,6 +57,16 @@ export const appRoutes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', data: { breadcrumb: 'Dashboard' }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
             { path: 'pages', data: { breadcrumb: 'Pages' }, loadChildren: () => import('./app/pages/pages.routes') },
+            { 
+                path: 'custom-pages', 
+                data: { breadcrumb: 'Page Management' }, 
+                loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) 
+            },
+            { 
+                path: 'custom-pages/edit/:id', 
+                data: { breadcrumb: 'Edit Page' }, 
+                loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) 
+            },
             { path: 'member-onboarding', data: { breadcrumb: 'Member Onboarding', skipProfileCheck: true }, loadComponent: () => import('./app/pages/member-onboarding/member-onboarding.component').then((m) => m.MemberOnboardingComponent) },
             { path: 'contract-signing/:memberId', data: { breadcrumb: 'Sign Contract', skipProfileCheck: true }, loadComponent: () => import('./app/pages/contract-signing/contract-signing.component').then((m) => m.ContractSigningComponent) },
             { path: 'payment-config', data: { breadcrumb: 'Payment Gateway Configuration' }, loadComponent: () => import('./app/components/payment-gateway-config/payment-gateway-config.component').then((m) => m.PaymentGatewayConfigComponent) },
@@ -76,6 +87,16 @@ export const appRoutes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', data: { breadcrumb: 'Dashboard' }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
             { path: 'pages', data: { breadcrumb: 'Pages' }, loadChildren: () => import('./app/pages/pages.routes') },
+            { 
+                path: 'custom-pages', 
+                data: { breadcrumb: 'Page Management' }, 
+                loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) 
+            },
+            { 
+                path: 'custom-pages/edit/:id', 
+                data: { breadcrumb: 'Edit Page' }, 
+                loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) 
+            },
             { path: 'member-onboarding', data: { breadcrumb: 'My Onboarding', skipProfileCheck: true }, loadComponent: () => import('./app/pages/member-onboarding/member-onboarding.component').then((m) => m.MemberOnboardingComponent) },
             { path: 'contract-signing/:memberId', data: { breadcrumb: 'Sign Contract', skipProfileCheck: true }, loadComponent: () => import('./app/pages/contract-signing/contract-signing.component').then((m) => m.ContractSigningComponent) },
             { path: 'payment-settings', data: { breadcrumb: 'Payment Settings' }, loadComponent: () => import('./app/components/tenant-payment-settings/tenant-payment-settings.component').then((m) => m.TenantPaymentSettingsComponent) },
@@ -83,8 +104,16 @@ export const appRoutes: Routes = [
         ]
     },
 
+    // Dynamic custom pages (must be near the end, before catch-all)
+    {
+        path: ':slug',
+        loadComponent: () => import('./app/features/dynamic-page/dynamic-page.component').then((m) => m.DynamicPageComponent),
+        canActivate: [pageAuthGuard],
+        data: { skipProfileCheck: true }
+    },
+
     // General routes
     { path: 'notfound', loadComponent: () => import('./app/pages/notfound/notfound').then((m) => m.Notfound) },
     { path: '**', redirectTo: '/notfound' }
 ];
-('');
+

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TenantInvoiceService, TenantInvoice, InvoiceSummary } from '../../services/tenant-invoice.service';
 import { PaymentGatewayService } from '../../services/payment-gateway.service';
+import { PaymentGatewayProvider, InitiatePaymentRequest } from '../../core/services/service-proxies';
 
 @Component({
   selector: 'app-tenant-invoices',
@@ -48,8 +49,8 @@ import { PaymentGatewayService } from '../../services/payment-gateway.service';
           <tbody class="bg-white divide-y divide-gray-200">
             <tr *ngFor="let invoice of invoices">
               <td class="px-6 py-4 whitespace-nowrap text-sm">{{ invoice.invoiceNumber }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">{{ invoice.issueDate | date:'short' }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">{{ invoice.dueDate | date:'short' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">{{ toDate(invoice.issueDate) | date:'short' }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">{{ toDate(invoice.dueDate) | date:'short' }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">R {{ invoice.amountDue | number:'1.2-2' }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span [class]="getStatusClass(invoice.status)" class="px-2 py-1 text-xs rounded-full">
@@ -108,12 +109,14 @@ export class TenantInvoicesComponent implements OnInit {
   payInvoice(invoice: TenantInvoice): void {
     const returnUrl = window.location.origin + '/invoices';
     
-    this.paymentService.initiatePayment({
+    const request = InitiatePaymentRequest.fromJS({
       invoiceId: invoice.id,
       amount: invoice.amountDue,
-      provider: 'Ozow', // or let user choose
+      provider: PaymentGatewayProvider._1, // Ozow
       returnUrl
-    }).subscribe({
+    });
+
+    this.paymentService.initiatePayment(request).subscribe({
       next: (result) => {
         if (result.success && result.paymentUrl) {
           this.paymentService.redirectToPayment(result.paymentUrl);
@@ -128,7 +131,8 @@ export class TenantInvoicesComponent implements OnInit {
     console.log('View invoice:', invoiceId);
   }
 
-  getStatusClass(status: string): string {
+  getStatusClass(status: string | undefined): string {
+    if (!status) return 'bg-gray-100 text-gray-800';
     const classes: any = {
       'Pending': 'bg-yellow-100 text-yellow-800',
       'Paid': 'bg-green-100 text-green-800',
@@ -136,5 +140,13 @@ export class TenantInvoicesComponent implements OnInit {
       'PartiallyPaid': 'bg-blue-100 text-blue-800'
     };
     return classes[status] || 'bg-gray-100 text-gray-800';
+  }
+
+  toDate(dateTime: any): Date | null {
+    if (!dateTime) return null;
+    if (dateTime.toJSDate) {
+      return dateTime.toJSDate();
+    }
+    return dateTime;
   }
 }

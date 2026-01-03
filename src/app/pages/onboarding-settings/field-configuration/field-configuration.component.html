@@ -11,7 +11,7 @@
                 pButton
                 label="Initialize Defaults"
                 icon="pi pi-cog"
-                class="p-button-secondary mr-2"
+                class="btn-secondary-theme mr-2"
                 [disabled]="loading()"
                 (click)="openInitializeDialog()"
             ></button>
@@ -19,7 +19,7 @@
                 pButton
                 label="Add Field"
                 icon="pi pi-plus"
-                class="p-button-success"
+                class="btn-primary-theme"
                 [disabled]="loading()"
                 (click)="openNewDialog()"
             ></button>
@@ -101,7 +101,7 @@
                     <button
                         pButton
                         icon="pi pi-pencil"
-                        class="p-button-rounded p-button-success p-button-text mr-2"
+                        class="btn-rounded btn-outline-primary-theme mr-2"
                         (click)="editField(field)"
                         pTooltip="Edit"
                         tooltipPosition="top"
@@ -109,7 +109,7 @@
                     <button
                         pButton
                         icon="pi pi-trash"
-                        class="p-button-rounded p-button-danger p-button-text"
+                        class="btn-rounded btn-outline-danger-theme"
                         (click)="deleteField(field)"
                         pTooltip="Delete"
                         tooltipPosition="top"
@@ -124,7 +124,7 @@
                     <div class="empty-state">
                         <i class="pi pi-inbox empty-icon"></i>
                         <p>No field configurations found.</p>
-                        <button pButton label="Initialize Defaults" icon="pi pi-cog" class="p-button-secondary mt-2" (click)="openInitializeDialog()"></button>
+                        <button pButton label="Initialize Defaults" icon="pi pi-cog" class="btn-secondary-theme mt-2" (click)="openInitializeDialog()"></button>
                     </div>
                 </td>
             </tr>
@@ -324,13 +324,14 @@
                 pButton
                 label="Cancel"
                 icon="pi pi-times"
-                class="p-button-text"
+                class="btn-secondary-theme"
                 (click)="hideDialog()"
             ></button>
             <button
                 pButton
                 [label]="isEditMode() ? 'Update' : 'Create'"
                 icon="pi pi-check"
+                class="btn-primary-theme"
                 [loading]="loading()"
                 (click)="saveField()"
             ></button>
@@ -365,13 +366,14 @@
                 pButton
                 label="Cancel"
                 icon="pi pi-times"
-                class="p-button-text"
+                class="btn-secondary-theme"
                 (click)="hideInitializeDialog()"
             ></button>
             <button
                 pButton
                 label="Initialize"
                 icon="pi pi-check"
+                class="btn-primary-theme"
                 [loading]="loading()"
                 (click)="initializeDefaults()"
             ></button>

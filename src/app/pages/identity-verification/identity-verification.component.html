@@ -16,7 +16,7 @@
                 Quick Verification
             </h3>
             <p class="section-description">Use existing profile information for instant verification</p>
-            <button pButton type="button" label="Quick ID Check" icon="pi pi-bolt" class="p-button-outlined quick-verify-btn" [loading]="quickVerifying()" (click)="performQuickIdCheck()"></button>
+            <button pButton type="button" label="Quick ID Check" icon="pi pi-bolt" class="btn-outline-primary-theme quick-verify-btn" [loading]="quickVerifying()" (click)="performQuickIdCheck()"></button>
         </div>
 
         <p-divider></p-divider>
@@ -102,7 +102,7 @@
                         formControlName="dateOfBirth"
                         placeholder="Select your date of birth"
                         [showIcon]="true"
-                        [maxDate]="new Date()"
+                        [maxDate]="maxDate"
                         dateFormat="dd/mm/yy"
                         styleClass="w-full"
                         [class.ng-invalid]="isFieldInvalid('dateOfBirth')"
@@ -115,7 +115,7 @@
 
                 <!-- Submit Button -->
                 <div class="form-actions">
-                    <button pButton type="submit" label="Submit Verification" icon="pi pi-check" class="submit-btn" [loading]="submitting()" [disabled]="verificationForm.invalid"></button>
+                    <button pButton type="submit" label="Submit Verification" icon="pi pi-check" class="btn-primary-theme submit-btn" [loading]="submitting()" [disabled]="verificationForm.invalid"></button>
                 </div>
             </form>
         </div>

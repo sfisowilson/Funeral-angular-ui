@@ -13,6 +13,7 @@ import {
     TenantTypeDto
 } from '../../../core/services/service-proxies';
 import { TenantBaseComponent } from '../../../core/tenant-base.component';
+import { ORGANIZATION_TYPES, OrganizationType, OrgTypeQuestion } from './organization-types.config';
 
 interface Alert {
     type: string;
@@ -47,10 +48,31 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     
     // Forms
     accountForm!: FormGroup;
+    organizationQuestionsForm!: FormGroup;
+    
+    // Organization types
+    allOrganizationTypes = ORGANIZATION_TYPES;
+    selectedOrganizationType = signal<OrganizationType | null>(null);
+    orgTypeQuestions = signal<OrgTypeQuestion[]>([]);
     
     // Available plans
     plans = signal<any[]>([]);
     selectedPlan = signal<any | null>(null);
+    
+    // Real-time pricing
+    basePlanPrice = signal<number>(0);
+    calculatedPrice = signal<{
+        monthly: number;
+        yearly: number;
+        yearlyDiscount: number;
+    }>({ monthly: 0, yearly: 0, yearlyDiscount: 15 });
+    priceBreakdown = signal<{
+        basePrice: number;
+        organizationModifier: number;
+        volumeModifiers: { label: string; impact: string }[];
+        couponDiscount: number;
+    }>({ basePrice: 0, organizationModifier: 1, volumeModifiers: [], couponDiscount: 0 });
+    selectedBillingCycle = signal<'monthly' | 'yearly'>('monthly');
     
     // Coupon
     couponCode = signal<string>('');
@@ -60,8 +82,8 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     // Tenant types (loaded dynamically from API)
     tenantTypes = signal<TenantTypeDto[]>([]);
     
-    // Wizard steps
-    wizardSteps = ['Account Information', 'Select Plan', 'Payment'];
+    // Wizard steps (updated to include organization questions)
+    wizardSteps = ['Account Information', 'Organization Details', 'Select Plan', 'Payment'];
     
     // Payment session
     paymentSessionUrl = signal<string | null>(null);
@@ -106,9 +128,131 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             phone1: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
             phone2: [''],
             registrationNumber: ['', Validators.required],
-            tenantType: [0, Validators.required],
+            tenantType: ['', Validators.required], // Changed to empty string to force selection
             agreeToTerms: [false, Validators.requiredTrue]
         }, { validators: this.passwordMatchValidator });
+        
+        // Initialize empty organization questions form
+        this.organizationQuestionsForm = this.fb.group({});
+    }
+    
+    onOrganizationTypeSelected(orgType: OrganizationType): void {
+        this.selectedOrganizationType.set(orgType);
+        this.orgTypeQuestions.set(orgType.questions);
+        this.accountForm.patchValue({ tenantType: orgType.value });
+        
+        // Rebuild organization questions form with dynamic controls
+        this.organizationQuestionsForm = this.fb.group({});
+        orgType.questions.forEach(question => {
+            const validators = question.required ? [Validators.required] : [];
+            let defaultValue: any = '';
+            
+            if (question.type === 'checkbox') {
+                defaultValue = [];
+            } else if (question.type === 'number') {
+                defaultValue = null;
+            } else if (question.type === 'radio') {
+                defaultValue = null;
+            }
+            
+            this.organizationQuestionsForm.addControl(
+                question.id,
+                this.fb.control(defaultValue, validators)
+            );
+        });
+        
+        // Listen for changes to recalculate pricing
+        this.organizationQuestionsForm.valueChanges.subscribe(() => {
+            this.calculateDynamicPricing();
+        });
+    }
+    
+    calculateDynamicPricing(): void {
+        const plan = this.selectedPlan();
+        const orgType = this.selectedOrganizationType();
+        
+        if (!plan || !orgType) {
+            this.calculatedPrice.set({ monthly: 0, yearly: 0, yearlyDiscount: 15 });
+            this.priceBreakdown.set({ 
+                basePrice: 0, 
+                organizationModifier: 1, 
+                volumeModifiers: [], 
+                couponDiscount: 0 
+            });
+            return;
+        }
+        
+        // Base price is always monthly
+        const basePrice = plan.monthlyPrice;
+        this.basePlanPrice.set(basePrice);
+        
+        // Apply organization type modifier
+        let totalMultiplier = orgType.pricingModifier || 1.0;
+        const volumeModifiers: { label: string; impact: string }[] = [];
+        
+        // Apply pricing impact from answered questions
+        const formValue = this.organizationQuestionsForm.value;
+        orgType.questions.forEach(question => {
+            if (question.pricingImpact && formValue[question.id]) {
+                const value = formValue[question.id];
+                let numericValue: number;
+                
+                // Extract numeric value from answer
+                if (typeof value === 'number') {
+                    numericValue = value;
+                } else if (typeof value === 'string') {
+                    // Handle ranges like "1-10", "11-30", etc.
+                    const match = value.match(/(\d+)/);
+                    numericValue = match ? parseInt(match[1]) : 0;
+                } else {
+                    return;
+                }
+                
+                // Find applicable range
+                const range = question.pricingImpact.ranges.find(
+                    r => numericValue >= r.min && numericValue <= r.max
+                );
+                
+                if (range && range.multiplier !== 1.0) {
+                    totalMultiplier *= range.multiplier;
+                    
+                    const percentChange = ((range.multiplier - 1.0) * 100).toFixed(0);
+                    const sign = Number(percentChange) > 0 ? '+' : '';
+                    volumeModifiers.push({
+                        label: `${question.label}`,
+                        impact: `${sign}${percentChange}%`
+                    });
+                }
+            }
+        });
+        
+        const monthlyPrice = basePrice * totalMultiplier;
+        const yearlyDiscount = 15; // 15% discount for yearly billing
+        const yearlyPrice = (monthlyPrice * 12) * (1 - yearlyDiscount / 100);
+        
+        // Apply coupon discount if valid
+        let couponDiscount = 0;
+        const couponValidation = this.couponValidation();
+        if (couponValidation?.isValid && couponValidation?.discountedAmount !== undefined) {
+            couponDiscount = monthlyPrice - couponValidation.discountedAmount;
+        }
+        
+        this.calculatedPrice.set({
+            monthly: monthlyPrice - couponDiscount,
+            yearly: yearlyPrice - (couponDiscount * 12),
+            yearlyDiscount
+        });
+        
+        this.priceBreakdown.set({
+            basePrice,
+            organizationModifier: orgType.pricingModifier || 1.0,
+            volumeModifiers,
+            couponDiscount
+        });
+    }
+    
+    getOrganizationTypesByCategory(category: string): OrganizationType[] {
+        return this.allOrganizationTypes.filter(t => t.category === category);
     }
 
     checkForIncompleteRegistration(): void {
@@ -246,13 +390,14 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     selectPlan(plan: any): void {
         this.selectedPlan.set(plan);
         this.couponValidation.set(null); // Reset coupon when plan changes
+        this.calculateDynamicPricing(); // Recalculate pricing with new plan
     }
 
     async nextStep(): Promise<void> {
         const currentStep = this.activeIndex();
         
         // If resuming registration and on payment step, prepare payment data
-        if (currentStep === 2 && this.createdTenantId()) {
+        if (currentStep === 3 && this.createdTenantId()) {
             const savedData = localStorage.getItem('incompleteRegistration');
             if (savedData) {
                 try {
@@ -272,7 +417,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             return;
         }
         
-        // Validate current step
+        // Step 0: Account Information
         if (currentStep === 0) {
             if (!this.accountForm.valid) {
                 Object.keys(this.accountForm.controls).forEach(key => {
@@ -281,9 +426,29 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 this.showAlert('Please fill in all required fields correctly', 'warning');
                 return;
             }
-            // Move to plan selection
+            
+            if (!this.selectedOrganizationType()) {
+                this.showAlert('Please select an organization type', 'warning');
+                return;
+            }
+            
+            // Move to organization questions
             this.activeIndex.set(1);
-        } else if (currentStep === 1) {
+        } 
+        // Step 1: Organization Details
+        else if (currentStep === 1) {
+            if (!this.organizationQuestionsForm.valid) {
+                Object.keys(this.organizationQuestionsForm.controls).forEach(key => {
+                    this.organizationQuestionsForm.get(key)?.markAsTouched();
+                });
+                this.showAlert('Please answer all required questions about your organization', 'warning');
+                return;
+            }
+            // Move to plan selection
+            this.activeIndex.set(2);
+        } 
+        // Step 2: Plan Selection
+        else if (currentStep === 2) {
             if (!this.selectedPlan()) {
                 this.showAlert('Please select a subscription plan', 'warning');
                 return;
@@ -477,5 +642,21 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         // Submit the form
         document.body.appendChild(form);
         form.submit();
+    }
+    
+    onCheckboxChange(event: Event, questionId: string, value: any): void {
+        const checkbox = event.target as HTMLInputElement;
+        const currentValue = this.organizationQuestionsForm.get(questionId)?.value || [];
+        
+        if (checkbox.checked) {
+            currentValue.push(value);
+        } else {
+            const index = currentValue.indexOf(value);
+            if (index > -1) {
+                currentValue.splice(index, 1);
+            }
+        }
+        
+        this.organizationQuestionsForm.patchValue({ [questionId]: currentValue });
     }
 }

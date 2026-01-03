@@ -1,17 +1,17 @@
 <p-toolbar styleClass="mb-6">
     <ng-template #start>
-        <button type="button" class="btn btn-primary me-2" (click)="openNew()">
+        <button type="button" class="btn-primary-theme me-2" (click)="openNew()">
             <i class="pi pi-plus me-2"></i>
             New Subscription Plan
         </button>
-        <button type="button" class="btn btn-outline-danger" (click)="deleteSelectedSubscriptionPlans()" [disabled]="!selectedSubscriptionPlans || !selectedSubscriptionPlans.length">
+        <button type="button" class="btn-outline-danger-theme" (click)="deleteSelectedSubscriptionPlans()" [disabled]="!selectedSubscriptionPlans || !selectedSubscriptionPlans.length">
             <i class="pi pi-trash me-2"></i>
             Delete
         </button>
     </ng-template>
 
     <ng-template #end>
-        <button type="button" class="btn btn-secondary" (click)="exportCSV()">
+        <button type="button" class="btn-secondary-theme" (click)="exportCSV()">
             <i class="pi pi-upload me-2"></i>
             Export
         </button>
@@ -75,10 +75,10 @@
             <td>{{ plan.monthlyPrice | currency }}</td>
             <td>{{ getTenantTypeName(plan.allowedTenantType) }}</td>
             <td>
-                <button type="button" class="btn btn-sm btn-outline-primary me-2 rounded-circle" (click)="editSubscriptionPlan(plan)">
+                <button type="button" class="btn-outline-primary-theme btn-theme-sm me-2 rounded-circle" (click)="editSubscriptionPlan(plan)">
                     <i class="pi pi-pencil"></i>
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" (click)="deleteSubscriptionPlan(plan)">
+                <button type="button" class="btn-outline-danger-theme btn-theme-sm rounded-circle" (click)="deleteSubscriptionPlan(plan)">
                     <i class="pi pi-trash"></i>
                 </button>
             </td>
@@ -113,11 +113,11 @@
     </ng-template>
 
     <ng-template #footer>
-        <button type="button" class="btn btn-secondary" (click)="hideDialog()">
+        <button type="button" class="btn-secondary-theme" (click)="hideDialog()">
             <i class="pi pi-times me-2"></i>
             Cancel
         </button>
-        <button type="button" class="btn btn-primary" (click)="saveSubscriptionPlan()">
+        <button type="button" class="btn-primary-theme" (click)="saveSubscriptionPlan()">
             <i class="pi pi-check me-2"></i>
             Save
         </button>

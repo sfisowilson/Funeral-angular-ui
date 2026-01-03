@@ -10,14 +10,14 @@
                 pButton 
                 label="Add Widget" 
                 icon="pi pi-plus" 
-                class="p-button-primary"
+                class="btn-primary-theme"
                 (click)="openNewDialog()">
             </button>
             <button 
                 pButton 
                 label="Initialize Defaults" 
                 icon="pi pi-refresh" 
-                class="p-button-secondary"
+                class="btn-secondary-theme"
                 (click)="initializeDefaults()">
             </button>
         </div>
@@ -64,7 +64,7 @@
                         <button 
                             pButton 
                             icon="pi pi-pencil" 
-                            class="p-button-text p-button-info"
+                            class="btn-outline-primary-theme"
                             pTooltip="Edit"
                             (click)="editWidget(widget)">
                         </button>
@@ -163,14 +163,14 @@
             pButton 
             label="Cancel" 
             icon="pi pi-times" 
-            class="p-button-text"
+            class="btn-secondary-theme"
             (click)="cancel()">
         </button>
         <button 
             pButton 
             label="Save" 
             icon="pi pi-check" 
-            class="p-button-primary"
+            class="btn-primary-theme"
             (click)="saveWidget()">
         </button>
     </ng-template>

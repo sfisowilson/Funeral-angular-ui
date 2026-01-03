@@ -43,7 +43,7 @@
             type="button" 
             label="Download PDF" 
             icon="pi pi-download" 
-            class="btn btn-secondary"
+            class="btn-secondary-theme"
             [loading]="isDownloading()"
             (click)="downloadPdf()">
           </button>
@@ -89,7 +89,7 @@
                 type="button" 
                 label="Clear Signature" 
                 icon="pi pi-times" 
-                class="btn btn-outline-secondary"
+                class="btn-outline-secondary-theme"
                 (click)="clearSignature()">
               </button>
             </div>
@@ -128,7 +128,7 @@
           type="button" 
           label="Sign & Complete Onboarding" 
           icon="pi pi-check" 
-          class="btn btn-success btn-lg"
+          class="btn-primary-theme btn-theme-lg"
           [loading]="isSigning()"
           [disabled]="!signatureDataUrl()"
           (click)="signAndComplete()">
