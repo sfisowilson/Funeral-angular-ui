@@ -26595,6 +26595,7 @@ export class Coupon implements ICoupon {
     validUntil!: DateTime | undefined;
     isActive!: boolean;
     applicablePlanIds!: string | undefined;
+    applicableTenantTypes!: string | undefined;
     minimumPurchaseAmount!: number | undefined;
     isFirstTimeOnly!: boolean;
     createdBy!: string;
@@ -26632,6 +26633,7 @@ export class Coupon implements ICoupon {
             this.validUntil = _data["validUntil"] ? DateTime.fromISO(_data["validUntil"].toString()) : undefined as any;
             this.isActive = _data["isActive"];
             this.applicablePlanIds = _data["applicablePlanIds"];
+            this.applicableTenantTypes = _data["applicableTenantTypes"];
             this.minimumPurchaseAmount = _data["minimumPurchaseAmount"];
             this.isFirstTimeOnly = _data["isFirstTimeOnly"];
             this.createdBy = _data["createdBy"];
@@ -26669,6 +26671,7 @@ export class Coupon implements ICoupon {
         data["validUntil"] = this.validUntil ? this.validUntil.toString() : undefined as any;
         data["isActive"] = this.isActive;
         data["applicablePlanIds"] = this.applicablePlanIds;
+        data["applicableTenantTypes"] = this.applicableTenantTypes;
         data["minimumPurchaseAmount"] = this.minimumPurchaseAmount;
         data["isFirstTimeOnly"] = this.isFirstTimeOnly;
         data["createdBy"] = this.createdBy;
@@ -26699,6 +26702,7 @@ export interface ICoupon {
     validUntil: DateTime | undefined;
     isActive: boolean;
     applicablePlanIds: string | undefined;
+    applicableTenantTypes: string | undefined;
     minimumPurchaseAmount: number | undefined;
     isFirstTimeOnly: boolean;
     createdBy: string;
@@ -26721,6 +26725,7 @@ export class CouponDto implements ICouponDto {
     validFrom!: DateTime;
     validUntil!: DateTime | undefined;
     isActive!: boolean;
+    applicableTenantTypes!: string[] | undefined;
     minimumPurchaseAmount!: number | undefined;
     isFirstTimeOnly!: boolean;
     campaignName!: string | undefined;
@@ -26749,6 +26754,11 @@ export class CouponDto implements ICouponDto {
             this.validFrom = _data["validFrom"] ? DateTime.fromISO(_data["validFrom"].toString()) : undefined as any;
             this.validUntil = _data["validUntil"] ? DateTime.fromISO(_data["validUntil"].toString()) : undefined as any;
             this.isActive = _data["isActive"];
+            if (Array.isArray(_data["applicableTenantTypes"])) {
+                this.applicableTenantTypes = [] as any;
+                for (let item of _data["applicableTenantTypes"])
+                    this.applicableTenantTypes!.push(item);
+            }
             this.minimumPurchaseAmount = _data["minimumPurchaseAmount"];
             this.isFirstTimeOnly = _data["isFirstTimeOnly"];
             this.campaignName = _data["campaignName"];
@@ -26777,6 +26787,11 @@ export class CouponDto implements ICouponDto {
         data["validFrom"] = this.validFrom ? this.validFrom.toString() : undefined as any;
         data["validUntil"] = this.validUntil ? this.validUntil.toString() : undefined as any;
         data["isActive"] = this.isActive;
+        if (Array.isArray(this.applicableTenantTypes)) {
+            data["applicableTenantTypes"] = [];
+            for (let item of this.applicableTenantTypes)
+                data["applicableTenantTypes"].push(item);
+        }
         data["minimumPurchaseAmount"] = this.minimumPurchaseAmount;
         data["isFirstTimeOnly"] = this.isFirstTimeOnly;
         data["campaignName"] = this.campaignName;
@@ -26798,6 +26813,7 @@ export interface ICouponDto {
     validFrom: DateTime;
     validUntil: DateTime | undefined;
     isActive: boolean;
+    applicableTenantTypes: string[] | undefined;
     minimumPurchaseAmount: number | undefined;
     isFirstTimeOnly: boolean;
     campaignName: string | undefined;
@@ -27367,6 +27383,7 @@ export class CreateCouponDto implements ICreateCouponDto {
     validFrom!: DateTime;
     validUntil!: DateTime | undefined;
     applicablePlanIds!: string[] | undefined;
+    applicableTenantTypes!: string[] | undefined;
     minimumPurchaseAmount!: number | undefined;
     isFirstTimeOnly!: boolean;
     internalNotes!: string | undefined;
@@ -27396,6 +27413,11 @@ export class CreateCouponDto implements ICreateCouponDto {
                 this.applicablePlanIds = [] as any;
                 for (let item of _data["applicablePlanIds"])
                     this.applicablePlanIds!.push(item);
+            }
+            if (Array.isArray(_data["applicableTenantTypes"])) {
+                this.applicableTenantTypes = [] as any;
+                for (let item of _data["applicableTenantTypes"])
+                    this.applicableTenantTypes!.push(item);
             }
             this.minimumPurchaseAmount = _data["minimumPurchaseAmount"];
             this.isFirstTimeOnly = _data["isFirstTimeOnly"];
@@ -27427,6 +27449,11 @@ export class CreateCouponDto implements ICreateCouponDto {
             for (let item of this.applicablePlanIds)
                 data["applicablePlanIds"].push(item);
         }
+        if (Array.isArray(this.applicableTenantTypes)) {
+            data["applicableTenantTypes"] = [];
+            for (let item of this.applicableTenantTypes)
+                data["applicableTenantTypes"].push(item);
+        }
         data["minimumPurchaseAmount"] = this.minimumPurchaseAmount;
         data["isFirstTimeOnly"] = this.isFirstTimeOnly;
         data["internalNotes"] = this.internalNotes;
@@ -27446,6 +27473,7 @@ export interface ICreateCouponDto {
     validFrom: DateTime;
     validUntil: DateTime | undefined;
     applicablePlanIds: string[] | undefined;
+    applicableTenantTypes: string[] | undefined;
     minimumPurchaseAmount: number | undefined;
     isFirstTimeOnly: boolean;
     internalNotes: string | undefined;
@@ -38639,6 +38667,9 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
     registrationNumber!: string | undefined;
     type!: TenantType;
     subscriptionPlanId!: string | undefined;
+    selectedPlanConfigurationId!: string | undefined;
+    couponCode!: string | undefined;
+    billingCycle!: number;
     isStaticSite!: boolean;
 
     constructor(data?: ITenantCreateUpdateDto) {
@@ -38663,6 +38694,9 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
             this.registrationNumber = _data["registrationNumber"];
             this.type = _data["type"];
             this.subscriptionPlanId = _data["subscriptionPlanId"];
+            this.selectedPlanConfigurationId = _data["selectedPlanConfigurationId"];
+            this.couponCode = _data["couponCode"];
+            this.billingCycle = _data["billingCycle"];
             this.isStaticSite = _data["isStaticSite"];
         }
     }
@@ -38687,6 +38721,9 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
         data["registrationNumber"] = this.registrationNumber;
         data["type"] = this.type;
         data["subscriptionPlanId"] = this.subscriptionPlanId;
+        data["selectedPlanConfigurationId"] = this.selectedPlanConfigurationId;
+        data["couponCode"] = this.couponCode;
+        data["billingCycle"] = this.billingCycle;
         data["isStaticSite"] = this.isStaticSite;
         return data;
     }
@@ -38704,6 +38741,9 @@ export interface ITenantCreateUpdateDto {
     registrationNumber: string | undefined;
     type: TenantType;
     subscriptionPlanId: string | undefined;
+    selectedPlanConfigurationId: string | undefined;
+    couponCode: string | undefined;
+    billingCycle: number;
     isStaticSite: boolean;
 }
 

@@ -1,0 +1,26 @@
+.plan-configuration-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+:host ::ng-deep {
+  .p-card .p-card-body {
+    padding: 0;
+  }
+
+  .p-card .p-card-content {
+    padding: 1rem;
+  }
+
+  .p-tabview .p-tabview-panels {
+    padding: 0;
+  }
+
+  .p-inputnumber {
+    width: 100%;
+  }
+
+  .p-dropdown {
+    width: 100%;
+  }
+}

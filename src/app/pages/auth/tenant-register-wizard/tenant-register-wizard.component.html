@@ -375,19 +375,11 @@
                         <!-- Real-Time Pricing Calculator -->
                         <div class="price-calculator card mb-4">
                             <div class="card-body">
-                                <h5 class="card-title">Your Custom Pricing</h5>
+                                <h5 class="card-title">Pricing Breakdown</h5>
                                 <div class="price-breakdown">
                                     <div class="breakdown-row">
-                                        <span>Base Price:</span>
+                                        <span>Monthly Price:</span>
                                         <strong>R {{priceBreakdown().basePrice | number:'1.2-2'}}/month</strong>
-                                    </div>
-                                    <div class="breakdown-row" *ngIf="priceBreakdown().organizationModifier !== 1">
-                                        <span>Organization Type ({{selectedOrganizationType()?.label}}):</span>
-                                        <strong>×{{priceBreakdown().organizationModifier | number:'1.2-2'}}</strong>
-                                    </div>
-                                    <div class="breakdown-row" *ngFor="let modifier of priceBreakdown().volumeModifiers">
-                                        <span>{{modifier.label}}:</span>
-                                        <strong>{{modifier.impact}}</strong>
                                     </div>
                                     <div class="breakdown-row" *ngIf="priceBreakdown().couponDiscount > 0">
                                         <span>Coupon Discount:</span>

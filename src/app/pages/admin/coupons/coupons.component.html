@@ -16,15 +16,16 @@
         <table class="table table-hover table-striped">
             <thead>
                 <tr>
-                    <th style="width: 12%">Code</th>
-                    <th style="width: 15%">Name</th>
-                    <th style="width: 20%">Description</th>
-                    <th style="width: 10%">Type</th>
-                    <th style="width: 10%">Discount</th>
-                    <th style="width: 10%">Redeemed</th>
-                    <th style="width: 12%">Expires</th>
-                    <th style="width: 8%">Active</th>
-                    <th style="width: 8%">Actions</th>
+                    <th style="width: 10%">Code</th>
+                    <th style="width: 12%">Name</th>
+                    <th style="width: 15%">Description</th>
+                    <th style="width: 8%">Type</th>
+                    <th style="width: 8%">Discount</th>
+                    <th style="width: 10%">Duration</th>
+                    <th style="width: 12%">Tenant Types</th>
+                    <th style="width: 8%">Redeemed</th>
+                    <th style="width: 10%">Expires</th>
+                    <th style="width: 7%">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,6 +37,15 @@
                     <td>
                         <span *ngIf="coupon.discountType === 'Percentage'">{{ coupon.discountValue }}%</span>
                         <span *ngIf="coupon.discountType === 'FixedAmount'">R {{ coupon.discountValue | number: '1.2-2' }}</span>
+                    </td>
+                    <td>
+                        <span class="badge" [class.bg-success]="coupon.durationInMonths === 1" [class.bg-info]="coupon.durationInMonths > 1">
+                            {{ coupon.durationInMonths }}{{ coupon.durationInMonths === 1 ? ' mo' : ' mos' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span *ngIf="!coupon.applicableTenantTypes || coupon.applicableTenantTypes.length === 0" class="badge bg-secondary">All</span>
+                        <span *ngFor="let type of coupon.applicableTenantTypes" class="badge bg-primary me-1">{{ type }}</span>
                     </td>
                     <td>{{ coupon.currentRedemptions }}<span *ngIf="coupon.maxRedemptions"> / {{ coupon.maxRedemptions }}</span></td>
                     <td>
@@ -108,8 +118,38 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label for="durationInMonths" class="form-label">Duration (Months) *</label>
+                        <label for="durationInMonths" class="form-label">Duration (Billing Cycles) *</label>
                         <input type="number" class="form-control" id="durationInMonths" [(ngModel)]="coupon.durationInMonths" min="1" />
+                        <small class="text-muted d-block mt-1">
+                            <i class="bi bi-info-circle"></i>
+                            <span *ngIf="coupon.durationInMonths === 1">One-time discount (first billing cycle only)</span>
+                            <span *ngIf="coupon.durationInMonths > 1">Recurring discount for {{ coupon.durationInMonths }} billing cycles (auto-applied)</span>
+                        </small>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Applicable to Tenant Types</label>
+                        <div class="form-text mb-2"><i class="bi bi-info-circle"></i> Select specific organization types, or leave empty for all types</div>
+                        <div class="row">
+                            <div class="col-md-3" *ngFor="let type of tenantTypes">
+                                <div class="form-check">
+                                    <input 
+                                        type="checkbox" 
+                                        class="form-check-input" 
+                                        [id]="'tenantType_' + type.value"
+                                        [value]="type.value"
+                                        [checked]="coupon.applicableTenantTypes?.includes(type.value)"
+                                        (change)="onTenantTypeChange(type.value, $event)">
+                                    <label class="form-check-label" [for]="'tenantType_' + type.value">
+                                        {{ type.label }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            <span *ngIf="!coupon.applicableTenantTypes || coupon.applicableTenantTypes.length === 0" class="badge bg-secondary">Currently applies to ALL tenant types</span>
+                            <span *ngIf="coupon.applicableTenantTypes && coupon.applicableTenantTypes.length > 0" class="badge bg-primary">Restricted to {{ coupon.applicableTenantTypes.length }} type(s)</span>
+                        </small>
                     </div>
 
                     <div class="col-md-6">

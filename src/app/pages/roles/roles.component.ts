@@ -20,7 +20,7 @@ import { TenantService } from '../../core/services/tenant.service';
     selector: 'app-roles',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, MultiSelectModule],
-    providers: [MessageService, ConfirmationService, RoleServiceProxy, PermissionServiceProxy, RolePermissionServiceProxy],
+    providers: [MessageService, ConfirmationService, RoleServiceProxy, PermissionServiceProxy, RolePermissionServiceProxy, TenantTypePermissionServiceProxy],
     templateUrl: './roles.component.html',
     styleUrl: './roles.component.scss'
 })

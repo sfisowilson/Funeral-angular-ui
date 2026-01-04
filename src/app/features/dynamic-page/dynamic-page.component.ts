@@ -100,6 +100,10 @@ export class DynamicPageComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading page:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error);
+        
         if (error.status === 404) {
           this.error.set('Page not found');
         } else if (error.status === 401 || error.status === 403) {
@@ -108,7 +112,7 @@ export class DynamicPageComponent implements OnInit {
             queryParams: { returnUrl: this.router.url }
           });
         } else {
-          this.error.set('An error occurred while loading the page');
+          this.error.set('An error occurred while loading the page. Please check the browser console for details.');
         }
         this.loading.set(false);
       }

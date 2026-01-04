@@ -1,0 +1,369 @@
+<div class="plan-configuration-container p-4">
+  <p-toast />
+  <p-confirmDialog />
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-4">
+    <div>
+      <h1 class="text-3xl font-bold">Plan Configurations</h1>
+      <p class="text-gray-600">Manage subscription plans with different pricing per tenant type</p>
+    </div>
+    <button pButton label="New Configuration" icon="pi pi-plus" (click)="openNewDialog()"></button>
+  </div>
+
+  <!-- Plan Groups -->
+  <div class="space-y-6">
+    @for (group of planGroups(); track group.planName) {
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="p-4">
+            <h2 class="text-2xl font-bold">{{ group.planName }}</h2>
+            <p class="text-sm text-gray-600">{{ group.configurations.length }} tenant type(s)</p>
+          </div>
+        </ng-template>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (config of group.configurations; track config.id) {
+            <div class="border rounded-lg p-4 hover:shadow-lg transition {{ config.isActive ? 'border-blue-500' : 'border-gray-300 opacity-60' }}">
+              <!-- Header -->
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h3 class="text-lg font-semibold">{{ config.tenantTypeName }}</h3>
+                  <span class="text-xs px-2 py-1 rounded {{ config.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
+                    {{ config.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+                <div class="flex gap-1">
+                  <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="openEditDialog(config)"></button>
+                  <button pButton icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger" (click)="deleteConfiguration(config)"></button>
+                </div>
+              </div>
+
+              <!-- Pricing -->
+              <div class="mb-3">
+                <div class="text-3xl font-bold text-blue-600">${{ config.monthlyPrice }}</div>
+                <div class="text-sm text-gray-600">per month</div>
+                @if (config.yearlyPrice > 0) {
+                  <div class="text-sm text-gray-600 mt-1">
+                    ${{ config.yearlyPrice }}/year
+                    <span class="text-green-600 text-xs ml-1">
+                      (Save ${{ (config.monthlyPrice * 12 - config.yearlyPrice).toFixed(0) }})
+                    </span>
+                  </div>
+                }
+              </div>
+
+              <!-- Key Limits -->
+              <div class="space-y-1 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Users:</span>
+                  <span class="font-semibold">{{ config.maxUsers }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Storage:</span>
+                  <span class="font-semibold">{{ (config.maxStorageMB / 1024).toFixed(1) }} GB</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Members:</span>
+                  <span class="font-semibold">{{ config.maxMembers || 'Unlimited' }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Landing Pages:</span>
+                  <span class="font-semibold">{{ config.maxLandingPages }}</span>
+                </div>
+              </div>
+
+              <!-- Key Features -->
+              <div class="mt-3 pt-3 border-t space-y-1">
+                @if (config.canUseLandingPageBuilder) {
+                  <div class="flex items-center text-xs text-green-600">
+                    <i class="pi pi-check mr-2"></i> Landing Page Builder
+                  </div>
+                }
+                @if (config.canUseCustomDomain) {
+                  <div class="flex items-center text-xs text-green-600">
+                    <i class="pi pi-check mr-2"></i> Custom Domain
+                  </div>
+                }
+                @if (config.canUseWhiteLabel) {
+                  <div class="flex items-center text-xs text-green-600">
+                    <i class="pi pi-check mr-2"></i> White Label
+                  </div>
+                }
+                @if (config.hasPrioritySupport) {
+                  <div class="flex items-center text-xs text-green-600">
+                    <i class="pi pi-check mr-2"></i> Priority Support
+                  </div>
+                }
+              </div>
+
+              @if (config.description) {
+                <div class="mt-3 pt-3 border-t text-xs text-gray-600">
+                  {{ config.description }}
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </p-card>
+    }
+
+    @if (planGroups().length === 0) {
+      <p-card>
+        <div class="text-center py-8 text-gray-500">
+          <i class="pi pi-inbox text-4xl mb-3"></i>
+          <p>No plan configurations yet. Click "New Configuration" to create one.</p>
+        </div>
+      </p-card>
+    }
+  </div>
+
+  <!-- Configuration Dialog -->
+  <p-dialog 
+    [(visible)]="showDialog" 
+    [header]="editMode ? 'Edit Plan Configuration' : 'New Plan Configuration'"
+    [modal]="true"
+    [style]="{ width: '90vw', maxWidth: '1000px' }"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <p-tabView>
+      <!-- Basic Info Tab -->
+      <p-tabPanel header="Basic Info">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Plan Name *</label>
+            <input pInputText [(ngModel)]="formData.planName" class="w-full" placeholder="e.g., Premium, Basic, Enterprise" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Tenant Type *</label>
+            <p-dropdown 
+              [(ngModel)]="formData.tenantType" 
+              [options]="tenantTypes()" 
+              optionLabel="label" 
+              optionValue="value"
+              placeholder="Select tenant type"
+              [style]="{ width: '100%' }"
+              [disabled]="editMode">
+            </p-dropdown>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Description</label>
+            <textarea pInputTextarea [(ngModel)]="formData.description" class="w-full" rows="3" placeholder="Plan description..."></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Monthly Price ($) *</label>
+            <p-inputNumber [(ngModel)]="formData.monthlyPrice" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Yearly Price ($)</label>
+            <p-inputNumber [(ngModel)]="formData.yearlyPrice" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Display Order</label>
+            <p-inputNumber [(ngModel)]="formData.displayOrder" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Trial Days</label>
+            <p-inputNumber [(ngModel)]="formData.trialDays" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+
+          <div class="md:col-span-2 flex items-center gap-4">
+            <p-checkbox [(ngModel)]="formData.isActive" [binary]="true" inputId="isActive"></p-checkbox>
+            <label for="isActive">Active</label>
+
+            <p-checkbox [(ngModel)]="formData.requiresCreditCard" [binary]="true" inputId="requiresCreditCard"></p-checkbox>
+            <label for="requiresCreditCard">Requires Credit Card</label>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Limits Tab -->
+      <p-tabPanel header="Limits">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Max Users</label>
+            <p-inputNumber [(ngModel)]="formData.maxUsers" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Max Storage (MB)</label>
+            <p-inputNumber [(ngModel)]="formData.maxStorageMB" [showButtons]="true" [step]="1024" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Max Products</label>
+            <p-inputNumber [(ngModel)]="formData.maxProducts" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Max Members</label>
+            <p-inputNumber [(ngModel)]="formData.maxMembers" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Max Active Orders</label>
+            <p-inputNumber [(ngModel)]="formData.maxActiveOrders" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Max Landing Pages</label>
+            <p-inputNumber [(ngModel)]="formData.maxLandingPages" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Max Email Templates</label>
+            <p-inputNumber [(ngModel)]="formData.maxEmailTemplates" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Max Custom Forms</label>
+            <p-inputNumber [(ngModel)]="formData.maxCustomForms" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Images Per Product</label>
+            <p-inputNumber [(ngModel)]="formData.maxProductImagesPerProduct" [showButtons]="true" class="w-full"></p-inputNumber>
+          </div>
+        </div>
+
+        <div class="border-t mt-4 pt-4 px-4">
+          <h4 class="font-semibold mb-3">API Rate Limits</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">Per Minute</label>
+              <p-inputNumber [(ngModel)]="formData.apiRateLimitPerMinute" [showButtons]="true" class="w-full"></p-inputNumber>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2">Per Day</label>
+              <p-inputNumber [(ngModel)]="formData.apiRateLimitPerDay" [showButtons]="true" [step]="1000" class="w-full"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Features Tab -->
+      <p-tabPanel header="Features">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canUploadFiles" [binary]="true" inputId="canUploadFiles"></p-checkbox>
+            <label for="canUploadFiles">Can Upload Files</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canCreateSubAccounts" [binary]="true" inputId="canCreateSubAccounts"></p-checkbox>
+            <label for="canCreateSubAccounts">Can Create Sub-Accounts</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canExportData" [binary]="true" inputId="canExportData"></p-checkbox>
+            <label for="canExportData">Can Export Data</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canUseAPI" [binary]="true" inputId="canUseAPI"></p-checkbox>
+            <label for="canUseAPI">Can Use API</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canUseLandingPageBuilder" [binary]="true" inputId="canUseLandingPageBuilder"></p-checkbox>
+            <label for="canUseLandingPageBuilder">Can Use Landing Page Builder</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canUseCustomDomain" [binary]="true" inputId="canUseCustomDomain"></p-checkbox>
+            <label for="canUseCustomDomain">Can Use Custom Domain</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canAccessAdvancedReports" [binary]="true" inputId="canAccessAdvancedReports"></p-checkbox>
+            <label for="canAccessAdvancedReports">Can Access Advanced Reports</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canUseWhiteLabel" [binary]="true" inputId="canUseWhiteLabel"></p-checkbox>
+            <label for="canUseWhiteLabel">Can Use White Label</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.hasPrioritySupport" [binary]="true" inputId="hasPrioritySupport"></p-checkbox>
+            <label for="hasPrioritySupport">Has Priority Support</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canDowngrade" [binary]="true" inputId="canDowngrade"></p-checkbox>
+            <label for="canDowngrade">Can Downgrade</label>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-checkbox [(ngModel)]="formData.canUpgrade" [binary]="true" inputId="canUpgrade"></p-checkbox>
+            <label for="canUpgrade">Can Upgrade</label>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- Overage Tab -->
+      <p-tabPanel header="Overage & Alerts">
+        <div class="p-4 space-y-6">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <p-checkbox [(ngModel)]="formData.allowOverage" [binary]="true" inputId="allowOverage"></p-checkbox>
+              <label for="allowOverage" class="font-semibold">Allow Overage</label>
+            </div>
+
+            @if (formData.allowOverage) {
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 ml-8">
+                <div>
+                  <label class="block text-sm font-medium mb-2">Overage User Price ($)</label>
+                  <p-inputNumber [(ngModel)]="formData.overageUserPrice" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium mb-2">Overage Storage Price per GB ($)</label>
+                  <p-inputNumber [(ngModel)]="formData.overageStoragePricePerGB" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium mb-2">Overage Product Price per 100 ($)</label>
+                  <p-inputNumber [(ngModel)]="formData.overageProductPricePer100" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium mb-2">Overage Member Price per 100 ($)</label>
+                  <p-inputNumber [(ngModel)]="formData.overageMemberPricePer100" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="border-t pt-6">
+            <div class="flex items-center gap-3 mb-4">
+              <p-checkbox [(ngModel)]="formData.sendUsageAlerts" [binary]="true" inputId="sendUsageAlerts"></p-checkbox>
+              <label for="sendUsageAlerts" class="font-semibold">Send Usage Alerts</label>
+            </div>
+
+            @if (formData.sendUsageAlerts) {
+              <div class="ml-8">
+                <label class="block text-sm font-medium mb-2">Alert Threshold (%)</label>
+                <p-inputNumber [(ngModel)]="formData.usageAlertThresholdPercent" [showButtons]="true" [min]="0" [max]="100" suffix="%" class="w-full md:w-1/2"></p-inputNumber>
+                <small class="text-gray-600">Alert when usage reaches this percentage</small>
+              </div>
+            }
+          </div>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+
+    <ng-template pTemplate="footer">
+      <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="closeDialog()"></button>
+      <button pButton label="Save" icon="pi pi-check" (click)="saveConfiguration()"></button>
+    </ng-template>
+  </p-dialog>
+</div>

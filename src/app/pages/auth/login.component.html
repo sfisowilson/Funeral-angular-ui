@@ -85,7 +85,15 @@
 
                 <!-- Submit Button -->
                 <div class="form-actions">
-                    <p-button label="Sign In" icon="pi pi-sign-in" class="btn-primary-theme login-button" [loading]="isBusy" [disabled]="!form.valid" (click)="login()"></p-button>
+                    <button 
+                        type="button" 
+                        class="btn-primary-theme login-button" 
+                        [disabled]="!form.valid || isBusy" 
+                        (click)="login()">
+                        <i class="pi pi-sign-in" *ngIf="!isBusy"></i>
+                        <i class="pi pi-spin pi-spinner" *ngIf="isBusy"></i>
+                        {{ isBusy ? 'Signing In...' : 'Sign In' }}
+                    </button>
                 </div>
             </form>
         </div>

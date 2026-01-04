@@ -30,6 +30,7 @@ import { CareersComponent } from './admin/careers/careers.component';
 import { ProductManagementComponent } from './admin/product-management/product-management.component';
 import { OrderManagementComponent } from './admin/order-management/order-management.component';
 import { CustomerManagementComponent } from './admin/customer-management/customer-management.component';
+import { PlanConfigurationComponent } from '../features/admin/plan-configuration/plan-configuration.component';
 
 export default [
     { path: 'assets', component: AssetsComponent },
@@ -39,6 +40,7 @@ export default [
     { path: 'tenants', component: TenantsComponent },
     { path: 'users', component: UsersComponent },
     { path: 'subscription-plans', component: SubscriptionPlansComponent },
+    { path: 'plan-configuration', component: PlanConfigurationComponent },
     { path: 'policies', component: PoliciesComponent },
     { path: 'policy/:id', component: PolicyComponent },
     { path: 'policy-attributes', component: PolicyAttributesComponent },

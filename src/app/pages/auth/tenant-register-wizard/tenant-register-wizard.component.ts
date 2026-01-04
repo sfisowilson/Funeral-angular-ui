@@ -5,7 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import {
     AuthServiceProxy,
     TenantCreateUpdateDto,
-    SubscriptionPlanServiceProxy,
+    PlanConfigurationServiceProxy,
     PaymentServiceProxy,
     CouponServiceProxy,
     TenantType,
@@ -31,7 +31,7 @@ interface Alert {
     ],
     providers: [
         AuthServiceProxy,
-        SubscriptionPlanServiceProxy,
+        PlanConfigurationServiceProxy,
         PaymentServiceProxy,
         CouponServiceProxy,
         TenantServiceProxy
@@ -100,7 +100,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         private fb: FormBuilder,
         private router: Router,
         private authService: AuthServiceProxy,
-        private planService: SubscriptionPlanServiceProxy,
+        private planConfigService: PlanConfigurationServiceProxy,
         private paymentService: PaymentServiceProxy,
         private couponService: CouponServiceProxy,
         private tenantProxy: TenantServiceProxy,
@@ -171,7 +171,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         const plan = this.selectedPlan();
         const orgType = this.selectedOrganizationType();
         
-        if (!plan || !orgType) {
+        if (!plan) {
             this.calculatedPrice.set({ monthly: 0, yearly: 0, yearlyDiscount: 15 });
             this.priceBreakdown.set({ 
                 basePrice: 0, 
@@ -182,71 +182,32 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             return;
         }
         
-        // Base price is always monthly
-        const basePrice = plan.monthlyPrice;
-        this.basePlanPrice.set(basePrice);
-        
-        // Apply organization type modifier
-        let totalMultiplier = orgType.pricingModifier || 1.0;
-        const volumeModifiers: { label: string; impact: string }[] = [];
-        
-        // Apply pricing impact from answered questions
-        const formValue = this.organizationQuestionsForm.value;
-        orgType.questions.forEach(question => {
-            if (question.pricingImpact && formValue[question.id]) {
-                const value = formValue[question.id];
-                let numericValue: number;
-                
-                // Extract numeric value from answer
-                if (typeof value === 'number') {
-                    numericValue = value;
-                } else if (typeof value === 'string') {
-                    // Handle ranges like "1-10", "11-30", etc.
-                    const match = value.match(/(\d+)/);
-                    numericValue = match ? parseInt(match[1]) : 0;
-                } else {
-                    return;
-                }
-                
-                // Find applicable range
-                const range = question.pricingImpact.ranges.find(
-                    r => numericValue >= r.min && numericValue <= r.max
-                );
-                
-                if (range && range.multiplier !== 1.0) {
-                    totalMultiplier *= range.multiplier;
-                    
-                    const percentChange = ((range.multiplier - 1.0) * 100).toFixed(0);
-                    const sign = Number(percentChange) > 0 ? '+' : '';
-                    volumeModifiers.push({
-                        label: `${question.label}`,
-                        impact: `${sign}${percentChange}%`
-                    });
-                }
-            }
-        });
-        
-        const monthlyPrice = basePrice * totalMultiplier;
-        const yearlyDiscount = 15; // 15% discount for yearly billing
-        const yearlyPrice = (monthlyPrice * 12) * (1 - yearlyDiscount / 100);
+        // Use plan configuration prices directly (no modifiers for plan configs)
+        const monthlyPrice = plan.monthlyPrice || 0;
+        const yearlyPrice = plan.yearlyPrice || (monthlyPrice * 12 * 0.85); // 15% discount if not set
+        const yearlyDiscount = plan.yearlyPrice ? 
+            Math.round(((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100) : 15;
         
         // Apply coupon discount if valid
         let couponDiscount = 0;
         const couponValidation = this.couponValidation();
-        if (couponValidation?.isValid && couponValidation?.discountedAmount !== undefined) {
-            couponDiscount = monthlyPrice - couponValidation.discountedAmount;
+        if (couponValidation?.isValid) {
+            // Get the actual discount amount from validation
+            const baseAmount = this.selectedBillingCycle() === 'yearly' ? yearlyPrice : monthlyPrice;
+            const finalAmount = couponValidation.finalAmount || couponValidation.discountedAmount || baseAmount;
+            couponDiscount = Math.max(0, baseAmount - finalAmount);
         }
         
         this.calculatedPrice.set({
-            monthly: monthlyPrice - couponDiscount,
-            yearly: yearlyPrice - (couponDiscount * 12),
+            monthly: Math.max(0, monthlyPrice - couponDiscount),
+            yearly: Math.max(0, yearlyPrice - couponDiscount),
             yearlyDiscount
         });
         
         this.priceBreakdown.set({
-            basePrice,
-            organizationModifier: orgType.pricingModifier || 1.0,
-            volumeModifiers,
+            basePrice: monthlyPrice,
+            organizationModifier: 1, // No modifiers for plan configurations
+            volumeModifiers: [], // No volume modifiers for plan configurations
             couponDiscount
         });
     }
@@ -318,7 +279,8 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     async loadPlans(): Promise<void> {
         try {
             this.wizardLoading.set(true);
-            const plans = await this.planService.subscriptionPlan_GetAll().toPromise();
+            // Use plan configurations instead of old subscription plans
+            const plans = await this.planConfigService.planConfiguration_GetActive().toPromise();
             this.plans.set(plans || []);
         } catch (error: any) {
             this.showAlert('Failed to load subscription plans', 'danger');
@@ -486,6 +448,9 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 registrationNumber: formValue.registrationNumber,
                 tenantType: formValue.tenantType,
                 subscriptionPlanId: selectedPlan?.id,
+                selectedPlanConfigurationId: selectedPlan?.id, // Plan configuration ID
+                couponCode: this.couponCode() || null, // Include coupon if valid
+                billingCycle: this.billingCycle, // 0 = Monthly, 1 = Yearly
                 isStaticSite: formValue.tenantType == 3
             });
             

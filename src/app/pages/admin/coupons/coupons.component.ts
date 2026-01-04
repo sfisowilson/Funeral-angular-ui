@@ -21,6 +21,7 @@ interface CouponDto {
     validFrom: string;
     validUntil?: string;
     isActive: boolean;
+    applicableTenantTypes?: string[];
     minimumPurchaseAmount?: number;
     isFirstTimeOnly: boolean;
     campaignName?: string;
@@ -66,6 +67,13 @@ export class CouponsComponent {
     discountTypes = [
         { label: 'Percentage', value: '0' },
         { label: 'Fixed Amount', value: '1' }
+    ];
+
+    tenantTypes = [
+        { label: 'Funeral Parlor', value: 'Funeral' },
+        { label: 'Church', value: 'Church' },
+        { label: 'NGO', value: 'NGO' },
+        { label: 'Other', value: 'Other' }
     ];
 
     constructor(
@@ -127,7 +135,8 @@ export class CouponsComponent {
             durationInMonths: 1,
             isActive: true,
             isFirstTimeOnly: false,
-            validFrom: new Date()
+            validFrom: new Date(),
+            applicableTenantTypes: []
         };
         this.submitted = false;
         this.couponDialog = true;
@@ -205,6 +214,7 @@ export class CouponsComponent {
             createDto.internalNotes = this.coupon.internalNotes;
             createDto.campaignName = this.coupon.campaignName;
             createDto.applicablePlanIds = [];
+            createDto.applicableTenantTypes = this.coupon.applicableTenantTypes || [];
 
             this.couponService.coupon_Create(createDto).subscribe(
                 () => {
@@ -222,5 +232,24 @@ export class CouponsComponent {
     exportCSV() {
         // Export functionality can be implemented with a library like xlsx or csv-export
         this.showAlert('Export feature - implement with library if needed', 'info');
+    }
+
+    onTenantTypeChange(tenantType: string, event: any): void {
+        if (!this.coupon.applicableTenantTypes) {
+            this.coupon.applicableTenantTypes = [];
+        }
+
+        if (event.target.checked) {
+            // Add tenant type if checked
+            if (!this.coupon.applicableTenantTypes.includes(tenantType)) {
+                this.coupon.applicableTenantTypes.push(tenantType);
+            }
+        } else {
+            // Remove tenant type if unchecked
+            const index = this.coupon.applicableTenantTypes.indexOf(tenantType);
+            if (index > -1) {
+                this.coupon.applicableTenantTypes.splice(index, 1);
+            }
+        }
     }
 }
