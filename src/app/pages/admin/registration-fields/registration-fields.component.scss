@@ -1,0 +1,119 @@
+.registration-fields-container {
+    min-height: calc(100vh - 100px);
+    background: #f8f9fa;
+
+    .content-wrapper {
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    .page-header {
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .fields-table-card {
+        overflow-x: auto;
+    }
+
+    .badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .bg-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    code {
+        background-color: #f1f3f5;
+        padding: 0.125rem 0.375rem;
+        border-radius: 0.25rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        color: #e83e8c;
+    }
+
+    .alert {
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-info {
+        background-color: #cfe2ff;
+        border: 1px solid #9ec5fe;
+        color: #084298;
+    }
+
+    .text-success {
+        color: #28a745;
+    }
+
+    .text-muted {
+        color: #6c757d;
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+
+    .field-form {
+        .form-group {
+            label {
+                color: #495057;
+                font-size: 0.9rem;
+            }
+
+            small {
+                display: block;
+                margin-top: 0.25rem;
+                font-size: 0.8rem;
+                color: #6c757d;
+            }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// PrimeNG table overrides
+::ng-deep {
+    .p-datatable {
+        .p-datatable-thead > tr > th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .p-datatable-tbody > tr {
+            &:hover {
+                background-color: #f8f9fa;
+            }
+        }
+    }
+
+    .p-dialog {
+        .p-dialog-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+
+        .p-dialog-content {
+            padding: 1.5rem;
+        }
+    }
+}

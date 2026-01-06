@@ -71,7 +71,9 @@ export class FieldConfigurationComponent implements OnInit {
         { label: 'Select Dropdown', value: 'select' },
         { label: 'Radio Buttons', value: 'radio' },
         { label: 'Checkbox', value: 'checkbox' },
-        { label: 'Text Area', value: 'textarea' }
+        { label: 'Text Area', value: 'textarea' },
+        { label: 'Premium Calculator', value: 'calculator' },
+        { label: 'Repeater (Multiple Items)', value: 'repeater' }
     ];
 
     categories: CategoryOption[] = [
@@ -204,6 +206,7 @@ export class FieldConfigurationComponent implements OnInit {
                 isRequired: this.currentField.isRequired!,
                 isEnabled: this.currentField.isEnabled!,
                 displayOrder: this.currentField.displayOrder!,
+                fieldContext: this.currentField.fieldContext || 'MemberOnboarding',
                 placeholder: this.currentField.placeholder,
                 helpText: this.currentField.helpText,
                 optionsJson: this.currentField.optionsJson,
@@ -242,8 +245,7 @@ export class FieldConfigurationComponent implements OnInit {
                 category: this.currentField.category!,
                 isRequired: this.currentField.isRequired!,
                 isEnabled: this.currentField.isEnabled!,
-                displayOrder: this.currentField.displayOrder!,
-                placeholder: this.currentField.placeholder,
+                displayOrder: this.currentField.displayOrder!,                fieldContext: this.currentField.fieldContext || 'MemberOnboarding',                placeholder: this.currentField.placeholder,
                 helpText: this.currentField.helpText,
                 optionsJson: this.currentField.optionsJson,
                 validationRulesJson: this.currentField.validationRulesJson,
@@ -315,6 +317,7 @@ export class FieldConfigurationComponent implements OnInit {
             isRequired: field.isRequired,
             isEnabled: !field.isEnabled,
             displayOrder: field.displayOrder,
+            fieldContext: field.fieldContext || 'MemberOnboarding',
             placeholder: field.placeholder,
             helpText: field.helpText,
             optionsJson: field.optionsJson,
@@ -354,6 +357,7 @@ export class FieldConfigurationComponent implements OnInit {
             isRequired: !field.isRequired,
             isEnabled: field.isEnabled,
             displayOrder: field.displayOrder,
+            fieldContext: field.fieldContext || 'MemberOnboarding',
             placeholder: field.placeholder,
             helpText: field.helpText,
             optionsJson: field.optionsJson,

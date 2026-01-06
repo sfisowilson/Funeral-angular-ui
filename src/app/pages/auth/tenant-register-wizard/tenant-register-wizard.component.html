@@ -417,6 +417,45 @@
                                 </label>
                             </div>
                         </div>
+                        
+                        <!-- Pro-Rata Billing Option -->
+                        <div class="pro-rata-section card mb-4 border-info">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title mb-2">
+                                            <i class="bi bi-calendar-check text-info me-2"></i>
+                                            Pro-Rated Billing
+                                        </h5>
+                                        <p class="text-muted mb-0 small">
+                                            Pay only for the remaining {{ billingCycle === 1 ? 'year' : 'month' }}. 
+                                            Full billing starts next period.
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div *ngIf="enableProRata() && proRataInfo()" class="alert alert-info mb-0">
+                                    <div class="row text-center">
+                                        <div class="col-md-3">
+                                            <small class="text-muted d-block">Full Price</small>
+                                            <strong>R {{proRataInfo()!.fullAmount | number:'1.2-2'}}</strong>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted d-block">Days Remaining</small>
+                                            <strong>{{proRataInfo()!.daysRemaining}} / {{proRataInfo()!.daysInPeriod}}</strong>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted d-block">You Save</small>
+                                            <strong class="text-success">R {{(proRataInfo()!.fullAmount - proRataInfo()!.proRatedAmount) | number:'1.2-2'}}</strong>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted d-block">Pro-Rated Price</small>
+                                            <strong class="text-primary fs-5">R {{proRataInfo()!.proRatedAmount | number:'1.2-2'}}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     
                     <div *ngIf="wizardLoading()" class="loading-container">
                         <div class="spinner-border" role="status"></div>

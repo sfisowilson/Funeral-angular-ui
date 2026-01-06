@@ -53,6 +53,14 @@ export interface BookingWidgetConfig {
         saturday: { start: string; end: string; closed: boolean };
         sunday: { start: string; end: string; closed: boolean };
     };
+    // Calendar Integration
+    enableCalendarReminders?: boolean;
+    calendarProvider?: 'google' | 'outlook' | 'both';
+    // Email Notifications
+    enableEmailNotifications?: boolean;
+    notificationEmail?: string;
+    sendCustomerConfirmation?: boolean;
+    sendAdminNotification?: boolean;
 }
 
 @Injectable({
@@ -75,31 +83,29 @@ export class BookingService {
 
     // Create a new booking
     createBooking(bookingRequest: BookingRequest): Observable<Booking> {
-        // For now, simulate API call
-        return of(this.createMockBooking(bookingRequest));
-        
-        // Backend implementation would be:
-        // return this.http.post<Booking>(`${this.baseUrl}/create`, bookingRequest);
+        return this.http.post<Booking>(`${this.baseUrl}/create`, bookingRequest);
     }
 
     // Get all bookings for current tenant
     getBookings(): Observable<Booking[]> {
-        return this.http.get<Booking[]>(`${this.baseUrl}/tenant`);
+        return this.http.get<Booking[]>(`${this.baseUrl}/list`);
     }
 
     // Get bookings for a specific date range
-    getBookingsByDateRange(startDate: Date, endDate: Date): Observable<Booking[]> {
-        return this.http.get<Booking[]>(`${this.baseUrl}/range`, {
-            params: {
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString()
-            }
-        });
+    getBookingsByDateRange(startDate: Date, endDate: Date, status?: string): Observable<Booking[]> {
+        let params: any = {
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString()
+        };
+        if (status) {
+            params.status = status;
+        }
+        return this.http.get<Booking[]>(`${this.baseUrl}/list`, { params });
     }
 
     // Update booking status
-    updateBookingStatus(bookingId: string, status: 'confirmed' | 'cancelled'): Observable<Booking> {
-        return this.http.put<Booking>(`${this.baseUrl}/${bookingId}/status`, { status });
+    updateBookingStatus(bookingId: string, status: 'confirmed' | 'cancelled' | 'pending'): Observable<any> {
+        return this.http.put(`${this.baseUrl}/${bookingId}/status`, { status });
     }
 
     // Delete booking
@@ -109,7 +115,20 @@ export class BookingService {
 
     // Get booking widget configuration
     getBookingConfig(): Observable<BookingWidgetConfig> {
-        return this.http.get<BookingWidgetConfig>(`${this.baseUrl}/config`);
+        return this.http.get<BookingWidgetConfig>(`${this.baseUrl}/config`).pipe(
+            map((config: BookingWidgetConfig) => {
+                // Ensure default values for new properties
+                return {
+                    ...config,
+                    enableCalendarReminders: config.enableCalendarReminders ?? false,
+                    calendarProvider: config.calendarProvider ?? 'both',
+                    enableEmailNotifications: config.enableEmailNotifications ?? false,
+                    sendCustomerConfirmation: config.sendCustomerConfirmation ?? true,
+                    sendAdminNotification: config.sendAdminNotification ?? false,
+                    notificationEmail: config.notificationEmail ?? ''
+                };
+            })
+        );
     }
 
     // Update booking widget configuration
@@ -198,5 +217,135 @@ export class BookingService {
 
     private generateId(): string {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    // Generate iCalendar (.ics) file content for calendar reminders
+    generateCalendarEvent(booking: Booking, config: BookingWidgetConfig): string {
+        const startDateTime = new Date(booking.bookingDate);
+        const [hours, minutes] = booking.timeSlot.time.split(':').map(Number);
+        startDateTime.setHours(hours, minutes, 0, 0);
+
+        const duration = booking.services.reduce((total, service: any) => total + (service.duration || 30), 0);
+        const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
+
+        const formatICalDate = (date: Date): string => {
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        };
+
+        const services = booking.services.map((s: any) => s.name).join(', ');
+        const description = `Services: ${services}\\nCustomer: ${booking.customerName}\\nEmail: ${booking.customerEmail}${booking.customerPhone ? `\\nPhone: ${booking.customerPhone}` : ''}${booking.customerNotes ? `\\n\\nNotes: ${booking.customerNotes}` : ''}`;
+
+        const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Funeral Management System//Booking//EN
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+UID:booking-${booking.id}@funeral-system
+DTSTAMP:${formatICalDate(new Date())}
+DTSTART:${formatICalDate(startDateTime)}
+DTEND:${formatICalDate(endDateTime)}
+SUMMARY:Appointment: ${services}
+DESCRIPTION:${description}
+LOCATION:${booking.customerNotes || 'To be confirmed'}
+STATUS:CONFIRMED
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-PT1H
+DESCRIPTION:Reminder: Appointment in 1 hour
+ACTION:DISPLAY
+END:VALARM
+END:VEVENT
+END:VCALENDAR`;
+
+        return icsContent;
+    }
+
+    // Generate Google Calendar URL
+    generateGoogleCalendarUrl(booking: Booking): string {
+        const startDateTime = new Date(booking.bookingDate);
+        const [hours, minutes] = booking.timeSlot.time.split(':').map(Number);
+        startDateTime.setHours(hours, minutes, 0, 0);
+
+        const duration = booking.services.reduce((total, service: any) => total + (service.duration || 30), 0);
+        const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
+
+        const formatGoogleDate = (date: Date): string => {
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        };
+
+        const services = booking.services.map((s: any) => s.name).join(', ');
+        const title = encodeURIComponent(`Appointment: ${services}`);
+        const details = encodeURIComponent(`Customer: ${booking.customerName}\nEmail: ${booking.customerEmail}${booking.customerPhone ? `\nPhone: ${booking.customerPhone}` : ''}${booking.customerNotes ? `\n\nNotes: ${booking.customerNotes}` : ''}`);
+        const dates = `${formatGoogleDate(startDateTime)}/${formatGoogleDate(endDateTime)}`;
+
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&sf=true&output=xml`;
+    }
+
+    // Generate Outlook Calendar URL
+    generateOutlookCalendarUrl(booking: Booking): string {
+        const startDateTime = new Date(booking.bookingDate);
+        const [hours, minutes] = booking.timeSlot.time.split(':').map(Number);
+        startDateTime.setHours(hours, minutes, 0, 0);
+
+        const duration = booking.services.reduce((total, service: any) => total + (service.duration || 30), 0);
+        const endDateTime = new Date(startDateTime.getTime() + duration * 60000);
+
+        const formatOutlookDate = (date: Date): string => {
+            return date.toISOString();
+        };
+
+        const services = booking.services.map((s: any) => s.name).join(', ');
+        const title = encodeURIComponent(`Appointment: ${services}`);
+        const body = encodeURIComponent(`Customer: ${booking.customerName}\nEmail: ${booking.customerEmail}${booking.customerPhone ? `\nPhone: ${booking.customerPhone}` : ''}${booking.customerNotes ? `\n\nNotes: ${booking.customerNotes}` : ''}`);
+        const startTime = formatOutlookDate(startDateTime);
+        const endTime = formatOutlookDate(endDateTime);
+
+        return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&body=${body}&startdt=${startTime}&enddt=${endTime}&path=/calendar/action/compose&rru=addevent`;
+    }
+
+    // Download .ics file
+    downloadICalFile(booking: Booking, config: BookingWidgetConfig): void {
+        const icsContent = this.generateCalendarEvent(booking, config);
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = `booking-${booking.id}.ics`;
+        link.click();
+        window.URL.revokeObjectURL(link.href);
+    }
+
+    // Send email notifications (calls backend API)
+    sendBookingNotifications(booking: Booking, config: BookingWidgetConfig): Observable<any> {
+        const payload = {
+            booking: {
+                id: booking.id,
+                customerName: booking.customerName,
+                customerEmail: booking.customerEmail,
+                customerPhone: booking.customerPhone,
+                customerNotes: booking.customerNotes,
+                bookingDate: booking.bookingDate,
+                timeSlot: booking.timeSlot,
+                services: booking.services,
+                status: booking.status,
+                createdAt: booking.createdAt
+            },
+            config: {
+                sendCustomerConfirmation: config.sendCustomerConfirmation ?? true,
+                sendAdminNotification: config.sendAdminNotification ?? false,
+                notificationEmail: config.notificationEmail
+            }
+        };
+        
+        return this.http.post(`${this.baseUrl}/send-notifications`, payload).pipe(
+            map((response: any) => {
+                console.log('Notification response:', response);
+                return response;
+            }),
+            catchError((error) => {
+                console.error('Failed to send notifications:', error);
+                return of({ success: false, message: 'Failed to send notifications' });
+            })
+        );
     }
 }

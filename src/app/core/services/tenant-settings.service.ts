@@ -106,6 +106,21 @@ export class TenantSettingsService {
     getBaseUrl(): string {
         return this.baseUrl;
     }
+
+    hasFeature(featureName: string): boolean {
+        if (!this.settings || !this.settings.settings) {
+            return false;
+        }
+        
+        try {
+            const parsedSettings = JSON.parse(this.settings.settings);
+            // Check if feature is explicitly enabled
+            return parsedSettings[featureName] === true || parsedSettings[featureName] === 'true';
+        } catch (error) {
+            console.error('Error parsing tenant settings:', error);
+            return false;
+        }
+    }
 }
 
 export function initializeApp(tenantSettingsService: TenantSettingsService) {

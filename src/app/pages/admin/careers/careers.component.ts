@@ -160,9 +160,19 @@ export class CareersComponent implements OnInit {
     this.isEditMode = false;
     this.selectedCareer = null;
     this.careerForm.reset({
+      id: '',
+      jobTitle: '',
+      department: '',
+      location: '',
       employmentType: 'Full-Time',
+      salaryRange: '',
+      description: '',
+      applicationDeadline: '',
       isActive: true
     });
+    // Mark form as pristine and untouched so validation doesn't show immediately
+    this.careerForm.markAsPristine();
+    this.careerForm.markAsUntouched();
     this.responsibilities = [];
     this.requirements = [];
     this.benefits = [];

@@ -90,6 +90,15 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     createdTenantId = signal<string | null>(null);
     // Billing cycle: 0 = Monthly, 1 = Yearly
     billingCycle = 0;
+    
+    // Pro-rata billing
+    enableProRata = signal<boolean>(false);
+    proRataInfo = signal<{
+        daysInPeriod: number;
+        daysRemaining: number;
+        proRatedAmount: number;
+        fullAmount: number;
+    } | null>(null);
 
     // Confirmation modal
     showConfirmModal = false;
@@ -112,9 +121,10 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     override async ngOnInit(): Promise<void> {
         await super.ngOnInit();
         this.initializeForms();
-        this.loadTenantTypes();
-        this.loadPlans();
-        this.checkForIncompleteRegistration();
+        await this.loadTenantTypes();
+        await this.loadPlans(undefined); // Load all plans initially
+        await this.loadProRataSetting(); // Load system pro-rata setting
+        this.checkForIncompleteRegistration(); // Call after plans are loaded
     }
 
     initializeForms(): void {
@@ -140,6 +150,9 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         this.selectedOrganizationType.set(orgType);
         this.orgTypeQuestions.set(orgType.questions);
         this.accountForm.patchValue({ tenantType: orgType.value });
+        
+        // Load plans for selected tenant type
+        this.loadPlans(orgType.value);
         
         // Rebuild organization questions form with dynamic controls
         this.organizationQuestionsForm = this.fb.group({});
@@ -167,6 +180,64 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         });
     }
     
+    calculateProRataInfo(): void {
+        if (!this.enableProRata()) {
+            this.proRataInfo.set(null);
+            return;
+        }
+        
+        const now = new Date();
+        const plan = this.selectedPlan();
+        if (!plan) {
+            this.proRataInfo.set(null);
+            return;
+        }
+        
+        let daysInPeriod: number;
+        let daysRemaining: number;
+        let fullAmount: number;
+        
+        if (this.billingCycle === 1) { // Yearly
+            const lastDayOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+            daysInPeriod = this.isLeapYear(now.getFullYear()) ? 366 : 365;
+            daysRemaining = Math.ceil((lastDayOfYear.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            fullAmount = plan.yearlyPrice || (plan.monthlyPrice * 12);
+        } else { // Monthly
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            daysInPeriod = new Date(year, month + 1, 0).getDate();
+            const lastDayOfMonth = new Date(year, month, daysInPeriod, 23, 59, 59);
+            daysRemaining = Math.ceil((lastDayOfMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            fullAmount = plan.monthlyPrice;
+        }
+        
+        const proRatedAmount = Math.max(5, Math.round((fullAmount / daysInPeriod) * daysRemaining * 100) / 100);
+        
+        this.proRataInfo.set({
+            daysInPeriod,
+            daysRemaining,
+            proRatedAmount,
+            fullAmount
+        });
+    }
+    
+    async loadProRataSetting(): Promise<void> {
+        try {
+            const enabled = await this.planConfigService.planConfiguration_GetProRataSetting().toPromise();
+            this.enableProRata.set(enabled || false);
+            if (enabled) {
+                this.calculateProRataInfo();
+            }
+        } catch (error: any) {
+            console.error('Failed to load pro-rata setting:', error);
+            this.enableProRata.set(false);
+        }
+    }
+    
+    isLeapYear(year: number): boolean {
+        return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+    }
+    
     calculateDynamicPricing(): void {
         const plan = this.selectedPlan();
         const orgType = this.selectedOrganizationType();
@@ -182,11 +253,24 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             return;
         }
         
+        // Recalculate pro-rata info when pricing changes
+        this.calculateProRataInfo();
+        
         // Use plan configuration prices directly (no modifiers for plan configs)
-        const monthlyPrice = plan.monthlyPrice || 0;
-        const yearlyPrice = plan.yearlyPrice || (monthlyPrice * 12 * 0.85); // 15% discount if not set
+        let monthlyPrice = plan.monthlyPrice || 0;
+        let yearlyPrice = plan.yearlyPrice || (monthlyPrice * 12 * 0.85); // 15% discount if not set
         const yearlyDiscount = plan.yearlyPrice ? 
             Math.round(((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100) : 15;
+        
+        // Apply pro-rata if enabled
+        if (this.enableProRata() && this.proRataInfo()) {
+            const info = this.proRataInfo()!;
+            if (this.billingCycle === 1) {
+                yearlyPrice = info.proRatedAmount;
+            } else {
+                monthlyPrice = info.proRatedAmount;
+            }
+        }
         
         // Apply coupon discount if valid
         let couponDiscount = 0;
@@ -228,7 +312,21 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                     if (hoursSinceCreation < 24) {
                         this.showAlert('You have an incomplete registration. You can resume the payment process.', 'info');
                         this.createdTenantId.set(data.tenantId);
-                        this.activeIndex.set(2); // Go to payment step
+                        
+                        // Restore saved plan and billing cycle
+                        if (data.planId) {
+                            const plan = this.plans().find(p => p.id === data.planId || p.subscriptionPlanId === data.planId);
+                            if (plan) {
+                                this.selectedPlan.set(plan);
+                                this.calculateDynamicPricing();
+                            }
+                        }
+                        if (data.billingCycle !== undefined) {
+                            this.billingCycle = data.billingCycle;
+                            this.selectedBillingCycle.set(data.billingCycle === 1 ? 'yearly' : 'monthly');
+                        }
+                        
+                        this.activeIndex.set(3); // Go to payment step (0=Account, 1=Organization, 2=Plan, 3=Payment)
                     } else {
                         localStorage.removeItem('incompleteRegistration');
                     }
@@ -276,11 +374,12 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         return password === confirmPassword ? null : { passwordMismatch: true };
     }
 
-    async loadPlans(): Promise<void> {
+    async loadPlans(tenantType?: number): Promise<void> {
         try {
             this.wizardLoading.set(true);
-            // Use plan configurations instead of old subscription plans
-            const plans = await this.planConfigService.planConfiguration_GetActive().toPromise();
+            // Use plan configurations filtered by tenant type if provided
+            // Pass tenantType (can be undefined for all plans)
+            const plans = await this.planConfigService.planConfiguration_GetActive(tenantType).toPromise();
             this.plans.set(plans || []);
         } catch (error: any) {
             this.showAlert('Failed to load subscription plans', 'danger');
@@ -328,7 +427,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             const validation = await this.couponService.coupon_Validate({
                 couponCode: this.couponCode(),
                 code: this.couponCode(),
-                subscriptionPlanId: plan.id,
+                subscriptionPlanId: plan.subscriptionPlanId || plan.id,
                 amount: amount,
                 planAmount: amount
             } as any).toPromise();
@@ -352,6 +451,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     selectPlan(plan: any): void {
         this.selectedPlan.set(plan);
         this.couponValidation.set(null); // Reset coupon when plan changes
+        this.calculateProRataInfo(); // Recalculate pro-rata for new plan
         this.calculateDynamicPricing(); // Recalculate pricing with new plan
     }
 
@@ -366,7 +466,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                     const data = JSON.parse(savedData);
                     // Restore saved plan and billing cycle
                     if (data.planId) {
-                        const plan = this.plans().find(p => p.id === data.planId);
+                        const plan = this.plans().find(p => p.id === data.planId || p.subscriptionPlanId === data.planId);
                         if (plan) this.selectedPlan.set(plan);
                     }
                     if (data.billingCycle !== undefined) {
@@ -447,11 +547,12 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 phone2: formValue.phone2,
                 registrationNumber: formValue.registrationNumber,
                 tenantType: formValue.tenantType,
-                subscriptionPlanId: selectedPlan?.id,
+                subscriptionPlanId: selectedPlan?.subscriptionPlanId || selectedPlan?.id,  // Use linked SubscriptionPlan ID
                 selectedPlanConfigurationId: selectedPlan?.id, // Plan configuration ID
                 couponCode: this.couponCode() || null, // Include coupon if valid
                 billingCycle: this.billingCycle, // 0 = Monthly, 1 = Yearly
-                isStaticSite: formValue.tenantType == 3
+                isStaticSite: formValue.tenantType == 3,
+                organizationFeatures: this.organizationQuestionsForm?.value || {} // Include organization preferences
             });
             
             // Register tenant
@@ -484,7 +585,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             
             const paymentDto: any = {
                 tenantId: authResult.tenantId,
-                subscriptionPlanId: selectedPlan?.id,
+                subscriptionPlanId: selectedPlan?.subscriptionPlanId || selectedPlan?.id,  // Use linked SubscriptionPlan ID
                 firstName: formValue.name,
                 lastName: '',
                 email: formValue.email,
@@ -492,12 +593,13 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 tenantName: formValue.name,
                 amount: this.getFinalPrice(),
                 currency: 'ZAR',
-                description: `${selectedPlan?.name} Subscription`,
+                description: `${selectedPlan?.name || selectedPlan?.planName} Subscription`,
                 returnUrl: `${window.location.origin}/payment-success`,
                 cancelUrl: `${window.location.origin}/payment-cancelled`,
                 notifyUrl: `${window.location.origin}/api/Webhook/Webhook_PayFast`,
                 isRecurring: true,
-                billingCycle: this.billingCycle // 0 = Monthly, 1 = Yearly - backend converts to PayFast frequency
+                billingCycle: this.billingCycle, // 0 = Monthly, 1 = Yearly - backend converts to PayFast frequency
+                enableProRata: this.enableProRata() // Include pro-rata flag
             };
             
             // Only add couponCode if it's valid and present
@@ -559,6 +661,9 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     }
 
     onBillingCycleChange(): void {
+        // Recalculate pro-rata info when billing cycle changes
+        this.calculateProRataInfo();
+        
         // Re-validate coupon when billing cycle changes to prevent coupon hacking
         if (this.couponCode() && this.couponValidation()?.isValid) {
             this.validateCoupon();

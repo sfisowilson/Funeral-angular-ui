@@ -40,6 +40,16 @@
                         <i class="bi bi-sliders me-2"></i>Field Configuration
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button 
+                        class="nav-link px-4 py-2" 
+                        [class.active]="activeIndex() === 3"
+                        type="button" 
+                        role="tab"
+                        (click)="activeIndex.set(3)">
+                        <i class="bi bi-list-check me-2"></i>Step Configuration
+                    </button>
+                </li>
             </ul>
 
             <!-- Tab Content with proper border -->
@@ -52,6 +62,9 @@
                 </div>
                 <div class="tab-pane fade p-4" [class.show]="activeIndex() === 2" [class.active]="activeIndex() === 2" role="tabpanel">
                     <app-field-configuration />
+                </div>
+                <div class="tab-pane fade p-4" [class.show]="activeIndex() === 3" [class.active]="activeIndex() === 3" role="tabpanel">
+                    <app-step-configuration />
                 </div>
             </div>
         </div>

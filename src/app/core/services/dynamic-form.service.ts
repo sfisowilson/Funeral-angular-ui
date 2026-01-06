@@ -157,6 +157,11 @@ export class DynamicFormService {
             case 'tel':
                 validators.push(this.phoneValidator());
                 break;
+            case 'calculator':
+            case 'repeater':
+                // Calculator and repeater fields store JSON strings
+                // Optional: Add custom validator for valid JSON if needed
+                break;
         }
 
         // Custom validation rules from JSON

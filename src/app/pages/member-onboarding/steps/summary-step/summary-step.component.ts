@@ -283,4 +283,24 @@ export class SummaryStepComponent implements OnInit {
     };
     img.src = dataUrl;
   }
+  
+  /**
+   * Clear all form data after successful submission
+   */
+  clearForm() {
+    console.log('[SummaryStep] Clearing form data...');
+    
+    // Clear signature
+    this.signatureDataUrl.set(null);
+    
+    // Clear canvas
+    if (this.canvas && this.ctx) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    
+    // Clear PDF
+    this.pdfUrl.set(null);
+    
+    console.log('[SummaryStep] Form cleared successfully');
+  }
 }

@@ -69,28 +69,22 @@ export class ThemeService {
 
         let cssVariables = '';
         
-        // Theme colors
-        if (settings.primaryColor) {
-            cssVariables += `--primary-color: ${settings.primaryColor};\n`;
-        }
-        if (settings.secondaryColor) {
-            cssVariables += `--secondary-color: ${settings.secondaryColor};\n`;
-        }
-        if (settings.accentColor) {
-            cssVariables += `--accent-color: ${settings.accentColor};\n`;
-        }
-        if (settings.textColor) {
-            cssVariables += `--text-color: ${settings.textColor};\n`;
-        }
-        if (settings.backgroundColor) {
-            cssVariables += `--background-color: ${settings.backgroundColor};\n`;
-        }
-        if (settings.borderColor) {
-            cssVariables += `--border-color: ${settings.borderColor};\n`;
-        }
-        if (settings.primaryActiveColor) {
-            cssVariables += `--primary-active-color: ${settings.primaryActiveColor};\n`;
-        }
+        // Theme colors with fallback defaults
+        const primaryColor = settings.primaryColor || '#667eea';
+        const secondaryColor = settings.secondaryColor || '#f8e0c0';
+        const accentColor = settings.accentColor || '#764ba2';
+        const textColor = settings.textColor || '#333333';
+        const backgroundColor = settings.backgroundColor || '#ffffff';
+        const borderColor = settings.borderColor || '#e5e7eb';
+        
+        cssVariables += `--primary-color: ${primaryColor};\n`;
+        cssVariables += `--secondary-color: ${secondaryColor};\n`;
+        cssVariables += `--accent-color: ${accentColor};\n`;
+        cssVariables += `--text-color: ${textColor};\n`;
+        cssVariables += `--background-color: ${backgroundColor};\n`;
+        cssVariables += `--border-color: ${borderColor};\n`;
+        const primaryActiveColor = settings.primaryActiveColor || '#4355b8';
+        cssVariables += `--primary-active-color: ${primaryActiveColor};\n`;
         
         // Button-specific variables
         if (settings.buttonPrimaryBackground) {
@@ -177,22 +171,20 @@ export class ThemeService {
 `;
         }
         // Auto-derive surface colors from theme colors for better user experience
-        const borderColor = settings.borderColor || '#e5e7eb';
-        const bgColor = settings.backgroundColor || '#ffffff';
-        
+        // Surface and layout colors (use the already-defined variables with fallbacks)
         cssVariables += `--text-color-secondary: #6b7280;
 `;
         cssVariables += `--surface-border: ${borderColor};
 `;
-        cssVariables += `--surface-card: ${bgColor};
+        cssVariables += `--surface-card: ${backgroundColor};
 `;
-        cssVariables += `--bs-card-bg: ${bgColor};
+        cssVariables += `--bs-card-bg: ${backgroundColor};
 `; // Bootstrap compatibility
-        cssVariables += `--surface-hover: ${this.lightenColor(bgColor, 3)};
+        cssVariables += `--surface-hover: ${this.lightenColor(backgroundColor, 3)};
 `;
-        cssVariables += `--surface-overlay: ${bgColor};
+        cssVariables += `--surface-overlay: ${backgroundColor};
 `;
-        cssVariables += `--surface-ground: ${this.lightenColor(bgColor, 2)};
+        cssVariables += `--surface-ground: ${this.lightenColor(backgroundColor, 2)};
 `;
         if (settings.transitionDuration) {
             cssVariables += `--transition-duration: ${settings.transitionDuration};

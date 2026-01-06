@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { Subject, debounceTime } from 'rxjs';
@@ -39,6 +39,9 @@ import {
 } from '../../../core/services/service-proxies';
 import { AuthService } from '../../../auth/auth-service';
 import { SAIdValidator, SAIdInfo } from '../../../shared/utils/sa-id-validator';
+import { EmbeddedCalculatorComponent, CalculatorConfig, CalculatorResult } from '../../../shared/components/embedded-calculator/embedded-calculator.component';
+import { DynamicRepeaterFieldComponent, RepeaterConfig } from '../../../shared/components/dynamic-repeater-field/dynamic-repeater-field.component';
+import { DynamicFileUploadComponent, FileUploadConfig, UploadedFile } from '../../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
 
 @Component({
     selector: 'app-personal-info-step',
@@ -61,7 +64,10 @@ import { SAIdValidator, SAIdInfo } from '../../../shared/utils/sa-id-validator';
         TagModule,
         TooltipModule,
         ToastModule,
-        ProgressSpinnerModule
+        ProgressSpinnerModule,
+        EmbeddedCalculatorComponent,
+        DynamicRepeaterFieldComponent,
+        DynamicFileUploadComponent
     ],
     providers: [
         MessageService,
@@ -103,6 +109,11 @@ export class PersonalInfoStepComponent implements OnInit {
         { label: 'Other Document', value: MemberDocumentType._99 }
     ];
     
+    // Calculator and repeater field storage
+    calculatorValues: { [fieldKey: string]: CalculatorResult } = {};
+    fileUploadValues: { [fieldKey: string]: UploadedFile[] } = {};
+    repeaterValues: { [fieldKey: string]: any[] } = {};
+    
     private stepCompleteSubject = new Subject<void>();
 
     constructor(
@@ -113,7 +124,7 @@ export class PersonalInfoStepComponent implements OnInit {
         private fileUploadService: FileUploadServiceProxy,
         private documentRequirementService: DocumentRequirementServiceProxy,
         private messageService: MessageService,
-        private authService: AuthService
+        public authService: AuthService
     ) {
         // Debounce step completion to prevent rapid emissions
         this.stepCompleteSubject.pipe(
@@ -653,4 +664,185 @@ export class PersonalInfoStepComponent implements OnInit {
             window.open(fileUrl, '_blank');
         }
     }
+    
+    /**
+     * Get calculator configuration from field config
+     */
+    getCalculatorConfig(field: DynamicFormField): CalculatorConfig {
+        // Parse config from optionsJson if available
+        let config: CalculatorConfig = {
+            title: field.config.fieldLabel || 'Your Estimated Premium',
+            showBreakdown: true,
+            autoCalculate: true, // Enable auto-calculation by default
+            watchFieldKeys: ['dependents'] // Watch dependents field
+        };
+        
+        if (field.config.optionsJson) {
+            try {
+                const parsed = JSON.parse(field.config.optionsJson);
+                config = { ...config, ...parsed };
+            } catch (e) {
+                console.error('Error parsing calculator config:', e);
+            }
+        }
+        
+        return config;
+    }
+    
+    /**
+     * Get current form data snapshot for calculator
+     */
+    getFormDataSnapshot(): any {
+        const form = this.formGroup();
+        if (!form) return {};
+        
+        const snapshot: any = {};
+        
+        // Get all form values
+        Object.keys(form.controls).forEach(key => {
+            const value = form.get(key)?.value;
+            if (value) {
+                snapshot[key] = value;
+            }
+        });
+        
+        // Include repeater values
+        Object.keys(this.repeaterValues).forEach(key => {
+            snapshot[key] = this.repeaterValues[key];
+        });
+        
+        return snapshot;
+    }
+    
+    /**
+     * Handle calculator value changes
+     */
+    onCalculatorChange(field: DynamicFormField, result: CalculatorResult) {
+        this.calculatorValues[field.config.fieldKey!] = result;
+        
+        // Store in form as JSON string for backend
+        const form = this.formGroup();
+        if (form && form.get(field.config.fieldKey!)) {
+            form.get(field.config.fieldKey!)?.setValue(JSON.stringify(result));
+        }
+    }
+    
+    /**
+     * Get repeater configuration from field config
+     */
+    getRepeaterConfig(field: DynamicFormField): RepeaterConfig {
+        // Parse config from optionsJson
+        let config: RepeaterConfig = {
+            fields: [
+                { fieldKey: 'name', fieldLabel: 'Name', fieldType: 'text', required: true },
+                { fieldKey: 'relationship', fieldLabel: 'Relationship', fieldType: 'text', required: true }
+            ],
+            singularLabel: 'Item',
+            pluralLabel: 'Items',
+            allowAdd: true,
+            allowEdit: true,
+            allowDelete: true
+        };
+        
+        if (field.config.optionsJson) {
+            try {
+                const parsed = JSON.parse(field.config.optionsJson);
+                config = { ...config, ...parsed };
+            } catch (e) {
+                console.error('Error parsing repeater config:', e);
+            }
+        }
+        
+        return config;
+    }
+    
+    /**
+     * Handle repeater value changes
+     */
+    onRepeaterChange(field: DynamicFormField, items: any[]) {
+        this.repeaterValues[field.config.fieldKey!] = items;
+        
+        // Store in form as JSON string for backend
+        const form = this.formGroup();
+        if (form && form.get(field.config.fieldKey!)) {
+            form.get(field.config.fieldKey!)?.setValue(JSON.stringify(items));
+        }
+        
+        // Trigger change detection to update calculator if present
+        // The calculator will pick up the changes via formData binding
+    }
+    /**
+     * Get file upload configuration from field config
+     */
+    getFileUploadConfig(field: DynamicFormField): FileUploadConfig {
+        let config: FileUploadConfig = {
+            label: field.config.fieldLabel || 'File Upload',
+            helpText: field.config.helpText || undefined,
+            allowMultiple: true,
+            maxFiles: 5,
+            maxSizeMB: 5,
+            acceptedTypes: ['image/*', 'application/pdf'],
+            required: field.config.isRequired || false
+        };
+        
+        if (field.config.optionsJson) {
+            try {
+                const parsed = JSON.parse(field.config.optionsJson);
+                config = { ...config, ...parsed };
+            } catch (e) {
+                console.error('Error parsing file upload config:', e);
+            }
+        }
+        
+        return config;
+    }
+    
+    /**
+     * Handle file upload value changes
+     */
+    onFileUploadChange(field: DynamicFormField, files: UploadedFile[]) {
+        this.fileUploadValues[field.config.fieldKey!] = files;
+        
+        // Store in form as JSON string for backend
+        const form = this.formGroup();
+        if (form && form.get(field.config.fieldKey!)) {
+            form.get(field.config.fieldKey!)?.setValue(JSON.stringify(files));
+        }
+    }
+    
+    /**
+     * Clear all form data after successful submission
+     */
+    clearForm() {
+        console.log('[PersonalInfoStep] Clearing form data...');
+        
+        // Reset the form group
+        const form = this.formGroup();
+        if (form) {
+            form.reset();
+        }
+        
+        // Clear calculator values
+        this.calculatorValues = {};
+        
+        // Clear repeater values
+        this.repeaterValues = {};
+        
+        // Clear file upload values
+        this.fileUploadValues = {};
+        
+        // Clear uploaded documents
+        this.uploadedDocuments.set([]);
+        
+        // Clear member data
+        this.memberData.set(null);
+        
+        // Clear SA ID info
+        this.idInfo.set(null);
+        this.parsedDateOfBirth.set(null);
+        this.parsedGender.set(null);
+        
+        console.log('[PersonalInfoStep] Form cleared successfully');
+    }
 }
+

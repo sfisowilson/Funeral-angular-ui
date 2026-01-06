@@ -278,18 +278,30 @@ export class MemberOnboardingComponent implements OnInit {
 
     onStepComplete() {
         console.log('[OnStepComplete] Event triggered, recalculating profile and premium...');
+        
+        // Check if this is the final step (Summary & Signature)
+        const isFinalStep = this.activeStep() === 5;
+        
         // First recalculate the profile status based on actual data
         this.profileService.profileCompletion_RecalculateMy().subscribe({
             next: () => {
                 console.log('[OnStepComplete] Profile recalculated, reloading premium...');
                 // Then reload profile status silently (no spinner)
                 this.loadProfileStatus(false);
-                // Recalculate premium after step completion
-                if (this.showPremium() && !this.viewMode) {
-                    console.log('[OnStepComplete] Calling loadPremiumCalculation()...');
-                    this.loadPremiumCalculation();
+                
+                // If this is the final step, clear all forms and move to completion
+                if (isFinalStep) {
+                    console.log('[OnStepComplete] Final step completed, clearing forms and moving to completion...');
+                    this.clearAllForms();
+                    this.activeStep.set(6); // Move to completion screen
                 } else {
-                    console.log('[OnStepComplete] Skipping premium calculation - showPremium:', this.showPremium(), 'viewMode:', this.viewMode);
+                    // Recalculate premium after step completion
+                    if (this.showPremium() && !this.viewMode) {
+                        console.log('[OnStepComplete] Calling loadPremiumCalculation()...');
+                        this.loadPremiumCalculation();
+                    } else {
+                        console.log('[OnStepComplete] Skipping premium calculation - showPremium:', this.showPremium(), 'viewMode:', this.viewMode);
+                    }
                 }
             },
             error: (error) => {
@@ -327,6 +339,45 @@ export class MemberOnboardingComponent implements OnInit {
                 console.error('[MemberOnboarding] Error loading member profile:', error);
             }
         });
+    }
+    
+    /**
+     * Clear all forms after successful onboarding completion
+     */
+    clearAllForms() {
+        console.log('[ClearAllForms] Clearing all onboarding forms...');
+        
+        // Clear personal info step
+        if (this.personalInfoStep) {
+            this.personalInfoStep.clearForm();
+        }
+        
+        // Clear dependents step
+        if (this.dependentsStep) {
+            this.dependentsStep.clearForm();
+        }
+        
+        // Clear beneficiaries step
+        if (this.beneficiariesStep) {
+            this.beneficiariesStep.clearForm();
+        }
+        
+        // Clear banking details step
+        if (this.bankingDetailsStep) {
+            this.bankingDetailsStep.clearForm();
+        }
+        
+        // Clear terms step
+        if (this.termsStep) {
+            this.termsStep.clearForm();
+        }
+        
+        // Clear summary step
+        if (this.summaryStep) {
+            this.summaryStep.clearForm();
+        }
+        
+        console.log('[ClearAllForms] All forms cleared successfully');
     }
 
     loadPremiumSettings() {

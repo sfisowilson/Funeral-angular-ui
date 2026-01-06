@@ -141,4 +141,17 @@ export class TermsStepComponent implements OnInit {
         }
         return new Date(dateString).toLocaleDateString();
     }
+    
+    /**
+     * Clear all form data after successful submission
+     */
+    clearForm() {
+        console.log('[TermsStep] Clearing form data...');
+        
+        // Reset acceptance state
+        this.termsAccepted = false;
+        this.hasAccepted.set(false);
+        
+        console.log('[TermsStep] Form cleared successfully');
+    }
 }

@@ -11,6 +11,31 @@
     <button pButton label="New Configuration" icon="pi pi-plus" (click)="openNewDialog()"></button>
   </div>
 
+  <!-- System Settings Card -->
+  <p-card class="mb-4">
+    <ng-template pTemplate="header">
+      <div class="p-4">
+        <h2 class="text-xl font-semibold">Billing Settings</h2>
+        <p class="text-sm text-gray-600">System-wide billing configuration applied to all new registrations</p>
+      </div>
+    </ng-template>
+    
+    <div class="flex items-center justify-between p-4 border rounded">
+      <div>
+        <h3 class="font-semibold text-lg mb-1">Pro-rata Billing</h3>
+        <p class="text-sm text-gray-600">
+          When enabled, new tenants are charged only for the remaining days in the current billing period.
+          This is automatically applied during registration.
+        </p>
+      </div>
+      <p-inputSwitch 
+        [(ngModel)]="proRataEnabled" 
+        (onChange)="toggleProRata()"
+        [disabled]="savingProRata">
+      </p-inputSwitch>
+    </div>
+  </p-card>
+
   <!-- Plan Groups -->
   <div class="space-y-6">
     @for (group of planGroups(); track group.planName) {

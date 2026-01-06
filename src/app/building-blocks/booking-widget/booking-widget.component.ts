@@ -242,6 +242,19 @@ export class BookingWidgetComponent implements OnInit {
                 this.bookingComplete.set(true);
                 this.bookingCompleted.emit(booking);
                 
+                // Send email notifications if configured
+                if (this.config?.enableEmailNotifications) {
+                    this.bookingService.sendBookingNotifications(booking, this.config).subscribe({
+                        next: () => console.log('Notifications sent successfully'),
+                        error: (error) => console.error('Failed to send notifications:', error)
+                    });
+                }
+                
+                // Handle calendar reminders if configured
+                if (this.config?.enableCalendarReminders) {
+                    this.handleCalendarReminders(booking);
+                }
+                
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Booking Confirmed',
@@ -304,5 +317,42 @@ export class BookingWidgetComponent implements OnInit {
         const minDate = new Date(now.getTime() + this.config.bookingLeadTime * 60 * 60 * 1000);
         
         return date >= minDate;
+    }
+
+    handleCalendarReminders(booking: Booking): void {
+        if (!this.config) return;
+
+        const provider = this.config.calendarProvider || 'both';
+
+        // Automatically download .ics file for import
+        if (provider === 'both') {
+            setTimeout(() => {
+                this.bookingService.downloadICalFile(booking, this.config!);
+                
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Calendar Reminder',
+                    detail: 'A calendar file has been downloaded. Import it to your calendar app.',
+                    life: 8000
+                });
+            }, 1000);
+        }
+
+        // Open calendar URLs based on provider
+        if (provider === 'google') {
+            const googleUrl = this.bookingService.generateGoogleCalendarUrl(booking);
+            setTimeout(() => window.open(googleUrl, '_blank'), 1500);
+        } else if (provider === 'outlook') {
+            const outlookUrl = this.bookingService.generateOutlookCalendarUrl(booking);
+            setTimeout(() => window.open(outlookUrl, '_blank'), 1500);
+        } else if (provider === 'both') {
+            // Show dialog with options
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Add to Calendar',
+                detail: 'Check your downloads for the calendar file (.ics), or use the links in the confirmation screen.',
+                life: 8000
+            });
+        }
     }
 }

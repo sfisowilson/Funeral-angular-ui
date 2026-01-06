@@ -103,6 +103,8 @@ export interface WidgetType {
     defaultConfig: any;
     icon: string;
     floating?: boolean;
+    premiumFeature?: boolean;
+    tenantTypes?: string[]; // NGO, Funeral, BurialSociety
 }
 
 export const WIDGET_TYPES: WidgetType[] = [
@@ -1512,7 +1514,9 @@ export const WIDGET_TYPES: WidgetType[] = [
             projectsSupported: '42',
             donationUrl: '/ngo/donate'
         },
-        icon: 'gift'
+        icon: 'gift',
+        premiumFeature: true,
+        tenantTypes: ['NGO']
     },
     {
         name: 'careers',

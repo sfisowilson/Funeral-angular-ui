@@ -22,6 +22,8 @@ import { CustomPagesServiceProxy } from '../../core/services/service-proxies';
 export class AppMenu implements OnInit {
     model: MenuItem[] = [];
     isStaticSite = false;
+    hasBookingFeature = false;
+    isBasicPlan = false;
 
     constructor(
         private authService: AuthService,
@@ -30,16 +32,20 @@ export class AppMenu implements OnInit {
     ) {}
 
     async ngOnInit() {
-        // Load tenant settings to check if this is a static site
+        // Load tenant settings to check if this is a static site and features
         try {
             const settings = await this.tenantSettingsService.loadSettings();
             if (settings && settings.settings) {
                 const parsedSettings = JSON.parse(settings.settings);
                 this.isStaticSite = parsedSettings.isStaticSite || false;
+                this.hasBookingFeature = this.tenantSettingsService.hasFeature('hasBooking');
             }
         } catch (error) {
             console.error('Error loading tenant settings:', error);
         }
+
+        // Check if user is on a basic plan
+        this.isBasicPlan = this.authService.isBasicPlan();
 
         await this.buildMenu();
     }
@@ -112,8 +118,10 @@ export class AppMenu implements OnInit {
                     { label: 'Tenants', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/tenants'], visible: this.authService.hasPermission('Permission.tenant.view') },
                     { label: 'Tenant Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/tenant-settings'], visible: this.authService.isAuthenticated() },
                     { label: 'Onboarding Settings', icon: 'pi pi-fw pi-id-card', routerLink: ['/admin/pages/onboarding-settings'], visible: this.authService.hasPermission('Permission.onboarding.view') },
+                    { label: 'Registration Fields', icon: 'pi pi-fw pi-list-check', routerLink: ['/admin/pages/registration-fields'], visible: this.authService.isAuthenticated() },
+                    { label: 'Field Definitions', icon: 'pi pi-fw pi-th-large', routerLink: ['/admin/pages/field-definitions'], visible: this.authService.isAuthenticated() && !this.isBasicPlan },
                     { label: 'Dashboard Settings', icon: 'pi pi-fw pi-sliders-h', routerLink: ['/admin/pages/dashboard-settings'], visible: this.authService.isAuthenticated() },
-                    { label: 'PDF Field Mapping', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/pdf-field-mapping'], visible: this.authService.isAuthenticated() },
+                    { label: 'PDF Field Mapping', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/pdf-field-mapping'], visible: this.authService.isAuthenticated() && !this.isBasicPlan },
                     { label: 'Member Approval', icon: 'pi pi-fw pi-check-circle', routerLink: ['/admin/pages/member-approval'], visible: this.authService.hasPermission('Permission.member.view') },
                     { label: 'Tenant Approval', icon: 'pi pi-fw pi-building', routerLink: ['/admin/pages/tenant-approval'], visible: this.authService.hasPermission('Permission.tenant.view') },
                     { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/users'], visible: this.authService.hasPermission('Permission.user.view') },
@@ -121,12 +129,13 @@ export class AppMenu implements OnInit {
                     { label: 'Plan Configuration', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/plan-configuration'], visible: this.authService.hasPermission('Permission.subscription.view') },
                     { label: 'Policies', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/policies'], visible: this.authService.hasPermission('Permission.policy.view') },
                     { label: 'Roles', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/roles'], visible: this.authService.hasPermission('Permission.role.view') },
-                    { label: 'Tenant Type Permissions', icon: 'pi pi-key', routerLink: ['/admin/pages/tenant-type-permissions'], visible: this.authService.hasPermission('Permission.role.view') },
+                    { label: 'Tenant Type Permissions', icon: 'pi pi-key', routerLink: ['/admin/pages/tenant-type-permissions'], visible: this.authService.hasPermission('Permission.role.view') && !this.isBasicPlan },
                     { label: 'Landing Page Generator', icon: 'pi pi-magic', routerLink: ['/admin/pages/landing-page-generator'], visible: this.authService.isAuthenticated() },
-                    { label: 'Booking Management', icon: 'pi pi-calendar', routerLink: ['/admin/pages/booking-management'], visible: this.authService.isAuthenticated() },
+                    { label: 'Booking Management', icon: 'pi pi-calendar', routerLink: ['/admin/pages/booking-management'], visible: this.authService.isAuthenticated() && this.hasBookingFeature },
                     { label: 'Member Management', icon: 'pi pi-users', routerLink: ['/admin/pages/member-management'], visible: this.authService.hasPermission('Permission.member.view') },
                     { label: 'Claims', icon: 'pi pi-fw pi-file', routerLink: ['/admin/pages/claims'], visible: this.authService.hasPermission('Permission.claim.view') },
                     { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'], visible: this.authService.hasPermission('Permission.event.view') },
+                    { label: 'Careers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/admin/pages/careers'], visible: this.authService.isAuthenticated() },
                     { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: this.authService.isAuthenticated() },
                     { label: 'Custom Pages', icon: 'pi pi-fw pi-file-edit', routerLink: ['/admin/custom-pages'], visible: this.authService.isAuthenticated() }
                 ]

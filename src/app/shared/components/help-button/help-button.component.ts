@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TourService } from '../../core/services/tour.service';
-import { getTourById } from '../../core/constants/tours';
+import { FormsModule } from '@angular/forms';
+import { TourService } from '@app/core/services/tour.service';
+import { getTourById } from '@app/core/constants/tours';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-help-button',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="help-widget">
       <!-- Help Button -->

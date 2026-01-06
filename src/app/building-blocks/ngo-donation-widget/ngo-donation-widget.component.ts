@@ -1,8 +1,23 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { firstValueFrom } from 'rxjs';
+
+interface PaymentGatewayConfig {
+    id?: string;
+    provider: string;
+    merchantId?: string;
+    siteCode?: string;
+    isActive: boolean;
+    isTestMode: boolean;
+    webhookUrl?: string;
+    returnUrl?: string;
+    cancelUrl?: string;
+}
 
 @Component({
     selector: 'app-ngo-donation-widget',
@@ -85,17 +100,27 @@ import { MessageService } from 'primeng/api';
                     </div>
 
                     <!-- Payment Method Selection -->
-                    <div class="mb-8">
+                    <div *ngIf="availableGateways.length > 0" class="mb-8">
                         <p class="text-sm font-semibold mb-4" [style.color]="config.labelColor">Choose Payment Method</p>
-                        <div class="space-y-2">
-                            <button *ngFor="let gateway of paymentGateways" 
+                        <div *ngIf="loadingGateways" class="text-center py-4">
+                            <i class="pi pi-spin pi-spinner"></i>
+                            <p class="mt-2 text-sm" [style.color]="config.labelColor">Loading payment options...</p>
+                        </div>
+                        <div *ngIf="!loadingGateways && availableGateways.length > 0" class="space-y-2">
+                            <button *ngFor="let gateway of availableGateways" 
                                 pButton 
-                                [label]="gateway.name"
-                                [style.background-color]="selectedGateway === gateway.code ? config.accentColor : config.gatewayButtonColor"
-                                [style.color]="selectedGateway === gateway.code ? config.accentButtonTextColor : config.gatewayButtonTextColor"
+                                [label]="getGatewayDisplayName(gateway.provider)"
+                                [style.background-color]="selectedGateway === gateway.provider ? config.accentColor : config.gatewayButtonColor"
+                                [style.color]="selectedGateway === gateway.provider ? config.accentButtonTextColor : config.gatewayButtonTextColor"
                                 severity="secondary"
                                 class="w-full justify-start"
-                                (click)="selectGateway(gateway.code)"></button>
+                                (click)="selectGateway(gateway.provider)">
+                                <i class="pi" [ngClass]="getGatewayIcon(gateway.provider)"></i>
+                            </button>
+                        </div>
+                        <div *ngIf="!loadingGateways && availableGateways.length === 0" class="text-center py-4 text-sm" [style.color]="config.disclaimerColor">
+                            <i class="pi pi-exclamation-triangle"></i>
+                            <p class="mt-2">No payment methods configured. Please contact the administrator.</p>
                         </div>
                     </div>
 
@@ -124,16 +149,23 @@ import { MessageService } from 'primeng/api';
                     </div>
 
                     <!-- Donate Button -->
-                    <button *ngIf="selectedAmount > 0" pButton 
+                    <button *ngIf="selectedAmount > 0 && availableGateways.length > 0" pButton 
                         [label]="getDonateButtonLabel()"
                         size="large"
                         class="w-full"
+                        [disabled]="processingDonation"
                         [style.background-color]="config.donateButtonColor" 
                         [style.color]="config.donateButtonTextColor"
-                        (click)="processDonation()"></button>
+                        (click)="processDonation()">
+                        <i *ngIf="processingDonation" class="pi pi-spin pi-spinner mr-2"></i>
+                    </button>
 
                     <p *ngIf="selectedAmount === 0" class="text-center text-sm" [style.color]="config.disclaimerColor">
                         Please select or enter a donation amount to continue.
+                    </p>
+
+                    <p *ngIf="availableGateways.length === 0 && !loadingGateways" class="text-center text-sm" [style.color]="config.disclaimerColor">
+                        Payment processing is temporarily unavailable.
                     </p>
                 </div>
 
@@ -168,9 +200,12 @@ import { MessageService } from 'primeng/api';
         input[type="number"]::placeholder {
             opacity: 0.5;
         }
+        button .pi {
+            margin-right: 8px;
+        }
     `]
 })
-export class NgoDonationWidgetComponent {
+export class NgoDonationWidgetComponent implements OnInit {
     @Input() config: any = {
         title: 'Make a Donation',
         subtitle: 'Support our mission and create lasting change',
@@ -208,20 +243,75 @@ export class NgoDonationWidgetComponent {
     };
 
     presetAmounts = [100, 250, 500, 1000, 2500, 5000];
-    paymentGateways = [
-        { code: 'paypal', name: 'PayPal' },
-        { code: 'stripe', name: 'Stripe' },
-        { code: 'payfast', name: 'PayFast' },
-        { code: 'square', name: 'Square' },
-        { code: 'paystack', name: 'Paystack' }
-    ];
+    availableGateways: PaymentGatewayConfig[] = [];
+    loadingGateways = true;
 
     selectedAmount = 0;
     customAmount: number | null = null;
-    selectedGateway = 'paypal';
+    selectedGateway = '';
     isRecurring = false;
+    processingDonation = false;
 
-    constructor(private messageService: MessageService) {}
+    private apiUrl = environment.apiUrl;
+
+    constructor(
+        private messageService: MessageService,
+        private http: HttpClient
+    ) {}
+
+    ngOnInit(): void {
+        this.loadPaymentGateways();
+    }
+
+    async loadPaymentGateways(): Promise<void> {
+        try {
+            this.loadingGateways = true;
+            const response = await firstValueFrom(
+                this.http.get<any[]>(`${this.apiUrl}/api/payment-config/gateway-list`)
+            );
+            
+            // Filter for active gateways only
+            this.availableGateways = response.filter((g: PaymentGatewayConfig) => g.isActive);
+            
+            // Auto-select first gateway if available
+            if (this.availableGateways.length > 0) {
+                this.selectedGateway = this.availableGateways[0].provider;
+            }
+        } catch (error: any) {
+            console.error('Error loading payment gateways:', error);
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Payment Methods Unavailable',
+                detail: 'Unable to load payment options. Please try again later.'
+            });
+        } finally {
+            this.loadingGateways = false;
+        }
+    }
+
+    getGatewayDisplayName(provider: string): string {
+        const names: { [key: string]: string } = {
+            'PayPal': 'PayPal',
+            'Stripe': 'Stripe',
+            'PayFast': 'PayFast',
+            'Square': 'Square',
+            'Paystack': 'Paystack',
+            'PayGate': 'PayGate'
+        };
+        return names[provider] || provider;
+    }
+
+    getGatewayIcon(provider: string): string {
+        const icons: { [key: string]: string } = {
+            'PayPal': 'pi-paypal',
+            'Stripe': 'pi-credit-card',
+            'PayFast': 'pi-wallet',
+            'Square': 'pi-qrcode',
+            'Paystack': 'pi-money-bill',
+            'PayGate': 'pi-shield'
+        };
+        return icons[provider] || 'pi-credit-card';
+    }
 
     selectAmount(amount: number): void {
         this.selectedAmount = amount;
@@ -270,14 +360,75 @@ export class NgoDonationWidgetComponent {
             return;
         }
 
-        // Build donation URL with parameters
-        const params = new URLSearchParams({
-            amount: this.selectedAmount.toString(),
-            gateway: this.selectedGateway,
-            recurring: this.isRecurring.toString()
-        });
+        if (!this.selectedGateway) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'No Payment Method',
+                detail: 'Please select a payment method.'
+            });
+            return;
+        }
 
-        // Redirect to donation processing page
-        window.location.href = `${this.config.donationUrl}?${params.toString()}`;
+        if (this.availableGateways.length === 0) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Payment Unavailable',
+                detail: 'Payment processing is currently unavailable.'
+            });
+            return;
+        }
+
+        this.processingDonation = true;
+
+        // Get the selected gateway configuration
+        const gateway = this.availableGateways.find(g => g.provider === this.selectedGateway);
+        
+        if (!gateway) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Configuration Error',
+                detail: 'Selected payment method is not properly configured.'
+            });
+            this.processingDonation = false;
+            return;
+        }
+
+        // Create donation session via backend
+        this.createDonationSession(gateway);
+    }
+
+    private async createDonationSession(gateway: PaymentGatewayConfig): Promise<void> {
+        try {
+            const donationData = {
+                amount: this.selectedAmount,
+                provider: gateway.provider,
+                isRecurring: this.isRecurring,
+                currency: 'ZAR',
+                description: `Donation to ${document.title}`,
+                metadata: {
+                    widgetConfig: this.config.title || 'Donation Widget'
+                }
+            };
+
+            // Call payment service to create session
+            const response = await firstValueFrom(
+                this.http.post<any>(`${this.apiUrl}/api/Payment/Payment_CreateSession`, donationData)
+            );
+
+            if (response && response.redirectUrl) {
+                // Redirect to payment gateway
+                window.location.href = response.redirectUrl;
+            } else {
+                throw new Error('No redirect URL received from payment service');
+            }
+        } catch (error: any) {
+            console.error('Error creating donation session:', error);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Payment Error',
+                detail: error.error?.message || 'Unable to process donation. Please try again.'
+            });
+            this.processingDonation = false;
+        }
     }
 }

@@ -1,11 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService, Product } from '../../core/services/product.service';
+import { ProductServiceProxy } from '@app/core/services/service-proxies';
 
 @Component({
     selector: 'app-featured-products-widget',
     standalone: true,
-    imports: [CommonModule],
+  imports: [CommonModule],
+    providers: [ProductService, ProductServiceProxy],
     template: `
     <div class="featured-products" [ngStyle]="getStyles()">
       <div class="container">

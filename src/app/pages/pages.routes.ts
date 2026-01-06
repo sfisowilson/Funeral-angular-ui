@@ -31,6 +31,8 @@ import { ProductManagementComponent } from './admin/product-management/product-m
 import { OrderManagementComponent } from './admin/order-management/order-management.component';
 import { CustomerManagementComponent } from './admin/customer-management/customer-management.component';
 import { PlanConfigurationComponent } from '../features/admin/plan-configuration/plan-configuration.component';
+import { RegistrationFieldsComponent } from './admin/registration-fields/registration-fields.component';
+import { FieldDefinitionBuilderComponent } from '../admin/onboarding-fields/field-definition-builder/field-definition-builder.component';
 
 export default [
     { path: 'assets', component: AssetsComponent },
@@ -57,6 +59,16 @@ export default [
     { path: 'onboarding-settings', component: OnboardingSettingsComponent },
     { path: 'dashboard-settings', component: DashboardSettingsComponent },
     { path: 'pdf-field-mapping', component: PdfFieldMappingComponent },
+    { 
+        path: 'registration-fields', 
+        component: RegistrationFieldsComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+    },
+    { 
+        path: 'field-definitions', 
+        component: FieldDefinitionBuilderComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+    },
     { path: 'member-approval', component: MemberApprovalComponent },
     { path: 'tenant-approval', component: TenantApprovalComponent },
     { path: 'coupons', component: CouponListComponent },

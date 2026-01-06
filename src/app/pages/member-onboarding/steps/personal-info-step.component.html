@@ -185,6 +185,30 @@
                                     rows="3"
                                     class="form-control"
                                 ></textarea>
+                                
+                                <!-- Calculator Field (can be restricted by tenant type via config) -->
+                                <app-embedded-calculator
+                                    *ngIf="field.config.fieldType === 'calculator'"
+                                    [formData]="getFormDataSnapshot()"
+                                    (calculated)="onCalculatorChange(field, $event)">
+                                </app-embedded-calculator>
+                                
+                                <!-- Repeater Field -->
+                                <app-dynamic-repeater-field
+                                    *ngIf="field.config.fieldType === 'repeater'"
+                                    [(value)]="repeaterValues[field.config.fieldKey!]"
+                                    (valueChange)="onRepeaterChange(field, $event)">
+                                </app-dynamic-repeater-field>
+                                
+                                <!-- File Upload Field -->
+                                <app-dynamic-file-upload
+                                    *ngIf="field.config.fieldType === 'fileupload'"
+                                    [value]="fileUploadValues[field.config.fieldKey!]"
+                                    [viewMode]="viewMode"
+                                    [memberId]="memberId"
+                                    (valueChange)="onFileUploadChange(field, $event)">
+                                </app-dynamic-file-upload>
+                                
                                 <div class="form-text text-danger" *ngIf="shouldShowError(field)">
                                     {{ getFieldError(field) }}
                                 </div>

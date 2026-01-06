@@ -356,6 +356,84 @@
                 </div>
             </div>
 
+            <!-- Calendar Integration -->
+            <div class="config-section">
+                <h4 class="font-semibold mb-3">Calendar Integration</h4>
+                <div class="flex flex-column gap-3">
+                    <div class="flex align-items-center">
+                        <p-checkbox 
+                            [(ngModel)]="bookingConfig()!.enableCalendarReminders" 
+                            inputId="enableCalendarReminders"
+                            binary="true">
+                        </p-checkbox>
+                        <label for="enableCalendarReminders" class="ml-2">Enable Calendar Reminders</label>
+                    </div>
+                    
+                    <div *ngIf="bookingConfig()!.enableCalendarReminders" class="ml-4">
+                        <label for="calendarProvider" class="font-bold mb-2">Calendar Provider</label>
+                        <select 
+                            id="calendarProvider"
+                            class="form-control"
+                            [(ngModel)]="bookingConfig()!.calendarProvider">
+                            <option value="google">Google Calendar Only</option>
+                            <option value="outlook">Outlook Calendar Only</option>
+                            <option value="both">Both (Download .ics file)</option>
+                        </select>
+                        <small class="text-muted">
+                            Choose how customers receive calendar reminders after booking
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Notifications -->
+            <div class="config-section">
+                <h4 class="font-semibold mb-3">Email Notifications</h4>
+                <div class="flex flex-column gap-3">
+                    <div class="flex align-items-center">
+                        <p-checkbox 
+                            [(ngModel)]="bookingConfig()!.enableEmailNotifications" 
+                            inputId="enableEmailNotifications"
+                            binary="true">
+                        </p-checkbox>
+                        <label for="enableEmailNotifications" class="ml-2">Enable Email Notifications</label>
+                    </div>
+                    
+                    <div *ngIf="bookingConfig()!.enableEmailNotifications" class="ml-4 flex flex-column gap-3">
+                        <div class="flex align-items-center">
+                            <p-checkbox 
+                                [(ngModel)]="bookingConfig()!.sendCustomerConfirmation" 
+                                inputId="sendCustomerConfirmation"
+                                binary="true">
+                            </p-checkbox>
+                            <label for="sendCustomerConfirmation" class="ml-2">Send Customer Confirmation</label>
+                        </div>
+                        
+                        <div class="flex align-items-center">
+                            <p-checkbox 
+                                [(ngModel)]="bookingConfig()!.sendAdminNotification" 
+                                inputId="sendAdminNotification"
+                                binary="true">
+                            </p-checkbox>
+                            <label for="sendAdminNotification" class="ml-2">Send Admin Notification</label>
+                        </div>
+                        
+                        <div *ngIf="bookingConfig()!.sendAdminNotification">
+                            <label for="notificationEmail" class="font-bold mb-2">Admin Email Address</label>
+                            <input 
+                                type="email" 
+                                id="notificationEmail"
+                                class="form-control"
+                                [(ngModel)]="bookingConfig()!.notificationEmail"
+                                placeholder="admin@example.com">
+                            <small class="text-muted">
+                                Email address to receive booking notifications
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Working Hours -->
             <div class="config-section">
                 <h4 class="font-semibold mb-3">Working Hours</h4>

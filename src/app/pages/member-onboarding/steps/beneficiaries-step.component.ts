@@ -231,6 +231,7 @@ export class BeneficiariesStepComponent implements OnInit {
                     });
                     this.loadBeneficiaries();
                     this.displayDialog = false;
+                    this.clearBeneficiaryForm();
                 },
                 error: (error) => {
                     console.error('Error updating beneficiary:', error);
@@ -250,13 +251,12 @@ export class BeneficiariesStepComponent implements OnInit {
                         detail: 'Beneficiary added successfully' 
                     });
                     
-                    // Set the current beneficiary ID so user can upload documents
-                    this.currentBeneficiaryId.set(createdBeneficiary.id);
-                    this.currentBeneficiary = createdBeneficiary;
-                    this.editMode.set(true); // Switch to edit mode
-                    
                     // Reload beneficiaries
                     this.loadBeneficiaries();
+                    
+                    // Close dialog and clear form to allow adding another beneficiary
+                    this.displayDialog = false;
+                    this.clearBeneficiaryForm();
                 },
                 error: (error) => {
                     console.error('Error adding beneficiary:', error);
@@ -418,5 +418,47 @@ export class BeneficiariesStepComponent implements OnInit {
                 }
             });
         }
+    }
+    
+    /**the beneficiary entry form (after individual save)
+     */
+    clearBeneficiaryForm() {
+        console.log('[BeneficiariesStep] Clearing beneficiary entry form...');
+        
+        // Reset current beneficiary
+        this.currentBeneficiary = {} as BeneficiaryDto;
+        this.currentBeneficiaryId.set(undefined);
+        this.editMode.set(false);
+        
+        // Clear SA ID validation
+        this.idInfo.set(null);
+        this.parsedDateOfBirth.set(null);
+        this.parsedGender.set(null);
+        
+        // Reset form - no form group in this component, using ngModel
+        // Clear file upload states
+        this.uploading.set(false);
+        this.selectedFile = undefined;
+        this.selectedDocumentType = undefined;
+        
+        console.log('[BeneficiariesStep] Beneficiary entry form cleared');
+    }
+    
+    /**
+     * Clear all form data after successful onboarding completion
+     */
+    clearForm() {
+        console.log('[BeneficiariesStep] Clearing all form data...');
+        
+        // Clear beneficiaries array
+        this.beneficiaries.set([]);
+        
+        // Clear the entry form
+        this.clearBeneficiaryForm();
+        
+        // Clear dialogs and states
+        this.displayDialog = false;
+        
+        console.log('[BeneficiariesStep] All form data cleared successfully');
     }
 }

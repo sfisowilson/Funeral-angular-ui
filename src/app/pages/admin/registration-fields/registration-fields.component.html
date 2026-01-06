@@ -1,0 +1,316 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="registration-fields-container p-4">
+    <div class="content-wrapper max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <div class="page-header bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800 m-0">
+                        <i class="bi bi-ui-checks-grid text-primary me-2"></i>
+                        Registration Form Fields
+                    </h1>
+                    <p class="text-gray-600 mt-2 mb-0">
+                        Configure dynamic form fields for user registration. These fields will appear on the registration page alongside standard fields (email, password, name).
+                    </p>
+                </div>
+                <button 
+                    pButton 
+                    type="button" 
+                    label="Add New Field" 
+                    icon="pi pi-plus" 
+                    class="p-button-primary"
+                    (click)="openNewDialog()">
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <strong>How it works:</strong> Fields defined here will be dynamically rendered on the registration page. 
+            Required core fields (email, password, first name, last name) are always included. Custom field data is stored in the user's profile.
+        </div>
+
+        <!-- Fields Table -->
+        <div class="fields-table-card bg-white rounded-lg shadow-sm p-6">
+            <p-table 
+                [value]="fields" 
+                [loading]="loading"
+                [paginator]="true"
+                [rows]="10"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} fields"
+                styleClass="p-datatable-sm"
+                [tableStyle]="{'min-width': '50rem'}">
+                
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 3rem">#</th>
+                        <th pSortableColumn="fieldLabel">
+                            Field Label
+                            <p-sortIcon field="fieldLabel"></p-sortIcon>
+                        </th>
+                        <th>Field Key</th>
+                        <th>Type</th>
+                        <th style="width: 8rem">Required</th>
+                        <th style="width: 8rem">Enabled</th>
+                        <th style="width: 8rem">Order</th>
+                        <th style="width: 14rem">Actions</th>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="body" let-field let-rowIndex="rowIndex">
+                    <tr>
+                        <td>{{ rowIndex + 1 }}</td>
+                        <td>
+                            <strong>{{ field.fieldLabel }}</strong>
+                        </td>
+                        <td>
+                            <code class="text-sm">{{ field.fieldKey }}</code>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ getFieldTypeLabel(field.fieldType) }}</span>
+                        </td>
+                        <td class="text-center">
+                            <i 
+                                class="pi" 
+                                [ngClass]="field.isRequired ? 'pi-check-circle text-success' : 'pi-times-circle text-muted'"
+                                [title]="field.isRequired ? 'Required' : 'Optional'">
+                            </i>
+                        </td>
+                        <td class="text-center">
+                            <p-checkbox 
+                                [(ngModel)]="field.isEnabled" 
+                                [binary]="true"
+                                (onChange)="toggleFieldEnabled(field)"
+                                [disabled]="loading">
+                            </p-checkbox>
+                        </td>
+                        <td class="text-center">
+                            <div class="flex align-items-center justify-content-center gap-2">
+                                <button 
+                                    pButton 
+                                    type="button" 
+                                    icon="pi pi-arrow-up" 
+                                    class="p-button-sm p-button-text"
+                                    [disabled]="rowIndex === 0 || loading"
+                                    (click)="moveFieldUp(field)"
+                                    pTooltip="Move Up">
+                                </button>
+                                <span class="font-semibold">{{ field.displayOrder }}</span>
+                                <button 
+                                    pButton 
+                                    type="button" 
+                                    icon="pi pi-arrow-down" 
+                                    class="p-button-sm p-button-text"
+                                    [disabled]="rowIndex === fields.length - 1 || loading"
+                                    (click)="moveFieldDown(field)"
+                                    pTooltip="Move Down">
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <button 
+                                    pButton 
+                                    type="button" 
+                                    icon="pi pi-pencil" 
+                                    class="p-button-sm p-button-warning"
+                                    (click)="openEditDialog(field)"
+                                    pTooltip="Edit Field">
+                                </button>
+                                <button 
+                                    pButton 
+                                    type="button" 
+                                    icon="pi pi-trash" 
+                                    class="p-button-sm p-button-danger"
+                                    (click)="deleteField(field)"
+                                    pTooltip="Delete Field">
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="flex flex-column align-items-center gap-3">
+                                <i class="pi pi-inbox text-4xl text-gray-400"></i>
+                                <p class="text-gray-600 m-0">No registration fields configured yet.</p>
+                                <button 
+                                    pButton 
+                                    type="button" 
+                                    label="Add Your First Field" 
+                                    icon="pi pi-plus"
+                                    class="p-button-sm"
+                                    (click)="openNewDialog()">
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Field Dialog -->
+<p-dialog 
+    [(visible)]="displayDialog" 
+    [header]="isEditMode ? 'Edit Registration Field' : 'Add New Registration Field'"
+    [modal]="true"
+    [style]="{width: '600px'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <div class="field-form">
+        <!-- Field Key -->
+        <div class="form-group mb-4">
+            <label for="fieldKey" class="font-semibold mb-2 block">
+                Field Key <span class="text-danger">*</span>
+            </label>
+            <input 
+                pInputText 
+                id="fieldKey" 
+                [(ngModel)]="fieldForm.fieldKey" 
+                class="w-full"
+                placeholder="e.g., middleName, occupation, idNumber"
+                [disabled]="isEditMode" />
+            <small class="text-muted">
+                Internal key used in database (camelCase recommended, no spaces)
+            </small>
+        </div>
+
+        <!-- Field Label -->
+        <div class="form-group mb-4">
+            <label for="fieldLabel" class="font-semibold mb-2 block">
+                Field Label <span class="text-danger">*</span>
+            </label>
+            <input 
+                pInputText 
+                id="fieldLabel" 
+                [(ngModel)]="fieldForm.fieldLabel" 
+                class="w-full"
+                placeholder="e.g., Middle Name, Occupation, ID Number" />
+            <small class="text-muted">
+                Label displayed to users on the form
+            </small>
+        </div>
+
+        <!-- Field Type -->
+        <div class="form-group mb-4">
+            <label for="fieldType" class="font-semibold mb-2 block">
+                Field Type <span class="text-danger">*</span>
+            </label>
+            <p-dropdown 
+                id="fieldType"
+                [(ngModel)]="fieldForm.fieldType" 
+                [options]="fieldTypes"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select field type"
+                [style]="{'width': '100%'}">
+            </p-dropdown>
+        </div>
+
+        <!-- Options (for dropdown/radio) -->
+        <div class="form-group mb-4" *ngIf="fieldForm.fieldType === 'dropdown' || fieldForm.fieldType === 'radio'">
+            <label for="optionsJson" class="font-semibold mb-2 block">
+                Options
+            </label>
+            <textarea 
+                pInputTextarea 
+                id="optionsJson" 
+                [(ngModel)]="fieldForm.optionsJson" 
+                class="w-full"
+                rows="3"
+                placeholder="Enter options separated by commas (e.g., Option 1, Option 2, Option 3)">
+            </textarea>
+            <small class="text-muted">
+                Comma-separated list of options for dropdown or radio fields
+            </small>
+        </div>
+
+        <!-- Display Order -->
+        <div class="form-group mb-4">
+            <label for="displayOrder" class="font-semibold mb-2 block">
+                Display Order
+            </label>
+            <p-inputNumber 
+                id="displayOrder"
+                [(ngModel)]="fieldForm.displayOrder" 
+                [showButtons]="true"
+                [min]="0"
+                [style]="{'width': '100%'}">
+            </p-inputNumber>
+            <small class="text-muted">
+                Order in which field appears on the form (lower numbers appear first)
+            </small>
+        </div>
+
+        <!-- Validation Rules -->
+        <div class="form-group mb-4">
+            <label for="validationRulesJson" class="font-semibold mb-2 block">
+                Validation Rules (JSON)
+            </label>
+            <textarea 
+                pInputTextarea 
+                id="validationRulesJson" 
+                [(ngModel)]="fieldForm.validationRulesJson" 
+                class="w-full"
+                rows="3"
+                placeholder='{"minLength": 3, "maxLength": 50, "pattern": "[A-Za-z]+"}'></textarea>
+            <small class="text-muted">
+                Optional JSON object defining validation rules (e.g., minLength, maxLength, pattern)
+            </small>
+        </div>
+
+        <!-- Checkboxes -->
+        <div class="flex flex-column gap-3 mb-4">
+            <div class="flex align-items-center gap-2">
+                <p-checkbox 
+                    id="isRequired"
+                    [(ngModel)]="fieldForm.isRequired" 
+                    [binary]="true"
+                    inputId="isRequired">
+                </p-checkbox>
+                <label for="isRequired" class="cursor-pointer">
+                    Required Field
+                </label>
+            </div>
+            
+            <div class="flex align-items-center gap-2">
+                <p-checkbox 
+                    id="isEnabled"
+                    [(ngModel)]="fieldForm.isEnabled" 
+                    [binary]="true"
+                    inputId="isEnabled">
+                </p-checkbox>
+                <label for="isEnabled" class="cursor-pointer">
+                    Enabled (show on registration form)
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+        <button 
+            pButton 
+            type="button" 
+            label="Cancel" 
+            icon="pi pi-times" 
+            class="p-button-text"
+            (click)="hideDialog()">
+        </button>
+        <button 
+            pButton 
+            type="button" 
+            [label]="isEditMode ? 'Update' : 'Create'" 
+            icon="pi pi-check" 
+            (click)="saveField()"
+            [disabled]="!fieldForm.fieldKey || !fieldForm.fieldLabel">
+        </button>
+    </ng-template>
+</p-dialog>

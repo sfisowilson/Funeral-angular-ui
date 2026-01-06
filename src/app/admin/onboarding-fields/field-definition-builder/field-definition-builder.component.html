@@ -1,0 +1,348 @@
+<div class="field-definition-builder">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <div class="header-section">
+    <div class="header-content">
+      <h2><i class="pi pi-cog"></i> Field Definitions</h2>
+      <p>Create and manage custom form fields for member onboarding</p>
+    </div>
+    <button 
+      pButton 
+      label="Create Field" 
+      icon="pi pi-plus" 
+      class="p-button-primary"
+      (click)="openCreateDialog()">
+    </button>
+  </div>
+
+  <p-table 
+    [value]="fields()" 
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    styleClass="p-datatable-striped">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Field Key</th>
+        <th>Field Label</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Enabled</th>
+        <th>Order</th>
+        <th style="width: 150px">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-field>
+      <tr>
+        <td>
+          <code>{{ field.fieldKey }}</code>
+        </td>
+        <td>
+          <strong>{{ field.fieldLabel }}</strong>
+          <br>
+          <small *ngIf="field.placeholder" class="text-muted">
+            Placeholder: {{ field.placeholder }}
+          </small>
+        </td>
+        <td>
+          <span class="field-type-badge">
+            <i [class]="getFieldTypeIcon(field.fieldType)"></i>
+            {{ getFieldTypeLabel(field.fieldType) }}
+          </span>
+        </td>
+        <td>
+          <i [class]="field.isRequired ? 'pi pi-check text-success' : 'pi pi-times text-danger'"></i>
+        </td>
+        <td>
+          <i [class]="field.isEnabled ? 'pi pi-check text-success' : 'pi pi-times text-danger'"></i>
+        </td>
+        <td>{{ field.displayOrder }}</td>
+        <td>
+          <button 
+            pButton 
+            icon="pi pi-pencil" 
+            class="p-button-text p-button-sm p-button-info"
+            pTooltip="Edit Field"
+            (click)="openEditDialog(field)">
+          </button>
+          <button 
+            pButton 
+            icon="pi pi-trash" 
+            class="p-button-text p-button-sm p-button-danger"
+            pTooltip="Delete Field"
+            (click)="deleteField(field)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">
+          <div class="empty-state">
+            <i class="pi pi-inbox"></i>
+            <p>No field definitions found</p>
+            <button 
+              pButton 
+              label="Create First Field" 
+              icon="pi pi-plus"
+              class="p-button-sm"
+              (click)="openCreateDialog()">
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Create/Edit Dialog -->
+<p-dialog 
+  [(visible)]="showDialog"
+  [header]="dialogMode === 'create' ? 'Create Field Definition' : 'Edit Field Definition'"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [style]="{width: '700px'}"
+  styleClass="field-definition-dialog">
+  
+  <form [formGroup]="fieldForm" class="field-form">
+    <!-- Basic Information -->
+    <div class="form-section">
+      <h3>Basic Information</h3>
+      
+      <div class="form-group">
+        <label for="fieldKey">Field Key <span class="required">*</span></label>
+        <input 
+          pInputText 
+          id="fieldKey" 
+          formControlName="fieldKey"
+          placeholder="e.g., first_name, email_address"
+          [disabled]="dialogMode === 'edit'"
+          class="w-full">
+        <small>Lowercase letters and underscores only. Cannot be changed after creation.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="fieldLabel">Field Label <span class="required">*</span></label>
+        <input 
+          pInputText 
+          id="fieldLabel" 
+          formControlName="fieldLabel"
+          placeholder="e.g., First Name, Email Address"
+          class="w-full">
+      </div>
+
+      <div class="form-group">
+        <label for="fieldType">Field Type <span class="required">*</span></label>
+        <p-dropdown 
+          id="fieldType"
+          formControlName="fieldType"
+          [options]="fieldTypes"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select field type"
+          styleClass="w-full">
+          <ng-template let-option pTemplate="item">
+            <div class="field-type-option">
+              <i [class]="option.icon"></i>
+              <span>{{ option.label }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>
+            <p-checkbox formControlName="isRequired" [binary]="true"></p-checkbox>
+            <span class="ml-2">Required Field</span>
+          </label>
+        </div>
+        <div class="form-group">
+          <label>
+            <p-checkbox formControlName="isEnabled" [binary]="true"></p-checkbox>
+            <span class="ml-2">Enabled</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Display Options -->
+    <div class="form-section">
+      <h3>Display Options</h3>
+
+      <div class="form-group">
+        <label for="placeholder">Placeholder Text</label>
+        <input 
+          pInputText 
+          id="placeholder" 
+          formControlName="placeholder"
+          placeholder="Enter placeholder text..."
+          class="w-full">
+      </div>
+
+      <div class="form-group">
+        <label for="helpText">Help Text</label>
+        <textarea 
+          pInputTextarea 
+          id="helpText" 
+          formControlName="helpText"
+          placeholder="Additional instructions or help text..."
+          rows="2"
+          class="w-full">
+        </textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="defaultValue">Default Value</label>
+        <input 
+          pInputText 
+          id="defaultValue" 
+          formControlName="defaultValue"
+          placeholder="Pre-populated value (optional)"
+          class="w-full">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="displayOrder">Display Order</label>
+          <input 
+            pInputText 
+            id="displayOrder" 
+            type="number"
+            formControlName="displayOrder"
+            class="w-full">
+        </div>
+        <div class="form-group">
+          <label for="cssClass">CSS Class</label>
+          <input 
+            pInputText 
+            id="cssClass" 
+            formControlName="cssClass"
+            placeholder="custom-class"
+            class="w-full">
+        </div>
+      </div>
+    </div>
+
+    <!-- Validation Rules -->
+    <div class="form-section">
+      <h3>Validation Rules</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="minLength">Min Length</label>
+          <input 
+            pInputText 
+            id="minLength" 
+            type="number"
+            formControlName="minLength"
+            class="w-full">
+        </div>
+        <div class="form-group">
+          <label for="maxLength">Max Length</label>
+          <input 
+            pInputText 
+            id="maxLength" 
+            type="number"
+            formControlName="maxLength"
+            class="w-full">
+        </div>
+      </div>
+
+      <div class="form-row" *ngIf="fieldForm.get('fieldType')?.value === 'number'">
+        <div class="form-group">
+          <label for="minValue">Min Value</label>
+          <input 
+            pInputText 
+            id="minValue" 
+            type="number"
+            formControlName="minValue"
+            class="w-full">
+        </div>
+        <div class="form-group">
+          <label for="maxValue">Max Value</label>
+          <input 
+            pInputText 
+            id="maxValue" 
+            type="number"
+            formControlName="maxValue"
+            class="w-full">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="pattern">Regex Pattern</label>
+        <input 
+          pInputText 
+          id="pattern" 
+          formControlName="pattern"
+          placeholder="e.g., ^[A-Za-z]+$"
+          class="w-full">
+        <small>JavaScript RegExp pattern for custom validation</small>
+      </div>
+    </div>
+
+    <!-- Options Editor (for select/radio types) -->
+    <div class="form-section" *ngIf="showOptionsEditor()">
+      <h3>Field Options</h3>
+      <p class="mb-3">Define the options for dropdown or radio button selection</p>
+
+      <div class="options-list">
+        <div class="option-item" *ngFor="let option of fieldOptions; let i = index">
+          <div class="option-inputs">
+            <input 
+              pInputText 
+              [(ngModel)]="option.value"
+              [ngModelOptions]="{standalone: true}"
+              placeholder="Value (e.g., mr)"
+              class="option-value">
+            <input 
+              pInputText 
+              [(ngModel)]="option.label"
+              [ngModelOptions]="{standalone: true}"
+              placeholder="Label (e.g., Mr.)"
+              class="option-label">
+            <button 
+              pButton 
+              icon="pi pi-trash" 
+              class="p-button-danger p-button-text"
+              (click)="removeOption(i)">
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button 
+        pButton 
+        label="Add Option" 
+        icon="pi pi-plus" 
+        class="p-button-sm p-button-outlined"
+        (click)="addOption()">
+      </button>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <button 
+      pButton 
+      label="Cancel" 
+      icon="pi pi-times" 
+      class="p-button-text"
+      (click)="showDialog.set(false)">
+    </button>
+    <button 
+      pButton 
+      [label]="dialogMode === 'create' ? 'Create Field' : 'Update Field'"
+      icon="pi pi-check" 
+      class="p-button-primary"
+      [disabled]="fieldForm.invalid"
+      (click)="saveField()">
+    </button>
+  </ng-template>
+</p-dialog>

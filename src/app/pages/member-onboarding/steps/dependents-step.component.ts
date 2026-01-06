@@ -256,6 +256,7 @@ export class DependentsStepComponent implements OnInit {
                     });
                     this.loadDependents();
                     this.displayDialog = false;
+                    this.clearDependentForm();
                 },
                 error: (error) => {
                     console.error('Error updating dependent:', error);
@@ -279,14 +280,13 @@ export class DependentsStepComponent implements OnInit {
                         detail: 'Dependent added successfully' 
                     });
                     
-                    // Set the current dependent ID so user can upload documents
-                    this.currentDependentId.set(createdDependent.id);
-                    this.currentDependent = createdDependent;
-                    this.editMode.set(true); // Switch to edit mode
-                    
                     // Reload dependents - this will call checkCompletion automatically
                     console.log('[DependentsStep] Reloading dependents after creation...');
                     this.loadDependents();
+                    
+                    // Close dialog and clear form to allow adding another dependent
+                    this.displayDialog = false;
+                    this.clearDependentForm();
                 },
                 error: (error) => {
                     console.error('Error adding dependent:', error);
@@ -539,5 +539,48 @@ export class DependentsStepComponent implements OnInit {
                 }
             });
         }
+    }
+    
+    /**the dependent entry form (after individual save)
+     */
+    clearDependentForm() {
+        console.log('[DependentsStep] Clearing dependent entry form...');
+        
+        // Reset current dependent
+        this.currentDependent = {} as DependentDto;
+        this.currentDependentId.set(undefined);
+        this.editMode.set(false);
+        
+        // Clear SA ID validation
+        this.idInfo.set(null);
+        this.parsedDateOfBirth.set(null);
+        this.parsedGender.set(null);
+        
+        // Reset form - no form group in this component, using ngModel
+        
+        // Clear file upload states
+        this.uploading.set(false);
+        this.selectedFile = undefined;
+        this.selectedDocumentType = undefined;
+        
+        console.log('[DependentsStep] Dependent entry form cleared');
+    }
+    
+    /**
+     * Clear all form data after successful onboarding completion
+     */
+    clearForm() {
+        console.log('[DependentsStep] Clearing all form data...');
+        
+        // Clear dependents array
+        this.dependents.set([]);
+        
+        // Clear the entry form
+        this.clearDependentForm();
+        
+        // Clear dialogs and states
+        this.displayDialog = false;
+        
+        console.log('[DependentsStep] All form data cleared successfully');
     }
 }

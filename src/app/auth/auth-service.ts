@@ -150,4 +150,25 @@ export class AuthService {
                this.decodedUserToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ||
                null;
     }
+
+    getTenantType(): number | null {
+        if (!this.decodedUserToken) return null;
+        const tenantType = this.decodedUserToken.tenantType;
+        return tenantType ? parseInt(tenantType, 10) : null;
+    }
+
+    getTenantTypeName(): string | null {
+        if (!this.decodedUserToken) return null;
+        return this.decodedUserToken.tenantTypeName || null;
+    }
+
+    getPlanName(): string | null {
+        if (!this.decodedUserToken) return null;
+        return this.decodedUserToken.planName || null;
+    }
+
+    isBasicPlan(): boolean {
+        const planName = this.getPlanName();
+        return planName?.toLowerCase().includes('basic') || false;
+    }
 }

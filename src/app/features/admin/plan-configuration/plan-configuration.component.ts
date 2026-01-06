@@ -7,6 +7,7 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -43,6 +44,7 @@ interface PlanGroup {
     DropdownModule,
     InputNumberModule,
     InputTextModule,
+    InputSwitchModule,
     CheckboxModule,
     ToastModule,
     ConfirmDialogModule,
@@ -57,6 +59,9 @@ export class PlanConfigurationComponent implements OnInit {
   planGroups = signal<PlanGroup[]>([]);
   allConfigurations = signal<SubscriptionPlanConfigurationDto[]>([]);
   tenantTypes = signal<TenantTypeOption[]>([]);
+  
+  proRataEnabled = false;
+  savingProRata = false;
   
   showDialog = false;
   editMode = false;
@@ -124,6 +129,7 @@ export class PlanConfigurationComponent implements OnInit {
   ngOnInit(): void {
     this.loadTenantTypes();
     this.loadConfigurations();
+    this.loadProRataSetting();
   }
 
   loadTenantTypes(): void {
@@ -385,6 +391,41 @@ export class PlanConfigurationComponent implements OnInit {
   getTenantTypeName(tenantType: number): string {
     const type = this.tenantTypes().find(t => t.value === tenantType);
     return type?.label || 'Unknown';
+  }
+
+  loadProRataSetting(): void {
+    this.planConfigService.planConfiguration_GetProRataSetting().subscribe({
+      next: (enabled) => {
+        this.proRataEnabled = enabled;
+      },
+      error: (error) => {
+        console.error('Error loading pro-rata setting:', error);
+      }
+    });
+  }
+
+  toggleProRata(): void {
+    this.savingProRata = true;
+    this.planConfigService.planConfiguration_UpdateProRataSetting(this.proRataEnabled).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `Pro-rata billing ${this.proRataEnabled ? 'enabled' : 'disabled'} successfully`
+        });
+        this.savingProRata = false;
+      },
+      error: (error) => {
+        console.error('Error updating pro-rata setting:', error);
+        this.proRataEnabled = !this.proRataEnabled; // Revert on error
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update pro-rata billing setting'
+        });
+        this.savingProRata = false;
+      }
+    });
   }
 
   closeDialog(): void {
