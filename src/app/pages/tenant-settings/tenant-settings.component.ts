@@ -73,6 +73,8 @@ interface Settings extends SmtpSettings, NotificationSettings {
     enableIdVerification?: boolean;
     requireIdVerificationForRegistration?: boolean;
     contractTemplateFileId?: string;
+    // Feature flags
+    hasBooking?: boolean;
 }
 
 interface TeamMember {

@@ -95,6 +95,9 @@ import { FeaturedProductsWidgetComponent } from './featured-products-widget/feat
 import { FeaturedProductsEditorComponent } from './featured-products-widget/featured-products-editor.component';
 import { ProductCategoriesWidgetComponent } from './product-categories-widget/product-categories-widget.component';
 import { ProductCategoriesEditorComponent } from './product-categories-widget/product-categories-editor.component';
+// Booking Widget
+import { BookingWidgetComponent } from './booking-widget/booking-widget.component';
+import { BookingEditorComponent } from './booking-widget/booking-editor.component';
 
 export interface WidgetType {
     name: string;
@@ -1617,5 +1620,55 @@ export const WIDGET_TYPES: WidgetType[] = [
             cardBackground: '#f8f9fa'
         },
         icon: 'grid'
+    },
+    {
+        name: 'booking',
+        component: BookingWidgetComponent,
+        editorComponent: BookingEditorComponent,
+        defaultConfig: {
+            title: 'Book an Appointment',
+            subtitle: 'Schedule a convenient time to meet with us',
+            backgroundColor: '#ffffff',
+            textColor: '#333333',
+            accentColor: '#007bff',
+            buttonColor: '#007bff',
+            buttonTextColor: '#ffffff',
+            showInDashboard: true,
+            showOnLandingPage: true,
+            requireEmail: true,
+            requirePhone: false,
+            allowCustomServices: false,
+            bookingLeadTime: 24,
+            maxBookingDuration: 3,
+            slotDuration: 30,
+            enableMonday: true,
+            mondayStart: '09:00',
+            mondayEnd: '17:00',
+            enableTuesday: true,
+            tuesdayStart: '09:00',
+            tuesdayEnd: '17:00',
+            enableWednesday: true,
+            wednesdayStart: '09:00',
+            wednesdayEnd: '17:00',
+            enableThursday: true,
+            thursdayStart: '09:00',
+            thursdayEnd: '17:00',
+            enableFriday: true,
+            fridayStart: '09:00',
+            fridayEnd: '17:00',
+            enableSaturday: true,
+            saturdayStart: '09:00',
+            saturdayEnd: '13:00',
+            enableSunday: false,
+            sundayStart: '09:00',
+            sundayEnd: '13:00',
+            enableEmailNotifications: true,
+            notificationEmail: '',
+            sendCustomerConfirmation: true,
+            sendAdminNotification: true,
+            enableCalendarReminders: true,
+            calendarProvider: 'both'
+        },
+        icon: 'calendar'
     }
 ];

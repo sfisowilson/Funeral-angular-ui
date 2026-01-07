@@ -40,8 +40,8 @@
                         <span *ngIf="coupon.discountType === 'FixedAmount'">R {{ coupon.discountValue | number: '1.2-2' }}</span>
                     </td>
                     <td>
-                        <span class="badge" [class.bg-success]="coupon.durationInMonths === 1" [class.bg-info]="coupon.durationInMonths > 1">
-                            {{ coupon.durationInMonths }}{{ coupon.durationInMonths === 1 ? ' mo' : ' mos' }}
+                        <span class="badge" [class.bg-success]="+coupon.durationInMonths === 1" [class.bg-info]="+coupon.durationInMonths > 1">
+                            {{ coupon.durationInMonths }}{{ +coupon.durationInMonths === 1 ? ' mo' : ' mos' }}
                         </span>
                     </td>
                     <td>
@@ -120,11 +120,18 @@
 
                     <div class="col-md-6">
                         <label for="durationInMonths" class="form-label">Duration (Billing Cycles) *</label>
-                        <input type="number" class="form-control" id="durationInMonths" [(ngModel)]="coupon.durationInMonths" min="1" />
+                        <input type="number" 
+                               class="form-control" 
+                               id="durationInMonths" 
+                               name="durationInMonths"
+                               [ngModel]="coupon.durationInMonths" 
+                               (ngModelChange)="onDurationChange($event)"
+                               min="1" 
+                               required />
                         <small class="text-muted d-block mt-1">
                             <i class="bi bi-info-circle"></i>
-                            <span *ngIf="coupon.durationInMonths === 1">One-time discount (first billing cycle only)</span>
-                            <span *ngIf="coupon.durationInMonths > 1">Recurring discount for {{ coupon.durationInMonths }} billing cycles (auto-applied)</span>
+                            <span *ngIf="+coupon.durationInMonths === 1">One-time discount (first billing cycle only)</span>
+                            <span *ngIf="+coupon.durationInMonths > 1">Recurring discount for {{ coupon.durationInMonths }} billing cycles (auto-applied)</span>
                         </small>
                     </div>
 

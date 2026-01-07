@@ -55,9 +55,9 @@ export class CouponListComponent implements OnInit {
     id: 0,
     code: '',
     name: '',
-    discountType: '',
+    discountType: '0',
     discountValue: 0,
-    durationInMonths: '',
+    durationInMonths: '1',
     maxRedemptions: null,
     validFrom: null,
     validUntil: null,
@@ -166,9 +166,9 @@ export class CouponListComponent implements OnInit {
       id: coupon.id,
       code: coupon.code,
       name: coupon.name,
-      discountType: coupon.discountType,
+      discountType: String(coupon.discountType),
       discountValue: coupon.discountValue,
-      durationInMonths: coupon.durationInMonths || 'Once',
+      durationInMonths: String(coupon.durationInMonths || 1),
       maxRedemptions: coupon.maxRedemptions,
       validFrom: coupon.validFrom ? new Date(coupon.validFrom.toString()) : null,
       validUntil: coupon.validUntil ? new Date(coupon.validUntil.toString()) : null,
@@ -185,9 +185,9 @@ export class CouponListComponent implements OnInit {
       id: 0,
       code: '',
       name: '',
-      discountType: 'Percentage',
+      discountType: '0',
       discountValue: 0,
-      durationInMonths: 'Once',
+      durationInMonths: '1',
       maxRedemptions: null,
       validFrom: null,
       validUntil: null,
@@ -222,13 +222,17 @@ export class CouponListComponent implements OnInit {
         await this.couponService.coupon_Update(this.couponForm.id, updateDto as any).toPromise();
         this.showAlert('Coupon updated successfully', 'success');
       } else {
+        // Parse durationInMonths with fallback to 1
+        const durationValue = parseInt(this.couponForm.durationInMonths, 10);
+        const validDuration = isNaN(durationValue) || durationValue < 1 ? 1 : durationValue;
+        
         const createDto = {
           code: this.couponForm.code,
           name: this.couponForm.name,
           description: this.couponForm.description,
           discountType: parseInt(this.couponForm.discountType),
           discountValue: parseFloat(this.couponForm.discountValue),
-          durationInMonths: parseInt(this.couponForm.durationInMonths),
+          durationInMonths: validDuration,
           maxRedemptions: this.couponForm.maxRedemptions ? parseInt(this.couponForm.maxRedemptions) : null,
           validFrom: this.couponForm.validFrom ? new Date(this.couponForm.validFrom) : new Date(),
           validUntil: this.couponForm.validUntil ? new Date(this.couponForm.validUntil) : null,

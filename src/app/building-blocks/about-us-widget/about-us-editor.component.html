@@ -52,6 +52,16 @@
             </div>
             <div *ngIf="config.settings.showHero">
                 <div class="p-field">
+                    <label>Section Background Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.heroBackgroundColor" />
+                    <small class="text-muted">Leave empty for transparent background</small>
+                </div>
+                <div class="p-field">
+                    <label>Section Text Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.heroTextColor" />
+                    <small class="text-muted">Leave empty to use default text color</small>
+                </div>
+                <div class="p-field">
                     <label>Hero Title</label>
                     <input type="text" pInputText [(ngModel)]="config.settings.heroTitle" 
                            placeholder="About Us" />
@@ -78,6 +88,16 @@
                            label="Show Story Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showStory">
+                <div class="p-field">
+                    <label>Section Background Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.storyBackgroundColor" />
+                    <small class="text-muted">Leave empty for transparent background</small>
+                </div>
+                <div class="p-field">
+                    <label>Section Text Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.storyTextColor" />
+                    <small class="text-muted">Leave empty to use default text color</small>
+                </div>
                 <div class="p-field">
                     <label>Story Badge</label>
                     <input type="text" pInputText [(ngModel)]="config.settings.storyBadge" 
@@ -111,6 +131,16 @@
             </div>
             <div *ngIf="config.settings.showMissionVision">
                 <div class="p-field">
+                    <label>Section Background Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.missionVisionBackgroundColor" />
+                    <small class="text-muted">Leave empty for transparent background</small>
+                </div>
+                <div class="p-field">
+                    <label>Section Text Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.missionVisionTextColor" />
+                    <small class="text-muted">Leave empty to use default text color</small>
+                </div>
+                <div class="p-field">
                     <label>Mission Statement</label>
                     <textarea pInputTextarea [(ngModel)]="config.settings.mission" 
                              rows="4" placeholder="Our mission is to..."></textarea>
@@ -130,6 +160,16 @@
                            label="Show Values Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showValues">
+                <div class="p-field">
+                    <label>Section Background Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.valuesBackgroundColor" />
+                    <small class="text-muted">Leave empty for transparent background</small>
+                </div>
+                <div class="p-field">
+                    <label>Section Text Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.valuesTextColor" />
+                    <small class="text-muted">Leave empty to use default text color</small>
+                </div>
                 <div class="p-field">
                     <label>Values Badge</label>
                     <input type="text" pInputText [(ngModel)]="config.settings.valuesBadge" 
@@ -176,6 +216,16 @@
                            label="Show Statistics Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showStats">
+                <div class="p-field">
+                    <label>Section Background Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.statsBackgroundColor" />
+                    <small class="text-muted">Leave empty for transparent background</small>
+                </div>
+                <div class="p-field">
+                    <label>Section Text Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.statsTextColor" />
+                    <small class="text-muted">Leave empty to use default text color</small>
+                </div>
                 <div class="stats-list">
                     <div *ngFor="let stat of config.settings.stats; let i = index" class="stat-item">
                         <div class="item-header">
@@ -207,6 +257,16 @@
                            label="Show Team Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showTeam">
+                <div class="p-field">
+                    <label>Section Background Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.teamBackgroundColor" />
+                    <small class="text-muted">Leave empty for transparent background</small>
+                </div>
+                <div class="p-field">
+                    <label>Section Text Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.teamTextColor" />
+                    <small class="text-muted">Leave empty to use default text color</small>
+                </div>
                 <div class="p-field">
                     <label>Team Badge</label>
                     <input type="text" pInputText [(ngModel)]="config.settings.teamBadge" 
@@ -277,6 +337,16 @@
             </div>
             <div *ngIf="config.settings.showCTA">
                 <div class="p-field">
+                    <label>Section Background Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.ctaBackgroundColor" />
+                    <small class="text-muted">Leave empty for transparent background</small>
+                </div>
+                <div class="p-field">
+                    <label>Section Text Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.ctaTextColor" />
+                    <small class="text-muted">Leave empty to use default text color</small>
+                </div>
+                <div class="p-field">
                     <label>CTA Title</label>
                     <input type="text" pInputText [(ngModel)]="config.settings.ctaTitle" 
                            placeholder="Ready to Get Started?" />
@@ -289,26 +359,38 @@
                 <div class="cta-buttons-config">
                     <h4>Primary Button</h4>
                     <div class="p-field">
-                        <label>Button Text</label>
-                        <input type="text" pInputText [(ngModel)]="config.settings.ctaPrimaryButton.text" 
-                               placeholder="Get Started" />
+                        <p-checkbox [(ngModel)]="config.settings.showCtaPrimaryButton" [binary]="true" 
+                                   label="Show Primary Button"></p-checkbox>
                     </div>
-                    <div class="p-field">
-                        <label>Button Link</label>
-                        <input type="text" pInputText [(ngModel)]="config.settings.ctaPrimaryButton.link" 
-                               placeholder="/contact" />
+                    <div *ngIf="config.settings.showCtaPrimaryButton">
+                        <div class="p-field">
+                            <label>Button Text</label>
+                            <input type="text" pInputText [(ngModel)]="config.settings.ctaPrimaryButton.text" 
+                                   placeholder="Get Started" />
+                        </div>
+                        <div class="p-field">
+                            <label>Button Link</label>
+                            <input type="text" pInputText [(ngModel)]="config.settings.ctaPrimaryButton.link" 
+                                   placeholder="/contact" />
+                        </div>
                     </div>
                     
-                    <h4>Secondary Button</h4>
+                    <h4 class="mt-3">Secondary Button</h4>
                     <div class="p-field">
-                        <label>Button Text</label>
-                        <input type="text" pInputText [(ngModel)]="config.settings.ctaSecondaryButton.text" 
-                               placeholder="Learn More" />
+                        <p-checkbox [(ngModel)]="config.settings.showCtaSecondaryButton" [binary]="true" 
+                                   label="Show Secondary Button"></p-checkbox>
                     </div>
-                    <div class="p-field">
-                        <label>Button Link</label>
-                        <input type="text" pInputText [(ngModel)]="config.settings.ctaSecondaryButton.link" 
-                               placeholder="/services" />
+                    <div *ngIf="config.settings.showCtaSecondaryButton">
+                        <div class="p-field">
+                            <label>Button Text</label>
+                            <input type="text" pInputText [(ngModel)]="config.settings.ctaSecondaryButton.text" 
+                                   placeholder="Learn More" />
+                        </div>
+                        <div class="p-field">
+                            <label>Button Link</label>
+                            <input type="text" pInputText [(ngModel)]="config.settings.ctaSecondaryButton.link" 
+                                   placeholder="/services" />
+                        </div>
                     </div>
                 </div>
             </div>

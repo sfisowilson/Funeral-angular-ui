@@ -215,17 +215,17 @@
 
                     <!-- Duration -->
                     <div class="col-12" *ngIf="!isEditMode">
-                        <label for="durationInMonths" class="form-label fw-semibold">Duration *</label>
+                        <label for="durationInMonths" class="form-label fw-semibold">Duration (Billing Cycles) *</label>
                         <select 
                             id="durationInMonths"
                             class="form-select"
-                            [(ngModel)]="couponForm.duration"
+                            [(ngModel)]="couponForm.durationInMonths"
                             [disabled]="saving">
                             <option value="">Select duration</option>
                             <option *ngFor="let dur of durations" [value]="dur.value">{{ dur.label }}</option>
                         </select>
                         <div class="form-text">
-                            Once: Single use | Forever: Applies to all future payments | Repeating: Applies multiple times
+                            Number of billing cycles the discount will be applied
                         </div>
                     </div>
 

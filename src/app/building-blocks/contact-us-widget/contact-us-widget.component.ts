@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { HttpClient } from '@angular/common/http';
 import { WidgetConfig } from '../widget-config';
 import { API_BASE_URL } from '../../core/services/service-proxies';
+import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 
 interface Branch {
     name: string;
@@ -31,10 +32,12 @@ export class ContactUsWidgetComponent implements OnInit {
     successMessage = '';
     errorMessage = '';
     baseUrl: string;
+    customStyles: SafeStyle = '';
 
     constructor(
         private fb: FormBuilder,
         private http: HttpClient,
+        private sanitizer: DomSanitizer,
         @Inject(API_BASE_URL) baseUrl?: string
     ) {
         this.baseUrl = baseUrl ?? '';
@@ -48,6 +51,7 @@ export class ContactUsWidgetComponent implements OnInit {
             subject: [''],
             message: ['', Validators.required]
         });
+        this.applyCustomColors();
     }
 
     get branches(): Branch[] {
@@ -98,5 +102,21 @@ export class ContactUsWidgetComponent implements OnInit {
                 }, 7000);
             }
         });
+    }
+
+    private applyCustomColors(): void {
+        const settings = this.config.settings || {};
+        const cssVariables: string[] = [];
+
+        // Set CSS variables for widget colors or theme fallbacks
+        cssVariables.push(`--widget-primary-color: ${settings.primaryColor || 'var(--primary-color, #667eea)'}`);
+        cssVariables.push(`--widget-secondary-color: ${settings.secondaryColor || 'var(--secondary-color, var(--accent-color, #764ba2))'}`);
+        cssVariables.push(`--widget-text-color: ${settings.textColor || 'var(--text-color, #1a202c)'}`);
+        cssVariables.push(`--widget-bg-color: ${settings.backgroundColor || 'var(--background-color, #ffffff)'}`);
+        cssVariables.push(`--widget-text-muted: ${settings.textColor || 'var(--text-color-secondary, #718096)'}`);
+
+        this.customStyles = this.sanitizer.bypassSecurityTrustStyle(
+            cssVariables.join('; ')
+        );
     }
 }

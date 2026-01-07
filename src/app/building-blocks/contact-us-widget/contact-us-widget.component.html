@@ -1,5 +1,7 @@
-<div class="contact-us-widget" [class.with-form]="config.settings.showContactForm">
-    <div class="contact-header">
+<div class="contact-us-widget" [class.with-form]="config.settings.showContactForm" [ngStyle]="customStyles">
+    
+    <!-- Header Section -->
+    <div class="contact-header" *ngIf="config.settings.showHeader !== false">
         <h2>{{ config.settings.title || 'Get In Touch' }}</h2>
         <p *ngIf="config.settings.subtitle" class="subtitle">{{ config.settings.subtitle }}</p>
     </div>
@@ -8,134 +10,176 @@
         <div class="row g-4">
             <!-- Contact Information Section -->
             <div class="contact-info-section" 
-                 [ngClass]="config.settings.showContactForm ? 'col-12 col-lg-6' : 'col-12'">
-                <div *ngIf="branches.length > 0" class="branches-section">
-                <h3><i class="pi pi-map-marker"></i> Our Locations</h3>
-                <div class="branches-grid">
-                    <div *ngFor="let branch of branches" class="branch-card">
-                        <h4>{{ branch.name }}</h4>
-                        <div class="contact-detail">
-                            <i class="pi pi-map-marker"></i>
-                            <span>{{ branch.address }}</span>
-                        </div>
-                        <div class="contact-detail" *ngIf="branch.phone">
-                            <i class="pi pi-phone"></i>
-                            <a [href]="'tel:' + branch.phone">{{ branch.phone }}</a>
-                        </div>
-                        <div class="contact-detail" *ngIf="branch.email">
-                            <i class="pi pi-envelope"></i>
-                            <a [href]="'mailto:' + branch.email">{{ branch.email }}</a>
+                 [ngClass]="config.settings.showContactForm ? 'col-12 col-lg-6' : 'col-12'"
+                 *ngIf="config.settings.showBranches !== false || config.settings.showSocialMedia !== false">
+                
+                <!-- Branches Section -->
+                <div *ngIf="config.settings.showBranches !== false && branches.length > 0" 
+                     class="branches-section"
+                     [style.background-color]="config.settings.branchesBackgroundColor || 'transparent'"
+                     [style.padding]="config.settings.branchesBackgroundColor ? '20px' : '0'"
+                     [style.border-radius]="config.settings.branchesBackgroundColor ? '8px' : '0'">
+                    <h3><i class="pi pi-map-marker"></i> Our Locations</h3>
+                    <div class="branches-grid">
+                        <div *ngFor="let branch of branches" class="branch-card">
+                            <h4>{{ branch.name }}</h4>
+                            <div class="contact-detail">
+                                <i class="pi pi-map-marker"></i>
+                                <span>{{ branch.address }}</span>
+                            </div>
+                            <div class="contact-detail" *ngIf="branch.phone">
+                                <i class="pi pi-phone"></i>
+                                <a [href]="'tel:' + branch.phone">{{ branch.phone }}</a>
+                            </div>
+                            <div class="contact-detail" *ngIf="branch.email">
+                                <i class="pi pi-envelope"></i>
+                                <a [href]="'mailto:' + branch.email">{{ branch.email }}</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div *ngIf="socialMediaHandles.length > 0" class="social-media-section">
-                <h3><i class="pi pi-share-alt"></i> Follow Us</h3>
-                <div class="social-icons">
-                    <a *ngFor="let handle of socialMediaHandles" 
-                       [href]="handle.url" 
-                       target="_blank" 
-                       class="social-icon"
-                       [title]="handle.platform">
-                        <i class="pi pi-{{ handle.platform | lowercase }}"></i>
-                    </a>
+                <!-- Social Media Section -->
+                <div *ngIf="config.settings.showSocialMedia !== false && socialMediaHandles.length > 0" 
+                     class="social-media-section"
+                     [style.background-color]="config.settings.socialMediaBackgroundColor || 'transparent'"
+                     [style.padding]="config.settings.socialMediaBackgroundColor ? '20px' : '0'"
+                     [style.border-radius]="config.settings.socialMediaBackgroundColor ? '8px' : '0'">
+                    <h3><i class="pi pi-share-alt"></i> Follow Us</h3>
+                    <div class="social-icons">
+                        <a *ngFor="let handle of socialMediaHandles" 
+                           [href]="handle.url" 
+                           target="_blank" 
+                           class="social-icon"
+                           [title]="handle.platform">
+                            <i class="pi pi-{{ handle.platform | lowercase }}"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div *ngIf="!branches.length && !socialMediaHandles.length" class="no-content">
+                    <i class="pi pi-info-circle"></i>
+                    <p>No contact information configured.</p>
                 </div>
             </div>
 
-            <div *ngIf="!branches.length && !socialMediaHandles.length" class="no-content">
-                <i class="pi pi-info-circle"></i>
-                <p>No contact information configured.</p>
-            </div>
-        </div>
+            <!-- Contact Form Section -->
+            <div *ngIf="config.settings.showContactForm" 
+                 class="contact-form-section"
+                 [style.background-color]="config.settings.formBackgroundColor || 'transparent'"
+                 [style.padding]="config.settings.formBackgroundColor ? '30px' : '0'"
+                 [style.border-radius]="config.settings.formBackgroundColor ? '8px' : '0'">
+                <h3><i class="pi pi-send"></i> Send us a Message</h3>
+                
+                <div *ngIf="successMessage" class="alert alert-success">
+                    <i class="pi pi-check-circle"></i>
+                    {{ successMessage }}
+                </div>
+                
+                <div *ngIf="errorMessage" class="alert alert-error">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    {{ errorMessage }}
+                </div>
 
-        <!-- Contact Form Section -->
-        <div *ngIf="config.settings.showContactForm" class="contact-form-section">
-            <h3><i class="pi pi-send"></i> Send us a Message</h3>
-            
-            <div *ngIf="successMessage" class="alert alert-success">
-                <i class="pi pi-check-circle"></i>
-                {{ successMessage }}
-            </div>
-            
-            <div *ngIf="errorMessage" class="alert alert-error">
-                <i class="pi pi-exclamation-triangle"></i>
-                {{ errorMessage }}
-            </div>
+                <form [formGroup]="contactForm" (ngSubmit)="submitForm()" class="contact-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Full Name *</label>
+                            <input type="text" 
+                                   id="name" 
+                                   formControlName="name" 
+                                   class="form-control"
+                                   placeholder="Your name"
+                                   [class.is-invalid]="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
+                            <small class="error-text" *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
+                                Name is required
+                            </small>
+                        </div>
 
-            <form [formGroup]="contactForm" (ngSubmit)="submitForm()" class="contact-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name">Full Name *</label>
-                        <input type="text" 
-                               id="name" 
-                               formControlName="name" 
-                               class="form-control"
-                               placeholder="Your name"
-                               [class.is-invalid]="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
-                        <small class="error-text" *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
-                            Name is required
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" 
+                                   id="email" 
+                                   formControlName="email" 
+                                   class="form-control"
+                                   placeholder="your@email.com"
+                                   [class.is-invalid]="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
+                            <small class="error-text" *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
+                                Valid email is required
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" 
+                                   id="phone" 
+                                   formControlName="phone" 
+                                   class="form-control"
+                                   placeholder="contact number">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" 
+                                   id="subject" 
+                                   formControlName="subject" 
+                                   class="form-control"
+                                   placeholder="How can we help?">
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="message">Message *</label>
+                        <textarea id="message" 
+                                  formControlName="message" 
+                                  class="form-control"
+                                  rows="5"
+                                  placeholder="Tell us more about your inquiry..."
+                                  [class.is-invalid]="contactForm.get('message')?.invalid && contactForm.get('message')?.touched"></textarea>
+                        <small class="error-text" *ngIf="contactForm.get('message')?.invalid && contactForm.get('message')?.touched">
+                            Message is required
                         </small>
                     </div>
 
-                    <div class="form-group">
-                        <label for="email">Email Address *</label>
-                        <input type="email" 
-                               id="email" 
-                               formControlName="email" 
-                               class="form-control"
-                               placeholder="your@email.com"
-                               [class.is-invalid]="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
-                        <small class="error-text" *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
-                            Valid email is required
-                        </small>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" 
-                               id="phone" 
-                               formControlName="phone" 
-                               class="form-control"
-                               placeholder="contact number">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="subject">Subject</label>
-                        <input type="text" 
-                               id="subject" 
-                               formControlName="subject" 
-                               class="form-control"
-                               placeholder="How can we help?">
-                    </div>
-                </div>
-
-                <div class="form-group full-width">
-                    <label for="message">Message *</label>
-                    <textarea id="message" 
-                              formControlName="message" 
-                              class="form-control"
-                              rows="5"
-                              placeholder="Tell us more about your inquiry..."
-                              [class.is-invalid]="contactForm.get('message')?.invalid && contactForm.get('message')?.touched"></textarea>
-                    <small class="error-text" *ngIf="contactForm.get('message')?.invalid && contactForm.get('message')?.touched">
-                        Message is required
-                    </small>
-                </div>
-
-                <button type="submit" 
-                        class="submit-button"
-                        [disabled]="isSubmitting || contactForm.invalid">
-                    <span *ngIf="!isSubmitting">
-                        <i class="pi pi-send"></i> Send Message
-                    </span>
-                    <span *ngIf="isSubmitting">
-                        <i class="pi pi-spin pi-spinner"></i> Sending...
-                    </span>
-                </button>
-            </form>
+                    <button type="submit" 
+                            class="submit-button btn-primary-theme"
+                            [disabled]="isSubmitting || contactForm.invalid">
+                        <span *ngIf="!isSubmitting">
+                            <i class="pi pi-send"></i> Send Message
+                        </span>
+                        <span *ngIf="isSubmitting">
+                            <i class="pi pi-spin pi-spinner"></i> Sending...
+                        </span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section" 
+         *ngIf="config.settings.showCTA"
+         [style.background-color]="config.settings.ctaBackgroundColor || 'transparent'"
+         [style.padding]="config.settings.ctaBackgroundColor ? '40px 20px' : '20px 0'"
+         [style.border-radius]="config.settings.ctaBackgroundColor ? '8px' : '0'">
+        <div class="cta-content">
+            <h2>{{ config.settings.ctaTitle || 'Have Questions?' }}</h2>
+            <p *ngIf="config.settings.ctaText">{{ config.settings.ctaText }}</p>
+            <div class="cta-buttons">
+                <a *ngIf="config.settings.showCtaPrimaryButton && config.settings.ctaPrimaryButton?.text" 
+                   [href]="config.settings.ctaPrimaryButton.link || '#'" 
+                   class="cta-button btn-primary-theme">
+                    {{ config.settings.ctaPrimaryButton.text }}
+                </a>
+                <a *ngIf="config.settings.showCtaSecondaryButton && config.settings.ctaSecondaryButton?.text" 
+                   [href]="config.settings.ctaSecondaryButton.link || '#'" 
+                   class="cta-button btn-secondary-theme">
+                    {{ config.settings.ctaSecondaryButton.text }}
+                </a>
+            </div>
+        </div>
+    </div>
+
 </div>

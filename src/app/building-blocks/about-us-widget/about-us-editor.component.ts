@@ -53,6 +53,8 @@ export class AboutUsEditorComponent implements OnInit {
         if (!this.config.settings.teamMembers) this.config.settings.teamMembers = [];
         if (!this.config.settings.ctaPrimaryButton) this.config.settings.ctaPrimaryButton = { text: '', link: '' };
         if (!this.config.settings.ctaSecondaryButton) this.config.settings.ctaSecondaryButton = { text: '', link: '' };
+        if (this.config.settings.showCtaPrimaryButton === undefined) this.config.settings.showCtaPrimaryButton = true;
+        if (this.config.settings.showCtaSecondaryButton === undefined) this.config.settings.showCtaSecondaryButton = true;
         
         // Store original settings for cancel functionality
         this.originalSettings = JSON.parse(JSON.stringify(this.config.settings));

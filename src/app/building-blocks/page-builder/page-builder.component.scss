@@ -16,9 +16,7 @@
     z-index: 100;
 
     .toolbar-title {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
+        /* Bootstrap flex and height utilities now control layout */
         margin: 0;
         font-size: 1.5rem;
         font-weight: 600;
@@ -54,18 +52,14 @@
     padding: 2rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     position: relative;
-    
-    &.show-grid {
-        background-image: 
-            linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
-        background-size: 40px 40px;
-    }
+    /* Bootstrap flex and height utilities now control layout */
 }
 
 .widget-grid {
     position: relative;
     min-height: 400px;
+    display: grid;
+    align-items: start; // Items align to top but size to content
 }
 
 .widget-item {
@@ -74,7 +68,8 @@
     border: 2px dashed #e2e8f0;
     border-radius: 8px;
     transition: all 0.2s ease;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     
     &:hover {
         border-color: #667eea;
@@ -173,9 +168,39 @@
     position: relative;
     z-index: 1;
     pointer-events: none; // Prevent interaction during editing
+    flex: 1 1 auto; // Grow to fill available space
+    display: flex;
+    flex-direction: column;
     
     .preview-mode & {
         pointer-events: all;
+    }
+    
+    // Ensure nested widget components fill container properly
+    ::ng-deep {
+        > * {
+            flex: 1 1 auto;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        // Booking widget calendar containment
+        .booking-widget {
+            max-width: 100%;
+            
+            .p-card {
+                max-width: 100%;
+                height: auto;
+            }
+            
+            .p-calendar {
+                max-width: 100%;
+                
+                .p-datepicker {
+                    max-width: 100%;
+                }
+            }
+        }
     }
 }
 
@@ -567,7 +592,7 @@
 .content-editor-dialog {
     ::ng-deep .p-dialog-content {
         padding: 0;
-        overflow-y: auto;
+        overflow: visible !important;
         min-height: 500px;
     }
     
@@ -576,6 +601,11 @@
         .p-accordion-content {
             overflow: visible !important;
         }
+    }
+    
+    // Ensure dropdown overlays are visible
+    ::ng-deep .p-dropdown-panel {
+        z-index: 10001 !important;
     }
 }
 
@@ -650,6 +680,9 @@
 .content-editor {
     padding: 1.5rem;
     min-height: 500px;
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
     
     // Override editor component styles to fit dialog
     ::ng-deep {
@@ -668,6 +701,17 @@
             display: flex;
             justify-content: flex-end;
             gap: 0.75rem;
+        }
+        
+        // Booking editor specific
+        .booking-editor {
+            min-height: 400px;
+            
+            .p-accordion {
+                .p-accordion-content {
+                    overflow: visible !important;
+                }
+            }
         }
     }
 }

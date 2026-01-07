@@ -80,7 +80,7 @@
                 
                 <div 
                     *ngFor="let widget of widgets(); let i = index; trackBy: trackByWidgetId"
-                    class="widget-item"
+                    class="widget-item d-flex flex-column h-100"
                     [class.selected]="selectedWidget()?.id === widget.id"
                     [class.preview-mode]="previewMode()"
                     [ngStyle]="getWidgetStyles(widget)"
@@ -157,7 +157,7 @@
                     </div>
                     
                     <!-- Widget Content -->
-                    <div class="widget-content">
+                    <div class="widget-content flex-grow-1 w-100 d-flex flex-column justify-content-center align-items-stretch">
                         <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }">
                         </ng-container>
                     </div>
@@ -659,15 +659,32 @@
         [(visible)]="showContentEditor"
         [header]="'Edit ' + (selectedWidget()?.type || 'Widget') + ' Content'"
         [modal]="true"
-        [style]="{ width: '90vw', maxWidth: '1000px', minHeight: '500px' }"
+        [style]="{ width: '90vw', maxWidth: '1000px', minHeight: '600px' }"
         [draggable]="false"
         [resizable]="false"
-        [contentStyle]="{ 'overflow-y': 'auto' }"
+        [contentStyle]="{ 'overflow': 'visible', 'min-height': '400px' }"
         styleClass="content-editor-dialog">
         
-        <div class="content-editor" *ngIf="selectedWidget()">
+        <div class="content-editor" style="min-height: 400px; overflow: visible;" *ngIf="selectedWidget()">
             <ng-container #editorContainer></ng-container>
         </div>
+        
+        <ng-template pTemplate="footer">
+            <div class="py-4 d-flex flex-row justify-content-end gap-2">
+                <button 
+                    type="button"
+                    class="btn btn-outline-secondary me-2"
+                    (click)="showContentEditor.set(false)">
+                    <i class="pi pi-times me-1"></i> Cancel
+                </button>
+                <button 
+                    type="button"
+                    class="btn-primary-theme"
+                    (click)="saveWidgets(); showContentEditor.set(false)">
+                    <i class="pi pi-check me-1"></i> Save Changes
+                </button>
+            </div>
+        </ng-template>
     </p-dialog>
 
     <!-- SEO Settings Dialog -->

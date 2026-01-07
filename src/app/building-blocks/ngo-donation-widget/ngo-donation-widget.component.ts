@@ -401,25 +401,32 @@ export class NgoDonationWidgetComponent implements OnInit {
         try {
             const donationData = {
                 amount: this.selectedAmount,
-                provider: gateway.provider,
                 isRecurring: this.isRecurring,
                 currency: 'ZAR',
-                description: `Donation to ${document.title}`,
+                description: this.config.title || 'Donation',
+                donorFirstName: '',
+                donorLastName: '',
+                donorEmail: '',
+                isAnonymous: true,
+                message: '',
+                returnUrl: `${window.location.origin}/donation-success`,
+                cancelUrl: `${window.location.origin}/donation-cancelled`,
                 metadata: {
-                    widgetConfig: this.config.title || 'Donation Widget'
+                    widgetConfig: this.config.title || 'Donation Widget',
+                    provider: gateway.provider
                 }
             };
 
-            // Call payment service to create session
+            // Call the new donation-specific endpoint (doesn't require SubscriptionPlanId)
             const response = await firstValueFrom(
-                this.http.post<any>(`${this.apiUrl}/api/Payment/Payment_CreateSession`, donationData)
+                this.http.post<any>(`${this.apiUrl}/api/Payment/Payment_CreateDonationSession`, donationData)
             );
 
-            if (response && response.redirectUrl) {
-                // Redirect to payment gateway
-                window.location.href = response.redirectUrl;
+            if (response && response.paymentUrl && response.paymentData) {
+                // Create a form and submit it to PayFast with the payment data
+                this.submitPaymentForm(response.paymentUrl, response.paymentData);
             } else {
-                throw new Error('No redirect URL received from payment service');
+                throw new Error('No payment data received from payment service');
             }
         } catch (error: any) {
             console.error('Error creating donation session:', error);
@@ -430,5 +437,26 @@ export class NgoDonationWidgetComponent implements OnInit {
             });
             this.processingDonation = false;
         }
+    }
+
+    private submitPaymentForm(paymentUrl: string, paymentData: { [key: string]: string }): void {
+        // Create a hidden form and submit to PayFast
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = paymentUrl;
+        form.style.display = 'none';
+
+        for (const key in paymentData) {
+            if (paymentData.hasOwnProperty(key)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = paymentData[key];
+                form.appendChild(input);
+            }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
     }
 }

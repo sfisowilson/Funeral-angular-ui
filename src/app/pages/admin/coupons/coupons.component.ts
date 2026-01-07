@@ -76,6 +76,12 @@ export class CouponsComponent {
         { label: 'Other', value: 'Other' }
     ];
 
+    onDurationChange(value: any): void {
+        // Ensure durationInMonths is always stored as a number
+        const numValue = parseInt(value, 10);
+        this.coupon.durationInMonths = isNaN(numValue) || numValue < 1 ? 1 : numValue;
+    }
+
     constructor(
         private couponService: CouponServiceProxy
     ) {}
@@ -205,7 +211,15 @@ export class CouponsComponent {
             createDto.description = this.coupon.description;
             createDto.discountType = parseInt(this.coupon.discountType);
             createDto.discountValue = this.coupon.discountValue;
-            createDto.durationInMonths = this.coupon.durationInMonths;
+            
+            // Ensure durationInMonths is a valid number (should already be a number from onDurationChange)
+            const durationValue = this.coupon.durationInMonths;
+            createDto.durationInMonths = typeof durationValue === 'number' && !isNaN(durationValue) && durationValue >= 1 
+                ? durationValue 
+                : 1;
+            
+            console.log('Creating coupon with durationInMonths:', createDto.durationInMonths);
+            
             createDto.maxRedemptions = this.coupon.maxRedemptions;
             createDto.validFrom = this.coupon.validFrom;
             createDto.validUntil = this.coupon.validUntil;

@@ -46,6 +46,10 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     activeIndex = signal<number>(0);
     wizardLoading = signal<boolean>(false);
     
+    // Modal states
+    showTermsModal = false;
+    showPrivacyModal = false;
+    
     // Forms
     accountForm!: FormGroup;
     organizationQuestionsForm!: FormGroup;
@@ -594,7 +598,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 amount: this.getFinalPrice(),
                 currency: 'ZAR',
                 description: `${selectedPlan?.name || selectedPlan?.planName} Subscription`,
-                returnUrl: `${window.location.origin}/payment-success`,
+                returnUrl: `${window.location.origin}/payment-success?email=${encodeURIComponent(formValue.email)}&subdomain=${encodeURIComponent(formValue.domain)}`,
                 cancelUrl: `${window.location.origin}/payment-cancelled`,
                 notifyUrl: `${window.location.origin}/api/Webhook/Webhook_PayFast`,
                 isRecurring: true,

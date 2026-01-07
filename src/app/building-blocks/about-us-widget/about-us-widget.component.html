@@ -1,7 +1,11 @@
 <div class="about-us-widget" [style.padding.px]="config.settings?.padding || 60" [ngStyle]="customStyles">
     
     <!-- Hero Section -->
-    <div class="hero-section" *ngIf="config.settings?.showHero">
+    <div class="hero-section" *ngIf="config.settings?.showHero"
+         [style.background-color]="config.settings.heroBackgroundColor || 'transparent'"
+         [style.color]="config.settings.heroTextColor || 'inherit'"
+         [style.padding]="config.settings.heroBackgroundColor ? '40px 20px' : '0'"
+         [style.border-radius]="config.settings.heroBackgroundColor ? '8px' : '0'">
         <div class="hero-content">
             <h1 class="hero-title">{{ config.settings?.heroTitle || 'About Us' }}</h1>
             <p class="hero-subtitle">{{ config.settings?.heroSubtitle }}</p>
@@ -12,7 +16,11 @@
     </div>
 
     <!-- Story Section -->
-    <div class="story-section" *ngIf="config.settings?.showStory">
+    <div class="story-section" *ngIf="config.settings?.showStory"
+         [style.background-color]="config.settings.storyBackgroundColor || 'transparent'"
+         [style.color]="config.settings.storyTextColor || 'inherit'"
+         [style.padding]="config.settings.storyBackgroundColor ? '40px 20px' : '0'"
+         [style.border-radius]="config.settings.storyBackgroundColor ? '8px' : '0'">
         <div class="section-container">
             <div class="section-header">
                 <span class="section-badge">{{ config.settings?.storyBadge || 'Our Story' }}</span>
@@ -30,7 +38,11 @@
     </div>
 
     <!-- Mission & Vision -->
-    <div class="mission-vision-section" *ngIf="config.settings?.showMissionVision">
+    <div class="mission-vision-section" *ngIf="config.settings?.showMissionVision"
+         [style.background-color]="config.settings.missionVisionBackgroundColor || 'transparent'"
+         [style.color]="config.settings.missionVisionTextColor || 'inherit'"
+         [style.padding]="config.settings.missionVisionBackgroundColor ? '40px 20px' : '0'"
+         [style.border-radius]="config.settings.missionVisionBackgroundColor ? '8px' : '0'">
         <div class="section-container">
             <div class="mission-vision-grid">
                 <div class="mission-card" *ngIf="config.settings?.mission">
@@ -52,7 +64,11 @@
     </div>
 
     <!-- Values Section -->
-    <div class="values-section" *ngIf="config.settings?.showValues && config.settings?.values?.length">
+    <div class="values-section" *ngIf="config.settings?.showValues && config.settings?.values?.length"
+         [style.background-color]="config.settings.valuesBackgroundColor || 'transparent'"
+         [style.color]="config.settings.valuesTextColor || 'inherit'"
+         [style.padding]="config.settings.valuesBackgroundColor ? '40px 20px' : '0'"
+         [style.border-radius]="config.settings.valuesBackgroundColor ? '8px' : '0'">
         <div class="section-container">
             <div class="section-header centered">
                 <span class="section-badge">{{ config.settings?.valuesBadge || 'Our Values' }}</span>
@@ -71,7 +87,11 @@
     </div>
 
     <!-- Stats Section -->
-    <div class="stats-section" *ngIf="config.settings?.showStats && config.settings?.stats?.length">
+    <div class="stats-section" *ngIf="config.settings?.showStats && config.settings?.stats?.length"
+         [style.background-color]="config.settings.statsBackgroundColor || 'transparent'"
+         [style.color]="config.settings.statsTextColor || 'inherit'"
+         [style.padding]="config.settings.statsBackgroundColor ? '40px 20px' : '0'"
+         [style.border-radius]="config.settings.statsBackgroundColor ? '8px' : '0'">
         <div class="section-container">
             <div class="stats-grid">
                 <div class="stat-card" *ngFor="let stat of config.settings.stats">
@@ -83,7 +103,11 @@
     </div>
 
     <!-- Team Section -->
-    <div class="team-section" *ngIf="config.settings?.showTeam && config.settings?.teamMembers?.length">
+    <div class="team-section" *ngIf="config.settings?.showTeam && config.settings?.teamMembers?.length"
+         [style.background-color]="config.settings.teamBackgroundColor || 'transparent'"
+         [style.color]="config.settings.teamTextColor || 'inherit'"
+         [style.padding]="config.settings.teamBackgroundColor ? '40px 20px' : '0'"
+         [style.border-radius]="config.settings.teamBackgroundColor ? '8px' : '0'">
         <div class="section-container">
             <div class="section-header centered">
                 <span class="section-badge">{{ config.settings?.teamBadge || 'Our Team' }}</span>
@@ -114,20 +138,24 @@
     </div>
 
     <!-- CTA Section -->
-    <div class="cta-section" *ngIf="config.settings?.showCTA">
+    <div class="cta-section" *ngIf="config.settings?.showCTA"
+         [style.background-color]="config.settings.ctaBackgroundColor || 'transparent'"
+         [style.color]="config.settings.ctaTextColor || 'inherit'"
+         [style.padding]="config.settings.ctaBackgroundColor ? '40px 20px' : '0'"
+         [style.border-radius]="config.settings.ctaBackgroundColor ? '8px' : '0'">
         <div class="section-container">
             <div class="cta-content">
                 <h2>{{ config.settings?.ctaTitle || 'Ready to Get Started?' }}</h2>
                 <p>{{ config.settings?.ctaText }}</p>
                 <div class="cta-buttons">
-                    <a *ngIf="config.settings?.ctaPrimaryButton" 
-                       [href]="config.settings.ctaPrimaryButton.link" 
-                       class="cta-button primary">
+                    <a *ngIf="config.settings?.showCtaPrimaryButton && config.settings?.ctaPrimaryButton?.text" 
+                       [href]="config.settings.ctaPrimaryButton.link || '#'" 
+                       class="cta-button btn-primary-theme">
                         {{ config.settings.ctaPrimaryButton.text }}
                     </a>
-                    <a *ngIf="config.settings?.ctaSecondaryButton" 
-                       [href]="config.settings.ctaSecondaryButton.link" 
-                       class="cta-button secondary">
+                    <a *ngIf="config.settings?.showCtaSecondaryButton && config.settings?.ctaSecondaryButton?.text" 
+                       [href]="config.settings.ctaSecondaryButton.link || '#'" 
+                       class="cta-button btn-secondary-theme">
                         {{ config.settings.ctaSecondaryButton.text }}
                     </a>
                 </div>

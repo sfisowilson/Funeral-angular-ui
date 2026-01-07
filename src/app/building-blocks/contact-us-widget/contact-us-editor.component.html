@@ -2,21 +2,145 @@
     <p-toast></p-toast>
     <p-confirmDialog></p-confirmDialog>
 
-    <div class="p-fluid contact-us-form-wrapper">
-        <div class="row g-3">
-            <div class="col-12 col-md-6">
-                <div class="p-field mb-3">
-                    <label for="title">Widget Title</label>
-                    <input id="title" type="text" pInputText [(ngModel)]="settings.title" placeholder="Get In Touch" />
+    <p-accordion [multiple]="true" [activeIndex]="[0]">
+        
+        <!-- General Settings -->
+        <p-accordionTab header="General Settings">
+            <div class="p-fluid contact-us-form-wrapper">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="p-field-checkbox mb-3">
+                            <p-checkbox [(ngModel)]="settings.showHeader" [binary]="true" inputId="showHeader"></p-checkbox>
+                            <label for="showHeader" class="ms-2">
+                                <strong>Show Header Section</strong>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6" *ngIf="settings.showHeader">
+                        <div class="p-field mb-3">
+                            <label for="title">Widget Title</label>
+                            <input id="title" type="text" pInputText [(ngModel)]="settings.title" placeholder="Get In Touch" />
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6" *ngIf="settings.showHeader">
+                        <div class="p-field mb-3">
+                            <label for="subtitle">Subtitle (Optional)</label>
+                            <input id="subtitle" type="text" pInputText [(ngModel)]="settings.subtitle" placeholder="We'd love to hear from you" />
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-12 col-md-6">
-                <div class="p-field mb-3">
-                    <label for="subtitle">Subtitle (Optional)</label>
-                    <input id="subtitle" type="text" pInputText [(ngModel)]="settings.subtitle" placeholder="We'd love to hear from you" />
+        </p-accordionTab>
+
+        <!-- Branches Section -->
+        <p-accordionTab header="Branches / Locations">
+            <div class="p-fluid contact-us-form-wrapper">
+                <div class="p-field-checkbox mb-4">
+                    <p-checkbox [(ngModel)]="settings.showBranches" [binary]="true" inputId="showBranches"></p-checkbox>
+                    <label for="showBranches" class="ms-2">
+                        <strong>Show Branches Section</strong>
+                    </label>
+                </div>
+                
+                <div *ngIf="settings.showBranches">
+                    <div class="p-field mb-3">
+                        <label for="branchesBackgroundColor">Section Background Color (Optional)</label>
+                        <input id="branchesBackgroundColor" type="color" pInputText [(ngModel)]="settings.branchesBackgroundColor" />
+                        <small class="text-muted">Leave empty for transparent background</small>
+                    </div>
+
+                    <div class="card mt-4">
+                        <h3>Branches</h3>
+                        <p-table [value]="branches" [tableStyle]="{ 'min-width': '0', 'width': '100%' }" responsiveLayout="stack" [breakpoint]="'768px'">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Address</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th style="width: 8rem"></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-branch let-rowIndex="rowIndex">
+                                <tr>
+                                    <td>{{ branch.name }}</td>
+                                    <td>{{ branch.address }}</td>
+                                    <td>{{ branch.phone }}</td>
+                                    <td>{{ branch.email }}</td>
+                                    <td>
+                                        <div class="flex align-items-center gap-2">
+                                            <button pButton icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme" (click)="editBranch(branch, rowIndex)"></button>
+                                            <button pButton icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" (click)="deleteBranch(rowIndex)"></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="empty">
+                                <tr>
+                                    <td colspan="5">No branches added.</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                        <button pButton label="Add Branch" icon="pi pi-plus" class="mt-3 w-100 w-md-auto btn-primary-theme" (click)="openNewBranch()"></button>
+                    </div>
                 </div>
             </div>
-            <div class="col-12">
+        </p-accordionTab>
+
+        <!-- Social Media Section -->
+        <p-accordionTab header="Social Media">
+            <div class="p-fluid contact-us-form-wrapper">
+                <div class="p-field-checkbox mb-4">
+                    <p-checkbox [(ngModel)]="settings.showSocialMedia" [binary]="true" inputId="showSocialMedia"></p-checkbox>
+                    <label for="showSocialMedia" class="ms-2">
+                        <strong>Show Social Media Section</strong>
+                    </label>
+                </div>
+                
+                <div *ngIf="settings.showSocialMedia">
+                    <div class="p-field mb-3">
+                        <label for="socialMediaBackgroundColor">Section Background Color (Optional)</label>
+                        <input id="socialMediaBackgroundColor" type="color" pInputText [(ngModel)]="settings.socialMediaBackgroundColor" />
+                        <small class="text-muted">Leave empty for transparent background</small>
+                    </div>
+
+                    <div class="card mt-4">
+                        <h3>Social Media Handles</h3>
+                        <p-table [value]="socialMediaHandles" [tableStyle]="{ 'min-width': '0', 'width': '100%' }" responsiveLayout="stack" [breakpoint]="'768px'">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>Platform</th>
+                                    <th>URL</th>
+                                    <th style="width: 8rem"></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-handle let-rowIndex="rowIndex">
+                                <tr>
+                                    <td>{{ handle.platform }}</td>
+                                    <td>{{ handle.url }}</td>
+                                    <td>
+                                        <div class="flex align-items-center gap-2">
+                                            <button pButton icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme" (click)="editSocialMedia(handle, rowIndex)"></button>
+                                            <button pButton icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" (click)="deleteSocialMedia(rowIndex)"></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="empty">
+                                <tr>
+                                    <td colspan="3">No social media handles added.</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                        <button pButton label="Add Social Media" icon="pi pi-plus" class="mt-3 w-100 w-md-auto btn-primary-theme" (click)="openNewSocialMedia()"></button>
+                    </div>
+                </div>
+            </div>
+        </p-accordionTab>
+
+        <!-- Contact Form Section -->
+        <p-accordionTab header="Contact Form">
+            <div class="p-fluid contact-us-form-wrapper">
                 <div class="p-field-checkbox mb-4">
                     <p-checkbox [(ngModel)]="settings.showContactForm" [binary]="true" inputId="showForm"></p-checkbox>
                     <label for="showForm" class="ms-2">
@@ -24,80 +148,98 @@
                         <small class="d-block text-muted">Enable a contact form where visitors can send messages directly</small>
                     </label>
                 </div>
+                
+                <div *ngIf="settings.showContactForm">
+                    <div class="p-field mb-3">
+                        <label for="formBackgroundColor">Form Background Color (Optional)</label>
+                        <input id="formBackgroundColor" type="color" pInputText [(ngModel)]="settings.formBackgroundColor" />
+                        <small class="text-muted">Leave empty for transparent background</small>
+                    </div>
+                </div>
             </div>
-        </div>
+        </p-accordionTab>
 
-        <div class="card mt-4">
-            <h3>Branches</h3>
-            <p-table [value]="branches" [tableStyle]="{ 'min-width': '0', 'width': '100%' }" responsiveLayout="stack" [breakpoint]="'768px'">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th style="width: 8rem"></th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-branch let-rowIndex="rowIndex">
-                    <tr>
-                        <td>{{ branch.name }}</td>
-                        <td>{{ branch.address }}</td>
-                        <td>{{ branch.phone }}</td>
-                        <td>{{ branch.email }}</td>
-                        <td>
-                            <div class="flex align-items-center gap-2">
-                                <button pButton icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme" (click)="editBranch(branch, rowIndex)"></button>
-                                <button pButton icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" (click)="deleteBranch(rowIndex)"></button>
-                            </div>
-                        </td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="empty">
-                    <tr>
-                        <td colspan="5">No branches added.</td>
-                    </tr>
-                </ng-template>
-            </p-table>
-            <button pButton label="Add Branch" icon="pi pi-plus" class="mt-3 w-100 w-md-auto" (click)="openNewBranch()"></button>
-        </div>
+        <!-- CTA Section -->
+        <p-accordionTab header="Call to Action (CTA)">
+            <div class="p-fluid contact-us-form-wrapper">
+                <div class="p-field-checkbox mb-4">
+                    <p-checkbox [(ngModel)]="settings.showCTA" [binary]="true" inputId="showCTA"></p-checkbox>
+                    <label for="showCTA" class="ms-2">
+                        <strong>Show CTA Section</strong>
+                    </label>
+                </div>
+                
+                <div *ngIf="settings.showCTA">
+                    <div class="p-field mb-3">
+                        <label for="ctaBackgroundColor">CTA Background Color (Optional)</label>
+                        <input id="ctaBackgroundColor" type="color" pInputText [(ngModel)]="settings.ctaBackgroundColor" />
+                        <small class="text-muted">Leave empty for transparent background</small>
+                    </div>
+                    
+                    <div class="p-field mb-3">
+                        <label for="ctaTitle">CTA Title</label>
+                        <input id="ctaTitle" type="text" pInputText [(ngModel)]="settings.ctaTitle" placeholder="Have Questions?" />
+                    </div>
+                    
+                    <div class="p-field mb-3">
+                        <label for="ctaText">CTA Text</label>
+                        <textarea pInputTextarea id="ctaText" [(ngModel)]="settings.ctaText" rows="3" placeholder="Get in touch with us today..."></textarea>
+                    </div>
 
-        <div class="card mt-4">
-            <h3>Social Media Handles</h3>
-            <p-table [value]="socialMediaHandles" [tableStyle]="{ 'min-width': '0', 'width': '100%' }" responsiveLayout="stack" [breakpoint]="'768px'">
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th>Platform</th>
-                        <th>URL</th>
-                        <th style="width: 8rem"></th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-handle let-rowIndex="rowIndex">
-                    <tr>
-                        <td>{{ handle.platform }}</td>
-                        <td>{{ handle.url }}</td>
-                        <td>
-                            <div class="flex align-items-center gap-2">
-                                <button pButton icon="pi pi-pencil" class="btn-rounded btn-outline-primary-theme" (click)="editSocialMedia(handle, rowIndex)"></button>
-                                <button pButton icon="pi pi-trash" class="btn-rounded btn-outline-danger-theme" (click)="deleteSocialMedia(rowIndex)"></button>
-                            </div>
-                        </td>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="empty">
-                    <tr>
-                        <td colspan="3">No social media handles added.</td>
-                    </tr>
-                </ng-template>
-            </p-table>
-            <button pButton label="Add Social Media" icon="pi pi-plus" class="mt-3 w-100 w-md-auto" (click)="openNewSocialMedia()"></button>
-        </div>
-        <!-- Save button at the end -->
-        <div class="mt-4 d-flex justify-content-end gap-2">
-            <button type="button" class="btn-primary-theme" (click)="saveSettings()">
-                <i class="pi pi-check me-2"></i>Save Changes
-            </button>
-        </div>
+                    <hr class="my-4">
+                    
+                    <!-- Primary Button -->
+                    <h4>Primary Button</h4>
+                    <div class="p-field-checkbox mb-3">
+                        <p-checkbox [(ngModel)]="settings.showCtaPrimaryButton" [binary]="true" inputId="showPrimaryBtn"></p-checkbox>
+                        <label for="showPrimaryBtn" class="ms-2">
+                            <strong>Show Primary Button</strong>
+                        </label>
+                    </div>
+                    
+                    <div *ngIf="settings.showCtaPrimaryButton" class="mb-4">
+                        <div class="p-field mb-3">
+                            <label for="primaryBtnText">Button Text</label>
+                            <input id="primaryBtnText" type="text" pInputText [(ngModel)]="settings.ctaPrimaryButton.text" placeholder="Contact Us" />
+                        </div>
+                        <div class="p-field mb-3">
+                            <label for="primaryBtnLink">Button Link</label>
+                            <input id="primaryBtnLink" type="text" pInputText [(ngModel)]="settings.ctaPrimaryButton.link" placeholder="/contact" />
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Secondary Button -->
+                    <h4>Secondary Button</h4>
+                    <div class="p-field-checkbox mb-3">
+                        <p-checkbox [(ngModel)]="settings.showCtaSecondaryButton" [binary]="true" inputId="showSecondaryBtn"></p-checkbox>
+                        <label for="showSecondaryBtn" class="ms-2">
+                            <strong>Show Secondary Button</strong>
+                        </label>
+                    </div>
+                    
+                    <div *ngIf="settings.showCtaSecondaryButton" class="mb-4">
+                        <div class="p-field mb-3">
+                            <label for="secondaryBtnText">Button Text</label>
+                            <input id="secondaryBtnText" type="text" pInputText [(ngModel)]="settings.ctaSecondaryButton.text" placeholder="Learn More" />
+                        </div>
+                        <div class="p-field mb-3">
+                            <label for="secondaryBtnLink">Button Link</label>
+                            <input id="secondaryBtnLink" type="text" pInputText [(ngModel)]="settings.ctaSecondaryButton.link" placeholder="/about" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </p-accordionTab>
+
+    </p-accordion>
+
+    <!-- Save button at the end -->
+    <div class="mt-4 d-flex justify-content-end gap-2">
+        <button type="button" class="btn-primary-theme" (click)="saveSettings()">
+            <i class="pi pi-check me-2"></i>Save Changes
+        </button>
     </div>
 
     <p-dialog header="Branch Details" [(visible)]="displayBranchDialog" [modal]="true" [style]="{ 'width': '90vw', 'max-width': '600px' }">

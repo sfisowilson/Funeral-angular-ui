@@ -101,6 +101,32 @@
                 </div>
             </div>
 
+            <!-- Features Settings -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Features</h2>
+                <p class="text-sm text-gray-600 mb-4">Enable or disable optional features for your tenant</p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <input 
+                            type="checkbox" 
+                            id="hasBooking" 
+                            [(ngModel)]="_settings.hasBooking" 
+                            class="form-check-input h-5 w-5 text-green-600"
+                        />
+                        <div class="flex-1">
+                            <label for="hasBooking" class="font-medium text-gray-800 cursor-pointer">
+                                Enable Booking System
+                            </label>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Enable the appointment booking system. This will show the Booking Management menu 
+                                and allow you to add a booking widget to your landing page.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- File Uploads -->
             <div class="bg-white p-6 rounded-lg shadow">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Branding</h2>

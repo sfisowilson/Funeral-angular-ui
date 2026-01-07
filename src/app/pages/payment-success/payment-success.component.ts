@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-payment-success',
@@ -61,15 +62,15 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
                 <i class="bi bi-info-circle-fill me-2"></i>
                 <strong>What's next?</strong>
                 <p class="mb-0 small mt-2">
-                  A confirmation email has been sent to your registered email address. 
-                  You can view your transaction history in your account dashboard.
+                  Your account has been created successfully! Please log in with your credentials to access your dashboard.
+                  A confirmation email will be sent once your account is fully configured.
                 </p>
               </div>
 
               <!-- Action Buttons -->
               <div class="d-grid gap-2 d-md-flex justify-content-md-center">
                 <button class="btn btn-primary btn-lg" (click)="goToDashboard()">
-                  <i class="bi bi-house-door me-2"></i>Go to Dashboard
+                  <i class="bi bi-box-arrow-in-right me-2"></i>Go to Login
                 </button>
                 <button class="btn btn-outline-secondary btn-lg" (click)="viewTransactions()">
                   <i class="bi bi-receipt me-2"></i>View Transactions
@@ -251,7 +252,24 @@ export class PaymentSuccessComponent implements OnInit {
   }
 
   goToDashboard(): void {
-    this.router.navigate(['/dashboard']);
+    // After registration payment, redirect to tenant-specific login page
+    const subdomain = this.route.snapshot.queryParams['subdomain'];
+    const email = this.route.snapshot.queryParams['email'];
+    
+    if (subdomain) {
+      // Redirect to tenant subdomain login (e.g., riverside.mizo.co.za/auth/login)
+      const protocol = window.location.protocol;
+      const tenantLoginUrl = `${protocol}//${subdomain}.${environment.baseDomain}/auth/login?message=${encodeURIComponent('Registration successful! Please log in with your credentials.')}&email=${encodeURIComponent(email || '')}`;
+      window.location.href = tenantLoginUrl;
+    } else {
+      // Fallback to regular login if subdomain not provided
+      this.router.navigate(['/auth/login'], { 
+        queryParams: { 
+          message: 'Registration successful! Please log in with your credentials.',
+          email: email
+        } 
+      });
+    }
   }
 
   viewTransactions(): void {

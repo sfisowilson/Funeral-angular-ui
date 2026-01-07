@@ -315,6 +315,7 @@ export class PageLayoutService {
         const baseStyles = {
             minHeight: layout.minHeight ? `${layout.minHeight}px` : undefined,
             maxHeight: layout.maxHeight ? `${layout.maxHeight}px` : undefined,
+            height: layout.autoHeight ? 'auto' : undefined,
             padding,
             margin,
             backgroundColor: layout.backgroundColor,
@@ -326,14 +327,14 @@ export class PageLayoutService {
         if (layout.fullWidth) {
             return {
                 gridColumn: `1 / -1`,
-                gridRow: layout.autoHeight ? 'auto' : `${layout.row} / span ${layout.rowSpan}`,
+                gridRow: 'auto',
                 ...baseStyles
             };
         }
 
         return {
             gridColumn: `${layout.column} / span ${layout.columnSpan}`,
-            gridRow: layout.autoHeight ? 'auto' : `${layout.row} / span ${layout.rowSpan}`,
+            gridRow: 'auto',
             ...baseStyles
         };
     }

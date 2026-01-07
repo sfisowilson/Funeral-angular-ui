@@ -38,7 +38,8 @@ export class AppMenu implements OnInit {
             if (settings && settings.settings) {
                 const parsedSettings = JSON.parse(settings.settings);
                 this.isStaticSite = parsedSettings.isStaticSite || false;
-                this.hasBookingFeature = this.tenantSettingsService.hasFeature('hasBooking');
+                this.hasBookingFeature = parsedSettings.hasBooking === true || parsedSettings.hasBooking === 'true';
+                console.log('Menu - hasBookingFeature:', this.hasBookingFeature, 'parsedSettings.hasBooking:', parsedSettings.hasBooking);
             }
         } catch (error) {
             console.error('Error loading tenant settings:', error);

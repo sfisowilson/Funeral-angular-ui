@@ -11,6 +11,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { CheckboxModule } from 'primeng/checkbox';
+import { AccordionModule } from 'primeng/accordion';
 
 interface Branch {
     name: string;
@@ -27,7 +28,7 @@ interface SocialMedia {
 @Component({
     selector: 'app-contact-us-editor',
     standalone: true,
-    imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, TableModule, DialogModule, ConfirmDialogModule, ToastModule, CheckboxModule],
+    imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, TableModule, DialogModule, ConfirmDialogModule, ToastModule, CheckboxModule, AccordionModule],
     providers: [MessageService, ConfirmationService],
     templateUrl: './contact-us-editor.component.html',
     styleUrls: ['./contact-us-editor.component.scss']
@@ -56,6 +57,7 @@ export class ContactUsEditorComponent implements OnInit {
     ngOnInit(): void {
         this.settings = JSON.parse(JSON.stringify(this.config.settings || {}));
 
+        // Initialize default values
         if (!this.settings.title) {
             this.settings.title = 'Get In Touch';
         }
@@ -64,6 +66,30 @@ export class ContactUsEditorComponent implements OnInit {
         }
         if (this.settings.showContactForm === undefined) {
             this.settings.showContactForm = false;
+        }
+        if (this.settings.showHeader === undefined) {
+            this.settings.showHeader = true;
+        }
+        if (this.settings.showBranches === undefined) {
+            this.settings.showBranches = true;
+        }
+        if (this.settings.showSocialMedia === undefined) {
+            this.settings.showSocialMedia = true;
+        }
+        if (this.settings.showCTA === undefined) {
+            this.settings.showCTA = false;
+        }
+        if (this.settings.showCtaPrimaryButton === undefined) {
+            this.settings.showCtaPrimaryButton = true;
+        }
+        if (this.settings.showCtaSecondaryButton === undefined) {
+            this.settings.showCtaSecondaryButton = true;
+        }
+        if (!this.settings.ctaPrimaryButton) {
+            this.settings.ctaPrimaryButton = { text: '', link: '' };
+        }
+        if (!this.settings.ctaSecondaryButton) {
+            this.settings.ctaSecondaryButton = { text: '', link: '' };
         }
         
         this.branches = this.settings.branches ? [...this.settings.branches] : [];
