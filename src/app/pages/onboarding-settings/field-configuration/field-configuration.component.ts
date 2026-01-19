@@ -96,9 +96,9 @@ export class FieldConfigurationComponent implements OnInit {
     loadFields() {
         this.loading.set(true);
         this.fieldService.onboardingFieldConfiguration_GetAll().subscribe({
-            next: (result: OnboardingFieldConfigurationDto[]) => {
+            next: (response) => {
                 // Sort by display order
-                const sorted = result.sort((a, b) => a.displayOrder - b.displayOrder);
+                const sorted = response?.result?.sort((a, b) => a.displayOrder - b.displayOrder) || [];
                 this.fields.set(sorted);
                 this.loading.set(false);
             },
@@ -217,7 +217,7 @@ export class FieldConfigurationComponent implements OnInit {
             });
 
             this.fieldService.onboardingFieldConfiguration_Update(updateDto).subscribe({
-                next: (result: OnboardingFieldConfigurationDto) => {
+                next: (rresponse) => {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Success',
@@ -255,7 +255,7 @@ export class FieldConfigurationComponent implements OnInit {
             });
 
             this.fieldService.onboardingFieldConfiguration_Create(createDto).subscribe({
-                next: (result: OnboardingFieldConfigurationDto) => {
+                next: (response) => {
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Success',
@@ -328,11 +328,11 @@ export class FieldConfigurationComponent implements OnInit {
         });
 
         this.fieldService.onboardingFieldConfiguration_Update(updateDto).subscribe({
-            next: (result: OnboardingFieldConfigurationDto) => {
+            next: (response) => {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
-                    detail: `Field ${result.isEnabled ? 'enabled' : 'disabled'} successfully`
+                    detail: `Field ${response?.result?.isEnabled ? 'enabled' : 'disabled'} successfully`
                 });
                 this.loadFields();
             },
@@ -368,11 +368,11 @@ export class FieldConfigurationComponent implements OnInit {
         });
 
         this.fieldService.onboardingFieldConfiguration_Update(updateDto).subscribe({
-            next: (result: OnboardingFieldConfigurationDto) => {
+            next: (response) => {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',
-                    detail: `Field ${result.isRequired ? 'marked as required' : 'marked as optional'}`
+                    detail: `Field ${response?.result?.isRequired ? 'marked as required' : 'marked as optional'}`
                 });
                 this.loadFields();
             },

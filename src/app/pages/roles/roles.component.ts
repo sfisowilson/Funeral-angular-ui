@@ -15,6 +15,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { RoleServiceProxy, Role, PermissionServiceProxy, Permission, RolePermissionServiceProxy, RolePermission, RoleDto, PermissionDto, RoleInput, CreateRolePermissionDto, TenantTypePermissionServiceProxy, TenantTypePermission, TenantSettingServiceProxy, TenantSettingDto, TenantType } from '../../core/services/service-proxies';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TenantService } from '../../core/services/tenant.service';
+import { unwrap } from '../../core/services/response-unwrapper';
 
 @Component({
     selector: 'app-roles',
@@ -64,7 +65,7 @@ export class RolesComponent {
     }
 
     loadCurrentTenantType() {
-        this.tenantSettingService.tenantSetting_GetCurrentTenantSettings().subscribe({
+        this.tenantSettingService.tenantSetting_GetCurrentTenantSettings().pipe(unwrap<TenantSettingDto>()).subscribe({
             next: (tenantSettings: TenantSettingDto) => {
                 // Get tenant ID from settings or tenant service
                 const tenantId = this.tenantService.getTenantId();
@@ -90,20 +91,21 @@ export class RolesComponent {
     }
 
     loadRoles() {
-        this.roleService.role_GetAllRoles().subscribe((roles) => {
+        this.roleService.role_GetAllRoles().pipe(unwrap<RoleDto[]>()).subscribe((roles) => {
             this.roles.set(roles);
         });
     }
 
     loadPermissions() {
-        this.permissionService.permission_GetAllPermissions().subscribe({
+        this.permissionService.permission_GetAllPermissions().pipe(unwrap<Permission[]>()).subscribe({
             next: (allPermissions: Permission[]) => {
                 this.availablePermissions.set(allPermissions);
                 
                 if (this.currentTenantType !== null) {
                     // Load tenant type permissions and filter the available permissions
                     this.tenantTypePermissionService.getPermissionsByTenantType(this.currentTenantType).subscribe({
-                        next: (tenantTypePerms: TenantTypePermission[]) => {
+                        next: (response) => {
+                            const tenantTypePerms = response?.result || [];
                             this.tenantTypePermissions = tenantTypePerms;
                             
                             // Filter available permissions to only show those allowed for this tenant type

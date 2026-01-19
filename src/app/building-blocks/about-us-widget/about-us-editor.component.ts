@@ -88,8 +88,8 @@ export class AboutUsEditorComponent implements OnInit {
 
         // Use undefined for entityId (widget uploads don't need entityId)
         this.fileUploadService.file_UploadFile(category, undefined, undefined, undefined, false, fileParameter).subscribe({
-            next: (result: FileMetadataDto) => {
-                onSuccess(result.id!);
+            next: (response) => {
+                onSuccess(response.result.id!);
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Image Uploaded' });
             },
             error: (error: any) => {

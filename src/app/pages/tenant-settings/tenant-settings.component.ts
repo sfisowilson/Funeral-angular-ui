@@ -366,9 +366,9 @@ export class TenantSettingsComponent implements OnInit {
         };
         // Pass entityType='Logo' and entityId as the tenant ID so it's linked to tenant settings
         this.fileUploadService.file_UploadFile('Logo', undefined, undefined, undefined, false, fileParameter).subscribe({
-            next: (result: FileMetadataDto) => {
+            next: (response) => {
 
-                    this._settings.logo = result.id;
+                    this._settings.logo = response?.result.id;
                     this.hasChanges = true;
 
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Logo uploaded successfully', life: 3000 });
@@ -390,9 +390,9 @@ export class TenantSettingsComponent implements OnInit {
         };
         // Pass entityType='Favicon' so it's automatically saved in TenantSettings on backend
         this.fileUploadService.file_UploadFile('Favicon', undefined, undefined, undefined, false, fileParameter).subscribe({
-            next: (result: FileMetadataDto) => {
+            next: (response) => {
                 
-                this._settings.favicon = result.id;
+                this._settings.favicon = response?.result.id;
                 this.hasChanges = true;
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Favicon uploaded successfully', life: 3000 });
             },
@@ -412,9 +412,9 @@ export class TenantSettingsComponent implements OnInit {
             fileName: file.name
         };
         this.fileUploadService.file_UploadFile('CssFile', undefined, undefined, undefined, false, fileParameter).subscribe({
-            next: (result: FileMetadataDto) => {
+            next: (response) => {
                 // Store the CSS file ID in settings
-                this._settings.customCssId = result.id;
+                this._settings.customCssId = response?.result.id;
                 this.messageService.add({ severity: 'success', summary: 'Success', detail: 'CSS file uploaded successfully. Remember to save settings to persist changes.', life: 5000 });
             },
             error: (error: any) => {
@@ -827,8 +827,8 @@ export class TenantSettingsComponent implements OnInit {
     loadPremiumSettings(): void {
         this.loadingPremiumSettings = true;
         this.premiumCalculationService.premiumCalculation_GetSettings().subscribe({
-            next: (settings) => {
-                this.premiumSettings = settings;
+            next: (response) => {
+                this.premiumSettings = response?.result;
                 
                 // Initialize extended family columns from existing data if needed
                 this.initializeExtendedFamilyColumns();

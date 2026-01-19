@@ -32,7 +32,8 @@ export class ProfileCompletionGuard implements CanActivate {
 
         // Check profile completion status
         return this.profileService.profileCompletion_GetMyStatus().pipe(
-            map(status => {
+            map(response => {
+                const status = response.result;
                 if (status.isComplete) {
                     return true;
                 } else {

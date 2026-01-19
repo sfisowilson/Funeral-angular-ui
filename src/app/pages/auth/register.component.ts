@@ -1,9 +1,9 @@
 import { Component, OnInit, Injector, signal } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth/auth-service';
 import { CommonModule } from '@angular/common';
-import { AuthServiceProxy, PolicyDto, PolicyServiceProxy, RegisterRequest, TenantCreateUpdateDto } from '../../core/services/service-proxies';
+import { AuthServiceProxy, OnboardingFieldConfigurationDto, OnboardingFieldConfigurationServiceProxy, PolicyDto, PolicyServiceProxy, RegisterRequest, TenantCreateUpdateDto } from '../../core/services/service-proxies';
 import { HttpClient } from '@angular/common/http';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { LookupServiceProxy, TenantType } from '../../core/services/service-proxies';
@@ -16,7 +16,7 @@ import { SAIdValidator, SAIdInfo } from '../../shared/utils/sa-id-validator';
     selector: 'app-register',
     standalone: true,
     imports: [CommonModule, FormsModule, RouterModule, ReactiveFormsModule, IdentityVerificationFormComponent],
-    providers: [HttpClient, AuthServiceProxy, LookupServiceProxy, PolicyServiceProxy],
+    providers: [HttpClient, AuthServiceProxy, LookupServiceProxy, PolicyServiceProxy, OnboardingFieldConfigurationServiceProxy],
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss'
 })
@@ -38,6 +38,9 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     alertType: 'success' | 'error' | 'warning' | 'info' = 'info';
     showAlert: boolean = false;
 
+    // Dynamic fields
+    dynamicFields: OnboardingFieldConfigurationDto[] = [];
+
     // Identity verification properties
     showVerificationDialog: boolean = false;
     registeredUserId?: string;
@@ -57,6 +60,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
         private lookupService: LookupServiceProxy,
         private route: ActivatedRoute,
         private policyService: PolicyServiceProxy,
+        private onboardingFieldService: OnboardingFieldConfigurationServiceProxy,
         protected override injector: Injector
     ) {
         super(injector);
@@ -73,8 +77,8 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
 
             if (this.isHostTenant) {
                 this.lookupService.getEnumValues('TenantType').subscribe(
-                    (data: any[]) => {
-                        console.log('Raw enum data from API:', data);
+                    (response) => {
+                        const data = response?.result || [];
                         this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
                         console.log('Transformed tenantTypes:', this.tenantTypes);
                     },
@@ -96,10 +100,10 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 });
             } else {
                 this.form = this.fb.group({
-                    email: [''],
-                    password: [''],
-                    firstName: [''],
-                    lastName: [''],
+                    email: ['', [Validators.required, Validators.email]],
+                    password: ['', Validators.required],
+                    firstName: ['', Validators.required],
+                    lastName: ['', Validators.required],
                     phoneNumber: [''],
                     policyId: [null],
                     identificationNumber: [''] // Add ID number for verification
@@ -107,8 +111,8 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
 
                 // Load policies for member registration
                 this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe({
-                    next: (policies) => {
-                        this.policies = policies;
+                    next: (response) => {
+                        this.policies = response?.result || [];
                     },
                     error: (error) => {
                         console.error('Error loading policies:', error);
@@ -119,13 +123,25 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                     if (params['policyId']) {
                         const policyId = +params['policyId'];
                         this.form.patchValue({ policyId: policyId });
-                        this.policyService.policy_GetById(policyId.toString()).subscribe((policy) => {
-                            this.selectedPolicy = policy;
+                        this.policyService.policy_GetById(policyId.toString()).subscribe((response) => {
+                            this.selectedPolicy = response?.result || null;
                         });
                     } else {
                         this.showPolicySelection();
                     }
                 });
+
+                // Fetch dynamic fields
+                this.onboardingFieldService.onboardingFieldConfiguration_GetEnabledByContext('Registration')
+                    .subscribe(response => {
+                        // Filter out fields that don't have a fieldKey, as they cannot be used.
+                        this.dynamicFields = response?.result?.filter(f => f.fieldKey) || [];
+                        this.dynamicFields.forEach(field => {
+                            // Now we can be sure field.fieldKey is a string.
+                            const validators = field.isRequired ? [Validators.required] : [];
+                            this.form.addControl(field.fieldKey!, this.fb.control('', validators));
+                        });
+                    });
             }
         } catch (error) {
             console.error('Error in RegisterComponent.ngOnInit:', error);
@@ -206,18 +222,24 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 }
             }
             
-            // Build request object, only including fields with values
+            // Build request object for registration
             const requestData: any = {
                 email: fv.email || '',
-                password: fv.password || ''
+                password: fv.password || '',
+                firstName: fv.firstName || '',
+                lastName: fv.lastName || '',
+                phoneNumber: fv.phoneNumber || undefined,
+                identificationNumber: fv.identificationNumber || undefined,
+                policyId: fv.policyId || undefined,
+                customFields: {}
             };
-            
-            // Only add optional fields if they have values
-            if (fv.firstName) requestData.firstName = fv.firstName;
-            if (fv.lastName) requestData.lastName = fv.lastName;
-            if (fv.phoneNumber) requestData.phoneNumber = fv.phoneNumber;
-            if (fv.identificationNumber) requestData.identificationNumber = fv.identificationNumber;
-            if (fv.policyId) requestData.policyId = fv.policyId;
+
+            // Populate custom fields
+            this.dynamicFields.forEach(field => {
+                if (field.fieldKey && fv[field.fieldKey]) {
+                    requestData.customFields[field.fieldKey] = fv[field.fieldKey];
+                }
+            });
             
             const memberRegisterRequest: RegisterRequest = RegisterRequest.fromJS(requestData);
             
@@ -364,5 +386,26 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
         this.skipVerification = true;
         this.showVerificationDialog = false;
         this.router.navigate(['/auth/login']);
+    }
+
+    getOptions(jsonString: string | null | undefined): { value: string, label: string }[] {
+        if (!jsonString) {
+            return [];
+        }
+        try {
+            // It might be a simple comma-separated string or a JSON array of objects
+            if (jsonString.startsWith('[')) {
+                return JSON.parse(jsonString);
+            } else {
+                // Handle comma-separated string and convert it to the object array format
+                return jsonString.split(',').map(item => {
+                    const trimmed = item.trim();
+                    return { value: trimmed, label: trimmed };
+                });
+            }
+        } catch (e) {
+            console.error('Error parsing options:', e);
+            return [];
+        }
     }
 }

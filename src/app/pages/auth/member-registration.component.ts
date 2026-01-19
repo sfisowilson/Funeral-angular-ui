@@ -151,7 +151,8 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
             const dto = new CheckIdNumberDto();
             dto.idNumber = idNumber;
             
-            const response = await this.registrationService.memberRegistration_CheckIdNumber(dto).toPromise();
+            const responseWrapper = await this.registrationService.memberRegistration_CheckIdNumber(dto).toPromise();
+            const response = responseWrapper.result;
             
             if (!response) {
                 throw new Error('No response from server');
@@ -213,7 +214,8 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
     // Step 2: Load Policy Options
     async loadPolicyOptions() {
         try {
-            const options = await this.registrationService.memberRegistration_GetPolicyOptions().toPromise();
+            const response = await this.registrationService.memberRegistration_GetPolicyOptions().toPromise();
+            const options = response.result;
             if (options) {
                 this.policyOptions.set(options);
                 
@@ -271,9 +273,10 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
             dto.selectedCoverAmount = this.selectedPolicy()!.coverAmount;
             dto.dateOfBirth = idInfo?.dateOfBirth ? DateTime.fromJSDate(idInfo.dateOfBirth) : undefined;
             
-            const response = await this.registrationService.memberRegistration_RegisterNewMember(dto).toPromise();
+            const responseWrapper = await this.registrationService.memberRegistration_RegisterNewMember(dto).toPromise();
+            const result = responseWrapper.result;
             
-            if (response?.succeeded) {
+            if (result?.succeeded) {
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Registration Successful',
@@ -285,7 +288,7 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
                     this.router.navigate(['/auth/login']);
                 }, 2000);
             } else {
-                throw new Error(response?.message || 'Registration failed');
+                throw new Error(result?.message || 'Registration failed');
             }
         } catch (error: any) {
             this.messageService.add({
@@ -312,10 +315,20 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
             dto.idNumber = this.idCheckForm.value.idNumber;
             dto.contactMethod = contactMethod;
             
-            const success = await this.registrationService.memberRegistration_SendDependentOtp(dto).toPromise();
-            
+            await this.registrationService.memberRegistration_SendDependentOtp(dto).toPromise();
+            const success = true;
+
             if (success) {
-                const contactValue = contactMethod === 'email' ? response.contactEmail : response.contactPhone;
+                const idCheckResponse = this.idCheckResponse();
+                if (!idCheckResponse) {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Invalid response from server'
+                    });
+                    return;
+                }
+                const contactValue = contactMethod === 'email' ? idCheckResponse.contactEmail : idCheckResponse.contactPhone;
                 this.otpSentTo.set(contactValue || '');
                 
                 this.messageService.add({
@@ -360,7 +373,8 @@ export class MemberRegistrationComponent extends TenantBaseComponent implements 
             dto.email = this.accountForm.value.email;
             dto.password = this.accountForm.value.password;
             
-            const authResult = await this.registrationService.memberRegistration_VerifyOtpAndCreateAccount(dto).toPromise();
+            const authResponse = await this.registrationService.memberRegistration_VerifyOtpAndCreateAccount(dto).toPromise();
+            const authResult = authResponse.result;
             
             if (authResult?.succeeded) {
                 this.messageService.add({

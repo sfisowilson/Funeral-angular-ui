@@ -70,7 +70,8 @@ export class DynamicPageComponent implements OnInit {
     });
     
     // Load custom pages for navigation
-    this.customPagesService.all().subscribe(pages => {
+    this.customPagesService.all().subscribe(response => {
+      const pages = response?.result || [];
       this.navbarPages = pages
         .filter(p => p.isActive && p.showInNavbar)
         .sort((a, b) => ((a as any).navbarOrder || 999) - ((b as any).navbarOrder || 999));
@@ -93,7 +94,9 @@ export class DynamicPageComponent implements OnInit {
     this.error.set(null);
 
     this.customPagesService.slug(slug).subscribe({
-      next: (page) => {
+
+      next: (response) => {
+        const page = response?.result || null;
         this.page.set(page);
         this.updateMetaTags(page);
         this.loading.set(false);

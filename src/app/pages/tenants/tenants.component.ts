@@ -20,6 +20,7 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { TenantCreateUpdateDto, TenantServiceProxy, TenantType, LookupServiceProxy, TenantTypePermissionServiceProxy } from '../../core/services/service-proxies';
+import { unwrap } from '../../core/services/response-unwrapper';
 
 interface Column {
     field: string;
@@ -77,11 +78,11 @@ export class TenantsComponent {
     }
 
     async loadDemoData() {
-        this.tenantService.tenant_GetAllTenants().subscribe((tenants) => {
+        this.tenantService.tenant_GetAllTenants().pipe(unwrap<TenantCreateUpdateDto[]>()).subscribe((tenants) => {
             this.tenants.set(tenants);
         });
 
-        this.lookupService.getEnumValues('TenantType').subscribe({
+        this.lookupService.getEnumValues('TenantType').pipe(unwrap<any[]>()).subscribe({
             next: (data: any[]) => {
                 this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
             },

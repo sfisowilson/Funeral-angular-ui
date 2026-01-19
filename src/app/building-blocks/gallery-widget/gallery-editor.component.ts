@@ -147,8 +147,8 @@ export class GalleryEditorComponent implements OnInit {
             // Upload file
             const fileParameter = { data: file, fileName: file.name };
             this.fileUploadService.file_UploadFile('GalleryImage', undefined, undefined, undefined, false, fileParameter).subscribe({
-                next: (result: FileMetadataDto) => {
-                    const imageUrl = this.getDownloadUrl(result.id);
+                next: (response) => {
+                    const imageUrl = this.getDownloadUrl(response?.result.id);
                     this.images.at(index).patchValue({ src: imageUrl });
                     this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Image replaced' });
                     // Clear input
@@ -192,9 +192,8 @@ export class GalleryEditorComponent implements OnInit {
                 // Upload file
                 const fileParameter = { data: file, fileName: file.name };
                 this.fileUploadService.file_UploadFile('GalleryImage', undefined, undefined, undefined, false, fileParameter).subscribe({
-                    next: (result: FileMetadataDto) => {
-                        console.log(`Upload complete for image ${i + 1}`, result.id);
-                        const imageUrl = this.getDownloadUrl(result.id);
+                    next: (response) => {
+                        const imageUrl = this.getDownloadUrl(response?.result.id);
                         this.images.at(imageIndex).patchValue({ src: imageUrl });
                         uploadedCount++;
                         

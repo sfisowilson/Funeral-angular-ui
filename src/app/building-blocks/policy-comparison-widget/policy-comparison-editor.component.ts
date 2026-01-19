@@ -34,8 +34,8 @@ export class PolicyComparisonEditorComponent implements OnInit {
     constructor(private policyService: PolicyServiceProxy) {}
 
     ngOnInit(): void {
-        this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe((policies) => {
-            this.availablePolicies = policies;
+        this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe((response) => {
+            this.availablePolicies = response?.result || [];
         });
     }
 

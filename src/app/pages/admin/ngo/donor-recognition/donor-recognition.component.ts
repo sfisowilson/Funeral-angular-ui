@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 import { NgoServiceProxy, DonorRecognition } from '../../../../core/services/service-proxies';
 
 @Component({
@@ -9,8 +10,10 @@ import { NgoServiceProxy, DonorRecognition } from '../../../../core/services/ser
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ],
+  providers: [NgoServiceProxy],
   templateUrl: './donor-recognition.component.html',
   styleUrl: './donor-recognition.component.scss'
 })
@@ -20,7 +23,11 @@ export class DonorRecognitionComponent implements OnInit {
   selectedDonor: any = null;
   displayDialog: boolean = false;
   isEdit: boolean = false;
+  isAnonymous: boolean = false;
   donorForm: FormGroup;
+  sortBy: string = 'date';
+  filterType: string = '';
+  filterLevel: string = '';
   
   donorTypeOptions = [
     { label: 'Individual', value: 'Individual' },
@@ -45,12 +52,14 @@ export class DonorRecognitionComponent implements OnInit {
     this.donorForm = this.fb.group({
       donorName: ['', Validators.required],
       donorType: ['', Validators.required],
-      donationAmount: [0, Validators.required, Validators.min(1)],
+      donationAmount: [0, [Validators.required, Validators.min(1)]],
       donationDate: [new Date(), Validators.required],
       campaign: [''],
       recognitionLevel: ['', Validators.required],
       isAnonymous: [false],
-      notes: ['']
+      donorEmail: ['', Validators.email],
+      donorPhone: [''],
+      recognitionMessage: ['']
     });
   }
 
@@ -164,6 +173,56 @@ export class DonorRecognitionComponent implements OnInit {
       default:
         return '#6c757d';
     }
+  }
+
+  getFilteredDonors(): any[] {
+    let filtered = this.donorRecognitions;
+
+    if (this.filterType) {
+      filtered = filtered.filter(d => d.donorType === this.filterType);
+    }
+
+    if (this.filterLevel) {
+      filtered = filtered.filter(d => d.recognitionLevel === this.filterLevel);
+    }
+
+    // Sort
+    switch (this.sortBy) {
+      case 'amount':
+        filtered.sort((a, b) => (b.donationAmount || 0) - (a.donationAmount || 0));
+        break;
+      case 'level':
+        const levelOrder: { [key: string]: number } = { 'Diamond': 0, 'Platinum': 1, 'Gold': 2, 'Silver': 3, 'Bronze': 4 };
+        filtered.sort((a, b) => (levelOrder[a.recognitionLevel] || 5) - (levelOrder[b.recognitionLevel] || 5));
+        break;
+      default: // date
+        filtered.sort((a, b) => new Date(b.donationDate || 0).getTime() - new Date(a.donationDate || 0).getTime());
+    }
+
+    return filtered;
+  }
+
+  getTotalDonations(): number {
+    return this.donorRecognitions.reduce((sum, donor) => sum + (donor.donationAmount || 0), 0);
+  }
+
+  getCountByLevel(level: string): number {
+    return this.donorRecognitions.filter(d => d.recognitionLevel === level).length;
+  }
+
+  getDonorCountByType(type: string): number {
+    return this.donorRecognitions.filter(d => d.donorType === type).length;
+  }
+
+  onAnonymousChange(): void {
+    this.isAnonymous = this.donorForm.get('isAnonymous')?.value || false;
+    const nameControl = this.donorForm.get('donorName');
+    if (this.isAnonymous) {
+      nameControl?.clearValidators();
+    } else {
+      nameControl?.setValidators([Validators.required]);
+    }
+    nameControl?.updateValueAndValidity();
   }
 
   formatCurrency(amount: number): string {

@@ -28,41 +28,114 @@ async function fetchSwaggerJson() {
 
 // Step 2: Generate Angular services using NSwag
 function generateAngularServices() {
-    console.log('Generating Angular services...');
-    exec(`nswag run ${NSWAH_CONFIG}`, (error, stdout, stderr) => {
-        if (error) {
-            console.error('Failed to generate Angular services:', error.message);
-            console.error('NSwag stderr:', stderr);
-            cleanup(); // Clean up on error
-            process.exit(1);
-        }
-        console.log(stdout);
-        console.log('Angular services generated successfully!');
-        deleteLastLine(OUTPUT_DIR);
-        cleanup(); // Clean up on success
+    return new Promise((resolve, reject) => {
+        console.log('Generating Angular services...');
+        exec(`nswag run ${NSWAH_CONFIG}`, { cwd: __dirname }, (error, stdout, stderr) => {
+            if (error) {
+                console.error('Failed to generate Angular services:', error.message);
+                if (stderr) console.error('NSwag stderr:', stderr);
+                reject(error);
+                return;
+            }
+            console.log(stdout);
+            console.log('Angular services generated successfully!');
+            // unwrapAllResponses(OUTPUT_DIR);
+            // fixObservableReturnTypes(OUTPUT_DIR);
+            resolve();
+        });
     });
 }
 
-// Step 3: Delete the last line of a file
-function deleteLastLine(filePath) {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error('Error reading file:', err);
-            return;
-        }
-        const lines = data.split('\n');
-        if (lines.length > 0) {
-            lines.pop(); // Remove the last line
-            const newContent = lines.join('\n');
-            fs.writeFile(filePath, newContent, 'utf8', (err) => {
-                if (err) {
-                    console.error('Error writing file:', err);
-                } else {
-                    console.log(`Last line deleted from ${filePath}`);
+// Step 3b: Process SwaggerResponse wrapped results
+function unwrapAllResponses(filePath) {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        
+        // Remove all new SwaggerResponse(...) constructor calls - replace with just returning the result
+        // Pattern: new SwaggerResponse(status, _headers, VALUE)
+        content = content.replace(/new SwaggerResponse\(status, _headers, ([^)]+)\)/g, '$1');
+        
+        // Unwrap the SwaggerResponse type wrappers - just use the inner type
+        content = content.replace(/Observable<SwaggerResponse<([^>]+)>>/g, 'Observable<$1>');
+        content = content.replace(/_observableOf<SwaggerResponse<([^>]+)>>/g, '_observableOf<$1>');
+        
+        // Fix fallback return statements: match method signatures to their return statements
+        // Split into lines to process context
+        const lines = content.split('\n');
+        let result = [];
+        let methodReturnType = null;
+        let methodName = null;
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            
+            // Detect protected process method signatures to track their return types
+            // Pattern: protected processXXX(...): Observable<TypeX[]> {
+            const methodMatch = line.match(/protected\s+(\w+)\([^)]*\):\s*Observable<([^>]+)>/);
+            if (methodMatch) {
+                methodName = methodMatch[1];
+                methodReturnType = methodMatch[2];
+            }
+            
+            // Fix fallback return statements that don't match the method's return type
+            // Look for "return _observableOf<X>(null as any);" statements
+            if (line.includes('return _observableOf<') && line.includes('>(null as any);')) {
+                const returnMatch = line.match(/return _observableOf<([^>]+)>\(null as any\);/);
+                if (returnMatch && methodReturnType) {
+                    const currentType = returnMatch[1];
+                    // If method returns an array type but the return statement doesn't have it, add it
+                    if (methodReturnType.includes('[]') && !currentType.includes('[]')) {
+                        const correctedLine = line.replace(
+                            /return _observableOf<([^>]+)>\(null as any\);/,
+                            `return _observableOf([] as any as ${methodReturnType});`
+                        );
+                        result.push(correctedLine);
+                        continue;
+                    }
+                    // If method returns a single type but the return statement has array brackets, remove them
+                    else if (!methodReturnType.includes('[]') && currentType.includes('[]')) {
+                        const baseType = currentType.replace('[]', '');
+                        const correctedLine = line.replace(
+                            /return _observableOf<([^>]+)>\(null as any\);/,
+                            `return _observableOf(null as any as ${baseType});`
+                        );
+                        result.push(correctedLine);
+                        continue;
+                    }
                 }
-            });
+            }
+            
+            result.push(line);
         }
-    });
+        
+        content = result.join('\n');
+        fs.writeFileSync(filePath, content + '\n', 'utf8');
+        console.log('✓ SwaggerResponse wrappers processed');
+    } catch (error) {
+        console.error('Error processing responses:', error.message);
+    }
+}
+
+// Step 3c: Fix RxJS of() type inference issues with fallback returns
+function fixObservableReturnTypes(filePath) {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        
+        // Replace all remaining _observableOf<Type>(null as any) patterns
+        // The issue is that RxJS of() with null as any doesn't infer generic types correctly
+        // Solution: Use direct casting pattern instead
+        content = content.replace(
+            /return _observableOf<([^>]+)>\(null as any\);/g,
+            (match, type) => {
+                return `return (null as any) as Observable<${type}>;`;
+            }
+        );
+        
+        fs.writeFileSync(filePath, content + '\n', 'utf8');
+        console.log('✓ Observable return types fixed');
+    } catch (error) {
+        console.error('Error fixing observable types:', error.message);
+    }
 }
 
 // Step 4: Clean up temporary files
@@ -78,10 +151,12 @@ async function main() {
     try {
         console.log('Starting script...');
         await fetchSwaggerJson();
-        generateAngularServices();
+        await generateAngularServices();
+        console.log('✓ Service proxies generated and processed successfully');
+        process.exit(0);
     } catch (error) {
-        console.error('Unhandled error in script:', error);
-        cleanup(); // Clean up on error
+        console.error('✗ Error:', error.message);
+        process.exit(1);
     }
 }
 

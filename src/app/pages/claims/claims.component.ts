@@ -81,8 +81,8 @@ export class ClaimsComponent implements OnInit {
     loadClaims() {
         this.loading.set(true);
         this.claimService.claim_GetAllClaims(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => {
-                this.claims.set(data);
+            next: (response) => {
+                this.claims.set(response?.result);
                 this.loading.set(false);
             },
             error: (error) => {
@@ -94,14 +94,14 @@ export class ClaimsComponent implements OnInit {
 
     loadMembers() {
         this.memberService.member_GetAllMembers(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => this.members.set(data),
+            next: (response) => this.members.set(response?.result),
             error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load members' })
         });
     }
 
     loadPolicies() {
         this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => this.policies.set(data),
+            next: (response) => this.policies.set(response?.result),
             error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load policies' })
         });
     }

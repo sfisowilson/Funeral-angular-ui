@@ -201,12 +201,12 @@ export class IdentityVerificationFormComponent implements OnInit {
         request.claimId = this.claimId;
 
         this.verificationService.verification_CreateRequest(request).subscribe({
-            next: (result) => {
+            next: (response) => {
                 this.showAlertMessage('Identity verification request has been submitted successfully', 'success');
 
                 this.verificationComplete.emit({
                     success: true,
-                    verificationRequest: result
+                    verificationRequest: response.result
                 });
 
                 this.submitting.set(false);
@@ -244,12 +244,12 @@ export class IdentityVerificationFormComponent implements OnInit {
         request.claimId = this.claimId;
 
         this.verificationService.verification_CreateRequest(request).subscribe({
-            next: (result) => {
+            next: (response) => {
                 this.showAlertMessage('Quick ID check completed successfully', 'success');
 
                 this.verificationComplete.emit({
                     success: true,
-                    verificationRequest: result
+                    verificationRequest: response.result
                 });
 
                 this.quickVerifying.set(false);

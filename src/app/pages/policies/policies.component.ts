@@ -76,8 +76,8 @@ export class PoliciesComponent {
     }
 
     loadPolicies() {
-        this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe((policies) => {
-            this.policies.set(policies);
+        this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe((response) => {
+            this.policies.set(response?.result || []);
         });
 
         this.cols = [

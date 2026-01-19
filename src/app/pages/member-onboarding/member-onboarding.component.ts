@@ -139,7 +139,8 @@ export class MemberOnboardingComponent implements OnInit {
             : this.profileService.profileCompletion_GetMyStatus();
         
         statusObservable.subscribe({
-            next: (status) => {
+            next: (response) => {
+                const status = response?.result || null;
                 this.completionStatus.set(status);
                 
                 // Allow editing if member status is Pending (even if view=true in query params)
@@ -316,8 +317,8 @@ export class MemberOnboardingComponent implements OnInit {
         console.log('[LoadPremiumCalculation] Fetching latest premium from API...');
         this.loadingPremium.set(true);
         this.premiumService.premiumCalculation_GetMyPremium().subscribe({
-            next: (result) => {
-                console.log('[LoadPremiumCalculation] Premium received:', result);
+            next: (response) => {
+                const result = response?.result || null;
                 this.premiumCalculation.set(result);
                 this.loadingPremium.set(false);
             },
@@ -331,8 +332,8 @@ export class MemberOnboardingComponent implements OnInit {
 
     loadMemberProfile() {
         this.userProfileService.userProfile_GetCurrentUserProfile().subscribe({
-            next: (profile) => {
-                console.log('[MemberOnboarding] Member profile loaded:', profile);
+            next: (response) => {
+                const profile = response?.result || null;
                 this.memberProfile.set(profile);
             },
             error: (error) => {
@@ -383,8 +384,8 @@ export class MemberOnboardingComponent implements OnInit {
     loadPremiumSettings() {
         this.loadingSettings.set(true);
         this.premiumService.premiumCalculation_GetSettings().subscribe({
-            next: (settings) => {
-                console.log('[MemberOnboarding] Premium settings loaded:', settings);
+            next: (response) => {
+                const settings = response?.result || null;
                 this.premiumSettings.set(settings);
                 this.loadingSettings.set(false);
             },

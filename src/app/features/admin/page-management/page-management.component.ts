@@ -70,7 +70,8 @@ export class PageManagementComponent implements OnInit {
     loadPages() {
         this.loading.set(true);
         this.customPagesService.all().subscribe({
-            next: (pages) => {
+            next: (response) => {
+                const pages = response?.result || [];
                 this.pages.set(pages);
                 this.loading.set(false);
             },
@@ -87,7 +88,8 @@ export class PageManagementComponent implements OnInit {
 
     loadLimits() {
         this.customPagesService.limits().subscribe({
-            next: (limits) => {
+            next: (response) => {
+                const limits = response?.result || PageLimitsDto.fromJS({ maxPages: 0, currentPages: 0, canCreateMore: false });
                 this.pageLimits.set(limits);
             },
             error: (error) => {
@@ -158,7 +160,8 @@ export class PageManagementComponent implements OnInit {
         }
 
         this.apiService.customPagesPost(this.newPage).subscribe({
-            next: (page) => {
+            next: (response) => {
+                const page = response?.result;
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Success',

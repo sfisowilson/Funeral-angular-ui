@@ -87,8 +87,8 @@ export class PersonnelComponent implements OnInit {
 
     viewSchedule(person: PersonnelMember) {
         this.personnelService.personnel_GetMySchedule(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => {
-                this.schedule.set(data);
+            next: (response) => {
+                this.schedule.set(response?.result || []);
                 this.scheduleDialog.set(true);
             },
             error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load schedule' })

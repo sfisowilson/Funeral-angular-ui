@@ -183,10 +183,9 @@ export class TeamEditorComponent implements OnInit {
         console.log('🔄 Loading users for team selection...');
 
         this.userService.user_GetAllUsers(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (users) => {
-                console.log('✅ Users loaded successfully:', users);
-                this.availableUsers = users;
-                this.filteredAvailableUsers = [...users];
+            next: (response) => {
+                this.availableUsers = response.result || [];
+                this.filteredAvailableUsers = [...this.availableUsers];
             },
             error: (error) => {
                 console.error('❌ Error loading users:', error);

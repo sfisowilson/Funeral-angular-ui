@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { unwrap } from '../core/services/response-unwrapper';
 import { 
   Debit_orderServiceProxy, 
   DebitOrderBatchDto,
@@ -38,15 +39,15 @@ export class DebitOrderService {
   }
 
   getBatches(page: number = 1, pageSize: number = 20): Observable<DebitOrderBatchDto[]> {
-    return this.proxy.batchList(page, pageSize);
+    return this.proxy.batchList(page, pageSize).pipe(unwrap<DebitOrderBatchDto[]>());
   }
 
   getBatchById(batchId: string): Observable<DebitOrderBatchDto> {
-    return this.proxy.batchById(batchId);
+    return this.proxy.batchById(batchId).pipe(unwrap<DebitOrderBatchDto>());
   }
 
   getBatchTransactions(batchId: string): Observable<DebitOrderTransactionDto[]> {
-    return this.proxy.batchTransactions(batchId);
+    return this.proxy.batchTransactions(batchId).pipe(unwrap<DebitOrderTransactionDto[]>());
   }
 
   // NOTE: generateNAEDOFile() returns File, not available in proxy - using direct HTTP call

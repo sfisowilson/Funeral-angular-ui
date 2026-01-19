@@ -114,7 +114,8 @@ export class BankingDetailsStepComponent implements OnInit {
         : this.bankingService.memberBankingDetail_GetMyBankingDetails();
     
     bankingObservable.subscribe({
-      next: (details) => {
+      next: (response) => {
+        const details = response?.result;
         this.existingBankingDetails.set(details);
         this.bankingForm.patchValue({
           bankName: details.bankName,

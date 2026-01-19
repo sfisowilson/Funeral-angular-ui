@@ -212,9 +212,8 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
     loadPremiumSettings(): void {
         console.log('=== LOADING PREMIUM SETTINGS ===');
         this.premiumService.premiumCalculation_GetSettings().subscribe({
-            next: (settings) => {
-                console.log('Settings loaded:', settings);
-                this.settings.set(settings);
+            next: (response) => {
+                this.settings.set(response?.result);
                 this.buildCoverOptions();
             },
             error: (error) => {

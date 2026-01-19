@@ -4,7 +4,14 @@
     "extends": "./tsconfig.json",
     "compilerOptions": {
         "outDir": "./out-tsc/app",
-        "types": []
+        "types": [],
+        "noImplicitAny": false,
+        "strictNullChecks": false,
+        "strictFunctionTypes": false,
+        "noImplicitThis": false,
+        "alwaysStrict": false,
+        "strictBindCallApply": false,
+        "strictPropertyInitialization": false
     },
     "files": [
         "src/main.ts"

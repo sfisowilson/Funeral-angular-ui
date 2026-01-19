@@ -105,7 +105,7 @@ export class RegistrationFieldsComponent implements OnInit {
         this.loading = true;
         this.fieldService.onboardingFieldConfiguration_GetEnabledByContext('Registration').subscribe({
             next: (fields) => {
-                this.fields = fields.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+                this.fields = fields.result.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
                 this.loading = false;
             },
             error: (error) => {

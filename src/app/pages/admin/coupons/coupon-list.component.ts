@@ -143,7 +143,8 @@ export class CouponListComponent implements OnInit {
 
   loadStats() {
     this.couponService.coupon_GetStats().subscribe({
-      next: (stats) => {
+      next: (response) => {
+        const stats = response?.result || null;
         this.stats.set(stats || null);
       },
       error: (error) => {

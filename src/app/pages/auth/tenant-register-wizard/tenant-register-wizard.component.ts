@@ -1,7 +1,7 @@
-import { Component, OnInit, signal, Injector , NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit, signal, Injector , NO_ERRORS_SCHEMA, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import {
     AuthServiceProxy,
     TenantCreateUpdateDto,
@@ -49,6 +49,8 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     // Modal states
     showTermsModal = false;
     showPrivacyModal = false;
+    showPlanFeaturesModal = signal<boolean>(false);
+    selectedPlanForFeatures = signal<any | null>(null);
     
     // Forms
     accountForm!: FormGroup;
@@ -82,16 +84,18 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     couponCode = signal<string>('');
     couponValidation = signal<any | null>(null);
     couponLoading = signal<boolean>(false);
+    couponFromUrl = signal<boolean>(false); // Track if coupon came from URL
     
     // Tenant types (loaded dynamically from API)
     tenantTypes = signal<TenantTypeDto[]>([]);
     
-    // Wizard steps (updated to include organization questions)
-    wizardSteps = ['Account Information', 'Organization Details', 'Select Plan', 'Payment'];
+    // Wizard steps - Plan selection is now first (step 0)
+    wizardSteps = ['Select Plan', 'Account Information', 'Payment'];
     
     // Payment session
     paymentSessionUrl = signal<string | null>(null);
     createdTenantId = signal<string | null>(null);
+    paymentTriggered = signal<boolean>(false); // Track if payment has been triggered
     // Billing cycle: 0 = Monthly, 1 = Yearly
     billingCycle = 0;
     
@@ -112,6 +116,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     constructor(
         private fb: FormBuilder,
         private router: Router,
+        private activatedRoute: ActivatedRoute,
         private authService: AuthServiceProxy,
         private planConfigService: PlanConfigurationServiceProxy,
         private paymentService: PaymentServiceProxy,
@@ -129,6 +134,42 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         await this.loadPlans(undefined); // Load all plans initially
         await this.loadProRataSetting(); // Load system pro-rata setting
         this.checkForIncompleteRegistration(); // Call after plans are loaded
+        
+        // Check for coupon in URL query parameters
+        this.activatedRoute.queryParams.subscribe(params => {
+            if (params['coupon']) {
+                this.applyCouponFromUrl(params['coupon']);
+            }
+        });
+
+        // Auto-trigger payment when reaching step 2
+        effect(() => {
+            const currentStep = this.activeIndex();
+            if (currentStep === 2 && !this.paymentTriggered() && !this.wizardLoading()) {
+                this.paymentTriggered.set(true);
+                // Delay to ensure UI updates first
+                setTimeout(() => {
+                    this.createTenantAndInitiatePayment().catch(error => {
+                        console.error('Payment creation error:', error);
+                        this.paymentTriggered.set(false); // Reset flag on error
+                    });
+                }, 300);
+            }
+        });
+    }
+
+    /**
+     * Apply coupon code from URL query parameter
+     * @param couponCode The coupon code from the URL
+     */
+    private async applyCouponFromUrl(couponCode: string): Promise<void> {
+        // Convert to uppercase to match standard coupon format
+        const normalizedCode = couponCode.toUpperCase();
+        this.couponCode.set(normalizedCode);
+        this.couponFromUrl.set(true);
+        
+        // Automatically validate the coupon
+        await this.validateCoupon();
     }
 
     initializeForms(): void {
@@ -142,7 +183,6 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             phone1: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
             phone2: [''],
             registrationNumber: ['', Validators.required],
-            tenantType: ['', Validators.required], // Changed to empty string to force selection
             agreeToTerms: [false, Validators.requiredTrue]
         }, { validators: this.passwordMatchValidator });
         
@@ -228,7 +268,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     async loadProRataSetting(): Promise<void> {
         try {
             const enabled = await this.planConfigService.planConfiguration_GetProRataSetting().toPromise();
-            this.enableProRata.set(enabled || false);
+            this.enableProRata.set(enabled?.result || false);
             if (enabled) {
                 this.calculateProRataInfo();
             }
@@ -261,42 +301,54 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         this.calculateProRataInfo();
         
         // Use plan configuration prices directly (no modifiers for plan configs)
-        let monthlyPrice = plan.monthlyPrice || 0;
-        let yearlyPrice = plan.yearlyPrice || (monthlyPrice * 12 * 0.85); // 15% discount if not set
+        // IMPORTANT: Keep these as BASE prices, without pro-rata adjustment
+        const monthlyPrice = plan.monthlyPrice || 0;
+        const yearlyPrice = plan.yearlyPrice || (monthlyPrice * 12 * 0.85); // 15% discount if not set
         const yearlyDiscount = plan.yearlyPrice ? 
             Math.round(((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100) : 15;
         
-        // Apply pro-rata if enabled
-        if (this.enableProRata() && this.proRataInfo()) {
-            const info = this.proRataInfo()!;
+        // Apply coupon discount if valid (to BASE prices only, pro-rata is applied in getFinalPrice)
+        let couponDiscountAmount = 0;
+        let finalMonthly = monthlyPrice;
+        let finalYearly = yearlyPrice;
+        
+        const couponValidation = this.couponValidation();
+        if (couponValidation?.isValid) {
+            // The coupon gives us a discount amount for the current billing cycle
+            // Calculate based on what was validated against
+            const discountAmount = couponValidation.discountAmount || 0;
+            
+            // If the coupon was validated for a specific cycle, apply the discount proportionally
             if (this.billingCycle === 1) {
-                yearlyPrice = info.proRatedAmount;
+                // Coupon was for yearly - discount applies to yearly
+                finalYearly = Math.max(0, yearlyPrice - discountAmount);
+                // Calculate proportional discount for monthly (divide yearly discount by 12)
+                const monthlyDiscount = discountAmount / 12;
+                finalMonthly = Math.max(0, monthlyPrice - monthlyDiscount);
+                couponDiscountAmount = discountAmount;
             } else {
-                monthlyPrice = info.proRatedAmount;
+                // Coupon was for monthly - discount applies to monthly
+                finalMonthly = Math.max(0, monthlyPrice - discountAmount);
+                // Calculate proportional discount for yearly (multiply monthly discount by 12)
+                const yearlyDiscount = discountAmount * 12;
+                finalYearly = Math.max(0, yearlyPrice - yearlyDiscount);
+                couponDiscountAmount = discountAmount;
             }
         }
         
-        // Apply coupon discount if valid
-        let couponDiscount = 0;
-        const couponValidation = this.couponValidation();
-        if (couponValidation?.isValid) {
-            // Get the actual discount amount from validation
-            const baseAmount = this.selectedBillingCycle() === 'yearly' ? yearlyPrice : monthlyPrice;
-            const finalAmount = couponValidation.finalAmount || couponValidation.discountedAmount || baseAmount;
-            couponDiscount = Math.max(0, baseAmount - finalAmount);
-        }
-        
+        // Store BASE prices (with coupon, but NOT pro-rata) for display in Billing Cycle selector
         this.calculatedPrice.set({
-            monthly: Math.max(0, monthlyPrice - couponDiscount),
-            yearly: Math.max(0, yearlyPrice - couponDiscount),
+            monthly: finalMonthly,
+            yearly: finalYearly,
             yearlyDiscount
         });
         
+        // Store BASE breakdown (pro-rata is NOT applied here, only in getFinalPrice)
         this.priceBreakdown.set({
             basePrice: monthlyPrice,
             organizationModifier: 1, // No modifiers for plan configurations
             volumeModifiers: [], // No volume modifiers for plan configurations
-            couponDiscount
+            couponDiscount: couponDiscountAmount
         });
     }
     
@@ -330,7 +382,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                             this.selectedBillingCycle.set(data.billingCycle === 1 ? 'yearly' : 'monthly');
                         }
                         
-                        this.activeIndex.set(3); // Go to payment step (0=Account, 1=Organization, 2=Plan, 3=Payment)
+                        this.activeIndex.set(3); // Go to payment step (0=Plan, 1=Account, 2=Organization, 3=Payment)
                     } else {
                         localStorage.removeItem('incompleteRegistration');
                     }
@@ -381,10 +433,16 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     async loadPlans(tenantType?: number): Promise<void> {
         try {
             this.wizardLoading.set(true);
-            // Use plan configurations filtered by tenant type if provided
-            // Pass tenantType (can be undefined for all plans)
-            const plans = await this.planConfigService.planConfiguration_GetActive(tenantType).toPromise();
+            // Load all available plans - feature-based, not tenant-type specific
+            // All tenant types can access the same feature-based plans
+            const response = await this.planConfigService.planConfiguration_GetActive().toPromise();
+            const plans = response?.result;
             this.plans.set(plans || []);
+            
+            // If coupon from URL exists and no plan is selected yet, auto-select the first plan
+            if (this.couponFromUrl() && !this.selectedPlan() && plans && plans.length > 0) {
+                this.selectPlan(plans[0]);
+            }
         } catch (error: any) {
             this.showAlert('Failed to load subscription plans', 'danger');
         } finally {
@@ -394,7 +452,8 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
 
     async loadTenantTypes(): Promise<void> {
         try {
-            const types = await this.tenantProxy.tenant_GetTenantTypes().toPromise();
+            const response = await this.tenantProxy.tenant_GetTenantTypes().toPromise();
+            const types = response?.result;
             this.tenantTypes.set(types || []);
         } catch (error: any) {
             console.error('Failed to load tenant types:', error);
@@ -428,19 +487,20 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 billingCycle: this.billingCycle
             });
             
-            const validation = await this.couponService.coupon_Validate({
+            const validationResponse = await this.couponService.coupon_Validate({
                 couponCode: this.couponCode(),
                 code: this.couponCode(),
                 subscriptionPlanId: plan.subscriptionPlanId || plan.id,
                 amount: amount,
                 planAmount: amount
             } as any).toPromise();
+            const validation = validationResponse?.result;
             
             console.log('Coupon validation result:', validation);
             this.couponValidation.set(validation);
             
             if (validation?.isValid) {
-                this.showAlert(validation.message || 'Coupon applied successfully! ' + (validation.discountAmount ? `New price: R${validation.discountAmount}` : ''), 'success');
+                this.showAlert(`Coupon '${this.couponCode()}' applied! You get a discount of R${validation.discountAmount}`, 'success');
             } else {
                 this.showAlert(validation?.message || 'Coupon is not valid', 'danger');
             }
@@ -454,9 +514,22 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
 
     selectPlan(plan: any): void {
         this.selectedPlan.set(plan);
-        this.couponValidation.set(null); // Reset coupon when plan changes
+        
+        // If there's a coupon from URL and this is the first plan selection, validate it
+        if (this.couponFromUrl() && this.couponCode() && !this.couponValidation()) {
+            this.validateCoupon();
+        } else {
+            // Otherwise reset coupon when plan changes
+            this.couponValidation.set(null);
+        }
+        
         this.calculateProRataInfo(); // Recalculate pro-rata for new plan
         this.calculateDynamicPricing(); // Recalculate pricing with new plan
+    }
+
+    openPlanFeaturesModal(plan: any): void {
+        this.selectedPlanForFeatures.set(plan);
+        this.showPlanFeaturesModal.set(true);
     }
 
     async nextStep(): Promise<void> {
@@ -483,8 +556,17 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             return;
         }
         
-        // Step 0: Account Information
+        // Step 0: Plan Selection (now first)
         if (currentStep === 0) {
+            if (!this.selectedPlan()) {
+                this.showAlert('Please select a subscription plan', 'warning');
+                return;
+            }
+            // Move to account information
+            this.activeIndex.set(1);
+        }
+        // Step 1: Account Information
+        else if (currentStep === 1) {
             if (!this.accountForm.valid) {
                 Object.keys(this.accountForm.controls).forEach(key => {
                     this.accountForm.get(key)?.markAsTouched();
@@ -493,34 +575,14 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 return;
             }
             
-            if (!this.selectedOrganizationType()) {
-                this.showAlert('Please select an organization type', 'warning');
-                return;
-            }
-            
-            // Move to organization questions
-            this.activeIndex.set(1);
-        } 
-        // Step 1: Organization Details
-        else if (currentStep === 1) {
-            if (!this.organizationQuestionsForm.valid) {
-                Object.keys(this.organizationQuestionsForm.controls).forEach(key => {
-                    this.organizationQuestionsForm.get(key)?.markAsTouched();
-                });
-                this.showAlert('Please answer all required questions about your organization', 'warning');
-                return;
-            }
-            // Move to plan selection
+            // Move to payment - this will auto-trigger payment creation via effect
             this.activeIndex.set(2);
         } 
-        // Step 2: Plan Selection
+        // Step 2: Payment Processing - Auto-triggered via effect
         else if (currentStep === 2) {
-            if (!this.selectedPlan()) {
-                this.showAlert('Please select a subscription plan', 'warning');
-                return;
-            }
-            // Create tenant account and initiate payment
-            await this.createTenantAndInitiatePayment();
+            // Payment is automatically triggered by the effect watcher
+            // No manual action needed here
+            return;
         }
     }
 
@@ -550,17 +612,15 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 phone1: formValue.phone1,
                 phone2: formValue.phone2,
                 registrationNumber: formValue.registrationNumber,
-                tenantType: formValue.tenantType,
                 subscriptionPlanId: selectedPlan?.subscriptionPlanId || selectedPlan?.id,  // Use linked SubscriptionPlan ID
                 selectedPlanConfigurationId: selectedPlan?.id, // Plan configuration ID
                 couponCode: this.couponCode() || null, // Include coupon if valid
-                billingCycle: this.billingCycle, // 0 = Monthly, 1 = Yearly
-                isStaticSite: formValue.tenantType == 3,
-                organizationFeatures: this.organizationQuestionsForm?.value || {} // Include organization preferences
+                billingCycle: this.billingCycle // 0 = Monthly, 1 = Yearly
             });
             
             // Register tenant
-            const authResult = await this.authService.auth_RegisterTenant(tenantDto).toPromise();
+            const authResponse = await this.authService.auth_RegisterTenant(tenantDto).toPromise();
+            const authResult = authResponse?.result;
             
             if (!authResult || !authResult.succeeded || !authResult.tenantId) {
                 throw new Error(authResult?.message || 'Failed to create tenant account');
@@ -614,8 +674,9 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             
             console.log('Final payment DTO:', paymentDto);
 
-            const paymentSession = await this.paymentService.payment_CreateSession(paymentDto as any).toPromise();
-            
+            const paymentSessionResponse = await this.paymentService.payment_CreateSession(paymentDto as any).toPromise();
+            const paymentSession = paymentSessionResponse?.result;
+
             if (paymentSession?.paymentUrl && paymentSession?.paymentData) {
                 // Create a form and submit it to PayFast with the payment data
                 this.submitPaymentForm(paymentSession.paymentUrl, paymentSession.paymentData);
@@ -635,33 +696,43 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         
         if (!plan) return 0;
         
-        // Get base price based on billing cycle
-        const basePrice = this.billingCycle === 1 
+        // Determine the base price for the current billing cycle
+        let basePrice = this.selectedBillingCycle() === 'yearly' 
             ? (plan.yearlyPrice || plan.monthlyPrice * 12) 
             : plan.monthlyPrice;
-        
-        // If coupon is valid, return discounted amount
-        if (validation?.isValid && validation?.discountedAmount !== undefined) {
-            return validation.discountedAmount;
+
+        // Start with the base price
+        let finalPrice = basePrice;
+
+        // Apply pro-rata if enabled
+        if (this.enableProRata() && this.proRataInfo()) {
+            finalPrice = this.proRataInfo()!.proRatedAmount;
         }
         
-        return basePrice || 0;
+        // If a coupon is valid, its validated amount is the final source of truth
+        if (validation?.isValid && validation.finalAmount !== undefined) {
+            finalPrice = validation.finalAmount;
+        }
+        
+        // Ensure the final price is not less than 0
+        return Math.max(0, finalPrice);
     }
 
     getDiscountAmount(): number {
-        const plan = this.selectedPlan();
         const validation = this.couponValidation();
         
-        if (!plan || !validation?.isValid) return 0;
+        if (!validation?.isValid) return 0;
         
-        // Get base price based on billing cycle
-        const basePrice = this.billingCycle === 1 
-            ? (plan.yearlyPrice || plan.monthlyPrice * 12) 
-            : plan.monthlyPrice;
+        // Return the discount amount for the current billing cycle
+        const discountAmount = validation.discountAmount || 0;
         
-        // Calculate discount
-        const discountedPrice = validation.discountedAmount || 0;
-        return Math.max(0, basePrice - discountedPrice);
+        if (this.billingCycle === 1) {
+            // Yearly billing - return full discount
+            return discountAmount;
+        } else {
+            // Monthly billing - return monthly portion of discount
+            return discountAmount;
+        }
     }
 
     onBillingCycleChange(): void {

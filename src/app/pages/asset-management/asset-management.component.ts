@@ -136,8 +136,8 @@ export class AssetManagementComponent implements OnInit {
     loadAssets() {
         this.loading.set(true);
         this.assetManagementService.assetManagement_GetAll().subscribe({
-            next: (data: AssetDto[]) => {
-                this.assets.set(data);
+            next: (response) => {
+                this.assets.set(response?.result || []);
                 this.loading.set(false);
             },
             error: () => {
@@ -149,8 +149,8 @@ export class AssetManagementComponent implements OnInit {
 
     loadCheckouts() {
         this.assetManagementService.assetManagement_GetActiveCheckouts().subscribe({
-            next: (data: AssetCheckoutDto[]) => {
-                this.checkouts.set(data);
+            next: (response) => {
+                this.checkouts.set(response?.result || []);
             },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load checkouts' });
@@ -160,8 +160,8 @@ export class AssetManagementComponent implements OnInit {
 
     loadStats() {
         this.assetManagementService.assetManagement_GetStats().subscribe({
-            next: (data: AssetStatsDto) => {
-                this.stats.set(data);
+            next: (response) => {
+                this.stats.set(response?.result || null);
             },
             error: () => {
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load stats' });

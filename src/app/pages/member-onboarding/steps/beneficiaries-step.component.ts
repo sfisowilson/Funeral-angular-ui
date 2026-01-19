@@ -118,8 +118,8 @@ export class BeneficiariesStepComponent implements OnInit {
             : this.beneficiaryService.beneficiary_GetMyBeneficiaries();
         
         beneficiariesObservable.subscribe({
-            next: (data) => {
-                this.beneficiaries.set(data);
+            next: (response) => {
+                this.beneficiaries.set( response?.result || []);
                 this.checkCompletion();
                 this.loading.set(false);
             },
@@ -311,7 +311,8 @@ export class BeneficiariesStepComponent implements OnInit {
             : this.fileUploadService.file_GetMyFiles();
         
         filesObservable.subscribe({
-            next: (files) => {
+            next: (response) => {
+                const files = response?.result || [];
                 // Filter files for this beneficiary
                 const beneficiaryFiles = files.filter(f => 
                     f.entityType === 'Beneficiary' && f.entityId === beneficiaryId

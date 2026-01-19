@@ -55,8 +55,8 @@ export class FuneralEventsComponent implements OnInit {
     loadFuneralEvents() {
         this.loading.set(true);
         this.funeralEventService.funeralEvent_GetAllFuneralEvents(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => {
-                this.funeralEvents.set(data);
+            next: (response) => {
+                this.funeralEvents.set(response?.result || []);
                 this.loading.set(false);
             },
             error: (error) => {
@@ -68,7 +68,7 @@ export class FuneralEventsComponent implements OnInit {
 
     loadClaims() {
         this.claimService.claim_GetAllClaims(undefined, undefined, undefined, undefined, undefined).subscribe({
-            next: (data) => this.claims.set(data),
+            next: (response) => this.claims.set(response?.result || []),
             error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load claims' })
         });
     }

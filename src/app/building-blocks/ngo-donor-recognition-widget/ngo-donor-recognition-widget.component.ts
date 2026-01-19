@@ -128,8 +128,9 @@ export class NgoDonorRecognitionWidgetComponent implements OnInit {
     loadDonors(): void {
         this.loading = true;
         this.ngoService.getDonorRecognitions().subscribe({
-            next: (data: any) => {
-                this.donors = (data || []).sort((a: any, b: any) => (b.donationAmount || 0) - (a.donationAmount || 0));
+            next: (response: any) => {
+                const donors = this.normalizeResponseArray(response?.result);
+                this.donors = [...donors].sort((a: any, b: any) => (b.donationAmount || 0) - (a.donationAmount || 0));
                 this.loading = false;
             },
             error: (error) => {
@@ -159,5 +160,17 @@ export class NgoDonorRecognitionWidgetComponent implements OnInit {
 
     donate(): void {
         window.location.href = this.config.donationUrl;
+    }
+
+    private normalizeResponseArray<T>(value: any): T[] {
+        if (Array.isArray(value)) {
+            return value;
+        }
+
+        if (value && Array.isArray(value.items)) {
+            return value.items;
+        }
+
+        return [];
     }
 }

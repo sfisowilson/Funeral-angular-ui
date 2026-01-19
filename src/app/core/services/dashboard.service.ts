@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { ClaimServiceProxy, MemberServiceProxy, PolicyServiceProxy, ClaimDto, MemberDto, PolicyDto } from './service-proxies';
 
 export interface DashboardStats {

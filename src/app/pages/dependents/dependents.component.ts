@@ -91,8 +91,8 @@ export class DependentsComponent implements OnInit, OnChanges {
 
     loadDependents() {
         if (this.memberId) {
-            this.dependentService.dependent_GetAllDependents(this.memberId, undefined, undefined, undefined, undefined).subscribe((result) => {
-                this.dependents = result;
+            this.dependentService.dependent_GetAllDependents(this.memberId, undefined, undefined, undefined, undefined).subscribe((response) => {
+                this.dependents = response?.result || [];
             });
         }
     }
@@ -152,8 +152,8 @@ export class DependentsComponent implements OnInit, OnChanges {
         if (this.dependent.name?.trim()) {
             if (this.dependent.id) {
                 this.dependentService.dependent_UpdateDependent(this.dependent).subscribe({
-                    next: (result) => {
-                        this.dependents[this.findIndexById(this.dependent.id)] = result;
+                    next: (response) => {
+                        this.dependents[this.findIndexById(this.dependent.id)] = response?.result;
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Dependent Updated', life: 3000 });
                         this.dependents = [...this.dependents];
                         this.dependentDialog = false;

@@ -82,7 +82,8 @@ export class PageEditorComponent implements OnInit, OnDestroy {
     
     this.loading.set(true);
     this.customPagesService.customPagesGet(this.pageId).subscribe({
-      next: (page) => {
+      next: (response) => {
+        const page = response.result || null;
         this.page.set(page);
         
         // Convert page content to WidgetConfig format and load into WidgetService

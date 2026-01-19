@@ -83,8 +83,8 @@ export class DashboardSettingsComponent implements OnInit {
 
     loadRoles() {
         this.roleService.role_GetAllRoles().subscribe({
-            next: (roles: RoleDto[]) => {
-                const roleOptions = roles.map(role => ({
+            next: (response) => {
+                const roleOptions = response?.result.map(role => ({
                     label: role.name || '',
                     value: role.name || ''
                 }));
@@ -104,8 +104,8 @@ export class DashboardSettingsComponent implements OnInit {
     loadWidgets() {
         this.loading.set(true);
         this.dashboardWidgetService.dashboardWidget_GetAll().subscribe({
-            next: (result) => {
-                const mappedWidgets = result.map(dto => ({
+            next: (response) => {
+                const mappedWidgets = response?.result.map(dto => ({
                     id: dto.id?.toString(),
                     widgetKey: dto.widgetKey,
                     widgetName: dto.widgetName,

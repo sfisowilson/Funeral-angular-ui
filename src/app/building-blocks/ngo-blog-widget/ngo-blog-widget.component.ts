@@ -8,6 +8,7 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
     selector: 'app-ngo-blog-widget',
     standalone: true,
     imports: [CommonModule, ButtonModule, TagModule],
+    providers: [NgoServiceProxy],
     template: `
         <div class="ngo-blog-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
             <div class="container mx-auto">

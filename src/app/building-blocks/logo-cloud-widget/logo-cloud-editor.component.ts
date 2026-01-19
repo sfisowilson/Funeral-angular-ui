@@ -117,8 +117,8 @@ export class LogoCloudEditorComponent implements OnInit {
     };
 
     this.fileUploadService.file_UploadFile('LogoCloud', undefined, undefined, undefined, false, fileParameter).subscribe({
-      next: (result: FileMetadataDto) => {
-        const imageUrl = `${this.baseUrl}/api/FileUpload/File_DownloadFile/${result.id}`;
+      next: (response) => {
+        const imageUrl = `${this.baseUrl}/api/FileUpload/File_DownloadFile/${response.result.id}`;
         this.config.logos[index].imageUrl = imageUrl;
         this.uploadingIndex = null;
       },

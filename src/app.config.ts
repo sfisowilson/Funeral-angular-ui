@@ -1,4 +1,4 @@
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors, HTTP_INTERCEPTORS, withInterceptorsFromDi } from '@angular/common/http';
 import { APP_INITIALIZER, ApplicationConfig, enableProdMode } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
@@ -6,6 +6,8 @@ import Aura from '@primeng/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { environment } from './environments/environment';
+import { SwaggerResponseInterceptor } from './app/core/interceptors/swagger-response.interceptor';
+import { Http201SuccessInterceptor } from './app/core/interceptors/http-201-success.interceptor';
 import { 
     API_BASE_URL, 
     TenantSettingServiceProxy, 
@@ -25,7 +27,8 @@ import {
     Payment_gatewayServiceProxy,
     Debit_orderServiceProxy,
     Tenant_bankingServiceProxy,
-    Tenant_invoiceServiceProxy
+    Tenant_invoiceServiceProxy,
+    NgoServiceProxy
 } from './app/core/services/service-proxies';
 import { AuthService } from './app/auth/auth-service';
 import { AuthInterceptor } from './app/auth/auth.service';
@@ -69,6 +72,7 @@ export const appConfig: ApplicationConfig = {
         Debit_orderServiceProxy,
         Tenant_bankingServiceProxy,
         Tenant_invoiceServiceProxy,
+        NgoServiceProxy,
         appInitializerProvider,
         {
             provide: APP_INITIALIZER,
@@ -83,7 +87,9 @@ export const appConfig: ApplicationConfig = {
             multi: true
         },
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
-        provideHttpClient(withInterceptors([AuthInterceptor])),
+        provideHttpClient(withInterceptorsFromDi(), withInterceptors([AuthInterceptor])),
+        { provide: HTTP_INTERCEPTORS, useClass: SwaggerResponseInterceptor, multi: true },
+        { provide: HTTP_INTERCEPTORS, useClass: Http201SuccessInterceptor, multi: true },
         provideAnimationsAsync(),
         { 
             provide: API_BASE_URL, 

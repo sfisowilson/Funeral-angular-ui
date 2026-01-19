@@ -26,8 +26,222 @@
                 </ul>
 
                 <div class="wizard-content">
+                    <!-- Step 0: Plan Selection (now first) -->
+                    <div *ngIf="activeIndex() === 0" class="step-content">
+                        <h3>Choose Your Subscription Plan</h3>
+                        
+
+                        <div *ngIf="!wizardLoading()" class="plans-grid">
+                            <div *ngFor="let plan of plans()" 
+                                 class="plan-card" 
+                                 [class.selected]="selectedPlan()?.id === plan.id"
+                                 (click)="selectPlan(plan)">
+                                <div class="plan-header">
+                                    <h4>{{ plan.planName }}</h4>
+                                    <p class="plan-description">{{ plan.description }}</p>
+                                </div>
+                                <div class="plan-price">
+                                    <div class="price-row">
+                                        <span class="currency">R</span>
+                                        <span class="amount">{{ plan.monthlyPrice | number:'1.2-2' }}</span>
+                                        <span class="period">/month</span>
+                                    </div>
+                                    <div class="price-row" *ngIf="plan.yearlyPrice && plan.yearlyPrice > 0">
+                                        <span class="currency">R</span>
+                                        <span class="amount">{{ plan.yearlyPrice | number:'1.2-2' }}</span>
+                                        <span class="period">/year</span>
+                                    </div>
+                                </div>
+                                <hr class="my-3">
+                                <div class="plan-features">
+                                    <div class="feature" *ngIf="plan.supportsIdentityVerification">
+                                        <i class="bi bi-check-lg"></i>
+                                        <span>Identity Verification</span>
+                                    </div>
+                                    <div class="feature" *ngIf="plan.maxVerificationsPerMonth > 0">
+                                        <i class="bi bi-check-lg"></i>
+                                        <span>{{ plan.maxVerificationsPerMonth }} verifications/month</span>
+                                    </div>
+                                    <div class="feature" *ngIf="plan.enhancedVerification">
+                                        <i class="bi bi-check-lg"></i>
+                                        <span>Enhanced Verification</span>
+                                    </div>
+                                    <div class="feature" *ngIf="plan.quickIdCheck">
+                                        <i class="bi bi-check-lg"></i>
+                                        <span>Quick ID Check</span>
+                                    </div>
+                                    <div class="feature" *ngIf="plan.bulkVerification">
+                                        <i class="bi bi-check-lg"></i>
+                                        <span>Bulk Verification</span>
+                                    </div>
+                                    <div class="feature" *ngIf="plan.verificationHistory">
+                                        <i class="bi bi-check-lg"></i>
+                                        <span>Verification History</span>
+                                    </div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button 
+                                        type="button"
+                                        class="btn w-100"
+                                        [class.btn-primary-theme]="selectedPlan()?.id === plan.id"
+                                        [class.btn-outline-primary-theme]="selectedPlan()?.id !== plan.id"
+                                        (click)="selectPlan(plan)">
+                                        <i class="bi bi-check-lg me-2" *ngIf="selectedPlan()?.id === plan.id"></i>
+                                        {{ selectedPlan()?.id === plan.id ? 'Selected' : 'Select Plan' }}
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        class="btn btn-outline-info btn-sm"
+                                        (click)="openPlanFeaturesModal(plan)">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        View Features
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Real-Time Pricing Calculator -->
+                        <div class="price-calculator card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">Pricing Breakdown</h5>
+                                <div class="price-breakdown">
+                                    <div class="breakdown-row">
+                                        <span>Monthly Price:</span>
+                                        <strong>R {{priceBreakdown().basePrice | number:'1.2-2'}}/month</strong>
+                                    </div>
+                                    <div class="breakdown-row" *ngIf="priceBreakdown().couponDiscount > 0">
+                                        <span>Coupon Discount:</span>
+                                        <strong class="text-success">-R {{priceBreakdown().couponDiscount | number:'1.2-2'}}</strong>
+                                    </div>
+                                    <hr>
+                                    <div class="breakdown-row total">
+                                        <span>Total Monthly:</span>
+                                        <strong class="text-primary fs-4">R {{calculatedPrice().monthly | number:'1.2-2'}}</strong>
+                                    </div>
+                                    <div class="breakdown-row total">
+                                        <span>Total Yearly (Save {{calculatedPrice().yearlyDiscount}}%):</span>
+                                        <strong class="text-success fs-4">R {{calculatedPrice().yearly | number:'1.2-2'}}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Billing Cycle Selection -->
+                        <div class="billing-cycle-section mb-4">
+                            <h5>Select Billing Cycle</h5>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="billingCycle" id="monthly" [value]="'monthly'" [(ngModel)]="selectedBillingCycle" autocomplete="off">
+                                <label class="btn btn-outline-primary-theme" for="monthly">
+                                    <div>Monthly </div>
+                                    <div class="fs-5 fw-boldd px-4"> R {{calculatedPrice().monthly | number:'1.2-2'}}</div>
+                                    <small> Billed monthly</small>
+                                </label>
+
+                                <input type="radio" class="btn-check" name="billingCycle" id="yearly" [value]="'yearly'" [(ngModel)]="selectedBillingCycle" autocomplete="off">
+                                <label class="btn btn-outline-primary-theme" for="yearly">
+                                    <div>Yearly <span class="badge bg-success">Save {{calculatedPrice().yearlyDiscount}}%</span></div>
+                                    <div class="fs-5 fw-bold px-4"> R {{calculatedPrice().yearly | number:'1.2-2'}}</div>
+                                    <small> Billed annually</small>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Pro-Rata Billing Option -->
+                        <div class="pro-rata-section card mb-4 border-info">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title mb-2">
+                                            <i class="bi bi-calendar-check text-info me-2"></i>
+                                            Pro-Rated Billing
+                                        </h5>
+                                        <p class="text-muted mb-0 small">
+                                            Pay only for the remaining {{ billingCycle === 1 ? 'year' : 'month' }}. 
+                                            Full billing starts next period.
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div *ngIf="enableProRata() && proRataInfo()" class="alert alert-info mb-0">
+                                    <div class="row text-center">
+                                        <div class="col-md-3">
+                                            <small class="text-muted d-block">Full Price</small>
+                                            <strong>R {{proRataInfo()!.fullAmount | number:'1.2-2'}}</strong>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted d-block">Days Remaining</small>
+                                            <strong>{{proRataInfo()!.daysRemaining}} / {{proRataInfo()!.daysInPeriod}}</strong>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted d-block">You Save</small>
+                                            <strong class="text-success">R {{(proRataInfo()!.fullAmount - proRataInfo()!.proRatedAmount) | number:'1.2-2'}}</strong>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <small class="text-muted d-block">Pro-Rated Price</small>
+                                            <strong class="text-primary fs-5">R {{proRataInfo()!.proRatedAmount | number:'1.2-2'}}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div *ngIf="wizardLoading()" class="loading-container">
+                            <div class="spinner-border" role="status"></div>
+                        </div>
+
+                        <!-- Coupon Code Section -->
+                        <div *ngIf="selectedPlan()" class="coupon-section mt-4">
+                            <h4 class="mb-3">Have a coupon code?</h4>
+                            <div class="input-group">
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    [(ngModel)]="couponCode"
+                                    placeholder="Enter coupon code"
+                                    [disabled]="couponLoading() || couponFromUrl()">
+                                <button 
+                                    type="button"
+                                    class="btn-primary-theme"
+                                    [disabled]="!couponCode() || couponLoading() || couponFromUrl()"
+                                    (click)="validateCoupon()">
+                                    <span *ngIf="couponLoading()" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    Apply
+                                </button>
+                            </div>
+                            
+                            <div *ngIf="couponValidation()?.isValid" class="alert alert-success mt-3 d-flex flex-column align-items-start" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill me-2"></i>
+                                    <span>{{ couponValidation()?.message }}</span>
+                                    <span *ngIf="couponFromUrl()" class="badge bg-info ms-2">Applied from URL</span>
+                                </div>
+                                <div *ngIf="couponValidation()?.durationMonths && couponValidation()?.durationMonths > 1" class="mt-2">
+                                    <small><i class="bi bi-info-circle me-1"></i> This discount will be applied for the next {{ couponValidation()?.durationMonths }} billing cycles.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price Summary -->
+                        <div *ngIf="selectedPlan()" class="price-summary mt-4">
+                            <div class="summary-row">
+                                <span>Plan:</span>
+                                <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ calculatedPrice().monthly | number:'1.2-2' }}/month</span>
+                                <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ calculatedPrice().yearly | number:'1.2-2' }}/year</span>
+                            </div>
+                            <div *ngIf="getDiscountAmount() > 0" class="summary-row discount">
+                                <span>Discount:</span>
+                                <span>-R {{ getDiscountAmount() | number:'1.2-2' }}</span>
+                            </div>
+                            <hr class="my-3">
+                            <div class="summary-row total">
+                                <span>First Month's Total:</span>
+                                <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ getFinalPrice() | number:'1.2-2' }}/month</span>
+                                <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ getFinalPrice() | number:'1.2-2' }}/year</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Step 1: Account Information & Organization Type Selection -->
-                    <div *ngIf="activeIndex() === 0 && accountForm" class="step-content">
+                    <div *ngIf="activeIndex() === 1 && accountForm" class="step-content">
                         <h3>Account Information</h3>
                         <form [formGroup]="accountForm" class="registration-form">
                             <div class="row g-3">
@@ -170,67 +384,6 @@
                                 </div>
                             </div>
 
-                            <!-- Organization Type Selection -->
-                            <div class="row g-3 mt-4">
-                                <div class="col-12">
-                                    <h4 class="mb-3">Select Your Organization Type *</h4>
-                                    <p class="text-muted">Choose the type that best describes your organization</p>
-                                    
-                                    <!-- Funeral Services -->
-                                    <div class="org-type-category mb-4">
-                                        <h5 class="category-title"><i class="bi bi-flower1 me-2"></i>Funeral Services</h5>
-                                        <div class="row g-3">
-                                            <div class="col-md-6 col-lg-3" *ngFor="let orgType of getOrganizationTypesByCategory('funeral')">
-                                                <div class="org-type-card" 
-                                                     [class.selected]="selectedOrganizationType()?.value === orgType.value"
-                                                     (click)="onOrganizationTypeSelected(orgType)">
-                                                    <div class="org-icon">
-                                                        <i class="{{orgType.icon}}"></i>
-                                                    </div>
-                                                    <h6>{{orgType.label}}</h6>
-                                                    <p class="small text-muted">{{orgType.description}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Non-Profit Organizations -->
-                                    <div class="org-type-category mb-4">
-                                        <h5 class="category-title"><i class="bi bi-heart me-2"></i>Non-Profit Organizations</h5>
-                                        <div class="row g-3">
-                                            <div class="col-md-6 col-lg-3" *ngFor="let orgType of getOrganizationTypesByCategory('nonprofit')">
-                                                <div class="org-type-card" 
-                                                     [class.selected]="selectedOrganizationType()?.value === orgType.value"
-                                                     (click)="onOrganizationTypeSelected(orgType)">
-                                                    <div class="org-icon">
-                                                        <i class="{{orgType.icon}}"></i>
-                                                    </div>
-                                                    <h6>{{orgType.label}}</h6>
-                                                    <p class="small text-muted">{{orgType.description}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Business Services -->
-                                    <div class="org-type-category mb-4">
-                                        <h5 class="category-title"><i class="bi bi-briefcase me-2"></i>Business Services</h5>
-                                        <div class="row g-3">
-                                            <div class="col-md-6 col-lg-3" *ngFor="let orgType of getOrganizationTypesByCategory('business')">
-                                                <div class="org-type-card" 
-                                                     [class.selected]="selectedOrganizationType()?.value === orgType.value"
-                                                     (click)="onOrganizationTypeSelected(orgType)">
-                                                    <div class="org-icon">
-                                                        <i class="{{orgType.icon}}"></i>
-                                                    </div>
-                                                    <h6>{{orgType.label}}</h6>
-                                                    <p class="small text-muted">{{orgType.description}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
                             <!-- Terms and Conditions -->
                             <div class="row g-3 mt-3">
@@ -253,326 +406,13 @@
                         </form>
                     </div>
 
-                    <!-- Step 2: Organization-Specific Questions -->
-                    <div *ngIf="activeIndex() === 1" class="step-content">
-                        <div *ngIf="selectedOrganizationType()" class="organization-questions">
-                            <div class="mb-4 text-center">
-                                <div class="org-icon-large mb-3">
-                                    <i class="{{selectedOrganizationType()!.icon}}"></i>
-                                </div>
-                                <h3>{{selectedOrganizationType()!.label}}</h3>
-                                <p class="text-muted">{{selectedOrganizationType()!.description}}</p>
-                            </div>
-
-                            <div class="alert alert-info">
-                                <i class="bi bi-info-circle me-2"></i>
-                                Help us understand your needs better. Your answers will help us customize your experience and provide accurate pricing.
-                            </div>
-
-                            <form [formGroup]="organizationQuestionsForm" class="questions-form">
-                                <div class="row g-4">
-                                    <div class="col-md-12" *ngFor="let question of orgTypeQuestions()">
-                                        <div class="question-card">
-                                            <label class="form-label">
-                                                {{question.label}}
-                                                <span *ngIf="question.required" class="text-danger">*</span>
-                                            </label>
-                                            <small *ngIf="question.helpText" class="form-text text-muted d-block mb-2">
-                                                {{question.helpText}}
-                                            </small>
-
-                                            <!-- Text Input -->
-                                            <input *ngIf="question.type === 'text'" 
-                                                   type="text" 
-                                                   class="form-control" 
-                                                   [formControlName]="question.id"
-                                                   [placeholder]="question.placeholder || ''"
-                                                   [class.is-invalid]="organizationQuestionsForm.get(question.id)?.invalid && organizationQuestionsForm.get(question.id)?.touched">
-
-                                            <!-- Number Input -->
-                                            <input *ngIf="question.type === 'number'" 
-                                                   type="number" 
-                                                   class="form-control" 
-                                                   [formControlName]="question.id"
-                                                   [placeholder]="question.placeholder || ''"
-                                                   [class.is-invalid]="organizationQuestionsForm.get(question.id)?.invalid && organizationQuestionsForm.get(question.id)?.touched">
-
-                                            <!-- Select Dropdown -->
-                                            <select *ngIf="question.type === 'select'" 
-                                                    class="form-select" 
-                                                    [formControlName]="question.id"
-                                                    [class.is-invalid]="organizationQuestionsForm.get(question.id)?.invalid && organizationQuestionsForm.get(question.id)?.touched">
-                                                <option value="">Select an option</option>
-                                                <option *ngFor="let option of question.options" [value]="option.value">
-                                                    {{option.label}}
-                                                </option>
-                                            </select>
-
-                                            <!-- Radio Buttons -->
-                                            <div *ngIf="question.type === 'radio'" class="radio-group">
-                                                <div class="form-check" *ngFor="let option of question.options">
-                                                    <input class="form-check-input" 
-                                                           type="radio" 
-                                                           [formControlName]="question.id"
-                                                           [value]="option.value"
-                                                           [id]="question.id + '_' + option.value">
-                                                    <label class="form-check-label" [for]="question.id + '_' + option.value">
-                                                        {{option.label}}
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <!-- Checkboxes -->
-                                            <div *ngIf="question.type === 'checkbox'" class="checkbox-group">
-                                                <div class="form-check" *ngFor="let option of question.options">
-                                                    <input class="form-check-input" 
-                                                           type="checkbox" 
-                                                           [value]="option.value"
-                                                           [id]="question.id + '_' + option.value"
-                                                           (change)="onCheckboxChange($event, question.id, option.value)">
-                                                    <label class="form-check-label" [for]="question.id + '_' + option.value">
-                                                        {{option.label}}
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <!-- Textarea -->
-                                            <textarea *ngIf="question.type === 'textarea'" 
-                                                      class="form-control" 
-                                                      [formControlName]="question.id"
-                                                      [placeholder]="question.placeholder || ''"
-                                                      rows="4"
-                                                      [class.is-invalid]="organizationQuestionsForm.get(question.id)?.invalid && organizationQuestionsForm.get(question.id)?.touched">
-                                            </textarea>
-
-                                            <div class="invalid-feedback">
-                                                This field is required
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-
-                            <!-- Features Preview -->
-                            <div class="features-preview mt-4">
-                                <h5>Features Included for {{selectedOrganizationType()!.label}}</h5>
-                                <div class="row">
-                                    <div class="col-md-6" *ngFor="let feature of selectedOrganizationType()!.features">
-                                        <div class="feature-item">
-                                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                            {{feature}}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: Plan Selection with Real-Time Pricing -->
+                    <!-- Step 2: Payment Processing -->
                     <div *ngIf="activeIndex() === 2" class="step-content">
-                        <h3>Choose Your Subscription Plan</h3>
-                        
-                        <!-- Real-Time Pricing Calculator -->
-                        <div class="price-calculator card mb-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Pricing Breakdown</h5>
-                                <div class="price-breakdown">
-                                    <div class="breakdown-row">
-                                        <span>Monthly Price:</span>
-                                        <strong>R {{priceBreakdown().basePrice | number:'1.2-2'}}/month</strong>
-                                    </div>
-                                    <div class="breakdown-row" *ngIf="priceBreakdown().couponDiscount > 0">
-                                        <span>Coupon Discount:</span>
-                                        <strong class="text-success">-R {{priceBreakdown().couponDiscount | number:'1.2-2'}}</strong>
-                                    </div>
-                                    <hr>
-                                    <div class="breakdown-row total">
-                                        <span>Total Monthly:</span>
-                                        <strong class="text-primary fs-4">R {{calculatedPrice().monthly | number:'1.2-2'}}</strong>
-                                    </div>
-                                    <div class="breakdown-row total">
-                                        <span>Total Yearly (Save {{calculatedPrice().yearlyDiscount}}%):</span>
-                                        <strong class="text-success fs-4">R {{calculatedPrice().yearly | number:'1.2-2'}}</strong>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="payment-processing">
+                            <div class="spinner-border" role="status"></div>
+                            <h3>Processing Payment...</h3>
+                            <p>Please wait while we redirect you to the payment gateway.</p>
                         </div>
-
-                        <!-- Billing Cycle Selection -->
-                        <div class="billing-cycle-section mb-4">
-                            <h5>Select Billing Cycle</h5>
-                            <div class="btn-group w-100" role="group">
-                                <input type="radio" class="btn-check" name="billingCycle" id="monthly" [value]="'monthly'" [(ngModel)]="selectedBillingCycle" autocomplete="off">
-                                <label class="btn btn-outline-primary-theme" for="monthly">
-                                    <div>Monthly</div>
-                                    <div class="fs-5 fw-bold">R {{calculatedPrice().monthly | number:'1.2-2'}}</div>
-                                    <small>Billed monthly</small>
-                                </label>
-
-                                <input type="radio" class="btn-check" name="billingCycle" id="yearly" [value]="'yearly'" [(ngModel)]="selectedBillingCycle" autocomplete="off">
-                                <label class="btn btn-outline-primary-theme" for="yearly">
-                                    <div>Yearly <span class="badge bg-success">Save {{calculatedPrice().yearlyDiscount}}%</span></div>
-                                    <div class="fs-5 fw-bold">R {{calculatedPrice().yearly | number:'1.2-2'}}</div>
-                                    <small>Billed annually</small>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- Pro-Rata Billing Option -->
-                        <div class="pro-rata-section card mb-4 border-info">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div class="flex-grow-1">
-                                        <h5 class="card-title mb-2">
-                                            <i class="bi bi-calendar-check text-info me-2"></i>
-                                            Pro-Rated Billing
-                                        </h5>
-                                        <p class="text-muted mb-0 small">
-                                            Pay only for the remaining {{ billingCycle === 1 ? 'year' : 'month' }}. 
-                                            Full billing starts next period.
-                                        </p>
-                                    </div>
-                                </div>
-                                
-                                <div *ngIf="enableProRata() && proRataInfo()" class="alert alert-info mb-0">
-                                    <div class="row text-center">
-                                        <div class="col-md-3">
-                                            <small class="text-muted d-block">Full Price</small>
-                                            <strong>R {{proRataInfo()!.fullAmount | number:'1.2-2'}}</strong>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <small class="text-muted d-block">Days Remaining</small>
-                                            <strong>{{proRataInfo()!.daysRemaining}} / {{proRataInfo()!.daysInPeriod}}</strong>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <small class="text-muted d-block">You Save</small>
-                                            <strong class="text-success">R {{(proRataInfo()!.fullAmount - proRataInfo()!.proRatedAmount) | number:'1.2-2'}}</strong>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <small class="text-muted d-block">Pro-Rated Price</small>
-                                            <strong class="text-primary fs-5">R {{proRataInfo()!.proRatedAmount | number:'1.2-2'}}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    
-                    <div *ngIf="wizardLoading()" class="loading-container">
-                        <div class="spinner-border" role="status"></div>
-                    </div>
-
-                    <div *ngIf="!wizardLoading()" class="plans-grid">
-                        <div *ngFor="let plan of plans()" 
-                             class="plan-card" 
-                             [class.selected]="selectedPlan()?.id === plan.id"
-                             (click)="selectPlan(plan)">
-                            <div class="plan-header">
-                                <h4>{{ plan.name }}</h4>
-                                <p class="plan-description">{{ plan.description }}</p>
-                            </div>
-                            <div class="plan-price">
-                                <div class="price-row">
-                                    <span class="currency">R</span>
-                                    <span class="amount">{{ plan.monthlyPrice | number:'1.2-2' }}</span>
-                                    <span class="period">/month</span>
-                                </div>
-                                <div class="price-row" *ngIf="plan.yearlyPrice && plan.yearlyPrice > 0">
-                                    <span class="currency">R</span>
-                                    <span class="amount">{{ plan.yearlyPrice | number:'1.2-2' }}</span>
-                                    <span class="period">/year</span>
-                                </div>
-                            </div>
-                            <hr class="my-3">
-                            <div class="plan-features">
-                                <div class="feature" *ngIf="plan.supportsIdentityVerification">
-                                    <i class="bi bi-check-lg"></i>
-                                    <span>Identity Verification</span>
-                                </div>
-                                <div class="feature" *ngIf="plan.maxVerificationsPerMonth > 0">
-                                    <i class="bi bi-check-lg"></i>
-                                    <span>{{ plan.maxVerificationsPerMonth }} verifications/month</span>
-                                </div>
-                                <div class="feature" *ngIf="plan.enhancedVerification">
-                                    <i class="bi bi-check-lg"></i>
-                                    <span>Enhanced Verification</span>
-                                </div>
-                                <div class="feature" *ngIf="plan.quickIdCheck">
-                                    <i class="bi bi-check-lg"></i>
-                                    <span>Quick ID Check</span>
-                                </div>
-                                <div class="feature" *ngIf="plan.bulkVerification">
-                                    <i class="bi bi-check-lg"></i>
-                                    <span>Bulk Verification</span>
-                                </div>
-                                <div class="feature" *ngIf="plan.verificationHistory">
-                                    <i class="bi bi-check-lg"></i>
-                                    <span>Verification History</span>
-                                </div>
-                            </div>
-                            <button 
-                                type="button"
-                                class="btn w-100 mt-3"
-                                [class.btn-primary-theme]="selectedPlan()?.id === plan.id"
-                                [class.btn-outline-primary-theme]="selectedPlan()?.id !== plan.id"
-                                (click)="selectPlan(plan)">
-                                <i class="bi bi-check-lg me-2" *ngIf="selectedPlan()?.id === plan.id"></i>
-                                {{ selectedPlan()?.id === plan.id ? 'Selected' : 'Select Plan' }}
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Coupon Code Section -->
-                    <div *ngIf="selectedPlan()" class="coupon-section mt-4">
-                        <h4 class="mb-3">Have a coupon code?</h4>
-                        <div class="input-group">
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                [(ngModel)]="couponCode"
-                                placeholder="Enter coupon code"
-                                [disabled]="couponLoading()">
-                            <button 
-                                type="button"
-                                class="btn-primary-theme"
-                                [disabled]="!couponCode() || couponLoading()"
-                                (click)="validateCoupon()">
-                                <span *ngIf="couponLoading()" class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                Apply
-                            </button>
-                        </div>
-                        
-                        <div *ngIf="couponValidation()?.isValid" class="alert alert-success mt-3 d-flex align-items-center" role="alert">
-                            <i class="bi bi-check-circle-fill me-2"></i>
-                            <span>{{ couponValidation()?.message }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Price Summary -->
-                    <div *ngIf="selectedPlan()" class="price-summary mt-4">
-                        <div class="summary-row">
-                            <span>Plan:</span>
-                            <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ calculatedPrice().monthly | number:'1.2-2' }}/month</span>
-                            <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ calculatedPrice().yearly | number:'1.2-2' }}/year</span>
-                        </div>
-                        <div *ngIf="getDiscountAmount() > 0" class="summary-row discount">
-                            <span>Discount:</span>
-                            <span>-R {{ getDiscountAmount() | number:'1.2-2' }}</span>
-                        </div>
-                        <hr class="my-3">
-                        <div class="summary-row total">
-                            <span>Total:</span>
-                            <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ getFinalPrice() | number:'1.2-2' }}/month</span>
-                            <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ getFinalPrice() | number:'1.2-2' }}/year</span>
-                        </div>
-                    </div>
-                </div>
-
-                    <!-- Step 4: Payment Processing -->
-                    <div *ngIf="activeIndex() === 3" class="step-content">
-                    <div class="payment-processing">
-                        <div class="spinner-border" role="status"></div>
-                        <h3>Processing Payment...</h3>
-                        <p>Please wait while we redirect you to the payment gateway.</p>
                     </div>
                 </div>
             </div>
@@ -596,11 +436,11 @@
                         <button 
                             type="button"
                             class="btn-primary-theme"
-                            [disabled]="wizardLoading() || (activeIndex() === 0 && !selectedOrganizationType())"
+                            [disabled]="wizardLoading() || (activeIndex() === 0 && !selectedPlan())"
                             (click)="nextStep()">
                             <span *ngIf="wizardLoading()" class="spinner-border spinner-border-sm me-2" role="status"></span>
                             <span *ngIf="!wizardLoading()">
-                                {{ activeIndex() === 2 ? 'Proceed to Payment' : 'Continue' }}
+                                {{ activeIndex() === 1 ? 'Proceed to Payment' : 'Continue' }}
                             </span>
                             <i class="bi bi-arrow-right ms-2" *ngIf="!wizardLoading()"></i>
                         </button>
@@ -610,6 +450,259 @@
         </div>
     </div>
 </div>
+
+
+<!-- Plan Features Modal -->
+<div class="modal" [class.show]="showPlanFeaturesModal()" [style.display]="showPlanFeaturesModal() ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" *ngIf="selectedPlanForFeatures()">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 bg-gradient pt-4">
+                <div>
+                    <h5 class="modal-title fw-bold" style="font-size: 1.5rem;">{{ selectedPlanForFeatures()?.planName }}</h5>
+                    <p class="text-muted small mb-0 mt-2">{{ selectedPlanForFeatures()?.description }}</p>
+                </div>
+                <button type="button" class="btn-close" (click)="showPlanFeaturesModal.set(false)"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <!-- Pricing Card -->
+                <div class="card border-0 bg-light mb-4">
+                    <div class="card-body">
+                        <div class="row align-items-end">
+                            <div class="col-md-6">
+                                <small class="text-muted d-block">Monthly</small>
+                                <h4 class="mb-0 fw-bold">R {{ selectedPlanForFeatures()?.monthlyPrice | number:'1.2-2' }}</h4>
+                                <small class="text-muted">/month</small>
+                            </div>
+                            <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.yearlyPrice && selectedPlanForFeatures()?.yearlyPrice > 0">
+                                <small class="text-muted d-block">Yearly</small>
+                                <h4 class="mb-0 fw-bold">R {{ selectedPlanForFeatures()?.yearlyPrice | number:'1.2-2' }}</h4>
+                                <small class="text-muted">/year</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Limits & Quotas -->
+                <div *ngIf="selectedPlanForFeatures()?.maxUsers || selectedPlanForFeatures()?.maxMembers || selectedPlanForFeatures()?.maxStorageMB || selectedPlanForFeatures()?.maxProducts || selectedPlanForFeatures()?.maxActiveOrders || selectedPlanForFeatures()?.maxLandingPages || selectedPlanForFeatures()?.maxEmailTemplates || selectedPlanForFeatures()?.maxCustomForms">
+                    <h6 class="mb-3 fw-bold d-flex align-items-center">
+                        <i class="bi bi-speedometer2 me-2 text-primary"></i>
+                        Limits & Quotas
+                    </h6>
+                    <div class="row g-2 mb-4">
+                        <div class="col-6" *ngIf="selectedPlanForFeatures()?.maxUsers">
+                            <div class="p-3 border rounded bg-white">
+                                <small class="text-muted d-block">Users</small>
+                                <strong class="fs-6">{{ selectedPlanForFeatures()?.maxUsers }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6" *ngIf="selectedPlanForFeatures()?.maxMembers">
+                            <div class="p-3 border rounded bg-white">
+                                <small class="text-muted d-block">Members</small>
+                                <strong class="fs-6">{{ selectedPlanForFeatures()?.maxMembers }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6" *ngIf="selectedPlanForFeatures()?.maxStorageMB">
+                            <div class="p-3 border rounded bg-white">
+                                <small class="text-muted d-block">Storage</small>
+                                <strong class="fs-6">{{ selectedPlanForFeatures()?.maxStorageMB }} MB</strong>
+                            </div>
+                        </div>
+                        <div class="col-6" *ngIf="selectedPlanForFeatures()?.maxProducts">
+                            <div class="p-3 border rounded bg-white">
+                                <small class="text-muted d-block">Products</small>
+                                <strong class="fs-6">{{ selectedPlanForFeatures()?.maxProducts }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6" *ngIf="selectedPlanForFeatures()?.maxActiveOrders">
+                            <div class="p-3 border rounded bg-white">
+                                <small class="text-muted d-block">Active Orders</small>
+                                <strong class="fs-6">{{ selectedPlanForFeatures()?.maxActiveOrders }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6" *ngIf="selectedPlanForFeatures()?.maxLandingPages">
+                            <div class="p-3 border rounded bg-white">
+                                <small class="text-muted d-block">Landing Pages</small>
+                                <strong class="fs-6">{{ selectedPlanForFeatures()?.maxLandingPages }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6" *ngIf="selectedPlanForFeatures()?.maxEmailTemplates">
+                            <div class="p-3 border rounded bg-white">
+                                <small class="text-muted d-block">Email Templates</small>
+                                <strong class="fs-6">{{ selectedPlanForFeatures()?.maxEmailTemplates }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6" *ngIf="selectedPlanForFeatures()?.maxCustomForms">
+                            <div class="p-3 border rounded bg-white">
+                                <small class="text-muted d-block">Custom Forms</small>
+                                <strong class="fs-6">{{ selectedPlanForFeatures()?.maxCustomForms }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Core Features -->
+                <div *ngIf="selectedPlanForFeatures()?.canUploadFiles || selectedPlanForFeatures()?.canCreateSubAccounts || selectedPlanForFeatures()?.canExportData || selectedPlanForFeatures()?.canUseAPI || selectedPlanForFeatures()?.canUseLandingPageBuilder || selectedPlanForFeatures()?.canUseCustomDomain || selectedPlanForFeatures()?.canAccessAdvancedReports || selectedPlanForFeatures()?.canUseWhiteLabel">
+                    <h6 class="mb-3 fw-bold d-flex align-items-center">
+                        <i class="bi bi-star-fill me-2 text-warning"></i>
+                        Core Features
+                    </h6>
+                    <div class="row g-2 mb-4">
+                        <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canUploadFiles">
+                            <div class="feature-badge">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <span>File Upload</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canCreateSubAccounts">
+                            <div class="feature-badge">
+                                <i class="bi bi-person-plus"></i>
+                                <span>Sub Accounts</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canExportData">
+                            <div class="feature-badge">
+                                <i class="bi bi-download"></i>
+                                <span>Data Export</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canUseAPI">
+                            <div class="feature-badge">
+                                <i class="bi bi-code-square"></i>
+                                <span>API Access</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canUseLandingPageBuilder">
+                            <div class="feature-badge">
+                                <i class="bi bi-palette"></i>
+                                <span>Page Builder</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canUseCustomDomain">
+                            <div class="feature-badge">
+                                <i class="bi bi-globe"></i>
+                                <span>Custom Domain</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canAccessAdvancedReports">
+                            <div class="feature-badge">
+                                <i class="bi bi-graph-up"></i>
+                                <span>Advanced Reports</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canUseWhiteLabel">
+                            <div class="feature-badge">
+                                <i class="bi bi-badge"></i>
+                                <span>White Label</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API & Rate Limits -->
+                <div *ngIf="selectedPlanForFeatures()?.canUseAPI && (selectedPlanForFeatures()?.apiRateLimitPerMinute || selectedPlanForFeatures()?.apiRateLimitPerDay)">
+                    <h6 class="mb-3 fw-bold d-flex align-items-center">
+                        <i class="bi bi-lightning-charge me-2 text-danger"></i>
+                        API Rate Limits
+                    </h6>
+                    <div class="alert alert-light border mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.apiRateLimitPerMinute">
+                                <small class="text-muted d-block">Per Minute</small>
+                                <strong>{{ selectedPlanForFeatures()?.apiRateLimitPerMinute }} requests</strong>
+                            </div>
+                            <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.apiRateLimitPerDay">
+                                <small class="text-muted d-block">Per Day</small>
+                                <strong>{{ selectedPlanForFeatures()?.apiRateLimitPerDay }} requests</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Support & Restrictions -->
+                <h6 class="mb-3 fw-bold d-flex align-items-center">
+                    <i class="bi bi-info-circle me-2 text-info"></i>
+                    Support & Options
+                </h6>
+                <div class="row g-2 mb-4">
+                    <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.hasPrioritySupport">
+                        <div class="p-3 border rounded bg-white">
+                            <i class="bi bi-headset text-success me-2"></i>
+                            <strong>Priority Support</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.trialDays && selectedPlanForFeatures()?.trialDays > 0">
+                        <div class="p-3 border rounded bg-white">
+                            <i class="bi bi-gift text-info me-2"></i>
+                            <strong>{{ selectedPlanForFeatures()?.trialDays }}-Day Trial</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canUpgrade">
+                        <div class="p-3 border rounded bg-white">
+                            <i class="bi bi-arrow-up-circle text-success me-2"></i>
+                            <strong>Can Upgrade</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.canDowngrade">
+                        <div class="p-3 border rounded bg-white">
+                            <i class="bi bi-arrow-down-circle text-warning me-2"></i>
+                            <strong>Can Downgrade</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.sendUsageAlerts">
+                        <div class="p-3 border rounded bg-white">
+                            <i class="bi bi-bell text-warning me-2"></i>
+                            <strong>Usage Alerts &#64; {{ selectedPlanForFeatures()?.usageAlertThresholdPercent }}%</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.requiresCreditCard">
+                        <div class="p-3 border rounded bg-white">
+                            <i class="bi bi-credit-card text-danger me-2"></i>
+                            <strong>Credit Card Req.</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overage Pricing -->
+                <div *ngIf="selectedPlanForFeatures()?.allowOverage && (selectedPlanForFeatures()?.overageUserPrice || selectedPlanForFeatures()?.overageStoragePricePerGB || selectedPlanForFeatures()?.overageProductPricePer100)">
+                    <h6 class="mb-3 fw-bold d-flex align-items-center">
+                        <i class="bi bi-cash-coin me-2 text-success"></i>
+                        Overage Pricing
+                    </h6>
+                    <div class="card border-0 bg-light mb-4">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.overageUserPrice">
+                                    <small class="text-muted d-block">Per Additional User</small>
+                                    <strong class="fs-5">R {{ selectedPlanForFeatures()?.overageUserPrice }}</strong>
+                                </div>
+                                <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.overageStoragePricePerGB">
+                                    <small class="text-muted d-block">Per GB Storage</small>
+                                    <strong class="fs-5">R {{ selectedPlanForFeatures()?.overageStoragePricePerGB }}</strong>
+                                </div>
+                                <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.overageProductPricePer100">
+                                    <small class="text-muted d-block">Per 100 Products</small>
+                                    <strong class="fs-5">R {{ selectedPlanForFeatures()?.overageProductPricePer100 }}</strong>
+                                </div>
+                                <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.overageMemberPricePer100">
+                                    <small class="text-muted d-block">Per 100 Members</small>
+                                    <strong class="fs-5">R {{ selectedPlanForFeatures()?.overageMemberPricePer100 }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 pt-0 pb-4">
+                <button type="button" class="btn btn-outline-secondary" (click)="showPlanFeaturesModal.set(false)">Cancel</button>
+                <button type="button" class="btn btn-primary-theme fw-bold" (click)="selectPlan(selectedPlanForFeatures()); showPlanFeaturesModal.set(false)">
+                    <i class="bi bi-check-lg me-2"></i>
+                    Select This Plan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- Terms and Conditions Modal -->
 <div class="modal" [class.show]="showTermsModal" [style.display]="showTermsModal ? 'block' : 'none'" tabindex="-1">

@@ -408,10 +408,12 @@ export class PageBuilderComponent implements OnInit {
                 console.error('Editor instance has no update EventEmitter!');
             }
             
-            if (this.editorComponentRef.instance.cancel) {
-                console.log('Subscribing to cancel event');
-                this.editorComponentRef.instance.cancel.subscribe(() => {
-                    console.log('=== CANCEL EVENT RECEIVED ===');
+            // Subscribe to close/cancel event (different components use different names)
+            const closeEmitter = this.editorComponentRef.instance.cancel || this.editorComponentRef.instance.closed;
+            if (closeEmitter) {
+                console.log('Subscribing to close/cancel event');
+                closeEmitter.subscribe(() => {
+                    console.log('=== CANCEL/CLOSE EVENT RECEIVED ===');
                     this.handleEditorCancel();
                 });
             }

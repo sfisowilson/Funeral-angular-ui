@@ -115,8 +115,8 @@ export class AssetsComponent {
     }
 
     loadDemoData() {
-        this.assetService.asset_GetAllAssets(undefined, undefined, undefined, undefined, undefined).subscribe((assets) => {
-            this.assets.set(assets);
+        this.assetService.asset_GetAllAssets(undefined, undefined, undefined, undefined, undefined).subscribe((response) => {
+            this.assets.set(response?.result || []);
         });
 
         this.statuses = [
@@ -232,7 +232,7 @@ export class AssetsComponent {
         if (this.asset.name?.trim()) {
             if (this.asset.id) {
                 _assets[this.findIndexById(this.asset.id)] = this.asset;
-                this.assetService.asset_UpdateAsset(this.asset.id, this.asset).subscribe((updatedAsset: AssetDto) => {
+                this.assetService.asset_UpdateAsset(this.asset.id, this.asset).subscribe((response) => {
                     this.assets.set([..._assets]);
                     this.messageService.add({
                         severity: 'success',

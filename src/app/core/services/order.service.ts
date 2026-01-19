@@ -75,11 +75,11 @@ export class OrderService {
 
     getOrders(status?: string): Observable<Order[]> {
         const statusValue = status ? this.mapStatusToEnum(status) : undefined;
-        return this.orderProxy.order_GetAll(statusValue as any) as unknown as Observable<Order[]>;
+        return this.orderProxy.order_GetAll(statusValue as any) as any as Observable<Order[]>;
     }
 
     getOrder(id: string): Observable<Order> {
-        return this.orderProxy.order_GetById(id) as unknown as Observable<Order>;
+        return this.orderProxy.order_GetById(id) as any as Observable<Order>;
     }
 
     getOrderByNumber(orderNumber: string): Observable<Order> {
@@ -93,7 +93,7 @@ export class OrderService {
 
     createOrder(order: Partial<Order>): Observable<Order> {
         const dto = new CreateOrderDto(order as any);
-        return this.orderProxy.order_Create(dto) as unknown as Observable<Order>;
+        return this.orderProxy.order_Create(dto) as any as Observable<Order>;
     }
 
     updateOrder(id: string, order: Partial<Order>): Observable<Order> {
@@ -105,7 +105,7 @@ export class OrderService {
 
     updateOrderStatus(id: string, status: string): Observable<Order> {
         const dto = new UpdateOrderStatusDto({ orderId: id, status: this.mapStatusToEnum(status) as any, note: undefined });
-        return this.orderProxy.order_UpdateStatus(dto) as any;
+        return this.orderProxy.order_UpdateStatus(dto) as any as Observable<Order>;
     }
 
     updatePaymentStatus(id: string, paymentStatus: string): Observable<Order> {
@@ -118,7 +118,7 @@ export class OrderService {
 
     cancelOrder(id: string, reason?: string): Observable<Order> {
         const dto = new UpdateOrderStatusDto({ orderId: id, status: 3 as any, note: reason });
-        return this.orderProxy.order_UpdateStatus(dto) as any;
+        return this.orderProxy.order_UpdateStatus(dto) as any as Observable<Order>;
     }
 
     refundOrder(id: string, amount: number, reason?: string): Observable<Order> {
@@ -126,7 +126,7 @@ export class OrderService {
     }
 
     getOrderStats(): Observable<OrderStats> {
-        return this.orderProxy.order_GetStats() as unknown as Observable<OrderStats>;
+        return this.orderProxy.order_GetStats() as any as Observable<OrderStats>;
     }
 
     searchOrders(query: string): Observable<Order[]> {

@@ -4,12 +4,11 @@ A premium donation widget designed specifically for NGO tenants that integrates 
 
 ## Features
 
-- **Automatic Payment Gateway Integration**: Automatically loads and uses payment gateways configured in `/admin/payment-config`
-- **Multiple Payment Providers**: Supports PayPal, Stripe, PayFast, PayGate, Square, and Paystack
+- **Simplified Payment Processing**: Backend handles gateway selection automatically
+- **Multiple Payment Providers**: Supports PayFast, PayPal, Stripe, PayGate, Square, and Paystack via backend configuration
 - **Preset & Custom Amounts**: Quick-select donation amounts or enter custom amount
 - **One-time or Recurring**: Donors can choose between one-time or monthly recurring donations
 - **Impact Messaging**: Dynamic messages that scale with donation amount
-- **Real-time Gateway Status**: Shows only active payment gateways
 - **Impact Statistics**: Optional display of total donations, donor count, and projects supported
 - **Professional Design**: Modern card-based design with smooth transitions and responsive layout
 
@@ -123,21 +122,19 @@ To customize these, edit the component file or create a configuration option.
 
 ### Payment Flow
 
-1. **Widget Loads**: On initialization, the widget fetches active payment gateways from `/api/payment-config/gateway-list`
-2. **Gateway Selection**: Donor sees only active, configured gateways
-3. **Amount Selection**: Donor chooses preset amount or enters custom amount
-4. **Frequency Selection**: One-time or monthly recurring
-5. **Donation Processing**:
-   - Creates a payment session via `/api/Payment/Payment_CreateSession`
-   - Receives redirect URL to payment gateway
-   - Redirects donor to secure payment gateway
-6. **Completion**: After payment, gateway redirects back to configured return URL
+1. **Widget Loads**: Widget initializes with no API calls needed
+2. **Amount Selection**: Donor chooses preset amount or enters custom amount
+3. **Frequency Selection**: One-time or monthly recurring
+4. **Donation Processing**:
+   - Creates a payment session via `/api/Payment/Payment_CreateDonationSession`
+   - Backend selects configured gateway and returns payment data
+   - Form submitted directly to payment gateway with payment data
+5. **Completion**: After payment, gateway redirects back to configured return URL
 
 ### Backend Integration
 
 The widget integrates with:
-- **Payment Config API** (`/api/payment-config/gateway-list`): Fetches configured gateways
-- **Payment Service API** (`/api/Payment/Payment_CreateSession`): Creates payment session
+- **Payment Service API** (`/api/Payment/Payment_CreateDonationSession`): Creates donation session, backend handles gateway selection
 
 ### Request Format
 
@@ -275,8 +272,8 @@ Potential improvements:
 ## API Dependencies
 
 This widget requires:
-- Backend Payment Config Controller
-- Backend Payment Service
-- Configured payment gateway (PayFast, PayPal, Stripe, etc.)
+- Backend Payment Service with `Payment_CreateDonationSession` endpoint
+- Configured payment gateway (PayFast, PayPal, Stripe, etc.) in backend
 - Active tenant with NGO type
 - Premium subscription (if subscription system is enabled)
+- Backend must use `ITenantProvider` to resolve tenant context from request header

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ProductServiceProxy, ProductDto, CreateProductDto, UpdateProductDto, CategoryDto, CreateCategoryDto, ProductStatsDto } from './service-proxies';
 
 export interface Product {
@@ -79,7 +80,7 @@ export class ProductService {
   constructor(private productProxy: ProductServiceProxy) {}
 
   getProducts(isActive?: boolean, categoryId?: string): Observable<Product[]> {
-    return this.productProxy.product_GetAll(isActive, categoryId) as Observable<Product[]>;
+    return this.productProxy.product_GetAll(isActive, categoryId) as any as Observable<Product[]>;
   }
 
   getActiveProducts(): Observable<Product[]> {
@@ -87,25 +88,27 @@ export class ProductService {
   }
 
   getFeaturedProducts(): Observable<Product[]> {
-    return this.productProxy.product_GetAll(true, undefined) as Observable<Product[]>;
+    return this.productProxy.product_GetAll(true, undefined) as any as Observable<Product[]>;
   }
 
   getProduct(id: string): Observable<Product> {
-    return this.productProxy.product_GetById(id) as Observable<Product>;
+    return this.productProxy.product_GetById(id) as any as Observable<Product>;
   }
 
   createProduct(product: Product): Observable<Product> {
     const dto = new CreateProductDto(product as any);
-    return this.productProxy.product_Create(dto) as Observable<Product>;
+    return this.productProxy.product_Create(dto) as any as Observable<Product>;
   }
 
   updateProduct(id: string, product: Product): Observable<Product> {
     const dto = new UpdateProductDto({ ...product, id: id } as any);
-    return this.productProxy.product_Update(dto) as Observable<Product>;
+    return this.productProxy.product_Update(dto) as any as Observable<Product>;
   }
 
   deleteProduct(id: string): Observable<void> {
-    return this.productProxy.product_Delete(id) as Observable<void>;
+    return this.productProxy.product_Delete(id).pipe(
+      map(() => undefined)
+    );
   }
 
   updateInventory(productId: string, stockQuantity: number, variantId?: string): Observable<void> {
@@ -117,16 +120,25 @@ export class ProductService {
   }
 
   getCategories(): Observable<Category[]> {
-    return this.productProxy.category_GetAll() as Observable<Category[]>;
+    return this.productProxy.category_GetAll() as any as Observable<Category[]>;
   }
 
   createCategory(category: Category): Observable<Category> {
     const dto = new CreateCategoryDto(category as any);
-    return this.productProxy.category_Create(dto) as Observable<Category>;
+    return this.productProxy.category_Create(dto) as any as Observable<Category>;
   }
 
   getProductStats(): Observable<ProductStats> {
-    return this.productProxy.product_GetStats() as Observable<ProductStats>;
+    return this.productProxy.product_GetStats().pipe(
+      map((response: any) => ({
+        totalProducts: response.data?.totalProducts || 0,
+        activeProducts: response.data?.activeProducts || 0,
+        lowStockProducts: response.data?.lowStockProducts || 0,
+        totalInventoryValue: response.data?.totalInventoryValue || 0,
+        featuredProducts: response.data?.featuredProducts || 0,
+        totalCategories: response.data?.totalCategories || 0
+      }))
+    );
   }
 
   searchProducts(query: string): Observable<Product[]> {

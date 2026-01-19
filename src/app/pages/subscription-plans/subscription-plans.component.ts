@@ -17,6 +17,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SubscriptionPlanDto, SubscriptionPlanServiceProxy, TenantType, LookupServiceProxy } from '../../core/services/service-proxies';
 import { CheckboxModule } from 'primeng/checkbox';
+import { unwrap } from '../../core/services/response-unwrapper';
 
 interface Column {
     field: string;
@@ -70,7 +71,7 @@ export class SubscriptionPlansComponent {
 
     ngOnInit() {
         this.loadSubscriptionPlans();
-        this.lookupService.getEnumValues('TenantType').subscribe(
+        this.lookupService.getEnumValues('TenantType').pipe(unwrap<any[]>()).subscribe(
             (data: any[]) => {
                 this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
             },
@@ -81,7 +82,7 @@ export class SubscriptionPlansComponent {
     }
 
     loadSubscriptionPlans() {
-        this.subscriptionPlanService.subscriptionPlan_GetAll().subscribe((plans) => {
+        this.subscriptionPlanService.subscriptionPlan_GetAll().pipe(unwrap<SubscriptionPlanDto[]>()).subscribe((plans) => {
             this.subscriptionPlans.set(plans);
         });
 
@@ -177,7 +178,8 @@ export class SubscriptionPlansComponent {
         if (this.subscriptionPlan.name?.trim() && this.subscriptionPlan.description?.trim() && this.subscriptionPlan.monthlyPrice !== undefined && this.subscriptionPlan.allowedTenantType !== undefined) {
             if (this.subscriptionPlan.id) {
                 this.subscriptionPlanService.subscriptionPlan_Update(this.subscriptionPlan.id, this.subscriptionPlan).subscribe({
-                    next: (updatedPlan) => {
+                    next: (response) => {
+                        const updatedPlan = response?.result;
                         const currentPlans = this.subscriptionPlans();
                         const index = currentPlans.findIndex((p) => p.id === updatedPlan.id);
                         if (index !== -1) {

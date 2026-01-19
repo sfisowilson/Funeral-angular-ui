@@ -123,8 +123,8 @@ export class AppTopbar implements OnInit {
                 console.error('Error loading tenant settings for topbar:', error);
             });
 
-        this.userProfileService.userProfile_GetCurrentUserProfile().subscribe((profile) => {
-            this.userProfile = profile;
+        this.userProfileService.userProfile_GetCurrentUserProfile().subscribe((response) => {
+            this.userProfile = response?.result || new UserProfileDto();
         });
     }
 

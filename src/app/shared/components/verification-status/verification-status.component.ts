@@ -44,7 +44,8 @@ export class VerificationStatusComponent implements OnInit {
         if (this.memberId) {
             this.verificationService.verification_GetByMember(this.memberId).subscribe({
                 next: (requests) => {
-                    this.verificationRequests.set(requests || []);
+                    let result = requests?.result || [];
+                    this.verificationRequests.set(result);
                     this.loading.set(false);
                 },
                 error: (error) => {

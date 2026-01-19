@@ -29,8 +29,8 @@ export class PolicyComparisonWidgetComponent implements OnInit {
     }
 
     loadPolicies(): void {
-        this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe((policies) => {
-            this.allPolicies = policies;
+        this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe((response) => {
+            this.allPolicies = response?.result || [];
             this.filterPolicies();
         });
     }

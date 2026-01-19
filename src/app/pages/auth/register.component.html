@@ -151,6 +151,46 @@
                         <label for="memberPhoneNumber" class="form-label"><i class="bi bi-telephone"></i> Phone Number</label>
                         <input type="tel" class="form-control" id="memberPhoneNumber" placeholder="(012) 345-6789" formControlName="phoneNumber" />
                     </div>
+
+                    <!-- Dynamic Fields -->
+                    <div *ngFor="let field of dynamicFields" class="mb-3">
+                        <ng-container *ngIf="field.fieldKey">
+                            <label [for]="field.fieldKey" class="form-label">
+                                <i class="bi bi-input-cursor-text"></i> 
+                                {{ field.fieldLabel }}
+                                <span *ngIf="field.isRequired" class="text-danger">*</span>
+                            </label>
+                            <div [ngSwitch]="field.fieldType">
+                                <!-- Text Input -->
+                                <input *ngSwitchCase="'Text'" type="text" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey">
+                                
+                                <!-- Textarea -->
+                                <textarea *ngSwitchCase="'Textarea'" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey"></textarea>
+                                
+                                <!-- Number Input -->
+                                <input *ngSwitchCase="'Number'" type="number" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey">
+                        
+                                <!-- Date Input -->
+                                <input *ngSwitchCase="'Date'" type="date" class="form-control" [id]="field.fieldKey" [formControlName]="field.fieldKey">
+                                
+                                <!-- Checkbox -->
+                                <div *ngSwitchCase="'Checkbox'" class="form-check">
+                                    <input type="checkbox" class="form-check-input" [id]="field.fieldKey" [formControlName]="field.fieldKey">
+                                    <label class="form-check-label" [for]="field.fieldKey">{{ field.placeholder || '' }}</label>
+                                </div>
+                                
+                                <!-- Dropdown/Select -->
+                                <select *ngSwitchCase="'Dropdown'" class="form-select" [id]="field.fieldKey" [formControlName]="field.fieldKey">
+                                    <option value="">{{ field.placeholder || 'Select...' }}</option>
+                                    <option *ngFor="let option of getOptions(field.optionsJson)" [value]="option.value">{{ option.label }}</option>
+                                </select>
+                            </div>
+                            <div *ngIf="form.get(field.fieldKey)?.invalid && (form.get(field.fieldKey)?.dirty || form.get(field.fieldKey)?.touched)" class="text-danger mt-1">
+                                <small *ngIf="form.get(field.fieldKey)?.errors?.['required']">{{ field.fieldLabel }} is required.</small>
+                            </div>
+                        </ng-container>
+                    </div>
+                    
                     <div class="mb-3">
                         <label for="memberIdNumber" class="form-label"><i class="bi bi-card-text"></i> ID Number (SA) - Optional</label>
                         <input type="text" class="form-control" id="memberIdNumber" placeholder="e.g. 0001015009087" formControlName="identificationNumber" (ngModelChange)="onIdNumberChange()" maxlength="13" />

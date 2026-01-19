@@ -54,9 +54,9 @@ export class Dashboard implements OnInit {
         
         // Fetch visible widgets from API based on user roles
         this.dashboardWidgetService.dashboardWidget_GetVisibleByRoles(userRoles).subscribe({
-            next: (settings: DashboardWidgetSettingDto[]) => {
+            next: (response) => {
                 // Map widget settings to actual components
-                const widgets = settings
+                const widgets = response?.result
                     .map((setting: DashboardWidgetSettingDto) => {
                         const widget = DASHBOARD_WIDGETS.find(w => w.key === setting.widgetKey);
                         return widget;

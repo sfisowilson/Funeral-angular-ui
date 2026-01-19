@@ -127,7 +127,8 @@ export class DependentsStepComponent implements OnInit {
             : this.dependentService.dependent_GetMyDependents();
         
         dependentsObservable.subscribe({
-            next: (data) => {
+            next: (response) => {
+                const data = response?.result || [];
                 console.log('[DependentsStep] Loaded dependents:', data);
                 this.dependents.set(data);
                 this.checkCompletion();
@@ -349,7 +350,8 @@ export class DependentsStepComponent implements OnInit {
             : this.fileUploadService.file_GetMyFiles();
         
         filesObservable.subscribe({
-            next: (files) => {
+            next: (response) => {
+                const files = response?.result || [];
                 // Filter files for this dependent
                 const dependentFiles = files.filter(f => 
                     f.entityType === 'Dependent' && f.entityId === dependentId

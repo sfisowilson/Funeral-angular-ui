@@ -44,7 +44,7 @@ export class DynamicFormService {
      */
     loadFormConfiguration(): Observable<DynamicFormCategory[]> {
         return this.fieldService.onboardingFieldConfiguration_GetEnabled().pipe(
-            map((fields: OnboardingFieldConfigurationDto[]) => this.buildFormStructure(fields)),
+            map((response) => this.buildFormStructure(response.result)),
             tap((categories: DynamicFormCategory[]) => this.categoriesSubject.next(categories))
         );
     }
@@ -54,7 +54,8 @@ export class DynamicFormService {
      */
     loadCategoryConfiguration(category: string): Observable<DynamicFormCategory> {
         return this.fieldService.onboardingFieldConfiguration_GetByCategory().pipe(
-            map((categoryMap: { [key: string]: OnboardingFieldConfigurationDto[] }) => {
+            map((response) => {
+                const categoryMap = response.result;
                 const fields = categoryMap[category] || [];
                 const enabledFields = fields.filter((f: OnboardingFieldConfigurationDto) => f.isEnabled);
                 return this.buildCategory(category, enabledFields);

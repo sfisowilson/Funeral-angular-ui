@@ -63,7 +63,7 @@ export class CTABannerWidgetComponent {
   }
 
   get settings(): CTABannerSettings {
-    return this.config.settings || {};
+    return (this.config.settings || {} as any) as CTABannerSettings;
   }
 
   get backgroundType(): string {

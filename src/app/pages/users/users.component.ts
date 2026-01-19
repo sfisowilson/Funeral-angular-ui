@@ -15,6 +15,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { UserDto, UserServiceProxy, RoleServiceProxy, UserRoleServiceProxy, Role, UserRoleInputDto, UserRoleDto, RoleDto } from '../../core/services/service-proxies';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { unwrap } from '../../core/services/response-unwrapper';
 
 @Component({
     selector: 'app-users',
@@ -63,13 +64,13 @@ export class UsersComponent {
     }
 
     loadUsers() {
-        this.userService.user_GetAllUsers(undefined, undefined, undefined, undefined, undefined).subscribe((users) => {
+        this.userService.user_GetAllUsers(undefined, undefined, undefined, undefined, undefined).pipe(unwrap<UserDto[]>()).subscribe((users) => {
             this.users.set(users);
         });
     }
 
     loadRoles() {
-        this.roleService.role_GetAllRoles().subscribe((roles) => {
+        this.roleService.role_GetAllRoles().pipe(unwrap<RoleDto[]>()).subscribe((roles) => {
             this.roles.set(roles);
         });
     }
@@ -144,7 +145,8 @@ export class UsersComponent {
         if (this.user.email?.trim() && this.user.firstName?.trim()) {
             if (this.user.id) {
                 this.userService.user_UpdateUser(this.user).subscribe({
-                    next: (updatedUser: UserDto) => {
+                    next: (response) => {
+                        const updatedUser = response?.result;
                         // Roles to add
                         const rolesToAdd = this.selectedRoles.filter((selectedRole) => !this.originalUserRoles.some((originalRole) => originalRole.roleId === selectedRole.id));
                         rolesToAdd.forEach((role: RoleDto) => {
@@ -183,7 +185,8 @@ export class UsersComponent {
                 });
             } else {
                 this.userService.user_CreateUser(this.user).subscribe({
-                    next: (createdUser: UserDto) => {
+                    next: (cresponse) => {
+                        const createdUser = cresponse?.result;
                         const roleIds = this.selectedRoles.map((role: RoleDto) => role.id);
                         roleIds.forEach((roleId: string) => {
                             this.userRoleService.userRole_CreateUserRole(UserRoleInputDto.fromJS({ userId: createdUser.id, roleId: roleId })).subscribe(() => {

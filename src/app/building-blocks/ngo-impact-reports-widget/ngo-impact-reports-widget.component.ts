@@ -160,8 +160,9 @@ export class NgoImpactReportsWidgetComponent implements OnInit {
     loadReports(): void {
         this.loading = true;
         this.ngoService.getImpactReports().subscribe({
-            next: (data: any) => {
-                this.reports = (data || []).filter((r: any) => r.isPublished).slice(0, 4);
+            next: (response: any) => {
+                const reports = this.normalizeResponseArray(response?.result);
+                this.reports = reports.filter((r: any) => r.isPublished).slice(0, 4);
                 this.loading = false;
             },
             error: (error) => {
@@ -212,5 +213,17 @@ export class NgoImpactReportsWidgetComponent implements OnInit {
 
     viewAllReports(): void {
         window.location.href = this.config.reportUrl;
+    }
+
+    private normalizeResponseArray<T>(value: any): T[] {
+        if (Array.isArray(value)) {
+            return value;
+        }
+
+        if (value && Array.isArray(value.items)) {
+            return value.items;
+        }
+
+        return [];
     }
 }

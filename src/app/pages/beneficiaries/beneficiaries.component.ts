@@ -73,8 +73,8 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
 
     loadBeneficiaries() {
         if (this.memberId) {
-            this.beneficiaryService.beneficiary_GetAllBeneficiaries(this.memberId, undefined, undefined, undefined, undefined).subscribe((result) => {
-                this.beneficiaries = result;
+            this.beneficiaryService.beneficiary_GetAllBeneficiaries(this.memberId, undefined, undefined, undefined, undefined).subscribe((response) => {
+                this.beneficiaries = response?.result || [];
             });
         }
     }
@@ -137,8 +137,8 @@ export class BeneficiariesComponent implements OnInit, OnChanges {
 
         if (this.beneficiary.name?.trim()) {
             if (this.beneficiary.id) {
-                this.beneficiaryService.beneficiary_UpdateBeneficiary(this.beneficiary).subscribe((result) => {
-                    this.beneficiaries[this.findIndexById(this.beneficiary.id)] = result;
+                this.beneficiaryService.beneficiary_UpdateBeneficiary(this.beneficiary).subscribe((response) => {
+                    this.beneficiaries[this.findIndexById(this.beneficiary.id)] = response?.result;
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Beneficiary Updated', life: 3000 });
                     this.beneficiaries = [...this.beneficiaries];
                     this.beneficiaryDialog = false;

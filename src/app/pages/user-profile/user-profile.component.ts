@@ -42,7 +42,8 @@ export class UserProfileComponent implements OnInit {
         }
 
         this.userProfileService.userProfile_GetCurrentUserProfile().subscribe({
-            next: (profile) => {
+            next: (response) => {
+                const profile = response?.result;
                 this.userProfile = profile;
                 this.updateUserProfileDto.firstName = profile.firstName;
                 this.updateUserProfileDto.lastName = profile.lastName;

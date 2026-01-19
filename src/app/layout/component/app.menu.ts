@@ -55,7 +55,8 @@ export class AppMenu implements OnInit {
         // Load custom pages for navigation
         let customPageItems: MenuItem[] = [];
         try {
-            const pages = await this.customPagesService.all().toPromise();
+            const response = await this.customPagesService.all().toPromise();
+            const pages = response?.result || [];
             if (pages) {
                 customPageItems = pages
                     .filter((p: any) => p.isActive && p.showInNavbar)
@@ -72,7 +73,7 @@ export class AppMenu implements OnInit {
         
         // If this is a static site, only show Landing Page and Tenant Settings (for theme, logo, CSS)
         if (this.isStaticSite) {
-            this.model = [
+            const staticItems: MenuItem[] = [
                 {
                     label: 'Website',
                     items: [
@@ -87,10 +88,25 @@ export class AppMenu implements OnInit {
                             icon: 'pi pi-fw pi-cog', 
                             routerLink: ['/admin/pages/tenant-settings'], 
                             visible: this.authService.isAuthenticated() 
-                        }
+                        },
+                        {
+                            label: 'Custom Pages',
+                            icon: 'pi pi-fw pi-file-edit',
+                            routerLink: ['/admin/custom-pages'], 
+                            visible: this.authService.isAuthenticated() 
+                        },
+                        {
+                            label: 'Payment Gateway Config',
+                            icon: 'pi pi-fw pi-cog',
+                            routerLink: ['/admin/payment-config'],
+                            visible: this.authService.hasPermission('Permission.paymentConfig.view')
+                        },
+
                     ]
                 }
             ];
+
+            this.model = staticItems;
             return;
         }
 
@@ -150,6 +166,13 @@ export class AppMenu implements OnInit {
                     { label: 'Coupons', icon: 'pi pi-fw pi-ticket', routerLink: ['/admin/pages/coupons'], visible: this.authService.hasPermission('Permission.coupon.view') },
                     { label: 'Debit Order Management', icon: 'pi pi-fw pi-file-export', routerLink: ['/admin/debit-orders'], visible: this.authService.hasPermission('Permission.debitOrder.view') },
                     { label: 'Invoices', icon: 'pi pi-fw pi-money-bill', routerLink: ['/admin/invoices'], visible: this.authService.hasPermission('Permission.invoice.view') }
+                ]
+            },
+            {
+                label: 'NGO Management',
+                icon: 'pi pi-fw pi-heart',
+                items: [
+                    { label: 'Grant Applications', icon: 'pi pi-fw pi-list-check', routerLink: ['/admin/grant-applications'], visible: this.authService.isAuthenticated() }
                 ]
             },
             {

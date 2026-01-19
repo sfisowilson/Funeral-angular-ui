@@ -1,0 +1,154 @@
+.grant-applications-widget {
+  .grant-applications-widget__header {
+    max-width: 640px;
+    margin: 0 auto 2rem;
+  }
+
+  .grant-applications-widget__title {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  .grant-applications-widget__subtitle {
+    margin-bottom: 0;
+    opacity: 0.9;
+    line-height: 1.6;
+  }
+
+  .grant-card {
+    border-radius: 1.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    padding: 1.75rem;
+    box-shadow: 0 25px 45px rgba(15, 23, 42, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .grant-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12);
+  }
+
+  .grant-card__header {
+    min-height: 120px;
+  }
+
+  .grant-card__eyebrow {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.25rem;
+  }
+
+  .grant-card__project {
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .grant-card__funder {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+
+  .grant-card__status {
+    text-transform: capitalize;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    box-shadow: none;
+  }
+
+  .grant-card__details {
+    border-radius: 1rem;
+    padding: 1.1rem;
+  }
+
+  .grant-card__detail {
+    min-height: 72px;
+  }
+
+  .grant-card__label {
+    margin: 0;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .grant-card__value {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .grant-progress {
+    position: relative;
+    height: 6px;
+    border-radius: 999px;
+    background-color: rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+  }
+
+  .grant-progress__bar {
+    height: 100%;
+    border-radius: inherit;
+    transition: width 0.4s ease;
+  }
+
+  .grant-progress__meta {
+    font-size: 0.8rem;
+  }
+
+  .grant-card__description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .grant-card__actions {
+    margin-top: auto;
+  }
+
+  .grant-card__button {
+    min-width: 130px;
+    font-size: 0.9rem;
+    padding: 0.45rem 1.1rem;
+    border-radius: 0.65rem;
+  }
+
+  .grant-card__button--secondary {
+    border-color: rgba(15, 23, 42, 0.2);
+  }
+
+  .grant-card__button--primary {
+    font-weight: 600;
+  }
+
+  .grant-applications-widget__cta {
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.85rem 2.75rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+
+  .grant-placeholder {
+    padding: 3rem 0;
+    color: #6b7280;
+  }
+
+  .grant-placeholder__text {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 767px) {
+    .grant-card {
+      padding: 1.25rem;
+    }
+
+    .grant-card__details {
+      padding: 0.85rem;
+    }
+  }
+}

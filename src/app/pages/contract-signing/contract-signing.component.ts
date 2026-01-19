@@ -303,7 +303,8 @@ export class ContractSigningComponent implements OnInit {
 
     try {
       const request = new GenerateContractRequest({ memberId: this.memberId });
-      const result = await this.contractService.generate(request).toPromise();
+      const response = await this.contractService.generate(request).toPromise();
+      const result = response?.result;
 
       if (result) {
         this.contractId = result.contractId!;
@@ -437,7 +438,9 @@ export class ContractSigningComponent implements OnInit {
         signatureHeight: 50
       });
 
-      const response = await this.contractService.sign(request).toPromise();
+      const res = await this.contractService.sign(request).toPromise();
+
+      const response = res?.result;
 
       if (response) {
         this.signedAt = response.signedAt ? new Date(response.signedAt.toString()) : new Date();

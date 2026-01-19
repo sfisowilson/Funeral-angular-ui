@@ -154,7 +154,8 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
         this.loginCredentials = { ...this.form.value };
 
         this.service.auth_Login(this.form.value).subscribe({
-            next: (result) => {
+            next: (response) => {
+                const result = response?.result;
                 if (!result || !result.token) {
                     this.messageService.add({
                         severity: 'error',
@@ -212,7 +213,8 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
         this.isBusy = true;
 
         this.service.auth_Login(this.loginCredentials).subscribe({
-            next: (result) => {
+            next: (response) => {
+                const result = response?.result;
                 if (!result || !result.token) {
                     alert('Login failed after password change');
                     this.isBusy = false;

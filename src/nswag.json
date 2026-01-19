@@ -3,7 +3,7 @@
   "defaultVariables": null,
   "documentGenerator": {
     "fromDocument": {
-      "json": "swagger.json",
+      "json": "./swagger.json",
       "enumHandling": "String"
     }
   },
@@ -29,7 +29,7 @@
       "wrapDtoExceptions": false,
       "exceptionClass": "ApiException",
       "clientBaseClass": null,
-      "wrapResponses": false,
+      "wrapResponses": true,
       "wrapResponseMethods": [],
       "generateResponseClasses": true,
       "responseClass": "SwaggerResponse",
@@ -46,7 +46,7 @@
       "useLeafType": false,
       "classTypes": [],
       "extendedClasses": [],
-      "extensionCode": "service.extensions.ts",
+      "extensionCode": null,
       "generateDefaultValues": true,
       "excludedTypeNames": [],
       "excludedParameterNames": [],

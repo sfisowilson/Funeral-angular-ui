@@ -46,7 +46,7 @@ export class TimesheetsComponent implements OnInit {
         this.loading.set(true);
         this.timesheetService.timesheet_GetMyTimesheetEntries(undefined, undefined, undefined, undefined, undefined).subscribe({
             next: (data) => {
-                this.timesheetEntries.set(data);
+                this.timesheetEntries.set(data?.result || []);
                 this.loading.set(false);
             },
             error: () => {

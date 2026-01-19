@@ -12,6 +12,7 @@ import { DateTime } from 'luxon';
     FormsModule,
     ReactiveFormsModule
   ],
+  providers: [NgoServiceProxy],
   templateUrl: './blog.component.html',
   styleUrls: ['./blog.component.scss']
 })
@@ -180,5 +181,13 @@ export class BlogComponent implements OnInit {
       return dateTime.toJSDate();
     }
     return dateTime;
+  }
+
+  getPostCountByStatus(status: string): number {
+    return this.posts.filter(post => post.status === status).length;
+  }
+
+  getTotalViews(): number {
+    return this.posts.reduce((sum, post) => sum + (post.viewCount || 0), 0);
   }
 }

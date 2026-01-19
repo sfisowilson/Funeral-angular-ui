@@ -1,96 +1,184 @@
-<div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h2 class="mb-0">NGO Events Management</h2>
-    <button class="btn-primary-theme" (click)="openNewDialog()">
-      <i class="bi bi-plus-circle me-2"></i>New Event
+<div class="container-fluid py-4">
+  <!-- Header Section -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-1 fw-bold text-dark">NGO Events</h1>
+      <p class="text-muted mb-0">Manage your organization's events</p>
+    </div>
+    <button class="btn btn-primary btn-lg" (click)="openNewDialog()">
+      <i class="bi bi-calendar-plus me-2"></i>New Event
     </button>
   </div>
-  
-  <div class="card-body">
-    <!-- Events Table -->
-    <div class="table-responsive">
-      <table class="table table-hover table-striped">
-        <thead class="table-light">
-          <tr>
-            <th>Event Title</th>
-            <th>Category</th>
-            <th>Date Range</th>
-            <th>Location</th>
-            <th>Attendees</th>
-            <th>Status</th>
-            <th style="width: 120px">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let event of ngoEvents">
-            <td>
-              <div class="fw-medium">{{ event.title }}</div>
-              <small class="text-muted">{{ event.description | slice:0:50 }}...</small>
-            </td>
-            <td>
-              <span class="badge bg-info text-dark">{{ event.category }}</span>
-            </td>
-            <td>
-              <small>{{ formatDate(event.startDate) }} - {{ formatDate(event.endDate) }}</small>
-            </td>
-            <td>{{ event.location }}</td>
-            <td>{{ event.currentAttendees }}/{{ event.maxAttendees }}</td>
-            <td>
-              <span 
-                class="badge"
-                [ngClass]="{
-                  'bg-success': event.status === 'Scheduled',
-                  'bg-warning text-dark': event.status === 'Ongoing',
-                  'bg-danger': event.status === 'Cancelled',
-                  'bg-secondary': event.status === 'Completed'
-                }"
-              >
-                {{ event.status }}
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-outline-primary me-2" (click)="viewEvent(event)" title="View">
-                <i class="bi bi-eye"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-warning me-2" (click)="openEditDialog(event)" title="Edit">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger" (click)="deleteEvent(event)" title="Delete">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+
+  <!-- Stats Cards -->
+  <div class="row mb-4" *ngIf="ngoEvents && ngoEvents.length > 0">
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card border-0 shadow-sm bg-light">
+        <div class="card-body p-3">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-muted mb-1 small">Total Events</p>
+              <p class="h4 mb-0 fw-bold">{{ ngoEvents.length }}</p>
+            </div>
+            <i class="bi bi-calendar-event text-primary" style="font-size: 2rem; opacity: 0.3;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card border-0 shadow-sm bg-light">
+        <div class="card-body p-3">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-muted mb-1 small">Scheduled</p>
+              <p class="h4 mb-0 fw-bold text-info">{{ getEventCount('Scheduled') }}</p>
+            </div>
+            <i class="bi bi-calendar-check text-info" style="font-size: 2rem; opacity: 0.3;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card border-0 shadow-sm bg-light">
+        <div class="card-body p-3">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-muted mb-1 small">Ongoing</p>
+              <p class="h4 mb-0 fw-bold text-warning">{{ getEventCount('Ongoing') }}</p>
+            </div>
+            <i class="bi bi-clock-history text-warning" style="font-size: 2rem; opacity: 0.3;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+      <div class="card border-0 shadow-sm bg-light">
+        <div class="card-body p-3">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-muted mb-1 small">Total Attendees</p>
+              <p class="h4 mb-0 fw-bold">{{ getTotalAttendees() }}</p>
+            </div>
+            <i class="bi bi-people text-success" style="font-size: 2rem; opacity: 0.3;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Card -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Event Title</th>
+              <th>Category</th>
+              <th>Date Range</th>
+              <th>Location</th>
+              <th>Attendees</th>
+              <th>Status</th>
+              <th class="text-center pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of ngoEvents" class="border-bottom">
+              <td class="ps-4">
+                <div class="fw-bold text-dark">{{ event.title }}</div>
+                <small class="text-muted d-block">{{ event.description | slice:0:45 }}...</small>
+              </td>
+              <td>
+                <span class="badge bg-info text-dark">{{ event.category }}</span>
+              </td>
+              <td class="small">
+                {{ formatDate(event.startDate) }} <br>
+                <span class="text-muted">to {{ formatDate(event.endDate) }}</span>
+              </td>
+              <td>
+                <i class="bi bi-geo-alt me-1 text-muted"></i>{{ event.location }}
+              </td>
+              <td>
+                <span class="badge bg-light text-dark">{{ event.currentAttendees }}/{{ event.maxAttendees }}</span>
+              </td>
+              <td>
+                <span 
+                  class="badge"
+                  [ngClass]="{
+                    'bg-success': event.status === 'Scheduled',
+                    'bg-warning text-dark': event.status === 'Ongoing',
+                    'bg-danger': event.status === 'Cancelled',
+                    'bg-secondary': event.status === 'Completed'
+                  }"
+                >
+                  {{ event.status }}
+                </span>
+              </td>
+              <td class="text-center pe-4">
+                <button class="btn btn-sm btn-outline-info me-2" (click)="viewEvent(event)" title="View" data-bs-toggle="tooltip">
+                  <i class="bi bi-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-primary me-2" (click)="openEditDialog(event)" title="Edit" data-bs-toggle="tooltip">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteEvent(event)" title="Delete" data-bs-toggle="tooltip">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="!ngoEvents || ngoEvents.length === 0">
+              <td colspan="7" class="text-center py-5">
+                <i class="bi bi-calendar-x text-muted" style="font-size: 3rem; opacity: 0.5;"></i>
+                <p class="text-muted mt-3 mb-0">No events scheduled</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Modal for Create/Edit -->
-<div class="modal fade" id="eventModal" tabindex="-1" [class.show]="displayDialog" [style.display]="displayDialog ? 'block' : 'none'">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">{{ isEdit ? 'Edit Event' : 'New Event' }}</h5>
-        <button type="button" class="btn-close" (click)="closeDialog()"></button>
+<div class="modal fade" tabindex="-1" [class.show]="displayDialog" [style.display]="displayDialog ? 'block' : 'none'" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header border-bottom-0 bg-light">
+        <h5 class="modal-title fw-bold">
+          <i [ngClass]="isEdit ? 'bi bi-pencil-square' : 'bi bi-calendar-plus'" class="me-2"></i>
+          {{ isEdit ? 'Edit Event' : 'New Event' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDialog()" aria-label="Close"></button>
       </div>
       
-      <div class="modal-body">
+      <div class="modal-body p-4">
         <form [formGroup]="eventForm" *ngIf="selectedEvent">
+          <!-- Basic Information -->
+          <h6 class="text-uppercase text-muted small mb-3 fw-bold">
+            <i class="bi bi-info-circle me-2"></i>Basic Information
+          </h6>
+          
           <div class="mb-3">
-            <label for="title" class="form-label">Event Title</label>
-            <input type="text" class="form-control" id="title" formControlName="title">
+            <label for="title" class="form-label">Event Title <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="title" formControlName="title" placeholder="Enter event title">
           </div>
           
           <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" formControlName="description" rows="3"></textarea>
+            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="description" formControlName="description" rows="3" placeholder="Describe your event..."></textarea>
           </div>
+
+          <!-- Event Details -->
+          <hr>
+          <h6 class="text-uppercase text-muted small mb-3 fw-bold">
+            <i class="bi bi-calendar3 me-2"></i>Event Details
+          </h6>
           
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="category" class="form-label">Category</label>
+                <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
                 <select class="form-select" id="category" formControlName="category">
                   <option value="">Select Category</option>
                   <option value="Fundraising">Fundraising</option>
@@ -103,7 +191,7 @@
             
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
+                <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
                 <select class="form-select" id="status" formControlName="status">
                   <option value="">Select Status</option>
                   <option value="Scheduled">Scheduled</option>
@@ -118,15 +206,15 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="location" class="form-label">Location</label>
-                <input type="text" class="form-control" id="location" formControlName="location">
+                <label for="startDate" class="form-label">Start Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="startDate" formControlName="startDate">
               </div>
             </div>
             
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="maxAttendees" class="form-label">Max Attendees</label>
-                <input type="number" class="form-control" id="maxAttendees" formControlName="maxAttendees" min="1">
+                <label for="endDate" class="form-label">End Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="endDate" formControlName="endDate">
               </div>
             </div>
           </div>
@@ -134,18 +222,24 @@
           <div class="row">
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="startDate" class="form-label">Start Date</label>
-                <input type="date" class="form-control" id="startDate" formControlName="startDate">
+                <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="location" formControlName="location" placeholder="Event location">
               </div>
             </div>
             
             <div class="col-md-6">
               <div class="mb-3">
-                <label for="endDate" class="form-label">End Date</label>
-                <input type="date" class="form-control" id="endDate" formControlName="endDate">
+                <label for="maxAttendees" class="form-label">Max Attendees <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="maxAttendees" formControlName="maxAttendees" min="1" placeholder="0">
               </div>
             </div>
           </div>
+
+          <!-- Registration Settings -->
+          <hr>
+          <h6 class="text-uppercase text-muted small mb-3 fw-bold">
+            <i class="bi bi-check2-circle me-2"></i>Registration Settings
+          </h6>
           
           <div class="mb-3">
             <div class="form-check">
@@ -158,19 +252,28 @@
             <label for="registrationDeadline" class="form-label">Registration Deadline</label>
             <input type="date" class="form-control" id="registrationDeadline" formControlName="registrationDeadline">
           </div>
+
+          <!-- Media -->
+          <hr>
+          <h6 class="text-uppercase text-muted small mb-3 fw-bold">
+            <i class="bi bi-image me-2"></i>Media
+          </h6>
           
           <div class="mb-3">
             <label for="imageUrl" class="form-label">Event Image URL</label>
-            <input type="text" class="form-control" id="imageUrl" formControlName="imageUrl">
+            <input type="url" class="form-control" id="imageUrl" formControlName="imageUrl" placeholder="https://example.com/image.jpg">
           </div>
         </form>
       </div>
       
-      <div class="modal-footer">
-        <button type="button" class="btn-secondary-theme" (click)="closeDialog()">Cancel</button>
-        <button type="button" class="btn-primary-theme" (click)="saveEvent()" [disabled]="loading">
+      <div class="modal-footer border-top-0 bg-light">
+        <button type="button" class="btn btn-secondary" (click)="closeDialog()">
+          <i class="bi bi-x-lg me-2"></i>Cancel
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveEvent()" [disabled]="loading || !eventForm.valid">
           <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-          Save
+          <i *ngIf="!loading" class="bi bi-check-lg me-2"></i>
+          {{ isEdit ? 'Update' : 'Create' }}
         </button>
       </div>
     </div>

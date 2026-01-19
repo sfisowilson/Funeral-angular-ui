@@ -120,8 +120,8 @@ export class PdfFieldMappingComponent implements OnInit {
 
   loadMappings(): void {
     this.pdfFieldMappingService.pdfFieldMapping_GetAll().subscribe({
-      next: (mappings) => {
-        this.mappings = mappings;
+      next: (response) => {
+        this.mappings = response?.result || [];
       },
       error: (error) => {
         this.showToast('danger', 'Error', 'Failed to load mappings');
@@ -132,8 +132,8 @@ export class PdfFieldMappingComponent implements OnInit {
 
   loadCurrentTemplate(): void {
     this.tenantSettingService.tenantSetting_GetCurrentTenantSettings().subscribe({
-      next: (settings) => {
-        console.log('Tenant settings loaded:', settings);
+      next: (response) => {
+        const settings = response?.result;
         if (settings?.contractTemplateFileId) {
           this.currentTemplateFileId = settings.contractTemplateFileId;
           console.log('Template file ID set to:', this.currentTemplateFileId);
@@ -205,8 +205,8 @@ export class PdfFieldMappingComponent implements OnInit {
     }
     
     this.pdfFieldMappingService.pdfFieldMapping_AnalyzeTemplate(fileId).subscribe({
-      next: (analysis) => {
-        this.templateAnalysis = analysis;
+      next: (response) => {
+        this.templateAnalysis = response?.result;
         this.showAnalysisDialog = true;
       },
       error: (error) => {
@@ -305,8 +305,8 @@ export class PdfFieldMappingComponent implements OnInit {
     });
 
     this.pdfFieldMappingService.pdfFieldMapping_Create(request).subscribe({
-      next: (mapping) => {
-        this.mappings.push(mapping);
+      next: (response) => {
+        this.mappings.push(response?.result);
         this.showToast('success', 'Success', 'Mapping created successfully');
         this.showMappingDialog = false;
       },
@@ -343,7 +343,8 @@ export class PdfFieldMappingComponent implements OnInit {
     });
 
     this.pdfFieldMappingService.pdfFieldMapping_Update(this.selectedMapping.id, request).subscribe({
-      next: (mapping) => {
+      next: (response) => {
+        const mapping = response?.result;
         const index = this.mappings.findIndex(m => m.id === this.selectedMapping!.id);
         if (index !== -1) {
           this.mappings[index] = mapping;

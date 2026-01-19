@@ -53,7 +53,7 @@ export class TenantSettingsService {
             .tenantSetting_GetCurrentTenantSettings()
             .toPromise()
             .then((response) => {
-                this.settings = response;
+                this.settings = response.result;
                 this.spinnerService.hide();
                 return this.settings;
             })

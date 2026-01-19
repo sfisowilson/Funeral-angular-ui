@@ -15,6 +15,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
+import { unwrap } from '../../core/services/response-unwrapper';
 
 @Component({
     selector: 'app-policy',
@@ -44,7 +45,7 @@ export class PolicyComponent implements OnInit {
     ngOnInit(): void {
         const policyId = this.route.snapshot.paramMap.get('id');
         if (policyId && policyId !== 'new') {
-            this.policyService.policy_GetById(policyId).subscribe((policy) => {
+            this.policyService.policy_GetById(policyId).pipe(unwrap<PolicyDto>()).subscribe((policy) => {
                 this.policy = policy;
                 this.loadPolicyAttributesForPolicy(policyId);
             });
@@ -58,7 +59,7 @@ export class PolicyComponent implements OnInit {
     }
 
     loadPolicyAttributesForPolicy(policyId: string) {
-        this.policyAttributeService.policyAttribute_GetAllPolicies(policyId, undefined, undefined, undefined, undefined, undefined).subscribe((attributes) => {
+        this.policyAttributeService.policyAttribute_GetAllPolicies(policyId, undefined, undefined, undefined, undefined, undefined).pipe(unwrap<PolicyAttributeDto[]>()).subscribe((attributes) => {
             this.policyAttributes.set(attributes);
         });
     }
@@ -68,7 +69,8 @@ export class PolicyComponent implements OnInit {
         if (this.policy.name?.trim() && this.policy.price !== undefined && this.policy.payoutAmount !== undefined) {
             if (this.policy.id) {
                 this.policyService.policy_UpdatePolicy(this.policy).subscribe({
-                    next: (updatedPolicy) => {
+                    next: (response) => {
+                        const updatedPolicy = response?.result;
                         this.policy = updatedPolicy;
                         this.messageService.add({
                             severity: 'success',
@@ -89,7 +91,8 @@ export class PolicyComponent implements OnInit {
                 });
             } else {
                 this.policyService.policy_CreatePolicy(this.policy).subscribe({
-                    next: (createdPolicy) => {
+                    next: (response) => {
+                        const createdPolicy = response?.result;
                         this.policy = createdPolicy;
                         // Ensure the policy has an ID before allowing attribute creation
                         if (createdPolicy?.id) {

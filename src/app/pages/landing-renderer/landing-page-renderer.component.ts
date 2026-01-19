@@ -202,8 +202,8 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         
         // Load custom pages for navigation
         this.customPagesService.all().subscribe({
-            next: (pages) => {
-                this.navbarPages = pages
+            next: (response) => {
+                this.navbarPages = response?.result
                     .filter((p: any) => p.isActive && p.showInNavbar)
                     .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
             },

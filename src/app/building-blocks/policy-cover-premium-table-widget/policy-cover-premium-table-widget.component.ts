@@ -45,8 +45,8 @@ export class PolicyCoverPremiumTableWidgetComponent implements OnInit {
 
     ngOnInit(): void {
         this.settings = this.config.settings || {};
-        this.premiumService.premiumCalculation_GetSettings().subscribe(settings => {
-            this.tableData = settings.policyCoverTable;
+        this.premiumService.premiumCalculation_GetSettings().subscribe(response => {
+            this.tableData = response?.result?.policyCoverTable;
         });
     }
 }

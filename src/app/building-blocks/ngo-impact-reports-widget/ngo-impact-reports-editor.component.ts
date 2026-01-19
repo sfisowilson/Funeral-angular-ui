@@ -105,7 +105,7 @@ import { ButtonModule } from 'primeng/button';
                 <!-- Action Buttons -->
                 <div class="flex gap-2 pt-4">
                     <button pButton type="button" label="Save" (click)="save()" class="flex-1"></button>
-                    <button pButton type="button" label="Cancel" severity="secondary" (click)="cancel()" class="flex-1"></button>
+                    <button pButton type="button" label="Cancel" severity="secondary" (click)="onCancel()" class="flex-1"></button>
                 </div>
             </form>
         </div>
@@ -119,8 +119,8 @@ import { ButtonModule } from 'primeng/button';
 })
 export class NgoImpactReportsEditorComponent {
     @Input() config: any = {};
-    @Output() configChanged = new EventEmitter<any>();
-    @Output() closed = new EventEmitter<void>();
+    @Output() update = new EventEmitter<any>();
+    @Output() cancel = new EventEmitter<void>();
 
     form: FormGroup;
 
@@ -150,11 +150,11 @@ export class NgoImpactReportsEditorComponent {
 
     save(): void {
         if (this.form.valid) {
-            this.configChanged.emit(this.form.value);
+            this.update.emit(this.form.value);
         }
     }
 
-    cancel(): void {
-        this.closed.emit();
+    onCancel(): void {
+        this.cancel.emit();
     }
 }

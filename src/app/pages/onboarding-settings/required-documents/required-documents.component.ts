@@ -76,8 +76,8 @@ export class RequiredDocumentsComponent implements OnInit {
     loadDocuments() {
         this.loading.set(true);
         this.requiredDocService.requiredDocument_GetAll().subscribe({
-            next: (result) => {
-                this.documents.set(result);
+            next: (response) => {
+                this.documents.set(response?.result || []);
                 this.loading.set(false);
             },
             error: (error) => {

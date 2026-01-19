@@ -22,11 +22,6 @@ import {
   LookupServiceProxy 
 } from '../../../core/services/service-proxies';
 
-interface TenantTypeOption {
-  label: string;
-  value: number;
-}
-
 interface PlanGroup {
   planName: string;
   configurations: SubscriptionPlanConfigurationDto[];
@@ -56,9 +51,8 @@ interface PlanGroup {
   styleUrls: ['./plan-configuration.component.scss']
 })
 export class PlanConfigurationComponent implements OnInit {
-  planGroups = signal<PlanGroup[]>([]);
   allConfigurations = signal<SubscriptionPlanConfigurationDto[]>([]);
-  tenantTypes = signal<TenantTypeOption[]>([]);
+  planGroups = signal<PlanGroup[]>([]);
   
   proRataEnabled = false;
   savingProRata = false;
@@ -67,10 +61,9 @@ export class PlanConfigurationComponent implements OnInit {
   editMode = false;
   currentConfig: SubscriptionPlanConfigurationDto | null = null;
   
-  // Form model
+  // Form model - Feature-based plans (no tenant type selection)
   formData = {
     planName: '',
-    tenantType: null as number | null,
     description: '',
     monthlyPrice: 0,
     yearlyPrice: 0,
@@ -127,34 +120,32 @@ export class PlanConfigurationComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadTenantTypes();
     this.loadConfigurations();
     this.loadProRataSetting();
   }
 
-  loadTenantTypes(): void {
-    this.lookupService.getEnumValues('TenantType').subscribe({
-      next: (data: any[]) => {
-        this.tenantTypes.set(
-          data.map((item: any) => ({ label: item.name, value: item.value }))
-        );
-      },
-      error: (error) => {
-        console.error('Error loading tenant types:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load tenant types'
-        });
-      }
-    });
-  }
-
   loadConfigurations(): void {
     this.planConfigService.planConfiguration_GetAll().subscribe({
-      next: (configs) => {
+      next: (response) => {
+        const configs = response?.result || [];
         this.allConfigurations.set(configs);
-        this.groupConfigurations(configs);
+        
+        // Group configurations by plan name
+        const groups: { [key: string]: SubscriptionPlanConfigurationDto[] } = {};
+        configs.forEach(config => {
+          if (!groups[config.planName]) {
+            groups[config.planName] = [];
+          }
+          groups[config.planName].push(config);
+        });
+        
+        // Convert to array of groups
+        const planGroups: PlanGroup[] = Object.entries(groups).map(([planName, configurations]) => ({
+          planName,
+          configurations
+        }));
+        
+        this.planGroups.set(planGroups);
       },
       error: (error) => {
         console.error('Error loading configurations:', error);
@@ -165,25 +156,6 @@ export class PlanConfigurationComponent implements OnInit {
         });
       }
     });
-  }
-
-  groupConfigurations(configs: SubscriptionPlanConfigurationDto[]): void {
-    const groups = new Map<string, SubscriptionPlanConfigurationDto[]>();
-    
-    configs.forEach(config => {
-      const planName = config.planName || 'Unnamed Plan';
-      if (!groups.has(planName)) {
-        groups.set(planName, []);
-      }
-      groups.get(planName)!.push(config);
-    });
-    
-    const planGroups: PlanGroup[] = Array.from(groups.entries()).map(([planName, configurations]) => ({
-      planName,
-      configurations: configurations.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
-    }));
-    
-    this.planGroups.set(planGroups);
   }
 
   openNewDialog(): void {
@@ -203,7 +175,6 @@ export class PlanConfigurationComponent implements OnInit {
   resetForm(): void {
     this.formData = {
       planName: '',
-      tenantType: null,
       description: '',
       monthlyPrice: 0,
       yearlyPrice: 0,
@@ -246,7 +217,6 @@ export class PlanConfigurationComponent implements OnInit {
   populateForm(config: SubscriptionPlanConfigurationDto): void {
     this.formData = {
       planName: config.planName || '',
-      tenantType: config.tenantType,
       description: config.description || '',
       monthlyPrice: config.monthlyPrice,
       yearlyPrice: config.yearlyPrice,
@@ -287,11 +257,11 @@ export class PlanConfigurationComponent implements OnInit {
   }
 
   saveConfiguration(): void {
-    if (!this.formData.planName || this.formData.tenantType === null) {
+    if (!this.formData.planName) {
       this.messageService.add({
         severity: 'error',
         summary: 'Validation Error',
-        detail: 'Plan name and tenant type are required'
+        detail: 'Plan name is required'
       });
       return;
     }
@@ -305,8 +275,7 @@ export class PlanConfigurationComponent implements OnInit {
 
   createConfiguration(): void {
     const dto = CreatePlanConfigurationDto.fromJS({
-      ...this.formData,
-      tenantType: this.formData.tenantType!
+      ...this.formData
     });
 
     this.planConfigService.planConfiguration_Create(dto).subscribe({
@@ -335,8 +304,7 @@ export class PlanConfigurationComponent implements OnInit {
 
     const dto = UpdatePlanConfigurationDto.fromJS({
       id: this.currentConfig.id,
-      ...this.formData,
-      tenantType: this.formData.tenantType!
+      ...this.formData
     });
 
     this.planConfigService.planConfiguration_Update(dto).subscribe({
@@ -362,7 +330,7 @@ export class PlanConfigurationComponent implements OnInit {
 
   deleteConfiguration(config: SubscriptionPlanConfigurationDto): void {
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete ${config.planName} for ${config.tenantTypeName}?`,
+      message: `Are you sure you want to delete ${config.planName}?`,
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -389,14 +357,14 @@ export class PlanConfigurationComponent implements OnInit {
   }
 
   getTenantTypeName(tenantType: number): string {
-    const type = this.tenantTypes().find(t => t.value === tenantType);
-    return type?.label || 'Unknown';
+    // This method is no longer needed as plans are generic
+    return 'Feature-based Plan';
   }
 
   loadProRataSetting(): void {
     this.planConfigService.planConfiguration_GetProRataSetting().subscribe({
-      next: (enabled) => {
-        this.proRataEnabled = enabled;
+      next: (response) => {
+        this.proRataEnabled = response?.result || false;
       },
       error: (error) => {
         console.error('Error loading pro-rata setting:', error);

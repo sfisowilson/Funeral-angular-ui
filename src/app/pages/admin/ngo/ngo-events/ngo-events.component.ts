@@ -11,6 +11,7 @@ import { NgoServiceProxy, NgoEvent } from '../../../../core/services/service-pro
     FormsModule,
     ReactiveFormsModule
   ],
+  providers: [NgoServiceProxy],
   templateUrl: './ngo-events.component.html',
   styleUrl: './ngo-events.component.scss'
 })
@@ -178,5 +179,13 @@ export class NgoEventsComponent implements OnInit {
       month: 'long',
       day: 'numeric'
     });
+  }
+
+  getEventCount(status: string): number {
+    return this.ngoEvents.filter(event => event.status === status).length;
+  }
+
+  getTotalAttendees(): number {
+    return this.ngoEvents.reduce((sum, event) => sum + (event.currentAttendees || 0), 0);
   }
 }

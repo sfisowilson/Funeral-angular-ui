@@ -10,6 +10,7 @@ import { PaymentGatewayConfigDto, PaymentGatewayProvider, NgoServiceProxy } from
     CommonModule,
     ReactiveFormsModule
   ],
+  providers: [NgoServiceProxy],
   templateUrl: './payment-gateway.component.html',
   styleUrls: ['./payment-gateway.component.scss']
 })
@@ -187,5 +188,33 @@ export class PaymentGatewayComponent implements OnInit {
     };
 
     return requirements[provider] || {};
+  }
+
+  // Helper Methods for Stats Cards
+  getActiveGatewayCount(): number {
+    return this.gateways.filter(g => g.isActive).length;
+  }
+
+  getLiveModeCount(): number {
+    return this.gateways.filter(g => !g.isTestMode).length;
+  }
+
+  getTestModeCount(): number {
+    return this.gateways.filter(g => g.isTestMode).length;
+  }
+
+  getGatewayCountByProvider(provider: PaymentGatewayProvider): number {
+    return this.gateways.filter(g => g.provider === provider).length;
+  }
+
+  getProviderIcon(provider: PaymentGatewayProvider): string {
+    const iconMap: { [key: number]: string } = {
+      [PaymentGatewayProvider._1]: 'bi-paypal',  // PayPal
+      [PaymentGatewayProvider._2]: 'bi-credit-card',  // Stripe
+      [PaymentGatewayProvider._3]: 'bi-wallet2',  // PayFast
+      [PaymentGatewayProvider._4]: 'bi-square',  // Square
+      [PaymentGatewayProvider._5]: 'bi-badge-cc'  // Paystack
+    };
+    return iconMap[provider] || 'bi-wallet';
   }
 }

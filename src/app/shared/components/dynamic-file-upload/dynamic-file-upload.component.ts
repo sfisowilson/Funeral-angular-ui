@@ -441,7 +441,7 @@ export class DynamicFileUploadComponent implements OnInit {
 
             // Upload file
             const memberId = this.memberId || undefined;
-            const result = await this.fileUploadService.file_UploadFile(
+            const response = await this.fileUploadService.file_UploadFile(
                 { data: formData, fileName: this.selectedFile.name } as any,
                 memberId,
                 undefined, // documentType
@@ -455,9 +455,9 @@ export class DynamicFileUploadComponent implements OnInit {
 
             // Add to uploaded files list
             const uploadedFile: UploadedFile = {
-                id: result!.id!,
-                fileName: result!.fileName || this.selectedFile.name,
-                filePath: result!.filePath || '',
+                id: response?.result!.id!,
+                fileName: response?.result!.fileName || this.selectedFile.name,
+                filePath: response?.result!.filePath || '',
                 fileSize: this.selectedFile.size,
                 uploadDate: new Date(),
                 description: this.config().documentType

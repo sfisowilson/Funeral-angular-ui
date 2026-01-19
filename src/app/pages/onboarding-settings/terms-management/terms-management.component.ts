@@ -58,8 +58,8 @@ export class TermsManagementComponent implements OnInit {
     loadTerms() {
         this.loading.set(true);
         this.termsService.terms_GetAll().subscribe({
-            next: (result) => {
-                this.terms.set(result);
+            next: (response) => {
+                this.terms.set(response?.result || []);
                 this.loading.set(false);
             },
             error: (error) => {

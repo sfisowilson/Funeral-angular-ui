@@ -11,6 +11,7 @@ import { NgoServiceProxy, ImpactReport } from '../../../../core/services/service
     FormsModule,
     ReactiveFormsModule
   ],
+  providers: [NgoServiceProxy],
   templateUrl: './impact-reports.component.html',
   styleUrl: './impact-reports.component.scss'
 })
@@ -185,5 +186,18 @@ export class ImpactReportsComponent implements OnInit {
   downloadAttachment(attachment: string): void {
     // TODO: Implement actual download functionality
     alert(`Downloading ${attachment}...`);
+  }
+
+  getPublishedReportCount(): number {
+    return this.impactReports.filter(r => r.isPublished).length;
+  }
+
+  getDraftReportCount(): number {
+    return this.impactReports.filter(r => !r.isPublished).length;
+  }
+
+  getUniqueCategoriesCount(): number {
+    const categories = new Set(this.impactReports.map(r => r.category));
+    return categories.size;
   }
 }

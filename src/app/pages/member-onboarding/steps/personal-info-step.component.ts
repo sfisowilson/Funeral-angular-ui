@@ -153,7 +153,8 @@ export class PersonalInfoStepComponent implements OnInit {
         }
 
         this.memberService.member_GetById(memberId).subscribe({
-            next: (member: MemberDto) => {
+            next: (response) => {
+                const member = response?.result;
                 console.log('[PersonalInfo] Loaded member data:', member);
                 this.memberData.set(member);
                 
@@ -210,7 +211,8 @@ export class PersonalInfoStepComponent implements OnInit {
      */
     loadExistingData() {
         this.fieldConfigService.onboardingFieldConfiguration_GetMemberData().subscribe({
-            next: (data: MemberOnboardingDataDto) => {
+            next: (response) => {
+                const data = response?.result;
                 if (data && data.fieldValues) {
                     console.log('[PersonalInfo] Loaded existing data:', data);
                     
@@ -526,8 +528,8 @@ export class PersonalInfoStepComponent implements OnInit {
         if (!memberId) return;
 
         this.documentRequirementService.documentRequirement_GetRequiredDocuments(memberId).subscribe({
-            next: (requirements: DocumentRequirement[]) => {
-                this.requiredDocuments.set(requirements);
+            next: (response) => {
+                this.requiredDocuments.set(response?.result || []);
             },
             error: (error: any) => {
                 console.error('Error loading required documents:', error);
@@ -544,9 +546,9 @@ export class PersonalInfoStepComponent implements OnInit {
             : this.fileUploadService.file_GetMyFiles();
         
         filesObservable.subscribe({
-            next: (files) => {
+            next: (response) => {
                 // Filter files for this member
-                const memberFiles = files.filter(f => 
+                const memberFiles = response?.result?.filter(f => 
                     f.entityType === 'Member' && f.entityId === memberId
                 );
                 this.uploadedDocuments.set(memberFiles);

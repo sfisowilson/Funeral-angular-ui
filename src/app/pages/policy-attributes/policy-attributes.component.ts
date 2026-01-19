@@ -88,8 +88,8 @@ export class PolicyAttributesComponent {
     }
 
     loadPolicyAttributes() {
-        this.policyAttributeService.policyAttribute_GetAllPolicies(undefined, undefined, undefined, undefined, undefined, undefined).subscribe((attributes) => {
-            this.policyAttributes.set(attributes);
+        this.policyAttributeService.policyAttribute_GetAllPolicies(undefined, undefined, undefined, undefined, undefined, undefined).subscribe((response) => {
+            this.policyAttributes.set(response?.result || []);
         });
 
         this.cols = [
@@ -190,7 +190,8 @@ export class PolicyAttributesComponent {
         ) {
             if (this.policyAttribute.id) {
                 this.policyAttributeService.policyAttribute_UpdatePolicyAttribute(this.policyAttribute).subscribe({
-                    next: (updatedAttribute) => {
+                    next: (response) => {
+                        const updatedAttribute = response?.result;
                         const currentAttributes = this.policyAttributes();
                         const index = currentAttributes.findIndex((a) => a.id === updatedAttribute.id);
                         if (index !== -1) {

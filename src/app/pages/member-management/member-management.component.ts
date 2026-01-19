@@ -18,6 +18,7 @@ import { InputTextarea } from 'primeng/inputtextarea';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { MemberDto, MemberServiceProxy, MemberStatus, CreateMemberDto } from '../../core/services/service-proxies';
+import { unwrap } from '../../core/services/response-unwrapper';
 import { DependentsComponent } from '../dependents/dependents.component';
 import { BeneficiariesComponent } from '../beneficiaries/beneficiaries.component';
 
@@ -116,7 +117,7 @@ export class MemberManagementComponent implements OnInit {
     loadMembers() {
         // Assuming a tenant context is available, for now, we'll fetch all members
         // In a real multi-tenant app, you'd pass a tenant ID to filter members
-        this.memberService.member_GetAllMembers(undefined, undefined, undefined, undefined, undefined).subscribe((result) => {
+        this.memberService.member_GetAllMembers(undefined, undefined, undefined, undefined, undefined).pipe(unwrap<MemberDto[]>()).subscribe((result) => {
             this.members = result;
         });
     }
@@ -201,8 +202,8 @@ export class MemberManagementComponent implements OnInit {
         if (this.member.name?.trim()) {
             if (this.member.id) {
                 // Existing member
-                this.memberService.member_UpdateMember(this.member.id, this.member).subscribe((result) => {
-                    this.members[this.findIndexById(this.member.id!)] = result; // Use non-null assertion as ID exists for existing members
+                this.memberService.member_UpdateMember(this.member.id, this.member).subscribe((response) => {
+                    this.members[this.findIndexById(this.member.id!)] = response?.result; // Use non-null assertion as ID exists for existing members
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Member Updated', life: 3000 });
                     this.members = [...this.members];
                     this.memberDialog = false;

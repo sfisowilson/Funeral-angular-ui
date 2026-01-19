@@ -107,8 +107,8 @@ export class TenantTypePermissionsComponent {
 
     loadAvailablePermissions() {
         this.permissionService.permission_GetAllPermissions().subscribe({
-            next: (permissions: Permission[]) => {
-                this.availablePermissions.set(permissions);
+            next: (response) => {
+                this.availablePermissions.set(response?.result || []);
             },
             error: (error: any) => {
                 console.error('Error loading available permissions:', error);
@@ -124,8 +124,8 @@ export class TenantTypePermissionsComponent {
 
     loadTenantTypes() {
         this.lookupService.getEnumValues('TenantType').subscribe({
-            next: (data: any[]) => {
-                this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
+            next: (response) => {
+                this.tenantTypes = response?.result.map((item: any) => ({ label: item.name, value: item.value }));
             },
             error: (error) => {
                 console.error('Error loading tenant types:', error);
@@ -142,8 +142,8 @@ export class TenantTypePermissionsComponent {
     loadPermissions() {
         if (this.selectedTenantType !== null) {
             this.tenantTypePermissionService.getPermissionsByTenantType(this.selectedTenantType).subscribe({
-                next: (permissions: TenantTypePermission[]) => {
-                    this.permissions.set(permissions);
+                next: (response) => {
+                    this.permissions.set(response?.result || []);
                 },
                 error: (error: any) => {
                     console.error('Error loading permissions:', error);

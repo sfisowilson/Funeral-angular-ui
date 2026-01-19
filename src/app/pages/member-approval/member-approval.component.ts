@@ -45,8 +45,8 @@ export class MemberApprovalComponent implements OnInit {
     loadPendingMembers() {
         this.loading.set(true);
         this.memberApprovalService.memberApproval_GetPendingMembers().subscribe({
-            next: (members) => {
-                this.pendingMembers.set(members);
+            next: (response) => {
+                this.pendingMembers.set(response?.result || []);
                 this.loading.set(false);
             },
             error: (error) => {
@@ -66,8 +66,8 @@ export class MemberApprovalComponent implements OnInit {
     viewMemberDetails(id: string) {
         this.loading.set(true);
         this.memberApprovalService.memberApproval_GetMemberDetail(id).subscribe({
-            next: (details) => {
-                this.selectedMember.set(details);
+            next: (response) => {
+                this.selectedMember.set(response?.result || null);
                 this.showDetailModal.set(true);
                 this.loading.set(false);
             },

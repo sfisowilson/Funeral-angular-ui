@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
 import { RippleModule } from 'primeng/ripple';
 import { TenantSettingsService } from '../../../core/services/tenant-settings.service';
+import { unwrap } from '../../../core/services/response-unwrapper';
 
 @Component({
     selector: 'app-policy-selection-modal',
@@ -41,7 +42,7 @@ export class PolicySelectionModalComponent implements OnInit {
             }
 
             // Load policies
-            this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe({
+            this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).pipe(unwrap<PolicyDto[]>()).subscribe({
                 next: (policies) => {
                     this.policies = policies;
                     this.loading = false;

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { CustomerServiceProxy, CustomerDto, CreateCustomerDto, UpdateCustomerDto, CustomerStatsDto } from './service-proxies';
 
 export interface Customer {
@@ -50,11 +51,11 @@ export class CustomerService {
   constructor(private customerProxy: CustomerServiceProxy) {}
 
   getCustomers(isActive?: boolean, search?: string): Observable<Customer[]> {
-    return this.customerProxy.customer_GetAll(isActive, search) as Observable<Customer[]>;
+    return this.customerProxy.customer_GetAll(isActive, search) as unknown as Observable<Customer[]>;
   }
 
   getCustomer(id: string): Observable<Customer> {
-    return this.customerProxy.customer_GetById(id) as Observable<Customer>;
+    return this.customerProxy.customer_GetById(id) as unknown as Observable<Customer>;
   }
 
   getCustomerByEmail(email: string): Observable<Customer | undefined> {
@@ -67,16 +68,18 @@ export class CustomerService {
 
   createCustomer(customer: Customer): Observable<Customer> {
     const dto = new CreateCustomerDto(customer as any);
-    return this.customerProxy.customer_Create(dto) as Observable<Customer>;
+    return this.customerProxy.customer_Create(dto) as unknown as Observable<Customer>;
   }
 
   updateCustomer(customer: Customer): Observable<Customer> {
     const dto = new UpdateCustomerDto({ ...customer, id: customer.id! } as any);
-    return this.customerProxy.customer_Update(dto) as Observable<Customer>;
+    return this.customerProxy.customer_Update(dto) as unknown as Observable<Customer>;
   }
 
   deleteCustomer(id: string): Observable<void> {
-    return this.customerProxy.customer_Delete(id) as Observable<void>;
+    return this.customerProxy.customer_Delete(id).pipe(
+      map(() => undefined)
+    );
   }
 
   addAddress(customerId: string, address: CustomerAddress): Observable<CustomerAddress> {
@@ -112,6 +115,15 @@ export class CustomerService {
   }
 
   getCustomerStats(): Observable<CustomerStats> {
-    return this.customerProxy.customer_GetStats() as Observable<CustomerStats>;
+    return this.customerProxy.customer_GetStats().pipe(
+      map((response: any) => ({
+        totalCustomers: response.data?.totalCustomers || 0,
+        activeCustomers: response.data?.activeCustomers || 0,
+        newCustomersThisMonth: response.data?.newCustomersThisMonth || 0,
+        totalCustomerValue: response.data?.totalCustomerValue || 0,
+        averageCustomerValue: response.data?.averageCustomerValue || 0,
+        customersWithOrders: response.data?.customersWithOrders || 0
+      }))
+    );
   }
 }
