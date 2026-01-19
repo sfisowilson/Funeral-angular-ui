@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, Injector , NO_ERRORS_SCHEMA, effect } from '@angular/core';
+import { Component, OnInit, signal, Injector , NO_ERRORS_SCHEMA, effect, runInInjectionContext } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
@@ -143,18 +143,20 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         });
 
         // Auto-trigger payment when reaching step 2
-        effect(() => {
-            const currentStep = this.activeIndex();
-            if (currentStep === 2 && !this.paymentTriggered() && !this.wizardLoading()) {
-                this.paymentTriggered.set(true);
-                // Delay to ensure UI updates first
-                setTimeout(() => {
-                    this.createTenantAndInitiatePayment().catch(error => {
-                        console.error('Payment creation error:', error);
-                        this.paymentTriggered.set(false); // Reset flag on error
-                    });
-                }, 300);
-            }
+        runInInjectionContext(this.injector, () => {
+            effect(() => {
+                const currentStep = this.activeIndex();
+                if (currentStep === 2 && !this.paymentTriggered() && !this.wizardLoading()) {
+                    this.paymentTriggered.set(true);
+                    // Delay to ensure UI updates first
+                    setTimeout(() => {
+                        this.createTenantAndInitiatePayment().catch(error => {
+                            console.error('Payment creation error:', error);
+                            this.paymentTriggered.set(false); // Reset flag on error
+                        });
+                    }, 300);
+                }
+            });
         });
     }
 

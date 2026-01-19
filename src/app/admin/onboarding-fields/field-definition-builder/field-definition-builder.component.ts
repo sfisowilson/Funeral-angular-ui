@@ -45,7 +45,7 @@ interface FieldOption {
     ToastModule,
     ConfirmDialogModule
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [MessageService, ConfirmationService, OnboardingFieldDefinitionServiceProxy],
   templateUrl: './field-definition-builder.component.html',
   styleUrls: ['./field-definition-builder.component.scss']
 })
@@ -120,7 +120,8 @@ export class FieldDefinitionBuilderComponent implements OnInit {
   loadFields(): void {
     this.loading.set(true);
     this.fieldClient.onboardingFieldDefinition_GetAll().subscribe({
-      next: (fields: any) => {
+      next: (response: any) => {
+        const fields = response.result || [];
         this.fields.set(fields);
         this.loading.set(false);
       },

@@ -249,7 +249,7 @@ interface Provider {
             </table>
           </div>
           
-          <div *ngIf="configs.length === 0" class="text-center py-5 text-muted">
+          <div *ngIf="configs?.length === 0" class="text-center py-5 text-muted">
             <i class="bi bi-inbox display-4 d-block mb-3"></i>
             <p>No payment gateways configured. Click "Add Gateway" to get started.</p>
           </div>
@@ -344,14 +344,17 @@ export class PaymentGatewayConfigComponent implements OnInit {
 
   loadProviders(): void {
     this.paymentConfigService.providers().subscribe({
-      next: (data: any) => this.providers = data,
+      next: (data: any) => {
+        this.providers = data.result;
+        console.log('Loaded providers:', this.providers);
+      },
       error: (_err: any) => console.error('Error loading providers', _err)
     });
   }
 
   loadConfigs(): void {
     this.paymentConfigService.gatewayList().subscribe({
-      next: (data: any) => this.configs = data,
+      next: (data: any) => this.configs = data.result,
       error: (_err: any) => console.error('Error loading configs', _err)
     });
   }
