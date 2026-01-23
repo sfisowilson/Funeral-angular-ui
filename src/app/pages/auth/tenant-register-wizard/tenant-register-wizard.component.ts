@@ -113,6 +113,19 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     confirmMessage = '';
     confirmAction: (() => void) | null = null;
 
+    optionalFieldConfig = [
+        { name: 'organizationName', label: 'Organization Name' },
+        { name: 'domain', label: 'Subdomain (Domain)' },
+        { name: 'registrationNumber', label: 'Registration Number / ID' },
+        { name: 'phone1', label: 'Primary Phone' },
+        { name: 'phone2', label: 'Secondary Phone' },
+        { name: 'address', label: 'Physical Address' },
+        { name: 'gender', label: 'Gender' },
+        { name: 'idNumber', label: 'ID Number' }
+    ];
+    visibleOptionalFields = new Set<string>();
+    essentialFields = new Set<string>(['firstName', 'lastName', 'email', 'password', 'confirmPassword']);
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
@@ -176,15 +189,19 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
 
     initializeForms(): void {
         this.accountForm = this.fb.group({
-            name: ['', [Validators.required, Validators.minLength(3)]],
+            organizationName: [''],
+            firstName: ['', [Validators.required, Validators.minLength(2)]],
+            lastName: ['', [Validators.required, Validators.minLength(2)]],
             email: ['', [Validators.required, Validators.email]],
             password: ['', [Validators.required, Validators.minLength(6)]],
             confirmPassword: ['', Validators.required],
-            domain: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
-            address: ['', Validators.required],
-            phone1: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
+            domain: ['', Validators.pattern(/^[a-z0-9-]+$/)],
+            address: [''],
+            phone1: ['', Validators.pattern(/^\+?[0-9]{10,15}$/)],
             phone2: [''],
-            registrationNumber: ['', Validators.required],
+            registrationNumber: [''],
+            gender: [''],
+            idNumber: [''],
             agreeToTerms: [false, Validators.requiredTrue]
         }, { validators: this.passwordMatchValidator });
         
@@ -601,15 +618,17 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             
             const formValue = this.accountForm.value;
             const selectedPlan = this.selectedPlan();
-            
-            
+
+            const tenantName = this.resolveTenantName(formValue);
+            const resolvedDomain = this.getEffectiveDomain(formValue);
+
             // Create tenant DTO
             const tenantDto: TenantCreateUpdateDto = TenantCreateUpdateDto.fromJS({
                 id: '00000000-0000-0000-0000-000000000000',
-                name: formValue.name,
+                name: tenantName,
                 email: formValue.email,
                 password: formValue.password,
-                domain: formValue.domain,
+                domain: resolvedDomain,
                 address: formValue.address,
                 phone1: formValue.phone1,
                 phone2: formValue.phone2,
@@ -652,15 +671,15 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             const paymentDto: any = {
                 tenantId: authResult.tenantId,
                 subscriptionPlanId: selectedPlan?.subscriptionPlanId || selectedPlan?.id,  // Use linked SubscriptionPlan ID
-                firstName: formValue.name,
-                lastName: '',
+                firstName: formValue.firstName,
+                lastName: formValue.lastName,
                 email: formValue.email,
                 tenantEmail: formValue.email,
-                tenantName: formValue.name,
+                tenantName,
                 amount: this.getFinalPrice(),
                 currency: 'ZAR',
                 description: `${selectedPlan?.name || selectedPlan?.planName} Subscription`,
-                returnUrl: `${window.location.origin}/payment-success?email=${encodeURIComponent(formValue.email)}&subdomain=${encodeURIComponent(formValue.domain)}`,
+                returnUrl: `${window.location.origin}/payment-success?email=${encodeURIComponent(formValue.email)}&subdomain=${encodeURIComponent(resolvedDomain)}`,
                 cancelUrl: `${window.location.origin}/payment-cancelled`,
                 notifyUrl: `${window.location.origin}/api/Webhook/Webhook_PayFast`,
                 isRecurring: true,
@@ -765,6 +784,62 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         return 'Invalid value';
     }
 
+    toggleOptionalField(fieldName: string): void {
+        if (this.essentialFields.has(fieldName)) {
+            return;
+        }
+
+        const nextSet = new Set(this.visibleOptionalFields);
+        if (nextSet.has(fieldName)) {
+            nextSet.delete(fieldName);
+        } else {
+            nextSet.add(fieldName);
+        }
+
+        this.visibleOptionalFields = nextSet;
+    }
+
+    shouldShowField(fieldName: string): boolean {
+        return this.essentialFields.has(fieldName) || this.visibleOptionalFields.has(fieldName);
+    }
+
+    private resolveTenantName(formValue: any): string {
+        const explicitName = formValue.organizationName?.trim();
+        if (explicitName) {
+            return explicitName;
+        }
+
+        const fallback = `${formValue.firstName || ''} ${formValue.lastName || ''}`.trim();
+        if (fallback) {
+            return fallback;
+        }
+
+        return formValue.email || 'New Tenant';
+    }
+
+    private getEffectiveDomain(formValue: any): string {
+        const explicitDomain = formValue.domain?.trim();
+        if (explicitDomain) {
+            return explicitDomain.toLowerCase();
+        }
+
+        const fallback = `${formValue.firstName || ''} ${formValue.lastName || ''}`.trim();
+        const slugified = this.slugifyDomain(fallback);
+        if (slugified) {
+            return slugified;
+        }
+
+        return `tenant-${Date.now()}`;
+    }
+
+    private slugifyDomain(value: string): string {
+        return (value || '')
+            .toLowerCase()
+            .normalize('NFKD')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+
     private submitPaymentForm(url: string, paymentData: { [key: string]: string }): void {
         // Clear incomplete registration from localStorage since we're proceeding to payment
         // It will be cleared permanently on successful payment callback
@@ -789,6 +864,15 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         // Submit the form
         document.body.appendChild(form);
         form.submit();
+    }
+
+    formatWidgetName(widgetKey?: string | null): string {
+        if (!widgetKey) {
+            return '';
+        }
+
+        const cleaned = widgetKey.replace(/[-_]/g, ' ').toLowerCase();
+        return cleaned.replace(/\b\w/g, char => char.toUpperCase());
     }
     
     onCheckboxChange(event: Event, questionId: string, value: any): void {

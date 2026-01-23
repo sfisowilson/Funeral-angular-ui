@@ -1,0 +1,49 @@
+<p-toast></p-toast>
+
+<div class="form-widget-editor">
+    <h3 class="editor-title">Form Widget Settings</h3>
+
+    <div class="field">
+        <label class="field-label">Select Form</label>
+        <p-dropdown
+            [options]="forms"
+            [(ngModel)]="settings.formId"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            placeholder="Choose a form"
+            [showClear]="true"
+            [disabled]="loadingForms"
+            styleClass="w-full">
+        </p-dropdown>
+        <small class="field-help">Only active forms are listed.</small>
+    </div>
+
+    <div class="field">
+        <label class="field-label">Widget Title (optional)</label>
+        <input pInputText type="text" [(ngModel)]="settings.title" class="w-full" placeholder="Leave empty to use form name" />
+    </div>
+
+    <div class="field">
+        <label class="field-label">Success Message Override (optional)</label>
+        <textarea pTextarea [(ngModel)]="settings.successMessage" rows="3" class="w-full" placeholder="Leave empty to use form's success message"></textarea>
+    </div>
+
+    <div class="field checkbox-row">
+        <label>
+            <input type="checkbox" [(ngModel)]="settings.showTitle" />
+            <span>Show Title</span>
+        </label>
+    </div>
+
+    <div class="field checkbox-row">
+        <label>
+            <input type="checkbox" [(ngModel)]="settings.showDescription" />
+            <span>Show Description</span>
+        </label>
+    </div>
+
+    <div class="actions">
+        <button pButton type="button" label="Save" (click)="save()" class="p-button-primary"></button>
+    </div>
+</div>

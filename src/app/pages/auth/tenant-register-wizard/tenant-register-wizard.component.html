@@ -245,28 +245,41 @@
                         <h3>Account Information</h3>
                         <form [formGroup]="accountForm" class="registration-form">
                             <div class="row g-3">
-                                <!-- Organization Name -->
                                 <div class="col-md-6">
-                                    <label for="name" class="form-label">Organization Name *</label>
-                                    <input 
-                                        id="name" 
-                                        type="text" 
+                                    <label for="firstName" class="form-label">First Name *</label>
+                                    <input
+                                        id="firstName"
+                                        type="text"
                                         class="form-control"
-                                        [class.is-invalid]="isFieldInvalid('name')"
-                                        formControlName="name"
-                                        placeholder="Enter organization name">
-                                    <div *ngIf="isFieldInvalid('name')" class="invalid-feedback">
-                                        {{ getFieldError('name') }}
+                                        formControlName="firstName"
+                                        [class.is-invalid]="isFieldInvalid('firstName')"
+                                        placeholder="Enter first name">
+                                    <div *ngIf="isFieldInvalid('firstName')" class="invalid-feedback">
+                                        {{ getFieldError('firstName') }}
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Last Name *</label>
+                                    <input
+                                        id="lastName"
+                                        type="text"
+                                        class="form-control"
+                                        formControlName="lastName"
+                                        [class.is-invalid]="isFieldInvalid('lastName')"
+                                        placeholder="Enter last name">
+                                    <div *ngIf="isFieldInvalid('lastName')" class="invalid-feedback">
+                                        {{ getFieldError('lastName') }}
+                                    </div>
+                                </div>
+                            </div>
 
-                                <!-- Email -->
+                            <div class="row g-3 mt-3">
                                 <div class="col-md-6">
                                     <label for="email" class="form-label">Email Address *</label>
-                                    <input 
-                                        id="email" 
-                                        type="email" 
-                                        class="form-control" 
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        class="form-control"
                                         formControlName="email"
                                         [class.is-invalid]="isFieldInvalid('email')"
                                         placeholder="admin@example.com">
@@ -276,11 +289,10 @@
                                 </div>
                             </div>
 
-                            <!-- Password -->
                             <div class="row g-3 mt-3">
                                 <div class="col-md-6">
                                     <label for="password" class="form-label">Password *</label>
-                                    <input 
+                                    <input
                                         id="password"
                                         type="password"
                                         class="form-control"
@@ -291,11 +303,9 @@
                                         {{ getFieldError('password') }}
                                     </div>
                                 </div>
-
-                                <!-- Confirm Password -->
                                 <div class="col-md-6">
                                     <label for="confirmPassword" class="form-label">Confirm Password *</label>
-                                    <input 
+                                    <input
                                         id="confirmPassword"
                                         type="password"
                                         class="form-control"
@@ -308,29 +318,66 @@
                                 </div>
                             </div>
 
-                            <!-- Domain & Registration Number -->
-                            <div class="row g-3 mt-3">
+                            <div class="optional-fields-config rounded border border-secondary border-opacity-25 mt-4 p-3">
+                                <p class="mb-1 fw-semibold">Add extra details</p>
+                                <p class="text-muted small mb-2">Only the essential personal details are shown by default. Toggle any field you need for your registration process.</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm"
+                                        *ngFor="let field of optionalFieldConfig"
+                                        (click)="toggleOptionalField(field.name)"
+                                        [ngClass]="{
+                                            'btn-primary-theme': shouldShowField(field.name),
+                                            'btn-outline-secondary-theme': !shouldShowField(field.name)
+                                        }">
+                                        {{ field.label }}
+                                        <i class="bi bi-check ms-1" *ngIf="shouldShowField(field.name)"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div *ngIf="shouldShowField('organizationName')" class="row g-3 mt-3">
+                                <div class="col-12">
+                                    <label for="organizationName" class="form-label">Organization Name</label>
+                                    <input
+                                        id="organizationName"
+                                        type="text"
+                                        class="form-control"
+                                        formControlName="organizationName"
+                                        placeholder="Enter organisation name">
+                                </div>
+                            </div>
+
+                            <div *ngIf="shouldShowField('domain')" class="row g-3 mt-3">
                                 <div class="col-md-6">
-                                    <label for="domain" class="form-label">Domain (Subdomain) *</label>
-                                    <input 
-                                        id="domain" 
-                                        type="text" 
-                                        class="form-control" 
+                                    <label for="domain" class="form-label">Domain (Subdomain)</label>
+                                    <input
+                                        id="domain"
+                                        type="text"
+                                        class="form-control"
                                         formControlName="domain"
                                         [class.is-invalid]="isFieldInvalid('domain')"
                                         placeholder="yourcompany">
-                                    <small class="form-text text-muted">Your site will be: yourcompany.yourdomain.com</small>
+                                    <small class="form-text text-muted">Your site will live at yourcompany.yourdomain.com</small>
                                     <div *ngIf="isFieldInvalid('domain')" class="invalid-feedback">
                                         {{ getFieldError('domain') }}
                                     </div>
                                 </div>
+                            </div>
+                            <div *ngIf="!shouldShowField('domain')" class="row g-3 mt-2">
+                                <div class="col-12">
+                                    <small class="text-muted">We will generate a unique subdomain from your name unless you turn on the custom domain field.</small>
+                                </div>
+                            </div>
 
-                                <div class="col-md-6">
-                                    <label for="registrationNumber" class="form-label">Registration Number *</label>
-                                    <input 
-                                        id="registrationNumber" 
-                                        type="text" 
-                                        class="form-control" 
+                            <div *ngIf="shouldShowField('registrationNumber')" class="row g-3 mt-3">
+                                <div class="col-12">
+                                    <label for="registrationNumber" class="form-label">Registration Number / ID</label>
+                                    <input
+                                        id="registrationNumber"
+                                        type="text"
+                                        class="form-control"
                                         formControlName="registrationNumber"
                                         [class.is-invalid]="isFieldInvalid('registrationNumber')"
                                         placeholder="2023/123456/07">
@@ -340,14 +387,13 @@
                                 </div>
                             </div>
 
-                            <!-- Phone Numbers -->
-                            <div class="row g-3 mt-3">
-                                <div class="col-md-6">
-                                    <label for="phone1" class="form-label">Primary Phone *</label>
-                                    <input 
-                                        id="phone1" 
-                                        type="tel" 
-                                        class="form-control" 
+                            <div *ngIf="shouldShowField('phone1') || shouldShowField('phone2')" class="row g-3 mt-3">
+                                <div class="col-md-6" *ngIf="shouldShowField('phone1')">
+                                    <label for="phone1" class="form-label">Primary Phone</label>
+                                    <input
+                                        id="phone1"
+                                        type="tel"
+                                        class="form-control"
                                         formControlName="phone1"
                                         [class.is-invalid]="isFieldInvalid('phone1')"
                                         placeholder="+27123456789">
@@ -355,26 +401,24 @@
                                         {{ getFieldError('phone1') }}
                                     </div>
                                 </div>
-
-                                <div class="col-md-6">
+                                <div class="col-md-6" *ngIf="shouldShowField('phone2')">
                                     <label for="phone2" class="form-label">Secondary Phone</label>
-                                    <input 
-                                        id="phone2" 
-                                        type="tel" 
-                                        class="form-control" 
+                                    <input
+                                        id="phone2"
+                                        type="tel"
+                                        class="form-control"
                                         formControlName="phone2"
                                         placeholder="+27987654321">
                                 </div>
                             </div>
 
-                            <!-- Address -->
-                            <div class="row g-3 mt-3">
+                            <div *ngIf="shouldShowField('address')" class="row g-3 mt-3">
                                 <div class="col-12">
-                                    <label for="address" class="form-label">Physical Address *</label>
-                                    <input 
-                                        id="address" 
-                                        type="text" 
-                                        class="form-control" 
+                                    <label for="address" class="form-label">Physical Address</label>
+                                    <input
+                                        id="address"
+                                        type="text"
+                                        class="form-control"
                                         formControlName="address"
                                         [class.is-invalid]="isFieldInvalid('address')"
                                         placeholder="123 Main Street, City, Province, 0000">
@@ -384,12 +428,32 @@
                                 </div>
                             </div>
 
+                            <div *ngIf="shouldShowField('gender') || shouldShowField('idNumber')" class="row g-3 mt-3">
+                                <div class="col-md-6" *ngIf="shouldShowField('gender')">
+                                    <label for="gender" class="form-label">Gender</label>
+                                    <input
+                                        id="gender"
+                                        type="text"
+                                        class="form-control"
+                                        formControlName="gender"
+                                        placeholder="Female / Male / Non-binary">
+                                </div>
+                                <div class="col-md-6" *ngIf="shouldShowField('idNumber')">
+                                    <label for="idNumber" class="form-label">ID Number</label>
+                                    <input
+                                        id="idNumber"
+                                        type="text"
+                                        class="form-control"
+                                        formControlName="idNumber"
+                                        placeholder="8901015009087">
+                                </div>
+                            </div>
 
                             <!-- Terms and Conditions -->
                             <div class="row g-3 mt-3">
                                 <div class="col-12">
                                     <div class="form-check">
-                                        <input 
+                                        <input
                                             type="checkbox"
                                             class="form-check-input"
                                             formControlName="agreeToTerms"
@@ -595,6 +659,20 @@
                                 <span>White Label</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div *ngIf="selectedPlanForFeatures()?.widgetKeys?.length" class="mb-4">
+                    <h6 class="mb-3 fw-bold d-flex align-items-center">
+                        <i class="bi bi-puzzle-fill me-2 text-primary"></i>
+                        Included Widgets
+                    </h6>
+                    <div class="widget-key-grid">
+                        <span
+                            class="widget-pill"
+                            *ngFor="let widgetKey of selectedPlanForFeatures()?.widgetKeys">
+                            {{ formatWidgetName(widgetKey) }}
+                        </span>
                     </div>
                 </div>
 

@@ -19,8 +19,10 @@ import {
   SubscriptionPlanConfigurationDto,
   CreatePlanConfigurationDto,
   UpdatePlanConfigurationDto,
-  LookupServiceProxy 
+  Permission,
+  PermissionServiceProxy
 } from '../../../core/services/service-proxies';
+import { WidgetType, WIDGET_TYPES } from '../../../building-blocks/widget-registry';
 
 interface PlanGroup {
   planName: string;
@@ -46,13 +48,19 @@ interface PlanGroup {
     TabViewModule,
     TextareaModule
   ],
-  providers: [MessageService, ConfirmationService, PlanConfigurationServiceProxy, LookupServiceProxy],
+  providers: [MessageService, ConfirmationService, PlanConfigurationServiceProxy, PermissionServiceProxy],
   templateUrl: './plan-configuration.component.html',
   styleUrls: ['./plan-configuration.component.scss']
 })
 export class PlanConfigurationComponent implements OnInit {
   allConfigurations = signal<SubscriptionPlanConfigurationDto[]>([]);
   planGroups = signal<PlanGroup[]>([]);
+  availablePermissions: Permission[] = [];
+  availableWidgets: WidgetType[] = WIDGET_TYPES;
+  loadingPermissions = false;
+  missingPermissions: string[] = [];
+  private normalizedSelectedPermissionSet = new Set<string>();
+  customPermissionName = '';
   
   proRataEnabled = false;
   savingProRata = false;
@@ -109,18 +117,21 @@ export class PlanConfigurationComponent implements OnInit {
     trialDays: 14,
     requiresCreditCard: false,
     canDowngrade: true,
-    canUpgrade: true
+    canUpgrade: true,
+    permissionNames: [] as string[],
+    widgetKeys: [] as string[]
   };
 
   constructor(
     private planConfigService: PlanConfigurationServiceProxy,
-    private lookupService: LookupServiceProxy,
+    private permissionService: PermissionServiceProxy,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit(): void {
     this.loadConfigurations();
+    this.loadPermissions();
     this.loadProRataSetting();
   }
 
@@ -153,6 +164,31 @@ export class PlanConfigurationComponent implements OnInit {
           severity: 'error',
           summary: 'Error',
           detail: 'Failed to load plan configurations'
+        });
+      }
+    });
+  }
+
+  loadPermissions(): void {
+    this.loadingPermissions = true;
+    this.permissionService.permission_GetAllPermissions().subscribe({
+      next: (response) => {
+        const permissions = response?.result || [];
+        this.availablePermissions = permissions.sort((a, b) => {
+          const nameA = a.name ?? '';
+          const nameB = b.name ?? '';
+          return nameA.localeCompare(nameB);
+        });
+        this.loadingPermissions = false;
+        this.recomputeMissingPermissions();
+      },
+      error: (error) => {
+        console.error('Error loading permissions:', error);
+        this.loadingPermissions = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load permissions'
         });
       }
     });
@@ -210,8 +246,11 @@ export class PlanConfigurationComponent implements OnInit {
       trialDays: 14,
       requiresCreditCard: false,
       canDowngrade: true,
-      canUpgrade: true
+      canUpgrade: true,
+      permissionNames: [],
+      widgetKeys: []
     };
+    this.recomputeMissingPermissions();
   }
 
   populateForm(config: SubscriptionPlanConfigurationDto): void {
@@ -252,8 +291,11 @@ export class PlanConfigurationComponent implements OnInit {
       trialDays: config.trialDays,
       requiresCreditCard: config.requiresCreditCard,
       canDowngrade: config.canDowngrade,
-      canUpgrade: config.canUpgrade
+      canUpgrade: config.canUpgrade,
+      permissionNames: config.permissionNames ? [...config.permissionNames] : [],
+      widgetKeys: config.widgetKeys ? [...config.widgetKeys] : []
     };
+    this.recomputeMissingPermissions();
   }
 
   saveConfiguration(): void {
@@ -316,6 +358,7 @@ export class PlanConfigurationComponent implements OnInit {
         });
         this.showDialog = false;
         this.loadConfigurations();
+        this.syncTenantsForPlan(dto.id);
       },
       error: (error) => {
         console.error('Error updating configuration:', error);
@@ -399,5 +442,140 @@ export class PlanConfigurationComponent implements OnInit {
   closeDialog(): void {
     this.showDialog = false;
     this.currentConfig = null;
+  }
+
+  isPermissionSelected(name?: string): boolean {
+    if (!name) {
+      return false;
+    }
+
+    const normalizedTarget = this.normalizePermissionName(name);
+    return this.formData.permissionNames.some(existing => this.normalizePermissionName(existing) === normalizedTarget);
+  }
+
+  onPermissionToggle(name: string | undefined, checked: boolean): void {
+    if (!name) {
+      return;
+    }
+
+    const normalized = this.normalizePermissionName(name);
+    if (!normalized) {
+      return;
+    }
+
+    const trimmedName = name.trim();
+    let updated = [...this.formData.permissionNames];
+
+    if (checked) {
+      const alreadySelected = updated.some(existing => this.normalizePermissionName(existing) === normalized);
+      if (!alreadySelected) {
+        updated.push(trimmedName);
+      }
+    } else {
+      updated = updated.filter(existing => this.normalizePermissionName(existing) !== normalized);
+    }
+
+    this.formData.permissionNames = updated;
+    this.recomputeMissingPermissions();
+  }
+
+  addCustomPermission(): void {
+    const normalized = this.normalizePermissionName(this.customPermissionName);
+    if (!normalized) {
+      return;
+    }
+
+    const alreadyExists = this.formData.permissionNames.some(existing => this.normalizePermissionName(existing) === normalized);
+    if (!alreadyExists) {
+      this.formData.permissionNames = [...this.formData.permissionNames, this.customPermissionName.trim()];
+      this.recomputeMissingPermissions();
+    }
+
+    this.customPermissionName = '';
+  }
+
+  isWidgetSelected(key?: string): boolean {
+    return !!key && this.formData.widgetKeys.includes(key);
+  }
+
+  toggleWidget(key: string | undefined): void {
+    if (!key) {
+      return;
+    }
+
+    const updated = new Set(this.formData.widgetKeys);
+    if (updated.has(key)) {
+      updated.delete(key);
+    } else {
+      updated.add(key);
+    }
+
+    this.formData.widgetKeys = Array.from(updated);
+  }
+
+  formatWidgetLabel(key?: string): string {
+    if (!key) {
+      return '';
+    }
+
+    return key
+      .split(/[-_]/g)
+      .map(segment => segment ? segment.charAt(0).toUpperCase() + segment.slice(1) : '')
+      .join(' ');
+  }
+
+  private normalizePermissionName(name?: string): string {
+    return (name ?? '').trim().toLowerCase();
+  }
+
+  private recomputeMissingPermissions(): void {
+    const normalizedAvailable = new Set(
+      this.availablePermissions
+        .map(permission => this.normalizePermissionName(permission.name))
+        .filter(normalized => normalized.length > 0)
+    );
+
+    const missingNames = new Map<string, string>();
+    const normalizedSelected = new Set<string>();
+
+    for (const rawName of this.formData.permissionNames) {
+      const normalized = this.normalizePermissionName(rawName);
+      if (!normalized) {
+        continue;
+      }
+
+      normalizedSelected.add(normalized);
+
+      if (!normalizedAvailable.has(normalized) && !missingNames.has(normalized)) {
+        missingNames.set(normalized, rawName.trim());
+      }
+    }
+
+    this.normalizedSelectedPermissionSet = normalizedSelected;
+    this.missingPermissions = Array.from(missingNames.values());
+  }
+
+  private syncTenantsForPlan(planConfigId?: string): void {
+    if (!planConfigId) {
+      return;
+    }
+
+    this.planConfigService.planConfiguration_SyncTenants(planConfigId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Tenants synced',
+          detail: 'Existing tenants now have the latest plan permissions and widgets'
+        });
+      },
+      error: (error) => {
+        console.error('Error syncing tenants for plan:', error);
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Sync delayed',
+          detail: 'Failed to apply changes to existing tenants. Try again later.'
+        });
+      }
+    });
   }
 }

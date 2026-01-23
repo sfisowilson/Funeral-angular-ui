@@ -1,0 +1,152 @@
+<div class="stepper-form-editor">
+    <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" class="form-control" [(ngModel)]="settings.title" />
+    </div>
+
+    <div class="mb-3 form-check">
+        <input
+            type="checkbox"
+            class="form-check-input"
+            id="showProgressBarCheckbox"
+            [(ngModel)]="settings.showProgressBar"
+            name="showProgressBar"
+        />
+        <label class="form-check-label" for="showProgressBarCheckbox">Show progress bar / step indicator</label>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Success message</label>
+        <input type="text" class="form-control" [(ngModel)]="settings.successMessage" />
+    </div>
+
+    <div class="border rounded p-3 mb-3 bg-light">
+        <h3 class="h6 mb-2">Completion PDF & Signature (optional)</h3>
+
+        <div class="form-check mb-2">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                id="enableCompletionPdfCheckbox"
+                [(ngModel)]="settings.enableCompletionPdf"
+                name="enableCompletionPdf"
+            />
+            <label class="form-check-label" for="enableCompletionPdfCheckbox">
+                Show a PDF on the final step
+            </label>
+        </div>
+
+        <div *ngIf="settings.enableCompletionPdf" class="mt-2">
+            <div class="mb-2">
+                <label class="form-label">PDF mode</label>
+                <select class="form-select" [(ngModel)]="settings.completionPdfMode" name="completionPdfMode">
+                    <option value="system">System generated PDF</option>
+                    <option value="custom">Custom mapped PDF</option>
+                </select>
+                <div class="form-text">
+                    Uses your existing PDF mapping / generation setup. This widget only controls when the PDF is shown.
+                </div>
+            </div>
+
+            <div class="form-check mt-2">
+                <input
+                    type="checkbox"
+                    class="form-check-input"
+                    id="requireSignatureCheckbox"
+                    [(ngModel)]="settings.requireSignature"
+                    name="requireSignature"
+                />
+                <label class="form-check-label" for="requireSignatureCheckbox">
+                    Require a digital signature on completion
+                </label>
+            </div>
+
+            <div class="mt-2">
+                <label class="form-label">Completion PDF URL (optional)</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="settings.completionPdfUrl"
+                    name="completionPdfUrl"
+                    placeholder="https://.../your-generated.pdf"
+                />
+                <div class="form-text">
+                    If provided, users will see a button to open this PDF when the stepper is completed.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h3 class="h6 mb-0">Steps</h3>
+        <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-outline-primary" (click)="addFormStep()">Add form step</button>
+            <button type="button" class="btn btn-outline-secondary" (click)="addTermsStep()">Add terms step</button>
+        </div>
+    </div>
+
+    <div *ngIf="steps.length === 0" class="alert alert-info">
+        No steps configured. Use the buttons above to add form and terms steps.
+    </div>
+
+    <div *ngFor="let step of steps; let i = index" class="card mb-2">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-light text-dark">Step {{ i + 1 }}</span>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" (click)="moveStepUp(i)" [disabled]="i === 0">
+                        ↑
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        (click)="moveStepDown(i)"
+                        [disabled]="i === steps.length - 1"
+                    >
+                        ↓
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" (click)="removeStep(i)">
+                        Remove
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-2 align-items-center mb-2">
+                <div class="col-md-4">
+                    <label class="form-label">Step type</label>
+                    <select class="form-select" [(ngModel)]="step.type" [ngModelOptions]="{ standalone: true }">
+                        <option value="form">Form</option>
+                        <option value="terms">Terms</option>
+                    </select>
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label">Step title</label>
+                    <input type="text" class="form-control" [(ngModel)]="step.title" />
+                </div>
+            </div>
+
+            <div *ngIf="step.type === 'form'" class="mt-2">
+                <label class="form-label">Form</label>
+                <select class="form-select" [(ngModel)]="step.formId">
+                    <option [ngValue]="undefined">Select a form...</option>
+                    <option *ngFor="let f of forms" [ngValue]="f.id">
+                        {{ f.name }}
+                        <span *ngIf="f.description"> - {{ f.description }}</span>
+                    </option>
+                </select>
+                <div class="form-text" *ngIf="loadingForms">Loading forms...</div>
+            </div>
+
+            <div *ngIf="step.type === 'terms'" class="mt-2">
+                <p class="small text-muted mb-0">
+                    This step will show the currently active terms and conditions for the tenant and require acceptance before
+                    continuing.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3 text-end">
+        <button type="button" class="btn btn-primary" (click)="save()">Save settings</button>
+    </div>
+</div>

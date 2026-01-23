@@ -1,0 +1,116 @@
+<div class="form-widget card" *ngIf="!loading; else loadingTpl">
+    <ng-container *ngIf="!loadError && formDefinition; else errorTpl">
+        <div class="form-widget-header card-body pb-0" *ngIf="config?.settings?.showTitle !== false">
+            <h2 class="form-widget-title card-title mb-1">
+                {{ config?.settings?.title || formDefinition?.name }}
+            </h2>
+            <p class="form-widget-description card-text text-muted" *ngIf="config?.settings?.showDescription !== false && formDefinition?.description">
+                {{ formDefinition?.description }}
+            </p>
+        </div>
+
+        <div class="card-body pt-3">
+            <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+                <div *ngFor="let field of fields" class="mb-3">
+                    <label [attr.for]="field.name" class="form-label">
+                        {{ field.label }}
+                        <span class="text-danger" *ngIf="field.required">*</span>
+                    </label>
+
+                    <!-- Text-like inputs -->
+                    <input
+                        *ngIf="['text', 'email', 'tel', 'number', 'date'].includes(field.type)"
+                        [type]="field.type === 'date' ? 'date' : field.type"
+                        class="form-control"
+                        [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                        [id]="field.name"
+                        [placeholder]="field.placeholder"
+                        [formControlName]="field.name"
+                    />
+
+                    <!-- Textarea -->
+                    <textarea
+                        *ngIf="field.type === 'textarea'"
+                        class="form-control"
+                        [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                        [id]="field.name"
+                        [placeholder]="field.placeholder"
+                        [formControlName]="field.name"
+                        rows="4"
+                    ></textarea>
+
+                    <!-- Select -->
+                    <select
+                        *ngIf="field.type === 'select' && field.options && field.options.length"
+                        class="form-select"
+                        [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                        [id]="field.name"
+                        [formControlName]="field.name"
+                    >
+                        <option value="">Select...</option>
+                        <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+                    </select>
+
+                    <!-- Radio buttons -->
+                    <div *ngIf="field.type === 'radio' && field.options && field.options.length">
+                        <div class="form-check" *ngFor="let opt of field.options">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                [id]="field.name + '_' + opt"
+                                [value]="opt"
+                                [formControlName]="field.name"
+                            />
+                            <label class="form-check-label" [attr.for]="field.name + '_' + opt">
+                                {{ opt }}
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Checkbox group -->
+                    <div *ngIf="field.type === 'checkbox' && field.options && field.options.length">
+                        <ng-container *ngIf="getCheckboxControl(field) as checkboxArray">
+                            <div class="form-check" *ngFor="let opt of getCheckboxOptions(field); let i = index">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    [id]="field.name + '_' + i"
+                                    [formControl]="checkboxArray.at(i)"
+                                />
+                                <label class="form-check-label" [attr.for]="field.name + '_' + i">
+                                    {{ opt }}
+                                </label>
+                            </div>
+                        </ng-container>
+                    </div>
+
+                    <!-- Validation errors -->
+                    <div class="invalid-feedback d-block" *ngIf="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)">
+                        <span *ngIf="formGroup.get(field.name)?.errors?.['required']">This field is required.</span>
+                        <span *ngIf="formGroup.get(field.name)?.errors?.['email']">Please enter a valid email address.</span>
+                    </div>
+                </div>
+
+                <div *ngIf="successMessage" class="alert alert-success" role="alert">
+                    {{ successMessage }}
+                </div>
+                <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+                    {{ errorMessage }}
+                </div>
+
+                <button type="submit" class="btn btn-primary" [disabled]="submitting || !formGroup.valid">
+                    <span *ngIf="!submitting">Submit</span>
+                    <span *ngIf="submitting">Submitting...</span>
+                </button>
+            </form>
+        </div>
+    </ng-container>
+</div>
+
+<ng-template #loadingTpl>
+    <div class="text-center py-3 text-muted">Loading form...</div>
+</ng-template>
+
+<ng-template #errorTpl>
+    <div class="alert alert-danger" role="alert">{{ loadError }}</div>
+</ng-template>

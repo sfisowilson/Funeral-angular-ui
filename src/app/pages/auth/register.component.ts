@@ -149,12 +149,16 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     }
 
     register() {
+        // Ensure browser autofill updates the reactive control before validation runs.
+        this.patchEmailFromNativeInput();
+        console.log('RegisterComponent.register: CALLED', this.form.value, this.form.valid);
         this.isBusy = true;
         if (!this.form.valid) {
             this.isBusy = false;
+            this.showAlertMessage('error', 'Please fill in all required fields.');
             return;
         }
-
+console.log('RegisterComponent.register: form is valid, proceeding');
         // If ID number is provided, it must be valid
         if (!this.isHostTenant && this.form.value.identificationNumber) {
             const idInfo = this.idInfo();
@@ -166,16 +170,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
         }
 
         if (this.isHostTenant) {
-            // Workaround: if browser autofill populated the native input but didn't trigger
-            // Angular form control updates, read the native input value and patch the form.
-            let fv = this.form.value;
-            if (!fv.email) {
-                const native = document.getElementById('tenantEmail') as HTMLInputElement | null;
-                if (native && native.value) {
-                    this.form.patchValue({ email: native.value });
-                    fv = this.form.value;
-                }
-            }
+            const fv = this.form.value;
             // Build DTO explicitly to avoid missing/mapped properties from the FormGroup
             const tenantRegisterDto: TenantCreateUpdateDto = TenantCreateUpdateDto.fromJS({
                 id: '00000000-0000-0000-0000-000000000000', // Use empty GUID for new tenant
@@ -212,15 +207,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 })
                 .add(() => (this.isBusy = false));
         } else {
-            // Workaround for autofill: patch form.email from native input if needed
-            let fv = this.form.value;
-            if (!fv.email) {
-                const native = document.getElementById('memberEmail') as HTMLInputElement | null;
-                if (native && native.value) {
-                    this.form.patchValue({ email: native.value });
-                    fv = this.form.value;
-                }
-            }
+            const fv = this.form.value;
             
             // Build request object for registration
             const requestData: any = {
@@ -236,9 +223,13 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
 
             // Populate custom fields
             this.dynamicFields.forEach(field => {
-                if (field.fieldKey && fv[field.fieldKey]) {
-                    requestData.customFields[field.fieldKey] = fv[field.fieldKey];
+                const rawValue = fv[field.fieldKey];
+                if (!field.fieldKey || rawValue === undefined || rawValue === null) {
+                    return;
                 }
+
+                // Always send strings so the API can bind into Dictionary<string, string?>.
+                requestData.customFields[field.fieldKey] = rawValue.toString();
             });
             
             const memberRegisterRequest: RegisterRequest = RegisterRequest.fromJS(requestData);
@@ -386,6 +377,20 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
         this.skipVerification = true;
         this.showVerificationDialog = false;
         this.router.navigate(['/auth/login']);
+    }
+
+    private patchEmailFromNativeInput(): void {
+        // Pull the autofilled value from the native input into the reactive control.
+        const emailControl = this.form.get('email');
+        if (!emailControl || emailControl.value) {
+            return;
+        }
+
+        const elementId = this.isHostTenant ? 'tenantEmail' : 'memberEmail';
+        const native = document.getElementById(elementId) as HTMLInputElement | null;
+        if (native && native.value) {
+            emailControl.setValue(native.value);
+        }
     }
 
     getOptions(jsonString: string | null | undefined): { value: string, label: string }[] {

@@ -1,0 +1,450 @@
+<div class="container-fluid p-4">
+    <!-- Alerts -->
+    <div *ngFor="let alert of alerts" class="alert alert-{{alert.type}} alert-dismissible fade show" role="alert">
+        {{alert.message}}
+        <button type="button" class="btn-close" (click)="dismissAlert(alert)"></button>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Form Management</h4>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <button class="btn btn-primary me-2" (click)="openNew()">
+                        <i class="bi bi-plus-lg"></i> New Form
+                    </button>
+                    <button class="btn btn-secondary" (click)="exportCSV()">
+                        <i class="bi bi-download"></i> Export
+                    </button>
+                </div>
+            </div>
+
+            <div *ngIf="loading" class="text-center my-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <div *ngIf="!loading && forms().length === 0" class="text-center my-4">
+                <p class="text-muted">No forms found. Click "New Form" to create one.</p>
+            </div>
+
+            <div *ngIf="!loading && forms().length > 0" class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Name</th>
+                            <th style="width: 30%">Description</th>
+                            <th style="width: 10%">Submissions</th>
+                            <th style="width: 10%">Status</th>
+                            <th style="width: 15%">Created</th>
+                            <th style="width: 15%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let form of forms()">
+                            <td><span class="fw-bold">{{ form.name }}</span></td>
+                            <td>{{ form.description || 'No description' }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-link p-0" (click)="viewSubmissions(form)">
+                                    <span class="badge bg-info">{{ form.submissionCount }}</span>
+                                </button>
+                            </td>
+                            <td>
+                                <span class="badge" [class.bg-success]="form.isActive" [class.bg-secondary]="!form.isActive">
+                                    {{ form.isActive ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>{{ form.createdAt | date: 'short' }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info me-1" (click)="viewSubmissions(form)" title="View Submissions">
+                                    <i class="bi bi-inbox"></i>
+                                </button>
+                                <button class="btn btn-sm btn-success me-1" (click)="editForm(form)" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" (click)="deleteForm(form)" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submissions Modal -->
+<div class="modal" [class.show]="submissionsDialog" [style.display]="submissionsDialog ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Form Submissions
+                    <small class="text-muted" *ngIf="selectedFormForSubmissions">
+                        - {{ selectedFormForSubmissions.name }}
+                    </small>
+                </h5>
+                <button type="button" class="btn-close" (click)="closeSubmissionsDialog()"></button>
+            </div>
+            <div class="modal-body">
+                <div *ngIf="submissionsLoading" class="text-center my-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+
+                <div *ngIf="!submissionsLoading && submissions.length === 0" class="text-center text-muted">
+                    <p>No submissions found for this form yet.</p>
+                </div>
+
+                <div *ngIf="!submissionsLoading && submissions.length > 0" class="table-responsive">
+                    <table class="table table-sm table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%">Submitted At</th>
+                                <th style="width: 25%">Submitted By</th>
+                                <th style="width: 35%">Data</th>
+                                <th style="width: 10%">IP</th>
+                                <th style="width: 10%">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let submission of submissions">
+                                <td>{{ submission.submittedAt | date: 'short' }}</td>
+                                <td>
+                                    <ng-container *ngIf="submission.userFullName || submission.userEmail; else anonymousTpl">
+                                        <div class="small fw-semibold" *ngIf="submission.userFullName">{{ submission.userFullName }}</div>
+                                        <div class="small text-muted" *ngIf="submission.userEmail">{{ submission.userEmail }}</div>
+                                    </ng-container>
+                                    <ng-template #anonymousTpl>
+                                        <span class="text-muted small">Anonymous / not linked</span>
+                                    </ng-template>
+                                </td>
+                                <td>
+                                    <div *ngFor="let entry of parseSubmissionData(submission)" class="small">
+                                        <strong>{{ entry.key }}:</strong>
+                                        <span>{{ entry.value }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ submission.ipAddress || '-' }}</td>
+                                <td>
+                                    <span class="badge" [class.bg-success]="submission.isRead" [class.bg-secondary]="!submission.isRead">
+                                        {{ submission.isRead ? 'Read' : 'Unread' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
+                        <div>
+                            Showing {{ submissions.length }} of {{ submissionsTotalCount }} submissions
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeSubmissionsDialog()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Modal -->
+<div class="modal" [class.show]="formDialog" [style.display]="formDialog ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ form.id ? 'Edit Form' : 'Create New Form' }}</h5>
+                <button type="button" class="btn-close" (click)="hideDialog()"></button>
+            </div>
+            <div class="modal-body">
+                <form #formForm="ngForm">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="name" class="form-label">Form Name <span class="text-danger">*</span></label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="name" 
+                                name="name"
+                                [(ngModel)]="form.name" 
+                                required 
+                                [class.is-invalid]="submitted && !form.name">
+                            <div class="invalid-feedback" *ngIf="submitted && !form.name">
+                                Form name is required
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="isActive" class="form-label">Status</label>
+                            <div class="form-check form-switch mt-2">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    id="isActive" 
+                                    name="isActive"
+                                    [(ngModel)]="form.isActive">
+                                <label class="form-check-label" for="isActive">
+                                    {{ form.isActive ? 'Active' : 'Inactive' }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Link submissions to logged-in user</label>
+                            <div class="form-check form-switch mt-2">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="linkSubmissionsToUser"
+                                    name="linkSubmissionsToUser"
+                                    [(ngModel)]="form.linkSubmissionsToUser"
+                                />
+                                <label class="form-check-label" for="linkSubmissionsToUser">
+                                    When enabled, submissions from authenticated users will be associated with their account.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3" *ngIf="form.linkSubmissionsToUser">
+                            <label class="form-label">Per-user submission behaviour</label>
+
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="allowMultipleSubmissionsPerUser"
+                                    name="allowMultipleSubmissionsPerUser"
+                                    [(ngModel)]="form.allowMultipleSubmissionsPerUser"
+                                />
+                                <label class="form-check-label" for="allowMultipleSubmissionsPerUser">
+                                    Allow the same user to submit this form multiple times
+                                </label>
+                            </div>
+
+                            <div class="form-check mt-2">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="prefillLastSubmissionForUser"
+                                    name="prefillLastSubmissionForUser"
+                                    [(ngModel)]="form.prefillLastSubmissionForUser"
+                                />
+                                <label class="form-check-label" for="prefillLastSubmissionForUser">
+                                    Prefill the form with the user's last submission when they return
+                                </label>
+                            </div>
+
+                            <div class="form-check mt-2" *ngIf="!form.allowMultipleSubmissionsPerUser">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="allowUserToEditSubmission"
+                                    name="allowUserToEditSubmission"
+                                    [(ngModel)]="form.allowUserToEditSubmission"
+                                />
+                                <label class="form-check-label" for="allowUserToEditSubmission">
+                                    When a submission already exists, updating the form should edit the existing submission
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea 
+                            class="form-control" 
+                            id="description" 
+                            name="description"
+                            rows="2"
+                            [(ngModel)]="form.description"
+                            placeholder="Brief description of this form"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Form Fields <span class="text-danger">*</span></label>
+                        <div class="card card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold">Field Definitions</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addField()">
+                                    <i class="bi bi-plus-lg"></i> Add Field
+                                </button>
+                            </div>
+
+                            <div *ngIf="formFields.length === 0" class="text-muted small mb-2">
+                                No fields defined yet. Click "Add Field" to get started.
+                            </div>
+
+                            <div class="table-responsive" *ngIf="formFields.length > 0">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 20%">Label</th>
+                                            <th style="width: 20%">Name</th>
+                                            <th style="width: 15%">Type</th>
+                                            <th style="width: 20%">Placeholder</th>
+                                            <th style="width: 15%">Options</th>
+                                            <th style="width: 10%">Required</th>
+                                            <th style="width: 10%">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let field of formFields; let i = index">
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control form-control-sm"
+                                                    [(ngModel)]="field.label"
+                                                    name="fieldLabel{{i}}"
+                                                    placeholder="Full Name"
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control form-control-sm"
+                                                    [(ngModel)]="field.name"
+                                                    name="fieldName{{i}}"
+                                                    placeholder="fullName"
+                                                />
+                                            </td>
+                                            <td>
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    [(ngModel)]="field.type"
+                                                    name="fieldType{{i}}"
+                                                >
+                                                    <option value="text">Text</option>
+                                                    <option value="email">Email</option>
+                                                    <option value="tel">Phone</option>
+                                                    <option value="number">Number</option>
+                                                    <option value="textarea">Textarea</option>
+                                                    <option value="select">Select</option>
+                                                    <option value="checkbox">Checkbox</option>
+                                                    <option value="radio">Radio</option>
+                                                    <option value="date">Date</option>
+                                                    <option value="file">File</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control form-control-sm"
+                                                    [(ngModel)]="field.placeholder"
+                                                    name="fieldPlaceholder{{i}}"
+                                                    placeholder="Enter your full name"
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control form-control-sm"
+                                                    [(ngModel)]="field.options"
+                                                    name="fieldOptions{{i}}"
+                                                    [disabled]="!(field.type === 'select' || field.type === 'checkbox' || field.type === 'radio')"
+                                                    placeholder="Option 1, Option 2"
+                                                />
+                                            </td>
+                                            <td class="text-center">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    [(ngModel)]="field.required"
+                                                    name="fieldRequired{{i}}"
+                                                />
+                                            </td>
+                                            <td class="text-nowrap">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="moveFieldUp(i)" [disabled]="i === 0">
+                                                    <i class="bi bi-arrow-up"></i>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-secondary me-1"
+                                                    (click)="moveFieldDown(i)"
+                                                    [disabled]="i === formFields.length - 1"
+                                                >
+                                                    <i class="bi bi-arrow-down"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeField(i)">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <small class="form-text text-muted mt-2 d-block">
+                                Supported types: text, email, tel, number, textarea, select, checkbox, radio, date, file. Options are used for select, checkbox and radio
+                                fields (comma-separated).
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="notificationEmail" class="form-label">Notification Email</label>
+                            <input 
+                                type="email" 
+                                class="form-control" 
+                                id="notificationEmail" 
+                                name="notificationEmail"
+                                [(ngModel)]="form.notificationEmail"
+                                placeholder="admin@example.com">
+                            <small class="form-text text-muted">Email to receive notifications for new submissions</small>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="successMessage" class="form-label">Success Message</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="successMessage" 
+                                name="successMessage"
+                                [(ngModel)]="form.successMessage"
+                                placeholder="Thank you for your submission!">
+                            <small class="form-text text-muted">Message shown after successful form submission</small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="hideDialog()">Cancel</button>
+                <button type="button" class="btn btn-primary" (click)="saveForm()">
+                    <i class="bi bi-save"></i> Save Form
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backdrop -->
+<div class="modal-backdrop fade" [class.show]="formDialog" *ngIf="formDialog"></div>
+
+<!-- Confirmation Modal -->
+<div class="modal" [class.show]="showConfirmModal" [style.display]="showConfirmModal ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Action</h5>
+                <button type="button" class="btn-close" (click)="cancelConfirm()"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ confirmMessage }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="cancelConfirm()">Cancel</button>
+                <button type="button" class="btn btn-danger" (click)="executeConfirm()">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Backdrop for confirmation modal -->
+<div class="modal-backdrop fade" [class.show]="showConfirmModal" *ngIf="showConfirmModal"></div>

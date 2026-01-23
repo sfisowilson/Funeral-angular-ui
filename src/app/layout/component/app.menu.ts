@@ -154,6 +154,7 @@ export class AppMenu implements OnInit {
                     { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'], visible: this.authService.hasPermission('Permission.event.view') },
                     { label: 'Careers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/admin/pages/careers'], visible: this.authService.isAuthenticated() },
                     { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: this.authService.isAuthenticated() },
+                    { label: 'Form Management', icon: 'pi pi-fw pi-list', routerLink: ['/admin/forms'], visible: this.authService.hasPermission('Permission.form.view') },
                     { label: 'Custom Pages', icon: 'pi pi-fw pi-file-edit', routerLink: ['/admin/custom-pages'], visible: this.authService.isAuthenticated() }
                 ]
             },

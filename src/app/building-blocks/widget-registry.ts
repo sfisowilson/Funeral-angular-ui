@@ -98,6 +98,10 @@ import { ProductCategoriesEditorComponent } from './product-categories-widget/pr
 // Booking Widget
 import { BookingWidgetComponent } from './booking-widget/booking-widget.component';
 import { BookingEditorComponent } from './booking-widget/booking-editor.component';
+import { FormWidgetComponent } from './form-widget/form-widget.component';
+import { FormWidgetEditorComponent } from './form-widget/form-widget-editor.component';
+import { StepperFormWidgetComponent } from './stepper-form-widget/stepper-form-widget.component';
+import { StepperFormWidgetEditorComponent } from './stepper-form-widget/stepper-form-widget-editor.component';
 
 export interface WidgetType {
     name: string;
@@ -120,6 +124,31 @@ export const WIDGET_TYPES: WidgetType[] = [
             subtitle: '',
         },
         icon: 'table'
+    },
+    {
+        name: 'form',
+        component: FormWidgetComponent,
+        editorComponent: FormWidgetEditorComponent,
+        defaultConfig: {
+            formId: null,
+            title: '',
+            showTitle: true,
+            showDescription: true,
+            successMessage: ''
+        },
+        icon: 'ui-checks'
+    },
+    {
+        name: 'stepper-form',
+        component: StepperFormWidgetComponent,
+        editorComponent: StepperFormWidgetEditorComponent,
+        defaultConfig: {
+            title: 'Multi-step form',
+            showProgressBar: true,
+            successMessage: 'Thank you for completing all steps.',
+            steps: []
+        },
+        icon: 'list-ol'
     },
     {
         name: 'whatsapp',

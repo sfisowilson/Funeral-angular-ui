@@ -1,0 +1,38 @@
+.form-widget-editor {
+    padding: 1rem;
+}
+
+.editor-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.field {
+    margin-bottom: 0.75rem;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.field-help {
+    display: block;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}

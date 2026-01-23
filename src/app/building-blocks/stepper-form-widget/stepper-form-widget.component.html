@@ -1,0 +1,224 @@
+<div class="stepper-form-widget card" *ngIf="hasSteps; else noStepsTpl">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="h5 mb-0">
+                {{ config?.settings?.title || 'Multi-step form' }}
+            </h2>
+            <span class="text-muted small" *ngIf="steps.length > 1">
+                Step {{ currentStepIndex + 1 }} of {{ steps.length }}
+            </span>
+        </div>
+
+        <!-- Simple step indicator using Bootstrap -->
+        <div class="stepper-indicator d-flex flex-wrap gap-2">
+            <div
+                *ngFor="let step of steps; let i = index"
+                class="stepper-indicator-item d-flex align-items-center"
+                [class.active]="i === currentStepIndex"
+                [class.completed]="step.submitted && i < currentStepIndex"
+            >
+                <span class="step-index rounded-circle d-inline-flex align-items-center justify-content-center me-2">
+                    {{ i + 1 }}
+                </span>
+                <span class="step-title small">{{ step.config.title }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <ng-container *ngIf="currentStep as step">
+            <ng-container *ngIf="!step.loading; else loadingTpl">
+                <ng-container *ngIf="!step.loadError; else errorTpl">
+                    <!-- Form step -->
+                    <form *ngIf="step.config.type === 'form' && step.formGroup && step.fields" [formGroup]="step.formGroup" novalidate>
+                        <div *ngIf="step.readonlyPrefilled" class="alert alert-info py-2 px-3 mb-3 small" role="alert">
+                            You have already submitted this step. Your previous answers are shown below and cannot be changed.
+                        </div>
+
+                        <div *ngFor="let field of step.fields" class="mb-3">
+                            <label [attr.for]="field.name" class="form-label">
+                                {{ field.label }}
+                                <span class="text-danger" *ngIf="field.required">*</span>
+                            </label>
+
+                            <!-- Text-like inputs -->
+                            <input
+                                *ngIf="['text', 'email', 'tel', 'number', 'date'].includes(field.type)"
+                                [type]="field.type === 'date' ? 'date' : field.type"
+                                class="form-control"
+                                [class.is-invalid]="step.formGroup.get(field.name)?.invalid && (step.formGroup.get(field.name)?.touched || step.formGroup.get(field.name)?.dirty)"
+                                [id]="field.name"
+                                [placeholder]="field.placeholder"
+                                [formControlName]="field.name"
+                            />
+
+                            <!-- Textarea -->
+                            <textarea
+                                *ngIf="field.type === 'textarea'"
+                                class="form-control"
+                                [class.is-invalid]="step.formGroup.get(field.name)?.invalid && (step.formGroup.get(field.name)?.touched || step.formGroup.get(field.name)?.dirty)"
+                                [id]="field.name"
+                                [placeholder]="field.placeholder"
+                                [formControlName]="field.name"
+                                rows="4"
+                            ></textarea>
+
+                            <!-- Select -->
+                            <select
+                                *ngIf="field.type === 'select' && field.options && field.options.length"
+                                class="form-select"
+                                [class.is-invalid]="step.formGroup.get(field.name)?.invalid && (step.formGroup.get(field.name)?.touched || step.formGroup.get(field.name)?.dirty)"
+                                [id]="field.name"
+                                [formControlName]="field.name"
+                            >
+                                <option value="">Select...</option>
+                                <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+                            </select>
+
+                            <!-- Radio buttons -->
+                            <div *ngIf="field.type === 'radio' && field.options && field.options.length">
+                                <div class="form-check" *ngFor="let opt of field.options">
+                                    <input
+                                        class="form-check-input"
+                                        type="radio"
+                                        [id]="field.name + '_' + opt"
+                                        [value]="opt"
+                                        [formControlName]="field.name"
+                                    />
+                                    <label class="form-check-label" [attr.for]="field.name + '_' + opt">
+                                        {{ opt }}
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Checkbox group -->
+                            <div *ngIf="field.type === 'checkbox' && field.options && field.options.length">
+                                <ng-container *ngIf="getCheckboxControl(step, field) as checkboxArray">
+                                    <div class="form-check" *ngFor="let opt of getCheckboxOptions(field); let i = index">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            [id]="field.name + '_' + i"
+                                            [formControl]="checkboxArray.at(i)"
+                                        />
+                                        <label class="form-check-label" [attr.for]="field.name + '_' + i">
+                                            {{ opt }}
+                                        </label>
+                                    </div>
+                                </ng-container>
+                            </div>
+
+                            <!-- Validation errors -->
+                            <div class="invalid-feedback d-block" *ngIf="step.formGroup.get(field.name)?.invalid && (step.formGroup.get(field.name)?.touched || step.formGroup.get(field.name)?.dirty)">
+                                <span *ngIf="step.formGroup.get(field.name)?.errors?.['required']">This field is required.</span>
+                                <span *ngIf="step.formGroup.get(field.name)?.errors?.['email']">Please enter a valid email address.</span>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Terms step -->
+                    <div *ngIf="step.config.type === 'terms'">
+                        <h3 class="h6 mb-3">{{ step.terms?.title || 'Terms and Conditions' }}</h3>
+                        <div class="terms-content border rounded p-3 mb-3" style="max-height: 260px; overflow-y: auto;">
+                            <div [innerHTML]="step.terms?.content"></div>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="acceptTermsCheckbox"
+                                [(ngModel)]="step.acceptedTerms"
+                                [ngModelOptions]="{ standalone: true }"
+                                name="acceptedTerms"
+                            />
+                            <label class="form-check-label" for="acceptTermsCheckbox">
+                                I have read and accept the terms and conditions.
+                            </label>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+        </ng-container>
+
+        <div *ngIf="globalError" class="alert alert-danger mt-3" role="alert">
+            {{ globalError }}
+        </div>
+        <div *ngIf="completed && globalSuccess" class="alert alert-success mt-3" role="alert">
+            {{ globalSuccess }}
+        </div>
+
+        <div *ngIf="completed && enableCompletionPdf" class="mt-3">
+            <h3 class="h6 mb-2">Completed PDF</h3>
+            <div class="alert alert-info mb-3" role="alert">
+                A {{ completionPdfMode === 'system' ? 'system-generated' : 'custom mapped' }} PDF will be prepared for this
+                completed flow based on your tenant configuration.
+            </div>
+
+            <div *ngIf="completionPdfUrl" class="mb-3">
+                <a class="btn btn-outline-primary btn-sm" [href]="completionPdfUrl" target="_blank" rel="noopener">
+                    Open PDF in new tab
+                </a>
+            </div>
+
+            <div *ngIf="requireSignature" class="mb-3">
+                <h4 class="h6">Digital signature</h4>
+                <p class="small text-muted">
+                    Use your mouse or touch input to draw your signature in the box below.
+                </p>
+                <canvas
+                    #stepperSignatureCanvas
+                    id="stepperSignatureCanvas"
+                    width="600"
+                    height="200"
+                    class="border rounded w-100 mb-2"
+                    (mousedown)="startDrawing($event)"
+                    (mousemove)="draw($event)"
+                    (mouseup)="stopDrawing($event)"
+                    (mouseleave)="stopDrawing($event)"
+                ></canvas>
+                <div class="d-flex justify-content-between align-items-center">
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary btn-sm"
+                        (click)="clearSignature(stepperSignatureCanvas)"
+                    >
+                        Clear signature
+                    </button>
+                    <div *ngIf="signatureDataUrl" class="text-success small">
+                        Signature captured
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer d-flex justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" (click)="prev()" [disabled]="currentStepIndex === 0">
+            Previous
+        </button>
+        <button
+            type="button"
+            class="btn btn-primary"
+            (click)="next()"
+            [disabled]="completed || !hasSteps || (currentStep?.submitting ?? false)"
+        >
+            <span *ngIf="!isLastStep">Next</span>
+            <span *ngIf="isLastStep && !completed">Finish</span>
+            <span *ngIf="completed">Done</span>
+        </button>
+    </div>
+</div>
+
+<ng-template #noStepsTpl>
+    <div class="alert alert-warning" role="alert">
+        Stepper form widget is not configured with any steps.
+    </div>
+</ng-template>
+
+<ng-template #loadingTpl>
+    <div class="text-center py-3 text-muted">Loading step...</div>
+</ng-template>
+
+<ng-template #errorTpl>
+    <div class="alert alert-danger" role="alert">{{ currentStep?.loadError }}</div>
+</ng-template>

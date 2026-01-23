@@ -33,62 +33,9 @@
         <!-- Registration Form -->
         <div class="form-section">
             <form [formGroup]="form">
-                <!-- Tenant Registration Form -->
-                <div *ngIf="isHostTenant">
-                    <div class="mb-3">
-                        <label for="tenantName" class="form-label"><i class="bi bi-building"></i> Tenant Name</label>
-                        <input type="text" class="form-control" id="tenantName" placeholder="Enter tenant name" formControlName="name" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="tenantEmail" class="form-label"><i class="bi bi-envelope"></i> Email Address</label>
-                        <input type="email" class="form-control" id="tenantEmail" name="tenant-email" autocomplete="email" placeholder="Enter email address" formControlName="email" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="tenantPassword" class="form-label"><i class="bi bi-lock"></i> Password</label>
-                        <input type="password" class="form-control" id="tenantPassword" placeholder="Enter password" formControlName="password" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="tenantDomain" class="form-label"><i class="bi bi-globe"></i> Domain</label>
-                        <input type="text" class="form-control" id="tenantDomain" placeholder="Enter domain" formControlName="domain" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="tenantAddress" class="form-label"><i class="bi bi-geo-alt"></i> Address</label>
-                        <textarea class="form-control" id="tenantAddress" placeholder="Enter address" rows="3" formControlName="address"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="tenantPhone1" class="form-label"><i class="bi bi-telephone"></i> Primary Phone</label>
-                        <input type="tel" class="form-control" id="tenantPhone1" placeholder="(012) 345-6789" formControlName="phone1" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="tenantPhone2" class="form-label"><i class="bi bi-telephone"></i> Secondary Phone</label>
-                        <input type="tel" class="form-control" id="tenantPhone2" placeholder="(012) 345-6789 (optional)" formControlName="phone2" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="tenantRegistrationNumber" class="form-label"><i class="bi bi-card-text"></i> Registration Number</label>
-                        <input type="text" class="form-control" id="tenantRegistrationNumber" placeholder="Enter registration number" formControlName="registrationNumber" />
-                    </div>
-                    <div class="mb-3">
-                        <label for="tenantType" class="form-label"><i class="bi bi-tags"></i> Tenant Type</label>
-                        <select class="form-select" id="tenantType" formControlName="type">
-                            <option value="">Select tenant type</option>
-                            <option *ngFor="let type of tenantTypes" [value]="type.value">{{ type.label }}</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="isStaticSite" formControlName="isStaticSite">
-                            <label class="form-check-label" for="isStaticSite">
-                                <i class="bi bi-file-earmark-text"></i> Static Site (No Login/Registration)
-                            </label>
-                            <small class="d-block mt-1 text-muted">
-                                <i class="bi bi-info-circle"></i> Check this if you want a simple website without member login or registration features.
-                            </small>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Member Registration Form -->
-                <div *ngIf="!isHostTenant">
+                <div>
                     <div *ngIf="selectedPolicy" class="alert alert-info mb-3">
                         <strong>Policy:</strong> {{ selectedPolicy.name }}
                         <button type="button" class="btn-secondary-theme btn-sm float-end" (click)="showPolicySelection()">Change</button>
@@ -162,25 +109,25 @@
                             </label>
                             <div [ngSwitch]="field.fieldType">
                                 <!-- Text Input -->
-                                <input *ngSwitchCase="'Text'" type="text" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey">
+                                <input *ngSwitchCase="'text'" type="text" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey">
                                 
                                 <!-- Textarea -->
-                                <textarea *ngSwitchCase="'Textarea'" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey"></textarea>
+                                <textarea *ngSwitchCase="'textarea'" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey"></textarea>
                                 
                                 <!-- Number Input -->
-                                <input *ngSwitchCase="'Number'" type="number" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey">
+                                <input *ngSwitchCase="'number'" type="number" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey">
                         
                                 <!-- Date Input -->
-                                <input *ngSwitchCase="'Date'" type="date" class="form-control" [id]="field.fieldKey" [formControlName]="field.fieldKey">
+                                <input *ngSwitchCase="'date'" type="date" class="form-control" [id]="field.fieldKey" [formControlName]="field.fieldKey">
                                 
                                 <!-- Checkbox -->
-                                <div *ngSwitchCase="'Checkbox'" class="form-check">
+                                <div *ngSwitchCase="'checkbox'" class="form-check">
                                     <input type="checkbox" class="form-check-input" [id]="field.fieldKey" [formControlName]="field.fieldKey">
                                     <label class="form-check-label" [for]="field.fieldKey">{{ field.placeholder || '' }}</label>
                                 </div>
                                 
                                 <!-- Dropdown/Select -->
-                                <select *ngSwitchCase="'Dropdown'" class="form-select" [id]="field.fieldKey" [formControlName]="field.fieldKey">
+                                <select *ngSwitchCase="'dropdown'" class="form-select" [id]="field.fieldKey" [formControlName]="field.fieldKey">
                                     <option value="">{{ field.placeholder || 'Select...' }}</option>
                                     <option *ngFor="let option of getOptions(field.optionsJson)" [value]="option.value">{{ option.label }}</option>
                                 </select>
