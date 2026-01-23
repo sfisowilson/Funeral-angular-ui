@@ -31129,6 +31129,7 @@ export class CreateFormDto implements ICreateFormDto {
     allowUserToEditSubmission!: boolean;
     notificationEmail!: string | undefined;
     successMessage!: string | undefined;
+    calculatorConfig!: string | undefined;
 
     constructor(data?: ICreateFormDto) {
         if (data) {
@@ -31151,6 +31152,7 @@ export class CreateFormDto implements ICreateFormDto {
             this.allowUserToEditSubmission = _data["allowUserToEditSubmission"];
             this.notificationEmail = _data["notificationEmail"];
             this.successMessage = _data["successMessage"];
+            this.calculatorConfig = _data["calculatorConfig"];
         }
     }
 
@@ -31173,6 +31175,7 @@ export class CreateFormDto implements ICreateFormDto {
         data["allowUserToEditSubmission"] = this.allowUserToEditSubmission;
         data["notificationEmail"] = this.notificationEmail;
         data["successMessage"] = this.successMessage;
+        data["calculatorConfig"] = this.calculatorConfig;
         return data;
     }
 }
@@ -31188,6 +31191,7 @@ export interface ICreateFormDto {
     allowUserToEditSubmission: boolean;
     notificationEmail: string | undefined;
     successMessage: string | undefined;
+    calculatorConfig: string | undefined;
 }
 
 export class CreateFormSubmissionDto implements ICreateFormSubmissionDto {
@@ -34537,6 +34541,7 @@ export class FormDto implements IFormDto {
     allowMultipleSubmissionsPerUser!: boolean;
     prefillLastSubmissionForUser!: boolean;
     allowUserToEditSubmission!: boolean;
+    calculatorConfig!: string | undefined;
 
     constructor(data?: IFormDto) {
         if (data) {
@@ -34564,6 +34569,7 @@ export class FormDto implements IFormDto {
             this.allowMultipleSubmissionsPerUser = _data["allowMultipleSubmissionsPerUser"];
             this.prefillLastSubmissionForUser = _data["prefillLastSubmissionForUser"];
             this.allowUserToEditSubmission = _data["allowUserToEditSubmission"];
+            this.calculatorConfig = _data["calculatorConfig"];
         }
     }
 
@@ -34591,6 +34597,7 @@ export class FormDto implements IFormDto {
         data["allowMultipleSubmissionsPerUser"] = this.allowMultipleSubmissionsPerUser;
         data["prefillLastSubmissionForUser"] = this.prefillLastSubmissionForUser;
         data["allowUserToEditSubmission"] = this.allowUserToEditSubmission;
+        data["calculatorConfig"] = this.calculatorConfig;
         return data;
     }
 }
@@ -34611,6 +34618,7 @@ export interface IFormDto {
     allowMultipleSubmissionsPerUser: boolean;
     prefillLastSubmissionForUser: boolean;
     allowUserToEditSubmission: boolean;
+    calculatorConfig: string | undefined;
 }
 
 export class FormListResponseDto implements IFormListResponseDto {
@@ -44209,6 +44217,7 @@ export class UpdateFormDto implements IUpdateFormDto {
     allowUserToEditSubmission!: boolean;
     notificationEmail!: string | undefined;
     successMessage!: string | undefined;
+    calculatorConfig!: string | undefined;
 
     constructor(data?: IUpdateFormDto) {
         if (data) {
@@ -44231,6 +44240,7 @@ export class UpdateFormDto implements IUpdateFormDto {
             this.allowUserToEditSubmission = _data["allowUserToEditSubmission"];
             this.notificationEmail = _data["notificationEmail"];
             this.successMessage = _data["successMessage"];
+            this.calculatorConfig = _data["calculatorConfig"];
         }
     }
 
@@ -44253,6 +44263,7 @@ export class UpdateFormDto implements IUpdateFormDto {
         data["allowUserToEditSubmission"] = this.allowUserToEditSubmission;
         data["notificationEmail"] = this.notificationEmail;
         data["successMessage"] = this.successMessage;
+        data["calculatorConfig"] = this.calculatorConfig;
         return data;
     }
 }
@@ -44268,6 +44279,7 @@ export interface IUpdateFormDto {
     allowUserToEditSubmission: boolean;
     notificationEmail: string | undefined;
     successMessage: string | undefined;
+    calculatorConfig: string | undefined;
 }
 
 export class UpdateMemberBankingDetailDto implements IUpdateMemberBankingDetailDto {

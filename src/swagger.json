@@ -22723,6 +22723,10 @@
             "maxLength": 500,
             "type": "string",
             "nullable": true
+          },
+          "calculatorConfig": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -25112,6 +25116,10 @@
           },
           "allowUserToEditSubmission": {
             "type": "boolean"
+          },
+          "calculatorConfig": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -31312,6 +31320,10 @@
           },
           "successMessage": {
             "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "calculatorConfig": {
             "type": "string",
             "nullable": true
           }

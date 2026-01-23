@@ -267,6 +267,344 @@
                             placeholder="Brief description of this form"></textarea>
                     </div>
 
+                    <!-- Calculator configuration -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold">Calculator Configuration</span>
+                                <div class="form-check form-switch mb-0">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        id="enableCalculator"
+                                        name="enableCalculator"
+                                        [(ngModel)]="calculatorConfig.enabled"
+                                    />
+                                    <label class="form-check-label" for="enableCalculator">
+                                        Enable calculator for this form
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" *ngIf="calculatorConfig.enabled">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Calculator Name</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        [(ngModel)]="calculatorConfig.name"
+                                        name="calculatorName"
+                                        placeholder="e.g. Premium Calculator"
+                                    />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Result Label</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        [(ngModel)]="calculatorConfig.expressionLabel"
+                                        name="calculatorResultLabel"
+                                        placeholder="e.g. Estimated Monthly Premium"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Display Mode</label>
+                                    <select
+                                        class="form-select"
+                                        [(ngModel)]="calculatorConfig.displayMode"
+                                        name="calculatorDisplayMode">
+                                        <option value="side-panel">Side panel</option>
+                                        <option value="inline">Inline below form</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Audience</label>
+                                    <select
+                                        class="form-select"
+                                        [(ngModel)]="calculatorConfig.audience"
+                                        name="calculatorAudience">
+                                        <option value="public">Public</option>
+                                        <option value="authenticated">Authenticated users only</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Result Storage</label>
+                                    <select
+                                        class="form-select"
+                                        [(ngModel)]="calculatorConfig.storeMode"
+                                        name="calculatorStoreMode">
+                                        <option value="none">Do not store result</option>
+                                        <option value="attach-to-submission">Attach to form submission</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3" *ngIf="calculatorConfig.storeMode === 'attach-to-submission'">
+                                    <label class="form-label">Result Key in Submission Data</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        [(ngModel)]="calculatorConfig.resultKey"
+                                        name="calculatorResultKey"
+                                        placeholder="e.g. calculatorResult"
+                                    />
+                                    <small class="text-muted">Result will be stored under this key in the form submission JSON.</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Available Fields</label>
+                                    <div class="small text-muted">
+                                        <span *ngFor="let f of formFields" class="badge bg-light text-dark me-1 mb-1">
+                                            {{ f.name }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">Use these field names as variables in the formula.</small>
+                                </div>
+                            </div>
+
+                            <!-- Derived variables (optional) -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Derived Variables (optional)</label>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addCalculatorVariable()">
+                                        <i class="bi bi-plus-lg"></i> Add Variable
+                                    </button>
+                                </div>
+                                <small class="text-muted d-block mb-2">
+                                    Variables can read a single field, aggregate over a field (e.g. count selected checkboxes), or use lookup rules (e.g. age band + plan -> price).
+                                </small>
+
+                                <div *ngIf="!calculatorConfig.variables || calculatorConfig.variables.length === 0" class="small text-muted mb-2">
+                                    No derived variables defined. The formula can still use raw field names directly.
+                                </div>
+
+                                <div *ngFor="let v of calculatorConfig.variables; let vi = index" class="border rounded p-2 mb-2 bg-light-subtle">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="me-2 flex-grow-1">
+                                            <div class="row g-2">
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">Variable Name</label>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-sm"
+                                                        [(ngModel)]="v.name"
+                                                        name="varName{{vi}}"
+                                                        placeholder="e.g. basePrice"
+                                                    />
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">Label (optional)</label>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-sm"
+                                                        [(ngModel)]="v.label"
+                                                        name="varLabel{{vi}}"
+                                                        placeholder="Human-friendly label"
+                                                    />
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">Type</label>
+                                                    <select
+                                                        class="form-select form-select-sm"
+                                                        [(ngModel)]="v.type"
+                                                        name="varType{{vi}}"
+                                                    >
+                                                        <option value="field">Field</option>
+                                                        <option value="aggregate">Aggregate</option>
+                                                        <option value="lookup">Lookup</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="removeCalculatorVariable(vi)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Field variable configuration -->
+                                    <div *ngIf="v.type === 'field'" class="row g-2 align-items-end mb-1">
+                                        <div class="col-md-6">
+                                            <label class="form-label small mb-1">Source Field</label>
+                                            <select
+                                                class="form-select form-select-sm"
+                                                [(ngModel)]="v.fieldName"
+                                                name="varField{{vi}}"
+                                            >
+                                                <option [ngValue]="''">Select field...</option>
+                                                <option *ngFor="let f of formFields" [ngValue]="f.name">{{ f.name }}</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 small text-muted">
+                                            This variable will always mirror the value of the selected form field.
+                                        </div>
+                                    </div>
+
+                                    <!-- Aggregate variable configuration -->
+                                    <div *ngIf="v.type === 'aggregate'" class="row g-2 align-items-end mb-1">
+                                        <div class="col-md-4">
+                                            <label class="form-label small mb-1">Target Field</label>
+                                            <select
+                                                class="form-select form-select-sm"
+                                                [(ngModel)]="v.fieldName"
+                                                name="varAggField{{vi}}"
+                                            >
+                                                <option [ngValue]="''">Select field...</option>
+                                                <option *ngFor="let f of formFields" [ngValue]="f.name">{{ f.name }}</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label small mb-1">Aggregate Mode</label>
+                                            <select
+                                                class="form-select form-select-sm"
+                                                [(ngModel)]="v.aggregateMode"
+                                                name="varAggMode{{vi}}"
+                                            >
+                                                <option value="sum">Sum</option>
+                                                <option value="count">Count</option>
+                                                <option value="avg">Average</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4 small text-muted">
+                                            For checkbox groups this can, for example, count selected options. For numeric arrays it can sum or average values.
+                                        </div>
+                                    </div>
+
+                                    <!-- Lookup variable configuration -->
+                                    <div *ngIf="v.type === 'lookup'" class="mt-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="small fw-semibold">Lookup Rules</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addLookupRule(v)">
+                                                <i class="bi bi-plus-lg"></i> Add Rule
+                                            </button>
+                                        </div>
+                                        <small class="text-muted d-block mb-1">
+                                            Each rule defines conditions on fields and a numeric result (e.g. age band + plan -> base price).
+                                        </small>
+
+                                        <div *ngIf="!v.lookupRules || v.lookupRules.length === 0" class="small text-muted mb-1">
+                                            No rules defined yet.
+                                        </div>
+
+                                        <div *ngFor="let r of v.lookupRules; let ri = index" class="border rounded bg-white p-2 mb-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="small fw-semibold">Rule {{ ri + 1 }}</span>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeLookupRule(v, ri)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="row g-2 align-items-end mb-1" *ngFor="let c of r.conditions; let ci = index">
+                                                <div class="col-md-4">
+                                                    <label class="form-label small mb-1">Field</label>
+                                                    <select
+                                                        class="form-select form-select-sm"
+                                                        [(ngModel)]="c.field"
+                                                        name="var{{vi}}Rule{{ri}}CondField{{ci}}"
+                                                    >
+                                                        <option [ngValue]="''">Select field...</option>
+                                                        <option *ngFor="let f of formFields" [ngValue]="f.name">{{ f.name }}</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label small mb-1">Operator</label>
+                                                    <select
+                                                        class="form-select form-select-sm"
+                                                        [(ngModel)]="c.operator"
+                                                        name="var{{vi}}Rule{{ri}}CondOp{{ci}}"
+                                                    >
+                                                        <option value="eq">Equals</option>
+                                                        <option value="lt">&lt;</option>
+                                                        <option value="lte">&lt;=</option>
+                                                        <option value="gt">&gt;</option>
+                                                        <option value="gte">&gt;=</option>
+                                                        <option value="between">Between</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4" *ngIf="c.operator !== 'between'">
+                                                    <label class="form-label small mb-1">Value</label>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-sm"
+                                                        [(ngModel)]="c.value"
+                                                        name="var{{vi}}Rule{{ri}}CondVal{{ci}}"
+                                                        placeholder="e.g. 30 or Basic"
+                                                    />
+                                                </div>
+                                                <div class="col-md-4" *ngIf="c.operator === 'between'">
+                                                    <div class="row g-1">
+                                                        <div class="col-6">
+                                                            <label class="form-label small mb-1">Min</label>
+                                                            <input
+                                                                type="text"
+                                                                class="form-control form-control-sm"
+                                                                [(ngModel)]="c.min"
+                                                                name="var{{vi}}Rule{{ri}}CondMin{{ci}}"
+                                                                placeholder="Min"
+                                                            />
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label small mb-1">Max</label>
+                                                            <input
+                                                                type="text"
+                                                                class="form-control form-control-sm"
+                                                                [(ngModel)]="c.max"
+                                                                name="var{{vi}}Rule{{ri}}CondMax{{ci}}"
+                                                                placeholder="Max"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-1 d-flex align-items-end">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeLookupCondition(r, ci)">
+                                                        <i class="bi bi-x"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-secondary mb-2"
+                                                (click)="addLookupCondition(r)"
+                                            >
+                                                <i class="bi bi-plus-lg"></i> Add Condition
+                                            </button>
+
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-md-6">
+                                                    <label class="form-label small mb-1">Result (numeric)</label>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-sm"
+                                                        [(ngModel)]="r.result"
+                                                        name="var{{vi}}Rule{{ri}}Result"
+                                                        placeholder="e.g. 199.99"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">Formula</label>
+                                <textarea
+                                    class="form-control font-monospace"
+                                    rows="3"
+                                    [(ngModel)]="calculatorConfig.formula"
+                                    name="calculatorFormula"
+                                    placeholder="Example: amount * 0.15 + fee"></textarea>
+                                <small class="text-muted d-block mt-1">
+                                    Supported: basic arithmetic with +, -, *, / and parentheses. Formula can use raw field names and any derived variables defined above.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Form Fields <span class="text-danger">*</span></label>
                         <div class="card card-body p-3">

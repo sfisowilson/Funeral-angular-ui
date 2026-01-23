@@ -36,6 +36,17 @@ export class FormWidgetComponent implements OnInit {
     successMessage = '';
     errorMessage = '';
 
+    // Calculator configuration and state
+    calculatorEnabled = false;
+    calculatorLabel = 'Calculated Result';
+    calculatorDisplayMode: 'inline' | 'side-panel' = 'side-panel';
+    calculatorAudience: 'public' | 'authenticated' = 'public';
+    calculatorStoreMode: 'none' | 'attach-to-submission' = 'none';
+    calculatorResultKey = 'calculatorResult';
+    calculatorValue: number | null = null;
+    calculatorError: string = '';
+    private calculatorConfig: any | null = null;
+
     constructor(
         private fb: FormBuilder,
         private formService: FormServiceProxy,
@@ -68,6 +79,7 @@ export class FormWidgetComponent implements OnInit {
                 this.formDefinition = form;
                 this.fields = this.parseFields(form.fields);
                 this.buildForm();
+                this.setupCalculatorFromConfig(form);
                 this.tryPrefillFromLatestSubmission();
                 this.loading = false;
             },
@@ -126,6 +138,308 @@ export class FormWidgetComponent implements OnInit {
         }
 
         this.formGroup = this.fb.group(group);
+    }
+
+    private setupCalculatorFromConfig(formWithConfig: FormDto): void {
+        const configJson: string | undefined = formWithConfig.calculatorConfig;
+        if (!configJson) {
+            this.calculatorEnabled = false;
+            this.calculatorConfig = null;
+            return;
+        }
+
+        try {
+            const cfg = JSON.parse(configJson);
+            if (!cfg || typeof cfg !== 'object' || !cfg.enabled || !cfg.formula) {
+                this.calculatorEnabled = false;
+                this.calculatorConfig = null;
+                return;
+            }
+
+            this.calculatorConfig = cfg;
+            this.calculatorEnabled = true;
+            this.calculatorLabel = cfg.expressionLabel || 'Calculated Result';
+            this.calculatorDisplayMode = cfg.displayMode === 'inline' ? 'inline' : 'side-panel';
+            this.calculatorAudience = cfg.audience === 'authenticated' ? 'authenticated' : 'public';
+            this.calculatorStoreMode = cfg.storeMode === 'attach-to-submission' ? 'attach-to-submission' : 'none';
+            this.calculatorResultKey = cfg.resultKey || 'calculatorResult';
+
+            // Respect audience visibility
+            if (this.calculatorAudience === 'authenticated' && !this.authService.isAuthenticated()) {
+                this.calculatorEnabled = false;
+                this.calculatorConfig = null;
+                return;
+            }
+
+            // Evaluate on initial state and whenever the form changes
+            this.formGroup.valueChanges.subscribe(() => {
+                this.evaluateCalculator();
+            });
+            this.evaluateCalculator();
+        } catch {
+            this.calculatorEnabled = false;
+            this.calculatorConfig = null;
+        }
+    }
+
+    private evaluateCalculator(): void {
+        if (!this.formGroup || !this.calculatorConfig || !this.calculatorConfig.formula) {
+            return;
+        }
+
+        const values = this.formGroup.value as Record<string, any>;
+        try {
+            const vars = this.buildCalculatorVariables(values, this.calculatorConfig);
+            const result = this.evaluateExpression(this.calculatorConfig.formula as string, vars);
+            this.calculatorValue = result;
+            this.calculatorError = '';
+        } catch {
+            this.calculatorValue = null;
+            this.calculatorError = 'Unable to calculate result. Please check the formula and field values.';
+        }
+    }
+
+    private buildCalculatorVariables(values: Record<string, any>, config: any): Record<string, any> {
+        // Start with raw form values so formulas can still reference field names directly
+        const vars: Record<string, any> = { ...values };
+
+        if (!Array.isArray(config.variables)) {
+            return vars;
+        }
+
+        for (const v of config.variables as any[]) {
+            if (!v || !v.name) {
+                continue;
+            }
+
+            try {
+                if (v.type === 'field' && v.fieldName) {
+                    vars[v.name] = values[v.fieldName];
+                } else if (v.type === 'aggregate' && v.fieldName) {
+                    vars[v.name] = this.evaluateAggregateVariable(v, values[v.fieldName]);
+                } else if (v.type === 'lookup') {
+                    vars[v.name] = this.evaluateLookupVariable(v, values);
+                }
+            } catch {
+                // If a variable cannot be evaluated, leave it undefined and let the main evaluator handle it
+            }
+        }
+
+        return vars;
+    }
+
+    // Very small expression evaluator supporting numbers, identifiers, + - * / and parentheses
+    private evaluateExpression(formula: string, vars: Record<string, any>): number {
+        const tokens = this.tokenize(formula);
+        const rpn = this.toRpn(tokens);
+        return this.evalRpn(rpn, vars);
+    }
+
+    private tokenize(formula: string): string[] {
+        const tokens: string[] = [];
+        const pattern = /\s*([A-Za-z_][A-Za-z0-9_]*|\d*\.?\d+|[()+\-*/])\s*/g;
+        let match: RegExpExecArray | null;
+        while ((match = pattern.exec(formula)) !== null) {
+            tokens.push(match[1]);
+        }
+        return tokens;
+    }
+
+    private toRpn(tokens: string[]): string[] {
+        const output: string[] = [];
+        const ops: string[] = [];
+        const precedence: { [op: string]: number } = { '+': 1, '-': 1, '*': 2, '/': 2 };
+
+        for (const token of tokens) {
+            if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(token) || /^\d*\.?\d+$/.test(token)) {
+                output.push(token);
+            } else if (token in precedence) {
+                while (
+                    ops.length &&
+                    ops[ops.length - 1] in precedence &&
+                    precedence[ops[ops.length - 1]] >= precedence[token]
+                ) {
+                    output.push(ops.pop() as string);
+                }
+                ops.push(token);
+            } else if (token === '(') {
+                ops.push(token);
+            } else if (token === ')') {
+                while (ops.length && ops[ops.length - 1] !== '(') {
+                    output.push(ops.pop() as string);
+                }
+                if (!ops.length || ops.pop() !== '(') {
+                    throw new Error('Mismatched parentheses');
+                }
+            } else {
+                throw new Error('Invalid token');
+            }
+        }
+
+        while (ops.length) {
+            const op = ops.pop() as string;
+            if (op === '(' || op === ')') {
+                throw new Error('Mismatched parentheses');
+            }
+            output.push(op);
+        }
+
+        return output;
+    }
+
+    private evalRpn(tokens: string[], vars: Record<string, any>): number {
+        const stack: number[] = [];
+
+        for (const token of tokens) {
+            if (/^\d*\.?\d+$/.test(token)) {
+                stack.push(parseFloat(token));
+            } else if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(token)) {
+                const raw = vars[token];
+                const num = typeof raw === 'number' ? raw : parseFloat(raw);
+                if (isNaN(num)) {
+                    throw new Error('Invalid variable value');
+                }
+                stack.push(num);
+            } else if (['+', '-', '*', '/'].includes(token)) {
+                const b = stack.pop();
+                const a = stack.pop();
+                if (a === undefined || b === undefined) {
+                    throw new Error('Invalid expression');
+                }
+                let res: number;
+                switch (token) {
+                    case '+':
+                        res = a + b;
+                        break;
+                    case '-':
+                        res = a - b;
+                        break;
+                    case '*':
+                        res = a * b;
+                        break;
+                    case '/':
+                        res = b === 0 ? NaN : a / b;
+                        break;
+                    default:
+                        throw new Error('Unknown operator');
+                }
+                if (!isFinite(res)) {
+                    throw new Error('Invalid result');
+                }
+                stack.push(res);
+            } else {
+                throw new Error('Invalid token');
+            }
+        }
+
+        if (stack.length !== 1) {
+            throw new Error('Invalid expression');
+        }
+
+        return stack[0];
+    }
+
+    private evaluateAggregateVariable(variable: any, rawValue: any): number {
+        const mode: string = variable.aggregateMode || 'sum';
+
+        if (Array.isArray(rawValue)) {
+            if (mode === 'count') {
+                // For checkbox groups this will count items that are truthy
+                return rawValue.filter((x) => !!x).length;
+            }
+
+            const numbers: number[] = rawValue
+                .map((x) => (typeof x === 'number' ? x : parseFloat(x)))
+                .filter((n) => !isNaN(n));
+
+            if (!numbers.length) {
+                return 0;
+            }
+
+            const sum = numbers.reduce((acc, n) => acc + n, 0);
+            if (mode === 'avg') {
+                return sum / numbers.length;
+            }
+            return sum;
+        }
+
+        // Scalar value: count treats non-null as 1, others try numeric
+        if (mode === 'count') {
+            return rawValue == null ? 0 : 1;
+        }
+
+        const num = typeof rawValue === 'number' ? rawValue : parseFloat(rawValue);
+        return isNaN(num) ? 0 : num;
+    }
+
+    private evaluateLookupVariable(variable: any, values: Record<string, any>): number {
+        const rules: any[] | undefined = variable.lookupRules;
+        if (!Array.isArray(rules) || !rules.length) {
+            throw new Error('No lookup rules');
+        }
+
+        for (const rule of rules) {
+            const conditions: any[] = Array.isArray(rule.conditions) ? rule.conditions : [];
+            let matches = true;
+
+            for (const c of conditions) {
+                const fieldName: string | undefined = c.field;
+                if (!fieldName) {
+                    continue;
+                }
+                const raw = values[fieldName];
+                if (!this.lookupConditionMatches(c, raw)) {
+                    matches = false;
+                    break;
+                }
+            }
+
+            if (matches) {
+                const res = typeof rule.result === 'number' ? rule.result : parseFloat(rule.result);
+                if (!isNaN(res)) {
+                    return res;
+                }
+            }
+        }
+
+        throw new Error('No matching lookup rule');
+    }
+
+    private lookupConditionMatches(cond: any, raw: any): boolean {
+        const op: string = cond.operator || 'eq';
+
+        if (op === 'between') {
+            const min = parseFloat(cond.min);
+            const max = parseFloat(cond.max);
+            const val = typeof raw === 'number' ? raw : parseFloat(raw);
+            if (isNaN(val) || isNaN(min) || isNaN(max)) {
+                return false;
+            }
+            return val >= min && val <= max;
+        }
+
+        // For eq and comparison operators, attempt numeric comparison when both sides look numeric
+        const valueStr: string = cond.value ?? '';
+        const rawNum = typeof raw === 'number' ? raw : parseFloat(raw);
+        const valNum = parseFloat(valueStr);
+        const bothNumeric = !isNaN(rawNum) && !isNaN(valNum);
+
+        const left: any = bothNumeric ? rawNum : raw;
+        const right: any = bothNumeric ? valNum : valueStr;
+
+        switch (op) {
+            case 'lt':
+                return left < right;
+            case 'lte':
+                return left <= right;
+            case 'gt':
+                return left > right;
+            case 'gte':
+                return left >= right;
+            case 'eq':
+            default:
+                return left === right;
+        }
     }
 
     getCheckboxOptions(field: DynamicFormField): string[] {
@@ -225,6 +539,11 @@ export class FormWidgetComponent implements OnInit {
             } else {
                 submissionPayload[field.name] = value;
             }
+        }
+
+        // Attach calculator result to submission payload if configured
+        if (this.calculatorEnabled && this.calculatorStoreMode === 'attach-to-submission' && this.calculatorResultKey) {
+            submissionPayload[this.calculatorResultKey] = this.calculatorValue;
         }
 
         const dto = new CreateFormSubmissionDto();

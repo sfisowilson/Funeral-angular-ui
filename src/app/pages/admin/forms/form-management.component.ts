@@ -20,6 +20,42 @@ interface FormField {
     order: number;
 }
 
+type CalculatorVariableType = 'field' | 'lookup' | 'aggregate';
+
+interface CalculatorLookupCondition {
+    field: string;
+    operator: 'eq' | 'lt' | 'lte' | 'gt' | 'gte' | 'between';
+    value?: string;
+    min?: string;
+    max?: string;
+}
+
+interface CalculatorLookupRule {
+    conditions: CalculatorLookupCondition[];
+    result: string;
+}
+
+interface CalculatorVariableConfig {
+    name: string;
+    label?: string;
+    type: CalculatorVariableType;
+    fieldName?: string; // for "field" and "aggregate"
+    aggregateMode?: 'sum' | 'count' | 'avg';
+    lookupRules?: CalculatorLookupRule[]; // for "lookup"
+}
+
+interface FormCalculatorConfig {
+    enabled: boolean;
+    name: string;
+    displayMode: 'inline' | 'side-panel';
+    audience: 'public' | 'authenticated';
+    storeMode: 'none' | 'attach-to-submission';
+    resultKey: string;
+    expressionLabel: string;
+    formula: string;
+    variables?: CalculatorVariableConfig[];
+}
+
 // Using generated DTOs from service-proxies
 
 @Component({
@@ -41,6 +77,17 @@ export class FormManagementComponent implements OnInit {
     submitted: boolean = false;
     loading: boolean = false;
     formFields: FormField[] = [];
+    calculatorConfig: FormCalculatorConfig = {
+        enabled: false,
+        name: '',
+        displayMode: 'side-panel',
+        audience: 'public',
+        storeMode: 'none',
+        resultKey: 'calculatorResult',
+        expressionLabel: 'Calculated Result',
+        formula: '',
+        variables: []
+    };
     
     // Submissions view state
     submissionsDialog: boolean = false;
@@ -70,6 +117,20 @@ export class FormManagementComponent implements OnInit {
 
     private generateId(): string {
         return 'fld-' + Math.random().toString(36).substring(2, 11) + '-' + Date.now().toString(36);
+    }
+
+    private getDefaultCalculatorConfig(): FormCalculatorConfig {
+        return {
+            enabled: false,
+            name: '',
+            displayMode: 'side-panel',
+            audience: 'public',
+            storeMode: 'none',
+            resultKey: 'calculatorResult',
+            expressionLabel: 'Calculated Result',
+            formula: '',
+            variables: []
+        };
     }
 
     private loadFormFieldsFromJson(json: string | undefined | null): void {
@@ -108,6 +169,28 @@ export class FormManagementComponent implements OnInit {
         if (this.formFields.length === 0) {
             this.addField();
         }
+    }
+
+    private loadCalculatorConfigFromJson(json: string | undefined | null): void {
+        if (!json) {
+            this.calculatorConfig = this.getDefaultCalculatorConfig();
+            return;
+        }
+
+        try {
+            const parsed = JSON.parse(json);
+            if (parsed && typeof parsed === 'object') {
+                this.calculatorConfig = {
+                    ...this.getDefaultCalculatorConfig(),
+                    ...parsed
+                } as FormCalculatorConfig;
+                return;
+            }
+        } catch {
+            // Ignore and fall back to default
+        }
+
+        this.calculatorConfig = this.getDefaultCalculatorConfig();
     }
 
     private syncFormFieldsToJson(): boolean {
@@ -149,6 +232,73 @@ export class FormManagementComponent implements OnInit {
 
         this.form.fields = JSON.stringify(payload, null, 2);
         return true;
+    }
+
+    private syncCalculatorConfigToJson(): void {
+        if (!this.calculatorConfig || !this.calculatorConfig.enabled || !this.calculatorConfig.formula) {
+            this.form.calculatorConfig = null;
+            return;
+        }
+
+        // Persist calculator configuration as JSON on the form
+        this.form.calculatorConfig = JSON.stringify(this.calculatorConfig, null, 2);
+    }
+
+    // Calculator variable helpers
+
+    addCalculatorVariable(): void {
+        if (!this.calculatorConfig.variables) {
+            this.calculatorConfig.variables = [];
+        }
+
+        this.calculatorConfig.variables.push({
+            name: '',
+            label: '',
+            type: 'field',
+            fieldName: '',
+            aggregateMode: 'sum',
+            lookupRules: []
+        });
+    }
+
+    removeCalculatorVariable(index: number): void {
+        if (!this.calculatorConfig.variables) {
+            return;
+        }
+        this.calculatorConfig.variables.splice(index, 1);
+    }
+
+    ensureLookupRules(variable: CalculatorVariableConfig): void {
+        if (!variable.lookupRules) {
+            variable.lookupRules = [];
+        }
+    }
+
+    addLookupRule(variable: CalculatorVariableConfig): void {
+        this.ensureLookupRules(variable);
+        variable.lookupRules!.push({
+            conditions: [],
+            result: ''
+        });
+    }
+
+    removeLookupRule(variable: CalculatorVariableConfig, index: number): void {
+        if (!variable.lookupRules) {
+            return;
+        }
+        variable.lookupRules.splice(index, 1);
+    }
+
+    addLookupCondition(rule: CalculatorLookupRule): void {
+        rule.conditions.push({
+            field: '',
+            operator: 'eq',
+            value: ''
+        });
+    }
+
+    removeLookupCondition(rule: CalculatorLookupRule, index: number): void {
+        rule.conditions.splice(index, 1);
     }
 
     addField(): void {
@@ -247,10 +397,12 @@ export class FormManagementComponent implements OnInit {
             linkSubmissionsToUser: false,
             allowMultipleSubmissionsPerUser: true,
             prefillLastSubmissionForUser: false,
-            allowUserToEditSubmission: false
+            allowUserToEditSubmission: false,
+            calculatorConfig: null
         };
         this.formFields = [];
         this.addField();
+        this.calculatorConfig = this.getDefaultCalculatorConfig();
         this.submitted = false;
         this.formDialog = true;
     }
@@ -258,6 +410,8 @@ export class FormManagementComponent implements OnInit {
     editForm(form: FormDto) {
         this.form = { ...form };
         this.loadFormFieldsFromJson(this.form.fields);
+        const calcJson = form.calculatorConfig;
+        this.loadCalculatorConfigFromJson(calcJson);
         this.formDialog = true;
     }
 
@@ -350,6 +504,9 @@ export class FormManagementComponent implements OnInit {
             return;
         }
 
+        // Sync calculator configuration JSON
+        this.syncCalculatorConfigToJson();
+
         if (this.form.id) {
             // Update existing form
             const updateDto = new UpdateFormDto();
@@ -363,6 +520,7 @@ export class FormManagementComponent implements OnInit {
             updateDto.allowMultipleSubmissionsPerUser = !!this.form.allowMultipleSubmissionsPerUser;
             updateDto.prefillLastSubmissionForUser = !!this.form.prefillLastSubmissionForUser;
             updateDto.allowUserToEditSubmission = !!this.form.allowUserToEditSubmission;
+            updateDto.calculatorConfig = this.form.calculatorConfig || undefined;
 
             this.formService.form_Update(this.form.id, updateDto).subscribe(
                 () => {
@@ -387,6 +545,7 @@ export class FormManagementComponent implements OnInit {
             createDto.allowMultipleSubmissionsPerUser = !!this.form.allowMultipleSubmissionsPerUser;
             createDto.prefillLastSubmissionForUser = !!this.form.prefillLastSubmissionForUser;
             createDto.allowUserToEditSubmission = !!this.form.allowUserToEditSubmission;
+            createDto.calculatorConfig = this.form.calculatorConfig || undefined;
 
             this.formService.form_Create(createDto).subscribe(
                 () => {
