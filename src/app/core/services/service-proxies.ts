@@ -13111,6 +13111,292 @@ export class NgoServiceProxy {
 }
 
 @Injectable()
+export class NotificationTemplateServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    notificationTemplate_GetAll(): Observable<SwaggerResponse<NotificationTemplateDto[]>> {
+        let url_ = this.baseUrl + "/api/NotificationTemplate/NotificationTemplate_GetAll";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processNotificationTemplate_GetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processNotificationTemplate_GetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NotificationTemplateDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NotificationTemplateDto[]>>;
+        }));
+    }
+
+    protected processNotificationTemplate_GetAll(response: HttpResponseBase): Observable<SwaggerResponse<NotificationTemplateDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(NotificationTemplateDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NotificationTemplateDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    notificationTemplate_GetById(id: string): Observable<SwaggerResponse<NotificationTemplateDto>> {
+        let url_ = this.baseUrl + "/api/NotificationTemplate/NotificationTemplate_GetById/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processNotificationTemplate_GetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processNotificationTemplate_GetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NotificationTemplateDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NotificationTemplateDto>>;
+        }));
+    }
+
+    protected processNotificationTemplate_GetById(response: HttpResponseBase): Observable<SwaggerResponse<NotificationTemplateDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = NotificationTemplateDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NotificationTemplateDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    notificationTemplate_Create(body: NotificationTemplateDto | undefined): Observable<SwaggerResponse<NotificationTemplateDto>> {
+        let url_ = this.baseUrl + "/api/NotificationTemplate/NotificationTemplate_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processNotificationTemplate_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processNotificationTemplate_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NotificationTemplateDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NotificationTemplateDto>>;
+        }));
+    }
+
+    protected processNotificationTemplate_Create(response: HttpResponseBase): Observable<SwaggerResponse<NotificationTemplateDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = NotificationTemplateDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NotificationTemplateDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    notificationTemplate_Update(body: NotificationTemplateDto | undefined): Observable<SwaggerResponse<NotificationTemplateDto>> {
+        let url_ = this.baseUrl + "/api/NotificationTemplate/NotificationTemplate_Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processNotificationTemplate_Update(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processNotificationTemplate_Update(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NotificationTemplateDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NotificationTemplateDto>>;
+        }));
+    }
+
+    protected processNotificationTemplate_Update(response: HttpResponseBase): Observable<SwaggerResponse<NotificationTemplateDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = NotificationTemplateDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NotificationTemplateDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    notificationTemplate_Delete(id: string): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/NotificationTemplate/NotificationTemplate_Delete/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processNotificationTemplate_Delete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processNotificationTemplate_Delete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processNotificationTemplate_Delete(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable()
 export class OnboardingContractServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -37383,6 +37669,62 @@ export interface INgoEvent {
     status: string;
     createdAt: DateTime;
     updatedAt: DateTime;
+}
+
+export class NotificationTemplateDto implements INotificationTemplateDto {
+    id!: string;
+    key!: string | undefined;
+    subject!: string | undefined;
+    body!: string | undefined;
+    channel!: string | undefined;
+    isActive!: boolean;
+
+    constructor(data?: INotificationTemplateDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.key = _data["key"];
+            this.subject = _data["subject"];
+            this.body = _data["body"];
+            this.channel = _data["channel"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): NotificationTemplateDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new NotificationTemplateDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["key"] = this.key;
+        data["subject"] = this.subject;
+        data["body"] = this.body;
+        data["channel"] = this.channel;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface INotificationTemplateDto {
+    id: string;
+    key: string | undefined;
+    subject: string | undefined;
+    body: string | undefined;
+    channel: string | undefined;
+    isActive: boolean;
 }
 
 export class OnboardingContractDto implements IOnboardingContractDto {

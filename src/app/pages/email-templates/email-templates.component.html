@@ -1,0 +1,82 @@
+<p-toast></p-toast>
+
+<div class="email-templates-container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-1">Email Templates</h2>
+            <p class="text-muted mb-0">Manage reusable notification templates with token replacement.</p>
+        </div>
+        <button pButton type="button" label="Add Template" icon="pi pi-plus" class="btn-primary-theme"
+                (click)="openCreateDialog()"></button>
+    </div>
+
+    <div *ngIf="loading()" class="text-center py-4">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        <p class="mt-2 mb-0">Loading templates...</p>
+    </div>
+
+    <p-table *ngIf="!loading()" [value]="templates()" [paginator]="false" [responsiveLayout]="'scroll'">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Key</th>
+                <th>Subject</th>
+                <th>Channel</th>
+                <th>Status</th>
+                <th style="width: 150px">Actions</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-template>
+            <tr>
+                <td><code>{{ template.key }}</code></td>
+                <td>{{ template.subject }}</td>
+                <td>{{ template.channel }}</td>
+                <td>
+                    <span class="badge" [ngClass]="template.isActive ? 'bg-success' : 'bg-secondary'">
+                        {{ template.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                </td>
+                <td>
+                    <button pButton type="button" icon="pi pi-pencil" class="p-button-text p-button-sm me-2"
+                            (click)="openEditDialog(template)"></button>
+                    <button pButton type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"
+                            (click)="deleteTemplate(template)"></button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog [visible]="showDialog()" (visibleChange)="showDialog.set($event)" [modal]="true" [style]="{ width: '600px' }" [closable]="false">
+        <ng-template pTemplate="header">
+            <span class="fw-semibold">{{ isEditing() ? 'Edit Template' : 'Create Template' }}</span>
+        </ng-template>
+        <ng-template pTemplate="content">
+            <div class="mb-3">
+                <label class="form-label">Template Key</label>
+                <input type="text" class="form-control" [(ngModel)]="currentTemplate.key" placeholder="e.g. OnboardingCompleted">
+                <small class="text-muted">Stable identifier used from backend code (e.g. Onboarding.FlowCompleted).</small>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Subject</label>
+                <input type="text" class="form-control" [(ngModel)]="currentTemplate.subject">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Body</label>
+                <textarea rows="6" class="form-control" [(ngModel)]="currentTemplate.body"
+                          placeholder="Use tokens like {{MemberName}}, {{RecipientEmail}}, {{StepName}}"></textarea>
+                <small class="text-muted d-block mt-1">
+                    Available tokens depend on the event. Common tokens: {{'{{MemberName}}'}}, {{'{{RecipientEmail}}'}}, {{'{{StepName}}'}}, {{'{{PlanName}}'}}.
+                </small>
+            </div>
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="isActive" [(ngModel)]="currentTemplate.isActive">
+                <label class="form-check-label" for="isActive">Active</label>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+            <button pButton type="button" label="Cancel" class="btn-secondary-theme" (click)="closeDialog()"
+                    [disabled]="saving()"></button>
+            <button pButton type="button" label="Save" class="btn-primary-theme ms-2" (click)="saveTemplate()"
+                    [disabled]="saving()"></button>
+        </ng-template>
+    </p-dialog>
+</div>

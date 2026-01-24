@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, signal, ViewChild, AfterViewInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { StepsModule } from 'primeng/steps';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -22,6 +23,9 @@ import {
     UserProfileServiceProxy,
     UserProfileDto
 } from '../../core/services/service-proxies';
+import { environment } from '../../../environments/environment';
+import { OnboardingStepType } from '../../core/services/service-proxies';
+import { OnboardingStepConfiguration } from '../../core/models/onboarding-step-configuration.model';
 import { PersonalInfoStepComponent } from './steps/personal-info-step.component';
 import { BeneficiariesStepComponent } from './steps/beneficiaries-step.component';
 import { DependentsStepComponent } from './steps/dependents-step.component';
@@ -82,15 +86,10 @@ export class MemberOnboardingComponent implements OnInit {
     showPremiumSettingsDialog = signal(false);
     loadingSettings = signal(false);
     
-    steps = signal([
-        { label: 'Personal Information' },
-        { label: 'Dependents' },
-        { label: 'Beneficiaries' },
-        { label: 'Banking Details' },
-        { label: 'Terms & Conditions' },
-        { label: 'Summary & Signature' },
-        { label: 'Complete' }
-    ]);
+    // Dynamic onboarding steps loaded from backend configuration
+    stepConfigs = signal<OnboardingStepConfiguration[]>([]);
+    steps = signal<{ label: string }[]>([]);
+    private stepsConfigLoaded: boolean = false;
 
     constructor(
         private profileService: MemberProfileCompletionServiceProxy,
@@ -98,17 +97,86 @@ export class MemberOnboardingComponent implements OnInit {
         private userProfileService: UserProfileServiceProxy,
         private messageService: MessageService,
         private router: Router,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private http: HttpClient
     ) {
         // Watch for step changes to show/hide premium and recalculate
         effect(() => {
-            const step = this.activeStep();
-            // Show premium on Dependents (step 1), Beneficiaries (step 2), and Banking (step 3) steps
-            this.showPremium.set(step >= 1 && step <= 3);
+            const key = this.getActiveStepKey();
+            // Show premium on Dependents, Beneficiaries, and Banking Details steps
+            const show = key === 'dependents' || key === 'beneficiaries' || key === 'banking-details';
+            this.showPremium.set(show);
             if (this.showPremium() && !this.viewMode) {
                 this.loadPremiumCalculation();
             }
         });
+    }
+
+    private getStepIndexByKey(key: string): number | null {
+        const configs = this.stepConfigs();
+        if (configs && configs.length) {
+            const idx = configs.findIndex(s => s.stepKey === key);
+            return idx >= 0 ? idx : null;
+        }
+
+        // Fallback to legacy static ordering
+        const legacyOrder = [
+            'personal-info',
+            'dependents',
+            'beneficiaries',
+            'banking-details',
+            'terms',
+            'summary',
+            'complete'
+        ];
+        const legacyIdx = legacyOrder.indexOf(key);
+        return legacyIdx >= 0 ? legacyIdx : null;
+    }
+
+    getActiveStepKey(): string | null {
+        const index = this.activeStep();
+        const configs = this.stepConfigs();
+        if (configs && configs.length && configs[index]) {
+            return configs[index].stepKey;
+        }
+
+        const legacyOrder = [
+            'personal-info',
+            'dependents',
+            'beneficiaries',
+            'banking-details',
+            'terms',
+            'summary',
+            'complete'
+        ];
+        return legacyOrder[index] ?? null;
+    }
+
+    private getStepKeyByIndex(index: number): string | null {
+        const configs = this.stepConfigs();
+        if (configs && configs.length && configs[index]) {
+            return configs[index].stepKey;
+        }
+
+        const legacyOrder = [
+            'personal-info',
+            'dependents',
+            'beneficiaries',
+            'banking-details',
+            'terms',
+            'summary',
+            'complete'
+        ];
+        return legacyOrder[index] ?? null;
+    }
+
+    getLastStepIndex(): number {
+        const configs = this.stepConfigs();
+        if (configs && configs.length) {
+            return configs.length - 1;
+        }
+        // Legacy fallback: 7 steps (0-6)
+        return 6;
     }
 
     ngOnInit() {
@@ -122,8 +190,51 @@ export class MemberOnboardingComponent implements OnInit {
             }
         });
         
+        // Load dynamic onboarding step configuration and profile status in parallel
+        this.loadStepConfigurations();
         this.loadProfileStatus(true); // Initial load with spinner
         this.loadMemberProfile(); // Load member profile for age and cover amount
+    }
+
+    private loadStepConfigurations() {
+        const url = `${environment.apiUrl}/api/OnboardingStepConfiguration/OnboardingStepConfiguration_GetEnabledSteps`;
+        this.http.post<OnboardingStepConfiguration[]>(url, {}).subscribe({
+            next: (steps) => {
+                const enabled = (steps || []).filter(s => s.isEnabled);
+                enabled.sort((a, b) => a.displayOrder - b.displayOrder);
+                this.stepConfigs.set(enabled);
+                this.steps.set(enabled.map(s => ({ label: s.stepLabel })));
+                this.stepsConfigLoaded = true;
+
+                const status = this.completionStatus();
+                if (status && !this.initialLoadComplete) {
+                    this.determineActiveStep(status);
+                    this.initialLoadComplete = true;
+                }
+            },
+            error: (error) => {
+                console.error('Error loading onboarding step configuration:', error);
+                // Fallback to legacy static steps if configuration fails
+                if (this.steps().length === 0) {
+                    this.steps.set([
+                        { label: 'Personal Information' },
+                        { label: 'Dependents' },
+                        { label: 'Beneficiaries' },
+                        { label: 'Banking Details' },
+                        { label: 'Terms & Conditions' },
+                        { label: 'Summary & Signature' },
+                        { label: 'Complete' }
+                    ]);
+                }
+                this.stepsConfigLoaded = true;
+
+                const status = this.completionStatus();
+                if (status && !this.initialLoadComplete) {
+                    this.determineActiveStep(status);
+                    this.initialLoadComplete = true;
+                }
+            }
+        });
     }
 
     loadProfileStatus(showSpinner: boolean = false) {
@@ -149,8 +260,8 @@ export class MemberOnboardingComponent implements OnInit {
                     this.viewMode = false;
                 }
                 
-                // Only auto-determine step on initial load
-                if (!this.initialLoadComplete) {
+                // Only auto-determine step on initial load, after steps are loaded
+                if (!this.initialLoadComplete && this.stepsConfigLoaded) {
                     this.determineActiveStep(status);
                     this.initialLoadComplete = true;
                 }
@@ -171,52 +282,57 @@ export class MemberOnboardingComponent implements OnInit {
     }
 
     determineActiveStep(status: ProfileCompletionStatusDto) {
-        // Follow step-by-step order:
-        // Step 0: Personal Information & Documents (ID upload)
-        if (!status.profileCompletion?.hasUploadedIdDocument) {
-            this.activeStep.set(0); // Personal Information & Documents
+        // Determine active step based on profile completion flags and configured steps
+        const personalIdx = this.getStepIndexByKey('personal-info');
+        const dependentsIdx = this.getStepIndexByKey('dependents');
+        const beneficiariesIdx = this.getStepIndexByKey('beneficiaries');
+        const termsIdx = this.getStepIndexByKey('terms');
+        const summaryIdx = this.getStepIndexByKey('summary');
+
+        if (personalIdx !== null && !status.profileCompletion?.hasUploadedIdDocument) {
+            this.activeStep.set(personalIdx);
         }
-        // Step 1: Dependents
-        else if (!status.profileCompletion?.hasDependents) {
-            this.activeStep.set(1); // Dependents
+        else if (dependentsIdx !== null && !status.profileCompletion?.hasDependents) {
+            this.activeStep.set(dependentsIdx);
         }
-        // Step 2: Beneficiaries
-        else if (!status.profileCompletion?.hasBeneficiaries) {
-            this.activeStep.set(2); // Beneficiaries
+        else if (beneficiariesIdx !== null && !status.profileCompletion?.hasBeneficiaries) {
+            this.activeStep.set(beneficiariesIdx);
         }
-        // Step 3: Banking Details (optional but in sequence)
-        // Step 4: Terms & Conditions
-        else if (!status.profileCompletion?.hasAcceptedTerms) {
-            this.activeStep.set(4); // Terms & Conditions
+        else if (termsIdx !== null && !status.profileCompletion?.hasAcceptedTerms) {
+            this.activeStep.set(termsIdx);
         }
-        // Step 5: Summary & Signature
+        else if (summaryIdx !== null) {
+            // If all previous steps are complete, go to Summary & Signature
+            this.activeStep.set(summaryIdx);
+        }
         else {
-            // If all previous steps are complete, go to Summary & Signature (step 5)
-            this.activeStep.set(5);
+            // Fallback to first step
+            this.activeStep.set(0);
         }
     }
 
     canProceedToNextStep(): boolean {
         const status = this.completionStatus();
         if (!status?.profileCompletion) return false;
+        const key = this.getActiveStepKey();
 
-        switch (this.activeStep()) {
-            case 0:
+        switch (key) {
+            case 'personal-info':
                 // Personal Information & Documents - requires ID document upload
                 return status.profileCompletion.hasUploadedIdDocument;
-            case 1:
+            case 'dependents':
                 // Dependents
                 return status.profileCompletion.hasDependents;
-            case 2:
+            case 'beneficiaries':
                 // Beneficiaries
                 return status.profileCompletion.hasBeneficiaries;
-            case 3:
+            case 'banking-details':
                 // Banking details step - optional, can always proceed
                 return true;
-            case 4:
+            case 'terms':
                 // Terms & Conditions
                 return status.profileCompletion.hasAcceptedTerms;
-            case 5:
+            case 'summary':
                 // Summary & Signature step - requires signature
                 return true;
             default:
@@ -225,7 +341,7 @@ export class MemberOnboardingComponent implements OnInit {
     }
 
     nextStep() {
-        if (this.canProceedToNextStep() && this.activeStep() < 6) {
+        if (this.canProceedToNextStep() && this.activeStep() < this.getLastStepIndex()) {
             this.activeStep.update(step => step + 1);
             // Don't reload, just move to next step
         }
@@ -247,32 +363,34 @@ export class MemberOnboardingComponent implements OnInit {
         }
 
         // For forward navigation, enforce sequential completion
-        if (stepIndex === 1) {
+        const targetKey = this.getStepKeyByIndex(stepIndex);
+
+        if (targetKey === 'dependents') {
             // Can go to Dependents only if Personal Info (ID upload) is complete
             if (status.profileCompletion?.hasUploadedIdDocument) {
                 this.activeStep.set(stepIndex);
             }
-        } else if (stepIndex === 2) {
+        } else if (targetKey === 'beneficiaries') {
             // Can go to Beneficiaries only if Dependents is complete
             if (status.profileCompletion?.hasDependents) {
                 this.activeStep.set(stepIndex);
             }
-        } else if (stepIndex === 3) {
+        } else if (targetKey === 'banking-details') {
             // Can go to Banking Details if Beneficiaries is complete
             if (status.profileCompletion?.hasBeneficiaries) {
                 this.activeStep.set(stepIndex);
             }
-        } else if (stepIndex === 4) {
+        } else if (targetKey === 'terms') {
             // Can go to Terms if Beneficiaries is complete (Banking is optional)
             if (status.profileCompletion?.hasBeneficiaries) {
                 this.activeStep.set(stepIndex);
             }
-        } else if (stepIndex === 5) {
+        } else if (targetKey === 'summary') {
             // Summary step - can navigate if terms accepted
             if (status.profileCompletion?.hasAcceptedTerms) {
                 this.activeStep.set(stepIndex);
             }
-        } else if (stepIndex === 6 && status.isComplete) {
+        } else if (targetKey === 'complete' && status.isComplete) {
             this.activeStep.set(stepIndex);
         }
     }

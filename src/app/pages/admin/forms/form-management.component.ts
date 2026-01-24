@@ -54,6 +54,16 @@ interface FormCalculatorConfig {
     expressionLabel: string;
     formula: string;
     variables?: CalculatorVariableConfig[];
+
+    // Optional extra calculator widgets
+    showBreakdown?: boolean;
+    showEligibility?: boolean;
+    eligibilityVariableName?: string;
+    showSavings?: boolean;
+    fullPriceVariableName?: string;
+    discountedPriceVariableName?: string;
+    showChecklist?: boolean;
+    checklistItems?: { label: string; variableName: string }[];
 }
 
 // Using generated DTOs from service-proxies
@@ -86,7 +96,15 @@ export class FormManagementComponent implements OnInit {
         resultKey: 'calculatorResult',
         expressionLabel: 'Calculated Result',
         formula: '',
-        variables: []
+        variables: [],
+        showBreakdown: false,
+        showEligibility: false,
+        eligibilityVariableName: '',
+        showSavings: false,
+        fullPriceVariableName: '',
+        discountedPriceVariableName: '',
+        showChecklist: false,
+        checklistItems: []
     };
     
     // Submissions view state
@@ -129,7 +147,15 @@ export class FormManagementComponent implements OnInit {
             resultKey: 'calculatorResult',
             expressionLabel: 'Calculated Result',
             formula: '',
-            variables: []
+            variables: [],
+            showBreakdown: false,
+            showEligibility: false,
+            eligibilityVariableName: '',
+            showSavings: false,
+            fullPriceVariableName: '',
+            discountedPriceVariableName: '',
+            showChecklist: false,
+            checklistItems: []
         };
     }
 

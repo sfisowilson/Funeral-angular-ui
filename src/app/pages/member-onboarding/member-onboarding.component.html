@@ -124,8 +124,8 @@
 
                     <!-- Main Step Content -->
                     <div class="step-content" [class.with-premium]="showPremium() && !viewMode">
-                        @switch (activeStep()) {
-                        @case (0) {
+                        @switch (getActiveStepKey()) {
+                        @case ('personal-info') {
                             <div class="step-info">
                                 <h3>Step 1: Personal Information & Documents</h3>
                                 <p>{{ viewMode ? 'View your personal information and documents' : 'Complete your personal information and upload required documents.' }}</p>
@@ -136,7 +136,7 @@
                                 </app-personal-info-step>
                             </div>
                         }
-                        @case (1) {
+                        @case ('dependents') {
                             <div class="step-info">
                                 <h3>Step 2: Add Dependents</h3>
                                 <p>{{ viewMode ? 'View your dependents' : 'Add at least one dependent to your account. Dependents are family members covered under your policy.' }}</p>
@@ -148,7 +148,7 @@
                                 </app-dependents-step>
                             </div>
                         }
-                        @case (2) {
+                        @case ('beneficiaries') {
                             <div class="step-info">
                                 <h3>Step 3: Add Beneficiaries</h3>
                                 <p>{{ viewMode ? 'View your beneficiaries' : 'Designate your beneficiaries who will receive benefits. You must add at least one beneficiary.' }}</p>
@@ -159,7 +159,7 @@
                                 </app-beneficiaries-step>
                             </div>
                         }
-                        @case (3) {
+                        @case ('banking-details') {
                             <div class="step-info">
                                 <h3>Step 4: Banking Details</h3>
                                 <p>{{ viewMode ? 'View your banking details' : 'Provide your banking information for policy payments (optional).' }}</p>
@@ -170,7 +170,7 @@
                                 </app-banking-details-step>
                             </div>
                         }
-                        @case (4) {
+                        @case ('terms') {
                             <div class="step-info">
                                 <h3>Step 5: Accept Terms & Conditions</h3>
                                 <p>{{ viewMode ? 'View accepted terms & conditions' : 'Please review and accept our terms and conditions to continue.' }}</p>
@@ -182,7 +182,7 @@
                                 </app-terms-step>
                             </div>
                         }
-                        @case (5) {
+                        @case ('summary') {
                             <div class="step-info">
                                 <h3>Step 6: Summary & Signature</h3>
                                 <p>{{ viewMode ? 'View your onboarding summary and signature' : 'Review your onboarding information and provide your digital signature.' }}</p>
@@ -193,7 +193,7 @@
                                 </app-summary-step>
                             </div>
                         }
-                        @case (6) {
+                        @case ('complete') {
                             <div class="step-info completion-message">
                                 <i class="pi pi-check-circle" style="font-size: 4rem; color: var(--green-500)"></i>
                                 <h3>Profile Complete!</h3>

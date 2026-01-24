@@ -366,6 +366,141 @@
                                 </div>
                             </div>
 
+                            <!-- Additional calculator widgets configuration -->
+                            <div class="border-top pt-3 mt-3">
+                                <h6 class="mb-3">Additional Calculator Widgets</h6>
+
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="showBreakdown"
+                                                name="showBreakdown"
+                                                [(ngModel)]="calculatorConfig.showBreakdown"
+                                            />
+                                            <label class="form-check-label" for="showBreakdown">
+                                                Show line-item breakdown
+                                            </label>
+                                        </div>
+                                        <small class="text-muted d-block">Shows all derived variables (with labels) and their values.</small>
+                                    </div>
+
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check mb-1">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="showEligibility"
+                                                name="showEligibility"
+                                                [(ngModel)]="calculatorConfig.showEligibility"
+                                            />
+                                            <label class="form-check-label" for="showEligibility">
+                                                Show eligibility / risk
+                                            </label>
+                                        </div>
+                                        <select
+                                            class="form-select form-select-sm"
+                                            [(ngModel)]="calculatorConfig.eligibilityVariableName"
+                                            name="eligibilityVariableName"
+                                            [disabled]="!calculatorConfig.showEligibility"
+                                        >
+                                            <option [ngValue]="''">Select variable...</option>
+                                            <option *ngFor="let v of calculatorConfig.variables || []" [ngValue]="v.name">{{ v.name || v.label }}</option>
+                                        </select>
+                                        <small class="text-muted d-block mt-1">Select a variable that represents status or risk score.</small>
+                                    </div>
+
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check mb-1">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="showSavings"
+                                                name="showSavings"
+                                                [(ngModel)]="calculatorConfig.showSavings"
+                                            />
+                                            <label class="form-check-label" for="showSavings">
+                                                Show savings / discount
+                                            </label>
+                                        </div>
+                                        <div class="row g-1">
+                                            <div class="col-6">
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    [(ngModel)]="calculatorConfig.fullPriceVariableName"
+                                                    name="fullPriceVariableName"
+                                                    [disabled]="!calculatorConfig.showSavings"
+                                                >
+                                                    <option [ngValue]="''">Full price var</option>
+                                                    <option *ngFor="let v of calculatorConfig.variables || []" [ngValue]="v.name">{{ v.name || v.label }}</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    [(ngModel)]="calculatorConfig.discountedPriceVariableName"
+                                                    name="discountedPriceVariableName"
+                                                    [disabled]="!calculatorConfig.showSavings"
+                                                >
+                                                    <option [ngValue]="''">Discounted var</option>
+                                                    <option *ngFor="let v of calculatorConfig.variables || []" [ngValue]="v.name">{{ v.name || v.label }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted d-block mt-1">Both variables should resolve to numeric amounts.</small>
+                                    </div>
+
+                                    <div class="col-md-3 mb-2">
+                                        <div class="form-check mb-1">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                id="showChecklist"
+                                                name="showChecklist"
+                                                [(ngModel)]="calculatorConfig.showChecklist"
+                                            />
+                                            <label class="form-check-label" for="showChecklist">
+                                                Show checklist
+                                            </label>
+                                        </div>
+                                        <small class="text-muted d-block mb-1">Checklist items are driven by calculator variables (truthy = completed).</small>
+
+                                        <div *ngIf="calculatorConfig.showChecklist" class="mt-1">
+                                            <div *ngIf="!calculatorConfig.checklistItems || calculatorConfig.checklistItems.length === 0" class="small text-muted mb-1">
+                                                No checklist items yet.
+                                            </div>
+                                            <div *ngFor="let item of calculatorConfig.checklistItems; let ci = index" class="border rounded p-1 mb-1 bg-white">
+                                                <div class="d-flex align-items-center mb-1">
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-sm me-1"
+                                                        [(ngModel)]="item.label"
+                                                        name="checklistLabel{{ci}}"
+                                                        placeholder="e.g. Upload ID document"
+                                                    />
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="calculatorConfig.checklistItems!.splice(ci, 1)">
+                                                        <i class="bi bi-x"></i>
+                                                    </button>
+                                                </div>
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    [(ngModel)]="item.variableName"
+                                                    name="checklistVar{{ci}}"
+                                                >
+                                                    <option [ngValue]="''">Select variable...</option>
+                                                    <option *ngFor="let v of calculatorConfig.variables || []" [ngValue]="v.name">{{ v.name || v.label }}</option>
+                                                </select>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="(calculatorConfig.checklistItems = calculatorConfig.checklistItems || []).push({ label: '', variableName: '' })">
+                                                <i class="bi bi-plus-lg"></i> Add Checklist Item
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Derived variables (optional) -->
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">

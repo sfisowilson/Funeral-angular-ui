@@ -33,6 +33,7 @@ import { CustomerManagementComponent } from './admin/customer-management/custome
 import { PlanConfigurationComponent } from '../features/admin/plan-configuration/plan-configuration.component';
 import { RegistrationFieldsComponent } from './admin/registration-fields/registration-fields.component';
 import { FieldDefinitionBuilderComponent } from '../admin/onboarding-fields/field-definition-builder/field-definition-builder.component';
+import { EmailTemplatesComponent } from './email-templates/email-templates.component';
 
 export default [
     { path: 'assets', component: AssetsComponent },
@@ -67,6 +68,11 @@ export default [
     { 
         path: 'field-definitions', 
         component: FieldDefinitionBuilderComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+    },
+    { 
+        path: 'email-templates', 
+        component: EmailTemplatesComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'] }
     },
     { path: 'member-approval', component: MemberApprovalComponent },

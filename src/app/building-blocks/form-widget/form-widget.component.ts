@@ -47,6 +47,9 @@ export class FormWidgetComponent implements OnInit {
     calculatorError: string = '';
     private calculatorConfig: any | null = null;
 
+    // Snapshot of last calculator variables so additional widgets can use them
+    calculatorVars: Record<string, any> = {};
+
     constructor(
         private fb: FormBuilder,
         private formService: FormServiceProxy,
@@ -190,6 +193,7 @@ export class FormWidgetComponent implements OnInit {
         const values = this.formGroup.value as Record<string, any>;
         try {
             const vars = this.buildCalculatorVariables(values, this.calculatorConfig);
+            this.calculatorVars = vars;
             const result = this.evaluateExpression(this.calculatorConfig.formula as string, vars);
             this.calculatorValue = result;
             this.calculatorError = '';
@@ -197,6 +201,90 @@ export class FormWidgetComponent implements OnInit {
             this.calculatorValue = null;
             this.calculatorError = 'Unable to calculate result. Please check the formula and field values.';
         }
+    }
+
+    // Helper getters for additional calculator-driven widgets
+
+    getBreakdownItems(): { name: string; label: string; value: any }[] {
+        if (!this.calculatorConfig || !Array.isArray(this.calculatorConfig.variables)) {
+            return [];
+        }
+
+        return (this.calculatorConfig.variables as any[])
+            .filter((v) => !!v && !!v.name)
+            .map((v) => {
+                const name = v.name as string;
+                const label = (v.label as string) || name;
+                const value = this.calculatorVars ? this.calculatorVars[name] : undefined;
+                return { name, label, value };
+            })
+            .filter((item) => item.value !== undefined && item.value !== null && item.value !== '');
+    }
+
+    getEligibilityDisplay(): { status: string; isOk: boolean } | null {
+        if (!this.calculatorConfig || !this.calculatorConfig.eligibilityVariableName) {
+            return null;
+        }
+
+        const key = this.calculatorConfig.eligibilityVariableName as string;
+        const raw = this.calculatorVars ? this.calculatorVars[key] : undefined;
+        if (raw === undefined || raw === null || raw === '') {
+            return null;
+        }
+
+        // Interpret booleans and simple strings/numbers
+        if (typeof raw === 'boolean') {
+            return {
+                status: raw ? 'Eligible' : 'Not eligible',
+                isOk: !!raw
+            };
+        }
+
+        const text = String(raw);
+        const lowered = text.toLowerCase();
+        const isOk = lowered === 'eligible' || lowered === 'ok' || lowered === 'approved' || lowered === 'low';
+        return {
+            status: text,
+            isOk
+        };
+    }
+
+    getSavingsDisplay(): { full: number; discounted: number; savings: number; percent: number } | null {
+        if (!this.calculatorConfig || !this.calculatorConfig.fullPriceVariableName || !this.calculatorConfig.discountedPriceVariableName) {
+            return null;
+        }
+
+        const fullRaw = this.calculatorVars ? this.calculatorVars[this.calculatorConfig.fullPriceVariableName] : undefined;
+        const discRaw = this.calculatorVars ? this.calculatorVars[this.calculatorConfig.discountedPriceVariableName] : undefined;
+
+        const full = typeof fullRaw === 'number' ? fullRaw : parseFloat(fullRaw);
+        const discounted = typeof discRaw === 'number' ? discRaw : parseFloat(discRaw);
+
+        if (!isFinite(full) || !isFinite(discounted) || full <= 0) {
+            return null;
+        }
+
+        const savings = full - discounted;
+        const percent = (savings / full) * 100;
+        if (!isFinite(savings)) {
+            return null;
+        }
+
+        return { full, discounted, savings, percent };
+    }
+
+    getChecklistDisplay(): { label: string; done: boolean }[] {
+        if (!this.calculatorConfig || !Array.isArray(this.calculatorConfig.checklistItems)) {
+            return [];
+        }
+
+        return (this.calculatorConfig.checklistItems as any[])
+            .filter((c) => !!c && !!c.label && !!c.variableName)
+            .map((c) => {
+                const value = this.calculatorVars ? this.calculatorVars[c.variableName] : undefined;
+                const done = !!value;
+                return { label: c.label as string, done };
+            });
     }
 
     private buildCalculatorVariables(values: Record<string, any>, config: any): Record<string, any> {
