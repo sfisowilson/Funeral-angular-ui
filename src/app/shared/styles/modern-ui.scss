@@ -4,8 +4,27 @@
  * Import design tokens and mixins
  */
 
-@import 'design-tokens';
-@import 'mixins';
+@use 'design-tokens' as *;
+@use 'mixins' as *;
+
+/* ============================================
+ * Global PrimeNG Form Background Overrides
+ * Ensure PrimeNG form controls use a light/white background by default
+ * ============================================ */
+
+.p-inputtext,
+.p-inputtextarea,
+.p-password input,
+.p-inputnumber-input,
+.p-autocomplete-input,
+.p-calendar .p-inputtext {
+    background-color: $color-white;
+}
+
+.p-dropdown,
+.p-multiselect {
+    background-color: $color-white;
+}
 
 /* ============================================
  * Common Modern Dialog Styling

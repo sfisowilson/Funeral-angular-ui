@@ -5,13 +5,14 @@
     <div class="flex justify-center items-center min-h-screen">
       <p-progressSpinner />
     </div>
-  } @else if (page()) {
+  } @else {
+    @if (page(); as currentPage) {
     <div class="editor-layout">
       <!-- Header -->
       <div class="editor-header p-4 bg-white shadow-sm mb-4">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-2xl font-bold">{{ page()!.name }}</h1>
+            <h1 class="text-2xl font-bold">{{ currentPage.name }}</h1>
             <div class="flex items-center gap-2 text-gray-600">
               <p>Edit page content and settings</p>
               @if (hasUnsavedChanges()) {
@@ -43,62 +44,117 @@
       <!-- Settings Section -->
       <div class="settings-section p-4 bg-white shadow-sm mb-4">
         <h3 class="text-lg font-semibold mb-3">Page Settings</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Page Name</label>
-            <input
-              pInputText
-              [(ngModel)]="page()!.name"
-              (ngModelChange)="onNameChange($event)"
-              class="w-full"
-              placeholder="Enter page name"
-            />
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Page Name</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="currentPage.name"
+                (ngModelChange)="onNameChange($event)"
+                placeholder="Enter page name"
+              />
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Slug (URL)</label>
-            <input
-              pInputText
-              [(ngModel)]="page()!.slug"
-              class="w-full"
-              placeholder="page-url"
-            />
-            <small class="text-gray-500">URL: /{{ page()!.slug }}</small>
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Slug (URL)</label>
+              <div class="input-group">
+                <span class="input-group-text">/</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="currentPage.slug"
+                  placeholder="page-url"
+                />
+              </div>
+              <small class="text-muted">Full URL: /{{ currentPage.slug }}</small>
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Page Title (SEO)</label>
-            <input
-              pInputText
-              [(ngModel)]="page()!.title"
-              class="w-full"
-              placeholder="SEO title"
-            />
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Page Title (SEO)</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="currentPage.title"
+                placeholder="SEO title"
+              />
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Description (SEO)</label>
-            <textarea
-              pInputTextarea
-              [(ngModel)]="page()!.description"
-              class="w-full"
-              rows="2"
-              placeholder="SEO description"
-            ></textarea>
+          <div class="col-12 col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Description (SEO)</label>
+              <textarea
+                class="form-control"
+                [(ngModel)]="currentPage.description"
+                rows="2"
+                placeholder="SEO description"
+              ></textarea>
+            </div>
           </div>
-          <div class="flex items-center gap-4">
-            <p-checkbox
-              [(ngModel)]="page()!.isPublic"
-              [binary]="true"
-              label="Public Page"
-            />
-            <p-checkbox
-              [(ngModel)]="page()!.showInNavbar"
-              [binary]="true"
-              label="Show in Navbar"
-            />
-            <p-checkbox
-              [(ngModel)]="page()!.showInFooter"
-              [binary]="true"
-              label="Show in Footer"
-            />
+          <div class="col-12 mt-2">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="form-check">
+                  <input
+                    id="isPublic"
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="currentPage.isPublic"
+                  />
+                  <label class="form-check-label" for="isPublic">Public Page</label>
+                </div>
+                <div class="form-check mt-2">
+                  <input
+                    id="showInNavbar"
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="currentPage.showInNavbar"
+                  />
+                  <label class="form-check-label" for="showInNavbar">Show in Navbar</label>
+                </div>
+                <div class="form-check mt-2">
+                  <input
+                    id="showInFooter"
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="currentPage.showInFooter"
+                  />
+                  <label class="form-check-label" for="showInFooter">Show in Footer</label>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-check">
+                  <input
+                    id="isOnboardingPage"
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="currentPage.isOnboardingPage"
+                  />
+                  <label class="form-check-label" for="isOnboardingPage">Onboarding Page</label>
+                </div>
+                <div class="form-check mt-2">
+                  <input
+                    id="isBlockingOnboarding"
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="currentPage.isBlockingOnboarding"
+                  />
+                  <label class="form-check-label" for="isBlockingOnboarding">Blocking Onboarding</label>
+                </div>
+                <div class="form-check mt-2">
+                  <input
+                    id="requiresOnboardingApproval"
+                    type="checkbox"
+                    class="form-check-input"
+                    [(ngModel)]="currentPage.requiresOnboardingApproval"
+                  />
+                  <label class="form-check-label" for="requiresOnboardingApproval">Requires Onboarding Approval</label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -108,5 +164,6 @@
         <app-page-builder></app-page-builder>
       </div>
     </div>
+    }
   }
 </div>

@@ -13,62 +13,28 @@ import { HttpHeaders } from '@angular/common/http';
 import { TenantSettingServiceProxy, API_BASE_URL, TenantSettingDto, CustomPagesServiceProxy, PageListItemDto } from '../../core/services/service-proxies';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { TenantService } from '../../core/services/tenant.service';
+import { PublicHeaderComponent } from '@app/shared/components/public-header/public-header.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-landing-page-renderer',
     standalone: true,
-    imports: [CommonModule, ScrollRevealDirective, RouterModule],
+    imports: [CommonModule, ScrollRevealDirective, RouterModule, PublicHeaderComponent],
     providers: [TenantSettingsService, CustomPagesServiceProxy],
     template: `
         <div class="flex flex-col min-h-screen">
             <!-- Header -->
-            <header class="bg-white shadow-md">
-                <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-                
-                    <div class="text-xl font-bold text-gray-800 d-flex items-center">
-                        <img *ngIf="_settings.logo" [src]="getDownloadUrl(_settings.logo)" alt="Logo" class="mt-4 rounded-md" style="max-height: 70px" />
-                        <span *ngIf="!_settings.logo"> {{_settings.siteTitle || _settings.title || tenantSettings.tenantName || 'Mizo'}}</span>
-                    </div>
-                    <nav class="hidden md:flex space-x-6">
-                        <a href="#" class="text-gray-600 hover:text-blue-600 transition">Home</a>
-                        <a *ngFor="let page of navbarPages" [routerLink]="['/' + page.slug]" class="text-gray-600 hover:text-blue-600 transition">{{ page.name }}</a>
-                        <ng-container *ngIf="!isStaticSite && !isLoggedIn">
-                            <a [href]="getRegisterUrl()" class="text-blue-600 hover:underline font-semibold">Register</a>
-                            <a href="/auth/login" class="text-blue-600 hover:underline font-semibold">Login</a>
-                        </ng-container>
-
-                        <ng-container *ngIf="!isStaticSite && isLoggedIn">
-                            <a href="/admin/dashboard" class="text-gray-600 hover:text-blue-600 transition">Dashboard</a>
-                            <button (click)="logout()" class="text-red-600 hover:underline font-semibold">Logout</button>
-                        </ng-container>
-                    </nav>
-                    <button (click)="toggleMobileMenu()" class="md:hidden text-gray-600 focus:outline-none">
-                        <!-- Mobile menu icon -->
-                        <svg *ngIf="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        <svg *ngIf="mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                
-                <!-- Mobile Menu -->
-                <nav *ngIf="mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200 shadow-lg">
-                    <div class="px-4 py-4 space-y-1">
-                        <a href="#" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Home</a>
-                        <ng-container *ngIf="!isStaticSite && !isLoggedIn">
-                            <a [href]="getRegisterUrl()" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Register</a>
-                            <a href="/auth/login" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Login</a>
-                        </ng-container>
-                        <ng-container *ngIf="!isStaticSite && isLoggedIn">
-                            <a href="/admin/dashboard" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Dashboard</a>
-                            <button (click)="logout()" class="block w-full text-left px-3 py-3 text-red-600 hover:bg-red-50 font-semibold transition rounded">Logout</button>
-                        </ng-container>
-                    </div>
-                </nav>
-            </header>
+            <app-public-header
+                [brandTitle]="_settings.siteTitle || _settings.title || tenantSettings?.tenantName || 'Mizo'"
+                [logoUrl]="_settings.logo ? getDownloadUrl(_settings.logo) : null"
+                [navbarPages]="navbarPages"
+                [isLoggedIn]="isLoggedIn"
+                [isStaticSite]="isStaticSite"
+                [homeLink]="'/'"
+                [registerUrl]="getRegisterUrl()"
+                [showNavbarPagesOnMobile]="true"
+                (logoutClicked)="logout()"
+            ></app-public-header>
 
             <!-- Main Content -->
             <main class="flex-1">

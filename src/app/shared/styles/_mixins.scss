@@ -2,9 +2,9 @@
 // Mixins - Funeral Management System
 // ============================================
 // Reusable SCSS mixins for consistent component styling
-// Import design tokens first: @import 'design-tokens';
+// Import design tokens first: @use 'design-tokens' as *;
 
-@import 'design-tokens';
+@use 'design-tokens' as *;
 
 // ============================================
 // Responsive Design Mixins

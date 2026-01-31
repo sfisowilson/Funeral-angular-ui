@@ -1,4 +1,5 @@
-@import '../../../shared/styles/modern-ui.scss';
+@use '../../../shared/styles/design-tokens' as *;
+@use '../../../shared/styles/mixins' as *;
 
 .personal-info-step {
     padding: 1rem;

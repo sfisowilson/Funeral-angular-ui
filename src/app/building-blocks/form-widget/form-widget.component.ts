@@ -2,8 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
-import { FormServiceProxy, FormDto, CreateFormSubmissionDto, FormSubmissionDto } from '../../core/services/service-proxies';
+import { FormServiceProxy, FormDto, CreateFormSubmissionDto, FormSubmissionDto, DynamicEntityServiceProxy, DynamicEntityTypeDto } from '../../core/services/service-proxies';
 import { AuthService } from '../../auth/auth-service';
+import { saIdNumberValidator } from '../../shared/validators/sa-id-number.validator';
 
 interface DynamicFormField {
     name: string;
@@ -13,6 +14,7 @@ interface DynamicFormField {
     placeholder?: string;
     options?: string[];
     order: number;
+    lookupEntityTypeKey?: string;
 }
 
 @Component({
@@ -50,10 +52,15 @@ export class FormWidgetComponent implements OnInit {
     // Snapshot of last calculator variables so additional widgets can use them
     calculatorVars: Record<string, any> = {};
 
+    // Lookup field support
+    lookupOptions: { [fieldName: string]: { id: string; label: string }[] } = {};
+    entityTypes: DynamicEntityTypeDto[] = [];
+
     constructor(
         private fb: FormBuilder,
         private formService: FormServiceProxy,
-        private authService: AuthService
+        private authService: AuthService,
+        private dynamicEntityService: DynamicEntityServiceProxy
     ) {}
 
     ngOnInit(): void {
@@ -83,6 +90,7 @@ export class FormWidgetComponent implements OnInit {
                 this.fields = this.parseFields(form.fields);
                 this.buildForm();
                 this.setupCalculatorFromConfig(form);
+                this.loadLookupOptionsIfNeeded();
                 this.tryPrefillFromLatestSubmission();
                 this.loading = false;
             },
@@ -112,7 +120,8 @@ export class FormWidgetComponent implements OnInit {
                         : typeof f.options === 'string'
                         ? f.options.split(',').map((o: string) => o.trim()).filter((o: string) => !!o)
                         : undefined,
-                    order: typeof f.order === 'number' ? f.order : index
+                    order: typeof f.order === 'number' ? f.order : index,
+                    lookupEntityTypeKey: f.lookupEntityTypeKey
                 }))
                 .sort((a, b) => a.order - b.order);
         } catch {
@@ -131,10 +140,16 @@ export class FormWidgetComponent implements OnInit {
             if (field.type === 'email') {
                 validators.push(Validators.email);
             }
+            if (field.type === 'idNumber') {
+                validators.push(saIdNumberValidator());
+            }
 
             if (field.type === 'checkbox' && field.options && field.options.length) {
                 const controls = field.options.map(() => this.fb.control(false));
                 group[field.name] = this.fb.array(controls, field.required ? this.atLeastOneCheckedValidator : []);
+            } else if (field.type === 'lookup') {
+                // Single-select lookup: store the related record ID
+                group[field.name] = ['', validators];
             } else {
                 group[field.name] = ['', validators];
             }
@@ -536,6 +551,68 @@ export class FormWidgetComponent implements OnInit {
 
     getCheckboxControl(field: DynamicFormField): FormArray {
         return this.formGroup.get(field.name) as FormArray;
+    }
+
+    // Lookup helpers
+
+    private loadLookupOptionsIfNeeded(): void {
+        this.lookupOptions = {};
+
+        if (!this.fields || !this.fields.length) {
+            return;
+        }
+
+        // Ensure we know available entity types (not strictly required for options but useful if we later
+        // want to cross-check configuration). The options themselves are loaded via record_List calls.
+        this.dynamicEntityService.entityType_GetAll().subscribe({
+            next: (resp) => {
+                this.entityTypes = resp?.result || [];
+            },
+            error: () => {
+                this.entityTypes = [];
+            }
+        });
+
+        const processedKeys = new Set<string>();
+
+        for (const field of this.fields) {
+            if (!field || field.type !== 'lookup' || !field.lookupEntityTypeKey) {
+                continue;
+            }
+
+            const targetKey = field.lookupEntityTypeKey;
+            if (!targetKey || processedKeys.has(targetKey)) {
+                continue;
+            }
+
+            processedKeys.add(targetKey);
+
+            this.dynamicEntityService.record_List(targetKey, 1, 1000, undefined).subscribe({
+                next: (resp) => {
+                    const records = resp?.result?.records || [];
+                    const opts = records.map((r: any) => ({
+                        id: r.id,
+                        label: r.displayName || r.externalKey || r.id
+                    }));
+
+                    for (const f of this.fields) {
+                        if (f && f.type === 'lookup' && f.lookupEntityTypeKey === targetKey) {
+                            this.lookupOptions[f.name] = opts;
+                        }
+                    }
+                },
+                error: () => {
+                    // Leave lookup options empty on error
+                }
+            });
+        }
+    }
+
+    getLookupOptions(field: DynamicFormField): { id: string; label: string }[] {
+        if (!field || !field.name) {
+            return [];
+        }
+        return this.lookupOptions[field.name] || [];
     }
 
     private atLeastOneCheckedValidator(control: FormArray): { [key: string]: any } | null {

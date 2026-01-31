@@ -1,0 +1,67 @@
+<p-toast></p-toast>
+
+<div class="dynamic-entity-list-widget-editor">
+  <h3 class="editor-title">Dynamic Entity List Settings</h3>
+
+  <div class="field">
+    <label class="field-label">Entity Type</label>
+    <p-dropdown
+      [options]="entityTypes"
+      [(ngModel)]="settings.entityTypeKey"
+      optionLabel="label"
+      optionValue="value"
+      [filter]="true"
+      placeholder="Choose an entity type"
+      [showClear]="true"
+      [disabled]="loadingTypes"
+      styleClass="w-full">
+    </p-dropdown>
+    <small class="field-help">Select which dynamic entity type should be shown.</small>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Title (optional)</label>
+    <input pInputText type="text" [(ngModel)]="settings.title" class="w-full" placeholder="e.g. My Records" />
+  </div>
+
+  <div class="field">
+    <label class="field-label">Description (optional)</label>
+    <textarea pTextarea [(ngModel)]="settings.description" rows="3" class="w-full" placeholder="Short helper text shown above the list."></textarea>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Empty State Message</label>
+    <input pInputText type="text" [(ngModel)]="settings.emptyMessage" class="w-full" placeholder="No records found." />
+  </div>
+
+  <div class="field">
+    <label class="field-label">Maximum Records to Load</label>
+    <p-inputNumber
+      [(ngModel)]="settings.maxRecords"
+      [min]="1"
+      [max]="1000"
+      [step]="10"
+      mode="decimal"
+      class="w-full">
+    </p-inputNumber>
+    <small class="field-help">Controls how many records are fetched for this widget.</small>
+  </div>
+
+  <div class="field checkbox-row">
+    <label>
+      <input type="checkbox" [(ngModel)]="settings.showAddButton" />
+      <span>Allow adding new records</span>
+    </label>
+  </div>
+
+  <div class="field checkbox-row">
+    <label>
+      <input type="checkbox" [(ngModel)]="settings.allowDelete" />
+      <span>Allow deleting records</span>
+    </label>
+  </div>
+
+  <div class="actions">
+    <button pButton type="button" label="Save" (click)="save()" class="p-button-primary"></button>
+  </div>
+</div>

@@ -5813,6 +5813,788 @@
         }
       }
     },
+    "/api/DynamicEntity/EntityType_GetAll": {
+      "get": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/EntityType_GetById/{id}": {
+      "get": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/EntityType_Create": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEntityTypeDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEntityTypeDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEntityTypeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/EntityType_Update": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEntityTypeDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEntityTypeDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEntityTypeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityTypeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/EntityType_Delete/{id}": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/Record_List/{entityTypeKey}": {
+      "get": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "entityTypeKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedDynamicEntityRecordListDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedDynamicEntityRecordListDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedDynamicEntityRecordListDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/Record_GetById/{entityTypeKey}/{id}": {
+      "get": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "entityTypeKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/Record_Create/{entityTypeKey}": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "entityTypeKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEntityRecordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEntityRecordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEntityRecordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/Record_Update/{entityTypeKey}": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "entityTypeKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEntityRecordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEntityRecordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEntityRecordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/Record_Delete/{entityTypeKey}/{id}": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "entityTypeKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/RelationDefinition_GetAll": {
+      "get": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/RelationDefinition_GetById/{id}": {
+      "get": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/RelationDefinition_Create": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEntityRelationDefinitionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEntityRelationDefinitionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDynamicEntityRelationDefinitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/RelationDefinition_Update": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEntityRelationDefinitionDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEntityRelationDefinitionDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDynamicEntityRelationDefinitionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRelationDefinitionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/RelationDefinition_Delete/{id}": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/Relations_ForRecord/{relationDefinitionId}/{fromRecordId}": {
+      "get": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "relationDefinitionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "fromRecordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEntityRelationDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEntityRelationDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DynamicEntityRelationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/Relations_SetForRecord": {
+      "post": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRelationsForRecordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRelationsForRecordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetRelationsForRecordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DynamicEntity/Record_GeneratePdf/{entityTypeKey}/{recordId}/{templateFileId}": {
+      "get": {
+        "tags": [
+          "DynamicEntity"
+        ],
+        "parameters": [
+          {
+            "name": "entityTypeKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "templateFileId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/FileUpload/File_UploadFile": {
       "post": {
         "tags": [
@@ -6189,6 +6971,46 @@
       }
     },
     "/api/Form/Form_GetById/{id}": {
+      "get": {
+        "tags": [
+          "Form"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Form/Form_PublicGetById/{id}": {
       "get": {
         "tags": [
           "Form"
@@ -11055,6 +11877,121 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_GetStepContext": {
+      "get": {
+        "tags": [
+          "OnboardingMultiSubmit"
+        ],
+        "parameters": [
+          {
+            "name": "stepKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultiSubmitStepContextDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultiSubmitStepContextDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultiSubmitStepContextDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_SaveRecord": {
+      "post": {
+        "tags": [
+          "OnboardingMultiSubmit"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveMultiSubmitRecordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveMultiSubmitRecordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveMultiSubmitRecordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DynamicEntityRecordDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_DeleteRecord": {
+      "delete": {
+        "tags": [
+          "OnboardingMultiSubmit"
+        ],
+        "parameters": [
+          {
+            "name": "stepKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "recordId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -22874,6 +23811,106 @@
         },
         "additionalProperties": false
       },
+      "CreateDynamicEntityRecordDto": {
+        "required": [
+          "dataJson",
+          "entityTypeId"
+        ],
+        "type": "object",
+        "properties": {
+          "entityTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataJson": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateDynamicEntityRelationDefinitionDto": {
+        "required": [
+          "cardinality",
+          "fromEntityTypeId",
+          "key",
+          "name",
+          "toEntityTypeId"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "key": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "fromEntityTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "toEntityTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cardinality": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "isBidirectional": {
+            "type": "boolean"
+          },
+          "fromLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "toLabel": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateDynamicEntityTypeDto": {
+        "required": [
+          "fieldsJson",
+          "key",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "key": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "fieldsJson": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "CreateFormDto": {
         "required": [
           "fields",
@@ -22895,7 +23932,15 @@
             "minLength": 1,
             "type": "string"
           },
+          "dynamicEntityTypeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
           "isActive": {
+            "type": "boolean"
+          },
+          "requireAuthentication": {
             "type": "boolean"
           },
           "linkSubmissionsToUser": {
@@ -23424,6 +24469,23 @@
           "isSkippable": {
             "type": "boolean"
           },
+          "formId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dynamicEntityTypeKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "formDisplayMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "listDisplayConfig": {
+            "type": "string",
+            "nullable": true
+          },
           "pdfTemplateFileId": {
             "type": "string",
             "format": "uuid",
@@ -23607,6 +24669,15 @@
             "type": "boolean"
           },
           "showInFooter": {
+            "type": "boolean"
+          },
+          "isOnboardingPage": {
+            "type": "boolean"
+          },
+          "isBlockingOnboarding": {
+            "type": "boolean"
+          },
+          "requiresOnboardingApproval": {
             "type": "boolean"
           }
         },
@@ -24305,6 +25376,15 @@
           "isActive": {
             "type": "boolean"
           },
+          "isOnboardingPage": {
+            "type": "boolean"
+          },
+          "isBlockingOnboarding": {
+            "type": "boolean"
+          },
+          "requiresOnboardingApproval": {
+            "type": "boolean"
+          },
           "metaTags": {
             "$ref": "#/components/schemas/PageMetaTagsDto"
           },
@@ -24991,6 +26071,140 @@
         },
         "additionalProperties": false
       },
+      "DynamicEntityRecordDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataJson": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DynamicEntityRelationDefinitionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "fromEntityTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "toEntityTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cardinality": {
+            "type": "string",
+            "nullable": true
+          },
+          "isBidirectional": {
+            "type": "boolean"
+          },
+          "fromLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "toLabel": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DynamicEntityRelationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "relationDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fromRecordId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "toRecordId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DynamicEntityTypeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "fieldsJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "EnhancedCreateClaimDto": {
         "type": "object",
         "properties": {
@@ -25281,6 +26495,9 @@
           "isActive": {
             "type": "boolean"
           },
+          "requireAuthentication": {
+            "type": "boolean"
+          },
           "notificationEmail": {
             "type": "string",
             "nullable": true
@@ -25315,6 +26532,19 @@
             "type": "boolean"
           },
           "calculatorConfig": {
+            "type": "string",
+            "nullable": true
+          },
+          "dynamicEntityTypeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dynamicEntityTypeKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "dynamicEntityTypeName": {
             "type": "string",
             "nullable": true
           }
@@ -27110,6 +28340,22 @@
         "type": "integer",
         "format": "int32"
       },
+      "MultiSubmitStepContextDto": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "$ref": "#/components/schemas/OnboardingStepConfigurationDto"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DynamicEntityRecordDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "NgoBlogPost": {
         "required": [
           "author",
@@ -27470,6 +28716,117 @@
         },
         "additionalProperties": false
       },
+      "OnboardingStepConfigurationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "stepType": {
+            "$ref": "#/components/schemas/OnboardingStepType"
+          },
+          "stepKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "stepLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "tenantTypeFilter": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isRequired": {
+            "type": "boolean"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true
+          },
+          "isSkippable": {
+            "type": "boolean"
+          },
+          "formId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dynamicEntityTypeKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "dynamicEntityTypeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "formDisplayMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "listDisplayConfig": {
+            "type": "string",
+            "nullable": true
+          },
+          "pdfTemplateFileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "autoGeneratePdf": {
+            "type": "boolean"
+          },
+          "includeStepDataKeys": {
+            "type": "string",
+            "nullable": true
+          },
+          "requireTypedSignature": {
+            "type": "boolean"
+          },
+          "termsContentMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "termsPdfFileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "termsTextContent": {
+            "type": "string",
+            "nullable": true
+          },
+          "termsTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "termsAcceptanceLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "requireFullReview": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "OnboardingStepType": {
         "enum": [
           0,
@@ -27759,6 +29116,15 @@
           "showInFooter": {
             "type": "boolean"
           },
+          "isOnboardingPage": {
+            "type": "boolean"
+          },
+          "isBlockingOnboarding": {
+            "type": "boolean"
+          },
+          "requiresOnboardingApproval": {
+            "type": "boolean"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -27807,6 +29173,31 @@
             "nullable": true
           },
           "order": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "PagedDynamicEntityRecordListDto": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DynamicEntityRecordDto"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
             "type": "integer",
             "format": "int32"
           }
@@ -30061,6 +31452,29 @@
         },
         "additionalProperties": false
       },
+      "SaveMultiSubmitRecordDto": {
+        "type": "object",
+        "properties": {
+          "stepKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataJson": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "SaveSignatureDto": {
         "required": [
           "signatureDataUrl"
@@ -30100,6 +31514,32 @@
           },
           "config": {
             "$ref": "#/components/schemas/BookingNotificationConfigDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SetRelationsForRecordDto": {
+        "required": [
+          "fromRecordId",
+          "relationDefinitionId",
+          "toRecordIds"
+        ],
+        "type": "object",
+        "properties": {
+          "relationDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fromRecordId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "toRecordIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         },
         "additionalProperties": false
@@ -31484,6 +32924,121 @@
         },
         "additionalProperties": false
       },
+      "UpdateDynamicEntityRecordDto": {
+        "required": [
+          "dataJson",
+          "entityTypeId",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "externalKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "dataJson": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateDynamicEntityRelationDefinitionDto": {
+        "required": [
+          "cardinality",
+          "fromEntityTypeId",
+          "id",
+          "key",
+          "name",
+          "toEntityTypeId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "key": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "fromEntityTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "toEntityTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cardinality": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "isBidirectional": {
+            "type": "boolean"
+          },
+          "fromLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "toLabel": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateDynamicEntityTypeDto": {
+        "required": [
+          "fieldsJson",
+          "id",
+          "key",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "key": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "fieldsJson": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
       "UpdateFieldOrderDto": {
         "required": [
           "displayOrder",
@@ -31523,10 +33078,18 @@
             "minLength": 1,
             "type": "string"
           },
+          "dynamicEntityTypeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
           "isActive": {
             "type": "boolean"
           },
           "linkSubmissionsToUser": {
+            "type": "boolean"
+          },
+          "requireAuthentication": {
             "type": "boolean"
           },
           "allowMultipleSubmissionsPerUser": {
@@ -31851,6 +33414,23 @@
           "isSkippable": {
             "type": "boolean"
           },
+          "formId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dynamicEntityTypeKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "formDisplayMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "listDisplayConfig": {
+            "type": "string",
+            "nullable": true
+          },
           "pdfTemplateFileId": {
             "type": "string",
             "format": "uuid",
@@ -32002,6 +33582,15 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "isOnboardingPage": {
+            "type": "boolean"
+          },
+          "isBlockingOnboarding": {
+            "type": "boolean"
+          },
+          "requiresOnboardingApproval": {
+            "type": "boolean"
           },
           "metaTags": {
             "$ref": "#/components/schemas/PageMetaTagsDto"

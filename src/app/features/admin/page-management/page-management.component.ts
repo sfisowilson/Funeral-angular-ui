@@ -51,7 +51,10 @@ export class PageManagementComponent implements OnInit {
         isPublic: true,
         requiresAuth: false,
         showInNavbar: true,
-        showInFooter: false
+        showInFooter: false,
+        isOnboardingPage: false,
+        isBlockingOnboarding: false,
+        requiresOnboardingApproval: false
     });
 
     constructor(
@@ -125,7 +128,10 @@ export class PageManagementComponent implements OnInit {
             isPublic: true,
             requiresAuth: false,
             showInNavbar: true,
-            showInFooter: false
+            showInFooter: false,
+            isOnboardingPage: false,
+            isBlockingOnboarding: false,
+            requiresOnboardingApproval: false
         });
     }
 

@@ -1,0 +1,11 @@
+.onboarding-stepper-widget {
+    width: 100%;
+}
+
+.onboarding-stepper-widget .text-success {
+    color: var(--success-color, #198754);
+}
+
+.onboarding-stepper-widget .text-danger {
+    color: var(--danger-color, #dc3545);
+}

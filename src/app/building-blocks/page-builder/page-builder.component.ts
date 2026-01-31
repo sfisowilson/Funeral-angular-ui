@@ -438,12 +438,19 @@ export class PageBuilderComponent implements OnInit {
         console.log('Services in updated settings:', updatedSettings.services);
         console.log('Services count:', updatedSettings.services?.length || 0);
 
-        // Create a new widget object to trigger change detection
+        // Create a new widget object to trigger change detection.
+        // Merge with existing settings so editors emitting partial settings
+        // don't wipe out unrelated persisted keys.
+        const mergedSettings = {
+            ...(selected.settings || {}),
+            ...(updatedSettings || {})
+        };
+
         // Use deep copy for settings to avoid reference issues
         const updatedWidget: WidgetConfig = {
             ...selected,
-            settings: JSON.parse(JSON.stringify(updatedSettings)),
-            title: updatedSettings.title || selected.type
+            settings: JSON.parse(JSON.stringify(mergedSettings)),
+            title: (updatedSettings && updatedSettings.title) || (selected.settings && selected.settings.title) || selected.type
         };
         
         console.log('Updated widget object created:', updatedWidget);

@@ -133,50 +133,10 @@ export class DocumentsStepComponent implements OnInit {
                 console.error('Error loading required documents:', error);
                 this.messageService.add({
                     severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to load required documents'
-                });
-                this.loading.set(false);
-            }
-        });
-    }
+// Legacy documents onboarding step component has been removed.
+// Document uploads/compliance should now be handled by dynamic forms/widgets.
 
-    loadComplianceStatus() {
-        const memberId = this.authService.getUserId();
-        if (!memberId) return;
-
-        // Phase 4: Get comprehensive compliance status
-        this.documentRequirementService.documentRequirement_GetComplianceStatus(memberId).subscribe({
-            next: (status: DocumentComplianceStatus) => {
-                console.log('[Phase 4] Compliance status:', status);
-                this.complianceStatus.set(status);
-            },
-            error: (error: any) => {
-                console.error('Error loading compliance status:', error);
-            }
-        });
-    }
-
-    loadMyFiles() {
-        console.log('[DocumentsStep] loadMyFiles called');
-        
-        // Use appropriate method based on whether viewing own or another member's files
-        const filesObservable = this.memberId
-            ? this.fileUploadService.file_GetFilesByMemberId(this.memberId)
-            : this.fileUploadService.file_GetMyFiles();
-        
-        filesObservable.subscribe({
-            next: (files: FileMetadataDto[]) => {
-                console.log('[DocumentsStep] Received files from server:', files);
-                const fileDtos = files.map(f => {
-                    // Use description (document type like "IdDocument") for display
-                    // The backend stores document type in the Description field
-                    if (f.description) {
-                        f.entityType = f.description;
-                    }
-                    return f;
-                });
-                console.log('[DocumentsStep] Mapped files:', fileDtos);
+export {};
                 this.uploadedDocuments.set(fileDtos);
                 console.log('[DocumentsStep] uploadedDocuments signal updated, count:', fileDtos.length);
                 this.checkCompletion();

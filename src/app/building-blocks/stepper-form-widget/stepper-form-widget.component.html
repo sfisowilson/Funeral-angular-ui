@@ -43,8 +43,8 @@
 
                             <!-- Text-like inputs -->
                             <input
-                                *ngIf="['text', 'email', 'tel', 'number', 'date'].includes(field.type)"
-                                [type]="field.type === 'date' ? 'date' : field.type"
+                                *ngIf="['text', 'email', 'tel', 'number', 'date', 'idNumber'].includes(field.type)"
+                                [type]="field.type === 'date' ? 'date' : (field.type === 'idNumber' ? 'text' : field.type)"
                                 class="form-control"
                                 [class.is-invalid]="step.formGroup.get(field.name)?.invalid && (step.formGroup.get(field.name)?.touched || step.formGroup.get(field.name)?.dirty)"
                                 [id]="field.name"
@@ -112,6 +112,7 @@
                             <div class="invalid-feedback d-block" *ngIf="step.formGroup.get(field.name)?.invalid && (step.formGroup.get(field.name)?.touched || step.formGroup.get(field.name)?.dirty)">
                                 <span *ngIf="step.formGroup.get(field.name)?.errors?.['required']">This field is required.</span>
                                 <span *ngIf="step.formGroup.get(field.name)?.errors?.['email']">Please enter a valid email address.</span>
+                                <span *ngIf="step.formGroup.get(field.name)?.errors?.['saIdNumber']">Please enter a valid South African ID number.</span>
                             </div>
                         </div>
 
@@ -237,6 +238,17 @@
                         Signature captured
                     </div>
                 </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button
+                        type="button"
+                        class="btn btn-success btn-sm"
+                        [disabled]="!signatureDataUrl || isSigning"
+                        (click)="signAndComplete()"
+                    >
+                        <span *ngIf="!isSigning">Sign & Complete</span>
+                        <span *ngIf="isSigning">Completing...</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -249,7 +261,11 @@
             type="button"
             class="btn btn-primary"
             (click)="next()"
-            [disabled]="completed || !hasSteps || (currentStep?.submitting ?? false)"
+            [disabled]="
+                !hasSteps ||
+                (currentStep?.submitting ?? false) ||
+                (isLastStep && completed && requireSignature && !hasSigned)
+            "
         >
             <span *ngIf="!isLastStep">Next</span>
             <span *ngIf="isLastStep && !completed">Finish</span>

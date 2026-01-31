@@ -1,0 +1,14 @@
+.dynamic-entity-list-widget {
+  background-color: var(--surface-card, #ffffff);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.dynamic-entity-list-widget table {
+  border-collapse: collapse;
+}
+
+.dynamic-entity-list-widget th,
+.dynamic-entity-list-widget td {
+  border-color: rgba(0, 0, 0, 0.05);
+}

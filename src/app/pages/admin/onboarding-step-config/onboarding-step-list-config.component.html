@@ -1,0 +1,329 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="onboarding-step-list-config p-4">
+  <div class="content-wrapper max-w-7xl mx-auto">
+    <div class="page-header bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div class="flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-800 m-0">
+            <i class="bi bi-list-check text-primary me-2"></i>
+            Onboarding Step List Configuration
+          </h1>
+          <p class="text-gray-600 mt-2 mb-0">
+            Configure list columns, actions, and min/max constraints for onboarding steps
+            that use multi-submit entity records (e.g. dependents, beneficiaries).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <p-table
+        [value]="steps"
+        [loading]="loading"
+        [paginator]="true"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} steps"
+        styleClass="p-datatable-sm"
+        [tableStyle]="{ 'min-width': '50rem' }"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem">#</th>
+            <th>Step</th>
+            <th>Key</th>
+            <th>Entity Type</th>
+            <th style="width: 8rem">Multi-submit</th>
+            <th style="width: 10rem">List Config</th>
+            <th style="width: 12rem">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-step let-rowIndex="rowIndex">
+          <tr>
+            <td>{{ rowIndex + 1 }}</td>
+            <td>
+              <div class="flex align-items-center gap-2">
+                <i class="bi" [ngClass]="step.icon || 'bi-circle'" class="text-primary"></i>
+                <div>
+                  <div class="fw-semibold">{{ step.stepLabel }}</div>
+                  <small class="text-muted">Order {{ step.displayOrder }}</small>
+                </div>
+              </div>
+            </td>
+            <td><code class="text-sm">{{ step.stepKey }}</code></td>
+            <td>
+              <span *ngIf="step.dynamicEntityTypeKey; else noEntity" class="badge bg-secondary">
+                {{ step.dynamicEntityTypeKey }}
+              </span>
+              <ng-template #noEntity>
+                <span class="text-muted small">(none)</span>
+              </ng-template>
+            </td>
+            <td class="text-center">
+              <span *ngIf="isMultiSubmitStep(step)" class="badge bg-success">Yes</span>
+              <span *ngIf="!isMultiSubmitStep(step)" class="badge bg-light text-muted">No</span>
+            </td>
+            <td class="text-center">
+              <span *ngIf="hasListConfig(step)" class="badge bg-primary">Configured</span>
+              <span *ngIf="!hasListConfig(step)" class="badge bg-light text-muted">Not set</span>
+            </td>
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-list"
+                label="Configure"
+                class="p-button-sm p-button-outlined"
+                (click)="openConfigDialog(step)"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center py-5">
+              <div class="flex flex-column align-items-center gap-3">
+                <i class="pi pi-inbox text-4xl text-gray-400"></i>
+                <p class="text-gray-600 m-0">No onboarding steps available.</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [style]="{ width: '800px' }"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="false"
+  [closable]="false"
+  *ngIf="selectedStep"
+>
+  <ng-template pTemplate="header">
+    <div class="flex flex-column">
+      <span class="fw-semibold">Configure List for Step</span>
+      <small class="text-muted">{{ selectedStep?.stepLabel }} ({{ selectedStep?.stepKey }})</small>
+    </div>
+  </ng-template>
+
+  <div class="list-config-form">
+    <div class="alert alert-info py-2 mb-3" *ngIf="selectedStep?.stepType === 'Form'">
+      These settings belong to this onboarding step. Any page section that links to this step
+      (for example, the multi-submit widget) will reuse the same list behavior and actions.
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-3">
+        <label class="form-label">Min items</label>
+        <p-inputNumber [(ngModel)]="minItems" [showButtons]="true" [min]="0" [style]="{ width: '100%' }"></p-inputNumber>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Max items</label>
+        <p-inputNumber [(ngModel)]="maxItems" [showButtons]="true" [min]="0" [style]="{ width: '100%' }"></p-inputNumber>
+      </div>
+      <div class="col-md-3 d-flex align-items-center mt-4" *ngIf="selectedStep?.stepType === 'Form'">
+        <p-checkbox
+          [(ngModel)]="enforceOnNavigation"
+          [binary]="true"
+          inputId="enforceNav"
+        ></p-checkbox>
+        <label for="enforceNav" class="ms-2">Block navigation when below min</label>
+      </div>
+      <div class="col-md-3 d-flex align-items-center mt-4" *ngIf="selectedStep?.stepType === 'Form'">
+        <p-checkbox
+          [(ngModel)]="showWarningsOnly"
+          [binary]="true"
+          inputId="warningsOnly"
+        ></p-checkbox>
+        <label for="warningsOnly" class="ms-2">Warnings only (no blocking)</label>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label class="form-label">Singular label</label>
+        <input
+          pInputText
+          [(ngModel)]="singularLabel"
+          class="w-full"
+          placeholder="e.g. Dependent"
+        />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Plural label</label>
+        <input
+          pInputText
+          [(ngModel)]="pluralLabel"
+          class="w-full"
+          placeholder="e.g. Dependents"
+        />
+      </div>
+    </div>
+
+    <div class="mb-3" *ngIf="selectedStep?.stepType === 'Form'">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <label class="form-label mb-0">Columns</label>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="Add Column"
+          class="p-button-sm p-button-text"
+          (click)="addColumn()"
+        ></button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th style="width: 25%">Field key</th>
+              <th style="width: 25%">Header</th>
+              <th style="width: 20%">Width</th>
+              <th style="width: 20%">Format</th>
+              <th style="width: 10%"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let col of columns; let i = index">
+              <td>
+                <input
+                  pInputText
+                  [(ngModel)]="col.fieldKey"
+                  class="w-full"
+                  placeholder="e.g. firstName"
+                />
+              </td>
+              <td>
+                <input
+                  pInputText
+                  [(ngModel)]="col.header"
+                  class="w-full"
+                  placeholder="e.g. First Name"
+                />
+              </td>
+              <td>
+                <input
+                  pInputText
+                  [(ngModel)]="col.width"
+                  class="w-full"
+                  placeholder="e.g. 20% or 150px"
+                />
+              </td>
+              <td>
+                <input
+                  pInputText
+                  [(ngModel)]="col.format"
+                  class="w-full"
+                  placeholder="e.g. date, currency"
+                />
+              </td>
+              <td class="text-end">
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-trash"
+                  class="p-button-sm p-button-text p-button-danger"
+                  (click)="removeColumn(i)"
+                ></button>
+              </td>
+            </tr>
+            <tr *ngIf="columns.length === 0">
+              <td colspan="5" class="text-muted small">
+                No columns defined yet. Add at least one column to show records in the list.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label class="form-label">Default sort field</label>
+        <input
+          pInputText
+          [(ngModel)]="defaultSortField"
+          class="w-full"
+          placeholder="e.g. lastName, createdAt"
+        />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Default sort direction</label>
+        <select class="form-select" [(ngModel)]="defaultSortDirection">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Actions</label>
+      <div class="d-flex flex-wrap gap-3 mt-1">
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="actionAdd"
+            [(ngModel)]="actions.add"
+          />
+          <label class="form-check-label" for="actionAdd">Allow Add</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="actionEdit"
+            [(ngModel)]="actions.edit"
+          />
+          <label class="form-check-label" for="actionEdit">Allow Edit</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="actionDelete"
+            [(ngModel)]="actions.delete"
+          />
+          <label class="form-check-label" for="actionDelete">Allow Delete</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="actionView"
+            [(ngModel)]="actions.view"
+          />
+          <label class="form-check-label" for="actionView">Allow View</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="hideDialog()"
+    ></button>
+    <button
+      pButton
+      type="button"
+      label="Save Configuration"
+      icon="pi pi-check"
+      (click)="saveConfig()"
+      [disabled]="loading"
+    ></button>
+  </ng-template>
+</p-dialog>

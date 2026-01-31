@@ -9,6 +9,7 @@ import { AuthService } from '@app/auth/auth-service';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { PublicHeaderComponent } from '@app/shared/components/public-header/public-header.component';
 
 @Component({
   selector: 'app-dynamic-page',
@@ -16,7 +17,8 @@ import { environment } from '../../../environments/environment';
   imports: [
     CommonModule,
     ProgressSpinnerModule,
-    RouterModule
+    RouterModule,
+    PublicHeaderComponent
   ],
   providers: [CustomPagesServiceProxy, TenantSettingsService],
   templateUrl: './dynamic-page.component.html',
@@ -69,13 +71,16 @@ export class DynamicPageComponent implements OnInit {
       this.isStaticSite = this._settings.isStaticSite || false;
     });
     
-    // Load custom pages for navigation
-    this.customPagesService.all().subscribe(response => {
+    // Load custom pages for navigation using public navbar/footer endpoints
+    this.customPagesService.navbar().subscribe(response => {
       const pages = response?.result || [];
       this.navbarPages = pages
         .filter(p => p.isActive && p.showInNavbar)
         .sort((a, b) => ((a as any).navbarOrder || 999) - ((b as any).navbarOrder || 999));
-      
+    });
+    
+    this.customPagesService.footer().subscribe(response => {
+      const pages = response?.result || [];
       this.footerPages = pages
         .filter(p => p.isActive && p.showInFooter)
         .sort((a, b) => ((a as any).footerOrder || 999) - ((b as any).footerOrder || 999));
@@ -153,11 +158,23 @@ export class DynamicPageComponent implements OnInit {
     // Transform from DB format { id, type, config, order } to WidgetConfig format { id, type, settings }
     return dbWidgets
       .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-      .map((w: any) => ({
-        id: w.id,
-        type: w.type,
-        settings: w.config // DB stores 'config', WidgetConfig expects 'settings'
-      }));
+      .map((w: any) => {
+        const rawConfig = w.config;
+        const settingsFromDb = rawConfig && typeof rawConfig === 'object' && (rawConfig as any).settings
+          ? (rawConfig as any).settings
+          : rawConfig;
+        const layoutFromDb = rawConfig && typeof rawConfig === 'object' ? (rawConfig as any).layout : undefined;
+
+        const widgetType = WIDGET_TYPES.find(t => t.name === w.type);
+        const mergedSettings = { ...(widgetType?.defaultConfig || {}), ...(settingsFromDb || {}) };
+
+        return {
+          id: w.id,
+          type: w.type,
+          settings: mergedSettings,
+          layout: layoutFromDb
+        };
+      });
   }
   
   getWidgetComponent(widgetType: string): any {

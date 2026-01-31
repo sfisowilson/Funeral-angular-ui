@@ -1,0 +1,41 @@
+<div class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+  <div class="bg-white rounded shadow-lg p-6 w-full max-w-xl">
+    <h3 class="text-lg font-bold mb-4">{{ record ? 'Edit Record' : 'Add Record' }}</h3>
+    <form (ngSubmit)="save()" autocomplete="off">
+      <div class="mb-2">
+        <label class="form-label">Display Name:</label>
+        <input class="form-control" [(ngModel)]="displayName" name="displayName" required />
+      </div>
+      <div class="mb-2">
+        <label class="form-label">External Key:</label>
+        <input class="form-control" [(ngModel)]="externalKey" name="externalKey" />
+      </div>
+      <div class="mb-4" *ngIf="entityType">
+        <div *ngIf="dynamicFields.length; else noDynamicFields" class="space-y-2">
+          <div *ngFor="let field of dynamicFields; let i = index" class="mb-2">
+            <label class="block text-sm font-semibold mb-1">{{ field.label || field.name }}</label>
+            <ng-container [ngSwitch]="field.type">
+              <input *ngSwitchCase="'text'" class="form-control" [(ngModel)]="formData[field.name]" [name]="'f_'+i" />
+              <input *ngSwitchCase="'email'" type="email" class="form-control" [(ngModel)]="formData[field.name]" [name]="'f_'+i" />
+              <input *ngSwitchCase="'number'" type="number" class="form-control" [(ngModel)]="formData[field.name]" [name]="'f_'+i" />
+              <textarea *ngSwitchCase="'textarea'" class="form-control" [(ngModel)]="formData[field.name]" [name]="'f_'+i"></textarea>
+              <select *ngSwitchCase="'select'" class="form-select" [(ngModel)]="formData[field.name]" [name]="'f_'+i">
+                <option *ngFor="let opt of getOptions(field)" [value]="opt">{{ opt }}</option>
+              </select>
+              <input *ngSwitchCase="'checkbox'" type="checkbox" class="form-check-input mr-2" [(ngModel)]="formData[field.name]" [name]="'f_'+i" />
+              <input *ngSwitchDefault class="form-control" [(ngModel)]="formData[field.name]" [name]="'f_'+i" />
+            </ng-container>
+          </div>
+        </div>
+        <ng-template #noDynamicFields>
+          <p class="text-sm text-gray-500">No dynamic fields defined for this entity type.</p>
+        </ng-template>
+      </div>
+      <div class="flex gap-2 justify-end">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">{{ loading ? 'Saving...' : 'Save' }}</button>
+      </div>
+      <div *ngIf="error" class="mt-2 text-red-500">{{ error }}</div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="p-4">
+  <h2 class="text-xl font-bold mb-4">Dynamic Entity Types</h2>
+  <button class="btn btn-primary mb-4" (click)="openCreateDialog()" [disabled]="!canCreateOrUpdate">Add Entity Type</button>
+  <table class="table-auto w-full">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Key</th>
+        <th>Description</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let type of entityTypes">
+        <td>{{ type.name }}</td>
+        <td>{{ type.key }}</td>
+        <td>{{ type.description }}</td>
+        <td>{{ type.isActive ? 'Yes' : 'No' }}</td>
+        <td>
+          <button class="btn btn-sm btn-secondary" (click)="openEditDialog(type)" [disabled]="!canCreateOrUpdate">Edit</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteType(type)" [disabled]="!canDelete">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Create/Edit Dialog -->
+  <app-dynamic-entity-type-widget
+    *ngIf="showDialog"
+    [entityType]="selectedType"
+    (close)="closeDialog($event)"
+    (saved)="refreshTypes()">
+  </app-dynamic-entity-type-widget>
+
+  <div *ngIf="loading" class="mt-4 text-gray-500">Loading...</div>
+  <div *ngIf="error" class="mt-4 text-red-500">{{ error }}</div>
+</div>

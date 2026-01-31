@@ -5,13 +5,13 @@ import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
 import { AuthService } from '../../auth/auth-service';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
-import { CustomPagesServiceProxy } from '../../core/services/service-proxies';
+import { CustomPagesServiceProxy, DynamicEntityServiceProxy } from '../../core/services/service-proxies';
 
 @Component({
     selector: 'app-menu',
     standalone: true,
     imports: [CommonModule, AppMenuitem, RouterModule],
-    providers: [CustomPagesServiceProxy],
+    providers: [CustomPagesServiceProxy, DynamicEntityServiceProxy],
     template: `<ul class="layout-menu">
         <ng-container *ngFor="let item of model; let i = index">
             <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
@@ -28,7 +28,8 @@ export class AppMenu implements OnInit {
     constructor(
         private authService: AuthService,
         private tenantSettingsService: TenantSettingsService,
-        private customPagesService: CustomPagesServiceProxy
+        private customPagesService: CustomPagesServiceProxy,
+        private dynamicEntityService: DynamicEntityServiceProxy
     ) {}
 
     async ngOnInit() {
@@ -69,6 +70,24 @@ export class AppMenu implements OnInit {
             }
         } catch (error) {
             console.error('Error loading custom pages for menu:', error);
+        }
+
+        // Load dynamic entity types so each active entity gets its own admin menu entry
+        let dynamicEntityItems: MenuItem[] = [];
+        try {
+            const response = await this.dynamicEntityService.entityType_GetAll().toPromise();
+            const types = response?.result || [];
+            dynamicEntityItems = types
+                .filter((t: any) => t.isActive)
+                .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''))
+                .map((t: any) => ({
+                    label: t.name,
+                    icon: 'pi pi-fw pi-table',
+                    routerLink: ['/admin/dynamic-entities/records', t.key],
+                    visible: this.authService.hasPermission('Permission.dynamicEntityRecord.view')
+                }));
+        } catch (error) {
+            console.error('Error loading dynamic entities for menu:', error);
         }
         
         // If this is a static site, only show Landing Page and Tenant Settings (for theme, logo, CSS)
@@ -132,31 +151,67 @@ export class AppMenu implements OnInit {
                 icon: 'pi pi-fw pi-briefcase',
                 routerLink: ['/pages'],
                 items: [
-                    { label: 'Tenants', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/tenants'], visible: this.authService.hasPermission('Permission.tenant.view') },
-                    { label: 'Tenant Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/tenant-settings'], visible: this.authService.isAuthenticated() },
-                    { label: 'Onboarding Settings', icon: 'pi pi-fw pi-id-card', routerLink: ['/admin/pages/onboarding-settings'], visible: this.authService.hasPermission('Permission.onboarding.view') },
-                    { label: 'Registration Fields', icon: 'pi pi-fw pi-list-check', routerLink: ['/admin/pages/registration-fields'], visible: this.authService.isAuthenticated() },
-                    { label: 'Field Definitions', icon: 'pi pi-fw pi-th-large', routerLink: ['/admin/pages/field-definitions'], visible: this.authService.isAuthenticated() && !this.isBasicPlan },
-                    { label: 'Dashboard Settings', icon: 'pi pi-fw pi-sliders-h', routerLink: ['/admin/pages/dashboard-settings'], visible: this.authService.isAuthenticated() },
-                    { label: 'PDF Field Mapping', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/pdf-field-mapping'], visible: this.authService.isAuthenticated() && !this.isBasicPlan },
-                    { label: 'Member Approval', icon: 'pi pi-fw pi-check-circle', routerLink: ['/admin/pages/member-approval'], visible: this.authService.hasPermission('Permission.member.view') },
-                    { label: 'Tenant Approval', icon: 'pi pi-fw pi-building', routerLink: ['/admin/pages/tenant-approval'], visible: this.authService.hasPermission('Permission.tenant.view') },
-                    { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/users'], visible: this.authService.hasPermission('Permission.user.view') },
-                    { label: 'Tenant Subscriptions', icon: 'pi pi-fw pi-credit-card', routerLink: ['/admin/pages/subscription-plans'], visible: this.authService.hasPermission('Permission.subscription.view') },
-                    { label: 'Plan Configuration', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/plan-configuration'], visible: this.authService.hasPermission('Permission.subscription.view') },
-                    { label: 'Policies', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/policies'], visible: this.authService.hasPermission('Permission.policy.view') },
-                    { label: 'Roles', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/roles'], visible: this.authService.hasPermission('Permission.role.view') },
-                    { label: 'Tenant Type Permissions', icon: 'pi pi-key', routerLink: ['/admin/pages/tenant-type-permissions'], visible: this.authService.hasPermission('Permission.role.view') && !this.isBasicPlan },
-                    { label: 'Landing Page Generator', icon: 'pi pi-magic', routerLink: ['/admin/pages/landing-page-generator'], visible: this.authService.isAuthenticated() },
-                    { label: 'Booking Management', icon: 'pi pi-calendar', routerLink: ['/admin/pages/booking-management'], visible: this.authService.isAuthenticated() && this.hasBookingFeature },
-                    { label: 'Member Management', icon: 'pi pi-users', routerLink: ['/admin/pages/member-management'], visible: this.authService.hasPermission('Permission.member.view') },
-                    { label: 'Claims', icon: 'pi pi-fw pi-file', routerLink: ['/admin/pages/claims'], visible: this.authService.hasPermission('Permission.claim.view') },
-                    { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'], visible: this.authService.hasPermission('Permission.event.view') },
-                    { label: 'Careers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/admin/pages/careers'], visible: this.authService.isAuthenticated() },
-                    { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: this.authService.isAuthenticated() },
-                    { label: 'Form Management', icon: 'pi pi-fw pi-list', routerLink: ['/admin/forms'], visible: this.authService.hasPermission('Permission.form.view') },
-                    { label: 'Email Templates', icon: 'pi pi-fw pi-envelope', routerLink: ['/admin/pages/email-templates'], visible: this.authService.hasPermission('Permission.onboarding.view') },
-                    { label: 'Custom Pages', icon: 'pi pi-fw pi-file-edit', routerLink: ['/admin/custom-pages'], visible: this.authService.isAuthenticated() }
+                    {
+                        label: 'Tenant & Access',
+                        icon: 'pi pi-fw pi-building',
+                        items: [
+                            { label: 'Tenants', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/tenants'], visible: this.authService.hasPermission('Permission.tenant.view') },
+                            { label: 'Tenant Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/tenant-settings'], visible: this.authService.isAuthenticated() },
+                            { label: 'Tenant Approval', icon: 'pi pi-fw pi-building', routerLink: ['/admin/pages/tenant-approval'], visible: this.authService.hasPermission('Permission.tenant.view') },
+                            { label: 'Tenant Subscriptions', icon: 'pi pi-fw pi-credit-card', routerLink: ['/admin/pages/subscription-plans'], visible: this.authService.hasPermission('Permission.subscription.view') },
+                            { label: 'Plan Configuration', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/plan-configuration'], visible: this.authService.hasPermission('Permission.subscription.view') },
+                            { label: 'Dashboard Settings', icon: 'pi pi-fw pi-sliders-h', routerLink: ['/admin/pages/dashboard-settings'], visible: this.authService.isAuthenticated() },
+                            { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/users'], visible: this.authService.hasPermission('Permission.user.view') },
+                            { label: 'Roles', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/roles'], visible: this.authService.hasPermission('Permission.role.view') },
+                            { label: 'Policies', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/policies'], visible: this.authService.hasPermission('Permission.policy.view') },
+                            { label: 'Tenant Type Permissions', icon: 'pi pi-key', routerLink: ['/admin/pages/tenant-type-permissions'], visible: this.authService.hasPermission('Permission.role.view') && !this.isBasicPlan }
+                        ]
+                    },
+                    {
+                        label: 'Forms',
+                        icon: 'pi pi-fw pi-id-card',
+                        items: [
+                            { label: 'Registration Fields', icon: 'pi pi-fw pi-list-check', routerLink: ['/admin/pages/registration-fields'], visible: this.authService.isAuthenticated() },
+                            { label: 'Field Definitions', icon: 'pi pi-fw pi-th-large', routerLink: ['/admin/pages/field-definitions'], visible: this.authService.isAuthenticated() && !this.isBasicPlan },
+                            { label: 'Form Management', icon: 'pi pi-fw pi-list', routerLink: ['/admin/forms'], visible: this.authService.hasPermission('Permission.form.view') },
+                            {
+                                label: 'Dynamic Entities',
+                                icon: 'pi pi-fw pi-database',
+                                visible: this.authService.hasAnyPermission([
+                                    'Permission.dynamicEntityType.view',
+                                    'Permission.dynamicEntityRecord.view'
+                                ]),
+                                items: [
+                                    { label: 'Entity Types', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/dynamic-entities/types'], visible: this.authService.hasPermission('Permission.dynamicEntityType.view') },
+                                    { label: 'Relations', icon: 'pi pi-fw pi-share-alt', routerLink: ['/admin/dynamic-entities/relations'], visible: this.authService.hasPermission('Permission.dynamicEntityRecord.view') },
+                                    ...dynamicEntityItems
+                                ]
+                            },
+                            { label: 'PDF Field Mapping', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/pdf-field-mapping'], visible: this.authService.isAuthenticated() && !this.isBasicPlan },
+                            { label: 'Email Templates', icon: 'pi pi-fw pi-envelope', routerLink: ['/admin/pages/email-templates'], visible: this.authService.hasPermission('Permission.onboarding.view') }
+                        ]
+                    },
+                    {
+                        label: 'Members & Operations',
+                        icon: 'pi pi-fw pi-users',
+                        items: [
+                            { label: 'Member Management', icon: 'pi pi-users', routerLink: ['/admin/pages/member-management'], visible: this.authService.hasPermission('Permission.member.view') },
+                            { label: 'Member Approval', icon: 'pi pi-fw pi-check-circle', routerLink: ['/admin/pages/member-approval'], visible: this.authService.hasPermission('Permission.member.view') },
+                            { label: 'Claims', icon: 'pi pi-fw pi-file', routerLink: ['/admin/pages/claims'], visible: this.authService.hasPermission('Permission.claim.view') },
+                            { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'], visible: this.authService.hasPermission('Permission.event.view') },
+                            { label: 'Booking Management', icon: 'pi pi-calendar', routerLink: ['/admin/pages/booking-management'], visible: this.authService.isAuthenticated() && this.hasBookingFeature }
+                        ]
+                    },
+                    {
+                        label: 'Website & Content',
+                        icon: 'pi pi-fw pi-desktop',
+                        items: [
+                            { label: 'Landing Page Generator', icon: 'pi pi-magic', routerLink: ['/admin/pages/landing-page-generator'], visible: this.authService.isAuthenticated() },
+                            { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: this.authService.isAuthenticated() },
+                            { label: 'Custom Pages', icon: 'pi pi-fw pi-file-edit', routerLink: ['/admin/custom-pages'], visible: this.authService.isAuthenticated() },
+                            { label: 'Careers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/admin/pages/careers'], visible: this.authService.isAuthenticated() }
+                        ]
+                    }
                 ]
             },
             {

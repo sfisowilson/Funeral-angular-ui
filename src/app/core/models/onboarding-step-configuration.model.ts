@@ -13,10 +13,17 @@ export interface OnboardingStepConfiguration {
     description?: string | null;
     icon?: string | null;
     isSkippable: boolean;
+    // Form / entity bindings
+    formId?: string | null;
+    dynamicEntityTypeKey?: string | null;
+    formDisplayMode?: string | null;
+    listDisplayConfig?: string | null;
+    // PDF-related properties
     pdfTemplateFileId?: string | null;
     autoGeneratePdf?: boolean;
     includeStepDataKeys?: string | null;
     requireTypedSignature?: boolean;
+    // Terms and conditions
     termsContentMode?: string | null;
     termsPdfFileId?: string | null;
     termsTextContent?: string | null;

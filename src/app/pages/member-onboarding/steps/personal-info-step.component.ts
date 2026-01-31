@@ -1,43 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter, signal, WritableSignal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { Subject, debounceTime } from 'rxjs';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { CheckboxModule } from 'primeng/checkbox';
-import { CalendarModule } from 'primeng/calendar';
-import { InputMaskModule } from 'primeng/inputmask';
-import { TabViewModule } from 'primeng/tabview';
-import { FileUploadModule } from 'primeng/fileupload';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { 
-    DynamicFormService, 
-    DynamicFormCategory, 
-    DynamicFormField 
-} from '../../../core/services/dynamic-form.service';
-import {
-    OnboardingFieldConfigurationServiceProxy,
-    MemberProfileCompletionServiceProxy,
-    UpdateProfileCompletionStepDto,
-    SaveMemberOnboardingDataDto,
-    MemberOnboardingDataDto,
-    MemberServiceProxy,
-    MemberDto,
-    FileUploadServiceProxy,
-    DocumentRequirementServiceProxy,
-    FileMetadataDto,
-    MemberDocumentType,
-    DocumentRequirement
-} from '../../../core/services/service-proxies';
-import { AuthService } from '../../../auth/auth-service';
+// Legacy personal-info onboarding step component has been removed.
+// The onboarding flow is now fully handled by dynamic pages and widgets.
+
+export {};
 import { SAIdValidator, SAIdInfo } from '../../../shared/utils/sa-id-validator';
 import { EmbeddedCalculatorComponent, CalculatorConfig, CalculatorResult } from '../../../shared/components/embedded-calculator/embedded-calculator.component';
 import { DynamicRepeaterFieldComponent, RepeaterConfig } from '../../../shared/components/dynamic-repeater-field/dynamic-repeater-field.component';

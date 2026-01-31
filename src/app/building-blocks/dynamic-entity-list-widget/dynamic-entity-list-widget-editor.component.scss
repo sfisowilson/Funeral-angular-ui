@@ -1,0 +1,37 @@
+.dynamic-entity-list-widget-editor {
+  padding: 1rem;
+}
+
+.dynamic-entity-list-widget-editor .editor-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.dynamic-entity-list-widget-editor .field {
+  margin-bottom: 1rem;
+}
+
+.dynamic-entity-list-widget-editor .field-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.dynamic-entity-list-widget-editor .field-help {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.dynamic-entity-list-widget-editor .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dynamic-entity-list-widget-editor .actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}

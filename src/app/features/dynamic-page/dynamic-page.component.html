@@ -1,4 +1,4 @@
-<div class="flex flex-col min-h-screen">
+<div class="dynamic-page-container flex flex-col min-h-screen">
   @if (loading()) {
     <div class="flex justify-center items-center min-h-screen">
       <p-progressSpinner />
@@ -19,83 +19,40 @@
     </div>
   } @else if (page()) {
     <!-- Header -->
-    <header class="bg-white shadow-md">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div class="text-xl font-bold text-gray-800 flex items-center">
-          @if (_settings.logo) {
-            <img [src]="getDownloadUrl(_settings.logo)" alt="Logo" class="rounded-md" style="max-height: 70px" />
-          } @else {
-            <span>{{ _settings.siteTitle || _settings.title || tenantSettings.tenantName || 'Mizo' }}</span>
-          }
-        </div>
-        <nav class="hidden md:flex space-x-6">
-          <a routerLink="/" class="text-gray-600 hover:text-blue-600 transition">Home</a>
-          @for (customPage of navbarPages; track customPage.id) {
-            <a [routerLink]="['/' + customPage.slug]" class="text-gray-600 hover:text-blue-600 transition">{{ customPage.name }}</a>
-          }
-          @if (!isStaticSite && !isLoggedIn) {
-            <a [href]="getRegisterUrl()" class="text-blue-600 hover:underline font-semibold">Register</a>
-            <a routerLink="/auth/login" class="text-blue-600 hover:underline font-semibold">Login</a>
-          }
-          @if (!isStaticSite && isLoggedIn) {
-            <a routerLink="/admin/dashboard" class="text-gray-600 hover:text-blue-600 transition">Dashboard</a>
-            <button (click)="logout()" class="text-red-600 hover:underline font-semibold">Logout</button>
-          }
-        </nav>
-        <button (click)="toggleMobileMenu()" class="md:hidden text-gray-600 focus:outline-none">
-          @if (!mobileMenuOpen) {
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          } @else {
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          }
-        </button>
-      </div>
-      
-      <!-- Mobile Menu -->
-      @if (mobileMenuOpen) {
-        <nav class="md:hidden bg-white border-t border-gray-200 shadow-lg">
-          <div class="px-4 py-4 space-y-1">
-            <a routerLink="/" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Home</a>
-            @for (customPage of navbarPages; track customPage.id) {
-              <a [routerLink]="['/' + customPage.slug]" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">{{ customPage.name }}</a>
-            }
-            @if (!isStaticSite && !isLoggedIn) {
-              <a [href]="getRegisterUrl()" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Register</a>
-              <a routerLink="/auth/login" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Login</a>
-            }
-            @if (!isStaticSite && isLoggedIn) {
-              <a routerLink="/admin/dashboard" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Dashboard</a>
-              <button (click)="logout()" class="block w-full text-left px-3 py-3 text-red-600 hover:bg-red-50 font-semibold transition rounded">Logout</button>
-            }
-          </div>
-        </nav>
-      }
-    </header>
+    <app-public-header
+      [brandTitle]="_settings.siteTitle || _settings.title || tenantSettings.tenantName || 'Mizo'"
+      [logoUrl]="_settings.logo ? getDownloadUrl(_settings.logo) : null"
+      [navbarPages]="navbarPages"
+      [isLoggedIn]="isLoggedIn"
+      [isStaticSite]="isStaticSite"
+      [homeLink]="'/'"
+      [registerUrl]="getRegisterUrl()"
+      [showNavbarPagesOnMobile]="true"
+      (logoutClicked)="logout()"
+    ></app-public-header>
 
     <!-- Main Content -->
-    <main class="flex-1">
-      <div class="page-content">
+    <main class="dynamic-page-main flex-1">
+      <div class="dynamic-page-shell">
+        <div class="page-content">
         @for (widget of getSortedWidgets(); track widget.id) {
           <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }">
           </ng-container>
         }
+        </div>
       </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-100 mt-8">
-      <div class="max-w-7xl mx-auto px-4 py-6">
-        <div class="flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm">
+    <footer class="dynamic-page-footer mt-8">
+      <div class="dynamic-page-shell py-6">
+        <div class="flex flex-col md:flex-row justify-between items-center text-sm">
           <p>&copy; {{ currentYear }} {{ _settings.siteTitle || _settings.title || tenantSettings.tenantName || 'Mizo' }}. All rights reserved.</p>
           <div class="mt-2 md:mt-0 space-x-4 flex items-center">
-            <a href="#" class="hover:text-blue-600">Privacy</a>
-            <a href="#" class="hover:text-blue-600">Terms</a>
+            <a href="#" class="dynamic-page-footer-link">Privacy</a>
+            <a href="#" class="dynamic-page-footer-link">Terms</a>
             @for (footerPage of footerPages; track footerPage.id) {
-              <a [routerLink]="['/' + footerPage.slug]" class="hover:text-blue-600">{{ footerPage.name }}</a>
+              <a [routerLink]="['/' + footerPage.slug]" class="dynamic-page-footer-link">{{ footerPage.name }}</a>
             }
           </div>
         </div>

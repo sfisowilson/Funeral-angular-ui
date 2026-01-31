@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
 import { FormDto, FormServiceProxy, CreateFormSubmissionDto, TermsAndConditionsDto, TermsServiceProxy, FormSubmissionDto } from '../../core/services/service-proxies';
+import { PublicFormService } from '../../core/services/public-form.service';
 import { AuthService } from '../../auth/auth-service';
+import { saIdNumberValidator } from '../../shared/validators/sa-id-number.validator';
 
 interface StepConfig {
     id: string;
@@ -59,6 +61,11 @@ interface StepRuntime {
 export class StepperFormWidgetComponent implements OnInit {
     @Input() config!: WidgetConfig;
 
+    @Output() currentStepChanged = new EventEmitter<{ index: number; stepId: string }>();
+    @Output() stepCompleted = new EventEmitter<{ index: number; stepId: string }>();
+    @Output() flowCompleted = new EventEmitter<void>();
+    @Output() signedAndCompleted = new EventEmitter<{ signatureDataUrl: string | null }>();
+
     steps: StepRuntime[] = [];
     currentStepIndex = 0;
 
@@ -75,9 +82,14 @@ export class StepperFormWidgetComponent implements OnInit {
     isDrawing = false;
     completionPdfUrl: string | null = null;
 
+    // Final sign-off state for flows that require a completion signature
+    isSigning = false;
+    hasSigned = false;
+
     constructor(
         private fb: FormBuilder,
         private formService: FormServiceProxy,
+        private publicFormService: PublicFormService,
         private termsService: TermsServiceProxy,
         private authService: AuthService
     ) {}
@@ -109,6 +121,7 @@ export class StepperFormWidgetComponent implements OnInit {
 
         if (this.steps.length > 0) {
             this.ensureStepInitialized(0);
+            this.emitCurrentStepChanged();
         }
     }
 
@@ -144,13 +157,24 @@ export class StepperFormWidgetComponent implements OnInit {
         }
     }
 
+    private emitCurrentStepChanged(): void {
+        const step = this.currentStep;
+        if (!step) return;
+        this.currentStepChanged.emit({ index: this.currentStepIndex, stepId: step.config.id });
+    }
+
+    private emitStepCompleted(index: number): void {
+        const step = this.steps[index];
+        if (!step) return;
+        this.stepCompleted.emit({ index, stepId: step.config.id });
+    }
+
     private loadFormForStep(step: StepRuntime, formId: string): void {
         step.loading = true;
         step.loadError = '';
 
-        this.formService.form_GetById(formId).subscribe({
-            next: (response) => {
-                const form = response.result as FormDto | undefined;
+        this.publicFormService.getFormById(formId).subscribe({
+            next: (form) => {
                 if (!form) {
                     step.loadError = 'Form not found.';
                     step.loading = false;
@@ -525,6 +549,9 @@ export class StepperFormWidgetComponent implements OnInit {
             if (field.type === 'email') {
                 validators.push(Validators.email);
             }
+            if (field.type === 'idNumber') {
+                validators.push(saIdNumberValidator());
+            }
 
             if (field.type === 'checkbox' && field.options && field.options.length) {
                 const controls = field.options.map(() => this.fb.control(false));
@@ -673,18 +700,21 @@ export class StepperFormWidgetComponent implements OnInit {
         if (!ctx) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.signatureDataUrl = null;
+        this.hasSigned = false;
     }
 
     goToStep(index: number): void {
         if (index < 0 || index >= this.steps.length) return;
         this.currentStepIndex = index;
         this.ensureStepInitialized(index);
+        this.emitCurrentStepChanged();
     }
 
     prev(): void {
         if (this.currentStepIndex > 0) {
             this.currentStepIndex--;
             this.ensureStepInitialized(this.currentStepIndex);
+            this.emitCurrentStepChanged();
         }
     }
 
@@ -699,6 +729,36 @@ export class StepperFormWidgetComponent implements OnInit {
         } else if (step.config.type === 'terms') {
             this.handleTermsStepNext(step);
         }
+    }
+
+    /**
+     * Optional final sign-off for flows that enable completion PDF + signature.
+     * This is UI-level only; callers can listen for completion externally if needed.
+     */
+    signAndComplete(): void {
+        if (!this.requireSignature) {
+            return;
+        }
+
+        if (!this.signatureDataUrl) {
+            this.globalError = 'Please provide your signature before completing.';
+            return;
+        }
+
+        // Simple client-side confirmation; backend flows can hook into this pattern if needed.
+        this.isSigning = true;
+
+        // Small timeout to allow any loading indicator to show; no API call here by default.
+        setTimeout(() => {
+            this.isSigning = false;
+            this.hasSigned = true;
+            // If a custom success message is configured, keep it; otherwise, set a clearer one.
+            if (!this.globalSuccess) {
+                this.globalSuccess =
+                    this.config?.settings?.successMessage || 'Thank you for completing and signing all steps.';
+            }
+            this.signedAndCompleted.emit({ signatureDataUrl: this.signatureDataUrl });
+        }, 300);
     }
 
     private handleFormStepNext(step: StepRuntime): void {
@@ -777,12 +837,17 @@ export class StepperFormWidgetComponent implements OnInit {
     }
 
     private advanceFromCurrentStep(): void {
+        const justCompletedIndex = this.currentStepIndex;
+        this.emitStepCompleted(justCompletedIndex);
+
         if (this.isLastStep) {
             this.completed = true;
             this.globalSuccess = this.config?.settings?.successMessage || 'Thank you for completing all steps.';
+            this.flowCompleted.emit();
         } else {
             this.currentStepIndex++;
             this.ensureStepInitialized(this.currentStepIndex);
+            this.emitCurrentStepChanged();
         }
     }
 }

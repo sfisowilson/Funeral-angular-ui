@@ -1,3 +1,7 @@
+// Legacy beneficiaries onboarding step component has been removed.
+// Beneficiaries are now captured via dynamic entity widgets.
+
+export {};
 import { Component, OnInit, Input, Output, EventEmitter, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

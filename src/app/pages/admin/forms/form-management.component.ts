@@ -2,7 +2,7 @@ import { Component, signal, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { FormServiceProxy, FormDto, CreateFormDto, UpdateFormDto, FormSubmissionDto } from '../../../core/services/service-proxies';
+import { FormServiceProxy, FormDto, CreateFormDto, UpdateFormDto, FormSubmissionDto, DynamicEntityServiceProxy, DynamicEntityTypeDto } from '../../../core/services/service-proxies';
 
 interface Alert {
     type: string;
@@ -72,7 +72,7 @@ interface FormCalculatorConfig {
     selector: 'app-form-management',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [FormServiceProxy],
+    providers: [FormServiceProxy, DynamicEntityServiceProxy],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './form-management.component.html',
     styleUrls: ['./form-management.component.scss']
@@ -115,6 +115,9 @@ export class FormManagementComponent implements OnInit {
     submissionsPageNumber: number = 1;
     submissionsPageSize: number = 20;
     selectedFormForSubmissions: FormDto | null = null;
+
+    // Dynamic Entity integration
+    dynamicEntityTypes: DynamicEntityTypeDto[] = [];
     
     showConfirmModal = false;
     confirmMessage = '';
@@ -130,7 +133,8 @@ export class FormManagementComponent implements OnInit {
 
     constructor(
         private router: Router,
-        private formService: FormServiceProxy
+        private formService: FormServiceProxy,
+        private dynamicEntityService: DynamicEntityServiceProxy
     ) {}
 
     private generateId(): string {
@@ -217,6 +221,67 @@ export class FormManagementComponent implements OnInit {
         }
 
         this.calculatorConfig = this.getDefaultCalculatorConfig();
+    }
+
+    /**
+     * Helper to import fields from a linked DynamicEntityType into this form's field list.
+     * This does a one-way copy of the entity type's FieldsJson definition into the form builder.
+     */
+    importFieldsFromDynamicEntity(entityType: DynamicEntityTypeDto | null | undefined): void {
+        if (!entityType || !entityType.fieldsJson) {
+            return;
+        }
+
+        try {
+            const parsed = JSON.parse(entityType.fieldsJson as any);
+            if (!Array.isArray(parsed)) {
+                return;
+            }
+
+            this.formFields = parsed.map((f: any, index: number) => {
+                const options = Array.isArray(f.options)
+                    ? f.options.join(', ')
+                    : typeof f.options === 'string'
+                    ? f.options
+                    : '';
+                return {
+                    id: this.generateId(),
+                    name: f.name || '',
+                    label: f.label || '',
+                    type: f.type || 'text',
+                    required: !!f.required,
+                    placeholder: f.placeholder || '',
+                    options,
+                    order: typeof f.order === 'number' ? f.order : index
+                } as FormField;
+            });
+
+            if (!this.formFields.length) {
+                this.addField();
+            }
+        } catch {
+            // If parsing fails, leave existing fields as-is.
+        }
+    }
+
+    private loadDynamicEntityTypes(): void {
+        this.dynamicEntityService.entityType_GetAll().subscribe({
+            next: (resp) => {
+                this.dynamicEntityTypes = resp?.result || [];
+            },
+            error: () => {
+                // Non-fatal for form management; ignore errors here
+                this.dynamicEntityTypes = [];
+            }
+        });
+    }
+
+    getDynamicEntityTypeById(id: string | null | undefined): DynamicEntityTypeDto | null {
+        if (!id) {
+            return null;
+        }
+
+        return this.dynamicEntityTypes.find((et) => et.id === id) || null;
     }
 
     private syncFormFieldsToJson(): boolean {
@@ -395,6 +460,7 @@ export class FormManagementComponent implements OnInit {
 
     ngOnInit() {
         this.loadForms();
+        this.loadDynamicEntityTypes();
     }
 
     loadForms() {
@@ -418,6 +484,8 @@ export class FormManagementComponent implements OnInit {
             description: '',
             fields: '[]',
             isActive: true,
+            requireAuthentication: false,
+            dynamicEntityTypeId: null,
             notificationEmail: '',
             successMessage: 'Thank you for your submission!',
             linkSubmissionsToUser: false,
@@ -434,7 +502,7 @@ export class FormManagementComponent implements OnInit {
     }
 
     editForm(form: FormDto) {
-        this.form = { ...form };
+        this.form = { ...form, requireAuthentication: (form as any).requireAuthentication ?? false };
         this.loadFormFieldsFromJson(this.form.fields);
         const calcJson = form.calculatorConfig;
         this.loadCalculatorConfigFromJson(calcJson);
@@ -540,6 +608,8 @@ export class FormManagementComponent implements OnInit {
             updateDto.description = this.form.description;
             updateDto.fields = this.form.fields;
             updateDto.isActive = this.form.isActive;
+            (updateDto as any).dynamicEntityTypeId = this.form.dynamicEntityTypeId || null;
+            (updateDto as any).requireAuthentication = !!this.form.requireAuthentication;
             updateDto.notificationEmail = this.form.notificationEmail;
             updateDto.successMessage = this.form.successMessage;
             updateDto.linkSubmissionsToUser = !!this.form.linkSubmissionsToUser;
@@ -565,6 +635,8 @@ export class FormManagementComponent implements OnInit {
             createDto.description = this.form.description;
             createDto.fields = this.form.fields;
             createDto.isActive = this.form.isActive;
+            (createDto as any).dynamicEntityTypeId = this.form.dynamicEntityTypeId || null;
+            (createDto as any).requireAuthentication = !!this.form.requireAuthentication;
             createDto.notificationEmail = this.form.notificationEmail;
             createDto.successMessage = this.form.successMessage;
             createDto.linkSubmissionsToUser = !!this.form.linkSubmissionsToUser;

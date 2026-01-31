@@ -102,6 +102,11 @@ import { FormWidgetComponent } from './form-widget/form-widget.component';
 import { FormWidgetEditorComponent } from './form-widget/form-widget-editor.component';
 import { StepperFormWidgetComponent } from './stepper-form-widget/stepper-form-widget.component';
 import { StepperFormWidgetEditorComponent } from './stepper-form-widget/stepper-form-widget-editor.component';
+import { OnboardingStepperWidgetComponent } from './onboarding-stepper-widget/onboarding-stepper-widget.component';
+import { DynamicEntityListWidgetComponent } from './dynamic-entity-list-widget/dynamic-entity-list-widget.component';
+import { DynamicEntityListWidgetEditorComponent } from './dynamic-entity-list-widget/dynamic-entity-list-widget-editor.component';
+import { OnboardingMultiSubmitStepComponent } from './onboarding-multi-submit-step/onboarding-multi-submit-step.component';
+import { OnboardingMultiSubmitStepEditorComponent } from './onboarding-multi-submit-step/onboarding-multi-submit-step-editor.component';
 
 export interface WidgetType {
     name: string;
@@ -139,6 +144,21 @@ export const WIDGET_TYPES: WidgetType[] = [
         icon: 'ui-checks'
     },
     {
+        name: 'dynamic-entity-list',
+        component: DynamicEntityListWidgetComponent,
+        editorComponent: DynamicEntityListWidgetEditorComponent,
+        defaultConfig: {
+            title: 'My Records',
+            description: '',
+            entityTypeKey: '',
+            maxRecords: 50,
+            showAddButton: true,
+            allowDelete: true,
+            emptyMessage: 'No records found.'
+        },
+        icon: 'people'
+    },
+    {
         name: 'stepper-form',
         component: StepperFormWidgetComponent,
         editorComponent: StepperFormWidgetEditorComponent,
@@ -149,6 +169,34 @@ export const WIDGET_TYPES: WidgetType[] = [
             steps: []
         },
         icon: 'list-ol'
+    },
+    {
+        name: 'onboarding-stepper',
+        component: OnboardingStepperWidgetComponent,
+        editorComponent: StepperFormWidgetEditorComponent,
+        defaultConfig: {
+            title: 'Onboarding',
+            showProgressBar: true,
+            successMessage: 'Thank you for completing your onboarding.',
+            enableCompletionPdf: true,
+            completionPdfMode: 'system',
+            requireSignature: true,
+            completionPdfUrl: '',
+            steps: [],
+            redirectUrl: '/app'
+        },
+        icon: 'pen'
+    },
+    {
+        name: 'onboarding-multi-submit-step',
+        component: OnboardingMultiSubmitStepComponent,
+        editorComponent: OnboardingMultiSubmitStepEditorComponent,
+        defaultConfig: {
+            title: 'Multi-submit onboarding step',
+            stepKey: '',
+            stepKeyOverride: ''
+        },
+        icon: 'list-check'
     },
     {
         name: 'whatsapp',

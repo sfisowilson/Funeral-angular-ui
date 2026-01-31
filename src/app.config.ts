@@ -28,7 +28,8 @@ import {
     Debit_orderServiceProxy,
     Tenant_bankingServiceProxy,
     Tenant_invoiceServiceProxy,
-    NgoServiceProxy
+    NgoServiceProxy,
+    CustomPagesServiceProxy
 } from './app/core/services/service-proxies';
 import { AuthService } from './app/auth/auth-service';
 import { AuthInterceptor } from './app/auth/auth.service';
@@ -57,6 +58,7 @@ export const appConfig: ApplicationConfig = {
         TenantSettingServiceProxy,
         FileUploadServiceProxy,
         MemberProfileCompletionServiceProxy,
+        CustomPagesServiceProxy,
         DependentServiceProxy,
         BeneficiaryServiceProxy,
         TermsServiceProxy,

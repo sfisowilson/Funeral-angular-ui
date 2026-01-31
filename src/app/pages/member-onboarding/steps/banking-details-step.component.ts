@@ -89,60 +89,10 @@ export class BankingDetailsStepComponent implements OnInit {
       accountType: ['', Validators.required],
       branchCode: ['', [Validators.required, Validators.pattern(/^[0-9]{6}$/)]],
       branchName: ['', Validators.required],
-      accountHolderName: ['', Validators.required],
-      debitDay: [null, [Validators.required, Validators.min(1), Validators.max(31)]]
-    });
-  }
+  // Legacy banking-details onboarding step component has been removed.
+  // Banking details should now be managed via standard forms or widgets.
 
-  generateDebitDays(): void {
-    this.debitDays = [];
-    for (let i = 1; i <= 31; i++) {
-      const suffix = i === 1 ? 'st' : i === 2 ? 'nd' : i === 3 ? 'rd' : 'th';
-      this.debitDays.push({ 
-        label: `${i}${suffix} of the month`, 
-        value: i 
-      });
-    }
-  }
-
-  loadExistingBankingDetails(): void {
-    this.loading.set(true);
-    
-    // Use appropriate method based on whether viewing own or another member's banking details
-    const bankingObservable = this.memberId()
-        ? this.bankingService.memberBankingDetail_GetBankingDetailsByMemberId(this.memberId()!)
-        : this.bankingService.memberBankingDetail_GetMyBankingDetails();
-    
-    bankingObservable.subscribe({
-      next: (response) => {
-        const details = response?.result;
-        this.existingBankingDetails.set(details);
-        this.bankingForm.patchValue({
-          bankName: details.bankName,
-          accountNumber: details.accountNumber,
-          accountType: details.accountType,
-          branchCode: details.branchCode,
-          branchName: details.branchName,
-          accountHolderName: details.accountHolderName,
-          debitDay: details.debitDay
-        });
-        this.loading.set(false);
-      },
-      error: (error) => {
-        // If no banking details exist yet, that's fine
-        if (error.status !== 404) {
-          this.handleError(error);
-        }
-        this.loading.set(false);
-      }
-    });
-  }
-
-  onSubmit(): void {
-    if (this.bankingForm.invalid) {
-      this.markFormGroupTouched(this.bankingForm);
-      this.messageService.add({
-        severity: 'warn',
+  export {};
         summary: 'Validation Error',
         detail: 'Please fill in all required fields correctly'
       });

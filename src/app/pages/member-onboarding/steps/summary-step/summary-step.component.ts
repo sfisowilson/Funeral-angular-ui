@@ -1,46 +1,7 @@
-import { Component, input, output, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { environment } from '../../../../../environments/environment';
-import { AuthService } from '../../../../auth/auth-service';
+// Legacy onboarding summary/signature step component has been removed.
+// Summary, signature capture, and completion are now handled by the onboarding-stepper widget.
 
-@Component({
-  selector: 'app-summary-step',
-  standalone: true,
-  imports: [CommonModule, ButtonModule, CardModule, ToastModule],
-  providers: [MessageService],
-  templateUrl: './summary-step.component.html',
-  styleUrl: './summary-step.component.scss'
-})
-export class SummaryStepComponent implements OnInit {
-  viewMode = input<boolean>(false);
-  memberId = input<string | undefined>(undefined);
-  stepComplete = output<void>();
-  
-  pdfUrl = signal<SafeResourceUrl | null>(null);
-  isLoadingPdf = signal(false);
-  isDownloading = signal(false);
-  isSigning = signal(false);
-  
-  // Signature canvas
-  isDrawing = false;
-  signatureDataUrl = signal<string | null>(null);
-  canvas: HTMLCanvasElement | null = null;
-  ctx: CanvasRenderingContext2D | null = null;
-
-  private readonly apiUrl = environment.apiUrl;
-
-  constructor(
-    private http: HttpClient,
-    private sanitizer: DomSanitizer,
-    private messageService: MessageService,
-    private authService: AuthService
-  ) {}
+export {};
 
   ngOnInit() {
     this.loadPdfPreview();

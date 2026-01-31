@@ -21,8 +21,8 @@
 
                     <!-- Text-like inputs -->
                     <input
-                        *ngIf="['text', 'email', 'tel', 'number', 'date'].includes(field.type)"
-                        [type]="field.type === 'date' ? 'date' : field.type"
+                        *ngIf="['text', 'email', 'tel', 'number', 'date', 'idNumber'].includes(field.type)"
+                        [type]="field.type === 'date' ? 'date' : (field.type === 'idNumber' ? 'text' : field.type)"
                         class="form-control"
                         [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
                         [id]="field.name"
@@ -51,6 +51,18 @@
                     >
                         <option value="">Select...</option>
                         <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+                    </select>
+
+                    <!-- Lookup: options from DynamicEntity records -->
+                    <select
+                        *ngIf="field.type === 'lookup'"
+                        class="form-select"
+                        [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                        [id]="field.name"
+                        [formControlName]="field.name"
+                    >
+                        <option value="">Select...</option>
+                        <option *ngFor="let opt of getLookupOptions(field)" [ngValue]="opt.id">{{ opt.label }}</option>
                     </select>
 
                     <!-- Radio buttons -->
@@ -90,6 +102,7 @@
                             <div class="invalid-feedback d-block" *ngIf="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)">
                                 <span *ngIf="formGroup.get(field.name)?.errors?.['required']">This field is required.</span>
                                 <span *ngIf="formGroup.get(field.name)?.errors?.['email']">Please enter a valid email address.</span>
+                                <span *ngIf="formGroup.get(field.name)?.errors?.['saIdNumber']">Please enter a valid South African ID number.</span>
                             </div>
                         </div>
 

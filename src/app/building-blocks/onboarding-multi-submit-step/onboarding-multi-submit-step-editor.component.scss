@@ -1,0 +1,12 @@
+.multi-submit-step-editor {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+
+    .editor-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+}
+

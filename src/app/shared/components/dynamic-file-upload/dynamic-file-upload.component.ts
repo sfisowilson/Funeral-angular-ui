@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, signal, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -332,7 +332,7 @@ export interface UploadedFile {
     `]
 })
 export class DynamicFileUploadComponent implements OnInit {
-    @Input() config = signal<FileUploadConfig>({
+    config = input<FileUploadConfig>({
         label: 'File Upload',
         allowMultiple: false,
         maxFiles: 5,

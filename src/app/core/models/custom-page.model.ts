@@ -13,6 +13,9 @@ export interface CustomPage {
     navbarOrder?: number;
     footerOrder?: number;
     isActive: boolean;
+    isOnboardingPage?: boolean;
+    isBlockingOnboarding?: boolean;
+    requiresOnboardingApproval?: boolean;
     metaTags?: PageMetaTags;
     createdAt?: Date;
     updatedAt?: Date;
@@ -41,6 +44,9 @@ export interface PageListItem {
     isActive: boolean;
     showInNavbar: boolean;
     showInFooter: boolean;
+    isOnboardingPage?: boolean;
+    isBlockingOnboarding?: boolean;
+    requiresOnboardingApproval?: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -54,6 +60,9 @@ export interface CreatePageRequest {
     requiresAuth: boolean;
     showInNavbar: boolean;
     showInFooter: boolean;
+    isOnboardingPage?: boolean;
+    isBlockingOnboarding?: boolean;
+    requiresOnboardingApproval?: boolean;
 }
 
 export interface UpdatePageRequest extends CreatePageRequest {

@@ -1,0 +1,7 @@
+.btn { @apply px-3 py-1 rounded font-medium; }
+.btn-primary { @apply bg-blue-600 text-white; }
+.btn-secondary { @apply bg-gray-600 text-white; }
+.btn-danger { @apply bg-red-600 text-white; }
+.table-auto { @apply border w-full; }
+th, td { @apply px-2 py-1 border; }
+select { @apply border rounded px-2 py-1; }

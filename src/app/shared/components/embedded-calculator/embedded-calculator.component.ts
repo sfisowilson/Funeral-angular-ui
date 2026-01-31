@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -185,7 +185,7 @@ export interface CalculatorResult {
     `]
 })
 export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
-    @Input() config = signal<CalculatorConfig>({
+    config = input<CalculatorConfig>({
         title: 'Premium Calculator',
         showBreakdown: true,
         autoCalculate: true,

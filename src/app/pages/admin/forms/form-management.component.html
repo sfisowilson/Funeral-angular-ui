@@ -198,6 +198,34 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
+                            <label class="form-label">Linked Dynamic Entity Type (optional)</label>
+                            <select
+                                class="form-select"
+                                [(ngModel)]="form.dynamicEntityTypeId"
+                                name="dynamicEntityTypeId"
+                            >
+                                <option [ngValue]="null">-- None --</option>
+                                <option *ngFor="let et of dynamicEntityTypes" [ngValue]="et.id">{{ et.name }}</option>
+                            </select>
+                            <div class="form-text">
+                                When linked, you can import fields from the selected entity type below.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3 d-flex align-items-end">
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary ms-auto"
+                                (click)="importFieldsFromDynamicEntity(getDynamicEntityTypeById(form.dynamicEntityTypeId))"
+                                [disabled]="!form.dynamicEntityTypeId"
+                            >
+                                Import fields from linked entity type
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
                             <label class="form-label">Link submissions to logged-in user</label>
                             <div class="form-check form-switch mt-2">
                                 <input
@@ -253,6 +281,24 @@
                                     When a submission already exists, updating the form should edit the existing submission
                                 </label>
                             </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Access</label>
+                            <div class="form-check form-switch mt-2">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="requireAuthentication"
+                                    name="requireAuthentication"
+                                    [(ngModel)]="form.requireAuthentication"
+                                />
+                                <label class="form-check-label" for="requireAuthentication">
+                                    Require login to view and submit this form
+                                </label>
+                            </div>
+                            <small class="text-muted d-block">
+                                When off, this form can be used on public pages by anonymous visitors.
+                            </small>
                         </div>
                     </div>
 
@@ -794,6 +840,7 @@
                                                     name="fieldType{{i}}"
                                                 >
                                                     <option value="text">Text</option>
+                                                    <option value="idNumber">ID Number</option>
                                                     <option value="email">Email</option>
                                                     <option value="tel">Phone</option>
                                                     <option value="number">Number</option>
@@ -854,7 +901,7 @@
                             </div>
 
                             <small class="form-text text-muted mt-2 d-block">
-                                Supported types: text, email, tel, number, textarea, select, checkbox, radio, date, file. Options are used for select, checkbox and radio
+                                Supported types: text, idNumber, email, tel, number, textarea, select, checkbox, radio, date, file. Options are used for select, checkbox and radio
                                 fields (comma-separated).
                             </small>
                         </div>

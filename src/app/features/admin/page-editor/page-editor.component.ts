@@ -6,9 +6,6 @@ import { ApiServiceProxy, CustomPageDto, UpdatePageDto } from '../../../core/ser
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
-import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PageBuilderComponent } from '../../../building-blocks/page-builder/page-builder.component';
@@ -26,9 +23,6 @@ import { debounceTime, skip } from 'rxjs/operators';
     FormsModule,
     CardModule,
     ButtonModule,
-    InputTextModule,
-    InputTextarea,
-    CheckboxModule,
     ToastModule,
     ProgressSpinnerModule,
     PageBuilderComponent
@@ -92,10 +86,17 @@ export class PageEditorComponent implements OnInit, OnDestroy {
           page.content.forEach((widget: any) => {
             const widgetType = WIDGET_TYPES.find(t => t.name === widget.type);
             if (widgetType) {
+              const rawConfig = widget.config;
+              const settingsFromDb = rawConfig && typeof rawConfig === 'object' && (rawConfig as any).settings
+                ? (rawConfig as any).settings
+                : rawConfig;
+              const layoutFromDb = rawConfig && typeof rawConfig === 'object' ? (rawConfig as any).layout : undefined;
+
               widgets.push({
                 id: widget.id || `widget-${Date.now()}-${Math.random()}`,
                 type: widget.type,
-                settings: widget.config || widgetType.defaultConfig
+                settings: { ...widgetType.defaultConfig, ...(settingsFromDb || {}) },
+                layout: layoutFromDb
               });
             }
           });
@@ -127,7 +128,8 @@ export class PageEditorComponent implements OnInit, OnDestroy {
     const content = widgets.map((widget, index) => ({
       id: widget.id,
       type: widget.type,
-      config: widget.settings,  // Convert settings back to config for API
+      // Persist full widget config (settings + layout). Dynamic page rendering is backward-compatible.
+      config: { settings: widget.settings, layout: widget.layout },
       order: index
     }));
     
@@ -144,6 +146,9 @@ export class PageEditorComponent implements OnInit, OnDestroy {
       isActive: currentPage.isActive,
       navbarOrder: currentPage.navbarOrder,
       footerOrder: currentPage.footerOrder,
+      isOnboardingPage: (currentPage as any).isOnboardingPage,
+      isBlockingOnboarding: (currentPage as any).isBlockingOnboarding,
+      requiresOnboardingApproval: (currentPage as any).requiresOnboardingApproval,
       metaTags: currentPage.metaTags
     });
     this.customPagesService.customPagesPut(currentPage.id, updateRequest).subscribe({
@@ -178,7 +183,7 @@ export class PageEditorComponent implements OnInit, OnDestroy {
     const content = widgets.map((widget, index) => ({
       id: widget.id,
       type: widget.type,
-      config: widget.settings,
+      config: { settings: widget.settings, layout: widget.layout },
       order: index
     }));
     
@@ -195,6 +200,9 @@ export class PageEditorComponent implements OnInit, OnDestroy {
       isActive: currentPage.isActive,
       navbarOrder: currentPage.navbarOrder,
       footerOrder: currentPage.footerOrder,
+      isOnboardingPage: (currentPage as any).isOnboardingPage,
+      isBlockingOnboarding: (currentPage as any).isBlockingOnboarding,
+      requiresOnboardingApproval: (currentPage as any).requiresOnboardingApproval,
       metaTags: currentPage.metaTags
     });
     

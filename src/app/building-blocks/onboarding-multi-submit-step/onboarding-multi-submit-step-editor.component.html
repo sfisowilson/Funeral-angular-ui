@@ -1,0 +1,307 @@
+<div class="multi-submit-step-editor">
+    <h3 class="mb-3">Multi-submit onboarding steps</h3>
+    <p class="text-muted small mb-3">
+        Add one or more onboarding steps that use a multi-submit table. For each step you can choose the
+        underlying onboarding step and define which columns should show in the table.
+    </p>
+
+    <div class="mb-3">
+        <label class="form-label" for="title">Section title</label>
+        <input
+            id="title"
+            type="text"
+            class="form-control"
+            [(ngModel)]="settings.title"
+            placeholder="Title shown above the multi-submit section"
+        />
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <label class="form-label" for="minItems">Minimum Items Required</label>
+        <input
+            id="minItems"
+            type="number"
+            class="form-control"
+            [(ngModel)]="settings.minItems"
+            placeholder="e.g. 1"
+        />
+        <div class="form-text">0 = optional</div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label" for="nextUrl">Next Step URL</label>
+        <input
+            id="nextUrl"
+            type="text"
+            class="form-control"
+            [(ngModel)]="settings.nextUrl"
+            placeholder="/app/onboarding/next-step"
+        />
+        <div class="form-text">Optional: Redirect here on "Next"</div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 class="h6 mb-0">Steps</h4>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addStep()">
+            Add step
+        </button>
+    </div>
+
+    <div *ngIf="editorSteps.length === 0" class="alert alert-info py-2">
+        No multi-submit steps configured yet. Use "Add step" to link this widget to an onboarding step.
+    </div>
+
+    <div *ngFor="let step of editorSteps; let i = index" class="card mb-2">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-light text-dark">Step {{ i + 1 }}</span>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" (click)="moveStepUp(i)" [disabled]="i === 0">
+                        ↑
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        (click)="moveStepDown(i)"
+                        [disabled]="i === editorSteps.length - 1"
+                    >
+                        ↓
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" (click)="removeStep(i)">
+                        Remove
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-2 align-items-center mb-2">
+                <div class="col-md-3">
+                    <label class="form-label">Step type</label>
+                    <select class="form-select" [(ngModel)]="step.type">
+                        <option value="form">Form</option>
+                        <option value="terms">Terms</option>
+                        <option value="complete">Complete</option>
+                    </select>
+                </div>
+                <div class="col-md-9">
+                    <label class="form-label">Step title</label>
+                    <input type="text" class="form-control" [(ngModel)]="step.title" />
+                </div>
+            </div>
+
+            <div class="row g-2 align-items-center mb-2" *ngIf="step.type === 'form'">
+                <div class="col-12">
+                    <label class="form-label">Form</label>
+                    <select
+                        class="form-select"
+                        [(ngModel)]="step.formId"
+                        (ngModelChange)="onFormChange(step)"
+                        [disabled]="loadingForms || loadingSteps"
+                    >
+                        <option [ngValue]="undefined">Select a form...</option>
+                        <option *ngFor="let f of forms" [ngValue]="f.id">
+                            {{ f.name }}
+                            <span *ngIf="f.description"> - {{ f.description }}</span>
+                        </option>
+                    </select>
+                    <div class="form-text">
+                        Choose a form for this step. If it is linked to a dynamic entity, columns will be suggested from that entity's fields (falling back to the form fields if needed).
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-2" *ngIf="step.type === 'form' && step.formId">
+                <div class="form-check mb-2">
+                    <input
+                        type="checkbox"
+                        class="form-check-input"
+                        [id]="'multiStep-' + i"
+                        [(ngModel)]="step.isMultiSubmit"
+                    />
+                    <label class="form-check-label" [attr.for]="'multiStep-' + i">
+                        This is a multi-submit step (members can add multiple rows)
+                    </label>
+                </div>
+
+                <div *ngIf="step.isMultiSubmit">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label mb-0">Table columns</label>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-secondary"
+                        (click)="addColumn(i)"
+                    >
+                        Add column
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%">Field key</th>
+                                <th style="width: 25%">Header</th>
+                                <th style="width: 20%">Width</th>
+                                <th style="width: 20%">Format</th>
+                                <th style="width: 10%"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let col of step.columns; let ci = index">
+                                <td>
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-sm"
+                                        [(ngModel)]="col.fieldKey"
+                                        placeholder="e.g. firstName"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-sm"
+                                        [(ngModel)]="col.header"
+                                        placeholder="e.g. First Name"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-sm"
+                                        [(ngModel)]="col.width"
+                                        placeholder="e.g. 20% or 150px"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-sm"
+                                        [(ngModel)]="col.format"
+                                        placeholder="e.g. date, currency"
+                                    />
+                                </td>
+                                <td class="text-end">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        (click)="removeColumn(i, ci)"
+                                    >
+                                        ✕
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr *ngIf="step.columns.length === 0">
+                                <td colspan="5" class="text-muted small">
+                                    No columns defined yet. Add at least one column to show records in a table.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+
+            <div class="mt-2" *ngIf="step.type === 'terms'">
+                <div class="mb-3">
+                    <label class="form-label">Terms Content (Text)</label>
+                    <textarea 
+                        class="form-control" 
+                        [(ngModel)]="step.termsContent" 
+                        rows="6"
+                        placeholder="Enter the terms and conditions text here..."
+                    ></textarea>
+                    <div class="form-text">This text will be displayed to the user.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Terms PDF (Optional)</label>
+                    <app-dynamic-file-upload
+                        [config]="{
+                            label: 'Upload Terms PDF',
+                            acceptedTypes: ['application/pdf'],
+                            maxFiles: 1,
+                            maxSizeMB: 10
+                        }"
+                        [value]="step.termsPdfPath ? [{
+                            id: 'existing',
+                            fileName: step.termsPdfName || 'Terms.pdf',
+                            filePath: step.termsPdfPath,
+                            fileSize: 0,
+                            uploadDate: null
+                        }] : []"
+                        (filesUploaded)="onTermsFileUploaded(step, $event)"
+                    ></app-dynamic-file-upload>
+                    <div class="form-text">
+                        If provided, a button to view/download the PDF will be shown.
+                    </div>
+                </div>
+                <!-- 
+                <p class="small text-muted mb-0">
+                    This step will show the tenant's current terms and conditions and require acceptance before continuing.
+                </p>
+                -->
+            </div>
+
+            <div class="mt-2" *ngIf="step.type === 'complete'">
+                <h6 class="mb-2">Completion settings</h6>
+                <div class="form-check mb-2">
+                    <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="enableCompletionPdfCheckbox-{{ i }}"
+                        [(ngModel)]="settings.enableCompletionPdf"
+                    />
+                    <label class="form-check-label" for="enableCompletionPdfCheckbox-{{ i }}">
+                        Show a PDF on the final step
+                    </label>
+                </div>
+                <div *ngIf="settings.enableCompletionPdf">
+                    <div class="mb-2">
+                        <label class="form-label">PDF mode</label>
+                        <select class="form-select" [(ngModel)]="settings.completionPdfMode">
+                            <option value="system">System generated PDF</option>
+                            <option value="custom">Custom mapped PDF</option>
+                        </select>
+                        <div class="form-text">
+                            Uses your existing PDF mapping / generation setup. This only controls when the PDF is shown.
+                        </div>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input
+                            type="checkbox"
+                            class="form-check-input"
+                            id="requireSignatureCheckbox-{{ i }}"
+                            [(ngModel)]="settings.requireSignature"
+                        />
+                        <label class="form-check-label" for="requireSignatureCheckbox-{{ i }}">
+                            Require a digital signature on completion
+                        </label>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Completion PDF URL (optional)</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            [(ngModel)]="settings.completionPdfUrl"
+                            placeholder="https://.../your-generated.pdf"
+                        />
+                        <div class="form-text">
+                            If provided, users will see a button to open this PDF when the flow is completed.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="saveMessage" class="alert alert-success py-2 mb-2">
+        {{ saveMessage }}
+    </div>
+    <div *ngIf="saveError" class="alert alert-danger py-2 mb-2">
+        {{ saveError }}
+    </div>
+
+    <div class="editor-actions mt-3">
+        <button type="button" class="btn btn-primary" (click)="save()">Save settings</button>
+    </div>
+</div>

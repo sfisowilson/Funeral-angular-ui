@@ -7592,6 +7592,1035 @@ export class DocumentRequirementServiceProxy {
 }
 
 @Injectable()
+export class DynamicEntityServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    entityType_GetAll(): Observable<SwaggerResponse<DynamicEntityTypeDto[]>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/EntityType_GetAll";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEntityType_GetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEntityType_GetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityTypeDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityTypeDto[]>>;
+        }));
+    }
+
+    protected processEntityType_GetAll(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityTypeDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(DynamicEntityTypeDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityTypeDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    entityType_GetById(id: string): Observable<SwaggerResponse<DynamicEntityTypeDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/EntityType_GetById/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEntityType_GetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEntityType_GetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityTypeDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityTypeDto>>;
+        }));
+    }
+
+    protected processEntityType_GetById(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityTypeDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityTypeDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityTypeDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    entityType_Create(body: CreateDynamicEntityTypeDto | undefined): Observable<SwaggerResponse<DynamicEntityTypeDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/EntityType_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEntityType_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEntityType_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityTypeDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityTypeDto>>;
+        }));
+    }
+
+    protected processEntityType_Create(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityTypeDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityTypeDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityTypeDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    entityType_Update(body: UpdateDynamicEntityTypeDto | undefined): Observable<SwaggerResponse<DynamicEntityTypeDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/EntityType_Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEntityType_Update(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEntityType_Update(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityTypeDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityTypeDto>>;
+        }));
+    }
+
+    protected processEntityType_Update(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityTypeDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityTypeDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityTypeDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    entityType_Delete(id: string): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/EntityType_Delete/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEntityType_Delete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEntityType_Delete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processEntityType_Delete(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param pageNumber (optional) 
+     * @param pageSize (optional) 
+     * @param search (optional) 
+     * @return OK
+     */
+    record_List(entityTypeKey: string, pageNumber: number | undefined, pageSize: number | undefined, search: string | undefined): Observable<SwaggerResponse<PagedDynamicEntityRecordListDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/Record_List/{entityTypeKey}?";
+        if (entityTypeKey === undefined || entityTypeKey === null)
+            throw new globalThis.Error("The parameter 'entityTypeKey' must be defined.");
+        url_ = url_.replace("{entityTypeKey}", encodeURIComponent("" + entityTypeKey));
+        if (pageNumber === null)
+            throw new globalThis.Error("The parameter 'pageNumber' cannot be null.");
+        else if (pageNumber !== undefined)
+            url_ += "pageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (search === null)
+            throw new globalThis.Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecord_List(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecord_List(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PagedDynamicEntityRecordListDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PagedDynamicEntityRecordListDto>>;
+        }));
+    }
+
+    protected processRecord_List(response: HttpResponseBase): Observable<SwaggerResponse<PagedDynamicEntityRecordListDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedDynamicEntityRecordListDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<PagedDynamicEntityRecordListDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    record_GetById(entityTypeKey: string, id: string): Observable<SwaggerResponse<DynamicEntityRecordDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/Record_GetById/{entityTypeKey}/{id}";
+        if (entityTypeKey === undefined || entityTypeKey === null)
+            throw new globalThis.Error("The parameter 'entityTypeKey' must be defined.");
+        url_ = url_.replace("{entityTypeKey}", encodeURIComponent("" + entityTypeKey));
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecord_GetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecord_GetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityRecordDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityRecordDto>>;
+        }));
+    }
+
+    protected processRecord_GetById(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityRecordDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityRecordDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityRecordDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    record_Create(entityTypeKey: string, body: CreateDynamicEntityRecordDto | undefined): Observable<SwaggerResponse<DynamicEntityRecordDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/Record_Create/{entityTypeKey}";
+        if (entityTypeKey === undefined || entityTypeKey === null)
+            throw new globalThis.Error("The parameter 'entityTypeKey' must be defined.");
+        url_ = url_.replace("{entityTypeKey}", encodeURIComponent("" + entityTypeKey));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecord_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecord_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityRecordDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityRecordDto>>;
+        }));
+    }
+
+    protected processRecord_Create(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityRecordDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityRecordDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityRecordDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    record_Update(entityTypeKey: string, body: UpdateDynamicEntityRecordDto | undefined): Observable<SwaggerResponse<DynamicEntityRecordDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/Record_Update/{entityTypeKey}";
+        if (entityTypeKey === undefined || entityTypeKey === null)
+            throw new globalThis.Error("The parameter 'entityTypeKey' must be defined.");
+        url_ = url_.replace("{entityTypeKey}", encodeURIComponent("" + entityTypeKey));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecord_Update(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecord_Update(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityRecordDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityRecordDto>>;
+        }));
+    }
+
+    protected processRecord_Update(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityRecordDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityRecordDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityRecordDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    record_Delete(entityTypeKey: string, id: string): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/Record_Delete/{entityTypeKey}/{id}";
+        if (entityTypeKey === undefined || entityTypeKey === null)
+            throw new globalThis.Error("The parameter 'entityTypeKey' must be defined.");
+        url_ = url_.replace("{entityTypeKey}", encodeURIComponent("" + entityTypeKey));
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecord_Delete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecord_Delete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processRecord_Delete(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    relationDefinition_GetAll(): Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto[]>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/RelationDefinition_GetAll";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRelationDefinition_GetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRelationDefinition_GetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto[]>>;
+        }));
+    }
+
+    protected processRelationDefinition_GetAll(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(DynamicEntityRelationDefinitionDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityRelationDefinitionDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    relationDefinition_GetById(id: string): Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/RelationDefinition_GetById/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRelationDefinition_GetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRelationDefinition_GetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>>;
+        }));
+    }
+
+    protected processRelationDefinition_GetById(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityRelationDefinitionDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityRelationDefinitionDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    relationDefinition_Create(body: CreateDynamicEntityRelationDefinitionDto | undefined): Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/RelationDefinition_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRelationDefinition_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRelationDefinition_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>>;
+        }));
+    }
+
+    protected processRelationDefinition_Create(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityRelationDefinitionDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityRelationDefinitionDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    relationDefinition_Update(body: UpdateDynamicEntityRelationDefinitionDto | undefined): Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/RelationDefinition_Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRelationDefinition_Update(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRelationDefinition_Update(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>>;
+        }));
+    }
+
+    protected processRelationDefinition_Update(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityRelationDefinitionDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityRelationDefinitionDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityRelationDefinitionDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    relationDefinition_Delete(id: string): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/RelationDefinition_Delete/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRelationDefinition_Delete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRelationDefinition_Delete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processRelationDefinition_Delete(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    relations_ForRecord(relationDefinitionId: string, fromRecordId: string): Observable<SwaggerResponse<DynamicEntityRelationDto[]>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/Relations_ForRecord/{relationDefinitionId}/{fromRecordId}";
+        if (relationDefinitionId === undefined || relationDefinitionId === null)
+            throw new globalThis.Error("The parameter 'relationDefinitionId' must be defined.");
+        url_ = url_.replace("{relationDefinitionId}", encodeURIComponent("" + relationDefinitionId));
+        if (fromRecordId === undefined || fromRecordId === null)
+            throw new globalThis.Error("The parameter 'fromRecordId' must be defined.");
+        url_ = url_.replace("{fromRecordId}", encodeURIComponent("" + fromRecordId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRelations_ForRecord(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRelations_ForRecord(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityRelationDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityRelationDto[]>>;
+        }));
+    }
+
+    protected processRelations_ForRecord(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityRelationDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(DynamicEntityRelationDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityRelationDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    relations_SetForRecord(body: SetRelationsForRecordDto | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/Relations_SetForRecord";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRelations_SetForRecord(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRelations_SetForRecord(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processRelations_SetForRecord(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    record_GeneratePdf(entityTypeKey: string, recordId: string, templateFileId: string): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/DynamicEntity/Record_GeneratePdf/{entityTypeKey}/{recordId}/{templateFileId}";
+        if (entityTypeKey === undefined || entityTypeKey === null)
+            throw new globalThis.Error("The parameter 'entityTypeKey' must be defined.");
+        url_ = url_.replace("{entityTypeKey}", encodeURIComponent("" + entityTypeKey));
+        if (recordId === undefined || recordId === null)
+            throw new globalThis.Error("The parameter 'recordId' must be defined.");
+        url_ = url_.replace("{recordId}", encodeURIComponent("" + recordId));
+        if (templateFileId === undefined || templateFileId === null)
+            throw new globalThis.Error("The parameter 'templateFileId' must be defined.");
+        url_ = url_.replace("{templateFileId}", encodeURIComponent("" + templateFileId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecord_GeneratePdf(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecord_GeneratePdf(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processRecord_GeneratePdf(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable()
 export class FileUploadServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -8075,6 +9104,60 @@ export class FormServiceProxy {
     }
 
     protected processForm_GetById(response: HttpResponseBase): Observable<SwaggerResponse<FormDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FormDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<FormDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    form_PublicGetById(id: string): Observable<SwaggerResponse<FormDto>> {
+        let url_ = this.baseUrl + "/api/Form/Form_PublicGetById/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processForm_PublicGetById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processForm_PublicGetById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<FormDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<FormDto>>;
+        }));
+    }
+
+    protected processForm_PublicGetById(response: HttpResponseBase): Observable<SwaggerResponse<FormDto>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -15033,6 +16116,187 @@ export class OnboardingFieldGroupServiceProxy {
     }
 
     protected processOnboardingFieldGroup_Reorder(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable()
+export class OnboardingMultiSubmitServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param stepKey (optional) 
+     * @return OK
+     */
+    onboardingMultiSubmit_GetStepContext(stepKey: string | undefined): Observable<SwaggerResponse<MultiSubmitStepContextDto>> {
+        let url_ = this.baseUrl + "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_GetStepContext?";
+        if (stepKey === null)
+            throw new globalThis.Error("The parameter 'stepKey' cannot be null.");
+        else if (stepKey !== undefined)
+            url_ += "stepKey=" + encodeURIComponent("" + stepKey) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOnboardingMultiSubmit_GetStepContext(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOnboardingMultiSubmit_GetStepContext(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<MultiSubmitStepContextDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<MultiSubmitStepContextDto>>;
+        }));
+    }
+
+    protected processOnboardingMultiSubmit_GetStepContext(response: HttpResponseBase): Observable<SwaggerResponse<MultiSubmitStepContextDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MultiSubmitStepContextDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<MultiSubmitStepContextDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    onboardingMultiSubmit_SaveRecord(body: SaveMultiSubmitRecordDto | undefined): Observable<SwaggerResponse<DynamicEntityRecordDto>> {
+        let url_ = this.baseUrl + "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_SaveRecord";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOnboardingMultiSubmit_SaveRecord(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOnboardingMultiSubmit_SaveRecord(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<DynamicEntityRecordDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<DynamicEntityRecordDto>>;
+        }));
+    }
+
+    protected processOnboardingMultiSubmit_SaveRecord(response: HttpResponseBase): Observable<SwaggerResponse<DynamicEntityRecordDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DynamicEntityRecordDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<DynamicEntityRecordDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param stepKey (optional) 
+     * @param recordId (optional) 
+     * @return OK
+     */
+    onboardingMultiSubmit_DeleteRecord(stepKey: string | undefined, recordId: string | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_DeleteRecord?";
+        if (stepKey === null)
+            throw new globalThis.Error("The parameter 'stepKey' cannot be null.");
+        else if (stepKey !== undefined)
+            url_ += "stepKey=" + encodeURIComponent("" + stepKey) + "&";
+        if (recordId === null)
+            throw new globalThis.Error("The parameter 'recordId' cannot be null.");
+        else if (recordId !== undefined)
+            url_ += "recordId=" + encodeURIComponent("" + recordId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOnboardingMultiSubmit_DeleteRecord(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOnboardingMultiSubmit_DeleteRecord(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processOnboardingMultiSubmit_DeleteRecord(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -31404,11 +32668,177 @@ export interface ICreateDonationSessionDto {
     metadata: { [key: string]: string; } | undefined;
 }
 
+export class CreateDynamicEntityRecordDto implements ICreateDynamicEntityRecordDto {
+    entityTypeId!: string;
+    displayName!: string | undefined;
+    externalKey!: string | undefined;
+    dataJson!: string;
+
+    constructor(data?: ICreateDynamicEntityRecordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.entityTypeId = _data["entityTypeId"];
+            this.displayName = _data["displayName"];
+            this.externalKey = _data["externalKey"];
+            this.dataJson = _data["dataJson"];
+        }
+    }
+
+    static fromJS(data: any): CreateDynamicEntityRecordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateDynamicEntityRecordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["entityTypeId"] = this.entityTypeId;
+        data["displayName"] = this.displayName;
+        data["externalKey"] = this.externalKey;
+        data["dataJson"] = this.dataJson;
+        return data;
+    }
+}
+
+export interface ICreateDynamicEntityRecordDto {
+    entityTypeId: string;
+    displayName: string | undefined;
+    externalKey: string | undefined;
+    dataJson: string;
+}
+
+export class CreateDynamicEntityRelationDefinitionDto implements ICreateDynamicEntityRelationDefinitionDto {
+    name!: string;
+    key!: string;
+    fromEntityTypeId!: string;
+    toEntityTypeId!: string;
+    cardinality!: string;
+    isBidirectional!: boolean;
+    fromLabel!: string | undefined;
+    toLabel!: string | undefined;
+
+    constructor(data?: ICreateDynamicEntityRelationDefinitionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.key = _data["key"];
+            this.fromEntityTypeId = _data["fromEntityTypeId"];
+            this.toEntityTypeId = _data["toEntityTypeId"];
+            this.cardinality = _data["cardinality"];
+            this.isBidirectional = _data["isBidirectional"];
+            this.fromLabel = _data["fromLabel"];
+            this.toLabel = _data["toLabel"];
+        }
+    }
+
+    static fromJS(data: any): CreateDynamicEntityRelationDefinitionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateDynamicEntityRelationDefinitionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["key"] = this.key;
+        data["fromEntityTypeId"] = this.fromEntityTypeId;
+        data["toEntityTypeId"] = this.toEntityTypeId;
+        data["cardinality"] = this.cardinality;
+        data["isBidirectional"] = this.isBidirectional;
+        data["fromLabel"] = this.fromLabel;
+        data["toLabel"] = this.toLabel;
+        return data;
+    }
+}
+
+export interface ICreateDynamicEntityRelationDefinitionDto {
+    name: string;
+    key: string;
+    fromEntityTypeId: string;
+    toEntityTypeId: string;
+    cardinality: string;
+    isBidirectional: boolean;
+    fromLabel: string | undefined;
+    toLabel: string | undefined;
+}
+
+export class CreateDynamicEntityTypeDto implements ICreateDynamicEntityTypeDto {
+    name!: string;
+    key!: string;
+    description!: string | undefined;
+    fieldsJson!: string;
+    isActive!: boolean;
+
+    constructor(data?: ICreateDynamicEntityTypeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.key = _data["key"];
+            this.description = _data["description"];
+            this.fieldsJson = _data["fieldsJson"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CreateDynamicEntityTypeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateDynamicEntityTypeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["key"] = this.key;
+        data["description"] = this.description;
+        data["fieldsJson"] = this.fieldsJson;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface ICreateDynamicEntityTypeDto {
+    name: string;
+    key: string;
+    description: string | undefined;
+    fieldsJson: string;
+    isActive: boolean;
+}
+
 export class CreateFormDto implements ICreateFormDto {
     name!: string;
     description!: string | undefined;
     fields!: string;
+    dynamicEntityTypeId!: string | undefined;
     isActive!: boolean;
+    requireAuthentication!: boolean;
     linkSubmissionsToUser!: boolean;
     allowMultipleSubmissionsPerUser!: boolean;
     prefillLastSubmissionForUser!: boolean;
@@ -31431,7 +32861,9 @@ export class CreateFormDto implements ICreateFormDto {
             this.name = _data["name"];
             this.description = _data["description"];
             this.fields = _data["fields"];
+            this.dynamicEntityTypeId = _data["dynamicEntityTypeId"];
             this.isActive = _data["isActive"];
+            this.requireAuthentication = _data["requireAuthentication"];
             this.linkSubmissionsToUser = _data["linkSubmissionsToUser"];
             this.allowMultipleSubmissionsPerUser = _data["allowMultipleSubmissionsPerUser"];
             this.prefillLastSubmissionForUser = _data["prefillLastSubmissionForUser"];
@@ -31454,7 +32886,9 @@ export class CreateFormDto implements ICreateFormDto {
         data["name"] = this.name;
         data["description"] = this.description;
         data["fields"] = this.fields;
+        data["dynamicEntityTypeId"] = this.dynamicEntityTypeId;
         data["isActive"] = this.isActive;
+        data["requireAuthentication"] = this.requireAuthentication;
         data["linkSubmissionsToUser"] = this.linkSubmissionsToUser;
         data["allowMultipleSubmissionsPerUser"] = this.allowMultipleSubmissionsPerUser;
         data["prefillLastSubmissionForUser"] = this.prefillLastSubmissionForUser;
@@ -31470,7 +32904,9 @@ export interface ICreateFormDto {
     name: string;
     description: string | undefined;
     fields: string;
+    dynamicEntityTypeId: string | undefined;
     isActive: boolean;
+    requireAuthentication: boolean;
     linkSubmissionsToUser: boolean;
     allowMultipleSubmissionsPerUser: boolean;
     prefillLastSubmissionForUser: boolean;
@@ -32048,6 +33484,10 @@ export class CreateOnboardingStepConfigurationDto implements ICreateOnboardingSt
     description!: string | undefined;
     icon!: string | undefined;
     isSkippable!: boolean;
+    formId!: string | undefined;
+    dynamicEntityTypeKey!: string | undefined;
+    formDisplayMode!: string | undefined;
+    listDisplayConfig!: string | undefined;
     pdfTemplateFileId!: string | undefined;
     autoGeneratePdf!: boolean;
     includeStepDataKeys!: string | undefined;
@@ -32081,6 +33521,10 @@ export class CreateOnboardingStepConfigurationDto implements ICreateOnboardingSt
             this.description = _data["description"];
             this.icon = _data["icon"];
             this.isSkippable = _data["isSkippable"];
+            this.formId = _data["formId"];
+            this.dynamicEntityTypeKey = _data["dynamicEntityTypeKey"];
+            this.formDisplayMode = _data["formDisplayMode"];
+            this.listDisplayConfig = _data["listDisplayConfig"];
             this.pdfTemplateFileId = _data["pdfTemplateFileId"];
             this.autoGeneratePdf = _data["autoGeneratePdf"];
             this.includeStepDataKeys = _data["includeStepDataKeys"];
@@ -32114,6 +33558,10 @@ export class CreateOnboardingStepConfigurationDto implements ICreateOnboardingSt
         data["description"] = this.description;
         data["icon"] = this.icon;
         data["isSkippable"] = this.isSkippable;
+        data["formId"] = this.formId;
+        data["dynamicEntityTypeKey"] = this.dynamicEntityTypeKey;
+        data["formDisplayMode"] = this.formDisplayMode;
+        data["listDisplayConfig"] = this.listDisplayConfig;
         data["pdfTemplateFileId"] = this.pdfTemplateFileId;
         data["autoGeneratePdf"] = this.autoGeneratePdf;
         data["includeStepDataKeys"] = this.includeStepDataKeys;
@@ -32140,6 +33588,10 @@ export interface ICreateOnboardingStepConfigurationDto {
     description: string | undefined;
     icon: string | undefined;
     isSkippable: boolean;
+    formId: string | undefined;
+    dynamicEntityTypeKey: string | undefined;
+    formDisplayMode: string | undefined;
+    listDisplayConfig: string | undefined;
     pdfTemplateFileId: string | undefined;
     autoGeneratePdf: boolean;
     includeStepDataKeys: string | undefined;
@@ -32346,6 +33798,9 @@ export class CreatePageDto implements ICreatePageDto {
     requiresAuth!: boolean;
     showInNavbar!: boolean;
     showInFooter!: boolean;
+    isOnboardingPage!: boolean;
+    isBlockingOnboarding!: boolean;
+    requiresOnboardingApproval!: boolean;
 
     constructor(data?: ICreatePageDto) {
         if (data) {
@@ -32366,6 +33821,9 @@ export class CreatePageDto implements ICreatePageDto {
             this.requiresAuth = _data["requiresAuth"];
             this.showInNavbar = _data["showInNavbar"];
             this.showInFooter = _data["showInFooter"];
+            this.isOnboardingPage = _data["isOnboardingPage"];
+            this.isBlockingOnboarding = _data["isBlockingOnboarding"];
+            this.requiresOnboardingApproval = _data["requiresOnboardingApproval"];
         }
     }
 
@@ -32386,6 +33844,9 @@ export class CreatePageDto implements ICreatePageDto {
         data["requiresAuth"] = this.requiresAuth;
         data["showInNavbar"] = this.showInNavbar;
         data["showInFooter"] = this.showInFooter;
+        data["isOnboardingPage"] = this.isOnboardingPage;
+        data["isBlockingOnboarding"] = this.isBlockingOnboarding;
+        data["requiresOnboardingApproval"] = this.requiresOnboardingApproval;
         return data;
     }
 }
@@ -32399,6 +33860,9 @@ export interface ICreatePageDto {
     requiresAuth: boolean;
     showInNavbar: boolean;
     showInFooter: boolean;
+    isOnboardingPage: boolean;
+    isBlockingOnboarding: boolean;
+    requiresOnboardingApproval: boolean;
 }
 
 export class CreatePaymentSessionDto implements ICreatePaymentSessionDto {
@@ -33235,6 +34699,9 @@ export class CustomPageDto implements ICustomPageDto {
     navbarOrder!: number | undefined;
     footerOrder!: number | undefined;
     isActive!: boolean;
+    isOnboardingPage!: boolean;
+    isBlockingOnboarding!: boolean;
+    requiresOnboardingApproval!: boolean;
     metaTags!: PageMetaTagsDto;
     createdAt!: DateTime;
     updatedAt!: DateTime;
@@ -33267,6 +34734,9 @@ export class CustomPageDto implements ICustomPageDto {
             this.navbarOrder = _data["navbarOrder"];
             this.footerOrder = _data["footerOrder"];
             this.isActive = _data["isActive"];
+            this.isOnboardingPage = _data["isOnboardingPage"];
+            this.isBlockingOnboarding = _data["isBlockingOnboarding"];
+            this.requiresOnboardingApproval = _data["requiresOnboardingApproval"];
             this.metaTags = _data["metaTags"] ? PageMetaTagsDto.fromJS(_data["metaTags"]) : undefined as any;
             this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
@@ -33299,6 +34769,9 @@ export class CustomPageDto implements ICustomPageDto {
         data["navbarOrder"] = this.navbarOrder;
         data["footerOrder"] = this.footerOrder;
         data["isActive"] = this.isActive;
+        data["isOnboardingPage"] = this.isOnboardingPage;
+        data["isBlockingOnboarding"] = this.isBlockingOnboarding;
+        data["requiresOnboardingApproval"] = this.requiresOnboardingApproval;
         data["metaTags"] = this.metaTags ? this.metaTags.toJSON() : undefined as any;
         data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
@@ -33320,6 +34793,9 @@ export interface ICustomPageDto {
     navbarOrder: number | undefined;
     footerOrder: number | undefined;
     isActive: boolean;
+    isOnboardingPage: boolean;
+    isBlockingOnboarding: boolean;
+    requiresOnboardingApproval: boolean;
     metaTags: PageMetaTagsDto;
     createdAt: DateTime;
     updatedAt: DateTime;
@@ -34375,6 +35851,246 @@ export interface IDonorRecognition {
     updatedAt: DateTime;
 }
 
+export class DynamicEntityRecordDto implements IDynamicEntityRecordDto {
+    id!: string;
+    tenantId!: string;
+    entityTypeId!: string;
+    displayName!: string | undefined;
+    externalKey!: string | undefined;
+    dataJson!: string | undefined;
+
+    constructor(data?: IDynamicEntityRecordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.entityTypeId = _data["entityTypeId"];
+            this.displayName = _data["displayName"];
+            this.externalKey = _data["externalKey"];
+            this.dataJson = _data["dataJson"];
+        }
+    }
+
+    static fromJS(data: any): DynamicEntityRecordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DynamicEntityRecordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["entityTypeId"] = this.entityTypeId;
+        data["displayName"] = this.displayName;
+        data["externalKey"] = this.externalKey;
+        data["dataJson"] = this.dataJson;
+        return data;
+    }
+}
+
+export interface IDynamicEntityRecordDto {
+    id: string;
+    tenantId: string;
+    entityTypeId: string;
+    displayName: string | undefined;
+    externalKey: string | undefined;
+    dataJson: string | undefined;
+}
+
+export class DynamicEntityRelationDefinitionDto implements IDynamicEntityRelationDefinitionDto {
+    id!: string;
+    tenantId!: string;
+    name!: string | undefined;
+    key!: string | undefined;
+    fromEntityTypeId!: string;
+    toEntityTypeId!: string;
+    cardinality!: string | undefined;
+    isBidirectional!: boolean;
+    fromLabel!: string | undefined;
+    toLabel!: string | undefined;
+
+    constructor(data?: IDynamicEntityRelationDefinitionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.key = _data["key"];
+            this.fromEntityTypeId = _data["fromEntityTypeId"];
+            this.toEntityTypeId = _data["toEntityTypeId"];
+            this.cardinality = _data["cardinality"];
+            this.isBidirectional = _data["isBidirectional"];
+            this.fromLabel = _data["fromLabel"];
+            this.toLabel = _data["toLabel"];
+        }
+    }
+
+    static fromJS(data: any): DynamicEntityRelationDefinitionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DynamicEntityRelationDefinitionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["key"] = this.key;
+        data["fromEntityTypeId"] = this.fromEntityTypeId;
+        data["toEntityTypeId"] = this.toEntityTypeId;
+        data["cardinality"] = this.cardinality;
+        data["isBidirectional"] = this.isBidirectional;
+        data["fromLabel"] = this.fromLabel;
+        data["toLabel"] = this.toLabel;
+        return data;
+    }
+}
+
+export interface IDynamicEntityRelationDefinitionDto {
+    id: string;
+    tenantId: string;
+    name: string | undefined;
+    key: string | undefined;
+    fromEntityTypeId: string;
+    toEntityTypeId: string;
+    cardinality: string | undefined;
+    isBidirectional: boolean;
+    fromLabel: string | undefined;
+    toLabel: string | undefined;
+}
+
+export class DynamicEntityRelationDto implements IDynamicEntityRelationDto {
+    id!: string;
+    tenantId!: string;
+    relationDefinitionId!: string;
+    fromRecordId!: string;
+    toRecordId!: string;
+
+    constructor(data?: IDynamicEntityRelationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.relationDefinitionId = _data["relationDefinitionId"];
+            this.fromRecordId = _data["fromRecordId"];
+            this.toRecordId = _data["toRecordId"];
+        }
+    }
+
+    static fromJS(data: any): DynamicEntityRelationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DynamicEntityRelationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["relationDefinitionId"] = this.relationDefinitionId;
+        data["fromRecordId"] = this.fromRecordId;
+        data["toRecordId"] = this.toRecordId;
+        return data;
+    }
+}
+
+export interface IDynamicEntityRelationDto {
+    id: string;
+    tenantId: string;
+    relationDefinitionId: string;
+    fromRecordId: string;
+    toRecordId: string;
+}
+
+export class DynamicEntityTypeDto implements IDynamicEntityTypeDto {
+    id!: string;
+    tenantId!: string;
+    name!: string | undefined;
+    key!: string | undefined;
+    description!: string | undefined;
+    fieldsJson!: string | undefined;
+    isActive!: boolean;
+
+    constructor(data?: IDynamicEntityTypeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.name = _data["name"];
+            this.key = _data["key"];
+            this.description = _data["description"];
+            this.fieldsJson = _data["fieldsJson"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): DynamicEntityTypeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DynamicEntityTypeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["name"] = this.name;
+        data["key"] = this.key;
+        data["description"] = this.description;
+        data["fieldsJson"] = this.fieldsJson;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IDynamicEntityTypeDto {
+    id: string;
+    tenantId: string;
+    name: string | undefined;
+    key: string | undefined;
+    description: string | undefined;
+    fieldsJson: string | undefined;
+    isActive: boolean;
+}
+
 export class EnhancedCreateClaimDto implements IEnhancedCreateClaimDto {
     memberId!: string;
     policyId!: string;
@@ -34818,6 +36534,7 @@ export class FormDto implements IFormDto {
     description!: string | undefined;
     fields!: string | undefined;
     isActive!: boolean;
+    requireAuthentication!: boolean;
     notificationEmail!: string | undefined;
     successMessage!: string | undefined;
     createdAt!: DateTime;
@@ -34828,6 +36545,9 @@ export class FormDto implements IFormDto {
     prefillLastSubmissionForUser!: boolean;
     allowUserToEditSubmission!: boolean;
     calculatorConfig!: string | undefined;
+    dynamicEntityTypeId!: string | undefined;
+    dynamicEntityTypeKey!: string | undefined;
+    dynamicEntityTypeName!: string | undefined;
 
     constructor(data?: IFormDto) {
         if (data) {
@@ -34846,6 +36566,7 @@ export class FormDto implements IFormDto {
             this.description = _data["description"];
             this.fields = _data["fields"];
             this.isActive = _data["isActive"];
+            this.requireAuthentication = _data["requireAuthentication"];
             this.notificationEmail = _data["notificationEmail"];
             this.successMessage = _data["successMessage"];
             this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
@@ -34856,6 +36577,9 @@ export class FormDto implements IFormDto {
             this.prefillLastSubmissionForUser = _data["prefillLastSubmissionForUser"];
             this.allowUserToEditSubmission = _data["allowUserToEditSubmission"];
             this.calculatorConfig = _data["calculatorConfig"];
+            this.dynamicEntityTypeId = _data["dynamicEntityTypeId"];
+            this.dynamicEntityTypeKey = _data["dynamicEntityTypeKey"];
+            this.dynamicEntityTypeName = _data["dynamicEntityTypeName"];
         }
     }
 
@@ -34874,6 +36598,7 @@ export class FormDto implements IFormDto {
         data["description"] = this.description;
         data["fields"] = this.fields;
         data["isActive"] = this.isActive;
+        data["requireAuthentication"] = this.requireAuthentication;
         data["notificationEmail"] = this.notificationEmail;
         data["successMessage"] = this.successMessage;
         data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
@@ -34884,6 +36609,9 @@ export class FormDto implements IFormDto {
         data["prefillLastSubmissionForUser"] = this.prefillLastSubmissionForUser;
         data["allowUserToEditSubmission"] = this.allowUserToEditSubmission;
         data["calculatorConfig"] = this.calculatorConfig;
+        data["dynamicEntityTypeId"] = this.dynamicEntityTypeId;
+        data["dynamicEntityTypeKey"] = this.dynamicEntityTypeKey;
+        data["dynamicEntityTypeName"] = this.dynamicEntityTypeName;
         return data;
     }
 }
@@ -34895,6 +36623,7 @@ export interface IFormDto {
     description: string | undefined;
     fields: string | undefined;
     isActive: boolean;
+    requireAuthentication: boolean;
     notificationEmail: string | undefined;
     successMessage: string | undefined;
     createdAt: DateTime;
@@ -34905,6 +36634,9 @@ export interface IFormDto {
     prefillLastSubmissionForUser: boolean;
     allowUserToEditSubmission: boolean;
     calculatorConfig: string | undefined;
+    dynamicEntityTypeId: string | undefined;
+    dynamicEntityTypeKey: string | undefined;
+    dynamicEntityTypeName: string | undefined;
 }
 
 export class FormListResponseDto implements IFormListResponseDto {
@@ -37487,6 +39219,54 @@ export enum MemberStatus {
     _3 = 3,
 }
 
+export class MultiSubmitStepContextDto implements IMultiSubmitStepContextDto {
+    step!: OnboardingStepConfigurationDto;
+    records!: DynamicEntityRecordDto[] | undefined;
+
+    constructor(data?: IMultiSubmitStepContextDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.step = _data["step"] ? OnboardingStepConfigurationDto.fromJS(_data["step"]) : undefined as any;
+            if (Array.isArray(_data["records"])) {
+                this.records = [] as any;
+                for (let item of _data["records"])
+                    this.records!.push(DynamicEntityRecordDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): MultiSubmitStepContextDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MultiSubmitStepContextDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["step"] = this.step ? this.step.toJSON() : undefined as any;
+        if (Array.isArray(this.records)) {
+            data["records"] = [];
+            for (let item of this.records)
+                data["records"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface IMultiSubmitStepContextDto {
+    step: OnboardingStepConfigurationDto;
+    records: DynamicEntityRecordDto[] | undefined;
+}
+
 export class NgoBlogPost implements INgoBlogPost {
     id!: number;
     title!: string;
@@ -37963,6 +39743,146 @@ export interface IOnboardingFieldData {
     fieldType: string | undefined;
 }
 
+export class OnboardingStepConfigurationDto implements IOnboardingStepConfigurationDto {
+    id!: string;
+    tenantId!: string;
+    stepType!: OnboardingStepType;
+    stepKey!: string | undefined;
+    stepLabel!: string | undefined;
+    tenantTypeFilter!: string | undefined;
+    displayOrder!: number;
+    isRequired!: boolean;
+    isEnabled!: boolean;
+    description!: string | undefined;
+    icon!: string | undefined;
+    isSkippable!: boolean;
+    formId!: string | undefined;
+    dynamicEntityTypeKey!: string | undefined;
+    dynamicEntityTypeId!: string | undefined;
+    formDisplayMode!: string | undefined;
+    listDisplayConfig!: string | undefined;
+    pdfTemplateFileId!: string | undefined;
+    autoGeneratePdf!: boolean;
+    includeStepDataKeys!: string | undefined;
+    requireTypedSignature!: boolean;
+    termsContentMode!: string | undefined;
+    termsPdfFileId!: string | undefined;
+    termsTextContent!: string | undefined;
+    termsTitle!: string | undefined;
+    termsAcceptanceLabel!: string | undefined;
+    requireFullReview!: boolean;
+
+    constructor(data?: IOnboardingStepConfigurationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenantId = _data["tenantId"];
+            this.stepType = _data["stepType"];
+            this.stepKey = _data["stepKey"];
+            this.stepLabel = _data["stepLabel"];
+            this.tenantTypeFilter = _data["tenantTypeFilter"];
+            this.displayOrder = _data["displayOrder"];
+            this.isRequired = _data["isRequired"];
+            this.isEnabled = _data["isEnabled"];
+            this.description = _data["description"];
+            this.icon = _data["icon"];
+            this.isSkippable = _data["isSkippable"];
+            this.formId = _data["formId"];
+            this.dynamicEntityTypeKey = _data["dynamicEntityTypeKey"];
+            this.dynamicEntityTypeId = _data["dynamicEntityTypeId"];
+            this.formDisplayMode = _data["formDisplayMode"];
+            this.listDisplayConfig = _data["listDisplayConfig"];
+            this.pdfTemplateFileId = _data["pdfTemplateFileId"];
+            this.autoGeneratePdf = _data["autoGeneratePdf"];
+            this.includeStepDataKeys = _data["includeStepDataKeys"];
+            this.requireTypedSignature = _data["requireTypedSignature"];
+            this.termsContentMode = _data["termsContentMode"];
+            this.termsPdfFileId = _data["termsPdfFileId"];
+            this.termsTextContent = _data["termsTextContent"];
+            this.termsTitle = _data["termsTitle"];
+            this.termsAcceptanceLabel = _data["termsAcceptanceLabel"];
+            this.requireFullReview = _data["requireFullReview"];
+        }
+    }
+
+    static fromJS(data: any): OnboardingStepConfigurationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OnboardingStepConfigurationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenantId"] = this.tenantId;
+        data["stepType"] = this.stepType;
+        data["stepKey"] = this.stepKey;
+        data["stepLabel"] = this.stepLabel;
+        data["tenantTypeFilter"] = this.tenantTypeFilter;
+        data["displayOrder"] = this.displayOrder;
+        data["isRequired"] = this.isRequired;
+        data["isEnabled"] = this.isEnabled;
+        data["description"] = this.description;
+        data["icon"] = this.icon;
+        data["isSkippable"] = this.isSkippable;
+        data["formId"] = this.formId;
+        data["dynamicEntityTypeKey"] = this.dynamicEntityTypeKey;
+        data["dynamicEntityTypeId"] = this.dynamicEntityTypeId;
+        data["formDisplayMode"] = this.formDisplayMode;
+        data["listDisplayConfig"] = this.listDisplayConfig;
+        data["pdfTemplateFileId"] = this.pdfTemplateFileId;
+        data["autoGeneratePdf"] = this.autoGeneratePdf;
+        data["includeStepDataKeys"] = this.includeStepDataKeys;
+        data["requireTypedSignature"] = this.requireTypedSignature;
+        data["termsContentMode"] = this.termsContentMode;
+        data["termsPdfFileId"] = this.termsPdfFileId;
+        data["termsTextContent"] = this.termsTextContent;
+        data["termsTitle"] = this.termsTitle;
+        data["termsAcceptanceLabel"] = this.termsAcceptanceLabel;
+        data["requireFullReview"] = this.requireFullReview;
+        return data;
+    }
+}
+
+export interface IOnboardingStepConfigurationDto {
+    id: string;
+    tenantId: string;
+    stepType: OnboardingStepType;
+    stepKey: string | undefined;
+    stepLabel: string | undefined;
+    tenantTypeFilter: string | undefined;
+    displayOrder: number;
+    isRequired: boolean;
+    isEnabled: boolean;
+    description: string | undefined;
+    icon: string | undefined;
+    isSkippable: boolean;
+    formId: string | undefined;
+    dynamicEntityTypeKey: string | undefined;
+    dynamicEntityTypeId: string | undefined;
+    formDisplayMode: string | undefined;
+    listDisplayConfig: string | undefined;
+    pdfTemplateFileId: string | undefined;
+    autoGeneratePdf: boolean;
+    includeStepDataKeys: string | undefined;
+    requireTypedSignature: boolean;
+    termsContentMode: string | undefined;
+    termsPdfFileId: string | undefined;
+    termsTextContent: string | undefined;
+    termsTitle: string | undefined;
+    termsAcceptanceLabel: string | undefined;
+    requireFullReview: boolean;
+}
+
 export enum OnboardingStepType {
     _0 = 0,
     _1 = 1,
@@ -38331,6 +40251,9 @@ export class PageListItemDto implements IPageListItemDto {
     isActive!: boolean;
     showInNavbar!: boolean;
     showInFooter!: boolean;
+    isOnboardingPage!: boolean;
+    isBlockingOnboarding!: boolean;
+    requiresOnboardingApproval!: boolean;
     createdAt!: DateTime;
     updatedAt!: DateTime;
 
@@ -38353,6 +40276,9 @@ export class PageListItemDto implements IPageListItemDto {
             this.isActive = _data["isActive"];
             this.showInNavbar = _data["showInNavbar"];
             this.showInFooter = _data["showInFooter"];
+            this.isOnboardingPage = _data["isOnboardingPage"];
+            this.isBlockingOnboarding = _data["isBlockingOnboarding"];
+            this.requiresOnboardingApproval = _data["requiresOnboardingApproval"];
             this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
         }
@@ -38375,6 +40301,9 @@ export class PageListItemDto implements IPageListItemDto {
         data["isActive"] = this.isActive;
         data["showInNavbar"] = this.showInNavbar;
         data["showInFooter"] = this.showInFooter;
+        data["isOnboardingPage"] = this.isOnboardingPage;
+        data["isBlockingOnboarding"] = this.isBlockingOnboarding;
+        data["requiresOnboardingApproval"] = this.requiresOnboardingApproval;
         data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
         return data;
@@ -38390,6 +40319,9 @@ export interface IPageListItemDto {
     isActive: boolean;
     showInNavbar: boolean;
     showInFooter: boolean;
+    isOnboardingPage: boolean;
+    isBlockingOnboarding: boolean;
+    requiresOnboardingApproval: boolean;
     createdAt: DateTime;
     updatedAt: DateTime;
 }
@@ -38488,6 +40420,62 @@ export interface IPageWidgetDto {
     type: string | undefined;
     config: any | undefined;
     order: number;
+}
+
+export class PagedDynamicEntityRecordListDto implements IPagedDynamicEntityRecordListDto {
+    records!: DynamicEntityRecordDto[] | undefined;
+    totalCount!: number;
+    pageNumber!: number;
+    pageSize!: number;
+
+    constructor(data?: IPagedDynamicEntityRecordListDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["records"])) {
+                this.records = [] as any;
+                for (let item of _data["records"])
+                    this.records!.push(DynamicEntityRecordDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+            this.pageNumber = _data["pageNumber"];
+            this.pageSize = _data["pageSize"];
+        }
+    }
+
+    static fromJS(data: any): PagedDynamicEntityRecordListDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedDynamicEntityRecordListDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.records)) {
+            data["records"] = [];
+            for (let item of this.records)
+                data["records"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["totalCount"] = this.totalCount;
+        data["pageNumber"] = this.pageNumber;
+        data["pageSize"] = this.pageSize;
+        return data;
+    }
+}
+
+export interface IPagedDynamicEntityRecordListDto {
+    records: DynamicEntityRecordDto[] | undefined;
+    totalCount: number;
+    pageNumber: number;
+    pageSize: number;
 }
 
 export class Payment implements IPayment {
@@ -42343,6 +44331,54 @@ export interface ISaveMemberOnboardingDataDto {
     fieldValues: { [key: string]: string; };
 }
 
+export class SaveMultiSubmitRecordDto implements ISaveMultiSubmitRecordDto {
+    stepKey!: string | undefined;
+    id!: string | undefined;
+    displayName!: string | undefined;
+    dataJson!: string | undefined;
+
+    constructor(data?: ISaveMultiSubmitRecordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.stepKey = _data["stepKey"];
+            this.id = _data["id"];
+            this.displayName = _data["displayName"];
+            this.dataJson = _data["dataJson"];
+        }
+    }
+
+    static fromJS(data: any): SaveMultiSubmitRecordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SaveMultiSubmitRecordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["stepKey"] = this.stepKey;
+        data["id"] = this.id;
+        data["displayName"] = this.displayName;
+        data["dataJson"] = this.dataJson;
+        return data;
+    }
+}
+
+export interface ISaveMultiSubmitRecordDto {
+    stepKey: string | undefined;
+    id: string | undefined;
+    displayName: string | undefined;
+    dataJson: string | undefined;
+}
+
 export class SaveSignatureDto implements ISaveSignatureDto {
     signatureDataUrl!: string;
 
@@ -42461,6 +44497,61 @@ export class SendBookingNotificationDto implements ISendBookingNotificationDto {
 export interface ISendBookingNotificationDto {
     booking: BookingDto;
     config: BookingNotificationConfigDto;
+}
+
+export class SetRelationsForRecordDto implements ISetRelationsForRecordDto {
+    relationDefinitionId!: string;
+    fromRecordId!: string;
+    toRecordIds!: string[];
+
+    constructor(data?: ISetRelationsForRecordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.toRecordIds = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.relationDefinitionId = _data["relationDefinitionId"];
+            this.fromRecordId = _data["fromRecordId"];
+            if (Array.isArray(_data["toRecordIds"])) {
+                this.toRecordIds = [] as any;
+                for (let item of _data["toRecordIds"])
+                    this.toRecordIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): SetRelationsForRecordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SetRelationsForRecordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["relationDefinitionId"] = this.relationDefinitionId;
+        data["fromRecordId"] = this.fromRecordId;
+        if (Array.isArray(this.toRecordIds)) {
+            data["toRecordIds"] = [];
+            for (let item of this.toRecordIds)
+                data["toRecordIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ISetRelationsForRecordDto {
+    relationDefinitionId: string;
+    fromRecordId: string;
+    toRecordIds: string[];
 }
 
 export class SignContractRequest implements ISignContractRequest {
@@ -44508,6 +46599,182 @@ export interface IUpdateDashboardWidgetSettingDto {
     displayOrder: number;
 }
 
+export class UpdateDynamicEntityRecordDto implements IUpdateDynamicEntityRecordDto {
+    id!: string;
+    entityTypeId!: string;
+    displayName!: string | undefined;
+    externalKey!: string | undefined;
+    dataJson!: string;
+
+    constructor(data?: IUpdateDynamicEntityRecordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.entityTypeId = _data["entityTypeId"];
+            this.displayName = _data["displayName"];
+            this.externalKey = _data["externalKey"];
+            this.dataJson = _data["dataJson"];
+        }
+    }
+
+    static fromJS(data: any): UpdateDynamicEntityRecordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDynamicEntityRecordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["entityTypeId"] = this.entityTypeId;
+        data["displayName"] = this.displayName;
+        data["externalKey"] = this.externalKey;
+        data["dataJson"] = this.dataJson;
+        return data;
+    }
+}
+
+export interface IUpdateDynamicEntityRecordDto {
+    id: string;
+    entityTypeId: string;
+    displayName: string | undefined;
+    externalKey: string | undefined;
+    dataJson: string;
+}
+
+export class UpdateDynamicEntityRelationDefinitionDto implements IUpdateDynamicEntityRelationDefinitionDto {
+    id!: string;
+    name!: string;
+    key!: string;
+    fromEntityTypeId!: string;
+    toEntityTypeId!: string;
+    cardinality!: string;
+    isBidirectional!: boolean;
+    fromLabel!: string | undefined;
+    toLabel!: string | undefined;
+
+    constructor(data?: IUpdateDynamicEntityRelationDefinitionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.key = _data["key"];
+            this.fromEntityTypeId = _data["fromEntityTypeId"];
+            this.toEntityTypeId = _data["toEntityTypeId"];
+            this.cardinality = _data["cardinality"];
+            this.isBidirectional = _data["isBidirectional"];
+            this.fromLabel = _data["fromLabel"];
+            this.toLabel = _data["toLabel"];
+        }
+    }
+
+    static fromJS(data: any): UpdateDynamicEntityRelationDefinitionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDynamicEntityRelationDefinitionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["key"] = this.key;
+        data["fromEntityTypeId"] = this.fromEntityTypeId;
+        data["toEntityTypeId"] = this.toEntityTypeId;
+        data["cardinality"] = this.cardinality;
+        data["isBidirectional"] = this.isBidirectional;
+        data["fromLabel"] = this.fromLabel;
+        data["toLabel"] = this.toLabel;
+        return data;
+    }
+}
+
+export interface IUpdateDynamicEntityRelationDefinitionDto {
+    id: string;
+    name: string;
+    key: string;
+    fromEntityTypeId: string;
+    toEntityTypeId: string;
+    cardinality: string;
+    isBidirectional: boolean;
+    fromLabel: string | undefined;
+    toLabel: string | undefined;
+}
+
+export class UpdateDynamicEntityTypeDto implements IUpdateDynamicEntityTypeDto {
+    id!: string;
+    name!: string;
+    key!: string;
+    description!: string | undefined;
+    fieldsJson!: string;
+    isActive!: boolean;
+
+    constructor(data?: IUpdateDynamicEntityTypeDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.key = _data["key"];
+            this.description = _data["description"];
+            this.fieldsJson = _data["fieldsJson"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): UpdateDynamicEntityTypeDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateDynamicEntityTypeDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["key"] = this.key;
+        data["description"] = this.description;
+        data["fieldsJson"] = this.fieldsJson;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IUpdateDynamicEntityTypeDto {
+    id: string;
+    name: string;
+    key: string;
+    description: string | undefined;
+    fieldsJson: string;
+    isActive: boolean;
+}
+
 export class UpdateFieldOrderDto implements IUpdateFieldOrderDto {
     fieldId!: string;
     displayOrder!: number;
@@ -44552,8 +46819,10 @@ export class UpdateFormDto implements IUpdateFormDto {
     name!: string;
     description!: string | undefined;
     fields!: string;
+    dynamicEntityTypeId!: string | undefined;
     isActive!: boolean;
     linkSubmissionsToUser!: boolean;
+    requireAuthentication!: boolean;
     allowMultipleSubmissionsPerUser!: boolean;
     prefillLastSubmissionForUser!: boolean;
     allowUserToEditSubmission!: boolean;
@@ -44575,8 +46844,10 @@ export class UpdateFormDto implements IUpdateFormDto {
             this.name = _data["name"];
             this.description = _data["description"];
             this.fields = _data["fields"];
+            this.dynamicEntityTypeId = _data["dynamicEntityTypeId"];
             this.isActive = _data["isActive"];
             this.linkSubmissionsToUser = _data["linkSubmissionsToUser"];
+            this.requireAuthentication = _data["requireAuthentication"];
             this.allowMultipleSubmissionsPerUser = _data["allowMultipleSubmissionsPerUser"];
             this.prefillLastSubmissionForUser = _data["prefillLastSubmissionForUser"];
             this.allowUserToEditSubmission = _data["allowUserToEditSubmission"];
@@ -44598,8 +46869,10 @@ export class UpdateFormDto implements IUpdateFormDto {
         data["name"] = this.name;
         data["description"] = this.description;
         data["fields"] = this.fields;
+        data["dynamicEntityTypeId"] = this.dynamicEntityTypeId;
         data["isActive"] = this.isActive;
         data["linkSubmissionsToUser"] = this.linkSubmissionsToUser;
+        data["requireAuthentication"] = this.requireAuthentication;
         data["allowMultipleSubmissionsPerUser"] = this.allowMultipleSubmissionsPerUser;
         data["prefillLastSubmissionForUser"] = this.prefillLastSubmissionForUser;
         data["allowUserToEditSubmission"] = this.allowUserToEditSubmission;
@@ -44614,8 +46887,10 @@ export interface IUpdateFormDto {
     name: string;
     description: string | undefined;
     fields: string;
+    dynamicEntityTypeId: string | undefined;
     isActive: boolean;
     linkSubmissionsToUser: boolean;
+    requireAuthentication: boolean;
     allowMultipleSubmissionsPerUser: boolean;
     prefillLastSubmissionForUser: boolean;
     allowUserToEditSubmission: boolean;
@@ -44979,6 +47254,10 @@ export class UpdateOnboardingStepConfigurationDto implements IUpdateOnboardingSt
     description!: string | undefined;
     icon!: string | undefined;
     isSkippable!: boolean;
+    formId!: string | undefined;
+    dynamicEntityTypeKey!: string | undefined;
+    formDisplayMode!: string | undefined;
+    listDisplayConfig!: string | undefined;
     pdfTemplateFileId!: string | undefined;
     autoGeneratePdf!: boolean;
     includeStepDataKeys!: string | undefined;
@@ -45011,6 +47290,10 @@ export class UpdateOnboardingStepConfigurationDto implements IUpdateOnboardingSt
             this.description = _data["description"];
             this.icon = _data["icon"];
             this.isSkippable = _data["isSkippable"];
+            this.formId = _data["formId"];
+            this.dynamicEntityTypeKey = _data["dynamicEntityTypeKey"];
+            this.formDisplayMode = _data["formDisplayMode"];
+            this.listDisplayConfig = _data["listDisplayConfig"];
             this.pdfTemplateFileId = _data["pdfTemplateFileId"];
             this.autoGeneratePdf = _data["autoGeneratePdf"];
             this.includeStepDataKeys = _data["includeStepDataKeys"];
@@ -45043,6 +47326,10 @@ export class UpdateOnboardingStepConfigurationDto implements IUpdateOnboardingSt
         data["description"] = this.description;
         data["icon"] = this.icon;
         data["isSkippable"] = this.isSkippable;
+        data["formId"] = this.formId;
+        data["dynamicEntityTypeKey"] = this.dynamicEntityTypeKey;
+        data["formDisplayMode"] = this.formDisplayMode;
+        data["listDisplayConfig"] = this.listDisplayConfig;
         data["pdfTemplateFileId"] = this.pdfTemplateFileId;
         data["autoGeneratePdf"] = this.autoGeneratePdf;
         data["includeStepDataKeys"] = this.includeStepDataKeys;
@@ -45068,6 +47355,10 @@ export interface IUpdateOnboardingStepConfigurationDto {
     description: string | undefined;
     icon: string | undefined;
     isSkippable: boolean;
+    formId: string | undefined;
+    dynamicEntityTypeKey: string | undefined;
+    formDisplayMode: string | undefined;
+    listDisplayConfig: string | undefined;
     pdfTemplateFileId: string | undefined;
     autoGeneratePdf: boolean;
     includeStepDataKeys: string | undefined;
@@ -45229,6 +47520,9 @@ export class UpdatePageDto implements IUpdatePageDto {
     isActive!: boolean;
     navbarOrder!: number | undefined;
     footerOrder!: number | undefined;
+    isOnboardingPage!: boolean;
+    isBlockingOnboarding!: boolean;
+    requiresOnboardingApproval!: boolean;
     metaTags!: PageMetaTagsDto;
 
     constructor(data?: IUpdatePageDto) {
@@ -45258,6 +47552,9 @@ export class UpdatePageDto implements IUpdatePageDto {
             this.isActive = _data["isActive"];
             this.navbarOrder = _data["navbarOrder"];
             this.footerOrder = _data["footerOrder"];
+            this.isOnboardingPage = _data["isOnboardingPage"];
+            this.isBlockingOnboarding = _data["isBlockingOnboarding"];
+            this.requiresOnboardingApproval = _data["requiresOnboardingApproval"];
             this.metaTags = _data["metaTags"] ? PageMetaTagsDto.fromJS(_data["metaTags"]) : undefined as any;
         }
     }
@@ -45287,6 +47584,9 @@ export class UpdatePageDto implements IUpdatePageDto {
         data["isActive"] = this.isActive;
         data["navbarOrder"] = this.navbarOrder;
         data["footerOrder"] = this.footerOrder;
+        data["isOnboardingPage"] = this.isOnboardingPage;
+        data["isBlockingOnboarding"] = this.isBlockingOnboarding;
+        data["requiresOnboardingApproval"] = this.requiresOnboardingApproval;
         data["metaTags"] = this.metaTags ? this.metaTags.toJSON() : undefined as any;
         return data;
     }
@@ -45305,6 +47605,9 @@ export interface IUpdatePageDto {
     isActive: boolean;
     navbarOrder: number | undefined;
     footerOrder: number | undefined;
+    isOnboardingPage: boolean;
+    isBlockingOnboarding: boolean;
+    requiresOnboardingApproval: boolean;
     metaTags: PageMetaTagsDto;
 }
 

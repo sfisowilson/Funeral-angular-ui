@@ -1,0 +1,54 @@
+<div class="p-4">
+  <h2 class="text-xl font-bold mb-4">Dynamic Entity Records</h2>
+  <label class="block mb-2">Select Entity Type:
+    <select [(ngModel)]="selectedTypeKey" (change)="refreshRecords()" class="form-select d-inline-block ml-2" style="max-width: 260px;">
+      <option *ngFor="let type of entityTypes" [value]="type.key">{{ type.name }}</option>
+    </select>
+  </label>
+  <div class="mb-3">
+    <input
+      type="text"
+      class="form-control max-w-xs"
+      placeholder="Filter by name or key..."
+      [(ngModel)]="filterText"
+    />
+  </div>
+  <button class="btn btn-primary mb-4" (click)="openCreateDialog()" [disabled]="!selectedTypeKey || !canCreateOrUpdate">Add Record</button>
+  <table class="table-auto w-full" *ngIf="filteredRecords.length">
+    <thead>
+      <tr>
+        <th>Display Name</th>
+        <th>External Key</th>
+        <th *ngFor="let field of dynamicFields" [hidden]="field.showInList === false">
+          {{ field.label || field.name }}
+        </th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let record of filteredRecords">
+        <td>{{ record.displayName }}</td>
+        <td>{{ record.externalKey }}</td>
+        <td *ngFor="let field of dynamicFields" [hidden]="field.showInList === false">
+          {{ getFieldDisplay(record, field) }}
+        </td>
+        <td>
+          <button class="btn btn-sm btn-secondary" (click)="openEditDialog(record)" [disabled]="!canCreateOrUpdate">Edit</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteRecord(record)" [disabled]="!canDelete">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Create/Edit Dialog -->
+  <app-dynamic-entity-record-widget
+    *ngIf="showDialog"
+    [entityTypeKey]="selectedTypeKey"
+    [record]="selectedRecord"
+    (close)="closeDialog($event)"
+    (saved)="refreshRecords()">
+  </app-dynamic-entity-record-widget>
+
+  <div *ngIf="loading" class="mt-4 text-gray-500">Loading...</div>
+  <div *ngIf="error" class="mt-4 text-red-500">{{ error }}</div>
+</div>

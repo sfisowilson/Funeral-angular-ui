@@ -19,7 +19,6 @@ import { TenantTypePermissionsComponent } from './admin/tenant-type-permissions/
 import { LandingPageGeneratorComponent } from './admin/landing-page-generator/landing-page-generator.component';
 import { BookingManagementComponent } from './admin/booking-management/booking-management.component';
 
-import { OnboardingSettingsComponent } from './onboarding-settings/onboarding-settings.component';
 import { DashboardSettingsComponent } from './dashboard-settings/dashboard-settings.component';
 import { PageBuilderComponent } from '../building-blocks/page-builder/page-builder.component';
 import { PdfFieldMappingComponent } from './pdf-field-mapping/pdf-field-mapping.component';
@@ -32,6 +31,7 @@ import { OrderManagementComponent } from './admin/order-management/order-managem
 import { CustomerManagementComponent } from './admin/customer-management/customer-management.component';
 import { PlanConfigurationComponent } from '../features/admin/plan-configuration/plan-configuration.component';
 import { RegistrationFieldsComponent } from './admin/registration-fields/registration-fields.component';
+import { OnboardingStepListConfigComponent } from './admin/onboarding-step-config/onboarding-step-list-config.component';
 import { FieldDefinitionBuilderComponent } from '../admin/onboarding-fields/field-definition-builder/field-definition-builder.component';
 import { EmailTemplatesComponent } from './email-templates/email-templates.component';
 
@@ -57,12 +57,16 @@ export default [
     { path: 'landing-page-generator', component: LandingPageGeneratorComponent },
     { path: 'booking-management', component: BookingManagementComponent },
 
-    { path: 'onboarding-settings', component: OnboardingSettingsComponent },
     { path: 'dashboard-settings', component: DashboardSettingsComponent },
     { path: 'pdf-field-mapping', component: PdfFieldMappingComponent },
     { 
         path: 'registration-fields', 
         component: RegistrationFieldsComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+    },
+    { 
+        path: 'onboarding-step-config', 
+        component: OnboardingStepListConfigComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'] }
     },
     { 

@@ -1,9 +1,101 @@
 .dynamic-page-container {
   min-height: 100vh;
+  background: var(--surface-ground, #f6f7f9);
+  color: var(--text-color, #111827);
+}
+
+.dynamic-page-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.dynamic-page-header {
+  background: var(--surface-card, #ffffff);
+  color: var(--text-color, #111827);
+}
+
+.dynamic-page-brand {
+  color: var(--text-color, #111827);
+}
+
+.dynamic-page-icon-button {
+  color: var(--text-color-secondary, #6b7280);
+}
+
+.dynamic-page-nav-link {
+  color: var(--text-color-secondary, #6b7280);
+  text-decoration: none;
+}
+
+.dynamic-page-nav-link:hover {
+  color: var(--primary-color, #2563eb);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.dynamic-page-nav-link--primary {
+  color: var(--primary-color, #2563eb);
+}
+
+.dynamic-page-nav-link--danger {
+  color: var(--danger-color, #dc2626);
+}
+
+.dynamic-page-mobile-nav {
+  background: var(--surface-card, #ffffff);
+  border-top: 1px solid var(--surface-border, #e5e7eb);
+}
+
+.dynamic-page-mobile-link {
+  display: block;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  color: var(--text-color-secondary, #6b7280);
+  text-decoration: none;
+}
+
+.dynamic-page-mobile-link:hover {
+  background: var(--surface-hover, rgba(0, 0, 0, 0.04));
+  color: var(--primary-color, #2563eb);
+}
+
+.dynamic-page-mobile-link--primary {
+  color: var(--primary-color, #2563eb);
+}
+
+.dynamic-page-mobile-link--danger {
+  color: var(--danger-color, #dc2626);
+}
+
+.dynamic-page-main {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
 }
 
 .page-content {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.dynamic-page-footer {
+  background: var(--surface-card, #ffffff);
+  color: var(--text-color-secondary, #6b7280);
+  border-top: 1px solid var(--surface-border, #e5e7eb);
+}
+
+.dynamic-page-footer-link {
+  color: var(--text-color-secondary, #6b7280);
+  text-decoration: none;
+}
+
+.dynamic-page-footer-link:hover {
+  color: var(--primary-color, #2563eb);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .error-container {
@@ -21,10 +113,10 @@
 
 .unknown-widget {
   padding: 2rem;
-  background: #fef2f2;
-  border: 2px dashed #ef4444;
+  background: var(--danger-surface, #fef2f2);
+  border: 2px dashed var(--danger-color, #ef4444);
   border-radius: 8px;
   text-align: center;
-  color: #dc2626;
+  color: var(--danger-color, #dc2626);
   font-weight: 500;
 }

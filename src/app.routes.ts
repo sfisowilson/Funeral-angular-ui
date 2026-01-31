@@ -20,13 +20,6 @@ export const appRoutes: Routes = [
         ]
     },
 
-    // Member onboarding route (standalone, accessible without profile completion for new members)
-    {
-        path: 'member-onboarding',
-        loadComponent: () => import('./app/pages/member-onboarding/member-onboarding.component').then((m) => m.MemberOnboardingComponent),
-        data: { skipProfileCheck: true }
-    },
-
     // Contract signing route (standalone)
     {
         path: 'contract-signing/:memberId',
@@ -57,24 +50,26 @@ export const appRoutes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', data: { breadcrumb: 'Dashboard' }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
             { path: 'pages', data: { breadcrumb: 'Pages' }, loadChildren: () => import('./app/pages/pages.routes') },
-            { 
-                path: 'custom-pages', 
-                data: { breadcrumb: 'Page Management' }, 
-                loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) 
-            },
-            { 
-                path: 'custom-pages/edit/:id', 
-                data: { breadcrumb: 'Edit Page' }, 
-                loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) 
-            },
-            { path: 'member-onboarding', data: { breadcrumb: 'Member Onboarding', skipProfileCheck: true }, loadComponent: () => import('./app/pages/member-onboarding/member-onboarding.component').then((m) => m.MemberOnboardingComponent) },
+            { path: 'custom-pages', data: { breadcrumb: 'Page Management' }, loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) },
+            { path: 'custom-pages/edit/:id', data: { breadcrumb: 'Edit Page' }, loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) },
             { path: 'contract-signing/:memberId', data: { breadcrumb: 'Sign Contract', skipProfileCheck: true }, loadComponent: () => import('./app/pages/contract-signing/contract-signing.component').then((m) => m.ContractSigningComponent) },
             { path: 'payment-config', data: { breadcrumb: 'Payment Gateway Configuration' }, loadComponent: () => import('./app/components/payment-gateway-config/payment-gateway-config.component').then((m) => m.PaymentGatewayConfigComponent) },
             { path: 'payment-settings', data: { breadcrumb: 'Payment Settings' }, loadComponent: () => import('./app/components/tenant-payment-settings/tenant-payment-settings.component').then((m) => m.TenantPaymentSettingsComponent) },
             { path: 'debit-orders', data: { breadcrumb: 'Debit Order Management' }, loadComponent: () => import('./app/components/debit-order-management/debit-order-management.component').then((m) => m.DebitOrderManagementComponent) },
             { path: 'invoices', data: { breadcrumb: 'Invoices' }, loadComponent: () => import('./app/components/tenant-invoices/tenant-invoices.component').then((m) => m.TenantInvoicesComponent) },
             { path: 'grant-applications', data: { breadcrumb: 'Grant Applications' }, loadComponent: () => import('./app/building-blocks/ngo-grant-applications-widget/ngo-grant-applications-admin.component').then((m) => m.NgoGrantApplicationsAdminComponent) },
-            { path: 'forms', data: { breadcrumb: 'Form Management' }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) }
+            { path: 'forms', data: { breadcrumb: 'Form Management' }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) },
+            {
+                path: 'dynamic-entities',
+                data: { breadcrumb: 'Dynamic Entities' },
+                children: [
+                    { path: '', redirectTo: 'types', pathMatch: 'full' },
+                    { path: 'types', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-type-management.component').then(m => m.DynamicEntityTypeManagementComponent) },
+                    { path: 'records/:typeKey', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then(m => m.DynamicEntityRecordManagementComponent) },
+                    { path: 'records', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then(m => m.DynamicEntityRecordManagementComponent) },
+                    { path: 'relations', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-relation-management.component').then(m => m.DynamicEntityRelationManagementComponent) }
+                ]
+            }
         ]
     },
 
@@ -89,22 +84,24 @@ export const appRoutes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', data: { breadcrumb: 'Dashboard' }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
             { path: 'pages', data: { breadcrumb: 'Pages' }, loadChildren: () => import('./app/pages/pages.routes') },
-            { 
-                path: 'custom-pages', 
-                data: { breadcrumb: 'Page Management' }, 
-                loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) 
-            },
-            { 
-                path: 'custom-pages/edit/:id', 
-                data: { breadcrumb: 'Edit Page' }, 
-                loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) 
-            },
-            { path: 'member-onboarding', data: { breadcrumb: 'My Onboarding', skipProfileCheck: true }, loadComponent: () => import('./app/pages/member-onboarding/member-onboarding.component').then((m) => m.MemberOnboardingComponent) },
+            { path: 'custom-pages', data: { breadcrumb: 'Page Management' }, loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) },
+            { path: 'custom-pages/edit/:id', data: { breadcrumb: 'Edit Page' }, loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) },
             { path: 'contract-signing/:memberId', data: { breadcrumb: 'Sign Contract', skipProfileCheck: true }, loadComponent: () => import('./app/pages/contract-signing/contract-signing.component').then((m) => m.ContractSigningComponent) },
             { path: 'payment-settings', data: { breadcrumb: 'Payment Settings' }, loadComponent: () => import('./app/components/tenant-payment-settings/tenant-payment-settings.component').then((m) => m.TenantPaymentSettingsComponent) },
             { path: 'invoices', data: { breadcrumb: 'My Invoices' }, loadComponent: () => import('./app/components/tenant-invoices/tenant-invoices.component').then((m) => m.TenantInvoicesComponent) },
             { path: 'grant-applications', data: { breadcrumb: 'Grant Applications' }, loadComponent: () => import('./app/building-blocks/ngo-grant-applications-widget/ngo-grant-applications-admin.component').then((m) => m.NgoGrantApplicationsAdminComponent) },
-            { path: 'forms', data: { breadcrumb: 'Form Management' }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) }
+            { path: 'forms', data: { breadcrumb: 'Form Management' }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) },
+            {
+                path: 'dynamic-entities',
+                data: { breadcrumb: 'Dynamic Entities' },
+                children: [
+                    { path: '', redirectTo: 'types', pathMatch: 'full' },
+                    { path: 'types', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-type-management.component').then(m => m.DynamicEntityTypeManagementComponent) },
+                    { path: 'records/:typeKey', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then(m => m.DynamicEntityRecordManagementComponent) },
+                    { path: 'records', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then(m => m.DynamicEntityRecordManagementComponent) },
+                    { path: 'relations', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-relation-management.component').then(m => m.DynamicEntityRelationManagementComponent) }
+                ]
+            }
         ]
     },
 
