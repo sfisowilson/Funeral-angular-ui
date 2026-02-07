@@ -17,17 +17,16 @@ import { HttpHeaders } from '@angular/common/http';
 @Component({
     selector: 'app-about-us-editor',
     standalone: true,
-    imports: [CommonModule, FormsModule, InputTextModule, InputTextarea, ButtonModule, FileUploadModule, 
-              ToastModule, AccordionModule, CheckboxModule],
+    imports: [CommonModule, FormsModule, InputTextModule, InputTextarea, ButtonModule, FileUploadModule, ToastModule, AccordionModule, CheckboxModule],
     providers: [MessageService, FileUploadServiceProxy, TenantSettingsService],
     templateUrl: './about-us-editor.component.html',
     styleUrls: ['./about-us-editor.component.scss']
 })
 export class AboutUsEditorComponent implements OnInit {
-        @Output() save = new EventEmitter<any>();
-        onSave() {
-            this.save.emit(this.config);
-        }
+    @Output() save = new EventEmitter<any>();
+    onSave() {
+        this.save.emit(this.config);
+    }
     @Input() config!: WidgetConfig;
     @Output() update = new EventEmitter<any>();
     tenantIdHeader!: HttpHeaders;
@@ -55,7 +54,7 @@ export class AboutUsEditorComponent implements OnInit {
         if (!this.config.settings.ctaSecondaryButton) this.config.settings.ctaSecondaryButton = { text: '', link: '' };
         if (this.config.settings.showCtaPrimaryButton === undefined) this.config.settings.showCtaPrimaryButton = true;
         if (this.config.settings.showCtaSecondaryButton === undefined) this.config.settings.showCtaSecondaryButton = true;
-        
+
         // Store original settings for cancel functionality
         this.originalSettings = JSON.parse(JSON.stringify(this.config.settings));
     }

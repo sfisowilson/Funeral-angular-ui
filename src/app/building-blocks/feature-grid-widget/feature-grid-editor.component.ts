@@ -129,15 +129,13 @@ export class FeatureGridEditorComponent implements OnInit {
 
     moveFeatureUp(index: number) {
         if (index > 0) {
-            [this.config.settings.features[index - 1], this.config.settings.features[index]] = 
-            [this.config.settings.features[index], this.config.settings.features[index - 1]];
+            [this.config.settings.features[index - 1], this.config.settings.features[index]] = [this.config.settings.features[index], this.config.settings.features[index - 1]];
         }
     }
 
     moveFeatureDown(index: number) {
         if (index < this.config.settings.features.length - 1) {
-            [this.config.settings.features[index], this.config.settings.features[index + 1]] = 
-            [this.config.settings.features[index + 1], this.config.settings.features[index]];
+            [this.config.settings.features[index], this.config.settings.features[index + 1]] = [this.config.settings.features[index + 1], this.config.settings.features[index]];
         }
     }
 

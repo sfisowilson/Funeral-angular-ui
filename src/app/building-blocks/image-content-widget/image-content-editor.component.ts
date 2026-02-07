@@ -18,19 +18,7 @@ import { TenantService } from '../../core/services/tenant.service';
 @Component({
     selector: 'app-image-content-editor',
     standalone: true,
-    imports: [
-        FormsModule,
-        CommonModule,
-        ReactiveFormsModule,
-        CardModule,
-        InputTextModule,
-        InputTextarea,
-        ButtonModule,
-        DropdownModule,
-        InputNumberModule,
-        CheckboxModule,
-        ToastModule
-    ],
+    imports: [FormsModule, CommonModule, ReactiveFormsModule, CardModule, InputTextModule, InputTextarea, ButtonModule, DropdownModule, InputNumberModule, CheckboxModule, ToastModule],
     providers: [MessageService],
     template: `
         <div class="bg-gray-100 p-4 rounded-lg">
@@ -112,12 +100,7 @@ import { TenantService } from '../../core/services/tenant.service';
                         <div class="flex flex-col md:col-span-2" *ngIf="form.get('imageUrl')?.value">
                             <label class="font-medium text-gray-700 mb-2">Image Preview</label>
                             <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 flex justify-center">
-                                <img 
-                                    [src]="form.get('imageUrl')?.value" 
-                                    alt="Image Preview" 
-                                    class="max-w-full max-h-64 object-contain rounded"
-                                    (error)="onImagePreviewError($event)"
-                                />
+                                <img [src]="form.get('imageUrl')?.value" alt="Image Preview" class="max-w-full max-h-64 object-contain rounded" (error)="onImagePreviewError($event)" />
                             </div>
                         </div>
 
@@ -125,35 +108,16 @@ import { TenantService } from '../../core/services/tenant.service';
                         <div class="flex flex-col md:col-span-2">
                             <label class="font-medium text-gray-700 mb-2">Or Upload Image</label>
                             <div class="flex gap-2">
-                                <input 
-                                    #fileInput 
-                                    type="file" 
-                                    accept="image/*" 
-                                    (change)="onImageSelected($event)"
-                                    class="hidden"
-                                />
-                                <button
-                                    type="button"
-                                    (click)="fileInput.click()"
-                                    class="flex-1 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer"
-                                >
+                                <input #fileInput type="file" accept="image/*" (change)="onImageSelected($event)" class="hidden" />
+                                <button type="button" (click)="fileInput.click()" class="flex-1 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
                                     <span class="text-gray-600">📁 Choose Image File</span>
                                 </button>
-                                <button
-                                    type="button"
-                                    (click)="uploadImage()"
-                                    [disabled]="!selectedFile || isUploading"
-                                    class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 transition-all"
-                                >
+                                <button type="button" (click)="uploadImage()" [disabled]="!selectedFile || isUploading" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 transition-all">
                                     {{ isUploading ? 'Uploading...' : 'Upload' }}
                                 </button>
                             </div>
-                            <p class="text-sm text-gray-500 mt-2" *ngIf="selectedFile">
-                                Selected: {{ selectedFile.name }}
-                            </p>
-                            <p class="text-sm text-gray-500 mt-2" *ngIf="uploadProgress > 0 && uploadProgress < 100">
-                                Upload progress: {{ uploadProgress }}%
-                            </p>
+                            <p class="text-sm text-gray-500 mt-2" *ngIf="selectedFile">Selected: {{ selectedFile.name }}</p>
+                            <p class="text-sm text-gray-500 mt-2" *ngIf="uploadProgress > 0 && uploadProgress < 100">Upload progress: {{ uploadProgress }}%</p>
                         </div>
 
                         <div class="flex flex-col">
@@ -162,26 +126,14 @@ import { TenantService } from '../../core/services/tenant.service';
                         </div>
 
                         <div class="flex items-center gap-3">
-                            <p-checkbox
-                                id="enableImageShadow"
-                                formControlName="enableImageShadow"
-                                [binary]="true"
-                            ></p-checkbox>
+                            <p-checkbox id="enableImageShadow" formControlName="enableImageShadow" [binary]="true"></p-checkbox>
                             <label for="enableImageShadow" class="font-medium text-gray-700 cursor-pointer">Enable Image Shadow</label>
                         </div>
 
                         <!-- Image Fill Mode -->
                         <div class="flex flex-col md:col-span-2">
                             <label for="imageFillMode" class="font-medium text-gray-700 mb-2">Image Fill Mode</label>
-                            <p-dropdown
-                                id="imageFillMode"
-                                formControlName="imageFillMode"
-                                [options]="imageFillModeOptions"
-                                optionLabel="label"
-                                optionValue="value"
-                                class="w-full"
-                                placeholder="Select fill mode"
-                            ></p-dropdown>
+                            <p-dropdown id="imageFillMode" formControlName="imageFillMode" [options]="imageFillModeOptions" optionLabel="label" optionValue="value" class="w-full" placeholder="Select fill mode"></p-dropdown>
                             <p class="text-xs text-gray-500 mt-2">
                                 <span *ngIf="form.get('imageFillMode')?.value === 'none'">Normal sizing with margins/padding</span>
                                 <span *ngIf="form.get('imageFillMode')?.value === 'half'">Image fills 50% of the width for left/right layouts</span>
@@ -192,27 +144,14 @@ import { TenantService } from '../../core/services/tenant.service';
                         <!-- Image Height (for full/above/below) -->
                         <div class="flex flex-col" *ngIf="form.get('imageFillMode')?.value !== 'none'">
                             <label for="imageHeight" class="font-medium text-gray-700 mb-2">Image Height (px)</label>
-                            <p-inputNumber 
-                                id="imageHeight" 
-                                formControlName="imageHeight" 
-                                class="w-full"
-                                [min]="100"
-                                [max]="1000"
-                            ></p-inputNumber>
+                            <p-inputNumber id="imageHeight" formControlName="imageHeight" class="w-full" [min]="100" [max]="1000"></p-inputNumber>
                             <p class="text-xs text-gray-500 mt-1">Height of the image in pixels</p>
                         </div>
 
                         <!-- Image Width (for half mode with left/right) -->
                         <div class="flex flex-col" *ngIf="form.get('imageFillMode')?.value === 'half'">
                             <label for="imageWidth" class="font-medium text-gray-700 mb-2">Image Width (%)</label>
-                            <p-inputNumber 
-                                id="imageWidth" 
-                                formControlName="imageWidth" 
-                                class="w-full"
-                                [min]="30"
-                                [max]="70"
-                                suffix="%"
-                            ></p-inputNumber>
+                            <p-inputNumber id="imageWidth" formControlName="imageWidth" class="w-full" [min]="30" [max]="70" suffix="%"></p-inputNumber>
                             <p class="text-xs text-gray-500 mt-1">Percentage width for left/right layouts</p>
                         </div>
                     </div>
@@ -281,11 +220,7 @@ import { TenantService } from '../../core/services/tenant.service';
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Button Settings</h3>
                     <div class="grid grid-cols-1 gap-6">
                         <div class="flex items-center gap-3">
-                            <p-checkbox
-                                id="showButton"
-                                formControlName="showButton"
-                                [binary]="true"
-                            ></p-checkbox>
+                            <p-checkbox id="showButton" formControlName="showButton" [binary]="true"></p-checkbox>
                             <label for="showButton" class="font-medium text-gray-700 cursor-pointer">Show Action Button</label>
                         </div>
 
@@ -342,10 +277,9 @@ import { TenantService } from '../../core/services/tenant.service';
                 <!-- Save Button -->
                 <div class="flex justify-end pt-4">
                     <button class="btn-primary-theme">
-                    <i class="pi pi-check"></i><span class="p-2"></span> 
+                        <i class="pi pi-check"></i><span class="p-2"></span>
                         Save Changes
                     </button>
-
                 </div>
             </form>
         </div>
@@ -427,7 +361,7 @@ export class ImageContentEditorComponent implements OnChanges {
             textMarginBottom: [24],
             imageFillMode: ['none'], // none, half, full
             imageHeight: [300], // for full/above/below layouts
-            imageWidth: [null], // for left/right layouts (percentage or auto)
+            imageWidth: [null] // for left/right layouts (percentage or auto)
         });
     }
 
@@ -436,17 +370,17 @@ export class ImageContentEditorComponent implements OnChanges {
             console.log('🔄 ImageContentEditor ngOnChanges triggered');
             console.log('Config received:', this.config);
             console.log('Config.settings:', this.config.settings);
-            
+
             if (this.config.settings) {
                 console.log('Patching form with settings:', this.config.settings);
                 console.log('ImageUrl value in settings:', this.config.settings.imageUrl);
-                
+
                 // Reset form first to clear any cached values
                 this.form.reset();
-                
+
                 // Then patch with settings
                 this.form.patchValue(this.config.settings, { emitEvent: false });
-                
+
                 // Log form value after patch to verify
                 setTimeout(() => {
                     console.log('Form value after patch:', this.form.value);
@@ -476,7 +410,7 @@ export class ImageContentEditorComponent implements OnChanges {
         const input = event.target as HTMLInputElement;
         if (input.files && input.files.length > 0) {
             const file = input.files[0];
-            
+
             // Validate file type
             if (!file.type.startsWith('image/')) {
                 this.messageService.add({
@@ -548,26 +482,26 @@ export class ImageContentEditorComponent implements OnChanges {
             if (xhr.status === 201 || xhr.status === 200) {
                 try {
                     const response = JSON.parse(xhr.responseText);
-                    
+
                     // Get the tenant domain for the download URL
                     const tenantId = this.tenantService.getTenantId() || 'host';
-                    
+
                     // Get the uploaded file URL or path with tenant query parameter
                     const imageUrl = response.id ? `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${response.id}?X-Tenant-ID=${tenantId}` : response.filePath;
-                    
+
                     console.log('📤 Upload complete - setting imageUrl:', imageUrl);
                     this.form.patchValue({ imageUrl });
-                    
+
                     // Log immediately after patch
                     console.log('📄 Form imageUrl after patch:', this.form.get('imageUrl')?.value);
                     console.log('📄 Full form value after patch:', this.form.value);
-                    
+
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Upload Successful',
                         detail: 'Image uploaded and set successfully'
                     });
-                    
+
                     this.selectedFile = null;
                     this.uploadProgress = 0;
                 } catch (error) {
@@ -599,7 +533,7 @@ export class ImageContentEditorComponent implements OnChanges {
 
         // Get the tenant ID to include in the request
         const tenantId = this.tenantService.getTenantId() || 'host';
-        
+
         xhr.open('POST', `${environment.apiUrl}/api/FileUpload/File_UploadFile`);
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
         xhr.setRequestHeader('X-Tenant-ID', tenantId);

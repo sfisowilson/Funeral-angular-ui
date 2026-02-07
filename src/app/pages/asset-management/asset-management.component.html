@@ -55,9 +55,18 @@
             </p-toolbar>
 
             <!-- Assets Table -->
-            <p-table #dt [value]="assets()" [rows]="10" [paginator]="true" [globalFilterFields]="['name', 'identificationNumber', 'make', 'model']"
-                [rowHover]="true" dataKey="id" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} assets"
-                [showCurrentPageReport]="true" [loading]="loading()">
+            <p-table
+                #dt
+                [value]="assets()"
+                [rows]="10"
+                [paginator]="true"
+                [globalFilterFields]="['name', 'identificationNumber', 'make', 'model']"
+                [rowHover]="true"
+                dataKey="id"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} assets"
+                [showCurrentPageReport]="true"
+                [loading]="loading()"
+            >
                 <ng-template pTemplate="header">
                     <tr>
                         <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
@@ -83,10 +92,8 @@
                         </td>
                         <td>
                             <button pButton pRipple icon="pi pi-pencil" class="btn-rounded btn-primary-theme mr-2" (click)="editAsset(asset)"></button>
-                            <button pButton pRipple icon="pi pi-sign-out" class="btn-rounded btn-primary-theme mr-2" (click)="checkoutAsset(asset)"
-                                *ngIf="asset.status === 0" pTooltip="Checkout Asset"></button>
-                            <button pButton pRipple icon="pi pi-wrench" class="btn-rounded btn-warning-theme mr-2" (click)="scheduleMaintenance(asset)"
-                                pTooltip="Schedule Maintenance"></button>
+                            <button pButton pRipple icon="pi pi-sign-out" class="btn-rounded btn-primary-theme mr-2" (click)="checkoutAsset(asset)" *ngIf="asset.status === 0" pTooltip="Checkout Asset"></button>
+                            <button pButton pRipple icon="pi pi-wrench" class="btn-rounded btn-warning-theme mr-2" (click)="scheduleMaintenance(asset)" pTooltip="Schedule Maintenance"></button>
                             <button pButton pRipple icon="pi pi-trash" class="btn-rounded btn-danger-theme" (click)="deleteAsset(asset)"></button>
                         </td>
                     </tr>
@@ -136,8 +143,7 @@
                             <p-tag [value]="checkout.statusName" [severity]="getCheckoutStatusSeverity(checkout.status)"></p-tag>
                         </td>
                         <td>
-                            <button pButton pRipple icon="pi pi-sign-in" class="btn-rounded btn-primary-theme" 
-                                (click)="checkinAsset(checkout)" *ngIf="checkout.status === 0" pTooltip="Check In Asset"></button>
+                            <button pButton pRipple icon="pi pi-sign-in" class="btn-rounded btn-primary-theme" (click)="checkinAsset(checkout)" *ngIf="checkout.status === 0" pTooltip="Check In Asset"></button>
                         </td>
                     </tr>
                 </ng-template>
@@ -171,14 +177,20 @@
         <div class="grid grid-cols-2 gap-4">
             <div class="field">
                 <label for="assetType">Asset Type *</label>
-                <p-dropdown id="assetType" [(ngModel)]="asset.assetType" [options]="assetTypes" optionLabel="label" optionValue="value" 
-                    placeholder="Select Type" [ngClass]="{ 'ng-invalid ng-dirty': submitted && asset.assetType == null }"></p-dropdown>
+                <p-dropdown
+                    id="assetType"
+                    [(ngModel)]="asset.assetType"
+                    [options]="assetTypes"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select Type"
+                    [ngClass]="{ 'ng-invalid ng-dirty': submitted && asset.assetType == null }"
+                ></p-dropdown>
             </div>
 
             <div class="field">
                 <label for="status">Status</label>
-                <p-dropdown id="status" [(ngModel)]="asset.status" [options]="assetStatuses" optionLabel="label" optionValue="value" 
-                    placeholder="Select Status"></p-dropdown>
+                <p-dropdown id="status" [(ngModel)]="asset.status" [options]="assetStatuses" optionLabel="label" optionValue="value" placeholder="Select Status"></p-dropdown>
             </div>
         </div>
 
@@ -244,8 +256,7 @@
     <ng-template pTemplate="content">
         <div class="field">
             <label for="purpose">Purpose *</label>
-            <input type="text" pInputText id="purpose" [(ngModel)]="checkout.purpose" required 
-                [ngClass]="{ 'ng-invalid ng-dirty': submitted && !checkout.purpose }" />
+            <input type="text" pInputText id="purpose" [(ngModel)]="checkout.purpose" required [ngClass]="{ 'ng-invalid ng-dirty': submitted && !checkout.purpose }" />
         </div>
 
         <div class="field">
@@ -304,8 +315,7 @@
 
         <div class="field" *ngIf="!checkin.returnedInGoodCondition">
             <label for="damageReported">Damage Description *</label>
-            <textarea id="damageReported" pTextarea [(ngModel)]="checkin.damageReported" rows="3" 
-                [ngClass]="{ 'ng-invalid ng-dirty': submitted && !checkin.returnedInGoodCondition && !checkin.damageReported }"></textarea>
+            <textarea id="damageReported" pTextarea [(ngModel)]="checkin.damageReported" rows="3" [ngClass]="{ 'ng-invalid ng-dirty': submitted && !checkin.returnedInGoodCondition && !checkin.damageReported }"></textarea>
         </div>
 
         <div class="field">
@@ -323,14 +333,11 @@
 <!-- Maintenance Dialog -->
 <p-dialog [(visible)]="maintenanceDialog" [style]="{ width: '450px' }" header="Schedule Maintenance" [modal]="true" class="p-fluid">
     <ng-template #content>
-        <div class="mb-4 p-4 bg-yellow-50 rounded">
-            <strong>Asset:</strong> {{ asset.name }}
-        </div>
+        <div class="mb-4 p-4 bg-yellow-50 rounded"><strong>Asset:</strong> {{ asset.name }}</div>
 
         <div class="field">
             <label for="nextMaintenanceDate">Next Maintenance Date *</label>
-            <p-calendar id="nextMaintenanceDate" [(ngModel)]="asset.nextMaintenanceDate" [showTime]="true" dateFormat="yy-mm-dd"
-                [ngClass]="{ 'ng-invalid ng-dirty': submitted && !asset.nextMaintenanceDate }"></p-calendar>
+            <p-calendar id="nextMaintenanceDate" [(ngModel)]="asset.nextMaintenanceDate" [showTime]="true" dateFormat="yy-mm-dd" [ngClass]="{ 'ng-invalid ng-dirty': submitted && !asset.nextMaintenanceDate }"></p-calendar>
         </div>
 
         <div class="field">

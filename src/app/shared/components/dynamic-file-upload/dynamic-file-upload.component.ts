@@ -7,6 +7,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { FileUploadServiceProxy, FileMetadataDto } from '@app/core/services/service-proxies';
+import { firstValueFrom } from 'rxjs';
 
 export interface FileUploadConfig {
     label?: string;
@@ -31,18 +32,11 @@ export interface UploadedFile {
 @Component({
     selector: 'app-dynamic-file-upload',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        ButtonModule,
-        ProgressBarModule,
-        TooltipModule,
-        ToastModule
-    ],
+    imports: [CommonModule, FormsModule, ButtonModule, ProgressBarModule, TooltipModule, ToastModule],
     providers: [MessageService],
     template: `
         <p-toast></p-toast>
-        
+
         <div class="dynamic-file-upload">
             <!-- Header and Instructions -->
             <div class="upload-header">
@@ -57,48 +51,29 @@ export interface UploadedFile {
                     <small>
                         <i class="pi pi-info-circle"></i>
                         Max size: {{ config().maxSizeMB || 5 }}MB per file
-                        <span *ngIf="config().allowMultiple && config().maxFiles">
-                            | Max {{ config().maxFiles }} files
-                        </span>
+                        <span *ngIf="config().allowMultiple && config().maxFiles"> | Max {{ config().maxFiles }} files </span>
                     </small>
                 </div>
             </div>
 
+            <!-- Loading State -->
+            <div *ngIf="loadingFiles()" class="text-center p-4">
+                <p-progressBar mode="indeterminate" [style]="{ height: '6px' }"></p-progressBar>
+                <small class="d-block mt-2 text-muted">Loading files...</small>
+            </div>
+
             <!-- Upload Section -->
-            <div *ngIf="!isMaxFilesReached()" class="upload-section">
-                <input 
-                    #fileInput
-                    type="file" 
-                    [multiple]="config().allowMultiple"
-                    [accept]="getAcceptedTypes()"
-                    (change)="onFileSelect($event)"
-                    style="display: none"
-                />
-                
-                <button 
-                    pButton 
-                    type="button"
-                    [label]="uploadedFiles().length > 0 ? 'Upload Another File' : 'Choose File'"
-                    icon="pi pi-upload" 
-                    (click)="fileInput.click()"
-                    [disabled]="uploading()"
-                    class="p-button-outlined">
-                </button>
+            <div *ngIf="!isMaxFilesReached() && !loadingFiles()" class="upload-section">
+                <input #fileInput type="file" [multiple]="config().allowMultiple" [accept]="getAcceptedTypes()" (change)="onFileSelect($event)" style="display: none" />
+
+                <button pButton type="button" [label]="uploadedFiles().length > 0 ? 'Upload Another File' : 'Choose File'" icon="pi pi-upload" (click)="fileInput.click()" [disabled]="uploading()" class="p-button-outlined"></button>
 
                 <span *ngIf="selectedFile" class="selected-file-name">
                     <i class="pi pi-file"></i>
                     {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
                 </span>
 
-                <button 
-                    *ngIf="selectedFile && !uploading()"
-                    pButton 
-                    type="button"
-                    label="Upload Now"
-                    icon="pi pi-cloud-upload" 
-                    (click)="uploadFile()"
-                    class="p-button-success">
-                </button>
+                <button *ngIf="selectedFile && !uploading()" pButton type="button" label="Upload Now" icon="pi pi-cloud-upload" (click)="uploadFile()" class="p-button-success"></button>
             </div>
 
             <!-- Upload Progress -->
@@ -125,27 +100,12 @@ export interface UploadedFile {
                             <div class="file-name">{{ file.fileName }}</div>
                             <div class="file-meta">
                                 {{ formatFileSize(file.fileSize) }}
-                                <span *ngIf="file.uploadDate"> • Uploaded {{ file.uploadDate | date:'short' }}</span>
+                                <span *ngIf="file.uploadDate"> • Uploaded {{ file.uploadDate | date: 'short' }}</span>
                             </div>
                         </div>
                         <div class="file-actions">
-                            <button 
-                                pButton 
-                                type="button"
-                                icon="pi pi-download" 
-                                (click)="downloadFile(file)"
-                                class="p-button-sm p-button-text"
-                                pTooltip="Download">
-                            </button>
-                            <button 
-                                *ngIf="!viewMode"
-                                pButton 
-                                type="button"
-                                icon="pi pi-trash" 
-                                (click)="removeFile(file)"
-                                class="p-button-sm p-button-text p-button-danger"
-                                pTooltip="Remove">
-                            </button>
+                            <button pButton type="button" icon="pi pi-download" (click)="downloadFile(file)" class="p-button-sm p-button-text" pTooltip="Download"></button>
+                            <button *ngIf="!viewMode" pButton type="button" icon="pi pi-trash" (click)="removeFile(file)" class="p-button-sm p-button-text p-button-danger" pTooltip="Remove"></button>
                         </div>
                     </div>
                 </div>
@@ -165,171 +125,173 @@ export interface UploadedFile {
             </div>
         </div>
     `,
-    styles: [`
-        .dynamic-file-upload {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1.5rem;
-            background-color: #fafafa;
-        }
+    styles: [
+        `
+            .dynamic-file-upload {
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 1.5rem;
+                background-color: #fafafa;
+            }
 
-        .upload-header {
-            margin-bottom: 1rem;
-        }
+            .upload-header {
+                margin-bottom: 1rem;
+            }
 
-        .field-label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #333;
-            font-size: 1rem;
-        }
+            .field-label {
+                display: block;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+                color: #333;
+                font-size: 1rem;
+            }
 
-        .required-asterisk {
-            color: #e74c3c;
-            margin-left: 4px;
-        }
+            .required-asterisk {
+                color: #e74c3c;
+                margin-left: 4px;
+            }
 
-        .help-text {
-            margin: 0.5rem 0;
-            color: #666;
-            font-size: 0.9rem;
-        }
+            .help-text {
+                margin: 0.5rem 0;
+                color: #666;
+                font-size: 0.9rem;
+            }
 
-        .upload-info {
-            margin-top: 0.5rem;
-        }
+            .upload-info {
+                margin-top: 0.5rem;
+            }
 
-        .upload-info small {
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+            .upload-info small {
+                color: #666;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
 
-        .upload-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background-color: white;
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
+            .upload-section {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem;
+                background-color: white;
+                border: 2px dashed #ddd;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+            }
 
-        .selected-file-name {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #333;
-            font-size: 0.9rem;
-        }
+            .selected-file-name {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: #333;
+                font-size: 0.9rem;
+            }
 
-        .upload-progress {
-            padding: 1rem;
-            background-color: white;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
+            .upload-progress {
+                padding: 1rem;
+                background-color: white;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+            }
 
-        .upload-progress small {
-            display: block;
-            margin-top: 0.5rem;
-            color: #666;
-        }
+            .upload-progress small {
+                display: block;
+                margin-top: 0.5rem;
+                color: #666;
+            }
 
-        .alert {
-            padding: 0.75rem 1rem;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+            .alert {
+                padding: 0.75rem 1rem;
+                border-radius: 4px;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
 
-        .alert-warning {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            color: #856404;
-        }
+            .alert-warning {
+                background-color: #fff3cd;
+                border: 1px solid #ffc107;
+                color: #856404;
+            }
 
-        .uploaded-files-list h6 {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #333;
-        }
+            .uploaded-files-list h6 {
+                font-weight: 600;
+                margin-bottom: 1rem;
+                color: #333;
+            }
 
-        .file-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+            .file-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
 
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background-color: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            transition: box-shadow 0.2s;
-        }
+            .file-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1rem;
+                background-color: white;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                transition: box-shadow 0.2s;
+            }
 
-        .file-item:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
+            .file-item:hover {
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
 
-        .file-icon {
-            font-size: 2rem;
-            color: #666;
-        }
+            .file-icon {
+                font-size: 2rem;
+                color: #666;
+            }
 
-        .file-details {
-            flex: 1;
-        }
+            .file-details {
+                flex: 1;
+            }
 
-        .file-name {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.25rem;
-        }
+            .file-name {
+                font-weight: 500;
+                color: #333;
+                margin-bottom: 0.25rem;
+            }
 
-        .file-meta {
-            font-size: 0.85rem;
-            color: #666;
-        }
+            .file-meta {
+                font-size: 0.85rem;
+                color: #666;
+            }
 
-        .file-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
+            .file-actions {
+                display: flex;
+                gap: 0.5rem;
+            }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #999;
-        }
+            .empty-state {
+                text-align: center;
+                padding: 3rem 1rem;
+                color: #999;
+            }
 
-        .empty-state p {
-            margin: 1rem 0 0.5rem;
-            font-size: 1rem;
-        }
+            .empty-state p {
+                margin: 1rem 0 0.5rem;
+                font-size: 1rem;
+            }
 
-        .empty-state small {
-            color: #bbb;
-        }
+            .empty-state small {
+                color: #bbb;
+            }
 
-        .error-message {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #e74c3c;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-    `]
+            .error-message {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: #e74c3c;
+                font-size: 0.9rem;
+                margin-top: 0.5rem;
+            }
+        `
+    ]
 })
 export class DynamicFileUploadComponent implements OnInit {
     config = input<FileUploadConfig>({
@@ -344,12 +306,14 @@ export class DynamicFileUploadComponent implements OnInit {
     @Input() value: UploadedFile[] = [];
     @Input() viewMode: boolean = false;
     @Input() memberId?: string;
+    @Input() initialFileIds: string[] = [];
     @Output() valueChange = new EventEmitter<UploadedFile[]>();
     @Output() filesUploaded = new EventEmitter<UploadedFile[]>();
 
     uploadedFiles = signal<UploadedFile[]>([]);
     uploading = signal(false);
     uploadProgress = signal(0);
+    loadingFiles = signal(false);
     selectedFile?: File;
     touched = false;
 
@@ -358,10 +322,37 @@ export class DynamicFileUploadComponent implements OnInit {
         private messageService: MessageService
     ) {}
 
-    ngOnInit() {
+    async ngOnInit() {
         // Load existing files
-        if (this.value && Array.isArray(this.value)) {
+        if (this.value && Array.isArray(this.value) && this.value.length > 0) {
             this.uploadedFiles.set([...this.value]);
+        } else if (this.initialFileIds && this.initialFileIds.length > 0) {
+            // Fetch metadata for initial IDs
+            this.loadingFiles.set(true);
+            try {
+                const files: UploadedFile[] = [];
+                for (const id of this.initialFileIds) {
+                    if (!id) continue;
+                    const res = await firstValueFrom(this.fileUploadService.file_GetByFileId(id));
+                    if ((res as any).result) {
+                        const data = (res as any).result as FileMetadataDto;
+                        files.push({
+                            id: data.id!,
+                            fileName: data.fileName!,
+                            filePath: data.filePath!,
+                            fileSize: data.size || 0,
+                            uploadDate: new Date(),
+                            description: data.description
+                        });
+                    }
+                }
+                this.uploadedFiles.set(files);
+            } catch (error) {
+                console.error('Error loading initial files:', error);
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load initial files.' });
+            } finally {
+                this.loadingFiles.set(false);
+            }
         }
     }
 
@@ -373,7 +364,7 @@ export class DynamicFileUploadComponent implements OnInit {
         const files = event.target.files;
         if (files && files.length > 0) {
             this.selectedFile = files[0];
-            
+
             // Validate file size
             const maxSize = (this.config().maxSizeMB || 5) * 1024 * 1024;
             if (this.selectedFile && this.selectedFile.size > maxSize) {
@@ -391,7 +382,7 @@ export class DynamicFileUploadComponent implements OnInit {
             const acceptedTypes = this.config().acceptedTypes || [];
             if (acceptedTypes.length > 0 && this.selectedFile) {
                 const fileType = this.selectedFile.type;
-                const isAccepted = acceptedTypes.some(type => {
+                const isAccepted = acceptedTypes.some((type) => {
                     if (type.endsWith('/*')) {
                         const category = type.replace('/*', '');
                         return fileType.startsWith(category);
@@ -423,7 +414,7 @@ export class DynamicFileUploadComponent implements OnInit {
             // Create FormData
             const formData = new FormData();
             formData.append('file', this.selectedFile);
-            
+
             if (this.config().documentType) {
                 formData.append('documentType', this.config().documentType!);
             }
@@ -441,14 +432,16 @@ export class DynamicFileUploadComponent implements OnInit {
 
             // Upload file
             const memberId = this.memberId || undefined;
-            const response = await this.fileUploadService.file_UploadFile(
-                { data: formData, fileName: this.selectedFile.name } as any,
-                memberId,
-                undefined, // documentType
-                undefined, // description
-                undefined, // category
-                undefined  // tags
-            ).toPromise();
+            const response = await this.fileUploadService
+                .file_UploadFile(
+                    { data: formData, fileName: this.selectedFile.name } as any,
+                    memberId,
+                    undefined, // documentType
+                    undefined, // description
+                    undefined, // category
+                    undefined // tags
+                )
+                .toPromise();
 
             clearInterval(progressInterval);
             this.uploadProgress.set(100);
@@ -478,7 +471,6 @@ export class DynamicFileUploadComponent implements OnInit {
             this.selectedFile = undefined;
             this.uploading.set(false);
             this.uploadProgress.set(0);
-
         } catch (error) {
             console.error('Upload error:', error);
             this.messageService.add({
@@ -496,7 +488,7 @@ export class DynamicFileUploadComponent implements OnInit {
             // Call delete API
             this.fileUploadService.file_DeleteFile(file.id).subscribe({
                 next: () => {
-                    const updatedFiles = this.uploadedFiles().filter(f => f.id !== file.id);
+                    const updatedFiles = this.uploadedFiles().filter((f) => f.id !== file.id);
                     this.uploadedFiles.set(updatedFiles);
                     this.valueChange.emit(updatedFiles);
 
@@ -531,8 +523,7 @@ export class DynamicFileUploadComponent implements OnInit {
     }
 
     isMaxFilesReached(): boolean {
-        return this.config().maxFiles !== undefined && 
-               this.uploadedFiles().length >= this.config().maxFiles!;
+        return this.config().maxFiles !== undefined && this.uploadedFiles().length >= this.config().maxFiles!;
     }
 
     formatFileSize(bytes: number): string {
@@ -540,7 +531,7 @@ export class DynamicFileUploadComponent implements OnInit {
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
     }
 
     getFileIcon(fileName: string): string {

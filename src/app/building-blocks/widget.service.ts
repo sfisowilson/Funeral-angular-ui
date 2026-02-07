@@ -15,7 +15,7 @@ export class WidgetService {
 
     private readonly SETTINGS_KEY = 'landingPageConfig';
     private readonly SEO_SETTINGS_KEY = 'seoSettings';
-    
+
     // Flag to prevent auto-saving when editing custom pages
     private autoSaveEnabled = true;
 
@@ -76,10 +76,10 @@ export class WidgetService {
     public saveWidgets(widgets: WidgetConfig[]): Observable<any> {
         // Deep clone the widgets to avoid reference issues
         const widgetsToSave = JSON.parse(JSON.stringify(widgets));
-        
+
         console.log('=== SAVE WIDGETS CALLED ===');
         console.log('Widgets being saved:', widgetsToSave);
-        
+
         // Update the in-memory state first
         this.widgetsSubject.next(widgetsToSave);
 
@@ -96,9 +96,9 @@ export class WidgetService {
                 }
 
                 // Only update the landingPageConfig key, preserve all other settings
-                const updatedSettings = { 
-                    ...currentSettings, 
-                    [this.SETTINGS_KEY]: widgetsToSave 
+                const updatedSettings = {
+                    ...currentSettings,
+                    [this.SETTINGS_KEY]: widgetsToSave
                 };
 
                 console.log('Updated settings to be saved:', updatedSettings);
@@ -134,7 +134,7 @@ export class WidgetService {
     loadWidgetsFromSource(widgets: WidgetConfig[]): void {
         this.widgetsSubject.next(widgets);
     }
-    
+
     /**
      * Enable or disable auto-saving to tenant settings
      * Use this when editing custom pages to prevent saving to tenant settings
@@ -142,7 +142,7 @@ export class WidgetService {
     setAutoSaveEnabled(enabled: boolean): void {
         this.autoSaveEnabled = enabled;
     }
-    
+
     /**
      * Check if auto-save is currently enabled
      */
@@ -254,9 +254,9 @@ export class WidgetService {
                 }
 
                 // Update only the SEO settings key, preserve all other settings
-                const updatedSettings = { 
-                    ...currentSettings, 
-                    [this.SEO_SETTINGS_KEY]: seoSettings 
+                const updatedSettings = {
+                    ...currentSettings,
+                    [this.SEO_SETTINGS_KEY]: seoSettings
                 };
 
                 console.log('Updated settings to be saved:', updatedSettings);

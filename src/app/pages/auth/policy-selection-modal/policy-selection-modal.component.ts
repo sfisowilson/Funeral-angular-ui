@@ -42,16 +42,19 @@ export class PolicySelectionModalComponent implements OnInit {
             }
 
             // Load policies
-            this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).pipe(unwrap<PolicyDto[]>()).subscribe({
-                next: (policies) => {
-                    this.policies = policies;
-                    this.loading = false;
-                },
-                error: (error) => {
-                    console.error('Error loading policies:', error);
-                    this.loading = false;
-                }
-            });
+            this.policyService
+                .policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined)
+                .pipe(unwrap<PolicyDto[]>())
+                .subscribe({
+                    next: (policies) => {
+                        this.policies = policies;
+                        this.loading = false;
+                    },
+                    error: (error) => {
+                        console.error('Error loading policies:', error);
+                        this.loading = false;
+                    }
+                });
         } catch (error) {
             console.error('Error initializing policy selection:', error);
             this.loading = false;

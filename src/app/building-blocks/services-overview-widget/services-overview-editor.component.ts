@@ -13,20 +13,12 @@ import { TenantService } from '../../core/services/tenant.service';
 @Component({
     selector: 'app-services-overview-editor',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        ColorPickerModule,
-        AccordionModule,
-        DividerModule,
-        ToastModule
-    ],
+    imports: [CommonModule, FormsModule, ColorPickerModule, AccordionModule, DividerModule, ToastModule],
     providers: [MessageService],
     template: `
         <p-toast></p-toast>
         <div class="services-overview-editor p-4">
             <p-accordion [multiple]="true" [activeIndex]="[0]">
-                
                 <!-- General Settings Tab -->
                 <p-accordionTab header="General Settings">
                     <div class="row g-3">
@@ -112,14 +104,11 @@ import { TenantService } from '../../core/services/tenant.service';
 
                 <!-- Services Tab -->
                 <p-accordionTab [header]="'Services (' + (settings.services?.length || 0) + ')'">
-                    <button type="button" class="btn btn-primary mb-3" (click)="addService()">
-                        <i class="pi pi-plus me-2"></i>Add Service
-                    </button>
-                    
+                    <button type="button" class="btn btn-primary mb-3" (click)="addService()"><i class="pi pi-plus me-2"></i>Add Service</button>
+
                     <p-accordion *ngIf="settings.services && settings.services.length > 0">
                         <p-accordionTab *ngFor="let service of settings.services; let i = index" [header]="service.title || 'Service ' + (i + 1)">
                             <div class="row g-3">
-                                
                                 <!-- Basic Info Section -->
                                 <div class="col-12">
                                     <h5 class="text-primary mb-3">Basic Information</h5>
@@ -132,9 +121,9 @@ import { TenantService } from '../../core/services/tenant.service';
                                     <label [for]="'serviceDesc' + i" class="form-label fw-semibold">Description</label>
                                     <textarea [id]="'serviceDesc' + i" [(ngModel)]="service.description" class="form-control" rows="3" placeholder="Describe this service"></textarea>
                                 </div>
-                                
+
                                 <div class="col-12"><p-divider></p-divider></div>
-                                
+
                                 <!-- Visual Section -->
                                 <div class="col-12">
                                     <h5 class="text-primary mb-3">Visual Elements</h5>
@@ -147,36 +136,15 @@ import { TenantService } from '../../core/services/tenant.service';
                                 <div class="col-12 col-md-6">
                                     <label class="form-label fw-semibold">Service Image</label>
                                     <div class="d-flex gap-2 mb-2">
-                                        <input 
-                                            [id]="'fileInput' + i"
-                                            type="file" 
-                                            accept="image/*" 
-                                            (change)="onImageSelected($event, i)"
-                                            class="d-none"
-                                        />
-                                        <button
-                                            type="button"
-                                            (click)="triggerFileInput(i)"
-                                            class="btn btn-outline-secondary flex-fill"
-                                        >
-                                            <i class="pi pi-upload me-2"></i>Choose Image
-                                        </button>
-                                        <button
-                                            type="button"
-                                            (click)="uploadServiceImage(i)"
-                                            [disabled]="!selectedFiles[i] || uploadingServices[i]"
-                                            class="btn btn-primary"
-                                        >
+                                        <input [id]="'fileInput' + i" type="file" accept="image/*" (change)="onImageSelected($event, i)" class="d-none" />
+                                        <button type="button" (click)="triggerFileInput(i)" class="btn btn-outline-secondary flex-fill"><i class="pi pi-upload me-2"></i>Choose Image</button>
+                                        <button type="button" (click)="uploadServiceImage(i)" [disabled]="!selectedFiles[i] || uploadingServices[i]" class="btn btn-primary">
                                             {{ uploadingServices[i] ? 'Uploading...' : 'Upload' }}
                                         </button>
                                     </div>
                                     <input type="text" [id]="'serviceImage' + i" [(ngModel)]="service.imageUrl" class="form-control" placeholder="Or enter image URL" />
-                                    <small class="text-muted d-block mt-1" *ngIf="selectedFiles[i]">
-                                        Selected: {{ selectedFiles[i]?.name }}
-                                    </small>
-                                    <small class="text-muted d-block mt-1" *ngIf="uploadProgress[i] > 0 && uploadProgress[i] < 100">
-                                        Upload progress: {{ uploadProgress[i] }}%
-                                    </small>
+                                    <small class="text-muted d-block mt-1" *ngIf="selectedFiles[i]"> Selected: {{ selectedFiles[i]?.name }} </small>
+                                    <small class="text-muted d-block mt-1" *ngIf="uploadProgress[i] > 0 && uploadProgress[i] < 100"> Upload progress: {{ uploadProgress[i] }}% </small>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-check">
@@ -184,15 +152,13 @@ import { TenantService } from '../../core/services/tenant.service';
                                         <label class="form-check-label" [for]="'serviceFeatured' + i">Mark as Featured (shows badge)</label>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-12"><p-divider></p-divider></div>
-                                
+
                                 <!-- Features Section -->
                                 <div class="col-12">
                                     <h5 class="text-primary mb-2">Features List</h5>
-                                    <button type="button" class="btn btn-sm btn-success mb-2" (click)="addFeature(i)">
-                                        <i class="pi pi-plus me-1"></i>Add Feature
-                                    </button>
+                                    <button type="button" class="btn btn-sm btn-success mb-2" (click)="addFeature(i)"><i class="pi pi-plus me-1"></i>Add Feature</button>
                                 </div>
                                 <div class="col-12" *ngFor="let feature of service.features; let j = index; trackBy: trackByFn">
                                     <div class="input-group mb-2">
@@ -205,14 +171,20 @@ import { TenantService } from '../../core/services/tenant.service';
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-12"><p-divider></p-divider></div>
-                                
+
                                 <!-- Pricing Section -->
                                 <div class="col-12">
                                     <h5 class="text-primary mb-3">Pricing (Optional)</h5>
                                     <div class="form-check">
-                                        <input type="checkbox" [ngModel]="service.pricing !== null && service.pricing !== undefined" (ngModelChange)="service.pricing ? removePricing(i) : addPricing(i)" class="form-check-input" [id]="'servicePricing' + i" />
+                                        <input
+                                            type="checkbox"
+                                            [ngModel]="service.pricing !== null && service.pricing !== undefined"
+                                            (ngModelChange)="service.pricing ? removePricing(i) : addPricing(i)"
+                                            class="form-check-input"
+                                            [id]="'servicePricing' + i"
+                                        />
                                         <label class="form-check-label" [for]="'servicePricing' + i">Include Pricing Information</label>
                                     </div>
                                 </div>
@@ -232,9 +204,9 @@ import { TenantService } from '../../core/services/tenant.service';
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-12"><p-divider></p-divider></div>
-                                
+
                                 <!-- CTA Button Section -->
                                 <div class="col-12">
                                     <h5 class="text-primary mb-3">Call-to-Action Button (Optional)</h5>
@@ -253,49 +225,46 @@ import { TenantService } from '../../core/services/tenant.service';
                                         <input type="text" [id]="'serviceButtonLink' + i" [(ngModel)]="service.button.link" class="form-control" placeholder="/contact" />
                                     </div>
                                 </ng-container>
-                                
+
                                 <div class="col-12"><p-divider></p-divider></div>
-                                
+
                                 <!-- Remove Service -->
                                 <div class="col-12 d-flex justify-content-end">
-                                    <button type="button" class="btn btn-outline-danger" (click)="removeService(i)">
-                                        <i class="pi pi-trash me-2"></i>Remove Service
-                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" (click)="removeService(i)"><i class="pi pi-trash me-2"></i>Remove Service</button>
                                 </div>
                             </div>
                         </p-accordionTab>
                     </p-accordion>
-                    
+
                     <div *ngIf="!settings.services || settings.services.length === 0" class="text-center py-4 text-muted">
                         <i class="pi pi-inbox" style="font-size: 3rem;"></i>
                         <p class="mt-3">No services added yet. Click "Add Service" to get started.</p>
                     </div>
                 </p-accordionTab>
-                
             </p-accordion>
 
             <div class="mt-4 d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
-                <button type="button" class="btn btn-success" (click)="updateWidget()">
-                    <i class="pi pi-check me-2"></i>Update Widget
-                </button>
+                <button type="button" class="btn btn-success" (click)="updateWidget()"><i class="pi pi-check me-2"></i>Update Widget</button>
             </div>
         </div>
     `,
-    styles: [`
-        .services-overview-editor :host ::ng-deep .p-accordion-header {
-            font-weight: 600;
-        }
-        
-        /* Fix color picker z-index to prevent it from being cut off */
-        :host ::ng-deep .p-colorpicker-panel {
-            z-index: 9999 !important;
-        }
-        
-        :host ::ng-deep .p-colorpicker-overlay {
-            z-index: 9999 !important;
-        }
-    `]
+    styles: [
+        `
+            .services-overview-editor :host ::ng-deep .p-accordion-header {
+                font-weight: 600;
+            }
+
+            /* Fix color picker z-index to prevent it from being cut off */
+            :host ::ng-deep .p-colorpicker-panel {
+                z-index: 9999 !important;
+            }
+
+            :host ::ng-deep .p-colorpicker-overlay {
+                z-index: 9999 !important;
+            }
+        `
+    ]
 })
 export class ServicesOverviewEditorComponent implements OnChanges {
     @Input() config: any;
@@ -303,11 +272,11 @@ export class ServicesOverviewEditorComponent implements OnChanges {
     @Output() cancel = new EventEmitter<void>();
 
     settings: any = {};
-    
+
     // Image upload properties
     selectedFiles: { [key: number]: File | null } = {};
     uploadingServices: { [key: number]: boolean } = {};
-    uploadProgress: { [key:number]: number } = {};
+    uploadProgress: { [key: number]: number } = {};
 
     trackByFn(index: number, item: any) {
         return index;
@@ -323,22 +292,22 @@ export class ServicesOverviewEditorComponent implements OnChanges {
         console.log('=== SERVICES EDITOR ngOnChanges FIRED ===');
         console.log('changes:', changes);
         console.log('this.config:', this.config);
-        
+
         if (changes['config'] && this.config) {
             console.log('Config exists, checking settings...');
             console.log('this.config.settings:', this.config.settings);
-            
+
             if (this.config.settings) {
                 // Always reload when config changes - deep copy to avoid mutating the original
                 this.settings = JSON.parse(JSON.stringify(this.config.settings));
-                
+
                 if (!this.settings.columns) {
                     this.settings.columns = 3; // Default to 3 columns
                 }
 
                 console.log('Settings after deep copy:', this.settings);
                 console.log('Services in settings:', this.settings.services);
-                
+
                 // Ensure services array exists
                 if (!this.settings.services) {
                     console.warn('No services array found, initializing empty array');
@@ -362,7 +331,7 @@ export class ServicesOverviewEditorComponent implements OnChanges {
                         service.features = service.features.map((feature: string) => ({ description: feature }));
                     }
                 });
-                
+
                 console.log('Final services count:', this.settings.services?.length || 0);
                 console.log('Final settings object:', this.settings);
             } else {
@@ -450,7 +419,7 @@ export class ServicesOverviewEditorComponent implements OnChanges {
         const input = event.target as HTMLInputElement;
         if (input.files && input.files.length > 0) {
             const file = input.files[0];
-            
+
             // Validate file type
             if (!file.type.startsWith('image/')) {
                 this.messageService.add({
@@ -483,7 +452,7 @@ export class ServicesOverviewEditorComponent implements OnChanges {
 
     uploadServiceImage(serviceIndex: number): void {
         const selectedFile = this.selectedFiles[serviceIndex];
-        
+
         if (!selectedFile) {
             this.messageService.add({
                 severity: 'warn',
@@ -523,26 +492,24 @@ export class ServicesOverviewEditorComponent implements OnChanges {
             if (xhr.status === 201 || xhr.status === 200) {
                 try {
                     const response = JSON.parse(xhr.responseText);
-                    
+
                     // Get the tenant domain for the download URL
                     const tenantId = this.tenantService.getTenantId() || 'host';
-                    
+
                     // Get the uploaded file URL or path with tenant query parameter
-                    const imageUrl = response.id 
-                        ? `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${response.id}?X-Tenant-ID=${tenantId}` 
-                        : response.filePath;
-                    
+                    const imageUrl = response.id ? `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${response.id}?X-Tenant-ID=${tenantId}` : response.filePath;
+
                     console.log('Service image upload complete:', imageUrl);
-                    
+
                     // Set the image URL for this service
                     this.settings.services[serviceIndex].imageUrl = imageUrl;
-                    
+
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Upload Successful',
                         detail: 'Service image uploaded successfully'
                     });
-                    
+
                     this.selectedFiles[serviceIndex] = null;
                     this.uploadProgress[serviceIndex] = 0;
                 } catch (error) {
@@ -574,12 +541,12 @@ export class ServicesOverviewEditorComponent implements OnChanges {
 
         xhr.open('POST', `${environment.apiUrl}/api/FileUpload/File_UploadFile`);
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-        
+
         const tenantId = this.tenantService.getTenantId();
         if (tenantId) {
             xhr.setRequestHeader('X-Tenant-ID', tenantId);
         }
-        
+
         xhr.send(formData);
     }
 }

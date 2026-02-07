@@ -1,8 +1,8 @@
 <div class="registration-wizard-container">
     <!-- Alerts -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
-        <div *ngFor="let alert of alerts" class="alert alert-{{alert.type}} alert-dismissible fade show" role="alert">
-            {{alert.message}}
+        <div *ngFor="let alert of alerts" class="alert alert-{{ alert.type }} alert-dismissible fade show" role="alert">
+            {{ alert.message }}
             <button type="button" class="btn-close" (click)="dismissAlert(alert)" aria-label="Close"></button>
         </div>
     </div>
@@ -19,8 +19,8 @@
                 <ul class="nav nav-tabs mb-4">
                     <li class="nav-item" *ngFor="let step of wizardSteps; let i = index">
                         <a class="nav-link" [class.active]="activeIndex() === i" [class.disabled]="i > activeIndex()">
-                            <span class="badge rounded-circle me-2" [class.bg-primary]="activeIndex() === i" [class.bg-secondary]="i !== activeIndex()">{{i + 1}}</span>
-                            {{step}}
+                            <span class="badge rounded-circle me-2" [class.bg-primary]="activeIndex() === i" [class.bg-secondary]="i !== activeIndex()">{{ i + 1 }}</span>
+                            {{ step }}
                         </a>
                     </li>
                 </ul>
@@ -29,13 +29,9 @@
                     <!-- Step 0: Plan Selection (now first) -->
                     <div *ngIf="activeIndex() === 0" class="step-content">
                         <h3>Choose Your Subscription Plan</h3>
-                        
 
                         <div *ngIf="!wizardLoading()" class="plans-grid">
-                            <div *ngFor="let plan of plans()" 
-                                 class="plan-card" 
-                                 [class.selected]="selectedPlan()?.id === plan.id"
-                                 (click)="selectPlan(plan)">
+                            <div *ngFor="let plan of plans()" class="plan-card" [class.selected]="selectedPlan()?.id === plan.id" (click)="selectPlan(plan)">
                                 <div class="plan-header">
                                     <h4>{{ plan.planName }}</h4>
                                     <p class="plan-description">{{ plan.description }}</p>
@@ -43,16 +39,16 @@
                                 <div class="plan-price">
                                     <div class="price-row">
                                         <span class="currency">R</span>
-                                        <span class="amount">{{ plan.monthlyPrice | number:'1.2-2' }}</span>
+                                        <span class="amount">{{ plan.monthlyPrice | number: '1.2-2' }}</span>
                                         <span class="period">/month</span>
                                     </div>
                                     <div class="price-row" *ngIf="plan.yearlyPrice && plan.yearlyPrice > 0">
                                         <span class="currency">R</span>
-                                        <span class="amount">{{ plan.yearlyPrice | number:'1.2-2' }}</span>
+                                        <span class="amount">{{ plan.yearlyPrice | number: '1.2-2' }}</span>
                                         <span class="period">/year</span>
                                     </div>
                                 </div>
-                                <hr class="my-3">
+                                <hr class="my-3" />
                                 <div class="plan-features">
                                     <div class="feature" *ngIf="plan.supportsIdentityVerification">
                                         <i class="bi bi-check-lg"></i>
@@ -80,19 +76,11 @@
                                     </div>
                                 </div>
                                 <div class="d-grid gap-2">
-                                    <button 
-                                        type="button"
-                                        class="btn w-100"
-                                        [class.btn-primary-theme]="selectedPlan()?.id === plan.id"
-                                        [class.btn-outline-primary-theme]="selectedPlan()?.id !== plan.id"
-                                        (click)="selectPlan(plan)">
+                                    <button type="button" class="btn w-100" [class.btn-primary-theme]="selectedPlan()?.id === plan.id" [class.btn-outline-primary-theme]="selectedPlan()?.id !== plan.id" (click)="selectPlan(plan)">
                                         <i class="bi bi-check-lg me-2" *ngIf="selectedPlan()?.id === plan.id"></i>
                                         {{ selectedPlan()?.id === plan.id ? 'Selected' : 'Select Plan' }}
                                     </button>
-                                    <button 
-                                        type="button"
-                                        class="btn btn-outline-info btn-sm"
-                                        (click)="openPlanFeaturesModal(plan)">
+                                    <button type="button" class="btn btn-outline-info btn-sm" (click)="openPlanFeaturesModal(plan)">
                                         <i class="bi bi-info-circle me-1"></i>
                                         View Features
                                     </button>
@@ -106,20 +94,20 @@
                                 <div class="price-breakdown">
                                     <div class="breakdown-row">
                                         <span>Monthly Price:</span>
-                                        <strong>R {{priceBreakdown().basePrice | number:'1.2-2'}}/month</strong>
+                                        <strong>R {{ priceBreakdown().basePrice | number: '1.2-2' }}/month</strong>
                                     </div>
                                     <div class="breakdown-row" *ngIf="priceBreakdown().couponDiscount > 0">
                                         <span>Coupon Discount:</span>
-                                        <strong class="text-success">-R {{priceBreakdown().couponDiscount | number:'1.2-2'}}</strong>
+                                        <strong class="text-success">-R {{ priceBreakdown().couponDiscount | number: '1.2-2' }}</strong>
                                     </div>
-                                    <hr>
+                                    <hr />
                                     <div class="breakdown-row total">
                                         <span>Total Monthly:</span>
-                                        <strong class="text-primary fs-4">R {{calculatedPrice().monthly | number:'1.2-2'}}</strong>
+                                        <strong class="text-primary fs-4">R {{ calculatedPrice().monthly | number: '1.2-2' }}</strong>
                                     </div>
                                     <div class="breakdown-row total">
-                                        <span>Total Yearly (Save {{calculatedPrice().yearlyDiscount}}%):</span>
-                                        <strong class="text-success fs-4">R {{calculatedPrice().yearly | number:'1.2-2'}}</strong>
+                                        <span>Total Yearly (Save {{ calculatedPrice().yearlyDiscount }}%):</span>
+                                        <strong class="text-success fs-4">R {{ calculatedPrice().yearly | number: '1.2-2' }}</strong>
                                     </div>
                                 </div>
                             </div>
@@ -129,22 +117,24 @@
                         <div class="billing-cycle-section mb-4">
                             <h5>Select Billing Cycle</h5>
                             <div class="btn-group w-100" role="group">
-                                <input type="radio" class="btn-check" name="billingCycle" id="monthly" [value]="'monthly'" [(ngModel)]="selectedBillingCycle" autocomplete="off">
+                                <input type="radio" class="btn-check" name="billingCycle" id="monthly" [value]="'monthly'" [(ngModel)]="selectedBillingCycle" autocomplete="off" />
                                 <label class="btn btn-outline-primary-theme" for="monthly">
-                                    <div>Monthly </div>
-                                    <div class="fs-5 fw-boldd px-4"> R {{calculatedPrice().monthly | number:'1.2-2'}}</div>
+                                    <div>Monthly</div>
+                                    <div class="fs-5 fw-boldd px-4">R {{ calculatedPrice().monthly | number: '1.2-2' }}</div>
                                     <small> Billed monthly</small>
                                 </label>
 
-                                <input type="radio" class="btn-check" name="billingCycle" id="yearly" [value]="'yearly'" [(ngModel)]="selectedBillingCycle" autocomplete="off">
+                                <input type="radio" class="btn-check" name="billingCycle" id="yearly" [value]="'yearly'" [(ngModel)]="selectedBillingCycle" autocomplete="off" />
                                 <label class="btn btn-outline-primary-theme" for="yearly">
-                                    <div>Yearly <span class="badge bg-success">Save {{calculatedPrice().yearlyDiscount}}%</span></div>
-                                    <div class="fs-5 fw-bold px-4"> R {{calculatedPrice().yearly | number:'1.2-2'}}</div>
+                                    <div>
+                                        Yearly <span class="badge bg-success">Save {{ calculatedPrice().yearlyDiscount }}%</span>
+                                    </div>
+                                    <div class="fs-5 fw-bold px-4">R {{ calculatedPrice().yearly | number: '1.2-2' }}</div>
                                     <small> Billed annually</small>
                                 </label>
                             </div>
                         </div>
-                        
+
                         <!-- Pro-Rata Billing Option -->
                         <div class="pro-rata-section card mb-4 border-info">
                             <div class="card-body">
@@ -154,36 +144,33 @@
                                             <i class="bi bi-calendar-check text-info me-2"></i>
                                             Pro-Rated Billing
                                         </h5>
-                                        <p class="text-muted mb-0 small">
-                                            Pay only for the remaining {{ billingCycle === 1 ? 'year' : 'month' }}. 
-                                            Full billing starts next period.
-                                        </p>
+                                        <p class="text-muted mb-0 small">Pay only for the remaining {{ billingCycle === 1 ? 'year' : 'month' }}. Full billing starts next period.</p>
                                     </div>
                                 </div>
-                                
+
                                 <div *ngIf="enableProRata() && proRataInfo()" class="alert alert-info mb-0">
                                     <div class="row text-center">
                                         <div class="col-md-3">
                                             <small class="text-muted d-block">Full Price</small>
-                                            <strong>R {{proRataInfo()!.fullAmount | number:'1.2-2'}}</strong>
+                                            <strong>R {{ proRataInfo()!.fullAmount | number: '1.2-2' }}</strong>
                                         </div>
                                         <div class="col-md-3">
                                             <small class="text-muted d-block">Days Remaining</small>
-                                            <strong>{{proRataInfo()!.daysRemaining}} / {{proRataInfo()!.daysInPeriod}}</strong>
+                                            <strong>{{ proRataInfo()!.daysRemaining }} / {{ proRataInfo()!.daysInPeriod }}</strong>
                                         </div>
                                         <div class="col-md-3">
                                             <small class="text-muted d-block">You Save</small>
-                                            <strong class="text-success">R {{(proRataInfo()!.fullAmount - proRataInfo()!.proRatedAmount) | number:'1.2-2'}}</strong>
+                                            <strong class="text-success">R {{ proRataInfo()!.fullAmount - proRataInfo()!.proRatedAmount | number: '1.2-2' }}</strong>
                                         </div>
                                         <div class="col-md-3">
                                             <small class="text-muted d-block">Pro-Rated Price</small>
-                                            <strong class="text-primary fs-5">R {{proRataInfo()!.proRatedAmount | number:'1.2-2'}}</strong>
+                                            <strong class="text-primary fs-5">R {{ proRataInfo()!.proRatedAmount | number: '1.2-2' }}</strong>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    
+
                         <div *ngIf="wizardLoading()" class="loading-container">
                             <div class="spinner-border" role="status"></div>
                         </div>
@@ -192,22 +179,13 @@
                         <div *ngIf="selectedPlan()" class="coupon-section mt-4">
                             <h4 class="mb-3">Have a coupon code?</h4>
                             <div class="input-group">
-                                <input 
-                                    type="text" 
-                                    class="form-control" 
-                                    [(ngModel)]="couponCode"
-                                    placeholder="Enter coupon code"
-                                    [disabled]="couponLoading() || couponFromUrl()">
-                                <button 
-                                    type="button"
-                                    class="btn-primary-theme"
-                                    [disabled]="!couponCode() || couponLoading() || couponFromUrl()"
-                                    (click)="validateCoupon()">
+                                <input type="text" class="form-control" [(ngModel)]="couponCode" placeholder="Enter coupon code" [disabled]="couponLoading() || couponFromUrl()" />
+                                <button type="button" class="btn-primary-theme" [disabled]="!couponCode() || couponLoading() || couponFromUrl()" (click)="validateCoupon()">
                                     <span *ngIf="couponLoading()" class="spinner-border spinner-border-sm me-2" role="status"></span>
                                     Apply
                                 </button>
                             </div>
-                            
+
                             <div *ngIf="couponValidation()?.isValid" class="alert alert-success mt-3 d-flex flex-column align-items-start" role="alert">
                                 <div class="d-flex align-items-center">
                                     <i class="bi bi-check-circle-fill me-2"></i>
@@ -224,18 +202,18 @@
                         <div *ngIf="selectedPlan()" class="price-summary mt-4">
                             <div class="summary-row">
                                 <span>Plan:</span>
-                                <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ calculatedPrice().monthly | number:'1.2-2' }}/month</span>
-                                <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ calculatedPrice().yearly | number:'1.2-2' }}/year</span>
+                                <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ calculatedPrice().monthly | number: '1.2-2' }}/month</span>
+                                <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ calculatedPrice().yearly | number: '1.2-2' }}/year</span>
                             </div>
                             <div *ngIf="getDiscountAmount() > 0" class="summary-row discount">
                                 <span>Discount:</span>
-                                <span>-R {{ getDiscountAmount() | number:'1.2-2' }}</span>
+                                <span>-R {{ getDiscountAmount() | number: '1.2-2' }}</span>
                             </div>
-                            <hr class="my-3">
+                            <hr class="my-3" />
                             <div class="summary-row total">
                                 <span>First Month's Total:</span>
-                                <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ getFinalPrice() | number:'1.2-2' }}/month</span>
-                                <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ getFinalPrice() | number:'1.2-2' }}/year</span>
+                                <span *ngIf="selectedBillingCycle() === 'monthly'">R {{ getFinalPrice() | number: '1.2-2' }}/month</span>
+                                <span *ngIf="selectedBillingCycle() === 'yearly'">R {{ getFinalPrice() | number: '1.2-2' }}/year</span>
                             </div>
                         </div>
                     </div>
@@ -247,26 +225,14 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="firstName" class="form-label">First Name *</label>
-                                    <input
-                                        id="firstName"
-                                        type="text"
-                                        class="form-control"
-                                        formControlName="firstName"
-                                        [class.is-invalid]="isFieldInvalid('firstName')"
-                                        placeholder="Enter first name">
+                                    <input id="firstName" type="text" class="form-control" formControlName="firstName" [class.is-invalid]="isFieldInvalid('firstName')" placeholder="Enter first name" />
                                     <div *ngIf="isFieldInvalid('firstName')" class="invalid-feedback">
                                         {{ getFieldError('firstName') }}
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="lastName" class="form-label">Last Name *</label>
-                                    <input
-                                        id="lastName"
-                                        type="text"
-                                        class="form-control"
-                                        formControlName="lastName"
-                                        [class.is-invalid]="isFieldInvalid('lastName')"
-                                        placeholder="Enter last name">
+                                    <input id="lastName" type="text" class="form-control" formControlName="lastName" [class.is-invalid]="isFieldInvalid('lastName')" placeholder="Enter last name" />
                                     <div *ngIf="isFieldInvalid('lastName')" class="invalid-feedback">
                                         {{ getFieldError('lastName') }}
                                     </div>
@@ -276,13 +242,7 @@
                             <div class="row g-3 mt-3">
                                 <div class="col-md-6">
                                     <label for="email" class="form-label">Email Address *</label>
-                                    <input
-                                        id="email"
-                                        type="email"
-                                        class="form-control"
-                                        formControlName="email"
-                                        [class.is-invalid]="isFieldInvalid('email')"
-                                        placeholder="admin@example.com">
+                                    <input id="email" type="email" class="form-control" formControlName="email" [class.is-invalid]="isFieldInvalid('email')" placeholder="admin@example.com" />
                                     <div *ngIf="isFieldInvalid('email')" class="invalid-feedback">
                                         {{ getFieldError('email') }}
                                     </div>
@@ -292,13 +252,7 @@
                             <div class="row g-3 mt-3">
                                 <div class="col-md-6">
                                     <label for="password" class="form-label">Password *</label>
-                                    <input
-                                        id="password"
-                                        type="password"
-                                        class="form-control"
-                                        formControlName="password"
-                                        [class.is-invalid]="isFieldInvalid('password')"
-                                        placeholder="Enter password">
+                                    <input id="password" type="password" class="form-control" formControlName="password" [class.is-invalid]="isFieldInvalid('password')" placeholder="Enter password" />
                                     <div *ngIf="isFieldInvalid('password')" class="invalid-feedback">
                                         {{ getFieldError('password') }}
                                     </div>
@@ -311,141 +265,69 @@
                                         class="form-control"
                                         formControlName="confirmPassword"
                                         [class.is-invalid]="accountForm.errors?.['passwordMismatch'] && accountForm.get('confirmPassword')?.touched"
-                                        placeholder="Confirm password">
-                                    <div *ngIf="accountForm.errors?.['passwordMismatch'] && accountForm.get('confirmPassword')?.touched" class="invalid-feedback">
-                                        Passwords do not match
+                                        placeholder="Confirm password"
+                                    />
+                                    <div *ngIf="accountForm.errors?.['passwordMismatch'] && accountForm.get('confirmPassword')?.touched" class="invalid-feedback">Passwords do not match</div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-3">
+                                <div class="col-12">
+                                    <label for="organizationName" class="form-label">Organization Name *</label>
+                                    <input id="organizationName" type="text" class="form-control" formControlName="organizationName" [class.is-invalid]="isFieldInvalid('organizationName')" placeholder="Enter organisation name" />
+                                    <div *ngIf="isFieldInvalid('organizationName')" class="invalid-feedback">
+                                        {{ getFieldError('organizationName') }}
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="optional-fields-config rounded border border-secondary border-opacity-25 mt-4 p-3">
-                                <p class="mb-1 fw-semibold">Add extra details</p>
-                                <p class="text-muted small mb-2">Only the essential personal details are shown by default. Toggle any field you need for your registration process.</p>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm"
-                                        *ngFor="let field of optionalFieldConfig"
-                                        (click)="toggleOptionalField(field.name)"
-                                        [ngClass]="{
-                                            'btn-primary-theme': shouldShowField(field.name),
-                                            'btn-outline-secondary-theme': !shouldShowField(field.name)
-                                        }">
-                                        {{ field.label }}
-                                        <i class="bi bi-check ms-1" *ngIf="shouldShowField(field.name)"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div *ngIf="shouldShowField('organizationName')" class="row g-3 mt-3">
-                                <div class="col-12">
-                                    <label for="organizationName" class="form-label">Organization Name</label>
-                                    <input
-                                        id="organizationName"
-                                        type="text"
-                                        class="form-control"
-                                        formControlName="organizationName"
-                                        placeholder="Enter organisation name">
-                                </div>
-                            </div>
-
-                            <div *ngIf="shouldShowField('domain')" class="row g-3 mt-3">
+                            <div class="row g-3 mt-3">
                                 <div class="col-md-6">
-                                    <label for="domain" class="form-label">Domain (Subdomain)</label>
-                                    <input
-                                        id="domain"
-                                        type="text"
-                                        class="form-control"
-                                        formControlName="domain"
-                                        [class.is-invalid]="isFieldInvalid('domain')"
-                                        placeholder="yourcompany">
-                                    <small class="form-text text-muted">Your site will live at yourcompany.yourdomain.com</small>
+                                    <label for="domain" class="form-label">Domain (Subdomain) *</label>
+                                    <input id="domain" type="text" class="form-control" formControlName="domain" [class.is-invalid]="isFieldInvalid('domain')" placeholder="yourcompany" />
+                                    <small class="form-text text-muted" *ngIf="accountForm.get('domain')?.value">
+                                        Your site will live at <strong>{{ accountForm.get('domain')?.value | lowercase }}.funeral.com</strong>
+                                    </small>
+                                    <small class="form-text text-muted" *ngIf="!accountForm.get('domain')?.value">
+                                        Your site will live at <strong>yourcompany.funeral.com</strong>
+                                    </small>
                                     <div *ngIf="isFieldInvalid('domain')" class="invalid-feedback">
                                         {{ getFieldError('domain') }}
                                     </div>
                                 </div>
                             </div>
-                            <div *ngIf="!shouldShowField('domain')" class="row g-3 mt-2">
-                                <div class="col-12">
-                                    <small class="text-muted">We will generate a unique subdomain from your name unless you turn on the custom domain field.</small>
-                                </div>
-                            </div>
 
-                            <div *ngIf="shouldShowField('registrationNumber')" class="row g-3 mt-3">
+                            <div class="row g-3 mt-3">
                                 <div class="col-12">
                                     <label for="registrationNumber" class="form-label">Registration Number / ID</label>
-                                    <input
-                                        id="registrationNumber"
-                                        type="text"
-                                        class="form-control"
-                                        formControlName="registrationNumber"
-                                        [class.is-invalid]="isFieldInvalid('registrationNumber')"
-                                        placeholder="2023/123456/07">
+                                    <input id="registrationNumber" type="text" class="form-control" formControlName="registrationNumber" [class.is-invalid]="isFieldInvalid('registrationNumber')" placeholder="2023/123456/07" />
                                     <div *ngIf="isFieldInvalid('registrationNumber')" class="invalid-feedback">
                                         {{ getFieldError('registrationNumber') }}
                                     </div>
                                 </div>
                             </div>
 
-                            <div *ngIf="shouldShowField('phone1') || shouldShowField('phone2')" class="row g-3 mt-3">
-                                <div class="col-md-6" *ngIf="shouldShowField('phone1')">
+                            <div class="row g-3 mt-3">
+                                <div class="col-md-6">
                                     <label for="phone1" class="form-label">Primary Phone</label>
-                                    <input
-                                        id="phone1"
-                                        type="tel"
-                                        class="form-control"
-                                        formControlName="phone1"
-                                        [class.is-invalid]="isFieldInvalid('phone1')"
-                                        placeholder="+27123456789">
+                                    <input id="phone1" type="tel" class="form-control" formControlName="phone1" [class.is-invalid]="isFieldInvalid('phone1')" placeholder="+27123456789" />
                                     <div *ngIf="isFieldInvalid('phone1')" class="invalid-feedback">
                                         {{ getFieldError('phone1') }}
                                     </div>
                                 </div>
-                                <div class="col-md-6" *ngIf="shouldShowField('phone2')">
+                                <div class="col-md-6">
                                     <label for="phone2" class="form-label">Secondary Phone</label>
-                                    <input
-                                        id="phone2"
-                                        type="tel"
-                                        class="form-control"
-                                        formControlName="phone2"
-                                        placeholder="+27987654321">
+                                    <input id="phone2" type="tel" class="form-control" formControlName="phone2" placeholder="+27987654321" />
                                 </div>
                             </div>
 
-                            <div *ngIf="shouldShowField('address')" class="row g-3 mt-3">
+                            <div class="row g-3 mt-3">
                                 <div class="col-12">
                                     <label for="address" class="form-label">Physical Address</label>
-                                    <input
-                                        id="address"
-                                        type="text"
-                                        class="form-control"
-                                        formControlName="address"
-                                        [class.is-invalid]="isFieldInvalid('address')"
-                                        placeholder="123 Main Street, City, Province, 0000">
+                                    <input id="address" type="text" class="form-control" formControlName="address" [class.is-invalid]="isFieldInvalid('address')" placeholder="123 Main Street, City, Province, 0000" />
                                     <div *ngIf="isFieldInvalid('address')" class="invalid-feedback">
                                         {{ getFieldError('address') }}
                                     </div>
-                                </div>
-                            </div>
-
-                            <div *ngIf="shouldShowField('gender') || shouldShowField('idNumber')" class="row g-3 mt-3">
-                                <div class="col-md-6" *ngIf="shouldShowField('gender')">
-                                    <label for="gender" class="form-label">Gender</label>
-                                    <input
-                                        id="gender"
-                                        type="text"
-                                        class="form-control"
-                                        formControlName="gender"
-                                        placeholder="Female / Male / Non-binary">
-                                </div>
-                                <div class="col-md-6" *ngIf="shouldShowField('idNumber')">
-                                    <label for="idNumber" class="form-label">ID Number</label>
-                                    <input
-                                        id="idNumber"
-                                        type="text"
-                                        class="form-control"
-                                        formControlName="idNumber"
-                                        placeholder="8901015009087">
                                 </div>
                             </div>
 
@@ -453,18 +335,12 @@
                             <div class="row g-3 mt-3">
                                 <div class="col-12">
                                     <div class="form-check">
-                                        <input
-                                            type="checkbox"
-                                            class="form-check-input"
-                                            formControlName="agreeToTerms"
-                                            id="agreeToTerms">
+                                        <input type="checkbox" class="form-check-input" formControlName="agreeToTerms" id="agreeToTerms" />
                                         <label for="agreeToTerms" class="form-check-label">
                                             I agree to the <a href="javascript:void(0)" (click)="showTermsModal = true">Terms and Conditions</a> and <a href="javascript:void(0)" (click)="showPrivacyModal = true">Privacy Policy</a> *
                                         </label>
                                     </div>
-                                    <div *ngIf="isFieldInvalid('agreeToTerms')" class="invalid-feedback d-block">
-                                        You must agree to the terms and conditions
-                                    </div>
+                                    <div *ngIf="isFieldInvalid('agreeToTerms')" class="invalid-feedback d-block">You must agree to the terms and conditions</div>
                                 </div>
                             </div>
                         </form>
@@ -483,25 +359,15 @@
 
             <div class="card-footer">
                 <div class="wizard-actions">
-                    <button 
-                        type="button"
-                        class="btn-outline-secondary-theme"
-                        [disabled]="activeIndex() === 0 || wizardLoading()"
-                        (click)="previousStep()">
+                    <button type="button" class="btn-outline-secondary-theme" [disabled]="activeIndex() === 0 || wizardLoading()" (click)="previousStep()">
                         <i class="bi bi-arrow-left me-2"></i>
                         Back
                     </button>
-                    
+
                     <div class="right-actions">
-                        <a routerLink="/auth/login" class="btn btn-link">
-                            Already have an account? Login
-                        </a>
-                        
-                        <button 
-                            type="button"
-                            class="btn-primary-theme"
-                            [disabled]="wizardLoading() || (activeIndex() === 0 && !selectedPlan())"
-                            (click)="nextStep()">
+                        <a routerLink="/auth/login" class="btn btn-link"> Already have an account? Login </a>
+
+                        <button type="button" class="btn-primary-theme" [disabled]="wizardLoading() || (activeIndex() === 0 && !selectedPlan())" (click)="nextStep()">
                             <span *ngIf="wizardLoading()" class="spinner-border spinner-border-sm me-2" role="status"></span>
                             <span *ngIf="!wizardLoading()">
                                 {{ activeIndex() === 1 ? 'Proceed to Payment' : 'Continue' }}
@@ -515,14 +381,13 @@
     </div>
 </div>
 
-
 <!-- Plan Features Modal -->
 <div class="modal" [class.show]="showPlanFeaturesModal()" [style.display]="showPlanFeaturesModal() ? 'block' : 'none'" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable" *ngIf="selectedPlanForFeatures()">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-bottom-0 bg-gradient pt-4">
                 <div>
-                    <h5 class="modal-title fw-bold" style="font-size: 1.5rem;">{{ selectedPlanForFeatures()?.planName }}</h5>
+                    <h5 class="modal-title fw-bold" style="font-size: 1.5rem">{{ selectedPlanForFeatures()?.planName }}</h5>
                     <p class="text-muted small mb-0 mt-2">{{ selectedPlanForFeatures()?.description }}</p>
                 </div>
                 <button type="button" class="btn-close" (click)="showPlanFeaturesModal.set(false)"></button>
@@ -534,12 +399,12 @@
                         <div class="row align-items-end">
                             <div class="col-md-6">
                                 <small class="text-muted d-block">Monthly</small>
-                                <h4 class="mb-0 fw-bold">R {{ selectedPlanForFeatures()?.monthlyPrice | number:'1.2-2' }}</h4>
+                                <h4 class="mb-0 fw-bold">R {{ selectedPlanForFeatures()?.monthlyPrice | number: '1.2-2' }}</h4>
                                 <small class="text-muted">/month</small>
                             </div>
                             <div class="col-md-6" *ngIf="selectedPlanForFeatures()?.yearlyPrice && selectedPlanForFeatures()?.yearlyPrice > 0">
                                 <small class="text-muted d-block">Yearly</small>
-                                <h4 class="mb-0 fw-bold">R {{ selectedPlanForFeatures()?.yearlyPrice | number:'1.2-2' }}</h4>
+                                <h4 class="mb-0 fw-bold">R {{ selectedPlanForFeatures()?.yearlyPrice | number: '1.2-2' }}</h4>
                                 <small class="text-muted">/year</small>
                             </div>
                         </div>
@@ -547,7 +412,18 @@
                 </div>
 
                 <!-- Limits & Quotas -->
-                <div *ngIf="selectedPlanForFeatures()?.maxUsers || selectedPlanForFeatures()?.maxMembers || selectedPlanForFeatures()?.maxStorageMB || selectedPlanForFeatures()?.maxProducts || selectedPlanForFeatures()?.maxActiveOrders || selectedPlanForFeatures()?.maxLandingPages || selectedPlanForFeatures()?.maxEmailTemplates || selectedPlanForFeatures()?.maxCustomForms">
+                <div
+                    *ngIf="
+                        selectedPlanForFeatures()?.maxUsers ||
+                        selectedPlanForFeatures()?.maxMembers ||
+                        selectedPlanForFeatures()?.maxStorageMB ||
+                        selectedPlanForFeatures()?.maxProducts ||
+                        selectedPlanForFeatures()?.maxActiveOrders ||
+                        selectedPlanForFeatures()?.maxLandingPages ||
+                        selectedPlanForFeatures()?.maxEmailTemplates ||
+                        selectedPlanForFeatures()?.maxCustomForms
+                    "
+                >
                     <h6 class="mb-3 fw-bold d-flex align-items-center">
                         <i class="bi bi-speedometer2 me-2 text-primary"></i>
                         Limits & Quotas
@@ -603,9 +479,20 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Core Features -->
-                <div *ngIf="selectedPlanForFeatures()?.canUploadFiles || selectedPlanForFeatures()?.canCreateSubAccounts || selectedPlanForFeatures()?.canExportData || selectedPlanForFeatures()?.canUseAPI || selectedPlanForFeatures()?.canUseLandingPageBuilder || selectedPlanForFeatures()?.canUseCustomDomain || selectedPlanForFeatures()?.canAccessAdvancedReports || selectedPlanForFeatures()?.canUseWhiteLabel">
+                <div
+                    *ngIf="
+                        selectedPlanForFeatures()?.canUploadFiles ||
+                        selectedPlanForFeatures()?.canCreateSubAccounts ||
+                        selectedPlanForFeatures()?.canExportData ||
+                        selectedPlanForFeatures()?.canUseAPI ||
+                        selectedPlanForFeatures()?.canUseLandingPageBuilder ||
+                        selectedPlanForFeatures()?.canUseCustomDomain ||
+                        selectedPlanForFeatures()?.canAccessAdvancedReports ||
+                        selectedPlanForFeatures()?.canUseWhiteLabel
+                    "
+                >
                     <h6 class="mb-3 fw-bold d-flex align-items-center">
                         <i class="bi bi-star-fill me-2 text-warning"></i>
                         Core Features
@@ -668,9 +555,7 @@
                         Included Widgets
                     </h6>
                     <div class="widget-key-grid">
-                        <span
-                            class="widget-pill"
-                            *ngFor="let widgetKey of selectedPlanForFeatures()?.widgetKeys">
+                        <span class="widget-pill" *ngFor="let widgetKey of selectedPlanForFeatures()?.widgetKeys">
                             {{ formatWidgetName(widgetKey) }}
                         </span>
                     </div>
@@ -780,7 +665,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- Terms and Conditions Modal -->
 <div class="modal" [class.show]="showTermsModal" [style.display]="showTermsModal ? 'block' : 'none'" tabindex="-1">

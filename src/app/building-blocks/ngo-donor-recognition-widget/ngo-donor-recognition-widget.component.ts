@@ -33,12 +33,8 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
                     </h3>
 
                     <div class="grid gap-4" [ngClass]="getGridClass(level.name)">
-                        <div *ngFor="let donor of getDonorsByLevel(level.name)" class="donor-card rounded-lg p-6 text-center shadow-md" 
-                            [style.background-color]="level.cardColor"
-                            [style.border]="'3px solid ' + level.accentColor">
-                            
-                            <div class="donor-avatar mx-auto mb-3 w-16 h-16 rounded-full flex items-center justify-center text-white font-bold" 
-                                [style.background-color]="level.accentColor">
+                        <div *ngFor="let donor of getDonorsByLevel(level.name)" class="donor-card rounded-lg p-6 text-center shadow-md" [style.background-color]="level.cardColor" [style.border]="'3px solid ' + level.accentColor">
+                            <div class="donor-avatar mx-auto mb-3 w-16 h-16 rounded-full flex items-center justify-center text-white font-bold" [style.background-color]="level.accentColor">
                                 {{ getInitials(donor.name) }}
                             </div>
 
@@ -46,45 +42,39 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
                                 {{ !donor.isAnonymous ? donor.name : 'Anonymous Donor' }}
                             </h4>
 
-                            <span class="inline-block px-2 py-1 rounded text-xs font-semibold mt-2" 
-                                [style.background-color]="level.accentColor" 
-                                [style.color]="config.levelBadgeTextColor">
+                            <span class="inline-block px-2 py-1 rounded text-xs font-semibold mt-2" [style.background-color]="level.accentColor" [style.color]="config.levelBadgeTextColor">
                                 {{ level.name }}
                             </span>
 
-                            <p *ngIf="donor.donationAmount && !donor.isAnonymous" class="text-sm mt-3" [style.color]="config.amountColor">
-                                Donated: {{ donor.donationAmount | currency:'ZAR':'symbol':'1.0-0' }}
-                            </p>
+                            <p *ngIf="donor.donationAmount && !donor.isAnonymous" class="text-sm mt-3" [style.color]="config.amountColor">Donated: {{ donor.donationAmount | currency: 'ZAR' : 'symbol' : '1.0-0' }}</p>
 
-                            <p *ngIf="donor.recognitionMessage" class="text-sm italic mt-3" [style.color]="config.messageColor">
-                                "{{ donor.recognitionMessage }}"
-                            </p>
+                            <p *ngIf="donor.recognitionMessage" class="text-sm italic mt-3" [style.color]="config.messageColor">"{{ donor.recognitionMessage }}"</p>
                         </div>
                     </div>
                 </div>
 
                 <div *ngIf="config.showDonateButton && !loading" class="text-center mt-12">
-                    <button pButton 
-                        [label]="config.donateButtonText || 'Make a Donation'" 
-                        [style.background-color]="config.donateButtonColor" 
-                        [style.color]="config.donateButtonTextColor"
-                        (click)="donate()"></button>
+                    <button pButton [label]="config.donateButtonText || 'Make a Donation'" [style.background-color]="config.donateButtonColor" [style.color]="config.donateButtonTextColor" (click)="donate()"></button>
                 </div>
             </div>
         </div>
     `,
-    styles: [`
-        .donor-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .donor-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-        .donor-avatar {
-            font-size: 24px;
-        }
-    `]
+    styles: [
+        `
+            .donor-card {
+                transition:
+                    transform 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+            .donor-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            }
+            .donor-avatar {
+                font-size: 24px;
+            }
+        `
+    ]
 })
 export class NgoDonorRecognitionWidgetComponent implements OnInit {
     @Input() config: any = {
@@ -141,9 +131,9 @@ export class NgoDonorRecognitionWidgetComponent implements OnInit {
     }
 
     getDonorsByLevel(level: string): any[] {
-        const levelConfig = this.recognitionLevels.find(l => l.name === level);
+        const levelConfig = this.recognitionLevels.find((l) => l.name === level);
         if (!levelConfig) return [];
-        return this.donors.filter(d => (d.donationAmount || 0) >= levelConfig.minAmount);
+        return this.donors.filter((d) => (d.donationAmount || 0) >= levelConfig.minAmount);
     }
 
     getGridClass(level: string): string {
@@ -155,7 +145,12 @@ export class NgoDonorRecognitionWidgetComponent implements OnInit {
 
     getInitials(name: string): string {
         if (!name) return '?';
-        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        return name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2);
     }
 
     donate(): void {

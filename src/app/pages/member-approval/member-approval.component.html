@@ -49,9 +49,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Pending Member Approvals</h5>
-            <button class="btn btn-sm btn-outline-primary-theme" (click)="loadPendingMembers()">
-                <i class="bi bi-arrow-clockwise"></i> Refresh
-            </button>
+            <button class="btn btn-sm btn-outline-primary-theme" (click)="loadPendingMembers()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
         </div>
         <div class="card-body">
             @if (loading()) {
@@ -62,7 +60,7 @@
                 </div>
             } @else if (pendingMembers().length === 0) {
                 <div class="text-center py-5 text-muted">
-                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                    <i class="bi bi-inbox" style="font-size: 3rem"></i>
                     <p class="mt-3">No pending member approvals</p>
                 </div>
             } @else {
@@ -94,13 +92,9 @@
                                     </td>
                                     <td>
                                         @if (member.isIdVerified) {
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i> Verified
-                                            </span>
+                                            <span class="badge bg-success"> <i class="bi bi-check-circle"></i> Verified </span>
                                         } @else {
-                                            <span class="badge bg-warning">
-                                                <i class="bi bi-exclamation-circle"></i> Not Verified
-                                            </span>
+                                            <span class="badge bg-warning"> <i class="bi bi-exclamation-circle"></i> Not Verified </span>
                                         }
                                     </td>
                                     <td>
@@ -113,10 +107,7 @@
                                         }
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary-theme" 
-                                                (click)="viewMemberDetails(member.id)">
-                                            <i class="bi bi-eye"></i> Review
-                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary-theme" (click)="viewMemberDetails(member.id)"><i class="bi bi-eye"></i> Review</button>
                                     </td>
                                 </tr>
                             }
@@ -130,7 +121,7 @@
 
 <!-- Member Detail Modal -->
 @if (showDetailModal() && selectedMember(); as member) {
-    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
@@ -154,14 +145,15 @@
                                 <div class="col-md-6">
                                     <p><strong>ID Number:</strong> {{ member.identificationNumber }}</p>
                                     <p><strong>Address:</strong> {{ member.streetAddress }}</p>
-                                    <p><strong>ID Verified:</strong> 
+                                    <p>
+                                        <strong>ID Verified:</strong>
                                         @if (member.isIdVerified) {
                                             <span class="badge bg-success">Yes</span>
                                         } @else {
                                             <span class="badge bg-warning">No</span>
                                         }
                                     </p>
-                                    <p><strong>Registration Date:</strong> {{ member.createdDate?.toJSDate() | date:'medium' }}</p>
+                                    <p><strong>Registration Date:</strong> {{ member.createdDate?.toJSDate() | date: 'medium' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -176,10 +168,11 @@
                             <div class="card-body">
                                 @for (policy of member.policyEnrollments; track policy.id) {
                                     <div class="border-bottom pb-2 mb-2">
-                                        <p class="mb-1"><strong>{{ policy.policyName }}</strong></p>
+                                        <p class="mb-1">
+                                            <strong>{{ policy.policyName }}</strong>
+                                        </p>
                                         <p class="mb-1 text-muted small">
-                                            Status: <span class="badge bg-info">{{ policy.status }}</span> | 
-                                            Enrolled: {{ policy.enrollmentDate?.toJSDate() | date:'shortDate' }}
+                                            Status: <span class="badge bg-info">{{ policy.status }}</span> | Enrolled: {{ policy.enrollmentDate?.toJSDate() | date: 'shortDate' }}
                                         </p>
                                     </div>
                                 }
@@ -196,10 +189,10 @@
                             <div class="card-body">
                                 @for (dependent of member.dependents; track dependent.id) {
                                     <div class="border-bottom pb-2 mb-2">
-                                        <p class="mb-1"><strong>{{ dependent.name }}</strong></p>
-                                        <p class="mb-1 text-muted small">
-                                            Type: {{ dependent.relationship }} | Age: {{ dependent.age }}
+                                        <p class="mb-1">
+                                            <strong>{{ dependent.name }}</strong>
                                         </p>
+                                        <p class="mb-1 text-muted small">Type: {{ dependent.relationship }} | Age: {{ dependent.age }}</p>
                                     </div>
                                 }
                             </div>
@@ -215,11 +208,10 @@
                             <div class="card-body">
                                 @for (beneficiary of member.beneficiaries; track beneficiary.id) {
                                     <div class="border-bottom pb-2 mb-2">
-                                        <p class="mb-1"><strong>{{ beneficiary.name }}</strong></p>
-                                        <p class="mb-1 text-muted small">
-                                            Relationship: {{ beneficiary.relationship }} | 
-                                            Allocation: {{ beneficiary.allocationPercentage }}%
+                                        <p class="mb-1">
+                                            <strong>{{ beneficiary.name }}</strong>
                                         </p>
+                                        <p class="mb-1 text-muted small">Relationship: {{ beneficiary.relationship }} | Allocation: {{ beneficiary.allocationPercentage }}%</p>
                                     </div>
                                 }
                             </div>
@@ -235,25 +227,53 @@
                             <div class="card-body">
                                 @for (field of member.customFields; track field.fieldKey) {
                                     <p>
-                                        <strong>{{ field.fieldLabel }}:</strong> 
+                                        <strong>{{ field.fieldLabel }}:</strong>
                                         {{ field.fieldValue || 'N/A' }}
                                     </p>
                                 }
                             </div>
                         </div>
                     }
+
+                    <!-- Dynamic Tables -->
+                    @if (member.dynamicTables && member.dynamicTables.length > 0) {
+                        @for (table of member.dynamicTables; track table.entityName) {
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">{{ table.entityName }}</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    @for (col of table.columns || []; track col.key) {
+                                                        <th>{{ col.label }}</th>
+                                                    }
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (row of table.rows || []; track $index) {
+                                                    <tr>
+                                                        @for (col of table.columns || []; track col.key) {
+                                                            <td>{{ row[col.key!] }}</td>
+                                                        }
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-info text-white me-auto" *ngIf="member.signedAt || member.signatureDataUrl" (click)="downloadContract(member.id!)"><i class="bi bi-file-earmark-pdf"></i> View Contract</button>
                     <button type="button" class="btn-secondary-theme" (click)="closeAllModals()">Close</button>
-                    <button type="button" class="btn-warning-theme" (click)="openRequestUpdatesModal()">
-                        <i class="bi bi-pencil"></i> Request Updates
-                    </button>
-                    <button type="button" class="btn-danger-theme" (click)="openRejectModal()">
-                        <i class="bi bi-x-circle"></i> Reject
-                    </button>
-                    <button type="button" class="btn-primary-theme" (click)="openApproveModal()">
-                        <i class="bi bi-check-circle"></i> Approve
-                    </button>
+                    <button type="button" class="btn-warning-theme" (click)="openRequestUpdatesModal()"><i class="bi bi-pencil"></i> Request Updates</button>
+                    <button type="button" class="btn-danger-theme" (click)="openRejectModal()"><i class="bi bi-x-circle"></i> Reject</button>
+                    <button type="button" class="btn-primary-theme" (click)="openApproveModal()"><i class="bi bi-check-circle"></i> Approve</button>
                 </div>
             </div>
         </div>
@@ -262,7 +282,7 @@
 
 <!-- Approve Modal -->
 @if (showApproveModal() && selectedMember(); as member) {
-    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -270,17 +290,15 @@
                     <button type="button" class="btn-close" (click)="closeAllModals()"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to approve <strong>{{ member.firstNames }} {{ member.surname }}</strong>?</p>
+                    <p>
+                        Are you sure you want to approve <strong>{{ member.firstNames }} {{ member.surname }}</strong
+                        >?
+                    </p>
                     <p class="text-muted small">This will activate their account and all associated policy enrollments.</p>
-                    
+
                     <div class="mb-3">
                         <label for="approvalNotes" class="form-label">Notes (optional)</label>
-                        <textarea 
-                            class="form-control" 
-                            id="approvalNotes" 
-                            rows="3"
-                            [(ngModel)]="approvalNotes"
-                            placeholder="Add any internal notes about this approval..."></textarea>
+                        <textarea class="form-control" id="approvalNotes" rows="3" [(ngModel)]="approvalNotes" placeholder="Add any internal notes about this approval..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -299,7 +317,7 @@
 
 <!-- Reject Modal -->
 @if (showRejectModal() && selectedMember(); as member) {
-    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -307,17 +325,14 @@
                     <button type="button" class="btn-close" (click)="closeAllModals()"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to reject <strong>{{ member.firstNames }} {{ member.surname }}</strong>?</p>
-                    
+                    <p>
+                        Are you sure you want to reject <strong>{{ member.firstNames }} {{ member.surname }}</strong
+                        >?
+                    </p>
+
                     <div class="mb-3">
                         <label for="rejectionReason" class="form-label">Rejection Reason <span class="text-danger">*</span></label>
-                        <textarea 
-                            class="form-control" 
-                            id="rejectionReason" 
-                            rows="4"
-                            [(ngModel)]="rejectionReason"
-                            placeholder="Please provide a clear reason for rejection..."
-                            required></textarea>
+                        <textarea class="form-control" id="rejectionReason" rows="4" [(ngModel)]="rejectionReason" placeholder="Please provide a clear reason for rejection..." required></textarea>
                         <div class="form-text">This reason will be sent to the member via email.</div>
                     </div>
                 </div>
@@ -337,7 +352,7 @@
 
 <!-- Request Updates Modal -->
 @if (showRequestUpdatesModal() && selectedMember(); as member) {
-    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -345,56 +360,40 @@
                     <button type="button" class="btn-close" (click)="closeAllModals()"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Request updates from <strong>{{ member.firstNames }} {{ member.surname }}</strong></p>
-                    
+                    <p>
+                        Request updates from <strong>{{ member.firstNames }} {{ member.surname }}</strong>
+                    </p>
+
                     <div class="mb-3">
                         <label for="updateMessage" class="form-label">Message <span class="text-danger">*</span></label>
-                        <textarea 
-                            class="form-control" 
-                            id="updateMessage" 
-                            rows="4"
-                            [(ngModel)]="updateRequestMessage"
-                            placeholder="Describe what needs to be updated or corrected..."
-                            required></textarea>
+                        <textarea class="form-control" id="updateMessage" rows="4" [(ngModel)]="updateRequestMessage" placeholder="Describe what needs to be updated or corrected..." required></textarea>
                         <div class="form-text">This message will be sent to the member via email.</div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Specific Fields to Update (optional)</label>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="field_email" 
-                                   [checked]="isFieldSelected('Email')"
-                                   (change)="toggleUpdateField('Email')">
+                            <input class="form-check-input" type="checkbox" id="field_email" [checked]="isFieldSelected('Email')" (change)="toggleUpdateField('Email')" />
                             <label class="form-check-label" for="field_email">Email</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="field_phone"
-                                   [checked]="isFieldSelected('Phone')"
-                                   (change)="toggleUpdateField('Phone')">
+                            <input class="form-check-input" type="checkbox" id="field_phone" [checked]="isFieldSelected('Phone')" (change)="toggleUpdateField('Phone')" />
                             <label class="form-check-label" for="field_phone">Phone Number</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="field_address"
-                                   [checked]="isFieldSelected('Address')"
-                                   (change)="toggleUpdateField('Address')">
+                            <input class="form-check-input" type="checkbox" id="field_address" [checked]="isFieldSelected('Address')" (change)="toggleUpdateField('Address')" />
                             <label class="form-check-label" for="field_address">Address</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="field_id"
-                                   [checked]="isFieldSelected('ID Number')"
-                                   (change)="toggleUpdateField('ID Number')">
+                            <input class="form-check-input" type="checkbox" id="field_id" [checked]="isFieldSelected('ID Number')" (change)="toggleUpdateField('ID Number')" />
                             <label class="form-check-label" for="field_id">ID Number</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="field_dependents"
-                                   [checked]="isFieldSelected('Dependents')"
-                                   (change)="toggleUpdateField('Dependents')">
+                            <input class="form-check-input" type="checkbox" id="field_dependents" [checked]="isFieldSelected('Dependents')" (change)="toggleUpdateField('Dependents')" />
                             <label class="form-check-label" for="field_dependents">Dependents</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="field_beneficiaries"
-                                   [checked]="isFieldSelected('Beneficiaries')"
-                                   (change)="toggleUpdateField('Beneficiaries')">
+                            <input class="form-check-input" type="checkbox" id="field_beneficiaries" [checked]="isFieldSelected('Beneficiaries')" (change)="toggleUpdateField('Beneficiaries')" />
                             <label class="form-check-label" for="field_beneficiaries">Beneficiaries</label>
                         </div>
                     </div>

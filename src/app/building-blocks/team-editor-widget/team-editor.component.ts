@@ -291,15 +291,7 @@ export class TeamEditorComponent implements OnInit {
 
     // Utility Methods
     getAvatarColor(name: string): string {
-        const colors = [
-            'var(--avatar-1, #FF6B6B)',
-            'var(--avatar-2, #4ECDC4)',
-            'var(--avatar-3, #45B7D1)',
-            'var(--avatar-4, #96CEB4)',
-            'var(--avatar-5, #FFEAA7)',
-            'var(--avatar-6, #DDA0DD)',
-            'var(--avatar-7, #98D8C8)'
-        ];
+        const colors = ['var(--avatar-1, #FF6B6B)', 'var(--avatar-2, #4ECDC4)', 'var(--avatar-3, #45B7D1)', 'var(--avatar-4, #96CEB4)', 'var(--avatar-5, #FFEAA7)', 'var(--avatar-6, #DDA0DD)', 'var(--avatar-7, #98D8C8)'];
         const index = name.charCodeAt(0) % colors.length;
         return colors[index];
     }

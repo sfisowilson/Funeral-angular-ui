@@ -78,18 +78,24 @@ export class TenantsComponent {
     }
 
     async loadDemoData() {
-        this.tenantService.tenant_GetAllTenants().pipe(unwrap<TenantCreateUpdateDto[]>()).subscribe((tenants) => {
-            this.tenants.set(tenants);
-        });
+        this.tenantService
+            .tenant_GetAllTenants()
+            .pipe(unwrap<TenantCreateUpdateDto[]>())
+            .subscribe((tenants) => {
+                this.tenants.set(tenants);
+            });
 
-        this.lookupService.getEnumValues('TenantType').pipe(unwrap<any[]>()).subscribe({
-            next: (data: any[]) => {
-                this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
-            },
-            error: (error) => {
-                console.error('Error loading tenant types:', error);
-            }
-        });
+        this.lookupService
+            .getEnumValues('TenantType')
+            .pipe(unwrap<any[]>())
+            .subscribe({
+                next: (data: any[]) => {
+                    this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
+                },
+                error: (error) => {
+                    console.error('Error loading tenant types:', error);
+                }
+            });
 
         this.cols = [
             { field: 'name', header: 'Name' },

@@ -12,7 +12,7 @@ import { CardModule } from 'primeng/card';
                 <h2 class="text-center mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                     {{ title }}
                 </h2>
-                
+
                 <div *ngIf="statistics.length === 0" class="text-center p-8">
                     <p class="text-muted">No statistics available. Configure your widget to display impact metrics.</p>
                 </div>
@@ -67,7 +67,7 @@ export class StatisticsWidgetComponent implements OnInit {
     get statistics(): any[] {
         const statistics = this.config.statistics || [];
         console.log('Getting statistics:', statistics);
-        
+
         // If no statistics provided, show default ones
         if (statistics.length === 0) {
             console.log('No statistics found, showing defaults');
@@ -78,7 +78,7 @@ export class StatisticsWidgetComponent implements OnInit {
                 { icon: 'pi pi-heart', value: '99%', label: 'Satisfaction Rate', description: 'Customer feedback' }
             ];
         }
-        
+
         return statistics;
     }
 }

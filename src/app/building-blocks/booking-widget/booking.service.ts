@@ -76,7 +76,7 @@ export class BookingService {
         // For now, generate time slots client-side
         // In production, this would call the backend API
         return of(this.generateTimeSlots(date, config));
-        
+
         // Backend implementation would be:
         // return this.http.post<TimeSlot[]>(`${this.baseUrl}/time-slots`, { date, config });
     }
@@ -162,7 +162,7 @@ export class BookingService {
         while (currentTime < endTime) {
             const timeString = this.formatTime(currentTime);
             const available = this.isTimeSlotAvailable(currentTime, date, config);
-            
+
             timeSlots.push({
                 time: timeString,
                 available,
@@ -336,7 +336,7 @@ END:VCALENDAR`;
                 notificationEmail: config.notificationEmail
             }
         };
-        
+
         return this.http.post(`${this.baseUrl}/send-notifications`, payload).pipe(
             map((response: any) => {
                 console.log('Notification response:', response);

@@ -3,157 +3,155 @@ import { CommonModule } from '@angular/common';
 import { WidgetConfig } from '../widget-config';
 
 interface SlideItem {
-  imageUrl: string;
-  title: string;
-  subtitle: string;
-  buttonText?: string;
-  buttonLink?: string;
-  overlayOpacity?: number;
+    imageUrl: string;
+    title: string;
+    subtitle: string;
+    buttonText?: string;
+    buttonLink?: string;
+    overlayOpacity?: number;
 }
 
 @Component({
-  selector: 'app-slider-widget',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './slider-widget.component.html',
-  styleUrl: './slider-widget.component.css'
+    selector: 'app-slider-widget',
+    standalone: true,
+    imports: [CommonModule],
+    templateUrl: './slider-widget.component.html',
+    styleUrl: './slider-widget.component.css'
 })
 export class SliderWidgetComponent implements OnInit, OnDestroy {
-  @Input() config!: WidgetConfig;
-  
-  currentSlide = 0;
-  autoplayInterval: any;
-  slides: SlideItem[] = [];
+    @Input() config!: WidgetConfig;
 
-  // Helper to access settings
-  get settings(): any {
-    if (!this.config.settings) {
-      this.config.settings = {};
+    currentSlide = 0;
+    autoplayInterval: any;
+    slides: SlideItem[] = [];
+
+    // Helper to access settings
+    get settings(): any {
+        if (!this.config.settings) {
+            this.config.settings = {};
+        }
+        return this.config.settings;
     }
-    return this.config.settings;
-  }
 
-  ngOnInit(): void {
-    this.slides = this.settings.slides || [];
-    
-    if (this.settings.autoplay && this.slides.length > 1) {
-      this.startAutoplay();
+    ngOnInit(): void {
+        this.slides = this.settings.slides || [];
+
+        if (this.settings.autoplay && this.slides.length > 1) {
+            this.startAutoplay();
+        }
     }
-  }
 
-  ngOnDestroy(): void {
-    this.stopAutoplay();
-  }
-
-  startAutoplay(): void {
-    this.autoplayInterval = setInterval(() => {
-      this.nextSlide();
-    }, this.settings.autoplaySpeed || 5000);
-  }
-
-  stopAutoplay(): void {
-    if (this.autoplayInterval) {
-      clearInterval(this.autoplayInterval);
+    ngOnDestroy(): void {
+        this.stopAutoplay();
     }
-  }
 
-  nextSlide(): void {
-    this.currentSlide = (this.currentSlide + 1) % this.slides.length;
-  }
-
-  previousSlide(): void {
-    this.currentSlide = this.currentSlide === 0 ? this.slides.length - 1 : this.currentSlide - 1;
-  }
-
-  goToSlide(index: number): void {
-    this.currentSlide = index;
-    
-    // Reset autoplay if enabled
-    if (this.settings.autoplay) {
-      this.stopAutoplay();
-      this.startAutoplay();
+    startAutoplay(): void {
+        this.autoplayInterval = setInterval(() => {
+            this.nextSlide();
+        }, this.settings.autoplaySpeed || 5000);
     }
-  }
 
-  getContainerStyles(): any {
-    return {
-      'background-color': this.settings.backgroundColor || 'transparent',
-      'height': `${this.settings.height || 500}px`,
-      'padding': `${this.settings.padding || 0}px`
-    };
-  }
+    stopAutoplay(): void {
+        if (this.autoplayInterval) {
+            clearInterval(this.autoplayInterval);
+        }
+    }
 
-  getSlidesContainerStyles(): any {
-    return {
-      'height': '100%',
-      'border-radius': `${this.settings.borderRadius || 0}px`
-    };
-  }
+    nextSlide(): void {
+        this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+    }
 
-  getSlideStyles(slide: SlideItem): any {
-    return {
-      'background-image': slide.imageUrl ? `url(${slide.imageUrl})` : 'none',
-      'background-color': !slide.imageUrl ? 'var(--surface-hover, #e9ecef)' : 'transparent'
-    };
-  }
+    previousSlide(): void {
+        this.currentSlide = this.currentSlide === 0 ? this.slides.length - 1 : this.currentSlide - 1;
+    }
 
-  getOverlayStyles(slide: SlideItem): any {
-    const opacity = slide.overlayOpacity !== undefined ? slide.overlayOpacity : this.settings.overlayOpacity || 0.4;
-    return {
-      'opacity': opacity
-    };
-  }
+    goToSlide(index: number): void {
+        this.currentSlide = index;
 
-  getContentStyles(): any {
-    return {
-      'color': this.settings.textColor || 'var(--primary-contrast-color, #ffffff)'
-    };
-  }
+        // Reset autoplay if enabled
+        if (this.settings.autoplay) {
+            this.stopAutoplay();
+            this.startAutoplay();
+        }
+    }
 
-  getTitleStyles(): any {
-    return {
-      'font-size': `${this.settings.titleSize || 48}px`,
-      'color': this.settings.titleColor || 'var(--primary-contrast-color, #ffffff)'
-    };
-  }
+    getContainerStyles(): any {
+        return {
+            'background-color': this.settings.backgroundColor || 'transparent',
+            height: `${this.settings.height || 500}px`,
+            padding: `${this.settings.padding || 0}px`
+        };
+    }
 
-  getSubtitleStyles(): any {
-    return {
-      'font-size': `${this.settings.subtitleSize || 20}px`,
-      'color': this.settings.subtitleColor || 'var(--primary-contrast-color, #ffffff)'
-    };
-  }
+    getSlidesContainerStyles(): any {
+        return {
+            height: '100%',
+            'border-radius': `${this.settings.borderRadius || 0}px`
+        };
+    }
 
-  getButtonStyles(): any {
-    return {
-      'background-color': this.settings.buttonColor || 'var(--primary-color, #007bff)',
-      'color': this.settings.buttonTextColor || 'var(--primary-contrast-color, #ffffff)',
-      'font-size': `${this.settings.buttonTextSize || 16}px`
-    };
-  }
+    getSlideStyles(slide: SlideItem): any {
+        return {
+            'background-image': slide.imageUrl ? `url(${slide.imageUrl})` : 'none',
+            'background-color': !slide.imageUrl ? 'var(--surface-hover, #e9ecef)' : 'transparent'
+        };
+    }
 
-  getNavButtonStyles(): any {
-    return {
-      'background-color': this.settings.arrowBackgroundColor || 'rgba(0, 0, 0, 0.5)',
-      'color': this.settings.arrowColor || 'var(--primary-contrast-color, #ffffff)'
-    };
-  }
+    getOverlayStyles(slide: SlideItem): any {
+        const opacity = slide.overlayOpacity !== undefined ? slide.overlayOpacity : this.settings.overlayOpacity || 0.4;
+        return {
+            opacity: opacity
+        };
+    }
 
-  getDotsContainerStyles(): any {
-    return {
-      'padding': '12px',
-      'background-color': this.settings.dotsBackgroundColor || 'rgba(0, 0, 0, 0.3)',
-      'border-radius': '20px'
-    };
-  }
+    getContentStyles(): any {
+        return {
+            color: this.settings.textColor || 'var(--primary-contrast-color, #ffffff)'
+        };
+    }
 
-  getDotStyles(isActive: boolean): any {
-    return {
-      'width': `${this.settings.dotSize || 12}px`,
-      'height': `${this.settings.dotSize || 12}px`,
-      'background-color': isActive 
-        ? (this.settings.dotActiveColor || 'var(--primary-contrast-color, #ffffff)') 
-        : (this.settings.dotColor || 'rgba(255, 255, 255, 0.5)')
-    };
-  }
+    getTitleStyles(): any {
+        return {
+            'font-size': `${this.settings.titleSize || 48}px`,
+            color: this.settings.titleColor || 'var(--primary-contrast-color, #ffffff)'
+        };
+    }
+
+    getSubtitleStyles(): any {
+        return {
+            'font-size': `${this.settings.subtitleSize || 20}px`,
+            color: this.settings.subtitleColor || 'var(--primary-contrast-color, #ffffff)'
+        };
+    }
+
+    getButtonStyles(): any {
+        return {
+            'background-color': this.settings.buttonColor || 'var(--primary-color, #007bff)',
+            color: this.settings.buttonTextColor || 'var(--primary-contrast-color, #ffffff)',
+            'font-size': `${this.settings.buttonTextSize || 16}px`
+        };
+    }
+
+    getNavButtonStyles(): any {
+        return {
+            'background-color': this.settings.arrowBackgroundColor || 'rgba(0, 0, 0, 0.5)',
+            color: this.settings.arrowColor || 'var(--primary-contrast-color, #ffffff)'
+        };
+    }
+
+    getDotsContainerStyles(): any {
+        return {
+            padding: '12px',
+            'background-color': this.settings.dotsBackgroundColor || 'rgba(0, 0, 0, 0.3)',
+            'border-radius': '20px'
+        };
+    }
+
+    getDotStyles(isActive: boolean): any {
+        return {
+            width: `${this.settings.dotSize || 12}px`,
+            height: `${this.settings.dotSize || 12}px`,
+            'background-color': isActive ? this.settings.dotActiveColor || 'var(--primary-contrast-color, #ffffff)' : this.settings.dotColor || 'rgba(255, 255, 255, 0.5)'
+        };
+    }
 }

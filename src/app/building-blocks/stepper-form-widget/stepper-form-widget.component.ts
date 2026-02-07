@@ -228,8 +228,11 @@ export class StepperFormWidgetComponent implements OnInit {
                     options: Array.isArray(f.options)
                         ? f.options
                         : typeof f.options === 'string'
-                        ? f.options.split(',').map((o: string) => o.trim()).filter((o: string) => !!o)
-                        : undefined,
+                          ? f.options
+                                .split(',')
+                                .map((o: string) => o.trim())
+                                .filter((o: string) => !!o)
+                          : undefined,
                     order: typeof f.order === 'number' ? f.order : index
                 }))
                 .sort((a, b) => a.order - b.order);
@@ -335,9 +338,7 @@ export class StepperFormWidgetComponent implements OnInit {
                 return rawValue.filter((x) => !!x).length;
             }
 
-            const numbers: number[] = rawValue
-                .map((x) => (typeof x === 'number' ? x : parseFloat(x)))
-                .filter((n) => !isNaN(n));
+            const numbers: number[] = rawValue.map((x) => (typeof x === 'number' ? x : parseFloat(x))).filter((n) => !isNaN(n));
 
             if (!numbers.length) {
                 return 0;
@@ -453,11 +454,7 @@ export class StepperFormWidgetComponent implements OnInit {
             if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(token) || /^\d*\.?\d+$/.test(token)) {
                 output.push(token);
             } else if (token in precedence) {
-                while (
-                    ops.length &&
-                    ops[ops.length - 1] in precedence &&
-                    precedence[ops[ops.length - 1]] >= precedence[token]
-                ) {
+                while (ops.length && ops[ops.length - 1] in precedence && precedence[ops[ops.length - 1]] >= precedence[token]) {
                     output.push(ops.pop() as string);
                 }
                 ops.push(token);
@@ -754,8 +751,7 @@ export class StepperFormWidgetComponent implements OnInit {
             this.hasSigned = true;
             // If a custom success message is configured, keep it; otherwise, set a clearer one.
             if (!this.globalSuccess) {
-                this.globalSuccess =
-                    this.config?.settings?.successMessage || 'Thank you for completing and signing all steps.';
+                this.globalSuccess = this.config?.settings?.successMessage || 'Thank you for completing and signing all steps.';
             }
             this.signedAndCompleted.emit({ signatureDataUrl: this.signatureDataUrl });
         }, 300);
@@ -797,11 +793,7 @@ export class StepperFormWidgetComponent implements OnInit {
         }
 
         // Attach calculator result to submission payload if configured for this step
-        if (
-            step.calculatorEnabled &&
-            step.calculatorStoreMode === 'attach-to-submission' &&
-            step.calculatorResultKey
-        ) {
+        if (step.calculatorEnabled && step.calculatorStoreMode === 'attach-to-submission' && step.calculatorResultKey) {
             submissionPayload[step.calculatorResultKey] = step.calculatorValue;
         }
 

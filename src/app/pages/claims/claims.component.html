@@ -71,13 +71,31 @@
             <ng-template pTemplate="content">
                 <div class="field">
                     <label for="member">Member</label>
-                    <p-dropdown id="member" [options]="members()" [(ngModel)]="claim.memberId" optionLabel="name" optionValue="id" placeholder="Select Member" [class]="{ 'ng-invalid ng-dirty': submitted() && !claim.memberId }" appendTo="body"></p-dropdown>
+                    <p-dropdown
+                        id="member"
+                        [options]="members()"
+                        [(ngModel)]="claim.memberId"
+                        optionLabel="name"
+                        optionValue="id"
+                        placeholder="Select Member"
+                        [class]="{ 'ng-invalid ng-dirty': submitted() && !claim.memberId }"
+                        appendTo="body"
+                    ></p-dropdown>
                     <small class="p-error" *ngIf="submitted() && !claim.memberId">Member is required.</small>
                 </div>
 
                 <div class="field">
                     <label for="policy">Policy</label>
-                    <p-dropdown id="policy" [options]="policies()" [(ngModel)]="claim.policyId" optionLabel="name" optionValue="id" placeholder="Select Policy" [class]="{ 'ng-invalid ng-dirty': submitted() && !claim.policyId }" appendTo="body"></p-dropdown>
+                    <p-dropdown
+                        id="policy"
+                        [options]="policies()"
+                        [(ngModel)]="claim.policyId"
+                        optionLabel="name"
+                        optionValue="id"
+                        placeholder="Select Policy"
+                        [class]="{ 'ng-invalid ng-dirty': submitted() && !claim.policyId }"
+                        appendTo="body"
+                    ></p-dropdown>
                     <small class="p-error" *ngIf="submitted() && !claim.policyId">Policy is required.</small>
                 </div>
 

@@ -32,20 +32,29 @@ export class ProfileCompletionGuard implements CanActivate {
         }
 
         // Check profile completion status and onboarding page configuration
-        // Use the slug endpoint for the onboarding page so that only admins can manage
-        // custom pages, but members can still be redirected to view the onboarding page.
+        // Fetch all pages to find the configured blocking onboarding page dynamically.
         return forkJoin({
             statusResponse: this.profileService.profileCompletion_GetMyStatus(),
-            pageResponse: this.customPagesService.slug('member-onboarding')
+            pagesResponse: this.customPagesService.all()
         }).pipe(
-            map(({ statusResponse, pageResponse }) => {
+            map(({ statusResponse, pagesResponse }) => {
                 const status = statusResponse.result;
-                const onboardingPage = pageResponse.result;
+                const pages = pagesResponse.result || [];
+                
+                console.log('ProfileCompletionGuard: Status:', status);
+                console.log('ProfileCompletionGuard: Pages found:', pages.length);
 
-                const isBlocking = onboardingPage?.isOnboardingPage && onboardingPage?.isBlockingOnboarding;
+                // Find the active page configured as blocking onboarding
+                const onboardingPage = pages.find((p) => p.isActive && p.isOnboardingPage && p.isBlockingOnboarding);
+
+                if (onboardingPage) {
+                    console.log('ProfileCompletionGuard: Found Blocking Onboarding Page:', onboardingPage.slug);
+                } else {
+                    console.warn('ProfileCompletionGuard: NO Blocking Onboarding Page configured.');
+                }
 
                 // If there is no blocking onboarding page configured, do not enforce redirect
-                if (!isBlocking) {
+                if (!onboardingPage) {
                     return true;
                 }
 
@@ -53,16 +62,27 @@ export class ProfileCompletionGuard implements CanActivate {
                 if (status.isComplete) {
                     return true;
                 }
+                
+                console.warn('ProfileCompletionGuard: Profile Incomplete. Redirecting to:', onboardingPage.slug);
 
                 // Profile incomplete and blocking onboarding enabled: redirect to onboarding page by slug
-                const slug = onboardingPage?.slug || 'member-onboarding';
+                const slug = onboardingPage.slug;
+                if (!slug) {
+                    return true;
+                }
+
                 this.router.navigate(['/', slug], {
                     queryParams: { returnUrl: state.url }
                 });
                 return false;
             }),
-            catchError(error => {
+            catchError((error) => {
                 console.error('Error checking profile completion or onboarding page configuration:', error);
+                
+                // IMPORTANT: Fail OPEN behavior.
+                // If API fails (e.g. 500 error), we let the user proceed rather than locking them out.
+                // This might be why valid errors (like database failure) result in access granted.
+                
                 // On error, allow navigation (fail open for better UX)
                 return of(true);
             })

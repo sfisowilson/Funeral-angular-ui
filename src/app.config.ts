@@ -8,16 +8,16 @@ import { appRoutes } from './app.routes';
 import { environment } from './environments/environment';
 import { SwaggerResponseInterceptor } from './app/core/interceptors/swagger-response.interceptor';
 import { Http201SuccessInterceptor } from './app/core/interceptors/http-201-success.interceptor';
-import { 
-    API_BASE_URL, 
-    TenantSettingServiceProxy, 
-    FileUploadServiceProxy, 
-    MemberProfileCompletionServiceProxy, 
-    DependentServiceProxy, 
-    BeneficiaryServiceProxy, 
-    TermsServiceProxy, 
-    RequiredDocumentServiceProxy, 
-    VerificationServiceProxy, 
+import {
+    API_BASE_URL,
+    TenantSettingServiceProxy,
+    FileUploadServiceProxy,
+    MemberProfileCompletionServiceProxy,
+    DependentServiceProxy,
+    BeneficiaryServiceProxy,
+    TermsServiceProxy,
+    RequiredDocumentServiceProxy,
+    VerificationServiceProxy,
     PremiumCalculationServiceProxy,
     AuthServiceProxy,
     MemberServiceProxy,
@@ -93,13 +93,13 @@ export const appConfig: ApplicationConfig = {
         { provide: HTTP_INTERCEPTORS, useClass: SwaggerResponseInterceptor, multi: true },
         { provide: HTTP_INTERCEPTORS, useClass: Http201SuccessInterceptor, multi: true },
         provideAnimationsAsync(),
-        { 
-            provide: API_BASE_URL, 
+        {
+            provide: API_BASE_URL,
             useValue: (() => {
-                console.log('🔍 Environment loaded:', { 
-                    apiUrl: environment.apiUrl, 
+                console.log('🔍 Environment loaded:', {
+                    apiUrl: environment.apiUrl,
                     baseDomain: environment.baseDomain,
-                    production: environment.production 
+                    production: environment.production
                 });
                 return environment.apiUrl;
             })()

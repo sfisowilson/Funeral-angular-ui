@@ -24,19 +24,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 
 // Service Proxies
-import { 
-    AssetManagementServiceProxy, 
-    AssetDto, 
-    CreateAssetDto, 
-    UpdateAssetDto, 
-    AssetCheckoutDto, 
-    CheckoutAssetDto, 
-    CheckinAssetDto, 
-    AssetStatsDto, 
-    AssetType, 
-    AssetStatus, 
-    CheckoutStatus 
-} from '../../core/services/service-proxies';
+import { AssetManagementServiceProxy, AssetDto, CreateAssetDto, UpdateAssetDto, AssetCheckoutDto, CheckoutAssetDto, CheckinAssetDto, AssetStatsDto, AssetType, AssetStatus, CheckoutStatus } from '../../core/services/service-proxies';
 
 @Component({
     selector: 'app-asset-management',
@@ -85,7 +73,7 @@ export class AssetManagementComponent implements OnInit {
     maintenanceDialog: boolean = false;
 
     // Current entities
-    asset: any = {};  // Use any to avoid union type issues
+    asset: any = {}; // Use any to avoid union type issues
     checkout: CheckoutAssetDto = {} as CheckoutAssetDto;
     checkin: CheckinAssetDto = {} as CheckinAssetDto;
     inspection: any = {};
@@ -181,7 +169,7 @@ export class AssetManagementComponent implements OnInit {
     }
 
     editAsset(asset: AssetDto) {
-        this.asset = { ...asset } as any;  // Use any to avoid type conversion issues
+        this.asset = { ...asset } as any; // Use any to avoid type conversion issues
         this.checkpoints = (asset as any).inspectionCheckpoints ? [...(asset as any).inspectionCheckpoints] : [];
         this.assetDialog = true;
     }
@@ -331,32 +319,43 @@ export class AssetManagementComponent implements OnInit {
     // Utility Methods
     getStatusSeverity(status: number): string {
         switch (status) {
-            case 0: return 'success';  // Available
-            case 1: return 'info';     // Checked Out
-            case 2: return 'warn';     // Under Maintenance
-            case 3: return 'danger';   // Out of Service
-            case 4: return 'secondary'; // Retired
-            default: return 'secondary';
+            case 0:
+                return 'success'; // Available
+            case 1:
+                return 'info'; // Checked Out
+            case 2:
+                return 'warn'; // Under Maintenance
+            case 3:
+                return 'danger'; // Out of Service
+            case 4:
+                return 'secondary'; // Retired
+            default:
+                return 'secondary';
         }
     }
 
     getCheckoutStatusSeverity(status: number): string {
         switch (status) {
-            case 0: return 'info';     // Checked Out
-            case 1: return 'success';  // Checked In
-            case 2: return 'danger';   // Overdue
-            case 3: return 'secondary'; // Cancelled
-            default: return 'secondary';
+            case 0:
+                return 'info'; // Checked Out
+            case 1:
+                return 'success'; // Checked In
+            case 2:
+                return 'danger'; // Overdue
+            case 3:
+                return 'secondary'; // Cancelled
+            default:
+                return 'secondary';
         }
     }
 
     getAssetTypeName(type: number): string {
-        const assetType = this.assetTypes.find(t => t.value === type);
+        const assetType = this.assetTypes.find((t) => t.value === type);
         return assetType ? assetType.label : 'Unknown';
     }
 
     getAssetStatusName(status: number): string {
-        const assetStatus = this.assetStatuses.find(s => s.value === status);
+        const assetStatus = this.assetStatuses.find((s) => s.value === status);
         return assetStatus ? assetStatus.label : 'Unknown';
     }
 

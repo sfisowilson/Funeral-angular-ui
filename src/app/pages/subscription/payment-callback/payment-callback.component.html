@@ -5,7 +5,7 @@
                 <div class="card-body p-5">
                     <!-- Loading State -->
                     <div *ngIf="loading" class="text-center">
-                        <div class="spinner-border text-primary mb-4" style="width: 3rem; height: 3rem;" role="status">
+                        <div class="spinner-border text-primary mb-4" style="width: 3rem; height: 3rem" role="status">
                             <span class="visually-hidden">Loading...</span>
                         </div>
                         <h3 class="mt-4">Verifying Payment...</h3>
@@ -15,16 +15,12 @@
                     <!-- Success State -->
                     <div *ngIf="!loading && paymentSuccess" class="text-center">
                         <div class="mb-4">
-                            <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem"></i>
                         </div>
                         <h2 class="text-success mb-3">Payment Successful!</h2>
-                        <p class="mb-4">
-                            Thank you for subscribing! Your payment has been processed successfully.
-                        </p>
+                        <p class="mb-4">Thank you for subscribing! Your payment has been processed successfully.</p>
 
-                        <div class="alert alert-success mb-4">
-                            Your subscription is now active and you can access all features.
-                        </div>
+                        <div class="alert alert-success mb-4">Your subscription is now active and you can access all features.</div>
 
                         <div class="mb-4 text-start">
                             <h4>Next Steps:</h4>
@@ -45,37 +41,28 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button 
-                                class="btn-primary-theme"
-                                (click)="goToDashboard()">
+                            <button class="btn-primary-theme" (click)="goToDashboard()">
                                 <i class="bi bi-house me-2"></i>
                                 Go to Dashboard
                             </button>
-                            <button 
-                                *ngIf="invoiceId"
-                                class="btn-secondary-theme"
-                                (click)="downloadInvoice()">
+                            <button *ngIf="invoiceId" class="btn-secondary-theme" (click)="downloadInvoice()">
                                 <i class="bi bi-download me-2"></i>
                                 Download Invoice
                             </button>
                         </div>
 
-                        <p class="mt-4 text-muted small">
-                            Redirecting to dashboard in {{ redirectCountdown }} seconds...
-                        </p>
+                        <p class="mt-4 text-muted small">Redirecting to dashboard in {{ redirectCountdown }} seconds...</p>
                     </div>
 
                     <!-- Error State -->
                     <div *ngIf="!loading && !paymentSuccess" class="text-center">
                         <div class="mb-4">
-                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 5rem;"></i>
+                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 5rem"></i>
                         </div>
                         <h2 class="text-danger mb-3">Payment Failed</h2>
                         <p class="mb-4">{{ errorMessage }}</p>
 
-                        <div class="alert alert-danger mb-4">
-                            Your payment could not be processed. Please try again or contact support if the problem persists.
-                        </div>
+                        <div class="alert alert-danger mb-4">Your payment could not be processed. Please try again or contact support if the problem persists.</div>
 
                         <div class="mb-4 text-start">
                             <h4>What you can do:</h4>
@@ -100,14 +87,11 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button 
-                                class="btn-primary-theme"
-                                (click)="tryAgain()">
+                            <button class="btn-primary-theme" (click)="tryAgain()">
                                 <i class="bi bi-arrow-clockwise me-2"></i>
                                 Try Again
                             </button>
-                            <button 
-                                class="btn-secondary-theme">
+                            <button class="btn-secondary-theme">
                                 <i class="bi bi-envelope me-2"></i>
                                 Contact Support
                             </button>

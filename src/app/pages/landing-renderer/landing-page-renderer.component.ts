@@ -41,14 +41,8 @@ import { environment } from '../../../environments/environment';
                 <div class="landing-page-container">
                     <!-- Grid-based Layout for Normal Widgets -->
                     <div class="widget-grid" [ngStyle]="getGridStyles()">
-                        <div 
-                            *ngFor="let widget of normalWidgets"
-                            class="widget-item"
-                            [ngStyle]="getWidgetStyles(widget)"
-                            [ngClass]="getWidgetClasses(widget)"
-                            appScrollReveal>
-                            <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }">
-                            </ng-container>
+                        <div *ngFor="let widget of normalWidgets" class="widget-item" [ngStyle]="getWidgetStyles(widget)" [ngClass]="getWidgetClasses(widget)" appScrollReveal>
+                            <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }"> </ng-container>
                         </div>
                     </div>
                 </div>
@@ -56,8 +50,7 @@ import { environment } from '../../../environments/environment';
 
             <!-- Floating Widgets (rendered outside grid) -->
             <ng-container *ngFor="let widget of floatingWidgets">
-                <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }">
-                </ng-container>
+                <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }"> </ng-container>
             </ng-container>
 
             <!-- Footer -->
@@ -75,7 +68,7 @@ import { environment } from '../../../environments/environment';
     styles: [
         `
             @import '../../building-blocks/animations.scss';
-            
+
             .landing-page-container {
                 max-width: 1400px;
                 margin: 0 auto;
@@ -128,15 +121,15 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
 
     // Separate floating and normal widgets
     get normalWidgets(): WidgetConfig[] {
-        return this.widgets.filter(widget => {
-            const widgetType = WIDGET_TYPES.find(t => t.name === widget.type);
+        return this.widgets.filter((widget) => {
+            const widgetType = WIDGET_TYPES.find((t) => t.name === widget.type);
             return !widgetType?.floating;
         });
     }
 
     get floatingWidgets(): WidgetConfig[] {
-        return this.widgets.filter(widget => {
-            const widgetType = WIDGET_TYPES.find(t => t.name === widget.type);
+        return this.widgets.filter((widget) => {
+            const widgetType = WIDGET_TYPES.find((t) => t.name === widget.type);
             return widgetType?.floating === true;
         });
     }
@@ -153,31 +146,27 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
-
-        this.tenantSettingService.loadSettings()
-        .then((data: any) => {
+        this.tenantSettingService.loadSettings().then((data: any) => {
             this.tenantSettings = data;
-             this._settings = JSON.parse(this.tenantSettings.settings ?? "{}");
-             this.isStaticSite = this._settings.isStaticSite || false;
-             const tenantTitle = this._settings.siteTitle || this._settings.title || this.tenantSettings.tenantName || 'Mizo';
-             console.log('Landing page - Setting document title to:', tenantTitle);
-             this.titleService.setTitle(tenantTitle);
+            this._settings = JSON.parse(this.tenantSettings.settings ?? '{}');
+            this.isStaticSite = this._settings.isStaticSite || false;
+            const tenantTitle = this._settings.siteTitle || this._settings.title || this.tenantSettings.tenantName || 'Mizo';
+            console.log('Landing page - Setting document title to:', tenantTitle);
+            this.titleService.setTitle(tenantTitle);
         });
 
         this.isLoggedIn = this.authService.isAuthenticated();
-        
+
         // Load custom pages for navigation
         this.customPagesService.all().subscribe({
             next: (response) => {
-                this.navbarPages = response?.result
-                    .filter((p: any) => p.isActive && p.showInNavbar)
-                    .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
+                this.navbarPages = response?.result.filter((p: any) => p.isActive && p.showInNavbar).sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
             },
             error: (error) => {
                 console.error('Error loading custom pages:', error);
             }
         });
-        
+
         // Use subdomain if present, otherwise use hostSubdomain from environment
         const host = window.location.hostname;
         const subdomain = host.split('.')[0];
@@ -193,15 +182,13 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         this.widgetSubscription = this.widgetService.widgets$.subscribe((widgets: WidgetConfig[]) => {
             this.widgets = widgets;
             // Initialize layout for widgets that don't have one
-            this.widgets.forEach(widget => {
+            this.widgets.forEach((widget) => {
                 if (!widget.layout) {
                     this.pageLayoutService.initializeWidgetLayout(widget);
                 }
             });
         });
     }
-
-    
 
     ngOnDestroy(): void {
         if (this.widgetSubscription) {
@@ -228,7 +215,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     getWidgetStyles(widget: WidgetConfig): any {
         const baseStyles = this.pageLayoutService.calculateGridStyles(widget);
         const layout = widget.layout;
-        
+
         // Add animation CSS variables if animations enabled
         if (layout?.animationEnabled && layout.animationType !== 'none') {
             return {
@@ -238,14 +225,14 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
                 '--animation-easing': layout.animationEasing || 'ease'
             };
         }
-        
+
         return baseStyles;
     }
 
     getWidgetClasses(widget: WidgetConfig): string[] {
         const classes = this.pageLayoutService.getResponsiveClasses(widget);
         const layout = widget.layout;
-        
+
         // Add animation classes
         if (layout?.animationEnabled && layout.animationType && layout.animationType !== 'none') {
             classes.push('widget-animated');
@@ -253,13 +240,13 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         } else {
             classes.push('no-animation');
         }
-        
+
         // Add hover effect classes
         const hoverEffect = layout?.hoverEffect || 'lift';
         if (hoverEffect !== 'none') {
             classes.push(`widget-hover-${hoverEffect}`);
         }
-        
+
         return classes;
     }
 
@@ -268,7 +255,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     }
 
     getWidgetComponent(widgetType: string): any {
-        const type = WIDGET_TYPES.find(t => t.name === widgetType);
+        const type = WIDGET_TYPES.find((t) => t.name === widgetType);
         return type?.component;
     }
 

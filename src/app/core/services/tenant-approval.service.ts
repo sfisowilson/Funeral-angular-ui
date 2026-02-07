@@ -13,21 +13,15 @@ export class TenantApprovalService {
     constructor(private proxy: TenantApprovalServiceProxy) {}
 
     getPendingTenants(): Observable<TenantApprovalListDto[]> {
-        return this.proxy.tenantApproval_GetPendingTenants().pipe(
-            map((response: any) => response.data || response)
-        );
+        return this.proxy.tenantApproval_GetPendingTenants().pipe(map((response: any) => response.data || response));
     }
 
     getAllTenantRequests(): Observable<TenantApprovalListDto[]> {
-        return this.proxy.tenantApproval_GetAllTenantRequests().pipe(
-            map((response: any) => response.data || response)
-        );
+        return this.proxy.tenantApproval_GetAllTenantRequests().pipe(map((response: any) => response.data || response));
     }
 
     getTenantDetail(tenantId: string): Observable<TenantApprovalDetailDto> {
-        return this.proxy.tenantApproval_GetTenantDetail(tenantId).pipe(
-            map((response: any) => response.data || response)
-        );
+        return this.proxy.tenantApproval_GetTenantDetail(tenantId).pipe(map((response: any) => response.data || response));
     }
 
     approveTenant(dto: ApproveTenantDto): Observable<any> {

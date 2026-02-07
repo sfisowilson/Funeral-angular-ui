@@ -48,7 +48,7 @@ export class BenefitsChecklistWidgetComponent implements OnInit {
     get benefits(): BenefitItem[] {
         const benefits = this.settings.benefits || [];
         console.log('Getting benefits:', benefits);
-        
+
         // If no benefits provided, show default ones
         if (benefits.length === 0) {
             console.log('No benefits found, showing defaults');
@@ -63,7 +63,7 @@ export class BenefitsChecklistWidgetComponent implements OnInit {
                 { icon: 'bi bi-check-circle-fill', text: '24/7 customer support' }
             ];
         }
-        
+
         return benefits;
     }
 

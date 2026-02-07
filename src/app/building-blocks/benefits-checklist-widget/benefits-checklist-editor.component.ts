@@ -20,7 +20,7 @@ export class BenefitsChecklistEditorComponent implements OnInit {
 
     ngOnInit() {
         console.log('BenefitsChecklistEditorComponent initialized with config:', this.config);
-        
+
         // Fix: Use config directly instead of config.settings
         if (!this.config) {
             this.config = {};
@@ -89,10 +89,9 @@ export class BenefitsChecklistEditorComponent implements OnInit {
         }
     }
 
-    
     onSave() {
         console.log('BenefitsChecklistEditorComponent onSave called', this.config);
-        
+
         // Fix: Use config directly instead of config.settings
         this.settings = JSON.parse(JSON.stringify(this.config));
         this.update.emit(this.settings);

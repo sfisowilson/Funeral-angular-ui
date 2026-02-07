@@ -11,16 +11,16 @@ import { BlogComponent } from './blog/blog.component';
 import { PaymentGatewayComponent } from './payment-gateway/payment-gateway.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    NgoRoutingModule,
-    // Import all standalone components
-    GrantApplicationsComponent,
-    ImpactReportsComponent,
-    DonorRecognitionComponent,
-    NgoEventsComponent,
-    BlogComponent,
-    PaymentGatewayComponent
-  ]
+    imports: [
+        CommonModule,
+        NgoRoutingModule,
+        // Import all standalone components
+        GrantApplicationsComponent,
+        ImpactReportsComponent,
+        DonorRecognitionComponent,
+        NgoEventsComponent,
+        BlogComponent,
+        PaymentGatewayComponent
+    ]
 })
-export class NgoModule { }
+export class NgoModule {}

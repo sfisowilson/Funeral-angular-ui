@@ -82,7 +82,7 @@ export class StatsCounterWidgetComponent implements OnInit, AfterViewInit {
 
     ngOnInit() {
         // Initialize with final values (in case animation is disabled)
-        this.animatedValues = this.stats.map(stat => stat.value);
+        this.animatedValues = this.stats.map((stat) => stat.value);
     }
 
     ngAfterViewInit() {
@@ -100,7 +100,7 @@ export class StatsCounterWidgetComponent implements OnInit, AfterViewInit {
         };
 
         this.observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
+            entries.forEach((entry) => {
                 if (entry.isIntersecting && !this.hasAnimated) {
                     this.hasAnimated = true;
                     this.animateCounters();
@@ -118,7 +118,7 @@ export class StatsCounterWidgetComponent implements OnInit, AfterViewInit {
     private animateCounters() {
         this.stats.forEach((stat, index) => {
             const numericValue = this.extractNumericValue(stat.value);
-            
+
             if (numericValue !== null) {
                 this.animateNumber(numericValue, index);
             } else {
@@ -146,10 +146,10 @@ export class StatsCounterWidgetComponent implements OnInit, AfterViewInit {
         const timer = setInterval(() => {
             step++;
             current = Math.min(current + increment, target);
-            
+
             const stat = this.stats[index];
             let formattedValue = Math.round(current).toString();
-            
+
             // Add commas for thousands
             if (current >= 1000) {
                 formattedValue = formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');

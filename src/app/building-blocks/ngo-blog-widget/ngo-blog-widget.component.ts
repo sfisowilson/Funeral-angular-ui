@@ -31,18 +31,14 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
                     <article *ngFor="let post of posts" class="blog-card rounded-lg overflow-hidden shadow-lg" [style.background-color]="config.cardBackgroundColor">
                         <div *ngIf="post.featuredImage" class="blog-image relative">
                             <img [src]="post.featuredImage" [alt]="post.title" class="w-full h-48 object-cover" />
-                            <span class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold" 
-                                [style.background-color]="getStatusColor(post.status)" 
-                                [style.color]="config.statusTextColor">
+                            <span class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold" [style.background-color]="getStatusColor(post.status)" [style.color]="config.statusTextColor">
                                 {{ post.status }}
                             </span>
                         </div>
 
                         <div class="blog-content p-6">
                             <div class="blog-meta mb-3">
-                                <span class="text-xs inline-block px-3 py-1 rounded-full mr-2" 
-                                    [style.background-color]="config.categoryBackgroundColor" 
-                                    [style.color]="config.categoryTextColor">
+                                <span class="text-xs inline-block px-3 py-1 rounded-full mr-2" [style.background-color]="config.categoryBackgroundColor" [style.color]="config.categoryTextColor">
                                     {{ post.category }}
                                 </span>
                                 <span class="text-xs" [style.color]="config.dateColor">
@@ -54,53 +50,44 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
                                 {{ post.title }}
                             </h3>
 
-                            <p class="mb-4" [style.color]="config.excerptColor" [style.font-size.px]="config.excerptSize">
-                                {{ post.excerpt || post.content?.substring(0, 100) }}{{ (post.excerpt?.length || post.content?.length) > 100 ? '...' : '' }}
-                            </p>
+                            <p class="mb-4" [style.color]="config.excerptColor" [style.font-size.px]="config.excerptSize">{{ post.excerpt || post.content?.substring(0, 100) }}{{ (post.excerpt?.length || post.content?.length) > 100 ? '...' : '' }}</p>
 
                             <div class="blog-footer flex justify-between items-center">
-                                <span class="text-xs" [style.color]="config.authorColor">
-                                    By {{ post.author }}
-                                </span>
-                                <button pButton 
-                                    [label]="config.readMoreText || 'Read More'" 
-                                    size="small" 
-                                    [style.background-color]="config.buttonColor" 
-                                    [style.color]="config.buttonTextColor"
-                                    (click)="readPost(post)"></button>
+                                <span class="text-xs" [style.color]="config.authorColor"> By {{ post.author }} </span>
+                                <button pButton [label]="config.readMoreText || 'Read More'" size="small" [style.background-color]="config.buttonColor" [style.color]="config.buttonTextColor" (click)="readPost(post)"></button>
                             </div>
                         </div>
                     </article>
                 </div>
 
                 <div *ngIf="config.showViewAllButton && !loading" class="text-center mt-12">
-                    <button pButton 
-                        [label]="config.viewAllButtonText || 'View All Posts'" 
-                        [style.background-color]="config.viewAllButtonColor" 
-                        [style.color]="config.viewAllButtonTextColor"
-                        (click)="viewAllPosts()"></button>
+                    <button pButton [label]="config.viewAllButtonText || 'View All Posts'" [style.background-color]="config.viewAllButtonColor" [style.color]="config.viewAllButtonTextColor" (click)="viewAllPosts()"></button>
                 </div>
             </div>
         </div>
     `,
-    styles: [`
-        .blog-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .blog-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-        .blog-image {
-            overflow: hidden;
-        }
-        .blog-image img {
-            transition: transform 0.3s ease;
-        }
-        .blog-card:hover .blog-image img {
-            transform: scale(1.05);
-        }
-    `]
+    styles: [
+        `
+            .blog-card {
+                transition:
+                    transform 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+            .blog-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            }
+            .blog-image {
+                overflow: hidden;
+            }
+            .blog-image img {
+                transition: transform 0.3s ease;
+            }
+            .blog-card:hover .blog-image img {
+                transform: scale(1.05);
+            }
+        `
+    ]
 })
 export class NgoBlogWidgetComponent implements OnInit {
     @Input() config: any = {
@@ -163,10 +150,14 @@ export class NgoBlogWidgetComponent implements OnInit {
 
     getStatusColor(status: string): string {
         switch (status?.toLowerCase()) {
-            case 'published': return '#10b981';
-            case 'draft': return '#f59e0b';
-            case 'archived': return '#6b7280';
-            default: return '#6b7280';
+            case 'published':
+                return '#10b981';
+            case 'draft':
+                return '#f59e0b';
+            case 'archived':
+                return '#6b7280';
+            default:
+                return '#6b7280';
         }
     }
 

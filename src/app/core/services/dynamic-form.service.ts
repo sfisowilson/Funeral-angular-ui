@@ -2,10 +2,7 @@ import { Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import {
-    OnboardingFieldConfigurationServiceProxy,
-    OnboardingFieldConfigurationDto
-} from './service-proxies';
+import { OnboardingFieldConfigurationServiceProxy, OnboardingFieldConfigurationDto } from './service-proxies';
 
 export interface DynamicFormField {
     config: OnboardingFieldConfigurationDto;
@@ -28,10 +25,10 @@ export class DynamicFormService {
     public categories$ = this.categoriesSubject.asObservable();
 
     private categoryDisplayNames: { [key: string]: string } = {
-        'PersonalInfo': 'Personal Information',
-        'Employment': 'Employment Details',
-        'EmergencyContact': 'Emergency Contact',
-        'MedicalInfo': 'Medical Information'
+        PersonalInfo: 'Personal Information',
+        Employment: 'Employment Details',
+        EmergencyContact: 'Emergency Contact',
+        MedicalInfo: 'Medical Information'
     };
 
     constructor(
@@ -68,14 +65,17 @@ export class DynamicFormService {
      */
     private buildFormStructure(fields: OnboardingFieldConfigurationDto[]): DynamicFormCategory[] {
         // Group fields by category
-        const grouped = fields.reduce((acc: { [key: string]: OnboardingFieldConfigurationDto[] }, field: OnboardingFieldConfigurationDto) => {
-            const category = field.category || 'Other';
-            if (!acc[category]) {
-                acc[category] = [];
-            }
-            acc[category].push(field);
-            return acc;
-        }, {} as { [key: string]: OnboardingFieldConfigurationDto[] });
+        const grouped = fields.reduce(
+            (acc: { [key: string]: OnboardingFieldConfigurationDto[] }, field: OnboardingFieldConfigurationDto) => {
+                const category = field.category || 'Other';
+                if (!acc[category]) {
+                    acc[category] = [];
+                }
+                acc[category].push(field);
+                return acc;
+            },
+            {} as { [key: string]: OnboardingFieldConfigurationDto[] }
+        );
 
         // Create categories with form controls
         const categories: DynamicFormCategory[] = [];
@@ -93,7 +93,7 @@ export class DynamicFormService {
         // Sort by display order
         const sortedFields = fields.sort((a, b) => a.displayOrder - b.displayOrder);
 
-        const dynamicFields: DynamicFormField[] = sortedFields.map(config => {
+        const dynamicFields: DynamicFormField[] = sortedFields.map((config) => {
             const validators = this.buildValidators(config);
             const control = new FormControl(config.defaultValue || '', validators);
 
@@ -206,9 +206,9 @@ export class DynamicFormService {
      */
     createFormGroup(categories: DynamicFormCategory[]): FormGroup {
         const group: any = {};
-        
-        categories.forEach(category => {
-            category.fields.forEach(field => {
+
+        categories.forEach((category) => {
+            category.fields.forEach((field) => {
                 const key = field.config.fieldKey || 'unknown';
                 group[key] = field.control;
             });
@@ -272,8 +272,8 @@ export class DynamicFormService {
      */
     extractFormData(formGroup: FormGroup): Array<{ fieldKey: string; fieldValue: string }> {
         const data: Array<{ fieldKey: string; fieldValue: string }> = [];
-        
-        Object.keys(formGroup.controls).forEach(key => {
+
+        Object.keys(formGroup.controls).forEach((key) => {
             const control = formGroup.get(key);
             if (control && control.value !== null && control.value !== undefined && control.value !== '') {
                 data.push({
@@ -290,7 +290,7 @@ export class DynamicFormService {
      * Populate form with existing data
      */
     populateForm(formGroup: FormGroup, data: Array<{ fieldKey: string; fieldValue: string }>): void {
-        data.forEach(item => {
+        data.forEach((item) => {
             const control = formGroup.get(item.fieldKey);
             if (control) {
                 control.setValue(item.fieldValue);

@@ -21,27 +21,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="flex flex-col">
                     <label for="layout" class="font-medium text-gray-700 mb-2">Layout Style</label>
-                    <p-dropdown id="layout" 
-                                [options]="layoutOptions" 
-                                formControlName="layout" 
-                                optionLabel="label" 
-                                optionValue="value"
-                                placeholder="Select layout"
-                                styleClass="w-full"></p-dropdown>
-                    <small class="text-gray-500 mt-1">
-                        Grid: Regular grid layout | Masonry: Pinterest-style | Carousel: Slideshow
-                    </small>
+                    <p-dropdown id="layout" [options]="layoutOptions" formControlName="layout" optionLabel="label" optionValue="value" placeholder="Select layout" styleClass="w-full"></p-dropdown>
+                    <small class="text-gray-500 mt-1"> Grid: Regular grid layout | Masonry: Pinterest-style | Carousel: Slideshow </small>
                 </div>
 
                 <div class="flex flex-col" *ngIf="form.value.layout !== 'carousel'">
                     <label for="columns" class="font-medium text-gray-700 mb-2">Columns</label>
-                    <p-dropdown id="columns" 
-                                [options]="columnOptions" 
-                                formControlName="columns" 
-                                optionLabel="label" 
-                                optionValue="value"
-                                placeholder="Select columns"
-                                styleClass="w-full"></p-dropdown>
+                    <p-dropdown id="columns" [options]="columnOptions" formControlName="columns" optionLabel="label" optionValue="value" placeholder="Select columns" styleClass="w-full"></p-dropdown>
                 </div>
 
                 <div class="flex flex-col">
@@ -93,54 +79,34 @@
             <div formArrayName="images" class="space-y-4">
                 <div *ngFor="let image of images.controls; let i = index" [formGroupName]="i" class="bg-white rounded-lg shadow p-4">
                     <div class="flex items-start space-x-4">
-                        <img [src]="image.value.src || 'https://via.placeholder.com/150'" 
-                             alt="Preview" 
-                             class="w-32 h-32 object-cover rounded-lg flex-shrink-0 border-2 border-gray-200" />
-                        
+                        <img [src]="image.value.src || 'https://via.placeholder.com/150'" alt="Preview" class="w-32 h-32 object-cover rounded-lg flex-shrink-0 border-2 border-gray-200" />
+
                         <div class="flex-grow space-y-3">
                             <div>
                                 <label class="text-sm font-medium text-gray-700 mb-1 block">Image URL</label>
-                                <input type="text" 
-                                       pInputText 
-                                       formControlName="src" 
-                                       placeholder="Image URL or uploaded path" 
-                                       class="w-full" 
-                                       readonly />
+                                <input type="text" pInputText formControlName="src" placeholder="Image URL or uploaded path" class="w-full" readonly />
                             </div>
-                            
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div>
                                     <label class="text-sm font-medium text-gray-700 mb-1 block">Alt Text</label>
-                                    <input type="text" 
-                                           pInputText 
-                                           formControlName="alt" 
-                                           placeholder="Alternative text for accessibility" 
-                                           class="w-full" />
+                                    <input type="text" pInputText formControlName="alt" placeholder="Alternative text for accessibility" class="w-full" />
                                 </div>
-                                
+
                                 <div>
                                     <label class="text-sm font-medium text-gray-700 mb-1 block">Title</label>
-                                    <input type="text" 
-                                           pInputText 
-                                           formControlName="title" 
-                                           placeholder="Image title (optional)" 
-                                           class="w-full" />
+                                    <input type="text" pInputText formControlName="title" placeholder="Image title (optional)" class="w-full" />
                                 </div>
                             </div>
-                            
+
                             <div class="flex items-center space-x-2">
-                                <label class="btn btn-sm btn-outline-primary mb-0" style="cursor: pointer;">
+                                <label class="btn btn-sm btn-outline-primary mb-0" style="cursor: pointer">
                                     <i class="pi pi-upload me-1"></i>
                                     Replace Image
-                                    <input type="file" 
-                                           accept="image/*" 
-                                           (change)="onFileSelect($event, i)" 
-                                           style="display: none;" />
+                                    <input type="file" accept="image/*" (change)="onFileSelect($event, i)" style="display: none" />
                                 </label>
-                                
-                                <button type="button" 
-                                        class="btn btn-sm btn-outline-danger"
-                                        (click)="removeImage(i)">
+
+                                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeImage(i)">
                                     <i class="pi pi-trash me-1"></i>
                                     Remove
                                 </button>
@@ -148,26 +114,20 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div *ngIf="images.length === 0" class="text-center py-8 text-gray-500 bg-white rounded-lg">
                     <i class="pi pi-images text-4xl mb-2 d-block"></i>
                     <p class="mb-0">No images added yet. Upload your first image below.</p>
                 </div>
             </div>
-            
+
             <div class="mt-6 pt-6 border-t border-gray-200 d-flex align-items-center gap-3">
-                <label class="btn-primary-theme mb-0" style="cursor: pointer;">
+                <label class="btn-primary-theme mb-0" style="cursor: pointer">
                     <i class="pi pi-plus me-2"></i>
                     Add New Images
-                    <input type="file" 
-                           accept="image/*" 
-                           multiple 
-                           (change)="onFileSelect($event)" 
-                           style="display: none;" />
+                    <input type="file" accept="image/*" multiple (change)="onFileSelect($event)" style="display: none" />
                 </label>
-                <span class="badge bg-secondary" *ngIf="images.length > 0">
-                    {{ images.length }} image{{ images.length !== 1 ? 's' : '' }} in gallery
-                </span>
+                <span class="badge bg-secondary" *ngIf="images.length > 0"> {{ images.length }} image{{ images.length !== 1 ? 's' : '' }} in gallery </span>
                 <p class="text-sm text-gray-500 mt-2">
                     <i class="pi pi-info-circle me-1"></i>
                     You can select multiple images at once. Maximum file size: 5MB per image. Supported formats: JPG, PNG, GIF, WebP
@@ -176,16 +136,11 @@
         </p-fieldset>
 
         <div class="flex justify-end pt-6 border-t border-gray-300">
-            <p-button type="submit" 
-                      label="Save Gallery Settings" 
-                      icon="pi pi-check"
-                      class="btn-primary-theme btn-lg"></p-button>
+            <p-button type="submit" label="Save Gallery Settings" icon="pi pi-check" class="btn-primary-theme btn-lg"></p-button>
         </div>
-        
+
         <div class="editor-section d-flex justify-content-end mb-3">
-            <button type="button" class="btn-primary-theme" (click)="onSave()">
-                <i class="bi bi-save"></i> Save
-            </button>
+            <button type="button" class="btn-primary-theme" (click)="onSave()"><i class="bi bi-save"></i> Save</button>
         </div>
     </form>
 </div>

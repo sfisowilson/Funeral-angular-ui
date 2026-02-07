@@ -31,9 +31,7 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
                     <div *ngFor="let event of events" class="event-card rounded-lg overflow-hidden shadow-lg" [style.background-color]="config.cardBackgroundColor">
                         <div *ngIf="event.imageUrl" class="event-image relative">
                             <img [src]="event.imageUrl" [alt]="event.title" class="w-full h-48 object-cover" />
-                            <span *ngIf="event.status" class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold" 
-                                [style.background-color]="getStatusColor(event.status)" 
-                                [style.color]="config.statusTextColor">
+                            <span *ngIf="event.status" class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold" [style.background-color]="getStatusColor(event.status)" [style.color]="config.statusTextColor">
                                 {{ event.status }}
                             </span>
                         </div>
@@ -44,61 +42,48 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
                             </h3>
 
                             <div class="mb-3">
-                                <p class="text-sm mb-1" [style.color]="config.dateColor">
-                                    <i class="pi pi-calendar mr-2"></i>{{ formatDate(event.startDate) }}
-                                </p>
-                                <p class="text-sm" [style.color]="config.locationColor">
-                                    <i class="pi pi-map-marker mr-2"></i>{{ event.location }}
-                                </p>
+                                <p class="text-sm mb-1" [style.color]="config.dateColor"><i class="pi pi-calendar mr-2"></i>{{ formatDate(event.startDate) }}</p>
+                                <p class="text-sm" [style.color]="config.locationColor"><i class="pi pi-map-marker mr-2"></i>{{ event.location }}</p>
                             </div>
 
-                            <p class="mb-4" [style.color]="config.descriptionColor" [style.font-size.px]="config.descriptionSize">
-                                {{ event.description?.substring(0, 100) }}{{ event.description?.length > 100 ? '...' : '' }}
-                            </p>
+                            <p class="mb-4" [style.color]="config.descriptionColor" [style.font-size.px]="config.descriptionSize">{{ event.description?.substring(0, 100) }}{{ event.description?.length > 100 ? '...' : '' }}</p>
 
                             <div class="event-footer flex justify-between items-center">
-                                <span class="text-xs" [style.color]="config.attendeesColor">
-                                    {{ event.currentAttendees }}/{{ event.maxAttendees }} attending
-                                </span>
-                                <button pButton 
-                                    [label]="config.registerButtonText || 'Register'" 
-                                    size="small" 
-                                    [style.background-color]="config.buttonColor" 
-                                    [style.color]="config.buttonTextColor"
-                                    (click)="registerEvent(event)"></button>
+                                <span class="text-xs" [style.color]="config.attendeesColor"> {{ event.currentAttendees }}/{{ event.maxAttendees }} attending </span>
+                                <button pButton [label]="config.registerButtonText || 'Register'" size="small" [style.background-color]="config.buttonColor" [style.color]="config.buttonTextColor" (click)="registerEvent(event)"></button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div *ngIf="config.showViewAllButton && !loading" class="text-center mt-12">
-                    <button pButton 
-                        [label]="config.viewAllButtonText || 'View All Events'" 
-                        [style.background-color]="config.viewAllButtonColor" 
-                        [style.color]="config.viewAllButtonTextColor"
-                        (click)="viewAllEvents()"></button>
+                    <button pButton [label]="config.viewAllButtonText || 'View All Events'" [style.background-color]="config.viewAllButtonColor" [style.color]="config.viewAllButtonTextColor" (click)="viewAllEvents()"></button>
                 </div>
             </div>
         </div>
     `,
-    styles: [`
-        .event-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .event-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-        .event-image {
-            overflow: hidden;
-        }
-        .event-image img {
-            transition: transform 0.3s ease;
-        }
-        .event-card:hover .event-image img {
-            transform: scale(1.05);
-        }
-    `]
+    styles: [
+        `
+            .event-card {
+                transition:
+                    transform 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+            .event-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            }
+            .event-image {
+                overflow: hidden;
+            }
+            .event-image img {
+                transition: transform 0.3s ease;
+            }
+            .event-card:hover .event-image img {
+                transform: scale(1.05);
+            }
+        `
+    ]
 })
 export class NgoEventsWidgetComponent implements OnInit {
     @Input() config: any = {
@@ -160,10 +145,14 @@ export class NgoEventsWidgetComponent implements OnInit {
 
     getStatusColor(status: string): string {
         switch (status?.toLowerCase()) {
-            case 'upcoming': return '#3b82f6';
-            case 'ongoing': return '#ef4444';
-            case 'completed': return '#10b981';
-            default: return '#6b7280';
+            case 'upcoming':
+                return '#3b82f6';
+            case 'ongoing':
+                return '#ef4444';
+            case 'completed':
+                return '#10b981';
+            default:
+                return '#6b7280';
         }
     }
 

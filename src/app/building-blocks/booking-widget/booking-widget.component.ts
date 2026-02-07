@@ -19,70 +19,72 @@ import { TenantSettingsService } from '../../core/services/tenant-settings.servi
     imports: [CommonModule, FormsModule, ButtonModule, CalendarModule, DropdownModule, InputTextModule, TextareaModule, CardModule, ToastModule, ProgressSpinnerModule],
     providers: [MessageService],
     templateUrl: './booking-widget.component.html',
-    styles: [`
-        .booking-widget {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .time-slots-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 0.5rem;
-        }
-        .time-slot {
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-        }
-        .time-slot:hover {
-            background-color: #f8f9fa;
-            border-color: #007bff;
-        }
-        .time-slot.selected {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        .time-slot.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background-color: #f8f9fa;
-        }
-        .service-item {
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .service-item:hover {
-            background-color: #f8f9fa;
-            border-color: #007bff;
-        }
-        .service-item.selected {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        .booking-summary {
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-top: 1rem;
-        }
-        .form-section {
-            margin-bottom: 1.5rem;
-        }
-        .section-title {
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            color: #333;
-        }
-    `]
+    styles: [
+        `
+            .booking-widget {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            .time-slots-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 0.5rem;
+            }
+            .time-slot {
+                padding: 0.75rem;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                cursor: pointer;
+                text-align: center;
+                transition: all 0.2s;
+            }
+            .time-slot:hover {
+                background-color: #f8f9fa;
+                border-color: #007bff;
+            }
+            .time-slot.selected {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+            .time-slot.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                background-color: #f8f9fa;
+            }
+            .service-item {
+                padding: 0.75rem;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                margin-bottom: 0.5rem;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .service-item:hover {
+                background-color: #f8f9fa;
+                border-color: #007bff;
+            }
+            .service-item.selected {
+                background-color: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+            .booking-summary {
+                background-color: #f8f9fa;
+                padding: 1rem;
+                border-radius: 6px;
+                margin-top: 1rem;
+            }
+            .form-section {
+                margin-bottom: 1.5rem;
+            }
+            .section-title {
+                font-weight: 600;
+                margin-bottom: 0.75rem;
+                color: #333;
+            }
+        `
+    ]
 })
 export class BookingWidgetComponent implements OnInit {
     @Input() config: BookingWidgetConfig | null = null;
@@ -153,7 +155,7 @@ export class BookingWidgetComponent implements OnInit {
 
     isServiceSelected(serviceId: string | undefined): boolean {
         if (!serviceId) return false;
-        return this.selectedServices.some(s => s.id === serviceId);
+        return this.selectedServices.some((s) => s.id === serviceId);
     }
 
     private loadTimeSlots(): void {
@@ -186,7 +188,7 @@ export class BookingWidgetComponent implements OnInit {
     }
 
     selectService(service: any): void {
-        const index = this.selectedServices.findIndex(s => s.id === service.id);
+        const index = this.selectedServices.findIndex((s) => s.id === service.id);
         if (index > -1) {
             this.selectedServices.splice(index, 1);
         } else {
@@ -196,7 +198,7 @@ export class BookingWidgetComponent implements OnInit {
     }
 
     validateForm(): void {
-        const isValid = 
+        const isValid =
             this.selectedDate !== null &&
             this.selectedTimeSlot !== null &&
             this.selectedServices.length > 0 &&
@@ -241,7 +243,7 @@ export class BookingWidgetComponent implements OnInit {
                 this.isLoading.set(false);
                 this.bookingComplete.set(true);
                 this.bookingCompleted.emit(booking);
-                
+
                 // Send email notifications if configured
                 if (this.config?.enableEmailNotifications) {
                     this.bookingService.sendBookingNotifications(booking, this.config).subscribe({
@@ -249,12 +251,12 @@ export class BookingWidgetComponent implements OnInit {
                         error: (error) => console.error('Failed to send notifications:', error)
                     });
                 }
-                
+
                 // Handle calendar reminders if configured
                 if (this.config?.enableCalendarReminders) {
                     this.handleCalendarReminders(booking);
                 }
-                
+
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Booking Confirmed',
@@ -312,10 +314,10 @@ export class BookingWidgetComponent implements OnInit {
 
     isDateSelectable(date: Date): boolean {
         if (!this.config) return false;
-        
+
         const now = new Date();
         const minDate = new Date(now.getTime() + this.config.bookingLeadTime * 60 * 60 * 1000);
-        
+
         return date >= minDate;
     }
 
@@ -328,7 +330,7 @@ export class BookingWidgetComponent implements OnInit {
         if (provider === 'both') {
             setTimeout(() => {
                 this.bookingService.downloadICalFile(booking, this.config!);
-                
+
                 this.messageService.add({
                     severity: 'info',
                     summary: 'Calendar Reminder',

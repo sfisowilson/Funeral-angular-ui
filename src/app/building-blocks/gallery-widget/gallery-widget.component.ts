@@ -11,7 +11,7 @@ import { WidgetConfig } from '../widget-config';
 })
 export class GalleryWidgetComponent implements OnInit {
     @Input() config!: WidgetConfig;
-    
+
     currentSlideIndex = 0;
     showLightbox = false;
     lightboxIndex = 0;

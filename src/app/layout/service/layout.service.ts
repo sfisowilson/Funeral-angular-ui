@@ -53,7 +53,7 @@ export class LayoutService {
     private menuSource = new Subject<MenuChangeEvent>();
 
     private resetSource = new Subject();
-    
+
     // Add a subject for state changes
     private stateChangeSource = new Subject<LayoutState>();
 
@@ -64,7 +64,7 @@ export class LayoutService {
     configUpdate$ = this.configUpdate.asObservable();
 
     overlayOpen$ = this.overlayOpen.asObservable();
-    
+
     stateChange$ = this.stateChangeSource.asObservable();
 
     theme = computed(() => (this.layoutConfig()?.darkTheme ? 'light' : 'dark'));
@@ -146,7 +146,7 @@ export class LayoutService {
         console.log('isDesktop:', this.isDesktop());
         console.log('Window width:', window.innerWidth);
         console.log('Current state:', this.layoutState());
-        
+
         if (this.isOverlay()) {
             this.layoutState.update((prev) => ({ ...prev, overlayMenuActive: !this.layoutState().overlayMenuActive }));
 
@@ -157,7 +157,7 @@ export class LayoutService {
 
         if (this.isDesktop()) {
             this.layoutState.update((prev) => ({ ...prev, staticMenuDesktopInactive: !this.layoutState().staticMenuDesktopInactive }));
-            
+
             // Directly apply desktop class
             const wrapper = document.querySelector('.layout-wrapper');
             if (wrapper) {
@@ -176,7 +176,7 @@ export class LayoutService {
             if (this.layoutState().staticMenuMobileActive) {
                 this.overlayOpen.next(null);
             }
-            
+
             // Directly apply mobile class
             const wrapper = document.querySelector('.layout-wrapper');
             if (wrapper) {
@@ -190,11 +190,11 @@ export class LayoutService {
                 console.log('Wrapper classes:', wrapper.className);
             }
         }
-        
+
         const newState = this.layoutState();
         console.log('New state:', newState);
         console.log('staticMenuMobileActive:', newState.staticMenuMobileActive);
-        
+
         // Emit the state change so components can subscribe
         console.log('About to emit state change via stateChangeSource.next()');
         this.stateChangeSource.next(newState);
@@ -225,13 +225,13 @@ export class LayoutService {
     }
 
     closeMenu() {
-        this.layoutState.update((prev) => ({ 
-            ...prev, 
-            overlayMenuActive: false, 
-            staticMenuMobileActive: false, 
-            menuHoverActive: false 
+        this.layoutState.update((prev) => ({
+            ...prev,
+            overlayMenuActive: false,
+            staticMenuMobileActive: false,
+            menuHoverActive: false
         }));
-        
+
         const newState = this.layoutState();
         this.stateChangeSource.next(newState);
     }

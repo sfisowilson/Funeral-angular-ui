@@ -1,0 +1,101 @@
+<p-toast></p-toast>
+
+<div class="email-settings-container bg-white p-6 rounded-lg shadow">
+    <div class="flex justify-between items-center mb-4">
+        <div>
+            <h2 class="text-xl font-semibold text-gray-700">Email Settings</h2>
+            <p class="text-sm text-gray-600 mt-1">Configure SMTP settings used for sending system emails.</p>
+        </div>
+        <button pButton type="button" label="Test Email" icon="pi pi-send" class="btn-secondary-theme" 
+            (click)="openTestDialog()" [disabled]="!hasCredentials || loading"></button>
+    </div>
+
+    <div *ngIf="hasCredentials" class="info-message p-3 mb-4" style="background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 4px;">
+        <i class="pi pi-info-circle mr-2" style="color: #2196f3;"></i>
+        <span style="color: #1976d2;">Email credentials are configured. For security reasons, existing credentials cannot be retrieved. You can update them below.</span>
+    </div>
+
+    <div *ngIf="!hasCredentials && !loading" class="warning-message p-3 mb-4" style="background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 4px;">
+        <i class="pi pi-exclamation-triangle mr-2" style="color: #ff9800;"></i>
+        <span style="color: #e65100;">No email credentials configured. Please set up your SMTP settings below.</span>
+    </div>
+
+    <div *ngIf="loading" class="text-center py-4">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        <p class="mt-2 mb-0">Checking email settings...</p>
+    </div>
+
+    <form *ngIf="!loading" (ngSubmit)="save()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col">
+            <label for="smtpServer" class="font-medium text-gray-700 mb-2">SMTP Server *</label>
+            <input type="text" id="smtpServer" [(ngModel)]="smtpSettings.smtpServer" name="smtpServer" 
+                class="form-control" placeholder="smtp.gmail.com" required />
+        </div>
+
+        <div class="flex flex-col">
+            <label for="smtpPort" class="font-medium text-gray-700 mb-2">SMTP Port *</label>
+            <input type="number" id="smtpPort" [(ngModel)]="smtpSettings.smtpPort" name="smtpPort" 
+                class="form-control" placeholder="587" required />
+        </div>
+
+        <div class="flex flex-col">
+            <label for="smtpUsername" class="font-medium text-gray-700 mb-2">SMTP Username *</label>
+            <input type="text" id="smtpUsername" [(ngModel)]="smtpSettings.smtpUsername" name="smtpUsername" 
+                class="form-control" placeholder="your-email@example.com" required />
+        </div>
+
+        <div class="flex flex-col">
+            <label for="smtpPassword" class="font-medium text-gray-700 mb-2">SMTP Password *</label>
+            <input type="password" id="smtpPassword" [(ngModel)]="smtpSettings.smtpPassword" name="smtpPassword" 
+                class="form-control" placeholder="Enter new password" required />
+            <small class="text-muted mt-1">Password will be cleared after saving for security</small>
+        </div>
+
+        <div class="flex flex-col">
+            <label for="fromEmail" class="font-medium text-gray-700 mb-2">From Email (optional)</label>
+            <input type="email" id="fromEmail" [(ngModel)]="smtpSettings.fromEmail" name="fromEmail" 
+                class="form-control" placeholder="noreply@yourdomain.com" />
+            <small class="text-muted mt-1">Leave blank to use SMTP username</small>
+        </div>
+
+        <div class="flex flex-col">
+            <label for="fromName" class="font-medium text-gray-700 mb-2">From Name (optional)</label>
+            <input type="text" id="fromName" [(ngModel)]="smtpSettings.fromName" name="fromName" 
+                class="form-control" placeholder="Company Name" />
+        </div>
+
+        <div class="flex items-center md:col-span-2">
+            <input type="checkbox" id="enableSsl" [(ngModel)]="smtpSettings.enableSsl" name="enableSsl" class="form-check-input" />
+            <label for="enableSsl" class="ml-2 font-medium text-gray-700">Enable SSL/TLS (Recommended)</label>
+        </div>
+
+        <div class="md:col-span-2 flex justify-end mt-4">
+            <button pButton type="submit" label="Save Settings" icon="pi pi-save" class="btn-primary-theme" [disabled]="saving">
+                <i *ngIf="saving" class="pi pi-spin pi-spinner me-2"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+<p-dialog [(visible)]="showTestDialog" [modal]="true" [style]="{ width: '500px' }" [closable]="true" header="Send Test Email">
+    <ng-template pTemplate="content">
+        <div class="mb-3">
+            <label class="form-label">Recipient Email Address</label>
+            <input 
+                type="email" 
+                class="form-control" 
+                [(ngModel)]="testEmail" 
+                placeholder="Enter email address to receive test email"
+                [disabled]="sendingTest" />
+            <small class="text-muted d-block mt-1">
+                A test email will be sent using your current SMTP configuration.
+            </small>
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Cancel" class="btn-secondary-theme" (click)="showTestDialog = false" [disabled]="sendingTest"></button>
+        <button pButton type="button" label="Send Test" class="btn-primary-theme ms-2" (click)="sendTestEmail()" [disabled]="sendingTest">
+            <i *ngIf="sendingTest" class="pi pi-spin pi-spinner me-2"></i>
+        </button>
+    </ng-template>
+</p-dialog>

@@ -8621,6 +8621,169 @@ export class DynamicEntityServiceProxy {
 }
 
 @Injectable()
+export class EmailServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    email_SendTestEmail(body: SendTestEmailRequest | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/Email/Email_SendTestEmail";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmail_SendTestEmail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmail_SendTestEmail(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processEmail_SendTestEmail(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    email_SaveCredentials(body: SaveEmailCredentialsRequest | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/Email/Email_SaveCredentials";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmail_SaveCredentials(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmail_SaveCredentials(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processEmail_SaveCredentials(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    email_HasCredentials(): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/Email/Email_HasCredentials";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmail_HasCredentials(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmail_HasCredentials(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processEmail_HasCredentials(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable()
 export class FileUploadServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -18828,6 +18991,64 @@ export class PdfFieldMappingServiceProxy {
         }
         return _observableOf<SwaggerResponse<PdfTemplateAnalysisResult>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @return OK
+     */
+    getAvailableFields(): Observable<SwaggerResponse<string[]>> {
+        let url_ = this.baseUrl + "/api/PdfFieldMapping/GetAvailableFields";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAvailableFields(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAvailableFields(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<string[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<string[]>>;
+        }));
+    }
+
+    protected processGetAvailableFields(response: HttpResponseBase): Observable<SwaggerResponse<string[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(item);
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<string[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable()
@@ -27212,6 +27433,105 @@ export class UserProfileServiceProxy {
         }
         return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @return OK
+     */
+    userProfile_GenerateAgentCode(): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/UserProfile/UserProfile_GenerateAgentCode";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUserProfile_GenerateAgentCode(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUserProfile_GenerateAgentCode(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processUserProfile_GenerateAgentCode(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    userProfile_SaveSignature(body: SaveSignatureDto | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/UserProfile/UserProfile_SaveSignature";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUserProfile_SaveSignature(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUserProfile_SaveSignature(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processUserProfile_SaveSignature(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable()
@@ -33484,6 +33804,7 @@ export class CreateOnboardingStepConfigurationDto implements ICreateOnboardingSt
     description!: string | undefined;
     icon!: string | undefined;
     isSkippable!: boolean;
+    calculatorConfig!: string | undefined;
     formId!: string | undefined;
     dynamicEntityTypeKey!: string | undefined;
     formDisplayMode!: string | undefined;
@@ -33521,6 +33842,7 @@ export class CreateOnboardingStepConfigurationDto implements ICreateOnboardingSt
             this.description = _data["description"];
             this.icon = _data["icon"];
             this.isSkippable = _data["isSkippable"];
+            this.calculatorConfig = _data["calculatorConfig"];
             this.formId = _data["formId"];
             this.dynamicEntityTypeKey = _data["dynamicEntityTypeKey"];
             this.formDisplayMode = _data["formDisplayMode"];
@@ -33558,6 +33880,7 @@ export class CreateOnboardingStepConfigurationDto implements ICreateOnboardingSt
         data["description"] = this.description;
         data["icon"] = this.icon;
         data["isSkippable"] = this.isSkippable;
+        data["calculatorConfig"] = this.calculatorConfig;
         data["formId"] = this.formId;
         data["dynamicEntityTypeKey"] = this.dynamicEntityTypeKey;
         data["formDisplayMode"] = this.formDisplayMode;
@@ -33588,6 +33911,7 @@ export interface ICreateOnboardingStepConfigurationDto {
     description: string | undefined;
     icon: string | undefined;
     isSkippable: boolean;
+    calculatorConfig: string | undefined;
     formId: string | undefined;
     dynamicEntityTypeKey: string | undefined;
     formDisplayMode: string | undefined;
@@ -35849,6 +36173,46 @@ export interface IDonorRecognition {
     notes: string | undefined;
     createdAt: DateTime;
     updatedAt: DateTime;
+}
+
+export class DynamicColumnDto implements IDynamicColumnDto {
+    key!: string | undefined;
+    label!: string | undefined;
+
+    constructor(data?: IDynamicColumnDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.key = _data["key"];
+            this.label = _data["label"];
+        }
+    }
+
+    static fromJS(data: any): DynamicColumnDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new DynamicColumnDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["key"] = this.key;
+        data["label"] = this.label;
+        return data;
+    }
+}
+
+export interface IDynamicColumnDto {
+    key: string | undefined;
+    label: string | undefined;
 }
 
 export class DynamicEntityRecordDto implements IDynamicEntityRecordDto {
@@ -38225,6 +38589,9 @@ export class Member implements IMember {
     province!: SouthAfricanProvince;
     postalCode!: string | undefined;
     isReplacingExistingPolicy!: boolean;
+    agentId!: string | undefined;
+    agent!: User;
+    isOnboardingComplete!: boolean;
     existingPolicyNumber!: string | undefined;
     existingInsurerName!: string | undefined;
     existingPolicyPaidUpToDate!: boolean | undefined;
@@ -38253,6 +38620,7 @@ export class Member implements IMember {
     lifeVerifiedAt!: DateTime | undefined;
     signatureDataUrl!: string | undefined;
     signedAt!: DateTime | undefined;
+    notes!: string | undefined;
 
     constructor(data?: IMember) {
         if (data) {
@@ -38289,6 +38657,9 @@ export class Member implements IMember {
             this.province = _data["province"];
             this.postalCode = _data["postalCode"];
             this.isReplacingExistingPolicy = _data["isReplacingExistingPolicy"];
+            this.agentId = _data["agentId"];
+            this.agent = _data["agent"] ? User.fromJS(_data["agent"]) : undefined as any;
+            this.isOnboardingComplete = _data["isOnboardingComplete"];
             this.existingPolicyNumber = _data["existingPolicyNumber"];
             this.existingInsurerName = _data["existingInsurerName"];
             this.existingPolicyPaidUpToDate = _data["existingPolicyPaidUpToDate"];
@@ -38329,6 +38700,7 @@ export class Member implements IMember {
             this.lifeVerifiedAt = _data["lifeVerifiedAt"] ? DateTime.fromISO(_data["lifeVerifiedAt"].toString()) : undefined as any;
             this.signatureDataUrl = _data["signatureDataUrl"];
             this.signedAt = _data["signedAt"] ? DateTime.fromISO(_data["signedAt"].toString()) : undefined as any;
+            this.notes = _data["notes"];
         }
     }
 
@@ -38365,6 +38737,9 @@ export class Member implements IMember {
         data["province"] = this.province;
         data["postalCode"] = this.postalCode;
         data["isReplacingExistingPolicy"] = this.isReplacingExistingPolicy;
+        data["agentId"] = this.agentId;
+        data["agent"] = this.agent ? this.agent.toJSON() : undefined as any;
+        data["isOnboardingComplete"] = this.isOnboardingComplete;
         data["existingPolicyNumber"] = this.existingPolicyNumber;
         data["existingInsurerName"] = this.existingInsurerName;
         data["existingPolicyPaidUpToDate"] = this.existingPolicyPaidUpToDate;
@@ -38405,6 +38780,7 @@ export class Member implements IMember {
         data["lifeVerifiedAt"] = this.lifeVerifiedAt ? this.lifeVerifiedAt.toString() : undefined as any;
         data["signatureDataUrl"] = this.signatureDataUrl;
         data["signedAt"] = this.signedAt ? this.signedAt.toString() : undefined as any;
+        data["notes"] = this.notes;
         return data;
     }
 }
@@ -38434,6 +38810,9 @@ export interface IMember {
     province: SouthAfricanProvince;
     postalCode: string | undefined;
     isReplacingExistingPolicy: boolean;
+    agentId: string | undefined;
+    agent: User;
+    isOnboardingComplete: boolean;
     existingPolicyNumber: string | undefined;
     existingInsurerName: string | undefined;
     existingPolicyPaidUpToDate: boolean | undefined;
@@ -38462,6 +38841,7 @@ export interface IMember {
     lifeVerifiedAt: DateTime | undefined;
     signatureDataUrl: string | undefined;
     signedAt: DateTime | undefined;
+    notes: string | undefined;
 }
 
 export class MemberApprovalDetailDto implements IMemberApprovalDetailDto {
@@ -38504,6 +38884,7 @@ export class MemberApprovalDetailDto implements IMemberApprovalDetailDto {
     dependents!: DependentSummary[] | undefined;
     beneficiaries!: BeneficiarySummary[] | undefined;
     customFields!: OnboardingFieldData[] | undefined;
+    dynamicTables!: MemberDynamicTableDto[] | undefined;
 
     constructor(data?: IMemberApprovalDetailDto) {
         if (data) {
@@ -38570,6 +38951,11 @@ export class MemberApprovalDetailDto implements IMemberApprovalDetailDto {
                 this.customFields = [] as any;
                 for (let item of _data["customFields"])
                     this.customFields!.push(OnboardingFieldData.fromJS(item));
+            }
+            if (Array.isArray(_data["dynamicTables"])) {
+                this.dynamicTables = [] as any;
+                for (let item of _data["dynamicTables"])
+                    this.dynamicTables!.push(MemberDynamicTableDto.fromJS(item));
             }
         }
     }
@@ -38638,6 +39024,11 @@ export class MemberApprovalDetailDto implements IMemberApprovalDetailDto {
             for (let item of this.customFields)
                 data["customFields"].push(item ? item.toJSON() : undefined as any);
         }
+        if (Array.isArray(this.dynamicTables)) {
+            data["dynamicTables"] = [];
+            for (let item of this.dynamicTables)
+                data["dynamicTables"].push(item ? item.toJSON() : undefined as any);
+        }
         return data;
     }
 }
@@ -38682,6 +39073,7 @@ export interface IMemberApprovalDetailDto {
     dependents: DependentSummary[] | undefined;
     beneficiaries: BeneficiarySummary[] | undefined;
     customFields: OnboardingFieldData[] | undefined;
+    dynamicTables: MemberDynamicTableDto[] | undefined;
 }
 
 export class MemberBankingDetailDto implements IMemberBankingDetailDto {
@@ -38864,6 +39256,9 @@ export class MemberDto implements IMemberDto {
     phone1!: string | undefined;
     phone2!: string | undefined;
     identificationNumber!: string | undefined;
+    agentId!: string | undefined;
+    agentName!: string | undefined;
+    agentCode!: string | undefined;
     sourceOfIncome!: SourceOfIncome;
     sourceOfIncomeOther!: string | undefined;
     streetAddress!: string | undefined;
@@ -38917,6 +39312,9 @@ export class MemberDto implements IMemberDto {
             this.phone1 = _data["phone1"];
             this.phone2 = _data["phone2"];
             this.identificationNumber = _data["identificationNumber"];
+            this.agentId = _data["agentId"];
+            this.agentName = _data["agentName"];
+            this.agentCode = _data["agentCode"];
             this.sourceOfIncome = _data["sourceOfIncome"];
             this.sourceOfIncomeOther = _data["sourceOfIncomeOther"];
             this.streetAddress = _data["streetAddress"];
@@ -38982,6 +39380,9 @@ export class MemberDto implements IMemberDto {
         data["phone1"] = this.phone1;
         data["phone2"] = this.phone2;
         data["identificationNumber"] = this.identificationNumber;
+        data["agentId"] = this.agentId;
+        data["agentName"] = this.agentName;
+        data["agentCode"] = this.agentCode;
         data["sourceOfIncome"] = this.sourceOfIncome;
         data["sourceOfIncomeOther"] = this.sourceOfIncomeOther;
         data["streetAddress"] = this.streetAddress;
@@ -39040,6 +39441,9 @@ export interface IMemberDto {
     phone1: string | undefined;
     phone2: string | undefined;
     identificationNumber: string | undefined;
+    agentId: string | undefined;
+    agentName: string | undefined;
+    agentCode: string | undefined;
     sourceOfIncome: SourceOfIncome;
     sourceOfIncomeOther: string | undefined;
     streetAddress: string | undefined;
@@ -39070,6 +39474,66 @@ export interface IMemberDto {
     dependents: DependentDto[] | undefined;
     beneficiaries: BeneficiaryDto[] | undefined;
     policyEnrollments: PolicyEnrollmentDto[] | undefined;
+}
+
+export class MemberDynamicTableDto implements IMemberDynamicTableDto {
+    entityName!: string | undefined;
+    columns!: DynamicColumnDto[] | undefined;
+    rows!: { [key: string]: string; }[] | undefined;
+
+    constructor(data?: IMemberDynamicTableDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.entityName = _data["entityName"];
+            if (Array.isArray(_data["columns"])) {
+                this.columns = [] as any;
+                for (let item of _data["columns"])
+                    this.columns!.push(DynamicColumnDto.fromJS(item));
+            }
+            if (Array.isArray(_data["rows"])) {
+                this.rows = [] as any;
+                for (let item of _data["rows"])
+                    this.rows!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): MemberDynamicTableDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MemberDynamicTableDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["entityName"] = this.entityName;
+        if (Array.isArray(this.columns)) {
+            data["columns"] = [];
+            for (let item of this.columns)
+                data["columns"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.rows)) {
+            data["rows"] = [];
+            for (let item of this.rows)
+                data["rows"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IMemberDynamicTableDto {
+    entityName: string | undefined;
+    columns: DynamicColumnDto[] | undefined;
+    rows: { [key: string]: string; }[] | undefined;
 }
 
 export class MemberOnboardingDataDto implements IMemberOnboardingDataDto {
@@ -39756,6 +40220,7 @@ export class OnboardingStepConfigurationDto implements IOnboardingStepConfigurat
     description!: string | undefined;
     icon!: string | undefined;
     isSkippable!: boolean;
+    calculatorConfig!: string | undefined;
     formId!: string | undefined;
     dynamicEntityTypeKey!: string | undefined;
     dynamicEntityTypeId!: string | undefined;
@@ -39795,6 +40260,7 @@ export class OnboardingStepConfigurationDto implements IOnboardingStepConfigurat
             this.description = _data["description"];
             this.icon = _data["icon"];
             this.isSkippable = _data["isSkippable"];
+            this.calculatorConfig = _data["calculatorConfig"];
             this.formId = _data["formId"];
             this.dynamicEntityTypeKey = _data["dynamicEntityTypeKey"];
             this.dynamicEntityTypeId = _data["dynamicEntityTypeId"];
@@ -39834,6 +40300,7 @@ export class OnboardingStepConfigurationDto implements IOnboardingStepConfigurat
         data["description"] = this.description;
         data["icon"] = this.icon;
         data["isSkippable"] = this.isSkippable;
+        data["calculatorConfig"] = this.calculatorConfig;
         data["formId"] = this.formId;
         data["dynamicEntityTypeKey"] = this.dynamicEntityTypeKey;
         data["dynamicEntityTypeId"] = this.dynamicEntityTypeId;
@@ -39866,6 +40333,7 @@ export interface IOnboardingStepConfigurationDto {
     description: string | undefined;
     icon: string | undefined;
     isSkippable: boolean;
+    calculatorConfig: string | undefined;
     formId: string | undefined;
     dynamicEntityTypeKey: string | undefined;
     dynamicEntityTypeId: string | undefined;
@@ -43311,6 +43779,7 @@ export class RegisterRequest implements IRegisterRequest {
     phoneNumber!: string | undefined;
     identificationNumber!: string | undefined;
     policyId!: string | undefined;
+    agentCode!: string | undefined;
     customFields!: { [key: string]: string; } | undefined;
 
     constructor(data?: IRegisterRequest) {
@@ -43331,6 +43800,7 @@ export class RegisterRequest implements IRegisterRequest {
             this.phoneNumber = _data["phoneNumber"];
             this.identificationNumber = _data["identificationNumber"];
             this.policyId = _data["policyId"];
+            this.agentCode = _data["agentCode"];
             if (_data["customFields"]) {
                 this.customFields = {} as any;
                 for (let key in _data["customFields"]) {
@@ -43357,6 +43827,7 @@ export class RegisterRequest implements IRegisterRequest {
         data["phoneNumber"] = this.phoneNumber;
         data["identificationNumber"] = this.identificationNumber;
         data["policyId"] = this.policyId;
+        data["agentCode"] = this.agentCode;
         if (this.customFields) {
             data["customFields"] = {};
             for (let key in this.customFields) {
@@ -43376,6 +43847,7 @@ export interface IRegisterRequest {
     phoneNumber: string | undefined;
     identificationNumber: string | undefined;
     policyId: string | undefined;
+    agentCode: string | undefined;
     customFields: { [key: string]: string; } | undefined;
 }
 
@@ -44280,6 +44752,66 @@ export interface IRolePermission {
     permission: Permission;
 }
 
+export class SaveEmailCredentialsRequest implements ISaveEmailCredentialsRequest {
+    smtpServer!: string | undefined;
+    smtpPort!: number;
+    smtpUsername!: string | undefined;
+    smtpPassword!: string | undefined;
+    enableSsl!: boolean;
+    fromEmail!: string | undefined;
+    fromName!: string | undefined;
+
+    constructor(data?: ISaveEmailCredentialsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.smtpServer = _data["smtpServer"];
+            this.smtpPort = _data["smtpPort"];
+            this.smtpUsername = _data["smtpUsername"];
+            this.smtpPassword = _data["smtpPassword"];
+            this.enableSsl = _data["enableSsl"];
+            this.fromEmail = _data["fromEmail"];
+            this.fromName = _data["fromName"];
+        }
+    }
+
+    static fromJS(data: any): SaveEmailCredentialsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SaveEmailCredentialsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["smtpServer"] = this.smtpServer;
+        data["smtpPort"] = this.smtpPort;
+        data["smtpUsername"] = this.smtpUsername;
+        data["smtpPassword"] = this.smtpPassword;
+        data["enableSsl"] = this.enableSsl;
+        data["fromEmail"] = this.fromEmail;
+        data["fromName"] = this.fromName;
+        return data;
+    }
+}
+
+export interface ISaveEmailCredentialsRequest {
+    smtpServer: string | undefined;
+    smtpPort: number;
+    smtpUsername: string | undefined;
+    smtpPassword: string | undefined;
+    enableSsl: boolean;
+    fromEmail: string | undefined;
+    fromName: string | undefined;
+}
+
 export class SaveMemberOnboardingDataDto implements ISaveMemberOnboardingDataDto {
     fieldValues!: { [key: string]: string; };
 
@@ -44497,6 +45029,42 @@ export class SendBookingNotificationDto implements ISendBookingNotificationDto {
 export interface ISendBookingNotificationDto {
     booking: BookingDto;
     config: BookingNotificationConfigDto;
+}
+
+export class SendTestEmailRequest implements ISendTestEmailRequest {
+    recipientEmail!: string | undefined;
+
+    constructor(data?: ISendTestEmailRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.recipientEmail = _data["recipientEmail"];
+        }
+    }
+
+    static fromJS(data: any): SendTestEmailRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SendTestEmailRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipientEmail"] = this.recipientEmail;
+        return data;
+    }
+}
+
+export interface ISendTestEmailRequest {
+    recipientEmail: string | undefined;
 }
 
 export class SetRelationsForRecordDto implements ISetRelationsForRecordDto {
@@ -45664,6 +46232,8 @@ export class TenantSettingDto implements ITenantSettingDto {
     requireIdVerificationForRegistration!: boolean;
     hasEmailCredentials!: boolean;
     hasPaymentCredentials!: boolean;
+    requiresOnboardingApproval!: boolean;
+    onboardingSubmitButtonLabel!: string | undefined;
 
     constructor(data?: ITenantSettingDto) {
         if (data) {
@@ -45686,6 +46256,8 @@ export class TenantSettingDto implements ITenantSettingDto {
             this.requireIdVerificationForRegistration = _data["requireIdVerificationForRegistration"];
             this.hasEmailCredentials = _data["hasEmailCredentials"];
             this.hasPaymentCredentials = _data["hasPaymentCredentials"];
+            this.requiresOnboardingApproval = _data["requiresOnboardingApproval"];
+            this.onboardingSubmitButtonLabel = _data["onboardingSubmitButtonLabel"];
         }
     }
 
@@ -45708,6 +46280,8 @@ export class TenantSettingDto implements ITenantSettingDto {
         data["requireIdVerificationForRegistration"] = this.requireIdVerificationForRegistration;
         data["hasEmailCredentials"] = this.hasEmailCredentials;
         data["hasPaymentCredentials"] = this.hasPaymentCredentials;
+        data["requiresOnboardingApproval"] = this.requiresOnboardingApproval;
+        data["onboardingSubmitButtonLabel"] = this.onboardingSubmitButtonLabel;
         return data;
     }
 }
@@ -45723,6 +46297,8 @@ export interface ITenantSettingDto {
     requireIdVerificationForRegistration: boolean;
     hasEmailCredentials: boolean;
     hasPaymentCredentials: boolean;
+    requiresOnboardingApproval: boolean;
+    onboardingSubmitButtonLabel: string | undefined;
 }
 
 export class TenantSubscription implements ITenantSubscription {
@@ -47254,6 +47830,7 @@ export class UpdateOnboardingStepConfigurationDto implements IUpdateOnboardingSt
     description!: string | undefined;
     icon!: string | undefined;
     isSkippable!: boolean;
+    calculatorConfig!: string | undefined;
     formId!: string | undefined;
     dynamicEntityTypeKey!: string | undefined;
     formDisplayMode!: string | undefined;
@@ -47290,6 +47867,7 @@ export class UpdateOnboardingStepConfigurationDto implements IUpdateOnboardingSt
             this.description = _data["description"];
             this.icon = _data["icon"];
             this.isSkippable = _data["isSkippable"];
+            this.calculatorConfig = _data["calculatorConfig"];
             this.formId = _data["formId"];
             this.dynamicEntityTypeKey = _data["dynamicEntityTypeKey"];
             this.formDisplayMode = _data["formDisplayMode"];
@@ -47326,6 +47904,7 @@ export class UpdateOnboardingStepConfigurationDto implements IUpdateOnboardingSt
         data["description"] = this.description;
         data["icon"] = this.icon;
         data["isSkippable"] = this.isSkippable;
+        data["calculatorConfig"] = this.calculatorConfig;
         data["formId"] = this.formId;
         data["dynamicEntityTypeKey"] = this.dynamicEntityTypeKey;
         data["formDisplayMode"] = this.formDisplayMode;
@@ -47355,6 +47934,7 @@ export interface IUpdateOnboardingStepConfigurationDto {
     description: string | undefined;
     icon: string | undefined;
     isSkippable: boolean;
+    calculatorConfig: string | undefined;
     formId: string | undefined;
     dynamicEntityTypeKey: string | undefined;
     formDisplayMode: string | undefined;
@@ -48192,6 +48772,8 @@ export class User implements IUser {
     mustChangePassword!: boolean;
     isIdVerified!: boolean;
     idVerifiedAt!: DateTime | undefined;
+    agentCode!: string | undefined;
+    signatureDataUrl!: string | undefined;
     customFieldsJson!: string | undefined;
 
     constructor(data?: IUser) {
@@ -48229,6 +48811,8 @@ export class User implements IUser {
             this.mustChangePassword = _data["mustChangePassword"];
             this.isIdVerified = _data["isIdVerified"];
             this.idVerifiedAt = _data["idVerifiedAt"] ? DateTime.fromISO(_data["idVerifiedAt"].toString()) : undefined as any;
+            this.agentCode = _data["agentCode"];
+            this.signatureDataUrl = _data["signatureDataUrl"];
             this.customFieldsJson = _data["customFieldsJson"];
         }
     }
@@ -48266,6 +48850,8 @@ export class User implements IUser {
         data["mustChangePassword"] = this.mustChangePassword;
         data["isIdVerified"] = this.isIdVerified;
         data["idVerifiedAt"] = this.idVerifiedAt ? this.idVerifiedAt.toString() : undefined as any;
+        data["agentCode"] = this.agentCode;
+        data["signatureDataUrl"] = this.signatureDataUrl;
         data["customFieldsJson"] = this.customFieldsJson;
         return data;
     }
@@ -48292,6 +48878,8 @@ export interface IUser {
     mustChangePassword: boolean;
     isIdVerified: boolean;
     idVerifiedAt: DateTime | undefined;
+    agentCode: string | undefined;
+    signatureDataUrl: string | undefined;
     customFieldsJson: string | undefined;
 }
 
@@ -48374,6 +48962,8 @@ export class UserProfileDto implements IUserProfileDto {
     dateOfBirth!: DateTime | undefined;
     isIdVerified!: boolean;
     idVerifiedAt!: DateTime | undefined;
+    agentCode!: string | undefined;
+    signatureDataUrl!: string | undefined;
 
     constructor(data?: IUserProfileDto) {
         if (data) {
@@ -48396,6 +48986,8 @@ export class UserProfileDto implements IUserProfileDto {
             this.dateOfBirth = _data["dateOfBirth"] ? DateTime.fromISO(_data["dateOfBirth"].toString()) : undefined as any;
             this.isIdVerified = _data["isIdVerified"];
             this.idVerifiedAt = _data["idVerifiedAt"] ? DateTime.fromISO(_data["idVerifiedAt"].toString()) : undefined as any;
+            this.agentCode = _data["agentCode"];
+            this.signatureDataUrl = _data["signatureDataUrl"];
         }
     }
 
@@ -48418,6 +49010,8 @@ export class UserProfileDto implements IUserProfileDto {
         data["dateOfBirth"] = this.dateOfBirth ? this.dateOfBirth.toString() : undefined as any;
         data["isIdVerified"] = this.isIdVerified;
         data["idVerifiedAt"] = this.idVerifiedAt ? this.idVerifiedAt.toString() : undefined as any;
+        data["agentCode"] = this.agentCode;
+        data["signatureDataUrl"] = this.signatureDataUrl;
         return data;
     }
 }
@@ -48433,6 +49027,8 @@ export interface IUserProfileDto {
     dateOfBirth: DateTime | undefined;
     isIdVerified: boolean;
     idVerifiedAt: DateTime | undefined;
+    agentCode: string | undefined;
+    signatureDataUrl: string | undefined;
 }
 
 export class UserRole implements IUserRole {

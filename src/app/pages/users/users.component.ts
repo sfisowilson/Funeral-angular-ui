@@ -64,15 +64,21 @@ export class UsersComponent {
     }
 
     loadUsers() {
-        this.userService.user_GetAllUsers(undefined, undefined, undefined, undefined, undefined).pipe(unwrap<UserDto[]>()).subscribe((users) => {
-            this.users.set(users);
-        });
+        this.userService
+            .user_GetAllUsers(undefined, undefined, undefined, undefined, undefined)
+            .pipe(unwrap<UserDto[]>())
+            .subscribe((users) => {
+                this.users.set(users);
+            });
     }
 
     loadRoles() {
-        this.roleService.role_GetAllRoles().pipe(unwrap<RoleDto[]>()).subscribe((roles) => {
-            this.roles.set(roles);
-        });
+        this.roleService
+            .role_GetAllRoles()
+            .pipe(unwrap<RoleDto[]>())
+            .subscribe((roles) => {
+                this.roles.set(roles);
+            });
     }
 
     onGlobalFilter(table: Table, event: Event) {

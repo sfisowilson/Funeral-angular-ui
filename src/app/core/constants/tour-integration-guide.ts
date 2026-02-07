@@ -1,6 +1,6 @@
 /**
  * HOW TO ADD INTERACTIVE TOURS TO YOUR COMPONENTS
- * 
+ *
  * This guide shows you how to integrate the tour system into any page.
  */
 
@@ -19,7 +19,6 @@
 //   imports: [HelpButtonComponent, /* other imports */],
 // })
 
-
 // ============================================
 // 2. AUTO-START TOUR ON FIRST VISIT
 // ============================================
@@ -31,7 +30,7 @@
 // import { CUSTOM_PAGES_LIST_TOUR } from '@app/core/constants/tours';
 //
 // export class CustomPagesListComponent implements OnInit, AfterViewInit {
-//   
+//
 //   constructor(private tourService: TourService) {}
 //
 //   ngAfterViewInit() {
@@ -49,7 +48,6 @@
 //   }
 // }
 
-
 // ============================================
 // 3. ADD TOUR TRIGGER BUTTON TO YOUR UI
 // ============================================
@@ -57,13 +55,12 @@
 // In your component template:
 // <div class="page-header d-flex justify-content-between align-items-center">
 //   <h2>Custom Pages</h2>
-//   
+//
 //   <button class="btn btn-sm btn-outline-primary" (click)="startPagesTour()">
 //     <i class="bi bi-play-circle me-2"></i>
 //     Take a Tour
 //   </button>
 // </div>
-
 
 // ============================================
 // 4. ADD PROPER IDs/CLASSES TO TOUR TARGETS
@@ -82,7 +79,6 @@
 // <div id="page-settings-button" class="settings-btn">
 //   Settings
 // </div>
-
 
 // ============================================
 // 5. CREATE A CUSTOM TOUR FOR YOUR PAGE
@@ -110,7 +106,6 @@
 //   ]
 // };
 
-
 // ============================================
 // 6. CONDITIONAL TOURS BASED ON USER STATE
 // ============================================
@@ -129,7 +124,6 @@
 //   }, 500);
 // }
 
-
 // ============================================
 // 7. MULTI-PAGE TOURS (ADVANCED)
 // ============================================
@@ -140,14 +134,13 @@
 // completeTourStepAndNavigate() {
 //   this.tourService.skipTour(); // End current tour
 //   this.router.navigate(['/next-page']);
-//   
+//
 //   // In next page component, check for tour continuation:
 //   const continueTour = localStorage.getItem('continue_tour');
 //   if (continueTour === 'setup-wizard') {
 //     this.tourService.startTour(SETUP_WIZARD_PART_2);
 //   }
 // }
-
 
 // ============================================
 // 8. EXAMPLE: EMPTY STATE WITH TOUR
@@ -158,7 +151,7 @@
 //   <i class="bi bi-file-earmark-plus display-1 text-muted"></i>
 //   <h3 class="mt-4">No Pages Yet</h3>
 //   <p class="text-muted mb-4">Create your first page to get started</p>
-//   
+//
 //   <div class="d-flex gap-3 justify-content-center">
 //     <button class="btn btn-primary" (click)="createPage()">
 //       <i class="bi bi-plus"></i> Create Page
@@ -169,7 +162,6 @@
 //   </div>
 // </div>
 
-
 // ============================================
 // 9. RESET TOURS FOR TESTING
 // ============================================
@@ -179,7 +171,6 @@
 // localStorage.removeItem('completed_tours');
 
 // Or use the "Reset All Tours" button in the help widget
-
 
 // ============================================
 // 10. TOUR BEST PRACTICES
@@ -194,7 +185,7 @@
  * - Add "Skip" option on all steps except last
  * - Test on different screen sizes
  * - Add proper delays (500ms) before starting tours
- * 
+ *
  * DON'T:
  * - Make tours mandatory
  * - Show the same tour repeatedly
@@ -214,7 +205,7 @@
 //   styleUrls: ['./page-builder.component.scss']
 // })
 // export class PageBuilderComponent implements AfterViewInit {
-//   
+//
 //   constructor(private tourService: TourService) {}
 //
 //   ngAfterViewInit() {

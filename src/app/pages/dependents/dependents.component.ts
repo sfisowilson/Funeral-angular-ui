@@ -246,7 +246,7 @@ export class DependentsComponent implements OnInit, OnChanges {
     // Phase 3: Get dependent type label for display
     getDependentTypeLabel(type: DependentType | undefined): string {
         if (!type) return 'Not Specified';
-        const option = this.dependentTypeOptions.find(opt => opt.value === type);
+        const option = this.dependentTypeOptions.find((opt) => opt.value === type);
         return option ? option.label : 'Not Specified';
     }
 
@@ -263,6 +263,6 @@ export class DependentsComponent implements OnInit, OnChanges {
 
     // Phase 3: Get extended family count for the current member
     getExtendedFamilyCount(): number {
-        return this.dependents.filter(d => d.dependentType === 3).length;
+        return this.dependents.filter((d) => d.dependentType === 3).length;
     }
 }

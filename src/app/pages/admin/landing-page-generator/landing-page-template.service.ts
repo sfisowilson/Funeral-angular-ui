@@ -348,11 +348,7 @@ export class LandingPageTemplateService {
                         layout: 'masonry'
                     },
                     content: {
-                        images: [
-                            '/assets/gallery1.jpg',
-                            '/assets/gallery2.jpg',
-                            '/assets/gallery3.jpg'
-                        ]
+                        images: ['/assets/gallery1.jpg', '/assets/gallery2.jpg', '/assets/gallery3.jpg']
                     }
                 },
                 {
@@ -510,12 +506,7 @@ export class LandingPageTemplateService {
                         layout: 'split'
                     },
                     content: {
-                        benefits: [
-                            'Lock in current prices',
-                            'Personalize your service',
-                            'Reduce family burden',
-                            'Payment options available'
-                        ]
+                        benefits: ['Lock in current prices', 'Personalize your service', 'Reduce family burden', 'Payment options available']
                     }
                 },
                 {

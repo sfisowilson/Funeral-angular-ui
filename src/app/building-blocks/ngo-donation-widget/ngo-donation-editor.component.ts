@@ -13,7 +13,7 @@ import { ButtonModule } from 'primeng/button';
     template: `
         <div class="donation-editor p-6">
             <h3 class="text-xl font-bold mb-6">Donation Widget Configuration</h3>
-            
+
             <form [formGroup]="form" class="space-y-4">
                 <!-- Title Settings -->
                 <div class="form-group">
@@ -100,7 +100,7 @@ import { ButtonModule } from 'primeng/button';
                 <!-- Impact Stats -->
                 <div class="border-t pt-4 mt-4">
                     <h4 class="font-semibold mb-4">Impact Statistics Display</h4>
-                    
+
                     <div class="form-group">
                         <label class="block text-sm font-medium mb-2">Show Impact Stats</label>
                         <input type="checkbox" formControlName="showImpactStats" />
@@ -138,17 +138,19 @@ import { ButtonModule } from 'primeng/button';
             </form>
         </div>
     `,
-    styles: [`
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-    `]
+    styles: [
+        `
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+            input[type='checkbox'] {
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+            }
+        `
+    ]
 })
 export class NgoDonationEditorComponent {
     @Input() config: any = {};

@@ -34,7 +34,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
     isBusy: boolean = false;
     tenantLogo: string | null = null;
     tenantName: string = '';
-    
+
     // Password change dialog
     showChangePasswordDialog = signal<boolean>(false);
     loginCredentials: any = null;
@@ -63,30 +63,44 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
 
     override ngOnInit(): Promise<void> {
         return new Promise<void>((resolve) => {
-            this.route.queryParams
-                .pipe(take(1))
-                .subscribe(params => {
+            this.route.queryParams.pipe(take(1)).subscribe((params) => {
                 const sessionExpired = params['sessionExpired'] === 'true';
                 const rawReturnUrl = params['returnUrl'];
+                const message = params['message'];
+                const email = params['email'];
+
+                if (email) {
+                    this.form.patchValue({ email: email });
+                }
+
+                if (message) {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Information',
+                        detail: message,
+                        life: 5000
+                    });
+                }
 
                 if (sessionExpired) {
                     this.sessionExpired.set(true);
 
                     // Sanitize returnUrl
                     if (rawReturnUrl && !rawReturnUrl.startsWith('/auth/login')) {
-                    this.returnUrl = rawReturnUrl;
+                        this.returnUrl = rawReturnUrl;
                     } else {
-                    this.returnUrl = null;
+                        this.returnUrl = null;
                     }
-
-                    // Clear URL state immediately
-                    this.clearAuthQueryParams();
 
                     // Optional UI auto-hide
                     setTimeout(() => {
-                    this.sessionExpired.set(false);
+                        this.sessionExpired.set(false);
                     }, 10000);
+                }
 
+                if (sessionExpired || message || email) {
+                    // Clear URL state immediately
+                    this.clearAuthQueryParams();
                 }
                 resolve();
             });
@@ -96,8 +110,10 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: {
-            sessionExpired: null,
-            returnUrl: null
+                sessionExpired: null,
+                returnUrl: null,
+                message: null,
+                email: null
             },
             replaceUrl: true
         });
@@ -203,7 +219,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
 
     onPasswordChanged() {
         console.log('Password changed successfully, attempting re-login...');
-        
+
         // After successful password change, attempt to log in again
         if (!this.loginCredentials) {
             alert('Login credentials not found. Please log in again.');
@@ -242,7 +258,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
         // reset form
         this.form.reset();
         this.loginCredentials = null;
-        
+
         // set token in auth service
         this.authService.setToken(token).subscribe((success) => {
             if (success) {

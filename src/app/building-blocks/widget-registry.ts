@@ -126,7 +126,7 @@ export const WIDGET_TYPES: WidgetType[] = [
         editorComponent: PolicyCoverPremiumTableEditorComponent,
         defaultConfig: {
             title: 'Policy Cover Premiums',
-            subtitle: '',
+            subtitle: ''
         },
         icon: 'table'
     },
@@ -1069,12 +1069,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     icon: 'building',
                     title: 'Established Funeral Homes',
                     description: 'Modernize your online presence and streamline operations without massive IT investment.',
-                    features: [
-                        'Professional website in minutes',
-                        'Complete member management',
-                        'Claims processing automation',
-                        'No technical expertise required'
-                    ],
+                    features: ['Professional website in minutes', 'Complete member management', 'Claims processing automation', 'No technical expertise required'],
                     ctaText: 'Learn More',
                     ctaLink: '#'
                 },
@@ -1082,12 +1077,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     icon: 'rocket',
                     title: 'New Funeral Service Businesses',
                     description: 'Get online quickly with a professional website and complete business management system.',
-                    features: [
-                        'Quick market entry',
-                        'Affordable startup costs',
-                        'All-in-one platform',
-                        'Scalable as you grow'
-                    ],
+                    features: ['Quick market entry', 'Affordable startup costs', 'All-in-one platform', 'Scalable as you grow'],
                     ctaText: 'Get Started',
                     ctaLink: '#'
                 },
@@ -1095,12 +1085,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     icon: 'laptop',
                     title: 'Funeral Parlours Going Digital',
                     description: 'Transition from paper-based processes to efficient digital workflows seamlessly.',
-                    features: [
-                        'Easy data migration',
-                        'Digital document management',
-                        'Online member portal',
-                        'Automated workflows'
-                    ],
+                    features: ['Easy data migration', 'Digital document management', 'Online member portal', 'Automated workflows'],
                     ctaText: 'Modernize Now',
                     ctaLink: '#'
                 }
@@ -1188,7 +1173,8 @@ export const WIDGET_TYPES: WidgetType[] = [
                     id: 'tab-1',
                     title: 'Website Builder',
                     icon: 'globe',
-                    content: '<h3>Professional Website Builder</h3><p>Create stunning websites with our drag-and-drop builder. No coding required.</p><ul><li>Drag-and-drop interface</li><li>Mobile-responsive designs</li><li>Customizable templates</li></ul>'
+                    content:
+                        '<h3>Professional Website Builder</h3><p>Create stunning websites with our drag-and-drop builder. No coding required.</p><ul><li>Drag-and-drop interface</li><li>Mobile-responsive designs</li><li>Customizable templates</li></ul>'
                 },
                 {
                     id: 'tab-2',
@@ -1273,7 +1259,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     name: 'John Khumalo',
                     role: 'Owner',
                     company: 'Heritage Funeral Home',
-                    content: 'The unified platform brought all our tools together. We\'ve reduced administrative time by 60% and can focus more on serving families.',
+                    content: "The unified platform brought all our tools together. We've reduced administrative time by 60% and can focus more on serving families.",
                     rating: 5,
                     imageUrl: 'https://via.placeholder.com/100x100?text=JK'
                 },
@@ -1281,7 +1267,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     name: 'Patricia Louw',
                     role: 'Manager',
                     company: 'Community Burial Society',
-                    content: 'We\'ve saved over R5,000 per month by consolidating our tools. The ROI was clear within the first month!',
+                    content: "We've saved over R5,000 per month by consolidating our tools. The ROI was clear within the first month!",
                     rating: 5,
                     imageUrl: 'https://via.placeholder.com/100x100?text=PL'
                 }
@@ -1404,7 +1390,7 @@ export const WIDGET_TYPES: WidgetType[] = [
         editorComponent: ContactCardEditorComponent,
         defaultConfig: {
             title: 'Get In Touch',
-            subtitle: 'We\'re here to help. Reach out to us through any of these channels.',
+            subtitle: "We're here to help. Reach out to us through any of these channels.",
             settings: {
                 showMap: false,
                 mapEmbedUrl: '',
@@ -1528,7 +1514,7 @@ export const WIDGET_TYPES: WidgetType[] = [
         editorComponent: NgoImpactReportsEditorComponent,
         defaultConfig: {
             title: 'Our Impact',
-            subtitle: 'See the difference we\'re making together',
+            subtitle: "See the difference we're making together",
             backgroundColor: '#f9fafb',
             padding: 40,
             titleColor: '#111827',

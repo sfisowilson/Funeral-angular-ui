@@ -1,4 +1,4 @@
-import { Component, signal , NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, signal, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CouponServiceProxy, CreateCouponDto, UpdateCouponDto } from '../../../core/services/service-proxies';
@@ -31,12 +31,10 @@ interface CouponDto {
 @Component({
     selector: 'app-coupons',
     standalone: true,
-    imports: [
-        CommonModule, 
-        FormsModule
-    ],
+    imports: [CommonModule, FormsModule],
     providers: [CouponServiceProxy],
-    schemas: [NO_ERRORS_SCHEMA], templateUrl: './coupons.component.html',
+    schemas: [NO_ERRORS_SCHEMA],
+    templateUrl: './coupons.component.html',
     styleUrls: ['./coupons.component.scss']
 })
 export class CouponsComponent {
@@ -48,7 +46,7 @@ export class CouponsComponent {
     selectedCoupons!: CouponDto[] | null;
     submitted: boolean = false;
     loading: boolean = false;
-    
+
     showConfirmModal = false;
     confirmMessage = '';
     confirmAction: (() => void) | null = null;
@@ -82,9 +80,7 @@ export class CouponsComponent {
         this.coupon.durationInMonths = isNaN(numValue) || numValue < 1 ? 1 : numValue;
     }
 
-    constructor(
-        private couponService: CouponServiceProxy
-    ) {}
+    constructor(private couponService: CouponServiceProxy) {}
 
     showAlert(message: string, type: string = 'info'): void {
         this.alerts.push({ type, message });
@@ -154,20 +150,17 @@ export class CouponsComponent {
     }
 
     deleteCoupon(coupon: CouponDto) {
-        this.showConfirm(
-            `Are you sure you want to deactivate coupon '${coupon.code}'?`,
-            () => {
-                this.couponService.coupon_Delete(coupon.id).subscribe(
-                    () => {
-                        this.loadCoupons();
-                        this.showAlert('Coupon deactivated', 'success');
-                    },
-                    (error) => {
-                        this.showAlert('Failed to deactivate coupon', 'danger');
-                    }
-                );
-            }
-        );
+        this.showConfirm(`Are you sure you want to deactivate coupon '${coupon.code}'?`, () => {
+            this.couponService.coupon_Delete(coupon.id).subscribe(
+                () => {
+                    this.loadCoupons();
+                    this.showAlert('Coupon deactivated', 'success');
+                },
+                (error) => {
+                    this.showAlert('Failed to deactivate coupon', 'danger');
+                }
+            );
+        });
     }
 
     hideDialog() {
@@ -211,15 +204,13 @@ export class CouponsComponent {
             createDto.description = this.coupon.description;
             createDto.discountType = parseInt(this.coupon.discountType);
             createDto.discountValue = this.coupon.discountValue;
-            
+
             // Ensure durationInMonths is a valid number (should already be a number from onDurationChange)
             const durationValue = this.coupon.durationInMonths;
-            createDto.durationInMonths = typeof durationValue === 'number' && !isNaN(durationValue) && durationValue >= 1 
-                ? durationValue 
-                : 1;
-            
+            createDto.durationInMonths = typeof durationValue === 'number' && !isNaN(durationValue) && durationValue >= 1 ? durationValue : 1;
+
             console.log('Creating coupon with durationInMonths:', createDto.durationInMonths);
-            
+
             createDto.maxRedemptions = this.coupon.maxRedemptions;
             createDto.validFrom = this.coupon.validFrom;
             createDto.validUntil = this.coupon.validUntil;

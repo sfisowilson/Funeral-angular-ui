@@ -27,7 +27,7 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
     overlayMenuOpenSubscription!: Subscription;
     menuOutsideClickListener: any;
     layoutStateSubscription!: Subscription;
-    
+
     // Track previous state to detect changes
     private previousMobileActive = false;
     private previousDesktopInactive = false;
@@ -57,7 +57,7 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
     updateMobileClass(isActive: boolean) {
         if (this.layoutWrapper?.nativeElement) {
             const element = this.layoutWrapper.nativeElement;
-            
+
             if (isActive) {
                 console.log('Adding layout-mobile-active class');
                 this.renderer.addClass(element, 'layout-mobile-active');
@@ -65,7 +65,7 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
                 console.log('Removing layout-mobile-active class');
                 this.renderer.removeClass(element, 'layout-mobile-active');
             }
-            
+
             console.log('Current classes:', element.className);
         }
     }
@@ -73,7 +73,7 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
     updateDesktopClass(isInactive: boolean) {
         if (this.layoutWrapper?.nativeElement) {
             const element = this.layoutWrapper.nativeElement;
-            
+
             if (isInactive) {
                 console.log('Adding layout-static-inactive class');
                 this.renderer.addClass(element, 'layout-static-inactive');
@@ -81,7 +81,7 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
                 console.log('Removing layout-static-inactive class');
                 this.renderer.removeClass(element, 'layout-static-inactive');
             }
-            
+
             console.log('Current classes:', element.className);
         }
     }
@@ -93,7 +93,7 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
     ngOnInit() {
         console.log('=== ngOnInit called ===');
         console.log('Setting up stateChange$ subscription');
-        
+
         // Subscribe to state changes from the service
         this.layoutStateSubscription = this.layoutService.stateChange$.subscribe({
             next: (state) => {
@@ -101,12 +101,12 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
                 console.log('New state received:', state);
                 console.log('staticMenuMobileActive:', state.staticMenuMobileActive);
                 console.log('staticMenuDesktopInactive:', state.staticMenuDesktopInactive);
-                
+
                 // Apply mobile class
                 const mobileActive = state.staticMenuMobileActive ?? false;
                 this.updateMobileClass(mobileActive);
                 this.previousMobileActive = mobileActive;
-                
+
                 // Apply desktop class
                 const desktopInactive = state.staticMenuDesktopInactive ?? false;
                 this.updateDesktopClass(desktopInactive);
@@ -115,9 +115,9 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
             error: (err) => console.error('State change subscription error:', err),
             complete: () => console.log('State change subscription completed')
         });
-        
+
         console.log('stateChange$ subscription set up successfully');
-        
+
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
                 this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {
@@ -148,7 +148,7 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
     hideMenu() {
         console.log('=== Hiding Menu ===');
         this.layoutService.closeMenu();
-        
+
         if (this.menuOutsideClickListener) {
             this.menuOutsideClickListener();
             this.menuOutsideClickListener = null;

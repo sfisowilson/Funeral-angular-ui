@@ -11,14 +11,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { DASHBOARD_WIDGETS } from '../dashboard/dashboard-widgets.registry';
-import { 
-    DashboardWidgetServiceProxy, 
-    DashboardWidgetSettingDto,
-    CreateDashboardWidgetSettingDto,
-    UpdateDashboardWidgetSettingDto,
-    RoleServiceProxy,
-    RoleDto
-} from '../../core/services/service-proxies';
+import { DashboardWidgetServiceProxy, DashboardWidgetSettingDto, CreateDashboardWidgetSettingDto, UpdateDashboardWidgetSettingDto, RoleServiceProxy, RoleDto } from '../../core/services/service-proxies';
 
 // Local interface for component state
 interface WidgetSetting {
@@ -33,18 +26,7 @@ interface WidgetSetting {
 @Component({
     selector: 'app-dashboard-settings',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        TableModule,
-        ButtonModule,
-        DialogModule,
-        InputTextModule,
-        InputSwitchModule,
-        MultiSelectModule,
-        InputNumberModule,
-        ToastModule
-    ],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, InputSwitchModule, MultiSelectModule, InputNumberModule, ToastModule],
     providers: [MessageService, DashboardWidgetServiceProxy, RoleServiceProxy],
     templateUrl: './dashboard-settings.component.html',
     styleUrl: './dashboard-settings.component.scss'
@@ -65,7 +47,7 @@ export class DashboardSettingsComponent implements OnInit {
 
     availableRoles = signal<{ label: string; value: string }[]>([]);
 
-    availableWidgets = DASHBOARD_WIDGETS.map(w => ({
+    availableWidgets = DASHBOARD_WIDGETS.map((w) => ({
         label: w.name,
         value: w.key
     }));
@@ -84,7 +66,7 @@ export class DashboardSettingsComponent implements OnInit {
     loadRoles() {
         this.roleService.role_GetAllRoles().subscribe({
             next: (response) => {
-                const roleOptions = response?.result.map(role => ({
+                const roleOptions = response?.result.map((role) => ({
                     label: role.name || '',
                     value: role.name || ''
                 }));
@@ -105,7 +87,7 @@ export class DashboardSettingsComponent implements OnInit {
         this.loading.set(true);
         this.dashboardWidgetService.dashboardWidget_GetAll().subscribe({
             next: (response) => {
-                const mappedWidgets = response?.result.map(dto => ({
+                const mappedWidgets = response?.result.map((dto) => ({
                     id: dto.id?.toString(),
                     widgetKey: dto.widgetKey,
                     widgetName: dto.widgetName,
@@ -248,7 +230,7 @@ export class DashboardSettingsComponent implements OnInit {
     }
 
     onWidgetKeyChange() {
-        const selectedWidget = DASHBOARD_WIDGETS.find(w => w.key === this.currentWidget.widgetKey);
+        const selectedWidget = DASHBOARD_WIDGETS.find((w) => w.key === this.currentWidget.widgetKey);
         if (selectedWidget) {
             this.currentWidget.widgetName = selectedWidget.name;
         }

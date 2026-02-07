@@ -8,6 +8,6 @@
  */
 
 export type PostApiMemberRegistrationMemberRegistrationRegisterNewMember200 = {
-  succeeded?: boolean;
-  message?: string;
+    succeeded?: boolean;
+    message?: string;
 };

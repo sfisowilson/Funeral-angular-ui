@@ -22,7 +22,7 @@
                     <td>
                         <p-tag [value]="claim.status" [severity]="getStatusSeverity(claim.status)"></p-tag>
                     </td>
-                    <td>{{ claim.date | date:'MMM d, y' }}</td>
+                    <td>{{ claim.date | date: 'MMM d, y' }}</td>
                 </tr>
             </ng-template>
         </p-table>

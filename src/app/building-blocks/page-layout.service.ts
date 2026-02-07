@@ -24,7 +24,7 @@ export class PageLayoutService {
     };
 
     gridConfig = signal<GridLayout>(this.defaultGrid);
-    
+
     constructor() {}
 
     /**
@@ -60,7 +60,7 @@ export class PageLayoutService {
         const occupiedCells = new Set<string>();
 
         // Mark all occupied cells
-        existingWidgets.forEach(widget => {
+        existingWidgets.forEach((widget) => {
             if (widget.layout) {
                 for (let r = widget.layout.row; r < widget.layout.row + widget.layout.rowSpan; r++) {
                     for (let c = widget.layout.column; c < widget.layout.column + widget.layout.columnSpan; c++) {
@@ -92,12 +92,7 @@ export class PageLayoutService {
     /**
      * Check if a widget can be placed at a specific position
      */
-    canPlaceWidget(
-        widget: WidgetConfig,
-        targetColumn: number,
-        targetRow: number,
-        otherWidgets: WidgetConfig[]
-    ): boolean {
+    canPlaceWidget(widget: WidgetConfig, targetColumn: number, targetRow: number, otherWidgets: WidgetConfig[]): boolean {
         if (!widget.layout) return false;
 
         const grid = this.gridConfig();
@@ -116,16 +111,7 @@ export class PageLayoutService {
         for (const otherWidget of otherWidgets) {
             if (otherWidget.id === widget.id || !otherWidget.layout) continue;
 
-            const collision = this.checkCollision(
-                targetColumn,
-                targetRow,
-                columnSpan,
-                rowSpan,
-                otherWidget.layout.column,
-                otherWidget.layout.row,
-                otherWidget.layout.columnSpan,
-                otherWidget.layout.rowSpan
-            );
+            const collision = this.checkCollision(targetColumn, targetRow, columnSpan, rowSpan, otherWidget.layout.column, otherWidget.layout.row, otherWidget.layout.columnSpan, otherWidget.layout.rowSpan);
 
             if (collision) {
                 return false;
@@ -138,16 +124,8 @@ export class PageLayoutService {
     /**
      * Check if two rectangles collide
      */
-    private checkCollision(
-        x1: number, y1: number, w1: number, h1: number,
-        x2: number, y2: number, w2: number, h2: number
-    ): boolean {
-        return !(
-            x1 + w1 <= x2 ||
-            x2 + w2 <= x1 ||
-            y1 + h1 <= y2 ||
-            y2 + h2 <= y1
-        );
+    private checkCollision(x1: number, y1: number, w1: number, h1: number, x2: number, y2: number, w2: number, h2: number): boolean {
+        return !(x1 + w1 <= x2 || x2 + w2 <= x1 || y1 + h1 <= y2 || y2 + h2 <= y1);
     }
 
     /**
@@ -158,12 +136,12 @@ export class PageLayoutService {
 
         widget.layout.column = Math.max(1, targetColumn);
         widget.layout.row = Math.max(1, targetRow);
-        
+
         // If widgets array provided, resolve collisions
         if (allWidgets) {
             this.resolveCollisions(widget, allWidgets);
         }
-        
+
         return true;
     }
 
@@ -174,39 +152,30 @@ export class PageLayoutService {
         if (!movedWidget.layout) return;
 
         const movedLayout = movedWidget.layout;
-        
+
         // Skip collision detection for auto-height widgets as they flow naturally
         if (movedLayout.autoHeight) return;
-        
-        const conflictingWidgets = allWidgets.filter(w => {
+
+        const conflictingWidgets = allWidgets.filter((w) => {
             if (w.id === movedWidget.id || !w.layout) return false;
-            
+
             // Skip auto-height widgets in collision detection
             if (w.layout.autoHeight) return false;
-            
-            return this.checkCollision(
-                movedLayout.column,
-                movedLayout.row,
-                movedLayout.columnSpan,
-                movedLayout.rowSpan,
-                w.layout.column,
-                w.layout.row,
-                w.layout.columnSpan,
-                w.layout.rowSpan
-            );
+
+            return this.checkCollision(movedLayout.column, movedLayout.row, movedLayout.columnSpan, movedLayout.rowSpan, w.layout.column, w.layout.row, w.layout.columnSpan, w.layout.rowSpan);
         });
 
         // Sort by row to push from top to bottom
         conflictingWidgets.sort((a, b) => a.layout!.row - b.layout!.row);
 
         // Push each conflicting widget down
-        conflictingWidgets.forEach(conflictWidget => {
+        conflictingWidgets.forEach((conflictWidget) => {
             if (!conflictWidget.layout || !movedLayout) return;
-            
+
             // Calculate new row position (below the moved widget)
             const newRow = movedLayout.row + movedLayout.rowSpan;
             conflictWidget.layout.row = newRow;
-            
+
             // Recursively check if this widget now conflicts with others
             this.resolveCollisions(conflictWidget, allWidgets);
         });
@@ -219,7 +188,7 @@ export class PageLayoutService {
         if (!widget.layout) return false;
 
         const grid = this.gridConfig();
-        
+
         // Ensure the resize stays within bounds
         columnSpan = Math.max(1, Math.min(columnSpan, grid.columns - widget.layout.column + 1));
         rowSpan = Math.max(1, rowSpan);
@@ -288,8 +257,7 @@ export class PageLayoutService {
 
         // Calculate padding - individual sides take precedence
         let padding: string | undefined;
-        if (layout.paddingTop !== undefined || layout.paddingRight !== undefined || 
-            layout.paddingBottom !== undefined || layout.paddingLeft !== undefined) {
+        if (layout.paddingTop !== undefined || layout.paddingRight !== undefined || layout.paddingBottom !== undefined || layout.paddingLeft !== undefined) {
             const top = layout.paddingTop ?? layout.padding ?? 0;
             const right = layout.paddingRight ?? layout.padding ?? 0;
             const bottom = layout.paddingBottom ?? layout.padding ?? 0;
@@ -301,8 +269,7 @@ export class PageLayoutService {
 
         // Calculate margin - individual sides take precedence
         let margin: string | undefined;
-        if (layout.marginTop !== undefined || layout.marginRight !== undefined || 
-            layout.marginBottom !== undefined || layout.marginLeft !== undefined) {
+        if (layout.marginTop !== undefined || layout.marginRight !== undefined || layout.marginBottom !== undefined || layout.marginLeft !== undefined) {
             const top = layout.marginTop ?? layout.margin ?? 0;
             const right = layout.marginRight ?? layout.margin ?? 0;
             const bottom = layout.marginBottom ?? layout.margin ?? 0;
@@ -365,15 +332,15 @@ export class PageLayoutService {
      */
     getResponsiveClasses(widget: WidgetConfig): string[] {
         const classes: string[] = [];
-        
+
         if (widget.layout?.responsive) {
             const { mobile, tablet, desktop } = widget.layout.responsive;
-            
+
             if (mobile?.hidden) classes.push('hidden-mobile');
             if (tablet?.hidden) classes.push('hidden-tablet');
             if (desktop?.hidden) classes.push('hidden-desktop');
         }
-        
+
         return classes;
     }
 
@@ -383,13 +350,13 @@ export class PageLayoutService {
     cloneWidget(widget: WidgetConfig, otherWidgets: WidgetConfig[]): WidgetConfig {
         const cloned = JSON.parse(JSON.stringify(widget));
         cloned.id = this.generateId();
-        
+
         if (cloned.layout) {
             const newPosition = this.findNextAvailablePosition(otherWidgets, cloned.layout.columnSpan);
             cloned.layout.column = newPosition.column;
             cloned.layout.row = newPosition.row;
         }
-        
+
         return cloned;
     }
 

@@ -4,19 +4,20 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth/auth-service';
 import { CommonModule } from '@angular/common';
 import { AuthServiceProxy, OnboardingFieldConfigurationDto, OnboardingFieldConfigurationServiceProxy, PolicyDto, PolicyServiceProxy, RegisterRequest, TenantCreateUpdateDto } from '../../core/services/service-proxies';
-import { HttpClient } from '@angular/common/http';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { LookupServiceProxy, TenantType } from '../../core/services/service-proxies';
 import { PolicySelectionModalComponent } from './policy-selection-modal/policy-selection-modal.component';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 import { IdentityVerificationFormComponent } from '../../shared/components/identity-verification/identity-verification-form.component';
 import { SAIdValidator, SAIdInfo } from '../../shared/utils/sa-id-validator';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
     selector: 'app-register',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule, ReactiveFormsModule, IdentityVerificationFormComponent],
-    providers: [HttpClient, AuthServiceProxy, LookupServiceProxy, PolicyServiceProxy, OnboardingFieldConfigurationServiceProxy],
+    imports: [CommonModule, FormsModule, RouterModule, ReactiveFormsModule, IdentityVerificationFormComponent, ToastModule],
+    providers: [AuthServiceProxy, LookupServiceProxy, PolicyServiceProxy, OnboardingFieldConfigurationServiceProxy, MessageService],
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss'
 })
@@ -37,6 +38,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     alertMessage: string = '';
     alertType: 'success' | 'error' | 'warning' | 'info' = 'info';
     showAlert: boolean = false;
+    agentCode: string | null = null;
 
     // Dynamic fields
     dynamicFields: OnboardingFieldConfigurationDto[] = [];
@@ -45,7 +47,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     showVerificationDialog: boolean = false;
     registeredUserId?: string;
     skipVerification: boolean = false;
-    
+
     // SA ID validation
     idInfo = signal<SAIdInfo | null>(null);
     parsedDateOfBirth = signal<Date | null>(null);
@@ -61,11 +63,18 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
         private route: ActivatedRoute,
         private policyService: PolicyServiceProxy,
         private onboardingFieldService: OnboardingFieldConfigurationServiceProxy,
+        private messageService: MessageService,
         protected override injector: Injector
     ) {
         super(injector);
     }
     override async ngOnInit(): Promise<void> {
+        this.route.queryParams.subscribe(params => {
+            if (params['agentCode']) {
+                this.agentCode = params['agentCode'];
+            }
+        });
+
         console.log('RegisterComponent.ngOnInit: CALLED');
         try {
             await super.ngOnInit();
@@ -132,16 +141,15 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 });
 
                 // Fetch dynamic fields
-                this.onboardingFieldService.onboardingFieldConfiguration_GetEnabledByContext('Registration')
-                    .subscribe(response => {
-                        // Filter out fields that don't have a fieldKey, as they cannot be used.
-                        this.dynamicFields = response?.result?.filter(f => f.fieldKey) || [];
-                        this.dynamicFields.forEach(field => {
-                            // Now we can be sure field.fieldKey is a string.
-                            const validators = field.isRequired ? [Validators.required] : [];
-                            this.form.addControl(field.fieldKey!, this.fb.control('', validators));
-                        });
+                this.onboardingFieldService.onboardingFieldConfiguration_GetEnabledByContext('Registration').subscribe((response) => {
+                    // Filter out fields that don't have a fieldKey, as they cannot be used.
+                    this.dynamicFields = response?.result?.filter((f) => f.fieldKey) || [];
+                    this.dynamicFields.forEach((field) => {
+                        // Now we can be sure field.fieldKey is a string.
+                        const validators = field.isRequired ? [Validators.required] : [];
+                        this.form.addControl(field.fieldKey!, this.fb.control('', validators));
                     });
+                });
             }
         } catch (error) {
             console.error('Error in RegisterComponent.ngOnInit:', error);
@@ -158,7 +166,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
             this.showAlertMessage('error', 'Please fill in all required fields.');
             return;
         }
-console.log('RegisterComponent.register: form is valid, proceeding');
+        console.log('RegisterComponent.register: form is valid, proceeding');
         // If ID number is provided, it must be valid
         if (!this.isHostTenant && this.form.value.identificationNumber) {
             const idInfo = this.idInfo();
@@ -191,7 +199,8 @@ console.log('RegisterComponent.register: form is valid, proceeding');
                 this.isBusy = false;
                 return;
             }
-            this.authServiceProxy.auth_RegisterTenant(tenantRegisterDto)
+            this.authServiceProxy
+                .auth_RegisterTenant(tenantRegisterDto)
                 .subscribe({
                     next: (result) => {
                         if (result) {
@@ -202,13 +211,13 @@ console.log('RegisterComponent.register: form is valid, proceeding');
                         }
                     },
                     error: (error) => {
-                        this.showAlertMessage('error', error.message);
+                        this.showAlertMessage('error', this.getErrorMessage(error));
                     }
                 })
                 .add(() => (this.isBusy = false));
         } else {
             const fv = this.form.value;
-            
+
             // Build request object for registration
             const requestData: any = {
                 email: fv.email || '',
@@ -218,11 +227,12 @@ console.log('RegisterComponent.register: form is valid, proceeding');
                 phoneNumber: fv.phoneNumber || undefined,
                 identificationNumber: fv.identificationNumber || undefined,
                 policyId: fv.policyId || undefined,
+                agentCode: this.agentCode || undefined,
                 customFields: {}
             };
 
             // Populate custom fields
-            this.dynamicFields.forEach(field => {
+            this.dynamicFields.forEach((field) => {
                 const rawValue = fv[field.fieldKey];
                 if (!field.fieldKey || rawValue === undefined || rawValue === null) {
                     return;
@@ -231,15 +241,16 @@ console.log('RegisterComponent.register: form is valid, proceeding');
                 // Always send strings so the API can bind into Dictionary<string, string?>.
                 requestData.customFields[field.fieldKey] = rawValue.toString();
             });
-            
+
             const memberRegisterRequest: RegisterRequest = RegisterRequest.fromJS(requestData);
-            
+
             if (!memberRegisterRequest.email) {
                 this.showAlertMessage('warning', 'Email is required for registration.');
                 this.isBusy = false;
                 return;
             }
-            this.authServiceProxy.auth_Register(memberRegisterRequest)
+            this.authServiceProxy
+                .auth_Register(memberRegisterRequest)
                 .subscribe({
                     next: () => {
                         this.showAlertMessage('success', 'Member registered successfully');
@@ -252,7 +263,7 @@ console.log('RegisterComponent.register: form is valid, proceeding');
                         }
                     },
                     error: (error) => {
-                        this.showAlertMessage('error', error.message);
+                        this.showAlertMessage('error', this.getErrorMessage(error));
                     }
                 })
                 .add(() => (this.isBusy = false));
@@ -304,7 +315,7 @@ console.log('RegisterComponent.register: form is valid, proceeding');
             this.showModal = false;
             return;
         }
-        
+
         this.showModal = true;
     }
     onPolicySelected(policy: PolicyDto) {
@@ -334,16 +345,11 @@ console.log('RegisterComponent.register: form is valid, proceeding');
         this.router.navigate(['/auth/login']);
     }
 
-    // Helper method to show alerts instead of PrimeNG MessageService
+    // Helper method to show alerts using PrimeNG MessageService
     showAlertMessage(type: 'success' | 'error' | 'warning' | 'info', message: string) {
-        this.alertType = type;
-        this.alertMessage = message;
-        this.showAlert = true;
-        setTimeout(() => {
-            this.showAlert = false;
-        }, 5000);
+        this.messageService.add({ severity: type, summary: type.charAt(0).toUpperCase() + type.slice(1), detail: message });
     }
-    
+
     validateIdNumber(idNumber: string) {
         if (!idNumber) {
             this.idInfo.set(null);
@@ -357,9 +363,7 @@ console.log('RegisterComponent.register: form is valid, proceeding');
 
         if (info.isValid && info.dateOfBirth) {
             // Ensure we have a proper Date object
-            const dob = info.dateOfBirth instanceof Date 
-                ? info.dateOfBirth 
-                : new Date(info.dateOfBirth);
+            const dob = info.dateOfBirth instanceof Date ? info.dateOfBirth : new Date(info.dateOfBirth);
             this.parsedDateOfBirth.set(dob);
             this.parsedGender.set(info.gender);
         } else {
@@ -393,7 +397,21 @@ console.log('RegisterComponent.register: form is valid, proceeding');
         }
     }
 
-    getOptions(jsonString: string | null | undefined): { value: string, label: string }[] {
+    private getErrorMessage(error: any): string {
+        if (error && error.response) {
+            try {
+                const responseObj = JSON.parse(error.response);
+                if (responseObj && responseObj.error) {
+                    return responseObj.error;
+                }
+            } catch (e) {
+                // ignore parsing error
+            }
+        }
+        return error.message || 'An unknown error occurred';
+    }
+
+    getOptions(jsonString: string | null | undefined): { value: string; label: string }[] {
         if (!jsonString) {
             return [];
         }
@@ -403,7 +421,7 @@ console.log('RegisterComponent.register: form is valid, proceeding');
                 return JSON.parse(jsonString);
             } else {
                 // Handle comma-separated string and convert it to the object array format
-                return jsonString.split(',').map(item => {
+                return jsonString.split(',').map((item) => {
                     const trimmed = item.trim();
                     return { value: trimmed, label: trimmed };
                 });

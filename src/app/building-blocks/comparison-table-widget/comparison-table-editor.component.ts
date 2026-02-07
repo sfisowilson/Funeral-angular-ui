@@ -14,7 +14,7 @@ export class ComparisonTableEditorComponent implements OnInit {
     @Output() update = new EventEmitter<any>();
     config: any;
     activeColumnIndex = 0;
-    
+
     onSave() {
         this.update.emit(this.config.settings);
     }

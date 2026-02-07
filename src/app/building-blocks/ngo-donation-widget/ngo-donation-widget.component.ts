@@ -36,52 +36,37 @@ import { firstValueFrom } from 'rxjs';
                     <div class="mb-8">
                         <p class="text-sm font-semibold mb-4" [style.color]="config.labelColor">Quick Donation Amounts</p>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <button *ngFor="let amount of presetAmounts" 
-                                pButton 
+                            <button
+                                *ngFor="let amount of presetAmounts"
+                                pButton
                                 [label]="'R' + amount"
                                 severity="secondary"
                                 size="small"
                                 class="w-full"
                                 [style.background-color]="config.amountButtonColor"
                                 [style.color]="config.amountButtonTextColor"
-                                (click)="selectAmount(amount)"></button>
+                                (click)="selectAmount(amount)"
+                            ></button>
                         </div>
                     </div>
 
                     <!-- Custom Amount -->
                     <div class="mb-8">
-                        <label class="block text-sm font-semibold mb-2" [style.color]="config.labelColor">
-                            Custom Amount (ZAR)
-                        </label>
+                        <label class="block text-sm font-semibold mb-2" [style.color]="config.labelColor"> Custom Amount (ZAR) </label>
                         <div class="flex gap-2">
-                            <input 
-                                type="number" 
-                                [(ngModel)]="customAmount"
-                                placeholder="Enter amount"
-                                class="flex-1 px-4 py-2 border rounded-lg"
-                                [style.border-color]="config.inputBorderColor"
-                                [style.color]="config.labelColor"
-                                min="1"
-                            />
-                            <button pButton 
-                                icon="pi pi-check"
-                                severity="success"
-                                (click)="setCustomAmount()"></button>
+                            <input type="number" [(ngModel)]="customAmount" placeholder="Enter amount" class="flex-1 px-4 py-2 border rounded-lg" [style.border-color]="config.inputBorderColor" [style.color]="config.labelColor" min="1" />
+                            <button pButton icon="pi pi-check" severity="success" (click)="setCustomAmount()"></button>
                         </div>
                     </div>
 
                     <!-- Selected Amount Display -->
-                    <div *ngIf="selectedAmount > 0" class="text-center mb-8 p-4 rounded" 
-                        [style.background-color]="config.amountDisplayBackgroundColor">
+                    <div *ngIf="selectedAmount > 0" class="text-center mb-8 p-4 rounded" [style.background-color]="config.amountDisplayBackgroundColor">
                         <p class="text-sm" [style.color]="config.labelColor">Donation Amount</p>
-                        <p class="text-3xl font-bold" [style.color]="config.accentColor">
-                            R{{ selectedAmount }}
-                        </p>
+                        <p class="text-3xl font-bold" [style.color]="config.accentColor">R{{ selectedAmount }}</p>
                     </div>
 
                     <!-- Impact Message -->
-                    <div *ngIf="selectedAmount > 0" class="mb-8 p-4 rounded" 
-                        [style.background-color]="config.impactBackgroundColor">
+                    <div *ngIf="selectedAmount > 0" class="mb-8 p-4 rounded" [style.background-color]="config.impactBackgroundColor">
                         <p class="text-sm" [style.color]="config.impactTextColor">
                             {{ getImpactMessage(selectedAmount) }}
                         </p>
@@ -91,18 +76,22 @@ import { firstValueFrom } from 'rxjs';
                     <div class="mb-8">
                         <p class="text-sm font-semibold mb-4" [style.color]="config.labelColor">Donation Frequency</p>
                         <div class="flex gap-2">
-                            <button pButton 
+                            <button
+                                pButton
                                 label="One-time"
                                 severity="secondary"
                                 [style.background-color]="isRecurring === false ? config.accentColor : config.frequencyButtonColor"
                                 [style.color]="isRecurring === false ? config.accentButtonTextColor : config.frequencyButtonTextColor"
-                                (click)="setRecurring(false)"></button>
-                            <button pButton 
+                                (click)="setRecurring(false)"
+                            ></button>
+                            <button
+                                pButton
                                 label="Monthly"
                                 severity="secondary"
                                 [style.background-color]="isRecurring === true ? config.accentColor : config.frequencyButtonColor"
                                 [style.color]="isRecurring === true ? config.accentButtonTextColor : config.frequencyButtonTextColor"
-                                (click)="setRecurring(true)"></button>
+                                (click)="setRecurring(true)"
+                            ></button>
                         </div>
                     </div>
 
@@ -112,20 +101,21 @@ import { firstValueFrom } from 'rxjs';
                     </div>
 
                     <!-- Donate Button -->
-                    <button *ngIf="selectedAmount > 0" pButton 
+                    <button
+                        *ngIf="selectedAmount > 0"
+                        pButton
                         [label]="getDonateButtonLabel()"
                         size="large"
                         class="w-full"
                         [disabled]="processingDonation"
-                        [style.background-color]="config.donateButtonColor" 
+                        [style.background-color]="config.donateButtonColor"
                         [style.color]="config.donateButtonTextColor"
-                        (click)="processDonation()">
+                        (click)="processDonation()"
+                    >
                         <i *ngIf="processingDonation" class="pi pi-spin pi-spinner mr-2"></i>
                     </button>
 
-                    <p *ngIf="selectedAmount === 0" class="text-center text-sm" [style.color]="config.disclaimerColor">
-                        Please select or enter a donation amount to continue.
-                    </p>
+                    <p *ngIf="selectedAmount === 0" class="text-center text-sm" [style.color]="config.disclaimerColor">Please select or enter a donation amount to continue.</p>
                 </div>
 
                 <!-- Donation Impact Stats -->
@@ -146,23 +136,27 @@ import { firstValueFrom } from 'rxjs';
             </div>
         </div>
     `,
-    styles: [`
-        .donation-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .donation-card:hover {
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-        input[type="number"] {
-            font-size: 16px;
-        }
-        input[type="number"]::placeholder {
-            opacity: 0.5;
-        }
-        button .pi {
-            margin-right: 8px;
-        }
-    `]
+    styles: [
+        `
+            .donation-card {
+                transition:
+                    transform 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+            .donation-card:hover {
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            }
+            input[type='number'] {
+                font-size: 16px;
+            }
+            input[type='number']::placeholder {
+                opacity: 0.5;
+            }
+            button .pi {
+                margin-right: 8px;
+            }
+        `
+    ]
 })
 export class NgoDonationWidgetComponent implements OnInit {
     @Input() config: any = {
@@ -264,9 +258,7 @@ export class NgoDonationWidgetComponent implements OnInit {
             };
 
             // Call the donation endpoint - backend handles payment processing with configured gateway
-            const response = await firstValueFrom(
-                this.http.post<any>(`${this.apiUrl}/api/Payment/Payment_CreateDonationSession`, donationData)
-            );
+            const response = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/api/Payment/Payment_CreateDonationSession`, donationData));
 
             if (response && response.paymentUrl && response.paymentData) {
                 // Create a form and submit it to the payment gateway with the payment data

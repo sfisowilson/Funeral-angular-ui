@@ -6595,6 +6595,80 @@
         }
       }
     },
+    "/api/Email/Email_SendTestEmail": {
+      "post": {
+        "tags": [
+          "Email"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendTestEmailRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendTestEmailRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendTestEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Email/Email_SaveCredentials": {
+      "post": {
+        "tags": [
+          "Email"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveEmailCredentialsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveEmailCredentialsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveEmailCredentialsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Email/Email_HasCredentials": {
+      "get": {
+        "tags": [
+          "Email"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/FileUpload/File_UploadFile": {
       "post": {
         "tags": [
@@ -13594,6 +13668,44 @@
         }
       }
     },
+    "/api/PdfFieldMapping/GetAvailableFields": {
+      "get": {
+        "tags": [
+          "PdfFieldMapping"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Permission/Permission_GetAllPermissions": {
       "get": {
         "tags": [
@@ -20178,6 +20290,49 @@
         }
       }
     },
+    "/api/UserProfile/UserProfile_GenerateAgentCode": {
+      "post": {
+        "tags": [
+          "UserProfile"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/UserProfile/UserProfile_SaveSignature": {
+      "post": {
+        "tags": [
+          "UserProfile"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveSignatureDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveSignatureDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveSignatureDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/UserRole/UserRole_GetAllUserRoles": {
       "get": {
         "tags": [
@@ -24469,6 +24624,10 @@
           "isSkippable": {
             "type": "boolean"
           },
+          "calculatorConfig": {
+            "type": "string",
+            "nullable": true
+          },
           "formId": {
             "type": "string",
             "format": "uuid",
@@ -26071,6 +26230,20 @@
         },
         "additionalProperties": false
       },
+      "DynamicColumnDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "label": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "DynamicEntityRecordDto": {
         "type": "object",
         "properties": {
@@ -27656,6 +27829,17 @@
           "isReplacingExistingPolicy": {
             "type": "boolean"
           },
+          "agentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "agent": {
+            "$ref": "#/components/schemas/User"
+          },
+          "isOnboardingComplete": {
+            "type": "boolean"
+          },
           "existingPolicyNumber": {
             "maxLength": 100,
             "minLength": 0,
@@ -27796,6 +27980,10 @@
           "signedAt": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -27973,6 +28161,13 @@
               "$ref": "#/components/schemas/OnboardingFieldData"
             },
             "nullable": true
+          },
+          "dynamicTables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberDynamicTableDto"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -28127,6 +28322,19 @@
             "type": "string",
             "nullable": true
           },
+          "agentId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "agentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "agentCode": {
+            "type": "string",
+            "nullable": true
+          },
           "sourceOfIncome": {
             "$ref": "#/components/schemas/SourceOfIncome"
           },
@@ -28249,6 +28457,33 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PolicyEnrollmentDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MemberDynamicTableDto": {
+        "type": "object",
+        "properties": {
+          "entityName": {
+            "type": "string",
+            "nullable": true
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DynamicColumnDto"
+            },
+            "nullable": true
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
             },
             "nullable": true
           }
@@ -28762,6 +28997,10 @@
           },
           "isSkippable": {
             "type": "boolean"
+          },
+          "calculatorConfig": {
+            "type": "string",
+            "nullable": true
           },
           "formId": {
             "type": "string",
@@ -31026,6 +31265,10 @@
             "format": "uuid",
             "nullable": true
           },
+          "agentCode": {
+            "type": "string",
+            "nullable": true
+          },
           "customFields": {
             "type": "object",
             "additionalProperties": {
@@ -31436,6 +31679,39 @@
         },
         "additionalProperties": false
       },
+      "SaveEmailCredentialsRequest": {
+        "type": "object",
+        "properties": {
+          "smtpServer": {
+            "type": "string",
+            "nullable": true
+          },
+          "smtpPort": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "smtpUsername": {
+            "type": "string",
+            "nullable": true
+          },
+          "smtpPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "enableSsl": {
+            "type": "boolean"
+          },
+          "fromEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "fromName": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "SaveMemberOnboardingDataDto": {
         "required": [
           "fieldValues"
@@ -31514,6 +31790,16 @@
           },
           "config": {
             "$ref": "#/components/schemas/BookingNotificationConfigDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendTestEmailRequest": {
+        "type": "object",
+        "properties": {
+          "recipientEmail": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -32379,6 +32665,13 @@
           },
           "hasPaymentCredentials": {
             "type": "boolean"
+          },
+          "requiresOnboardingApproval": {
+            "type": "boolean"
+          },
+          "onboardingSubmitButtonLabel": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -33414,6 +33707,10 @@
           "isSkippable": {
             "type": "boolean"
           },
+          "calculatorConfig": {
+            "type": "string",
+            "nullable": true
+          },
           "formId": {
             "type": "string",
             "format": "uuid",
@@ -34161,6 +34458,18 @@
             "format": "date-time",
             "nullable": true
           },
+          "agentCode": {
+            "maxLength": 50,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
+          "signatureDataUrl": {
+            "maxLength": 1048576,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
           "customFieldsJson": {
             "type": "string",
             "nullable": true
@@ -34247,6 +34556,14 @@
           "idVerifiedAt": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          },
+          "agentCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "signatureDataUrl": {
+            "type": "string",
             "nullable": true
           }
         },

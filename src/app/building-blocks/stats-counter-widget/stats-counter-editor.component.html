@@ -2,36 +2,26 @@
     <!-- General Settings -->
     <div class="editor-section">
         <h4 class="section-title">General Settings</h4>
-        
+
         <div class="form-group">
             <label>Widget Title</label>
-            <input type="text" 
-                   class="form-control" 
-                   [(ngModel)]="config.settings.title"
-                   placeholder="e.g., Our Platform by the Numbers">
+            <input type="text" class="form-control" [(ngModel)]="config.settings.title" placeholder="e.g., Our Platform by the Numbers" />
         </div>
 
         <div class="form-group">
             <label>Subtitle</label>
-            <input type="text" 
-                   class="form-control" 
-                   [(ngModel)]="config.settings.subtitle"
-                   placeholder="e.g., Trusted by providers nationwide">
+            <input type="text" class="form-control" [(ngModel)]="config.settings.subtitle" placeholder="e.g., Trusted by providers nationwide" />
         </div>
 
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label>Title Color</label>
-                <input type="color" 
-                       class="form-control" 
-                       [(ngModel)]="config.settings.titleColor">
+                <input type="color" class="form-control" [(ngModel)]="config.settings.titleColor" />
             </div>
 
             <div class="form-group col-md-6">
                 <label>Subtitle Color</label>
-                <input type="color" 
-                       class="form-control" 
-                       [(ngModel)]="config.settings.subtitleColor">
+                <input type="color" class="form-control" [(ngModel)]="config.settings.subtitleColor" />
             </div>
         </div>
 
@@ -46,13 +36,8 @@
 
         <div class="form-group">
             <div class="form-check">
-                <input type="checkbox" 
-                       class="form-check-input" 
-                       [(ngModel)]="config.settings.animateOnScroll"
-                       id="animateOnScroll">
-                <label class="form-check-label" for="animateOnScroll">
-                    Animate Numbers on Scroll
-                </label>
+                <input type="checkbox" class="form-check-input" [(ngModel)]="config.settings.animateOnScroll" id="animateOnScroll" />
+                <label class="form-check-label" for="animateOnScroll"> Animate Numbers on Scroll </label>
             </div>
         </div>
     </div>
@@ -60,53 +45,39 @@
     <!-- Style Settings -->
     <div class="editor-section">
         <h4 class="section-title">Style Settings</h4>
-        
+
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label>Background Color</label>
-                <input type="color" 
-                       class="form-control" 
-                       [(ngModel)]="config.settings.backgroundColor">
+                <input type="color" class="form-control" [(ngModel)]="config.settings.backgroundColor" />
             </div>
 
             <div class="form-group col-md-6">
                 <label>Stat Card Background</label>
-                <input type="color" 
-                       class="form-control" 
-                       [(ngModel)]="config.settings.statBackgroundColor">
+                <input type="color" class="form-control" [(ngModel)]="config.settings.statBackgroundColor" />
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group col-md-4">
                 <label>Value Color</label>
-                <input type="color" 
-                       class="form-control" 
-                       [(ngModel)]="config.settings.valueColor">
+                <input type="color" class="form-control" [(ngModel)]="config.settings.valueColor" />
             </div>
 
             <div class="form-group col-md-4">
                 <label>Label Color</label>
-                <input type="color" 
-                       class="form-control" 
-                       [(ngModel)]="config.settings.labelColor">
+                <input type="color" class="form-control" [(ngModel)]="config.settings.labelColor" />
             </div>
 
             <div class="form-group col-md-4">
                 <label>Icon Color</label>
-                <input type="color" 
-                       class="form-control" 
-                       [(ngModel)]="config.settings.iconColor">
+                <input type="color" class="form-control" [(ngModel)]="config.settings.iconColor" />
             </div>
         </div>
 
         <div class="form-group">
             <label>Padding (px)</label>
-            <input type="number" 
-                   class="form-control" 
-                   [(ngModel)]="config.settings.padding"
-                   min="0" 
-                   max="100">
+            <input type="number" class="form-control" [(ngModel)]="config.settings.padding" min="0" max="100" />
         </div>
     </div>
 
@@ -114,34 +85,21 @@
     <div class="editor-section">
         <div class="section-header">
             <h4 class="section-title">Statistics</h4>
-            <button type="button" 
-                    class="btn btn-sm btn-success" 
-                    (click)="addStat()">
-                <i class="bi bi-plus-circle"></i> Add Stat
-            </button>
+            <button type="button" class="btn btn-sm btn-success" (click)="addStat()"><i class="bi bi-plus-circle"></i> Add Stat</button>
         </div>
 
         <div class="stats-list">
-            <div class="stat-card" 
-                 *ngFor="let stat of config.settings.stats; let i = index">
+            <div class="stat-card" *ngFor="let stat of config.settings.stats; let i = index">
                 <div class="stat-header">
                     <i [class]="stat.icon" class="preview-icon"></i>
                     <div class="stat-controls">
-                        <button type="button" 
-                                class="btn btn-sm btn-link" 
-                                (click)="moveStatUp(i)"
-                                [disabled]="i === 0">
+                        <button type="button" class="btn btn-sm btn-link" (click)="moveStatUp(i)" [disabled]="i === 0">
                             <i class="bi bi-arrow-up"></i>
                         </button>
-                        <button type="button" 
-                                class="btn btn-sm btn-link" 
-                                (click)="moveStatDown(i)"
-                                [disabled]="i === config.settings.stats.length - 1">
+                        <button type="button" class="btn btn-sm btn-link" (click)="moveStatDown(i)" [disabled]="i === config.settings.stats.length - 1">
                             <i class="bi bi-arrow-down"></i>
                         </button>
-                        <button type="button" 
-                                class="btn btn-sm btn-link text-danger" 
-                                (click)="removeStat(i)">
+                        <button type="button" class="btn btn-sm btn-link text-danger" (click)="removeStat(i)">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
@@ -150,47 +108,30 @@
                 <div class="stat-content">
                     <div class="form-group">
                         <label>Icon (Bootstrap Icon class)</label>
-                        <input type="text" 
-                               class="form-control form-control-sm" 
-                               [(ngModel)]="stat.icon"
-                               placeholder="e.g., bi bi-check-circle-fill">
-                        <small class="form-text text-muted">
-                            Browse icons at <a href="https://icons.getbootstrap.com/" target="_blank">icons.getbootstrap.com</a>
-                        </small>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="stat.icon" placeholder="e.g., bi bi-check-circle-fill" />
+                        <small class="form-text text-muted"> Browse icons at <a href="https://icons.getbootstrap.com/" target="_blank">icons.getbootstrap.com</a> </small>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-md-3">
                             <label>Prefix</label>
-                            <input type="text" 
-                                   class="form-control form-control-sm" 
-                                   [(ngModel)]="stat.prefix"
-                                   placeholder="e.g., R">
+                            <input type="text" class="form-control form-control-sm" [(ngModel)]="stat.prefix" placeholder="e.g., R" />
                         </div>
 
                         <div class="form-group col-md-6">
                             <label>Value</label>
-                            <input type="text" 
-                                   class="form-control form-control-sm" 
-                                   [(ngModel)]="stat.value"
-                                   placeholder="e.g., 10 or 15,000">
+                            <input type="text" class="form-control form-control-sm" [(ngModel)]="stat.value" placeholder="e.g., 10 or 15,000" />
                         </div>
 
                         <div class="form-group col-md-3">
                             <label>Suffix</label>
-                            <input type="text" 
-                                   class="form-control form-control-sm" 
-                                   [(ngModel)]="stat.suffix"
-                                   placeholder="e.g., + or %">
+                            <input type="text" class="form-control form-control-sm" [(ngModel)]="stat.suffix" placeholder="e.g., + or %" />
                         </div>
                     </div>
 
                     <div class="form-group mb-0">
                         <label>Label</label>
-                        <input type="text" 
-                               class="form-control form-control-sm" 
-                               [(ngModel)]="stat.label"
-                               placeholder="e.g., Average Savings">
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="stat.label" placeholder="e.g., Average Savings" />
                     </div>
 
                     <!-- Preview -->
@@ -201,16 +142,11 @@
                 </div>
             </div>
 
-            <div class="text-center text-muted py-3" 
-                 *ngIf="!config.settings.stats || config.settings.stats.length === 0">
-                No statistics yet. Click "Add Stat" to get started.
-            </div>
+            <div class="text-center text-muted py-3" *ngIf="!config.settings.stats || config.settings.stats.length === 0">No statistics yet. Click "Add Stat" to get started.</div>
         </div>
     </div>
 
     <div class="editor-section d-flex justify-content-end mb-3">
-      <button type="button" class="btn-primary-theme" (click)="onSave()">
-        <i class="bi bi-save"></i> Save
-      </button>
+        <button type="button" class="btn-primary-theme" (click)="onSave()"><i class="bi bi-save"></i> Save</button>
     </div>
 </div>

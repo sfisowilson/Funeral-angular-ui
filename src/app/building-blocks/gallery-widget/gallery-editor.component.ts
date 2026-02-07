@@ -95,11 +95,13 @@ export class GalleryEditorComponent implements OnInit {
             });
             this.images.clear();
             this.settings.images?.forEach((image: any) => {
-                this.images.push(this.fb.group({
-                    src: [image.src || ''],
-                    alt: [image.alt || ''],
-                    title: [image.title || '']
-                }));
+                this.images.push(
+                    this.fb.group({
+                        src: [image.src || ''],
+                        alt: [image.alt || ''],
+                        title: [image.title || '']
+                    })
+                );
             });
         }
     }
@@ -114,7 +116,7 @@ export class GalleryEditorComponent implements OnInit {
         console.log('📁 Input element:', input);
         const files = input.files;
         console.log('📂 Files object:', files);
-        
+
         if (!files || files.length === 0) {
             console.log('❌ No files selected');
             this.messageService.add({ severity: 'warn', summary: 'No Files', detail: 'No files were selected' });
@@ -122,21 +124,21 @@ export class GalleryEditorComponent implements OnInit {
         }
 
         console.log(`Processing ${files.length} files`);
-        this.messageService.add({ 
-            severity: 'info', 
-            summary: 'Processing', 
-            detail: `Processing ${files.length} image${files.length > 1 ? 's' : ''}...` 
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Processing',
+            detail: `Processing ${files.length} image${files.length > 1 ? 's' : ''}...`
         });
 
         // If replacing a specific image
         if (index !== undefined) {
             const file = files[0];
             console.log('Replacing image at index', index, file.name);
-            
+
             // Show preview immediately
             const reader = new FileReader();
             reader.onload = (e: any) => {
-                this.images.at(index).patchValue({ 
+                this.images.at(index).patchValue({
                     src: e.target.result,
                     alt: file.name,
                     title: this.images.at(index).value.title || file.name
@@ -172,15 +174,17 @@ export class GalleryEditorComponent implements OnInit {
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 console.log(`Processing image ${i + 1}:`, file.name);
-                
+
                 // Add placeholder
                 const imageIndex = this.images.length;
-                this.images.push(this.fb.group({ 
-                    src: ['https://via.placeholder.com/400x300?text=Uploading...'], 
-                    alt: [file.name],
-                    title: [file.name]
-                }));
-                
+                this.images.push(
+                    this.fb.group({
+                        src: ['https://via.placeholder.com/400x300?text=Uploading...'],
+                        alt: [file.name],
+                        title: [file.name]
+                    })
+                );
+
                 // Show preview
                 const reader = new FileReader();
                 reader.onload = (e: any) => {
@@ -196,26 +200,26 @@ export class GalleryEditorComponent implements OnInit {
                         const imageUrl = this.getDownloadUrl(response?.result.id);
                         this.images.at(imageIndex).patchValue({ src: imageUrl });
                         uploadedCount++;
-                        
+
                         if (uploadedCount === totalFiles) {
-                            this.messageService.add({ 
-                                severity: 'success', 
-                                summary: 'Success', 
-                                detail: `${totalFiles} image${totalFiles > 1 ? 's' : ''} uploaded successfully` 
+                            this.messageService.add({
+                                severity: 'success',
+                                summary: 'Success',
+                                detail: `${totalFiles} image${totalFiles > 1 ? 's' : ''} uploaded successfully`
                             });
                             // Clear input
                             input.value = '';
                         }
                     },
                     error: (error: any) => {
-                        this.messageService.add({ 
-                            severity: 'error', 
-                            summary: 'Error', 
-                            detail: `Failed to upload ${file.name}` 
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: `Failed to upload ${file.name}`
                         });
                         console.error(error);
                         uploadedCount++;
-                        
+
                         if (uploadedCount === totalFiles) {
                             this.onSubmit();
                             // Clear input

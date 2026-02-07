@@ -5,17 +5,7 @@
 
     <div class="field">
         <label class="field-label">Select Form</label>
-        <p-dropdown
-            [options]="forms"
-            [(ngModel)]="settings.formId"
-            optionLabel="label"
-            optionValue="value"
-            [filter]="true"
-            placeholder="Choose a form"
-            [showClear]="true"
-            [disabled]="loadingForms"
-            styleClass="w-full">
-        </p-dropdown>
+        <p-dropdown [options]="forms" [(ngModel)]="settings.formId" optionLabel="label" optionValue="value" [filter]="true" placeholder="Choose a form" [showClear]="true" [disabled]="loadingForms" styleClass="w-full"> </p-dropdown>
         <small class="field-help">Only active forms are listed.</small>
     </div>
 

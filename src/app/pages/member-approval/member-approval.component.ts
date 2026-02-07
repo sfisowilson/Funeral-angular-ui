@@ -1,14 +1,9 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-    MemberApprovalServiceProxy,
-    PendingMemberDto,
-    MemberApprovalDetailDto,
-    ApproveMemberRequest,
-    RejectMemberRequest,
-    RequestMemberUpdatesRequest
-} from '../../core/services/service-proxies';
+import { HttpClient } from '@angular/common/http';
+import { MemberApprovalServiceProxy, PendingMemberDto, MemberApprovalDetailDto, ApproveMemberRequest, RejectMemberRequest, RequestMemberUpdatesRequest } from '../../core/services/service-proxies';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-member-approval',
@@ -19,6 +14,8 @@ import {
     styleUrl: './member-approval.component.scss'
 })
 export class MemberApprovalComponent implements OnInit {
+    private http = inject(HttpClient);
+    // ... existing signals
     pendingMembers = signal<PendingMemberDto[]>([]);
     stats = signal<any>(null);
     selectedMember = signal<MemberApprovalDetailDto | null>(null);
@@ -27,12 +24,12 @@ export class MemberApprovalComponent implements OnInit {
     showApproveModal = signal(false);
     showRejectModal = signal(false);
     showRequestUpdatesModal = signal(false);
-    
+
     approvalNotes = '';
     rejectionReason = '';
     updateRequestMessage = '';
     updateRequestFields: string[] = [];
-    
+
     alert = signal<{ type: 'success' | 'danger' | 'warning'; message: string } | null>(null);
 
     constructor(private memberApprovalService: MemberApprovalServiceProxy) {}
@@ -206,5 +203,23 @@ export class MemberApprovalComponent implements OnInit {
 
     isFieldSelected(field: string): boolean {
         return this.updateRequestFields.includes(field);
+    }
+
+    downloadContract(memberId: string) {
+        this.loading.set(true);
+        const url = `${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_DownloadPdf?memberId=${memberId}`;
+        
+        this.http.get(url, { responseType: 'blob' }).subscribe({
+            next: (blob) => {
+                const objectUrl = window.URL.createObjectURL(blob);
+                window.open(objectUrl, '_blank');
+                this.loading.set(false);
+            },
+            error: (err) => {
+                console.error('Error downloading contract:', err);
+                this.showAlert('danger', 'Failed to download contract PDF. It may not be generated yet.');
+                this.loading.set(false);
+            }
+        });
     }
 }

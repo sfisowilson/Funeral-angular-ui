@@ -16,9 +16,7 @@ export class CustomPageService {
     constructor(private http: HttpClient) {}
 
     getPages(): Observable<PageListItem[]> {
-        return this.http.get<PageListItem[]>(this.apiUrl).pipe(
-            tap(pages => this.pagesSubject.next(pages))
-        );
+        return this.http.get<PageListItem[]>(this.apiUrl).pipe(tap((pages) => this.pagesSubject.next(pages)));
     }
 
     getPageBySlug(slug: string): Observable<CustomPage> {
@@ -42,27 +40,19 @@ export class CustomPageService {
     }
 
     createPage(request: CreatePageRequest): Observable<CustomPage> {
-        return this.http.post<CustomPage>(this.apiUrl, request).pipe(
-            tap(() => this.getPages().subscribe())
-        );
+        return this.http.post<CustomPage>(this.apiUrl, request).pipe(tap(() => this.getPages().subscribe()));
     }
 
     updatePage(request: UpdatePageRequest): Observable<CustomPage> {
-        return this.http.put<CustomPage>(`${this.apiUrl}/${request.id}`, request).pipe(
-            tap(() => this.getPages().subscribe())
-        );
+        return this.http.put<CustomPage>(`${this.apiUrl}/${request.id}`, request).pipe(tap(() => this.getPages().subscribe()));
     }
 
     deletePage(id: string): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
-            tap(() => this.getPages().subscribe())
-        );
+        return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(tap(() => this.getPages().subscribe()));
     }
 
     duplicatePage(id: string): Observable<CustomPage> {
-        return this.http.post<CustomPage>(`${this.apiUrl}/${id}/duplicate`, {}).pipe(
-            tap(() => this.getPages().subscribe())
-        );
+        return this.http.post<CustomPage>(`${this.apiUrl}/${id}/duplicate`, {}).pipe(tap(() => this.getPages().subscribe()));
     }
 
     updatePageOrder(pageId: string, location: 'navbar' | 'footer', order: number): Observable<void> {

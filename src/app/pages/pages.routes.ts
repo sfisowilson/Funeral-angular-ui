@@ -34,6 +34,7 @@ import { RegistrationFieldsComponent } from './admin/registration-fields/registr
 import { OnboardingStepListConfigComponent } from './admin/onboarding-step-config/onboarding-step-list-config.component';
 import { FieldDefinitionBuilderComponent } from '../admin/onboarding-fields/field-definition-builder/field-definition-builder.component';
 import { EmailTemplatesComponent } from './email-templates/email-templates.component';
+import { EmailSettingsComponent } from './email-settings/email-settings.component';
 
 export default [
     { path: 'assets', component: AssetsComponent },
@@ -59,31 +60,36 @@ export default [
 
     { path: 'dashboard-settings', component: DashboardSettingsComponent },
     { path: 'pdf-field-mapping', component: PdfFieldMappingComponent },
-    { 
-        path: 'registration-fields', 
+    {
+        path: 'registration-fields',
         component: RegistrationFieldsComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'] }
     },
-    { 
-        path: 'onboarding-step-config', 
+    {
+        path: 'onboarding-step-config',
         component: OnboardingStepListConfigComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'] }
     },
-    { 
-        path: 'field-definitions', 
+    {
+        path: 'field-definitions',
         component: FieldDefinitionBuilderComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'] }
     },
-    { 
-        path: 'email-templates', 
+    {
+        path: 'email-templates',
         component: EmailTemplatesComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+    },
+    {
+        path: 'email-settings',
+        component: EmailSettingsComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'] }
     },
     { path: 'member-approval', component: MemberApprovalComponent },
     { path: 'tenant-approval', component: TenantApprovalComponent },
     { path: 'coupons', component: CouponListComponent },
-    { 
-        path: 'careers', 
+    {
+        path: 'careers',
         component: CareersComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
     },
@@ -103,8 +109,8 @@ export default [
         component: CustomerManagementComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
     },
-    { 
-        path: 'page-builder', 
+    {
+        path: 'page-builder',
         component: PageBuilderComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'] }
     },
@@ -118,7 +124,7 @@ export default [
 
     // Legacy Widget Editor - replaced by Visual Page Builder
     // { path: 'landing', loadChildren: () => import('./landing/landing-page.module').then((m) => m.LandingPageModule) },
-    
+
     { path: 'user-profile', loadComponent: () => import('./user-profile/user-profile.component').then((m) => m.UserProfileComponent) },
     { path: 'team-test', loadComponent: () => import('./team-test/team-test.component').then((m) => m.TeamTestComponent) },
     { path: '**', redirectTo: '/notfound' }

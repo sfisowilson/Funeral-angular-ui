@@ -8,30 +8,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputTextarea } from 'primeng/inputtextarea';
 import { TagModule } from 'primeng/tag';
 import { CardModule } from 'primeng/card';
-import { 
-    TenantApprovalService, 
-    TenantApprovalListDto, 
-    TenantApprovalDetailDto,
-    TenantApprovalStatus,
-    ApproveTenantDto,
-    RejectTenantDto,
-    RequestTenantChangeDto
-} from '../../core/services/tenant-approval.service';
+import { TenantApprovalService, TenantApprovalListDto, TenantApprovalDetailDto, TenantApprovalStatus, ApproveTenantDto, RejectTenantDto, RequestTenantChangeDto } from '../../core/services/tenant-approval.service';
 
 @Component({
     selector: 'app-tenant-approval',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        TableModule,
-        ButtonModule,
-        DialogModule,
-        InputTextModule,
-        InputTextarea,
-        TagModule,
-        CardModule
-    ],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, InputTextarea, TagModule, CardModule],
     templateUrl: './tenant-approval.component.html',
     styleUrl: './tenant-approval.component.scss'
 })
@@ -43,10 +25,10 @@ export class TenantApprovalComponent implements OnInit {
     showApproveDialog = signal(false);
     showRejectDialog = signal(false);
     showRequestChangeDialog = signal(false);
-    
+
     rejectionReason = '';
     changeRequestReason = '';
-    
+
     TenantApprovalStatus = TenantApprovalStatus;
 
     constructor(private tenantApprovalService: TenantApprovalService) {}

@@ -1,24 +1,15 @@
-import { Component, OnInit , NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-    PaymentServiceProxy,
-    InvoiceServiceProxy,
-    TenantSubscriptionServiceProxy
-} from '../../../core/services/service-proxies';
+import { PaymentServiceProxy, InvoiceServiceProxy, TenantSubscriptionServiceProxy } from '../../../core/services/service-proxies';
 
 @Component({
     selector: 'app-payment-callback',
     standalone: true,
-    imports: [
-        CommonModule
-    ],
-    providers: [
-        PaymentServiceProxy,
-        InvoiceServiceProxy,
-        TenantSubscriptionServiceProxy
-    ],
-    schemas: [NO_ERRORS_SCHEMA], templateUrl: './payment-callback.component.html',
+    imports: [CommonModule],
+    providers: [PaymentServiceProxy, InvoiceServiceProxy, TenantSubscriptionServiceProxy],
+    schemas: [NO_ERRORS_SCHEMA],
+    templateUrl: './payment-callback.component.html',
     styleUrls: ['./payment-callback.component.scss']
 })
 export class PaymentCallbackComponent implements OnInit {
@@ -39,9 +30,9 @@ export class PaymentCallbackComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.route.queryParams.subscribe(params => {
+        this.route.queryParams.subscribe((params) => {
             this.paymentId = params['paymentId'] || params['payment_id'];
-            
+
             if (this.paymentId) {
                 this.checkPaymentStatus();
             } else {
@@ -60,7 +51,7 @@ export class PaymentCallbackComponent implements OnInit {
         this.paymentService.payment_GetStatus(this.paymentId).subscribe({
             next: (payment: any) => {
                 this.loading = false;
-                
+
                 if (payment.status === 'Success' || payment.status === 'Completed') {
                     this.paymentSuccess = true;
                     this.loadSubscriptionDetails();
@@ -98,7 +89,7 @@ export class PaymentCallbackComponent implements OnInit {
             this.redirectCountdown--;
             if (this.redirectCountdown <= 0) {
                 clearInterval(interval);
-                this.router.navigate(['/dashboard']);
+                this.router.navigate(['/admin/dashboard']);
             }
         }, 1000);
     }
@@ -122,7 +113,7 @@ export class PaymentCallbackComponent implements OnInit {
     }
 
     goToDashboard(): void {
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/admin/dashboard']);
     }
 
     tryAgain(): void {

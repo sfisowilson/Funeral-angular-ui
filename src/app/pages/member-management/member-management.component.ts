@@ -30,15 +30,15 @@ interface ExtendedMemberDto extends MemberDto {
     selector: 'app-member-management',
     standalone: true,
     imports: [
-        CommonModule, 
-        FormsModule, 
-        TableModule, 
-        ButtonModule, 
-        InputTextModule, 
-        DialogModule, 
-        ToastModule, 
-        ConfirmDialogModule, 
-        ToolbarModule, 
+        CommonModule,
+        FormsModule,
+        TableModule,
+        ButtonModule,
+        InputTextModule,
+        DialogModule,
+        ToastModule,
+        ConfirmDialogModule,
+        ToolbarModule,
         TagModule,
         DropdownModule,
         CalendarModule,
@@ -46,7 +46,7 @@ interface ExtendedMemberDto extends MemberDto {
         InputMaskModule,
         InputTextarea,
         TooltipModule,
-        DependentsComponent, 
+        DependentsComponent,
         BeneficiariesComponent
     ],
     providers: [MessageService, ConfirmationService, MemberServiceProxy],
@@ -106,6 +106,7 @@ export class MemberManagementComponent implements OnInit {
             { field: 'name', header: 'Name' },
             { field: 'email', header: 'Email' },
             { field: 'identificationNumber', header: 'ID Number' },
+            { field: 'agentName', header: 'Agent' },
             { field: 'status', header: 'Status' }
         ];
     }
@@ -117,9 +118,12 @@ export class MemberManagementComponent implements OnInit {
     loadMembers() {
         // Assuming a tenant context is available, for now, we'll fetch all members
         // In a real multi-tenant app, you'd pass a tenant ID to filter members
-        this.memberService.member_GetAllMembers(undefined, undefined, undefined, undefined, undefined).pipe(unwrap<MemberDto[]>()).subscribe((result) => {
-            this.members = result;
-        });
+        this.memberService
+            .member_GetAllMembers(undefined, undefined, undefined, undefined, undefined)
+            .pipe(unwrap<MemberDto[]>())
+            .subscribe((result) => {
+                this.members = result;
+            });
     }
 
     openNew() {

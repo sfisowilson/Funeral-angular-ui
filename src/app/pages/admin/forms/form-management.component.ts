@@ -22,6 +22,13 @@ interface FormField {
 
 type CalculatorVariableType = 'field' | 'lookup' | 'aggregate';
 
+interface DataValidationRule {
+    type: 'uniqueInList' | 'notMatchMemberField';
+    fieldKey: string;
+    targetFieldKey?: string; // used for notMatchMemberField
+    errorMessage: string;
+}
+
 interface CalculatorLookupCondition {
     field: string;
     operator: 'eq' | 'lt' | 'lte' | 'gt' | 'gte' | 'between';
@@ -44,6 +51,29 @@ interface CalculatorVariableConfig {
     lookupRules?: CalculatorLookupRule[]; // for "lookup"
 }
 
+// Interfaces for Iterative List Pricing (e.g. per-dependent calculations)
+export interface IterativeCalculatorCondition {
+    field: string; // e.g. "dep.age"
+    operator: 'equals' | 'gt' | 'lt' | 'gte' | 'lte' | 'between' | 'contains';
+    value: any;
+    value2?: any;
+}
+
+export interface IterativeCalculatorLookupRule {
+    conditions: IterativeCalculatorCondition[];
+    result: number;
+}
+
+export interface IterativeVariableConfig {
+    variableKey: string; // e.g. "dependentPremiums"
+    label: string;
+    sourceCollectionKey: string; // e.g. "dependents"
+    itemAlias: string; // e.g. "dep"
+    lookupRules: IterativeCalculatorLookupRule[];
+    defaultResult?: number;
+    aggregationMode: 'sum' | 'count';
+}
+
 interface FormCalculatorConfig {
     enabled: boolean;
     name: string;
@@ -54,6 +84,7 @@ interface FormCalculatorConfig {
     expressionLabel: string;
     formula: string;
     variables?: CalculatorVariableConfig[];
+    iterativeVariables?: IterativeVariableConfig[];
 
     // Optional extra calculator widgets
     showBreakdown?: boolean;
@@ -87,6 +118,17 @@ export class FormManagementComponent implements OnInit {
     submitted: boolean = false;
     loading: boolean = false;
     formFields: FormField[] = [];
+    validationRules: DataValidationRule[] = [];
+    
+    parentFields = [
+        { label: 'ID Number', value: 'idNumber' },
+        { label: 'Policy Number', value: 'policyNumber' },
+        { label: 'Email', value: 'email' },
+        { label: 'Cell Number', value: 'cellNumber' },
+        { label: 'First Name', value: 'firstName' },
+        { label: 'Last Name', value: 'lastName' }
+    ];
+
     calculatorConfig: FormCalculatorConfig = {
         enabled: false,
         name: '',
@@ -106,7 +148,7 @@ export class FormManagementComponent implements OnInit {
         showChecklist: false,
         checklistItems: []
     };
-    
+
     // Submissions view state
     submissionsDialog: boolean = false;
     submissionsLoading: boolean = false;
@@ -118,7 +160,7 @@ export class FormManagementComponent implements OnInit {
 
     // Dynamic Entity integration
     dynamicEntityTypes: DynamicEntityTypeDto[] = [];
-    
+
     showConfirmModal = false;
     confirmMessage = '';
     confirmAction: (() => void) | null = null;
@@ -165,6 +207,7 @@ export class FormManagementComponent implements OnInit {
 
     private loadFormFieldsFromJson(json: string | undefined | null): void {
         this.formFields = [];
+        this.validationRules = [];
         if (!json) {
             this.addField();
             return;
@@ -172,13 +215,20 @@ export class FormManagementComponent implements OnInit {
 
         try {
             const parsed = JSON.parse(json);
+            let fieldsToLoad = [];
+            
             if (Array.isArray(parsed)) {
-                this.formFields = parsed.map((f: any, index: number) => {
-                    const options = Array.isArray(f.options)
-                        ? f.options.join(', ')
-                        : typeof f.options === 'string'
-                        ? f.options
-                        : '';
+                fieldsToLoad = parsed;
+            } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.fields)) {
+                fieldsToLoad = parsed.fields;
+                if (Array.isArray(parsed.validationRules)) {
+                    this.validationRules = parsed.validationRules;
+                }
+            }
+
+            if (fieldsToLoad.length > 0) {
+                this.formFields = fieldsToLoad.map((f: any, index: number) => {
+                    const options = Array.isArray(f.options) ? f.options.join(', ') : typeof f.options === 'string' ? f.options : '';
                     return {
                         id: this.generateId(),
                         name: f.name || '',
@@ -239,11 +289,7 @@ export class FormManagementComponent implements OnInit {
             }
 
             this.formFields = parsed.map((f: any, index: number) => {
-                const options = Array.isArray(f.options)
-                    ? f.options.join(', ')
-                    : typeof f.options === 'string'
-                    ? f.options
-                    : '';
+                const options = Array.isArray(f.options) ? f.options.join(', ') : typeof f.options === 'string' ? f.options : '';
                 return {
                     id: this.generateId(),
                     name: f.name || '',
@@ -321,7 +367,12 @@ export class FormManagementComponent implements OnInit {
                 order: f.order
             }));
 
-        this.form.fields = JSON.stringify(payload, null, 2);
+        const finalPayload = {
+            fields: payload,
+            validationRules: this.validationRules
+        };
+
+        this.form.fields = JSON.stringify(finalPayload, null, 2);
         return true;
     }
 
@@ -392,6 +443,100 @@ export class FormManagementComponent implements OnInit {
         rule.conditions.splice(index, 1);
     }
 
+    // Iterative Variable Helpers
+    addIterativeVariable(): void {
+        if (!this.calculatorConfig.iterativeVariables) {
+            this.calculatorConfig.iterativeVariables = [];
+        }
+        this.calculatorConfig.iterativeVariables.push({
+            variableKey: '',
+            label: '',
+            sourceCollectionKey: '',
+            itemAlias: 'item',
+            lookupRules: [],
+            defaultResult: 0,
+            aggregationMode: 'sum'
+        });
+    }
+
+    removeIterativeVariable(index: number): void {
+        if (!this.calculatorConfig.iterativeVariables) return;
+        this.calculatorConfig.iterativeVariables.splice(index, 1);
+    }
+
+    addIterativeLookupRule(variable: IterativeVariableConfig): void {
+        if (!variable.lookupRules) variable.lookupRules = [];
+        variable.lookupRules.push({
+            conditions: [],
+            result: 0
+        });
+    }
+
+    removeIterativeLookupRule(variable: IterativeVariableConfig, index: number): void {
+        variable.lookupRules.splice(index, 1);
+    }
+
+    addIterativeCondition(rule: IterativeCalculatorLookupRule): void {
+        rule.conditions.push({
+            field: '',
+            operator: 'equals',
+            value: ''
+        });
+    }
+
+    removeIterativeCondition(rule: IterativeCalculatorLookupRule, index: number): void {
+        rule.conditions.splice(index, 1);
+    }
+
+    onFieldTypeChange(field: FormField): void {
+        if (field.type === 'idNumber') {
+            const baseName = field.name || '';
+            const targetAgeName = baseName ? `${baseName}_age` : 'age';
+            const targetGenderName = baseName ? `${baseName}_gender` : 'gender';
+
+            const hasAge = this.formFields.some((f) => f.name.toLowerCase() === targetAgeName.toLowerCase());
+            const hasGender = this.formFields.some((f) => f.name.toLowerCase() === targetGenderName.toLowerCase());
+
+            let inserted = false;
+            let insertIdx = this.formFields.indexOf(field) + 1;
+
+            if (!hasAge) {
+                this.formFields.splice(insertIdx, 0, {
+                    id: this.generateId(),
+                    name: targetAgeName,
+                    label: 'Age',
+                    type: 'number',
+                    required: false,
+                    placeholder: 'Auto-calculated',
+                    options: '',
+                    order: 0
+                });
+                insertIdx++;
+                inserted = true;
+            }
+
+            if (!hasGender) {
+                this.formFields.splice(insertIdx, 0, {
+                    id: this.generateId(),
+                    name: targetGenderName,
+                    label: 'Gender',
+                    type: 'select',
+                    required: false,
+                    placeholder: 'Select gender',
+                    options: 'Male, Female',
+                    order: 0
+                });
+                insertIdx++;
+                inserted = true;
+            }
+
+            if (inserted) {
+                this.formFields = this.formFields.map((f, i) => ({ ...f, order: i }));
+                this.showAlert('Automatically added Age and Gender fields based on ID Number.', 'success');
+            }
+        }
+    }
+
     addField(): void {
         const nextOrder = this.formFields.length ? Math.max(...this.formFields.map((f) => f.order)) + 1 : 0;
         this.formFields.push({
@@ -427,6 +572,61 @@ export class FormManagementComponent implements OnInit {
         this.formFields = this.formFields.map((f, i) => ({ ...f, order: i }));
     }
 
+    /**
+     * Convert field name to camelCase format
+     * Examples: "Full Name" -> "fullName", "Date of Birth" -> "dateOfBirth"
+     */
+    convertToCamelCase(value: string): string {
+        if (!value) return '';
+        const words = value
+            .trim()
+            .replace(/[^a-zA-Z0-9\s]/g, '')
+            .split(/\s+/);
+        
+        if (words.length === 0) return '';
+        
+        return words[0].toLowerCase() + words.slice(1)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join('');
+    }
+
+    /**
+     * Format field label from camelCase/PascalCase
+     * Examples: "fullName" -> "Full Name", "dateOfBirth" -> "Date Of Birth"
+     */
+    formatFieldLabel(fieldName: string): string {
+        if (!fieldName) return '';
+        return fieldName
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, str => str.toUpperCase())
+            .trim();
+    }
+
+    /**
+     * Auto-generate field name from label when label changes
+     */
+    onFieldLabelChange(field: FormField): void {
+        // Only auto-generate name if it's a new field with empty name
+        if (field.label && !field.name) {
+            field.name = this.convertToCamelCase(field.label);
+        }
+    }
+
+    /**
+     * Validate and format field name when it changes
+     */
+    onFieldNameBlur(field: FormField): void {
+        if (field.name) {
+            // Convert to camelCase for consistency
+            field.name = this.convertToCamelCase(field.name);
+            
+            // Auto-generate label if empty
+            if (!field.label) {
+                field.label = this.formatFieldLabel(field.name);
+            }
+        }
+    }
+
     showAlert(message: string, type: string = 'info'): void {
         this.alerts.push({ type, message });
         setTimeout(() => this.dismissAlert(this.alerts[0]), 5000);
@@ -456,6 +656,18 @@ export class FormManagementComponent implements OnInit {
     cancelConfirm(): void {
         this.showConfirmModal = false;
         this.confirmAction = null;
+    }
+
+    addValidationRule(): void {
+        this.validationRules.push({
+            type: 'uniqueInList',
+            fieldKey: this.formFields.length > 0 ? this.formFields[0].name : '',
+            errorMessage: 'This value must be unique.'
+        });
+    }
+
+    removeValidationRule(index: number): void {
+        this.validationRules.splice(index, 1);
     }
 
     ngOnInit() {
@@ -510,20 +722,17 @@ export class FormManagementComponent implements OnInit {
     }
 
     deleteForm(form: FormDto) {
-        this.showConfirm(
-            `Are you sure you want to delete form '${form.name}'?`,
-            () => {
-                this.formService.form_Delete(form.id!).subscribe(
-                    () => {
-                        this.loadForms();
-                        this.showAlert('Form deleted', 'success');
-                    },
-                    () => {
-                        this.showAlert('Failed to delete form', 'danger');
-                    }
-                );
-            }
-        );
+        this.showConfirm(`Are you sure you want to delete form '${form.name}'?`, () => {
+            this.formService.form_Delete(form.id!).subscribe(
+                () => {
+                    this.loadForms();
+                    this.showAlert('Form deleted', 'success');
+                },
+                () => {
+                    this.showAlert('Failed to delete form', 'danger');
+                }
+            );
+        });
     }
 
     viewSubmissions(form: FormDto) {
@@ -539,22 +748,20 @@ export class FormManagementComponent implements OnInit {
         }
 
         this.submissionsLoading = true;
-        this.formService
-            .formSubmission_GetByFormId(this.selectedFormForSubmissions.id, this.submissionsPageNumber, this.submissionsPageSize, undefined)
-            .subscribe(
-                (response) => {
-                    const result = response.result;
-                    this.submissions = result?.submissions ?? [];
-                    this.submissionsTotalCount = result?.totalCount ?? 0;
-                    this.submissionsPageNumber = result?.pageNumber ?? 1;
-                    this.submissionsPageSize = result?.pageSize ?? this.submissionsPageSize;
-                    this.submissionsLoading = false;
-                },
-                () => {
-                    this.showAlert('Failed to load submissions', 'danger');
-                    this.submissionsLoading = false;
-                }
-            );
+        this.formService.formSubmission_GetByFormId(this.selectedFormForSubmissions.id, this.submissionsPageNumber, this.submissionsPageSize, undefined).subscribe(
+            (response) => {
+                const result = response.result;
+                this.submissions = result?.submissions ?? [];
+                this.submissionsTotalCount = result?.totalCount ?? 0;
+                this.submissionsPageNumber = result?.pageNumber ?? 1;
+                this.submissionsPageSize = result?.pageSize ?? this.submissionsPageSize;
+                this.submissionsLoading = false;
+            },
+            () => {
+                this.showAlert('Failed to load submissions', 'danger');
+                this.submissionsLoading = false;
+            }
+        );
     }
 
     closeSubmissionsDialog(): void {

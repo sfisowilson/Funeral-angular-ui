@@ -1,6 +1,6 @@
 <div class="terms-step">
     <p-toast></p-toast>
-    
+
     @if (loading()) {
         <div class="loading-message">
             <i class="pi pi-spin pi-spinner"></i>
@@ -17,7 +17,9 @@
             <p>{{ viewMode ? 'This member has' : 'You have' }} accepted the current terms and conditions.</p>
             @if (activeTerms()) {
                 <div class="terms-info mt-3">
-                    <p><strong>{{ activeTerms()?.title || 'Terms and Conditions' }}</strong></p>
+                    <p>
+                        <strong>{{ activeTerms()?.title || 'Terms and Conditions' }}</strong>
+                    </p>
                     <p class="text-muted">Version {{ activeTerms()?.version || '1.0' }} - Effective Date: {{ formatDate(activeTerms()?.effectiveDate) }}</p>
                 </div>
             }
@@ -31,35 +33,22 @@
                     <h2>{{ activeTerms()?.title || 'Terms and Conditions' }}</h2>
                     <div class="terms-metadata">
                         <span class="version">Version {{ activeTerms()?.version || '1.0' }}</span>
-                        <span class="effective-date">
-                            Effective Date: {{ formatDate(activeTerms()?.effectiveDate) }}
-                        </span>
+                        <span class="effective-date"> Effective Date: {{ formatDate(activeTerms()?.effectiveDate) }} </span>
                     </div>
                 </div>
             </ng-template>
 
-            <div class="terms-content" [innerHTML]="activeTerms()?.content || 'No terms available'">
-            </div>
+            <div class="terms-content" [innerHTML]="activeTerms()?.content || 'No terms available'"></div>
 
             @if (!viewMode) {
                 <ng-template pTemplate="footer">
                     <div class="acceptance-section">
                         <div class="checkbox-wrapper">
-                            <p-checkbox 
-                                [(ngModel)]="termsAccepted" 
-                                [binary]="true" 
-                                inputId="acceptTerms">
-                            </p-checkbox>
-                            <label for="acceptTerms" class="acceptance-label">
-                                I have read and agree to the terms and conditions
-                            </label>
+                            <p-checkbox [(ngModel)]="termsAccepted" [binary]="true" inputId="acceptTerms"> </p-checkbox>
+                            <label for="acceptTerms" class="acceptance-label"> I have read and agree to the terms and conditions </label>
                         </div>
-                        
-                        <button 
-                            type="button"
-                            class="btn-primary-theme btn-theme-lg"
-                            (click)="acceptTerms()"
-                            [disabled]="!termsAccepted || accepting()">
+
+                        <button type="button" class="btn-primary-theme btn-theme-lg" (click)="acceptTerms()" [disabled]="!termsAccepted || accepting()">
                             <i class="pi pi-check me-2"></i>
                             @if (accepting()) {
                                 <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -69,7 +58,7 @@
                     </div>
                 </ng-template>
             }
-            
+
             @if (viewMode) {
                 <ng-template pTemplate="footer">
                     <div class="view-mode-notice">

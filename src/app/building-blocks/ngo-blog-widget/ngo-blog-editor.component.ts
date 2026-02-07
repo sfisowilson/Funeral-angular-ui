@@ -14,7 +14,7 @@ import { DropdownModule } from 'primeng/dropdown';
     template: `
         <div class="blog-editor p-6">
             <h3 class="text-xl font-bold mb-6">Blog Widget Configuration</h3>
-            
+
             <form [formGroup]="form" class="space-y-4">
                 <!-- Title Settings -->
                 <div class="form-group">
@@ -123,12 +123,14 @@ import { DropdownModule } from 'primeng/dropdown';
             </form>
         </div>
     `,
-    styles: [`
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-    `]
+    styles: [
+        `
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+        `
+    ]
 })
 export class NgoBlogEditorComponent {
     @Input() config: any = {};

@@ -1,142 +1,124 @@
 <div class="p-4">
-  <h2 class="text-xl font-bold mb-4">Dynamic Entity Relationships</h2>
+    <h2 class="text-xl font-bold mb-4">Dynamic Entity Relationships</h2>
 
-  <!-- Relation Definitions Management -->
-  <div class="mb-6">
-    <div class="flex justify-between items-center mb-2">
-      <h3 class="text-lg font-semibold">Relation Definitions</h3>
-      <button
-        class="btn btn-sm btn-primary"
-        (click)="openCreateDefinitionDialog()"
-        [disabled]="!canCreateOrUpdateDefinitions">
-        Add Relation Definition
-      </button>
+    <!-- Relation Definitions Management -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="text-lg font-semibold">Relation Definitions</h3>
+            <button class="btn btn-sm btn-primary" (click)="openCreateDefinitionDialog()" [disabled]="!canCreateOrUpdateDefinitions">Add Relation Definition</button>
+        </div>
+        <table class="table-auto w-full text-sm">
+            <thead>
+                <tr>
+                    <th class="px-2 py-1 text-left">Name</th>
+                    <th class="px-2 py-1 text-left">Key</th>
+                    <th class="px-2 py-1 text-left">From Type</th>
+                    <th class="px-2 py-1 text-left">To Type</th>
+                    <th class="px-2 py-1 text-left">Cardinality</th>
+                    <th class="px-2 py-1 text-left">Bidirectional</th>
+                    <th class="px-2 py-1 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let def of relationDefinitions">
+                    <td class="px-2 py-1">{{ def.name }}</td>
+                    <td class="px-2 py-1">{{ def.key }}</td>
+                    <td class="px-2 py-1">{{ getEntityTypeNameById(def.fromEntityTypeId) }}</td>
+                    <td class="px-2 py-1">{{ getEntityTypeNameById(def.toEntityTypeId) }}</td>
+                    <td class="px-2 py-1">{{ def.cardinality }}</td>
+                    <td class="px-2 py-1">{{ def.isBidirectional ? 'Yes' : 'No' }}</td>
+                    <td class="px-2 py-1">
+                        <button class="btn btn-sm btn-secondary mr-2" (click)="openEditDefinitionDialog(def)" [disabled]="!canCreateOrUpdateDefinitions">Edit</button>
+                        <button class="btn btn-sm btn-danger" (click)="deleteDefinition(def)" [disabled]="!canDeleteDefinitions">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <table class="table-auto w-full text-sm">
-      <thead>
-        <tr>
-          <th class="px-2 py-1 text-left">Name</th>
-          <th class="px-2 py-1 text-left">Key</th>
-          <th class="px-2 py-1 text-left">From Type</th>
-          <th class="px-2 py-1 text-left">To Type</th>
-          <th class="px-2 py-1 text-left">Cardinality</th>
-          <th class="px-2 py-1 text-left">Bidirectional</th>
-          <th class="px-2 py-1 text-left">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let def of relationDefinitions">
-          <td class="px-2 py-1">{{ def.name }}</td>
-          <td class="px-2 py-1">{{ def.key }}</td>
-          <td class="px-2 py-1">{{ getEntityTypeNameById(def.fromEntityTypeId) }}</td>
-          <td class="px-2 py-1">{{ getEntityTypeNameById(def.toEntityTypeId) }}</td>
-          <td class="px-2 py-1">{{ def.cardinality }}</td>
-          <td class="px-2 py-1">{{ def.isBidirectional ? 'Yes' : 'No' }}</td>
-          <td class="px-2 py-1">
-            <button
-              class="btn btn-sm btn-secondary mr-2"
-              (click)="openEditDefinitionDialog(def)"
-              [disabled]="!canCreateOrUpdateDefinitions">
-              Edit
-            </button>
-            <button
-              class="btn btn-sm btn-danger"
-              (click)="deleteDefinition(def)"
-              [disabled]="!canDeleteDefinitions">
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
 
-  <!-- Existing relation assignment UI -->
-  <label class="block mb-2">Select Relation Definition:
-    <select [(ngModel)]="selectedRelationDefId" (change)="refreshFromRecords()" class="ml-2">
-      <option *ngFor="let def of relationDefinitions" [value]="def.id">{{ def.name }}</option>
-    </select>
-  </label>
-  <label class="block mb-2">Select From Record:
-    <select [(ngModel)]="selectedFromRecordId" (change)="refreshToRecords()" class="ml-2">
-      <option *ngFor="let rec of fromRecords" [value]="rec.id">{{ rec.displayName }}</option>
-    </select>
-  </label>
-  <div *ngIf="toRecords.length">
-    <label class="block mb-2">Select Related Records:</label>
-    <select multiple [(ngModel)]="selectedToRecordIds" class="w-full border rounded px-2 py-1 mb-4">
-      <option *ngFor="let rec of toRecords" [value]="rec.id">{{ rec.displayName }}</option>
-    </select>
-    <button class="btn btn-primary" (click)="saveRelations()">Save Relations</button>
-  </div>
-  <div *ngIf="loading" class="mt-4 text-gray-500">Loading...</div>
-  <div *ngIf="error" class="mt-4 text-red-500">{{ error }}</div>
-
-  <!-- Create/Edit Relation Definition Dialog -->
-  <div *ngIf="showDefinitionDialog" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-    <div class="bg-white rounded shadow-lg p-6 w-full max-w-xl">
-      <h3 class="text-lg font-bold mb-4">{{ selectedDefinition?.id ? 'Edit Relation Definition' : 'Create Relation Definition' }}</h3>
-
-      <form (ngSubmit)="saveDefinition()" autocomplete="off">
-        <div class="mb-3">
-          <label class="form-label">Name</label>
-          <input class="form-control" [(ngModel)]="selectedDefinition.name" name="name" required />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Key</label>
-          <input class="form-control" [(ngModel)]="selectedDefinition.key" name="key" required />
-        </div>
-        <div class="mb-3 flex gap-2">
-          <div class="flex-1">
-            <label class="form-label">From Entity Type</label>
-            <select class="form-select" [(ngModel)]="selectedDefinition.fromEntityTypeId" name="fromEntityTypeId" required>
-              <option *ngFor="let type of entityTypes" [value]="type.id">{{ type.name }}</option>
-            </select>
-          </div>
-          <div class="flex-1">
-            <label class="form-label">To Entity Type</label>
-            <select class="form-select" [(ngModel)]="selectedDefinition.toEntityTypeId" name="toEntityTypeId" required>
-              <option *ngFor="let type of entityTypes" [value]="type.id">{{ type.name }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="mb-3 flex gap-2 items-center">
-          <div class="flex-1">
-            <label class="form-label">Cardinality</label>
-            <select class="form-select" [(ngModel)]="selectedDefinition.cardinality" name="cardinality">
-              <option value="OneToOne">OneToOne</option>
-              <option value="OneToMany">OneToMany</option>
-              <option value="ManyToMany">ManyToMany</option>
-            </select>
-          </div>
-          <div class="flex items-center mt-4">
-            <input
-              type="checkbox"
-              class="form-check-input mr-2"
-              [(ngModel)]="selectedDefinition.isBidirectional"
-              name="isBidirectional"
-            />
-            <label class="form-check-label">Bidirectional</label>
-          </div>
-        </div>
-        <div class="mb-3 flex gap-2">
-          <div class="flex-1">
-            <label class="form-label">From Label</label>
-            <input class="form-control" [(ngModel)]="selectedDefinition.fromLabel" name="fromLabel" />
-          </div>
-          <div class="flex-1">
-            <label class="form-label">To Label</label>
-            <input class="form-control" [(ngModel)]="selectedDefinition.toLabel" name="toLabel" />
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-2 mt-4">
-          <button type="button" class="btn btn-secondary" (click)="closeDefinitionDialog()">Cancel</button>
-          <button type="submit" class="btn btn-primary" [disabled]="loading">
-            {{ loading ? 'Saving...' : 'Save' }}
-          </button>
-        </div>
-      </form>
+    <!-- Existing relation assignment UI -->
+    <label class="block mb-2"
+        >Select Relation Definition:
+        <select [(ngModel)]="selectedRelationDefId" (change)="refreshFromRecords()" class="ml-2">
+            <option *ngFor="let def of relationDefinitions" [value]="def.id">{{ def.name }}</option>
+        </select>
+    </label>
+    <label class="block mb-2"
+        >Select From Record:
+        <select [(ngModel)]="selectedFromRecordId" (change)="refreshToRecords()" class="ml-2">
+            <option *ngFor="let rec of fromRecords" [value]="rec.id">{{ rec.displayName }}</option>
+        </select>
+    </label>
+    <div *ngIf="toRecords.length">
+        <label class="block mb-2">Select Related Records:</label>
+        <select multiple [(ngModel)]="selectedToRecordIds" class="w-full border rounded px-2 py-1 mb-4">
+            <option *ngFor="let rec of toRecords" [value]="rec.id">{{ rec.displayName }}</option>
+        </select>
+        <button class="btn btn-primary" (click)="saveRelations()">Save Relations</button>
     </div>
-  </div>
+    <div *ngIf="loading" class="mt-4 text-gray-500">Loading...</div>
+    <div *ngIf="error" class="mt-4 text-red-500">{{ error }}</div>
+
+    <!-- Create/Edit Relation Definition Dialog -->
+    <div *ngIf="showDefinitionDialog" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div class="bg-white rounded shadow-lg p-6 w-full max-w-xl">
+            <h3 class="text-lg font-bold mb-4">{{ selectedDefinition?.id ? 'Edit Relation Definition' : 'Create Relation Definition' }}</h3>
+
+            <form (ngSubmit)="saveDefinition()" autocomplete="off">
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input class="form-control" [(ngModel)]="selectedDefinition.name" name="name" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Key</label>
+                    <input class="form-control" [(ngModel)]="selectedDefinition.key" name="key" required />
+                </div>
+                <div class="mb-3 flex gap-2">
+                    <div class="flex-1">
+                        <label class="form-label">From Entity Type</label>
+                        <select class="form-select" [(ngModel)]="selectedDefinition.fromEntityTypeId" name="fromEntityTypeId" required>
+                            <option *ngFor="let type of entityTypes" [value]="type.id">{{ type.name }}</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="form-label">To Entity Type</label>
+                        <select class="form-select" [(ngModel)]="selectedDefinition.toEntityTypeId" name="toEntityTypeId" required>
+                            <option *ngFor="let type of entityTypes" [value]="type.id">{{ type.name }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3 flex gap-2 items-center">
+                    <div class="flex-1">
+                        <label class="form-label">Cardinality</label>
+                        <select class="form-select" [(ngModel)]="selectedDefinition.cardinality" name="cardinality">
+                            <option value="OneToOne">OneToOne</option>
+                            <option value="OneToMany">OneToMany</option>
+                            <option value="ManyToMany">ManyToMany</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center mt-4">
+                        <input type="checkbox" class="form-check-input mr-2" [(ngModel)]="selectedDefinition.isBidirectional" name="isBidirectional" />
+                        <label class="form-check-label">Bidirectional</label>
+                    </div>
+                </div>
+                <div class="mb-3 flex gap-2">
+                    <div class="flex-1">
+                        <label class="form-label">From Label</label>
+                        <input class="form-control" [(ngModel)]="selectedDefinition.fromLabel" name="fromLabel" />
+                    </div>
+                    <div class="flex-1">
+                        <label class="form-label">To Label</label>
+                        <input class="form-control" [(ngModel)]="selectedDefinition.toLabel" name="toLabel" />
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" class="btn btn-secondary" (click)="closeDefinitionDialog()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="loading">
+                        {{ loading ? 'Saving...' : 'Save' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

@@ -65,7 +65,7 @@ import { CustomPagesServiceProxy, PageListItemDto } from '../../../core/services
                             <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Privacy Policy</a>
                             <a class="leading-normal text-xl block cursor-pointer text-surface-700 dark:text-surface-100">Terms of Service</a>
                         </div>
-                        
+
                         <div class="col-span-12 md:col-span-3" *ngIf="footerPages.length > 0">
                             <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Pages</h4>
                             <a *ngFor="let page of footerPages" [routerLink]="['/' + page.slug]" class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">{{ page.name }}</a>
@@ -78,18 +78,16 @@ import { CustomPagesServiceProxy, PageListItemDto } from '../../../core/services
 })
 export class FooterWidget implements OnInit {
     footerPages: PageListItemDto[] = [];
-    
+
     constructor(
         public router: Router,
         private customPagesService: CustomPagesServiceProxy
     ) {}
-    
+
     ngOnInit(): void {
         this.customPagesService.all().subscribe({
             next: (pages) => {
-                this.footerPages = pages
-                    .filter((p: any) => p.isActive && p.showInFooter)
-                    .sort((a: any, b: any) => (a.footerOrder || 999) - (b.footerOrder || 999));
+                this.footerPages = pages.filter((p: any) => p.isActive && p.showInFooter).sort((a: any, b: any) => (a.footerOrder || 999) - (b.footerOrder || 999));
             },
             error: (error) => {
                 console.error('Error loading custom pages for footer:', error);

@@ -8,18 +8,14 @@ import { ButtonModule } from 'primeng/button';
     standalone: true,
     imports: [CommonModule, ButtonModule],
     template: `
-        <div 
-            class="image-content-widget"
-            [style.background-color]="config.settings.backgroundColor"
-            [style.padding.px]="config.settings.padding"
-        >
+        <div class="image-content-widget" [style.background-color]="config.settings.backgroundColor" [style.padding.px]="config.settings.padding">
             <!-- Flex layout based on image position -->
             <div [ngClass]="getContainerClasses()">
                 <!-- Image Section -->
-                <div class="image-section" [ngClass]="getImageSectionClasses()" [style]="{'--image-height': getImageHeight()}">
-                    <img 
+                <div class="image-section" [ngClass]="getImageSectionClasses()" [style]="{ '--image-height': getImageHeight() }">
+                    <img
                         *ngIf="config.settings.imageUrl"
-                        [src]="config.settings.imageUrl" 
+                        [src]="config.settings.imageUrl"
                         [alt]="config.settings.title"
                         [ngClass]="getImageClasses()"
                         [style.border-radius.px]="config.settings.imageBorderRadius || 8"
@@ -36,17 +32,12 @@ import { ButtonModule } from 'primeng/button';
                 <!-- Content Section -->
                 <div class="content-section">
                     <!-- Title -->
-                    <h2 
-                        class="content-title"
-                        [style.color]="config.settings.titleColor"
-                        [style.font-size.px]="config.settings.titleSize || 32"
-                        [style.margin-bottom.px]="config.settings.titleMarginBottom || 16"
-                    >
+                    <h2 class="content-title" [style.color]="config.settings.titleColor" [style.font-size.px]="config.settings.titleSize || 32" [style.margin-bottom.px]="config.settings.titleMarginBottom || 16">
                         {{ config.settings.title }}
                     </h2>
 
                     <!-- Subtitle -->
-                    <h3 
+                    <h3
                         *ngIf="config.settings.subtitle"
                         class="content-subtitle"
                         [style.color]="config.settings.subtitleColor"
@@ -57,7 +48,7 @@ import { ButtonModule } from 'primeng/button';
                     </h3>
 
                     <!-- Text Content -->
-                    <p 
+                    <p
                         class="content-text"
                         [style.color]="config.settings.textColor"
                         [style.font-size.px]="config.settings.textSize || 16"
@@ -69,7 +60,7 @@ import { ButtonModule } from 'primeng/button';
 
                     <!-- Action Button -->
                     <div class="button-container">
-                        <a 
+                        <a
                             *ngIf="config.settings.showButton"
                             [href]="config.settings.buttonLink"
                             class="action-button"
@@ -100,7 +91,7 @@ import { ButtonModule } from 'primeng/button';
                 display: flex;
                 gap: 2rem;
                 align-items: center;
-                
+
                 @media (max-width: 768px) {
                     flex-direction: column;
                     gap: 1.5rem;
@@ -135,7 +126,7 @@ import { ButtonModule } from 'primeng/button';
 
                 &.fill-half {
                     flex: 0 0 50%;
-                    
+
                     @media (max-width: 768px) {
                         flex: 1;
                     }
@@ -277,7 +268,7 @@ export class ImageContentWidgetComponent {
 
     getImageMargin(): string {
         const imageFillMode = this.config.settings.imageFillMode || 'none';
-        
+
         // No margins for fill modes
         if (imageFillMode !== 'none') {
             return '0';
@@ -300,7 +291,7 @@ export class ImageContentWidgetComponent {
 
     getImageSectionClasses(): string {
         const imageFillMode = this.config.settings.imageFillMode || 'none';
-        
+
         if (imageFillMode === 'half') {
             return 'fill-half';
         } else if (imageFillMode === 'full') {
@@ -311,7 +302,7 @@ export class ImageContentWidgetComponent {
 
     getImageClasses(): string {
         const imageFillMode = this.config.settings.imageFillMode || 'none';
-        
+
         if (imageFillMode === 'half') {
             return 'image-display fill-half';
         } else if (imageFillMode === 'full') {
@@ -323,7 +314,7 @@ export class ImageContentWidgetComponent {
     getImageHeight(): string {
         const imageFillMode = this.config.settings.imageFillMode || 'none';
         const imageHeight = this.config.settings.imageHeight || 300;
-        
+
         if (imageFillMode !== 'none') {
             return `${imageHeight}px`;
         }

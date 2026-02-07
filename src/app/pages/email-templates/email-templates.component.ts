@@ -24,17 +24,7 @@ export interface EmailTemplateDto {
 @Component({
     selector: 'app-email-templates',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        ToastModule,
-        TableModule,
-        DialogModule,
-        InputTextModule,
-        InputTextarea,
-        CheckboxModule,
-        ButtonModule
-    ],
+    imports: [CommonModule, FormsModule, ToastModule, TableModule, DialogModule, InputTextModule, InputTextarea, CheckboxModule, ButtonModule],
     providers: [MessageService],
     templateUrl: './email-templates.component.html',
     styleUrl: './email-templates.component.scss'
@@ -50,7 +40,7 @@ export class EmailTemplatesComponent implements OnInit {
     constructor(
         private http: HttpClient,
         private messageService: MessageService
-    ) { }
+    ) {}
 
     ngOnInit(): void {
         this.loadTemplates();

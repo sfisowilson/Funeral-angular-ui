@@ -35,14 +35,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'funeral',
         icon: 'bi-building',
         pricingModifier: 1.2,
-        features: [
-            'Complete member management',
-            'Claims processing',
-            'Service booking system',
-            'Inventory management',
-            'Staff scheduling',
-            'Payment processing'
-        ],
+        features: ['Complete member management', 'Claims processing', 'Service booking system', 'Inventory management', 'Staff scheduling', 'Payment processing'],
         questions: [
             {
                 id: 'yearsInOperation',
@@ -123,14 +116,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'funeral',
         icon: 'bi-people-fill',
         pricingModifier: 1.0,
-        features: [
-            'Member registration portal',
-            'Policy management',
-            'Contribution tracking',
-            'Claims processing',
-            'SMS notifications',
-            'Community portal'
-        ],
+        features: ['Member registration portal', 'Policy management', 'Contribution tracking', 'Claims processing', 'SMS notifications', 'Community portal'],
         questions: [
             {
                 id: 'currentMembers',
@@ -205,14 +191,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'funeral',
         icon: 'bi-heart-fill',
         pricingModifier: 0.9,
-        features: [
-            'Online memorial creation',
-            'Tribute management',
-            'Virtual memorial services',
-            'Photo & video galleries',
-            'Condolence management',
-            'Event coordination'
-        ],
+        features: ['Online memorial creation', 'Tribute management', 'Virtual memorial services', 'Photo & video galleries', 'Condolence management', 'Event coordination'],
         questions: [
             {
                 id: 'serviceTypes',
@@ -261,14 +240,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'funeral',
         icon: 'bi-fire',
         pricingModifier: 1.1,
-        features: [
-            'Cremation scheduling',
-            'Ash management',
-            'Urn inventory',
-            'Memorial products',
-            'Compliance tracking',
-            'Certificate management'
-        ],
+        features: ['Cremation scheduling', 'Ash management', 'Urn inventory', 'Memorial products', 'Compliance tracking', 'Certificate management'],
         questions: [
             {
                 id: 'cremationsPerMonth',
@@ -317,15 +289,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'nonprofit',
         icon: 'bi-hand-thumbs-up-fill',
         pricingModifier: 0.7, // Discounted for non-profits
-        features: [
-            'Donor management',
-            'Donation processing',
-            'Grant tracking',
-            'Impact reporting',
-            'Volunteer coordination',
-            'Event management',
-            'Blog & news updates'
-        ],
+        features: ['Donor management', 'Donation processing', 'Grant tracking', 'Impact reporting', 'Volunteer coordination', 'Event management', 'Blog & news updates'],
         questions: [
             {
                 id: 'registeredNPO',
@@ -391,14 +355,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'nonprofit',
         icon: 'bi-houses-fill',
         pricingModifier: 0.8,
-        features: [
-            'Member directory',
-            'Event calendar',
-            'Community announcements',
-            'Discussion forums',
-            'Resource sharing',
-            'Meeting scheduling'
-        ],
+        features: ['Member directory', 'Event calendar', 'Community announcements', 'Discussion forums', 'Resource sharing', 'Meeting scheduling'],
         questions: [
             {
                 id: 'organizationType',
@@ -448,15 +405,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'nonprofit',
         icon: 'bi-book-fill',
         pricingModifier: 0.75,
-        features: [
-            'Congregation management',
-            'Event calendar',
-            'Online giving',
-            'Sermon archives',
-            'Small group management',
-            'Prayer requests',
-            'Volunteer scheduling'
-        ],
+        features: ['Congregation management', 'Event calendar', 'Online giving', 'Sermon archives', 'Small group management', 'Prayer requests', 'Volunteer scheduling'],
         questions: [
             {
                 id: 'congregationSize',
@@ -511,15 +460,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'business',
         icon: 'bi-cart-fill',
         pricingModifier: 1.3,
-        features: [
-            'Product catalog',
-            'Shopping cart',
-            'Payment processing',
-            'Order management',
-            'Inventory tracking',
-            'Customer accounts',
-            'Shipping integration'
-        ],
+        features: ['Product catalog', 'Shopping cart', 'Payment processing', 'Order management', 'Inventory tracking', 'Customer accounts', 'Shipping integration'],
         questions: [
             {
                 id: 'productCount',
@@ -586,15 +527,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'business',
         icon: 'bi-briefcase-fill',
         pricingModifier: 1.1,
-        features: [
-            'Appointment booking',
-            'Client management',
-            'Service catalog',
-            'Invoicing',
-            'Document management',
-            'Time tracking',
-            'Client portal'
-        ],
+        features: ['Appointment booking', 'Client management', 'Service catalog', 'Invoicing', 'Document management', 'Time tracking', 'Client portal'],
         questions: [
             {
                 id: 'serviceType',
@@ -645,15 +578,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'business',
         icon: 'bi-hospital-fill',
         pricingModifier: 1.4,
-        features: [
-            'Patient management',
-            'Appointment scheduling',
-            'Medical records',
-            'Prescription management',
-            'Billing & invoicing',
-            'Insurance claims',
-            'Telemedicine'
-        ],
+        features: ['Patient management', 'Appointment scheduling', 'Medical records', 'Prescription management', 'Billing & invoicing', 'Insurance claims', 'Telemedicine'],
         questions: [
             {
                 id: 'facilityType',
@@ -715,15 +640,7 @@ export const ORGANIZATION_TYPES: OrganizationType[] = [
         category: 'business',
         icon: 'bi-house-door-fill',
         pricingModifier: 1.2,
-        features: [
-            'Property listings',
-            'Lead management',
-            'Virtual tours',
-            'Document management',
-            'Client portal',
-            'CRM integration',
-            'Appointment scheduling'
-        ],
+        features: ['Property listings', 'Lead management', 'Virtual tours', 'Document management', 'Client portal', 'CRM integration', 'Appointment scheduling'],
         questions: [
             {
                 id: 'businessType',

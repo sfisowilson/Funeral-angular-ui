@@ -42,14 +42,7 @@
         <!-- Login Form Section -->
         <div class="form-section">
             <!-- Session Expired Message -->
-            <p-message 
-                *ngIf="sessionExpired()" 
-                severity="warn" 
-                text="Your session has expired. Please log in again to continue."
-                styleClass="session-expired-message"
-                [closable]="true"
-                (onClose)="sessionExpired.set(false)">
-            </p-message>
+            <p-message *ngIf="sessionExpired()" severity="warn" text="Your session has expired. Please log in again to continue." styleClass="session-expired-message" [closable]="true" (onClose)="sessionExpired.set(false)"> </p-message>
 
             <form [formGroup]="form" class="login-form">
                 <!-- Email Field -->
@@ -85,11 +78,7 @@
 
                 <!-- Submit Button -->
                 <div class="form-actions">
-                    <button 
-                        type="button" 
-                        class="btn-primary-theme login-button" 
-                        [disabled]="!form.valid || isBusy" 
-                        (click)="login()">
+                    <button type="button" class="btn-primary-theme login-button" [disabled]="!form.valid || isBusy" (click)="login()">
                         <i class="pi pi-sign-in" *ngIf="!isBusy"></i>
                         <i class="pi pi-spin pi-spinner" *ngIf="isBusy"></i>
                         {{ isBusy ? 'Signing In...' : 'Sign In' }}
@@ -101,7 +90,4 @@
 </div>
 
 <!-- Change Password Dialog -->
-<app-change-password-dialog
-    [(visible)]="showChangePasswordDialog"
-    (passwordChanged)="onPasswordChanged()">
-</app-change-password-dialog>
+<app-change-password-dialog [(visible)]="showChangePasswordDialog" (passwordChanged)="onPasswordChanged()"> </app-change-password-dialog>

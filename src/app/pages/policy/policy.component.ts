@@ -45,10 +45,13 @@ export class PolicyComponent implements OnInit {
     ngOnInit(): void {
         const policyId = this.route.snapshot.paramMap.get('id');
         if (policyId && policyId !== 'new') {
-            this.policyService.policy_GetById(policyId).pipe(unwrap<PolicyDto>()).subscribe((policy) => {
-                this.policy = policy;
-                this.loadPolicyAttributesForPolicy(policyId);
-            });
+            this.policyService
+                .policy_GetById(policyId)
+                .pipe(unwrap<PolicyDto>())
+                .subscribe((policy) => {
+                    this.policy = policy;
+                    this.loadPolicyAttributesForPolicy(policyId);
+                });
         }
         this.tenantSettingsService.loadSettings().then(() => {
             const settings = this.tenantSettingsService.getSettings();
@@ -59,9 +62,12 @@ export class PolicyComponent implements OnInit {
     }
 
     loadPolicyAttributesForPolicy(policyId: string) {
-        this.policyAttributeService.policyAttribute_GetAllPolicies(policyId, undefined, undefined, undefined, undefined, undefined).pipe(unwrap<PolicyAttributeDto[]>()).subscribe((attributes) => {
-            this.policyAttributes.set(attributes);
-        });
+        this.policyAttributeService
+            .policyAttribute_GetAllPolicies(policyId, undefined, undefined, undefined, undefined, undefined)
+            .pipe(unwrap<PolicyAttributeDto[]>())
+            .subscribe((attributes) => {
+                this.policyAttributes.set(attributes);
+            });
     }
 
     savePolicy() {

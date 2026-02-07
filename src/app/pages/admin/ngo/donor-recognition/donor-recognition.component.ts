@@ -5,230 +5,225 @@ import { HttpClientModule } from '@angular/common/http';
 import { NgoServiceProxy, DonorRecognition } from '../../../../core/services/service-proxies';
 
 @Component({
-  selector: 'app-donor-recognition',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule
-  ],
-  providers: [NgoServiceProxy],
-  templateUrl: './donor-recognition.component.html',
-  styleUrl: './donor-recognition.component.scss'
+    selector: 'app-donor-recognition',
+    standalone: true,
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
+    providers: [NgoServiceProxy],
+    templateUrl: './donor-recognition.component.html',
+    styleUrl: './donor-recognition.component.scss'
 })
 export class DonorRecognitionComponent implements OnInit {
-  donorRecognitions: any[] = [];
-  loading: boolean = false;
-  selectedDonor: any = null;
-  displayDialog: boolean = false;
-  isEdit: boolean = false;
-  isAnonymous: boolean = false;
-  donorForm: FormGroup;
-  sortBy: string = 'date';
-  filterType: string = '';
-  filterLevel: string = '';
-  
-  donorTypeOptions = [
-    { label: 'Individual', value: 'Individual' },
-    { label: 'Corporate', value: 'Corporate' },
-    { label: 'Foundation', value: 'Foundation' },
-    { label: 'Government', value: 'Government' },
-    { label: 'NGO', value: 'NGO' }
-  ];
+    donorRecognitions: any[] = [];
+    loading: boolean = false;
+    selectedDonor: any = null;
+    displayDialog: boolean = false;
+    isEdit: boolean = false;
+    isAnonymous: boolean = false;
+    donorForm: FormGroup;
+    sortBy: string = 'date';
+    filterType: string = '';
+    filterLevel: string = '';
 
-  recognitionLevelOptions = [
-    { label: 'Bronze', value: 'Bronze' },
-    { label: 'Silver', value: 'Silver' },
-    { label: 'Gold', value: 'Gold' },
-    { label: 'Platinum', value: 'Platinum' },
-    { label: 'Diamond', value: 'Diamond' }
-  ];
+    donorTypeOptions = [
+        { label: 'Individual', value: 'Individual' },
+        { label: 'Corporate', value: 'Corporate' },
+        { label: 'Foundation', value: 'Foundation' },
+        { label: 'Government', value: 'Government' },
+        { label: 'NGO', value: 'NGO' }
+    ];
 
-  constructor(
-    private fb: FormBuilder,
-    private ngoService: NgoServiceProxy
-  ) {
-    this.donorForm = this.fb.group({
-      donorName: ['', Validators.required],
-      donorType: ['', Validators.required],
-      donationAmount: [0, [Validators.required, Validators.min(1)]],
-      donationDate: [new Date(), Validators.required],
-      campaign: [''],
-      recognitionLevel: ['', Validators.required],
-      isAnonymous: [false],
-      donorEmail: ['', Validators.email],
-      donorPhone: [''],
-      recognitionMessage: ['']
-    });
-  }
+    recognitionLevelOptions = [
+        { label: 'Bronze', value: 'Bronze' },
+        { label: 'Silver', value: 'Silver' },
+        { label: 'Gold', value: 'Gold' },
+        { label: 'Platinum', value: 'Platinum' },
+        { label: 'Diamond', value: 'Diamond' }
+    ];
 
-  ngOnInit(): void {
-    this.loadDonorRecognitions();
-  }
-
-  loadDonorRecognitions(): void {
-    this.loading = true;
-    this.ngoService.getDonorRecognitions().subscribe({
-      next: (data: any) => {
-        this.donorRecognitions = data || [];
-        this.loading = false;
-      },
-      error: (error) => {
-        alert('Failed to load donor recognitions');
-        this.loading = false;
-      }
-    });
-  }
-
-  openNewDialog(): void {
-    this.selectedDonor = {};
-    this.selectedDonor.donationDate = new Date();
-    this.isEdit = false;
-    this.displayDialog = true;
-    this.donorForm.reset();
-  }
-
-  openEditDialog(donor: any): void {
-    this.selectedDonor = { ...donor };
-    this.isEdit = true;
-    this.displayDialog = true;
-    this.donorForm.patchValue(this.selectedDonor);
-  }
-
-  saveDonor(): void {
-    if (this.donorForm.invalid) {
-      alert('Please fill in all required fields');
-      return;
+    constructor(
+        private fb: FormBuilder,
+        private ngoService: NgoServiceProxy
+    ) {
+        this.donorForm = this.fb.group({
+            donorName: ['', Validators.required],
+            donorType: ['', Validators.required],
+            donationAmount: [0, [Validators.required, Validators.min(1)]],
+            donationDate: [new Date(), Validators.required],
+            campaign: [''],
+            recognitionLevel: ['', Validators.required],
+            isAnonymous: [false],
+            donorEmail: ['', Validators.email],
+            donorPhone: [''],
+            recognitionMessage: ['']
+        });
     }
 
-    this.loading = true;
-    const formData = this.donorForm.value as DonorRecognition;
-    
-    if (this.isEdit && this.selectedDonor.id) {
-      this.ngoService.updateDonorRecognition(this.selectedDonor.id, formData).subscribe({
-        next: () => {
-          alert('Donor recognition updated successfully');
-          this.loadDonorRecognitions();
-          this.closeDialog();
-          this.loading = false;
-        },
-        error: (error) => {
-          alert('Failed to update donor recognition');
-          this.loading = false;
+    ngOnInit(): void {
+        this.loadDonorRecognitions();
+    }
+
+    loadDonorRecognitions(): void {
+        this.loading = true;
+        this.ngoService.getDonorRecognitions().subscribe({
+            next: (data: any) => {
+                this.donorRecognitions = data || [];
+                this.loading = false;
+            },
+            error: (error) => {
+                alert('Failed to load donor recognitions');
+                this.loading = false;
+            }
+        });
+    }
+
+    openNewDialog(): void {
+        this.selectedDonor = {};
+        this.selectedDonor.donationDate = new Date();
+        this.isEdit = false;
+        this.displayDialog = true;
+        this.donorForm.reset();
+    }
+
+    openEditDialog(donor: any): void {
+        this.selectedDonor = { ...donor };
+        this.isEdit = true;
+        this.displayDialog = true;
+        this.donorForm.patchValue(this.selectedDonor);
+    }
+
+    saveDonor(): void {
+        if (this.donorForm.invalid) {
+            alert('Please fill in all required fields');
+            return;
         }
-      });
-    } else {
-      this.ngoService.createDonorRecognition(formData).subscribe({
-        next: () => {
-          alert('Donor recognition created successfully');
-          this.loadDonorRecognitions();
-          this.closeDialog();
-          this.loading = false;
-        },
-        error: (error) => {
-          alert('Failed to create donor recognition');
-          this.loading = false;
+
+        this.loading = true;
+        const formData = this.donorForm.value as DonorRecognition;
+
+        if (this.isEdit && this.selectedDonor.id) {
+            this.ngoService.updateDonorRecognition(this.selectedDonor.id, formData).subscribe({
+                next: () => {
+                    alert('Donor recognition updated successfully');
+                    this.loadDonorRecognitions();
+                    this.closeDialog();
+                    this.loading = false;
+                },
+                error: (error) => {
+                    alert('Failed to update donor recognition');
+                    this.loading = false;
+                }
+            });
+        } else {
+            this.ngoService.createDonorRecognition(formData).subscribe({
+                next: () => {
+                    alert('Donor recognition created successfully');
+                    this.loadDonorRecognitions();
+                    this.closeDialog();
+                    this.loading = false;
+                },
+                error: (error) => {
+                    alert('Failed to create donor recognition');
+                    this.loading = false;
+                }
+            });
         }
-      });
     }
-  }
 
-  deleteDonor(donor: any): void {
-    if (confirm(`Are you sure you want to delete the donor recognition for "${donor.donorName}"?`)) {
-      this.ngoService.deleteDonorRecognition(donor.id).subscribe({
-        next: () => {
-          alert('Donor recognition deleted successfully');
-          this.loadDonorRecognitions();
-        },
-        error: (error) => {
-          alert('Failed to delete donor recognition');
+    deleteDonor(donor: any): void {
+        if (confirm(`Are you sure you want to delete the donor recognition for "${donor.donorName}"?`)) {
+            this.ngoService.deleteDonorRecognition(donor.id).subscribe({
+                next: () => {
+                    alert('Donor recognition deleted successfully');
+                    this.loadDonorRecognitions();
+                },
+                error: (error) => {
+                    alert('Failed to delete donor recognition');
+                }
+            });
         }
-      });
-    }
-  }
-
-  closeDialog(): void {
-    this.displayDialog = false;
-    this.selectedDonor = null;
-    this.donorForm.reset();
-  }
-
-  viewDonor(donor: any): void {
-    // Open donor details or navigate to detail page
-  }
-
-  getRecognitionLevelColor(level: string): string {
-    switch (level) {
-      case 'Bronze':
-        return '#cd7f32';
-      case 'Silver':
-        return '#6c757d';
-      case 'Gold':
-        return '#f39c12';
-      case 'Platinum':
-        return '#6f42c1';
-      case 'Diamond':
-        return '#8b5cf6';
-      default:
-        return '#6c757d';
-    }
-  }
-
-  getFilteredDonors(): any[] {
-    let filtered = this.donorRecognitions;
-
-    if (this.filterType) {
-      filtered = filtered.filter(d => d.donorType === this.filterType);
     }
 
-    if (this.filterLevel) {
-      filtered = filtered.filter(d => d.recognitionLevel === this.filterLevel);
+    closeDialog(): void {
+        this.displayDialog = false;
+        this.selectedDonor = null;
+        this.donorForm.reset();
     }
 
-    // Sort
-    switch (this.sortBy) {
-      case 'amount':
-        filtered.sort((a, b) => (b.donationAmount || 0) - (a.donationAmount || 0));
-        break;
-      case 'level':
-        const levelOrder: { [key: string]: number } = { 'Diamond': 0, 'Platinum': 1, 'Gold': 2, 'Silver': 3, 'Bronze': 4 };
-        filtered.sort((a, b) => (levelOrder[a.recognitionLevel] || 5) - (levelOrder[b.recognitionLevel] || 5));
-        break;
-      default: // date
-        filtered.sort((a, b) => new Date(b.donationDate || 0).getTime() - new Date(a.donationDate || 0).getTime());
+    viewDonor(donor: any): void {
+        // Open donor details or navigate to detail page
     }
 
-    return filtered;
-  }
-
-  getTotalDonations(): number {
-    return this.donorRecognitions.reduce((sum, donor) => sum + (donor.donationAmount || 0), 0);
-  }
-
-  getCountByLevel(level: string): number {
-    return this.donorRecognitions.filter(d => d.recognitionLevel === level).length;
-  }
-
-  getDonorCountByType(type: string): number {
-    return this.donorRecognitions.filter(d => d.donorType === type).length;
-  }
-
-  onAnonymousChange(): void {
-    this.isAnonymous = this.donorForm.get('isAnonymous')?.value || false;
-    const nameControl = this.donorForm.get('donorName');
-    if (this.isAnonymous) {
-      nameControl?.clearValidators();
-    } else {
-      nameControl?.setValidators([Validators.required]);
+    getRecognitionLevelColor(level: string): string {
+        switch (level) {
+            case 'Bronze':
+                return '#cd7f32';
+            case 'Silver':
+                return '#6c757d';
+            case 'Gold':
+                return '#f39c12';
+            case 'Platinum':
+                return '#6f42c1';
+            case 'Diamond':
+                return '#8b5cf6';
+            default:
+                return '#6c757d';
+        }
     }
-    nameControl?.updateValueAndValidity();
-  }
 
-  formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR'
-    }).format(amount);
-  }
+    getFilteredDonors(): any[] {
+        let filtered = this.donorRecognitions;
+
+        if (this.filterType) {
+            filtered = filtered.filter((d) => d.donorType === this.filterType);
+        }
+
+        if (this.filterLevel) {
+            filtered = filtered.filter((d) => d.recognitionLevel === this.filterLevel);
+        }
+
+        // Sort
+        switch (this.sortBy) {
+            case 'amount':
+                filtered.sort((a, b) => (b.donationAmount || 0) - (a.donationAmount || 0));
+                break;
+            case 'level':
+                const levelOrder: { [key: string]: number } = { Diamond: 0, Platinum: 1, Gold: 2, Silver: 3, Bronze: 4 };
+                filtered.sort((a, b) => (levelOrder[a.recognitionLevel] || 5) - (levelOrder[b.recognitionLevel] || 5));
+                break;
+            default: // date
+                filtered.sort((a, b) => new Date(b.donationDate || 0).getTime() - new Date(a.donationDate || 0).getTime());
+        }
+
+        return filtered;
+    }
+
+    getTotalDonations(): number {
+        return this.donorRecognitions.reduce((sum, donor) => sum + (donor.donationAmount || 0), 0);
+    }
+
+    getCountByLevel(level: string): number {
+        return this.donorRecognitions.filter((d) => d.recognitionLevel === level).length;
+    }
+
+    getDonorCountByType(type: string): number {
+        return this.donorRecognitions.filter((d) => d.donorType === type).length;
+    }
+
+    onAnonymousChange(): void {
+        this.isAnonymous = this.donorForm.get('isAnonymous')?.value || false;
+        const nameControl = this.donorForm.get('donorName');
+        if (this.isAnonymous) {
+            nameControl?.clearValidators();
+        } else {
+            nameControl?.setValidators([Validators.required]);
+        }
+        nameControl?.updateValueAndValidity();
+    }
+
+    formatCurrency(amount: number): string {
+        return new Intl.NumberFormat('en-ZA', {
+            style: 'currency',
+            currency: 'ZAR'
+        }).format(amount);
+    }
 }

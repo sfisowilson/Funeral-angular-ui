@@ -14,10 +14,7 @@ import { MyOnboardingWidgetComponent } from './widgets/my-onboarding-widget/my-o
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [
-        CommonModule,
-        NgComponentOutlet
-    ],
+    imports: [CommonModule, NgComponentOutlet],
     providers: [DashboardWidgetServiceProxy],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.scss'
@@ -27,13 +24,7 @@ export class Dashboard implements OnInit {
     loading = signal(true);
 
     // Reference widget components for Angular compiler
-    private readonly widgetComponents = [
-        StatsSummaryWidgetComponent,
-        RevenueChartWidgetComponent,
-        MemberGrowthWidgetComponent,
-        RecentClaimsWidgetComponent,
-        MyOnboardingWidgetComponent
-    ];
+    private readonly widgetComponents = [StatsSummaryWidgetComponent, RevenueChartWidgetComponent, MemberGrowthWidgetComponent, RecentClaimsWidgetComponent, MyOnboardingWidgetComponent];
 
     constructor(
         private authService: AuthService,
@@ -51,14 +42,14 @@ export class Dashboard implements OnInit {
         }
 
         const userRoles = this.authService.getRoles();
-        
+
         // Fetch visible widgets from API based on user roles
         this.dashboardWidgetService.dashboardWidget_GetVisibleByRoles(userRoles).subscribe({
             next: (response) => {
                 // Map widget settings to actual components
                 const widgets = response?.result
                     .map((setting: DashboardWidgetSettingDto) => {
-                        const widget = DASHBOARD_WIDGETS.find(w => w.key === setting.widgetKey);
+                        const widget = DASHBOARD_WIDGETS.find((w) => w.key === setting.widgetKey);
                         return widget;
                     })
                     .filter((w: DashboardWidget | undefined) => w !== undefined) as DashboardWidget[];
@@ -75,4 +66,3 @@ export class Dashboard implements OnInit {
         });
     }
 }
-

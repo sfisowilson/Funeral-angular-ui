@@ -74,11 +74,11 @@ export class ComparisonTableWidgetComponent {
     }
 
     getMaxRows(): number[] {
-        const maxLength = Math.max(...this.columns.map(col => col.items?.length || 0));
+        const maxLength = Math.max(...this.columns.map((col) => col.items?.length || 0));
         return Array.from({ length: maxLength }, (_, i) => i);
     }
 
     hasAnyTotal(): boolean {
-        return this.columns.some(col => col.total);
+        return this.columns.some((col) => col.total);
     }
 }

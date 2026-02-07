@@ -2,16 +2,17 @@
     <ng-template #start>
         <div class="flex align-items-center gap-2">
             <label for="tenantTypeFilter" class="font-bold">Tenant Type:</label>
-            <p-dropdown 
+            <p-dropdown
                 id="tenantTypeFilter"
-                [options]="tenantTypes" 
-                optionLabel="label" 
-                optionValue="value" 
-                placeholder="Select Tenant Type" 
+                [options]="tenantTypes"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select Tenant Type"
                 [(ngModel)]="selectedTenantType"
                 (onChange)="onTenantTypeChange()"
-                [style]="{'width': '200px'}"
-                appendTo="body">
+                [style]="{ width: '200px' }"
+                appendTo="body"
+            >
             </p-dropdown>
         </div>
         <button type="button" class="btn-primary-theme me-2" (click)="openPermissionDialog()" [disabled]="!selectedTenantType">
@@ -125,20 +126,20 @@
             </div>
             <div>
                 <label for="permissions" class="block font-bold mb-3">Permissions</label>
-                <p-multiSelect 
-                    [style]="{ width: '100%' }" 
-                    [options]="availablePermissions()" 
-                    [(ngModel)]="selectedPermissionsForTenantType" 
-                    optionLabel="name" 
+                <p-multiSelect
+                    [style]="{ width: '100%' }"
+                    [options]="availablePermissions()"
+                    [(ngModel)]="selectedPermissionsForTenantType"
+                    optionLabel="name"
                     placeholder="Select Permissions"
                     [scrollHeight]="'300px'"
                     appendTo="body"
-                    [baseZIndex]="10000">
+                    [baseZIndex]="10000"
+                >
                 </p-multiSelect>
                 <small class="text-muted mt-2 block">
                     <i class="pi pi-info-circle me-2"></i>
-                    Select all permissions that should be available for this tenant type. 
-                    Currently assigned permissions are pre-selected.
+                    Select all permissions that should be available for this tenant type. Currently assigned permissions are pre-selected.
                 </small>
             </div>
         </div>

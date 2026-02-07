@@ -115,8 +115,6 @@ export class ContactUsWidgetComponent implements OnInit {
         cssVariables.push(`--widget-bg-color: ${settings.backgroundColor || 'var(--background-color, #ffffff)'}`);
         cssVariables.push(`--widget-text-muted: ${settings.textColor || 'var(--text-color-secondary, #718096)'}`);
 
-        this.customStyles = this.sanitizer.bypassSecurityTrustStyle(
-            cssVariables.join('; ')
-        );
+        this.customStyles = this.sanitizer.bypassSecurityTrustStyle(cssVariables.join('; '));
     }
 }

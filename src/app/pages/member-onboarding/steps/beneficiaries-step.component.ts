@@ -19,50 +19,23 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { FileUploadModule } from 'primeng/fileupload';
 import { DropdownModule } from 'primeng/dropdown';
 import { TabViewModule } from 'primeng/tabview';
-import { 
-    BeneficiaryServiceProxy,
-    BeneficiaryDto,
-    FileUploadServiceProxy,
-    DocumentRequirementServiceProxy,
-    DocumentRequirement,
-    MemberDocumentType,
-    FileMetadataDto
-} from '../../../core/services/service-proxies';
+import { BeneficiaryServiceProxy, BeneficiaryDto, FileUploadServiceProxy, DocumentRequirementServiceProxy, DocumentRequirement, MemberDocumentType, FileMetadataDto } from '../../../core/services/service-proxies';
 import { SAIdValidator, SAIdInfo } from '../../../shared/utils/sa-id-validator';
 import { AuthService } from '../../../auth/auth-service';
 
 @Component({
     selector: 'app-beneficiaries-step',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        TableModule,
-        ButtonModule,
-        DialogModule,
-        InputTextModule,
-        InputNumberModule,
-        TooltipModule,
-        ToastModule,
-        CalendarModule,
-        InputMaskModule,
-        FileUploadModule,
-        DropdownModule,
-        TabViewModule
-    ],
-    providers: [
-        MessageService,
-        FileUploadServiceProxy,
-        DocumentRequirementServiceProxy
-    ],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, InputNumberModule, TooltipModule, ToastModule, CalendarModule, InputMaskModule, FileUploadModule, DropdownModule, TabViewModule],
+    providers: [MessageService, FileUploadServiceProxy, DocumentRequirementServiceProxy],
     templateUrl: './beneficiaries-step.component.html',
     styleUrl: './beneficiaries-step.component.scss'
 })
 export class BeneficiariesStepComponent implements OnInit {
-        // Used for ngFor trackBy on uploadedDocuments
-        trackByDocId(index: number, doc: any): any {
-            return doc.id;
-        }
+    // Used for ngFor trackBy on uploadedDocuments
+    trackByDocId(index: number, doc: any): any {
+        return doc.id;
+    }
     @Input() viewMode: boolean = false;
     @Input() memberId?: string;
     @Output() stepComplete = new EventEmitter<void>();
@@ -74,7 +47,7 @@ export class BeneficiariesStepComponent implements OnInit {
     loading = signal(false);
     private stepCompleteSubject = new Subject<void>();
     activeTab: 'info' | 'docs' = 'info'; // Track active tab in modal
-    
+
     // SA ID validation
     idInfo = signal<SAIdInfo | null>(null);
     parsedDateOfBirth = signal<Date | null>(null);
@@ -102,9 +75,7 @@ export class BeneficiariesStepComponent implements OnInit {
         private authService: AuthService
     ) {
         // Debounce step completion to prevent rapid emissions
-        this.stepCompleteSubject.pipe(
-            debounceTime(500)
-        ).subscribe(() => {
+        this.stepCompleteSubject.pipe(debounceTime(500)).subscribe(() => {
             this.stepComplete.emit();
         });
     }
@@ -115,15 +86,13 @@ export class BeneficiariesStepComponent implements OnInit {
 
     loadBeneficiaries() {
         this.loading.set(true);
-        
+
         // Use appropriate method based on whether viewing own or another member's beneficiaries
-        const beneficiariesObservable = this.memberId
-            ? this.beneficiaryService.beneficiary_GetBeneficiariesByMemberId(this.memberId)
-            : this.beneficiaryService.beneficiary_GetMyBeneficiaries();
-        
+        const beneficiariesObservable = this.memberId ? this.beneficiaryService.beneficiary_GetBeneficiariesByMemberId(this.memberId) : this.beneficiaryService.beneficiary_GetMyBeneficiaries();
+
         beneficiariesObservable.subscribe({
             next: (response) => {
-                this.beneficiaries.set( response?.result || []);
+                this.beneficiaries.set(response?.result || []);
                 this.checkCompletion();
                 this.loading.set(false);
             },
@@ -164,19 +133,19 @@ export class BeneficiariesStepComponent implements OnInit {
     editBeneficiary(beneficiary: BeneficiaryDto) {
         this.editMode.set(true);
         this.activeTab = 'info'; // Reset to info tab
-        this.currentBeneficiary = { ...beneficiary as any };
-        
+        this.currentBeneficiary = { ...(beneficiary as any) };
+
         // Validate ID if present
         if (beneficiary.identificationNumber) {
             this.validateIdNumber(beneficiary.identificationNumber);
         }
-        
+
         // Load documents for this beneficiary
         this.currentBeneficiaryId.set(beneficiary.id);
         if (beneficiary.id) {
             this.loadBeneficiaryDocuments(beneficiary.id);
         }
-        
+
         this.displayDialog = true;
     }
 
@@ -228,10 +197,10 @@ export class BeneficiariesStepComponent implements OnInit {
         if (this.editMode()) {
             this.beneficiaryService.beneficiary_UpdateBeneficiary(this.currentBeneficiary).subscribe({
                 next: () => {
-                    this.messageService.add({ 
-                        severity: 'success', 
-                        summary: 'Success', 
-                        detail: 'Beneficiary updated successfully' 
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Beneficiary updated successfully'
                     });
                     this.loadBeneficiaries();
                     this.displayDialog = false;
@@ -239,35 +208,35 @@ export class BeneficiariesStepComponent implements OnInit {
                 },
                 error: (error) => {
                     console.error('Error updating beneficiary:', error);
-                    this.messageService.add({ 
-                        severity: 'error', 
-                        summary: 'Error', 
-                        detail: 'Failed to update beneficiary' 
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to update beneficiary'
                     });
                 }
             });
         } else {
             this.beneficiaryService.beneficiary_CreateBeneficiary(this.currentBeneficiary).subscribe({
                 next: (createdBeneficiary) => {
-                    this.messageService.add({ 
-                        severity: 'success', 
-                        summary: 'Success', 
-                        detail: 'Beneficiary added successfully' 
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Beneficiary added successfully'
                     });
-                    
+
                     // Reload beneficiaries
                     this.loadBeneficiaries();
-                    
+
                     // Close dialog and clear form to allow adding another beneficiary
                     this.displayDialog = false;
                     this.clearBeneficiaryForm();
                 },
                 error: (error) => {
                     console.error('Error adding beneficiary:', error);
-                    this.messageService.add({ 
-                        severity: 'error', 
-                        summary: 'Error', 
-                        detail: 'Failed to add beneficiary' 
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to add beneficiary'
                     });
                 }
             });
@@ -278,19 +247,19 @@ export class BeneficiariesStepComponent implements OnInit {
         if (confirm('Are you sure you want to delete this beneficiary?')) {
             this.beneficiaryService.beneficiary_DeleteBeneficiary(id).subscribe({
                 next: () => {
-                    this.messageService.add({ 
-                        severity: 'success', 
-                        summary: 'Success', 
-                        detail: 'Beneficiary deleted successfully' 
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Beneficiary deleted successfully'
                     });
                     this.loadBeneficiaries();
                 },
                 error: (error) => {
                     console.error('Error deleting beneficiary:', error);
-                    this.messageService.add({ 
-                        severity: 'error', 
-                        summary: 'Error', 
-                        detail: 'Failed to delete beneficiary' 
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to delete beneficiary'
                     });
                 }
             });
@@ -310,17 +279,13 @@ export class BeneficiariesStepComponent implements OnInit {
         const memberId = this.authService.getUserId();
         if (!memberId) return;
 
-        const filesObservable = this.memberId
-            ? this.fileUploadService.file_GetFilesByMemberId(this.memberId)
-            : this.fileUploadService.file_GetMyFiles();
-        
+        const filesObservable = this.memberId ? this.fileUploadService.file_GetFilesByMemberId(this.memberId) : this.fileUploadService.file_GetMyFiles();
+
         filesObservable.subscribe({
             next: (response) => {
                 const files = response?.result || [];
                 // Filter files for this beneficiary
-                const beneficiaryFiles = files.filter(f => 
-                    f.entityType === 'Beneficiary' && f.entityId === beneficiaryId
-                );
+                const beneficiaryFiles = files.filter((f) => f.entityType === 'Beneficiary' && f.entityId === beneficiaryId);
                 this.uploadedDocuments.set(beneficiaryFiles);
             },
             error: (error) => {
@@ -363,40 +328,42 @@ export class BeneficiariesStepComponent implements OnInit {
             fileName: this.selectedFile.name
         };
 
-        this.fileUploadService.file_UploadFile(
-            "Beneficiary",  // entityType
-            this.currentBeneficiaryId()!,  // entityId (beneficiary ID)
-            undefined,  // documentType (legacy)
-            this.selectedDocumentType,  // memberDocumentType
-            false,  // isRequired flag (typically optional for beneficiaries)
-            fileParameter
-        ).subscribe({
-            next: (result) => {
-                this.uploading.set(false);
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Document uploaded successfully'
-                });
-                // Reload documents
-                this.loadBeneficiaryDocuments(this.currentBeneficiaryId()!);
-                this.selectedFile = undefined;
-                this.selectedDocumentType = undefined;
-            },
-            error: (error) => {
-                this.uploading.set(false);
-                console.error('Upload error:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message || 'Failed to upload document'
-                });
-            }
-        });
+        this.fileUploadService
+            .file_UploadFile(
+                'Beneficiary', // entityType
+                this.currentBeneficiaryId()!, // entityId (beneficiary ID)
+                undefined, // documentType (legacy)
+                this.selectedDocumentType, // memberDocumentType
+                false, // isRequired flag (typically optional for beneficiaries)
+                fileParameter
+            )
+            .subscribe({
+                next: (result) => {
+                    this.uploading.set(false);
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Document uploaded successfully'
+                    });
+                    // Reload documents
+                    this.loadBeneficiaryDocuments(this.currentBeneficiaryId()!);
+                    this.selectedFile = undefined;
+                    this.selectedDocumentType = undefined;
+                },
+                error: (error) => {
+                    this.uploading.set(false);
+                    console.error('Upload error:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.message || 'Failed to upload document'
+                    });
+                }
+            });
     }
 
     getDocumentTypeLabel(value: MemberDocumentType | number): string {
-        const type = this.documentTypes.find(t => t.value === value);
+        const type = this.documentTypes.find((t) => t.value === value);
         return type?.label || `Document Type ${value}`;
     }
 
@@ -424,46 +391,46 @@ export class BeneficiariesStepComponent implements OnInit {
             });
         }
     }
-    
+
     /**the beneficiary entry form (after individual save)
      */
     clearBeneficiaryForm() {
         console.log('[BeneficiariesStep] Clearing beneficiary entry form...');
-        
+
         // Reset current beneficiary
         this.currentBeneficiary = {} as BeneficiaryDto;
         this.currentBeneficiaryId.set(undefined);
         this.editMode.set(false);
-        
+
         // Clear SA ID validation
         this.idInfo.set(null);
         this.parsedDateOfBirth.set(null);
         this.parsedGender.set(null);
-        
+
         // Reset form - no form group in this component, using ngModel
         // Clear file upload states
         this.uploading.set(false);
         this.selectedFile = undefined;
         this.selectedDocumentType = undefined;
-        
+
         console.log('[BeneficiariesStep] Beneficiary entry form cleared');
     }
-    
+
     /**
      * Clear all form data after successful onboarding completion
      */
     clearForm() {
         console.log('[BeneficiariesStep] Clearing all form data...');
-        
+
         // Clear beneficiaries array
         this.beneficiaries.set([]);
-        
+
         // Clear the entry form
         this.clearBeneficiaryForm();
-        
+
         // Clear dialogs and states
         this.displayDialog = false;
-        
+
         console.log('[BeneficiariesStep] All form data cleared successfully');
     }
 }

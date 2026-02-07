@@ -13,7 +13,7 @@ import { ButtonModule } from 'primeng/button';
     template: `
         <div class="grants-editor p-6">
             <h3 class="text-xl font-bold mb-6">Grant Applications Widget Configuration</h3>
-            
+
             <form [formGroup]="form" class="space-y-4">
                 <!-- Title Settings -->
                 <div class="form-group">
@@ -115,12 +115,14 @@ import { ButtonModule } from 'primeng/button';
             </form>
         </div>
     `,
-    styles: [`
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-    `]
+    styles: [
+        `
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+        `
+    ]
 })
 export class NgoGrantApplicationsEditorComponent {
     @Input() config: any = {};

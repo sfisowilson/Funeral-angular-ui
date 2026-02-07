@@ -33,10 +33,7 @@ import { DynamicFileUploadComponent, FileUploadConfig, UploadedFile } from '../.
         DynamicRepeaterFieldComponent,
         DynamicFileUploadComponent
     ],
-    providers: [
-        MessageService,
-        DynamicFormService
-    ],
+    providers: [MessageService, DynamicFormService],
     templateUrl: './personal-info-step.component.html',
     styleUrl: './personal-info-step.component.scss'
 })
@@ -50,19 +47,19 @@ export class PersonalInfoStepComponent implements OnInit {
     memberData = signal<MemberDto | null>(null);
     loading = signal(false);
     saving = signal(false);
-    
+
     // SA ID validation
     idInfo = signal<SAIdInfo | null>(null);
     parsedDateOfBirth = signal<Date | null>(null);
     parsedGender = signal<string | null>(null);
-    
+
     // Document upload properties
     uploadedDocuments = signal<FileMetadataDto[]>([]);
     uploading = signal(false);
     selectedFile?: File;
     selectedDocumentType?: MemberDocumentType;
     requiredDocuments = signal<DocumentRequirement[]>([]);
-    
+
     documentTypes = [
         { label: 'ID Document', value: MemberDocumentType._1 },
         { label: 'Proof of Residence', value: MemberDocumentType._2 },
@@ -72,12 +69,12 @@ export class PersonalInfoStepComponent implements OnInit {
         { label: 'Death Certificate', value: MemberDocumentType._6 },
         { label: 'Other Document', value: MemberDocumentType._99 }
     ];
-    
+
     // Calculator and repeater field storage
     calculatorValues: { [fieldKey: string]: CalculatorResult } = {};
     fileUploadValues: { [fieldKey: string]: UploadedFile[] } = {};
     repeaterValues: { [fieldKey: string]: any[] } = {};
-    
+
     private stepCompleteSubject = new Subject<void>();
 
     constructor(
@@ -91,9 +88,7 @@ export class PersonalInfoStepComponent implements OnInit {
         public authService: AuthService
     ) {
         // Debounce step completion to prevent rapid emissions
-        this.stepCompleteSubject.pipe(
-            debounceTime(500)
-        ).subscribe(() => {
+        this.stepCompleteSubject.pipe(debounceTime(500)).subscribe(() => {
             this.stepComplete.emit();
         });
     }
@@ -121,7 +116,7 @@ export class PersonalInfoStepComponent implements OnInit {
                 const member = response?.result;
                 console.log('[PersonalInfo] Loaded member data:', member);
                 this.memberData.set(member);
-                
+
                 // Validate existing ID number
                 if (member.identificationNumber) {
                     this.validateIdNumber(member.identificationNumber);
@@ -143,18 +138,18 @@ export class PersonalInfoStepComponent implements OnInit {
      */
     loadFormConfiguration() {
         this.loading.set(true);
-        
+
         this.dynamicFormService.loadFormConfiguration().subscribe({
             next: (categories: DynamicFormCategory[]) => {
                 console.log('[PersonalInfo] Loaded categories:', categories);
                 this.categories.set(categories);
-                
+
                 // Create form group from categories
                 const form = this.dynamicFormService.createFormGroup(categories);
                 this.formGroup.set(form);
-                
+
                 this.loading.set(false);
-                
+
                 // Check if step is already complete
                 this.checkCompletion();
             },
@@ -179,7 +174,7 @@ export class PersonalInfoStepComponent implements OnInit {
                 const data = response?.result;
                 if (data && data.fieldValues) {
                     console.log('[PersonalInfo] Loaded existing data:', data);
-                    
+
                     // Wait for form to be ready
                     setTimeout(() => {
                         const form = this.formGroup();
@@ -189,7 +184,7 @@ export class PersonalInfoStepComponent implements OnInit {
                                 fieldKey: key,
                                 fieldValue: value
                             }));
-                            
+
                             this.dynamicFormService.populateForm(form, dataArray);
                         }
                     }, 500);
@@ -231,17 +226,17 @@ export class PersonalInfoStepComponent implements OnInit {
 
         // Extract form data
         const formDataArray = this.dynamicFormService.extractFormData(form);
-        
+
         // Convert array to fieldValues dictionary for the DTO
         const fieldValues: { [key: string]: string } = {};
-        formDataArray.forEach(item => {
+        formDataArray.forEach((item) => {
             fieldValues[item.fieldKey] = item.fieldValue;
         });
-        
+
         const dto = new SaveMemberOnboardingDataDto({
             fieldValues: fieldValues
         });
-        
+
         console.log('[PersonalInfo] Saving form data:', dto);
 
         // Validate ID number before saving
@@ -265,13 +260,9 @@ export class PersonalInfoStepComponent implements OnInit {
             const memberDto = new MemberDto({
                 ...member,
                 // Convert Date object to ISO string for proper serialization
-                dateOfBirth: member.dateOfBirth ? 
-                    (member.dateOfBirth instanceof Date ? 
-                        member.dateOfBirth.toISOString() : 
-                        member.dateOfBirth) as any : 
-                    undefined
+                dateOfBirth: member.dateOfBirth ? ((member.dateOfBirth instanceof Date ? member.dateOfBirth.toISOString() : member.dateOfBirth) as any) : undefined
             });
-            
+
             this.memberService.member_UpdateMember(memberDto.id, memberDto).subscribe({
                 next: () => {
                     console.log('[PersonalInfo] Member basic info saved');
@@ -306,7 +297,7 @@ export class PersonalInfoStepComponent implements OnInit {
                     detail: 'Personal information saved successfully'
                 });
                 this.saving.set(false);
-                
+
                 // Mark step as complete
                 this.markStepComplete();
             },
@@ -386,7 +377,7 @@ export class PersonalInfoStepComponent implements OnInit {
      * Mark all controls as touched to show validation errors
      */
     private markFormGroupTouched(formGroup: FormGroup) {
-        Object.keys(formGroup.controls).forEach(key => {
+        Object.keys(formGroup.controls).forEach((key) => {
             const control = formGroup.get(key);
             control?.markAsTouched();
 
@@ -430,11 +421,11 @@ export class PersonalInfoStepComponent implements OnInit {
      */
     getCategoryDisplayName(categoryName: string): string {
         const displayNames: { [key: string]: string } = {
-            'PersonalInfo': 'Personal Information',
-            'Employment': 'Employment Details',
-            'EmergencyContact': 'Emergency Contact',
-            'MedicalInfo': 'Medical Information',
-            'Other': 'Additional Information'
+            PersonalInfo: 'Personal Information',
+            Employment: 'Employment Details',
+            EmergencyContact: 'Emergency Contact',
+            MedicalInfo: 'Medical Information',
+            Other: 'Additional Information'
         };
         return displayNames[categoryName] || categoryName;
     }
@@ -463,7 +454,7 @@ export class PersonalInfoStepComponent implements OnInit {
         if (info.isValid) {
             this.parsedDateOfBirth.set(info.dateOfBirth);
             this.parsedGender.set(info.gender);
-            
+
             // Auto-populate date of birth in member data if available
             const member = this.memberData();
             if (member && info.dateOfBirth) {
@@ -505,16 +496,12 @@ export class PersonalInfoStepComponent implements OnInit {
         const memberId = this.memberId || this.authService.getUserId();
         if (!memberId) return;
 
-        const filesObservable = this.memberId
-            ? this.fileUploadService.file_GetFilesByMemberId(this.memberId)
-            : this.fileUploadService.file_GetMyFiles();
-        
+        const filesObservable = this.memberId ? this.fileUploadService.file_GetFilesByMemberId(this.memberId) : this.fileUploadService.file_GetMyFiles();
+
         filesObservable.subscribe({
             next: (response) => {
                 // Filter files for this member
-                const memberFiles = response?.result?.filter(f => 
-                    f.entityType === 'Member' && f.entityId === memberId
-                );
+                const memberFiles = response?.result?.filter((f) => f.entityType === 'Member' && f.entityId === memberId);
                 this.uploadedDocuments.set(memberFiles);
             },
             error: (error) => {
@@ -557,46 +544,48 @@ export class PersonalInfoStepComponent implements OnInit {
         };
 
         // Determine if this document type is required
-        const requirement = this.requiredDocuments().find(r => r.documentType === this.selectedDocumentType);
+        const requirement = this.requiredDocuments().find((r) => r.documentType === this.selectedDocumentType);
         const isRequired = requirement?.isRequired || false;
 
-        this.fileUploadService.file_UploadFile(
-            "Member",  // entityType
-            memberId,  // entityId (member ID)
-            undefined,  // documentType (legacy)
-            this.selectedDocumentType,  // memberDocumentType
-            isRequired,  // isRequired flag
-            fileParameter
-        ).subscribe({
-            next: (result) => {
-                this.uploading.set(false);
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Document uploaded successfully'
-                });
-                // Reload documents
-                this.loadMemberDocuments();
-                this.selectedFile = undefined;
-                this.selectedDocumentType = undefined;
-                
-                // Emit step complete to refresh completion status
-                this.stepCompleteSubject.next();
-            },
-            error: (error) => {
-                this.uploading.set(false);
-                console.error('Upload error:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.message || 'Failed to upload document'
-                });
-            }
-        });
+        this.fileUploadService
+            .file_UploadFile(
+                'Member', // entityType
+                memberId, // entityId (member ID)
+                undefined, // documentType (legacy)
+                this.selectedDocumentType, // memberDocumentType
+                isRequired, // isRequired flag
+                fileParameter
+            )
+            .subscribe({
+                next: (result) => {
+                    this.uploading.set(false);
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Success',
+                        detail: 'Document uploaded successfully'
+                    });
+                    // Reload documents
+                    this.loadMemberDocuments();
+                    this.selectedFile = undefined;
+                    this.selectedDocumentType = undefined;
+
+                    // Emit step complete to refresh completion status
+                    this.stepCompleteSubject.next();
+                },
+                error: (error) => {
+                    this.uploading.set(false);
+                    console.error('Upload error:', error);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.message || 'Failed to upload document'
+                    });
+                }
+            });
     }
 
     getDocumentTypeLabel(value: MemberDocumentType | number): string {
-        const type = this.documentTypes.find(t => t.value === value);
+        const type = this.documentTypes.find((t) => t.value === value);
         return type?.label || `Document Type ${value}`;
     }
 
@@ -630,7 +619,7 @@ export class PersonalInfoStepComponent implements OnInit {
             window.open(fileUrl, '_blank');
         }
     }
-    
+
     /**
      * Get calculator configuration from field config
      */
@@ -642,7 +631,7 @@ export class PersonalInfoStepComponent implements OnInit {
             autoCalculate: true, // Enable auto-calculation by default
             watchFieldKeys: ['dependents'] // Watch dependents field
         };
-        
+
         if (field.config.optionsJson) {
             try {
                 const parsed = JSON.parse(field.config.optionsJson);
@@ -651,48 +640,48 @@ export class PersonalInfoStepComponent implements OnInit {
                 console.error('Error parsing calculator config:', e);
             }
         }
-        
+
         return config;
     }
-    
+
     /**
      * Get current form data snapshot for calculator
      */
     getFormDataSnapshot(): any {
         const form = this.formGroup();
         if (!form) return {};
-        
+
         const snapshot: any = {};
-        
+
         // Get all form values
-        Object.keys(form.controls).forEach(key => {
+        Object.keys(form.controls).forEach((key) => {
             const value = form.get(key)?.value;
             if (value) {
                 snapshot[key] = value;
             }
         });
-        
+
         // Include repeater values
-        Object.keys(this.repeaterValues).forEach(key => {
+        Object.keys(this.repeaterValues).forEach((key) => {
             snapshot[key] = this.repeaterValues[key];
         });
-        
+
         return snapshot;
     }
-    
+
     /**
      * Handle calculator value changes
      */
     onCalculatorChange(field: DynamicFormField, result: CalculatorResult) {
         this.calculatorValues[field.config.fieldKey!] = result;
-        
+
         // Store in form as JSON string for backend
         const form = this.formGroup();
         if (form && form.get(field.config.fieldKey!)) {
             form.get(field.config.fieldKey!)?.setValue(JSON.stringify(result));
         }
     }
-    
+
     /**
      * Get repeater configuration from field config
      */
@@ -709,7 +698,7 @@ export class PersonalInfoStepComponent implements OnInit {
             allowEdit: true,
             allowDelete: true
         };
-        
+
         if (field.config.optionsJson) {
             try {
                 const parsed = JSON.parse(field.config.optionsJson);
@@ -718,22 +707,22 @@ export class PersonalInfoStepComponent implements OnInit {
                 console.error('Error parsing repeater config:', e);
             }
         }
-        
+
         return config;
     }
-    
+
     /**
      * Handle repeater value changes
      */
     onRepeaterChange(field: DynamicFormField, items: any[]) {
         this.repeaterValues[field.config.fieldKey!] = items;
-        
+
         // Store in form as JSON string for backend
         const form = this.formGroup();
         if (form && form.get(field.config.fieldKey!)) {
             form.get(field.config.fieldKey!)?.setValue(JSON.stringify(items));
         }
-        
+
         // Trigger change detection to update calculator if present
         // The calculator will pick up the changes via formData binding
     }
@@ -750,7 +739,7 @@ export class PersonalInfoStepComponent implements OnInit {
             acceptedTypes: ['image/*', 'application/pdf'],
             required: field.config.isRequired || false
         };
-        
+
         if (field.config.optionsJson) {
             try {
                 const parsed = JSON.parse(field.config.optionsJson);
@@ -759,56 +748,55 @@ export class PersonalInfoStepComponent implements OnInit {
                 console.error('Error parsing file upload config:', e);
             }
         }
-        
+
         return config;
     }
-    
+
     /**
      * Handle file upload value changes
      */
     onFileUploadChange(field: DynamicFormField, files: UploadedFile[]) {
         this.fileUploadValues[field.config.fieldKey!] = files;
-        
+
         // Store in form as JSON string for backend
         const form = this.formGroup();
         if (form && form.get(field.config.fieldKey!)) {
             form.get(field.config.fieldKey!)?.setValue(JSON.stringify(files));
         }
     }
-    
+
     /**
      * Clear all form data after successful submission
      */
     clearForm() {
         console.log('[PersonalInfoStep] Clearing form data...');
-        
+
         // Reset the form group
         const form = this.formGroup();
         if (form) {
             form.reset();
         }
-        
+
         // Clear calculator values
         this.calculatorValues = {};
-        
+
         // Clear repeater values
         this.repeaterValues = {};
-        
+
         // Clear file upload values
         this.fileUploadValues = {};
-        
+
         // Clear uploaded documents
         this.uploadedDocuments.set([]);
-        
+
         // Clear member data
         this.memberData.set(null);
-        
+
         // Clear SA ID info
         this.idInfo.set(null);
         this.parsedDateOfBirth.set(null);
         this.parsedGender.set(null);
-        
+
         console.log('[PersonalInfoStep] Form cleared successfully');
     }
 }
-

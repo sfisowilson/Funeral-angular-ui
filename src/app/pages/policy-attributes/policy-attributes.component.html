@@ -15,13 +15,7 @@
 <div class="modern-toolbar">
     <div class="toolbar-section">
         <p-button label="New Policy Attribute" icon="pi pi-plus" class="btn-primary-theme" (onClick)="openNew()" />
-        <p-button
-            label="Delete Selected"
-            icon="pi pi-trash"
-            class="btn-outline-danger-theme"
-            (onClick)="deleteSelectedPolicyAttributes()"
-            [disabled]="!selectedPolicyAttributes || !selectedPolicyAttributes.length"
-        />
+        <p-button label="Delete Selected" icon="pi pi-trash" class="btn-outline-danger-theme" (onClick)="deleteSelectedPolicyAttributes()" [disabled]="!selectedPolicyAttributes || !selectedPolicyAttributes.length" />
     </div>
 
     <div class="toolbar-section">

@@ -1,93 +1,96 @@
 <div class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-  <div class="bg-white rounded shadow-lg p-6 w-full max-w-xl">
-    <h3 class="text-lg font-bold mb-4">{{ entityType ? 'Edit Entity Type' : 'Create Entity Type' }}</h3>
-    <form (ngSubmit)="save()" autocomplete="off">
-      <div class="mb-2">
-        <label class="form-label">Name:</label>
-        <input class="form-control" [(ngModel)]="name" name="name" required />
-      </div>
-      <div class="mb-2">
-        <label class="form-label">Key:</label>
-        <input class="form-control" [(ngModel)]="key" name="key" required />
-      </div>
-      <div class="mb-2">
-        <label class="form-label">Description:</label>
-        <input class="form-control" [(ngModel)]="description" name="description" />
-      </div>
-      <div class="mb-2 form-check">
-        <input type="checkbox" class="form-check-input" [(ngModel)]="isActive" name="isActive" id="isActive" />
-        <label class="form-check-label" for="isActive">Active</label>
-      </div>
-      <div class="mb-4">
-        <label class="block font-semibold mb-2">Fields:</label>
-        <div *ngIf="fieldsJson.length; else noFields" class="border rounded p-3 space-y-2 max-h-80 overflow-y-auto">
-          <div *ngFor="let field of fieldsJson; let i = index" class="border border-gray-200 rounded p-2 flex flex-col gap-2">
-            <div class="flex gap-2">
-              <div class="flex-1">
-                <label class="block text-xs font-semibold">Name</label>
-                <input class="form-control form-control-sm" [(ngModel)]="field.name" [name]="'name_'+i" required />
-              </div>
-              <div class="flex-1">
-                <label class="block text-xs font-semibold">Label</label>
-                <input class="form-control form-control-sm" [(ngModel)]="field.label" [name]="'label_'+i" />
-              </div>
+    <div class="bg-white rounded shadow-lg p-6 w-full max-w-xl">
+        <h3 class="text-lg font-bold mb-4">{{ entityType ? 'Edit Entity Type' : 'Create Entity Type' }}</h3>
+        <form (ngSubmit)="save()" autocomplete="off">
+            <div class="mb-2">
+                <label class="form-label">Name:</label>
+                <input class="form-control" [(ngModel)]="name" name="name" required (ngModelChange)="onNameChange()" />
+                <small class="text-muted">Use spaces for readability (e.g., "Extended Family Members")</small>
             </div>
-            <div class="flex gap-2 items-center">
-              <div class="flex-1">
-                <label class="block text-xs font-semibold">Type</label>
-                <select class="form-select form-select-sm" [(ngModel)]="field.type" [name]="'type_'+i">
-                  <option value="text">Text</option>
-                  <option value="textarea">Textarea</option>
-                  <option value="email">Email</option>
-                  <option value="number">Number</option>
-                  <option value="select">Dropdown</option>
-                  <option value="checkbox">Checkbox</option>
-                </select>
-              </div>
-              <div class="flex-1">
-                <label class="block text-xs font-semibold">Placeholder</label>
-                <input class="form-control form-control-sm" [(ngModel)]="field.placeholder" [name]="'placeholder_'+i" />
-              </div>
-              <div class="flex flex-col gap-1 mt-4">
-                <label class="inline-flex items-center text-xs">
-                  <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.required" [name]="'required_'+i" />
-                  <span>Required</span>
-                </label>
-                <label class="inline-flex items-center text-xs">
-                  <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.showInList" [name]="'showInList_'+i" />
-                  <span>Show in list</span>
-                </label>
-                <label class="inline-flex items-center text-xs">
-                  <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.filterable" [name]="'filterable_'+i" />
-                  <span>Filterable</span>
-                </label>
-              </div>
+            <div class="mb-2">
+                <label class="form-label">Key:</label>
+                <input class="form-control" [(ngModel)]="key" name="key" required />
+                <small class="text-muted">Auto-generated from name (e.g., "Extended_Family_Members")</small>
             </div>
-            <div class="flex gap-2 items-center" *ngIf="field.type === 'select'">
-              <div class="flex-1">
-                <label class="block text-xs font-semibold">Options (comma-separated)</label>
-                <input class="form-control form-control-sm" [(ngModel)]="field.options" [name]="'options_'+i" />
-              </div>
+            <div class="mb-2">
+                <label class="form-label">Description:</label>
+                <input class="form-control" [(ngModel)]="description" name="description" />
             </div>
-            <div class="flex justify-between items-center">
-              <div>
-                <label class="block text-xs font-semibold">Order</label>
-                <input type="number" class="form-control form-control-sm w-24" [(ngModel)]="field.order" [name]="'order_'+i" />
-              </div>
-              <button type="button" class="btn btn-sm btn-danger" (click)="removeField(i)">Remove</button>
+            <div class="mb-2 form-check">
+                <input type="checkbox" class="form-check-input" [(ngModel)]="isActive" name="isActive" id="isActive" />
+                <label class="form-check-label" for="isActive">Active</label>
             </div>
-          </div>
-        </div>
-        <ng-template #noFields>
-          <p class="text-sm text-gray-500 mb-2">No fields configured yet.</p>
-        </ng-template>
-        <button type="button" class="btn btn-sm btn-secondary mt-2" (click)="addField()">Add Field</button>
-      </div>
-      <div class="flex gap-2 justify-end">
-        <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
-        <button type="submit" class="btn btn-primary" [disabled]="loading">{{ loading ? 'Saving...' : 'Save' }}</button>
-      </div>
-      <div *ngIf="error" class="mt-2 text-red-500">{{ error }}</div>
-    </form>
-  </div>
+            <div class="mb-4">
+                <label class="block font-semibold mb-2">Fields:</label>
+                <div *ngIf="fieldsJson.length; else noFields" class="border rounded p-3 space-y-2 max-h-80 overflow-y-auto">
+                    <div *ngFor="let field of fieldsJson; let i = index" class="border border-gray-200 rounded p-2 flex flex-col gap-2">
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold">Label (User-Friendly)</label>
+                                <input class="form-control form-control-sm" [(ngModel)]="field.label" [name]="'label_' + i" (ngModelChange)="onFieldLabelChange(field)" placeholder="e.g., Full Name" />
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold">Name (Internal)</label>
+                                <input class="form-control form-control-sm" [(ngModel)]="field.name" [name]="'name_' + i" (blur)="onFieldNameBlur(field)" required placeholder="e.g., fullName" />
+                            </div>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold">Type</label>
+                                <select class="form-select form-select-sm" [(ngModel)]="field.type" [name]="'type_' + i" (ngModelChange)="onFieldTypeChange(field)">
+                                    <option value="text">Text</option>
+                                    <option value="idNumber">ID Number</option>
+                                    <option value="textarea">Textarea</option>
+                                    <option value="email">Email</option>
+                                    <option value="number">Number</option>
+                                    <option value="select">Dropdown</option>
+                                    <option value="checkbox">Checkbox</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold">Placeholder</label>
+                                <input class="form-control form-control-sm" [(ngModel)]="field.placeholder" [name]="'placeholder_' + i" />
+                            </div>
+                            <div class="flex flex-col gap-1 mt-4">
+                                <label class="inline-flex items-center text-xs">
+                                    <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.required" [name]="'required_' + i" />
+                                    <span>Required</span>
+                                </label>
+                                <label class="inline-flex items-center text-xs">
+                                    <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.showInList" [name]="'showInList_' + i" />
+                                    <span>Show in list</span>
+                                </label>
+                                <label class="inline-flex items-center text-xs">
+                                    <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.filterable" [name]="'filterable_' + i" />
+                                    <span>Filterable</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 items-center" *ngIf="field.type === 'select'">
+                            <div class="flex-1">
+                                <label class="block text-xs font-semibold">Options (comma-separated)</label>
+                                <input class="form-control form-control-sm" [(ngModel)]="field.options" [name]="'options_' + i" />
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <label class="block text-xs font-semibold">Order</label>
+                                <input type="number" class="form-control form-control-sm w-24" [(ngModel)]="field.order" [name]="'order_' + i" />
+                            </div>
+                            <button type="button" class="btn btn-sm btn-danger" (click)="removeField(i)">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                <ng-template #noFields>
+                    <p class="text-sm text-gray-500 mb-2">No fields configured yet.</p>
+                </ng-template>
+                <button type="button" class="btn btn-sm btn-secondary mt-2" (click)="addField()">Add Field</button>
+            </div>
+            <div class="flex gap-2 justify-end">
+                <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="loading">{{ loading ? 'Saving...' : 'Save' }}</button>
+            </div>
+            <div *ngIf="error" class="mt-2 text-red-500">{{ error }}</div>
+        </form>
+    </div>
 </div>

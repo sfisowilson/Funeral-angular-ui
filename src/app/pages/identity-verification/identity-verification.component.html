@@ -97,16 +97,7 @@
                         Date of Birth
                         <span class="required-asterisk">*</span>
                     </label>
-                    <p-calendar
-                        id="dateOfBirth"
-                        formControlName="dateOfBirth"
-                        placeholder="Select your date of birth"
-                        [showIcon]="true"
-                        [maxDate]="maxDate"
-                        dateFormat="dd/mm/yy"
-                        styleClass="w-full"
-                        [class.ng-invalid]="isFieldInvalid('dateOfBirth')"
-                    >
+                    <p-calendar id="dateOfBirth" formControlName="dateOfBirth" placeholder="Select your date of birth" [showIcon]="true" [maxDate]="maxDate" dateFormat="dd/mm/yy" styleClass="w-full" [class.ng-invalid]="isFieldInvalid('dateOfBirth')">
                     </p-calendar>
                     <small class="p-error" *ngIf="isFieldInvalid('dateOfBirth')">
                         {{ getFieldError('dateOfBirth') }}

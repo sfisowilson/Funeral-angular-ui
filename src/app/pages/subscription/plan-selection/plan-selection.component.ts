@@ -1,30 +1,16 @@
-import { Component, OnInit, signal , NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, OnInit, signal, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-    SubscriptionPlanServiceProxy,
-    SubscriptionPlanDto,
-    CouponServiceProxy,
-    CouponValidationResult,
-    PaymentServiceProxy,
-    CreatePaymentSessionDto,
-    PaymentSessionDto
-} from '../../../core/services/service-proxies';
+import { SubscriptionPlanServiceProxy, SubscriptionPlanDto, CouponServiceProxy, CouponValidationResult, PaymentServiceProxy, CreatePaymentSessionDto, PaymentSessionDto } from '../../../core/services/service-proxies';
 
 @Component({
     selector: 'app-plan-selection',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule
-    ],
-    providers: [
-        SubscriptionPlanServiceProxy,
-        CouponServiceProxy,
-        PaymentServiceProxy
-    ],
-    schemas: [NO_ERRORS_SCHEMA], templateUrl: './plan-selection.component.html',
+    imports: [CommonModule, FormsModule],
+    providers: [SubscriptionPlanServiceProxy, CouponServiceProxy, PaymentServiceProxy],
+    schemas: [NO_ERRORS_SCHEMA],
+    templateUrl: './plan-selection.component.html',
     styleUrls: ['./plan-selection.component.scss']
 })
 export class PlanSelectionComponent implements OnInit {
@@ -189,7 +175,7 @@ export class PlanSelectionComponent implements OnInit {
     }
 
     dismissAlert(alert: Alert): void {
-        this.alerts = this.alerts.filter(a => a.id !== alert.id);
+        this.alerts = this.alerts.filter((a) => a.id !== alert.id);
     }
 }
 

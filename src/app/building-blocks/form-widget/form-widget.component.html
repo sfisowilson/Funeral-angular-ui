@@ -14,91 +14,80 @@
                 <div class="form-widget-main">
                     <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
                         <div *ngFor="let field of fields" class="mb-3">
-                    <label [attr.for]="field.name" class="form-label">
-                        {{ field.label }}
-                        <span class="text-danger" *ngIf="field.required">*</span>
-                    </label>
+                            <label [attr.for]="field.name" class="form-label">
+                                {{ field.label }}
+                                <span class="text-danger" *ngIf="field.required">*</span>
+                            </label>
 
-                    <!-- Text-like inputs -->
-                    <input
-                        *ngIf="['text', 'email', 'tel', 'number', 'date', 'idNumber'].includes(field.type)"
-                        [type]="field.type === 'date' ? 'date' : (field.type === 'idNumber' ? 'text' : field.type)"
-                        class="form-control"
-                        [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
-                        [id]="field.name"
-                        [placeholder]="field.placeholder"
-                        [formControlName]="field.name"
-                    />
-
-                    <!-- Textarea -->
-                    <textarea
-                        *ngIf="field.type === 'textarea'"
-                        class="form-control"
-                        [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
-                        [id]="field.name"
-                        [placeholder]="field.placeholder"
-                        [formControlName]="field.name"
-                        rows="4"
-                    ></textarea>
-
-                    <!-- Select -->
-                    <select
-                        *ngIf="field.type === 'select' && field.options && field.options.length"
-                        class="form-select"
-                        [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
-                        [id]="field.name"
-                        [formControlName]="field.name"
-                    >
-                        <option value="">Select...</option>
-                        <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
-                    </select>
-
-                    <!-- Lookup: options from DynamicEntity records -->
-                    <select
-                        *ngIf="field.type === 'lookup'"
-                        class="form-select"
-                        [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
-                        [id]="field.name"
-                        [formControlName]="field.name"
-                    >
-                        <option value="">Select...</option>
-                        <option *ngFor="let opt of getLookupOptions(field)" [ngValue]="opt.id">{{ opt.label }}</option>
-                    </select>
-
-                    <!-- Radio buttons -->
-                    <div *ngIf="field.type === 'radio' && field.options && field.options.length">
-                        <div class="form-check" *ngFor="let opt of field.options">
+                            <!-- Text-like inputs -->
                             <input
-                                class="form-check-input"
-                                type="radio"
-                                [id]="field.name + '_' + opt"
-                                [value]="opt"
+                                *ngIf="['text', 'email', 'tel', 'number', 'date', 'idNumber'].includes(field.type)"
+                                [type]="field.type === 'date' ? 'date' : field.type === 'idNumber' ? 'text' : field.type"
+                                class="form-control"
+                                [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                                [id]="field.name"
+                                [placeholder]="field.placeholder"
                                 [formControlName]="field.name"
                             />
-                            <label class="form-check-label" [attr.for]="field.name + '_' + opt">
-                                {{ opt }}
-                            </label>
-                        </div>
-                    </div>
 
-                    <!-- Checkbox group -->
-                    <div *ngIf="field.type === 'checkbox' && field.options && field.options.length">
-                        <ng-container *ngIf="getCheckboxControl(field) as checkboxArray">
-                            <div class="form-check" *ngFor="let opt of getCheckboxOptions(field); let i = index">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    [id]="field.name + '_' + i"
-                                    [formControl]="checkboxArray.at(i)"
-                                />
-                                <label class="form-check-label" [attr.for]="field.name + '_' + i">
-                                    {{ opt }}
-                                </label>
+                            <!-- Textarea -->
+                            <textarea
+                                *ngIf="field.type === 'textarea'"
+                                class="form-control"
+                                [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                                [id]="field.name"
+                                [placeholder]="field.placeholder"
+                                [formControlName]="field.name"
+                                rows="4"
+                            ></textarea>
+
+                            <!-- Select -->
+                            <select
+                                *ngIf="field.type === 'select' && field.options && field.options.length"
+                                class="form-select"
+                                [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                                [id]="field.name"
+                                [formControlName]="field.name"
+                            >
+                                <option value="">Select...</option>
+                                <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+                            </select>
+
+                            <!-- Lookup: options from DynamicEntity records -->
+                            <select
+                                *ngIf="field.type === 'lookup'"
+                                class="form-select"
+                                [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                                [id]="field.name"
+                                [formControlName]="field.name"
+                            >
+                                <option value="">Select...</option>
+                                <option *ngFor="let opt of getLookupOptions(field)" [ngValue]="opt.id">{{ opt.label }}</option>
+                            </select>
+
+                            <!-- Radio buttons -->
+                            <div *ngIf="field.type === 'radio' && field.options && field.options.length">
+                                <div class="form-check" *ngFor="let opt of field.options">
+                                    <input class="form-check-input" type="radio" [id]="field.name + '_' + opt" [value]="opt" [formControlName]="field.name" />
+                                    <label class="form-check-label" [attr.for]="field.name + '_' + opt">
+                                        {{ opt }}
+                                    </label>
+                                </div>
                             </div>
-                        </ng-container>
-                    </div>
 
-                    <!-- Validation errors -->
+                            <!-- Checkbox group -->
+                            <div *ngIf="field.type === 'checkbox' && field.options && field.options.length">
+                                <ng-container *ngIf="getCheckboxControl(field) as checkboxArray">
+                                    <div class="form-check" *ngFor="let opt of getCheckboxOptions(field); let i = index">
+                                        <input class="form-check-input" type="checkbox" [id]="field.name + '_' + i" [formControl]="checkboxArray.at(i)" />
+                                        <label class="form-check-label" [attr.for]="field.name + '_' + i">
+                                            {{ opt }}
+                                        </label>
+                                    </div>
+                                </ng-container>
+                            </div>
+
+                            <!-- Validation errors -->
                             <div class="invalid-feedback d-block" *ngIf="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)">
                                 <span *ngIf="formGroup.get(field.name)?.errors?.['required']">This field is required.</span>
                                 <span *ngIf="formGroup.get(field.name)?.errors?.['email']">Please enter a valid email address.</span>
@@ -114,10 +103,7 @@
                         </div>
 
                         <!-- Inline calculator display -->
-                        <div
-                            *ngIf="calculatorEnabled && calculatorDisplayMode === 'inline'"
-                            class="calculator-inline mt-3"
-                        >
+                        <div *ngIf="calculatorEnabled && calculatorDisplayMode === 'inline'" class="calculator-inline mt-3">
                             <div class="calculator-card">
                                 <div class="calculator-header">
                                     <span class="calculator-title">{{ calculatorLabel }}</span>
@@ -126,11 +112,7 @@
                                     <div *ngIf="calculatorError" class="text-danger small mb-1">
                                         {{ calculatorError }}
                                     </div>
-                                    <div
-                                        *ngIf="!calculatorError"
-                                        class="calculator-value"
-                                        [class.text-muted]="calculatorValue === null"
-                                    >
+                                    <div *ngIf="!calculatorError" class="calculator-value" [class.text-muted]="calculatorValue === null">
                                         <ng-container *ngIf="calculatorValue !== null; else noInlineValueTpl">
                                             {{ calculatorValue | number: '1.2-2' }}
                                         </ng-container>
@@ -166,7 +148,7 @@
                                     <div *ngIf="calculatorConfig?.showChecklist && getChecklistDisplay().length" class="mt-2 small">
                                         <div class="fw-semibold mb-1">Checklist</div>
                                         <div *ngFor="let item of getChecklistDisplay()" class="d-flex align-items-center mb-1">
-                                            <span class="me-2" [ngClass]="item.done ? 'text-success' : 'text-muted'"><i class="bi" [ngClass]="item.done ? 'bi-check-circle-fill' : 'bi-circle' "></i></span>
+                                            <span class="me-2" [ngClass]="item.done ? 'text-success' : 'text-muted'"><i class="bi" [ngClass]="item.done ? 'bi-check-circle-fill' : 'bi-circle'"></i></span>
                                             <span [ngClass]="item.done ? 'text-success' : 'text-muted'">{{ item.label }}</span>
                                         </div>
                                     </div>
@@ -229,7 +211,7 @@
                             <div *ngIf="calculatorConfig?.showChecklist && getChecklistDisplay().length" class="mt-3 small">
                                 <div class="fw-semibold mb-1">Checklist</div>
                                 <div *ngFor="let item of getChecklistDisplay()" class="d-flex align-items-center mb-1">
-                                    <span class="me-2" [ngClass]="item.done ? 'text-success' : 'text-muted'"><i class="bi" [ngClass]="item.done ? 'bi-check-circle-fill' : 'bi-circle' "></i></span>
+                                    <span class="me-2" [ngClass]="item.done ? 'text-success' : 'text-muted'"><i class="bi" [ngClass]="item.done ? 'bi-check-circle-fill' : 'bi-circle'"></i></span>
                                     <span [ngClass]="item.done ? 'text-success' : 'text-muted'">{{ item.label }}</span>
                                 </div>
                             </div>

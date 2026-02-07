@@ -6,13 +6,13 @@ import { FormDto } from './service-proxies';
 
 @Injectable({ providedIn: 'root' })
 export class PublicFormService {
-  private readonly baseUrl = environment.apiUrl ?? '';
+    private readonly baseUrl = environment.apiUrl ?? '';
 
-  constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {}
 
-  getFormById(id: string): Observable<FormDto> {
-    const encodedId = encodeURIComponent(id);
-    const url = `${this.baseUrl}/api/Form/Form_PublicGetById/${encodedId}`;
-    return this.http.get<FormDto>(url);
-  }
+    getFormById(id: string): Observable<FormDto> {
+        const encodedId = encodeURIComponent(id);
+        const url = `${this.baseUrl}/api/Form/Form_PublicGetById/${encodedId}`;
+        return this.http.get<FormDto>(url);
+    }
 }

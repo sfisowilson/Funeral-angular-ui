@@ -1,8 +1,5 @@
 <div class="onboarding-stepper-widget">
-    <app-stepper-form-widget
-        [config]="config"
-        (signedAndCompleted)="onSignedAndCompleted($event)"
-    ></app-stepper-form-widget>
+    <app-stepper-form-widget [config]="config" (signedAndCompleted)="onSignedAndCompleted($event)"></app-stepper-form-widget>
 
     <div class="mt-3" *ngIf="saving">
         <span class="text-muted">Saving your signature and updating your profile...</span>

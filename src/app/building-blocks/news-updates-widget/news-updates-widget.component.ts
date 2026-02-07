@@ -97,7 +97,7 @@ export class NewsUpdatesWidgetComponent implements OnInit {
     get articles(): any[] {
         const articles = this.config.articles || [];
         console.log('Getting articles:', articles);
-        
+
         // If no articles provided, show default ones
         if (articles.length === 0) {
             console.log('No articles found, showing defaults');
@@ -122,7 +122,7 @@ export class NewsUpdatesWidgetComponent implements OnInit {
                 }
             ];
         }
-        
+
         return articles;
     }
 

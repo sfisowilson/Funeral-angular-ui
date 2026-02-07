@@ -10,7 +10,6 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
     const router = inject(Router);
     const token = authService.getToken();
 
-
     // Clone the request to modify headers
     let modifiedReq = req.clone();
 
@@ -21,7 +20,7 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
                 Authorization: `Bearer ${token}`
             }
         });
-        
+
         if (req.url.includes('Auth_ChangePassword')) {
             console.log('✅ Authorization header added');
         }
@@ -34,7 +33,7 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
     // For tenant.dev.co.za: subdomain = 'tenant'
     const host = window.location.hostname;
     let subdomain = '';
-    
+
     const baseDomain = environment.baseDomain;
     if (host.endsWith(baseDomain) && host !== baseDomain) {
         // Remove the base domain and the trailing dot
@@ -68,7 +67,7 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
                     });
                 }
             }
-            
+
             return throwError(() => error);
         })
     );

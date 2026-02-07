@@ -8,40 +8,40 @@ import { BlogComponent } from './blog/blog.component';
 import { PaymentGatewayComponent } from './payment-gateway/payment-gateway.component';
 
 const routes: Routes = [
-  {
-    path: 'grant-applications',
-    component: GrantApplicationsComponent,
-    title: 'Grant Applications'
-  },
-  {
-    path: 'impact-reports',
-    component: ImpactReportsComponent,
-    title: 'Impact Reports'
-  },
-  {
-    path: 'donor-recognition',
-    component: DonorRecognitionComponent,
-    title: 'Donor Recognition'
-  },
-  {
-    path: 'events',
-    component: NgoEventsComponent,
-    title: 'NGO Events'
-  },
-  {
-    path: 'blog',
-    component: BlogComponent,
-    title: 'Blog Management'
-  },
-  {
-    path: 'payment-gateway',
-    component: PaymentGatewayComponent,
-    title: 'Payment Gateway Configuration'
-  }
+    {
+        path: 'grant-applications',
+        component: GrantApplicationsComponent,
+        title: 'Grant Applications'
+    },
+    {
+        path: 'impact-reports',
+        component: ImpactReportsComponent,
+        title: 'Impact Reports'
+    },
+    {
+        path: 'donor-recognition',
+        component: DonorRecognitionComponent,
+        title: 'Donor Recognition'
+    },
+    {
+        path: 'events',
+        component: NgoEventsComponent,
+        title: 'NGO Events'
+    },
+    {
+        path: 'blog',
+        component: BlogComponent,
+        title: 'Blog Management'
+    },
+    {
+        path: 'payment-gateway',
+        component: PaymentGatewayComponent,
+        title: 'Payment Gateway Configuration'
+    }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule]
 })
-export class NgoRoutingModule { }
+export class NgoRoutingModule {}

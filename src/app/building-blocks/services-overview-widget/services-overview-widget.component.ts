@@ -55,15 +55,17 @@ import { ButtonModule } from 'primeng/button';
                                 <div *ngIf="service.pricing" class="pricing-info mb-4">
                                     <span class="price text-xl font-bold" [style.color]="config.settings.priceColor"> {{ config.settings.currency || 'R' }}{{ service.pricing.price }} </span>
                                     <span *ngIf="service.pricing.period" class="period ml-1" [style.color]="config.settings.periodColor"> /{{ service.pricing.period }} </span>
-                                    <div *ngIf="service.pricing.originalPrice" class="original-price text-sm line-through" [style.color]="config.settings.originalPriceColor">{{ config.settings.currency || 'R' }}{{ service.pricing.originalPrice }}</div>
+                                    <div *ngIf="service.pricing.originalPrice" class="original-price text-sm line-through" [style.color]="config.settings.originalPriceColor">
+                                        {{ config.settings.currency || 'R' }}{{ service.pricing.originalPrice }}
+                                    </div>
                                 </div>
 
                                 <button
                                     *ngIf="service.buttonText"
                                     pButton
                                     [label]="service.buttonText"
-                                    [style.background-color]="service.featured ? (config.settings.featuredButtonColor || 'var(--button-primary-background, #007bff)') : (config.settings.buttonColor || 'var(--button-secondary-background, #6c757d)')"
-                                    [style.color]="service.featured ? (config.settings.featuredButtonTextColor || 'var(--button-primary-color, #ffffff)') : (config.settings.buttonTextColor || 'var(--button-secondary-color, #ffffff)')"
+                                    [style.background-color]="service.featured ? config.settings.featuredButtonColor || 'var(--button-primary-background, #007bff)' : config.settings.buttonColor || 'var(--button-secondary-background, #6c757d)'"
+                                    [style.color]="service.featured ? config.settings.featuredButtonTextColor || 'var(--button-primary-color, #ffffff)' : config.settings.buttonTextColor || 'var(--button-secondary-color, #ffffff)'"
                                     class="w-full"
                                     (click)="onServiceSelect(service)"
                                 ></button>
@@ -77,12 +79,14 @@ import { ButtonModule } from 'primeng/button';
                 </div>
 
                 <div *ngIf="config.settings.showViewAllButton" class="text-center mt-12">
-                    <button pButton 
-                        [label]="config.settings.viewAllButtonText || 'View All Services'" 
-                        [style.background-color]="config.settings.viewAllButtonColor || 'var(--button-primary-background, #007bff)'" 
-                        [style.color]="config.settings.viewAllButtonTextColor || 'var(--button-primary-color, #ffffff)'" 
-                        size="large" 
-                        (click)="viewAllServices()"></button>
+                    <button
+                        pButton
+                        [label]="config.settings.viewAllButtonText || 'View All Services'"
+                        [style.background-color]="config.settings.viewAllButtonColor || 'var(--button-primary-background, #007bff)'"
+                        [style.color]="config.settings.viewAllButtonTextColor || 'var(--button-primary-color, #ffffff)'"
+                        size="large"
+                        (click)="viewAllServices()"
+                    ></button>
                 </div>
             </div>
         </div>

@@ -1,10 +1,8 @@
 <div class="dependents-step">
     <p-toast></p-toast>
-    
+
     <div class="step-header d-flex align-items-center justify-content-between mb-3">
-        <button type="button" class="btn-primary-theme" (click)="showAddDialog()">
-            <i class="bi bi-plus-lg me-1"></i> Add Dependent
-        </button>
+        <button type="button" class="btn-primary-theme" (click)="showAddDialog()"><i class="bi bi-plus-lg me-1"></i> Add Dependent</button>
         <div>
             <ng-container *ngIf="dependents().length > 0; else noDependents">
                 <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> {{ dependents().length }} dependent(s) added</span>
@@ -24,7 +22,7 @@
 
     <ng-container *ngIf="!loading() && dependents().length === 0">
         <div class="empty-state text-center py-4">
-            <i class="bi bi-people" style="font-size: 3rem; color: #6c757d;"></i>
+            <i class="bi bi-people" style="font-size: 3rem; color: #6c757d"></i>
             <h4>No dependents added</h4>
             <p>Click "Add Dependent" to add your first dependent.</p>
         </div>
@@ -32,7 +30,7 @@
 
     <ng-container *ngIf="!loading() && dependents().length > 0">
         <div class="table-responsive">
-            <table class="table table-striped align-middle" style="min-width: 50rem;">
+            <table class="table table-striped align-middle" style="min-width: 50rem">
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -51,18 +49,14 @@
                         <td>{{ dependent.phone1 || '-' }}</td>
                         <td>{{ dependent.identificationNumber || '-' }}</td>
                         <td>
-                            <ng-container *ngIf="dependent.calculatedAge !== undefined && dependent.calculatedAge !== null; else noAge">
-                                {{ dependent.calculatedAge }} years
-                            </ng-container>
+                            <ng-container *ngIf="dependent.calculatedAge !== undefined && dependent.calculatedAge !== null; else noAge"> {{ dependent.calculatedAge }} years </ng-container>
                             <ng-template #noAge>
                                 <span class="text-secondary">-</span>
                             </ng-template>
                         </td>
                         <td>
                             <ng-container *ngIf="getPremiumImpact(dependent); else noPremium">
-                                <span class="premium-impact" [class.premium-high]="isPremiumHigh(dependent)">
-                                    +R{{ getPremiumImpact(dependent) }}
-                                </span>
+                                <span class="premium-impact" [class.premium-high]="isPremiumHigh(dependent)"> +R{{ getPremiumImpact(dependent) }} </span>
                             </ng-container>
                             <ng-template #noPremium>
                                 <span class="text-secondary">-</span>
@@ -118,13 +112,23 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="idNumber" class="form-label">ID Number (SA) *</label>
-                                    <input id="idNumber" [(ngModel)]="currentDependent.identificationNumber" name="idNumber" (ngModelChange)="onIdNumberChange()" placeholder="e.g. 0001015009087" maxlength="13" class="form-control" [class.is-invalid]="idInfo() && !idInfo()!.isValid" [class.is-valid]="idInfo() && idInfo()!.isValid" />
+                                    <input
+                                        id="idNumber"
+                                        [(ngModel)]="currentDependent.identificationNumber"
+                                        name="idNumber"
+                                        (ngModelChange)="onIdNumberChange()"
+                                        placeholder="e.g. 0001015009087"
+                                        maxlength="13"
+                                        class="form-control"
+                                        [class.is-invalid]="idInfo() && !idInfo()!.isValid"
+                                        [class.is-valid]="idInfo() && idInfo()!.isValid"
+                                    />
                                     <div *ngIf="idInfo() && !idInfo()!.isValid" class="invalid-feedback d-block">{{ idInfo()!.errorMessage }}</div>
                                     <div *ngIf="idInfo() && idInfo()!.isValid" class="valid-feedback d-block"><i class="bi bi-check-circle"></i> Valid SA ID Number</div>
                                 </div>
                                 <div *ngIf="parsedDateOfBirth()" class="mb-3">
                                     <label for="dob" class="form-label">Date of Birth (from ID)</label>
-                                    <input id="dob" [value]="parsedDateOfBirth() | date:'dd/MM/yyyy'" disabled class="form-control" />
+                                    <input id="dob" [value]="parsedDateOfBirth() | date: 'dd/MM/yyyy'" disabled class="form-control" />
                                     <small class="text-muted">Age: {{ idInfo()?.age }} years</small>
                                 </div>
                                 <div *ngIf="parsedGender()" class="mb-3">

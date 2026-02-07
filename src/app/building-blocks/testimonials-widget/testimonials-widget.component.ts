@@ -12,7 +12,7 @@ import { CarouselModule } from 'primeng/carousel';
                 <h2 class="text-center mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                     {{ title }}
                 </h2>
-                
+
                 <div *ngIf="testimonials.length === 0" class="text-center p-8">
                     <p class="text-muted">No testimonials available. Configure your widget to display customer testimonials.</p>
                 </div>
@@ -79,7 +79,7 @@ export class TestimonialsWidgetComponent implements OnInit {
     get testimonials(): any[] {
         const testimonials = this.config.testimonials || [];
         console.log('Getting testimonials:', testimonials);
-        
+
         // If no testimonials provided, show default ones
         if (testimonials.length === 0) {
             console.log('No testimonials found, showing defaults');
@@ -107,7 +107,7 @@ export class TestimonialsWidgetComponent implements OnInit {
                 }
             ];
         }
-        
+
         return testimonials;
     }
 

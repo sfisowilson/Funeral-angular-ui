@@ -60,19 +60,19 @@ export class PageBuilderComponent implements OnInit {
     selectedWidget = signal<WidgetConfig | null>(null);
     previewMode = signal<boolean>(false);
     gridVisible = signal<boolean>(true);
-    
+
     showWidgetPicker = signal<boolean>(false);
     showLayoutSettings = signal<boolean>(false);
     showContentEditor = signal<boolean>(false);
     showSeoSettings = signal<boolean>(false);
-    
+
     availableWidgets: WidgetType[] = WIDGET_TYPES;
-    
+
     showPostResetDialog = signal<boolean>(false);
     showTemplateDialog = signal<boolean>(false);
     availableTemplates = signal<LandingPageTemplate[]>([]);
     selectedTemplate = signal<LandingPageTemplate | null>(null);
-    
+
     // SEO Meta Tags
     seoSettings = signal({
         pageTitle: '',
@@ -84,7 +84,7 @@ export class PageBuilderComponent implements OnInit {
         twitterCard: 'summary_large_image',
         canonicalUrl: ''
     });
-    
+
     // Layout options
     columnSpanOptions = [
         { label: '1/12 (Narrow)', value: 1 },
@@ -96,14 +96,14 @@ export class PageBuilderComponent implements OnInit {
         { label: '9/12', value: 9 },
         { label: '12/12 (Full)', value: 12 }
     ];
-    
+
     rowSpanOptions = [
         { label: '1 Row', value: 1 },
         { label: '2 Rows', value: 2 },
         { label: '3 Rows', value: 3 },
         { label: '4 Rows', value: 4 }
     ];
-    
+
     // Animation options
     animationTypeOptions = [
         { label: 'None', value: 'none' },
@@ -115,7 +115,7 @@ export class PageBuilderComponent implements OnInit {
         { label: 'Bounce', value: 'bounce' },
         { label: 'Rotate In', value: 'rotate-in' }
     ];
-    
+
     animationEasingOptions = [
         { label: 'Ease (Default)', value: 'ease' },
         { label: 'Ease In', value: 'ease-in' },
@@ -123,11 +123,11 @@ export class PageBuilderComponent implements OnInit {
         { label: 'Ease In-Out', value: 'ease-in-out' },
         { label: 'Linear', value: 'linear' }
     ];
-    
+
     // Spacing controls
     paddingIndividual = false;
     marginIndividual = false;
-    
+
     hoverEffectOptions = [
         { label: 'None', value: 'none' },
         { label: 'Lift (Elevate on hover)', value: 'lift' },
@@ -160,7 +160,7 @@ export class PageBuilderComponent implements OnInit {
                 console.log('=== WIDGETS$ SUBSCRIPTION FIRED ===');
                 console.log('Widgets received from service:', widgets.length);
                 console.log('Current widgets in component:', this.widgets().length);
-                
+
                 // Don't overwrite if we already have widgets and we're in edit mode
                 // This prevents losing changes during editing
                 const currentWidgets = this.widgets();
@@ -169,12 +169,10 @@ export class PageBuilderComponent implements OnInit {
                     console.log('=== END WIDGETS$ SUBSCRIPTION (SKIPPED) ===');
                     return;
                 }
-                
+
                 // Initialize layout for widgets that don't have one
-                const widgetsWithLayout = widgets.map(w => 
-                    this.pageLayoutService.initializeWidgetLayout(w)
-                );
-                
+                const widgetsWithLayout = widgets.map((w) => this.pageLayoutService.initializeWidgetLayout(w));
+
                 console.log('Setting widgets in component:', widgetsWithLayout.length);
                 this.widgets.set(widgetsWithLayout);
                 console.log('=== END WIDGETS$ SUBSCRIPTION ===');
@@ -196,11 +194,11 @@ export class PageBuilderComponent implements OnInit {
 
         // Initialize layout
         const widgetWithLayout = this.pageLayoutService.initializeWidgetLayout(newWidget);
-        
+
         const currentWidgets = this.widgets();
         this.widgets.set([...currentWidgets, widgetWithLayout]);
         this.saveWidgets();
-        
+
         this.showWidgetPicker.set(false);
         this.messageService.add({
             severity: 'success',
@@ -215,7 +213,7 @@ export class PageBuilderComponent implements OnInit {
         console.log('Widget settings:', widget.settings);
         console.log('Services in widget settings:', widget.settings?.services);
         console.log('Services count:', widget.settings?.services?.length || 0);
-        
+
         // Ensure layout exists
         if (!widget.layout) {
             widget.layout = {
@@ -230,12 +228,12 @@ export class PageBuilderComponent implements OnInit {
                 autoHeight: true
             };
         }
-        
+
         // Ensure autoHeight is set
         if (widget.layout.autoHeight === undefined) {
             widget.layout.autoHeight = true;
         }
-        
+
         // Ensure responsive config exists
         if (!widget.layout.responsive) {
             widget.layout.responsive = {
@@ -255,7 +253,7 @@ export class PageBuilderComponent implements OnInit {
                 widget.layout.responsive.desktop = { columnSpan: widget.layout.columnSpan, hidden: false };
             }
         }
-        
+
         // Initialize animation config
         if (!widget.layout.animationType) {
             widget.layout.animationType = 'fade-in';
@@ -272,12 +270,12 @@ export class PageBuilderComponent implements OnInit {
         if (widget.layout.animationEnabled === undefined) {
             widget.layout.animationEnabled = true;
         }
-        
+
         // Initialize hover effect
         if (!widget.layout.hoverEffect) {
             widget.layout.hoverEffect = 'lift';
         }
-        
+
         this.selectedWidget.set(widget);
         console.log('Widget selected and set:', widget);
         console.log('=== END SELECT WIDGET ===');
@@ -289,23 +287,18 @@ export class PageBuilderComponent implements OnInit {
         if (!selected) return;
 
         const currentWidgets = this.widgets();
-        const index = currentWidgets.findIndex(w => w.id === selected.id);
-        
+        const index = currentWidgets.findIndex((w) => w.id === selected.id);
+
         if (index > -1) {
             // Resolve collisions automatically
             if (selected.layout) {
-                this.pageLayoutService.moveWidget(
-                    selected, 
-                    selected.layout.column, 
-                    selected.layout.row, 
-                    currentWidgets
-                );
+                this.pageLayoutService.moveWidget(selected, selected.layout.column, selected.layout.row, currentWidgets);
             }
-            
+
             currentWidgets[index] = { ...selected };
             this.widgets.set([...currentWidgets]);
             this.saveWidgets();
-            
+
             this.messageService.add({
                 severity: 'success',
                 summary: 'Layout Updated',
@@ -320,12 +313,12 @@ export class PageBuilderComponent implements OnInit {
         console.log('Widget settings:', widget.settings);
         console.log('Services in settings:', widget.settings?.services);
         console.log('Services count:', widget.settings?.services?.length || 0);
-        
+
         this.selectedWidget.set(widget);
         this.showContentEditor.set(true);
-        
+
         console.log('Selected widget set, opening content editor');
-        
+
         // Wait for dialog to render, then load editor
         setTimeout(() => {
             console.log('Loading editor component...');
@@ -344,37 +337,37 @@ export class PageBuilderComponent implements OnInit {
 
     private loadEditor(): void {
         if (!this.editorContainer || !this.selectedWidget()) return;
-        
+
         console.log('=== LOAD EDITOR ===');
         console.log('Editor container:', this.editorContainer);
         console.log('Selected widget:', this.selectedWidget());
-        
+
         // Clear previous editor
         if (this.editorComponentRef) {
             console.log('Destroying existing editor component');
             this.editorComponentRef.destroy();
         }
-        
+
         const widget = this.selectedWidget()!;
         console.log('Loading editor for widget:', widget);
         console.log('Widget type:', widget.type);
         console.log('Widget settings:', widget.settings);
         console.log('Services in widget:', widget.settings?.services);
         console.log('Services count:', widget.settings?.services?.length || 0);
-        
+
         const editorComponent = this.getWidgetEditorComponent(widget.type);
-        
+
         if (editorComponent) {
             console.log('Creating editor component for:', widget.type);
             this.editorComponentRef = this.editorContainer.createComponent(editorComponent);
-            
+
             // Set inputs
             console.log('Setting config on editor instance...');
             this.editorComponentRef.instance.config = widget;
             console.log('Config set on editor. Config object:', widget);
             console.log('Config.settings:', widget.settings);
             console.log('Config.settings.services:', widget.settings?.services);
-            
+
             // Manually trigger ngOnChanges since we're setting input programmatically
             console.log('Manually triggering ngOnChanges...');
             if (this.editorComponentRef.instance.ngOnChanges) {
@@ -388,12 +381,12 @@ export class PageBuilderComponent implements OnInit {
                 });
             }
             console.log('ngOnChanges triggered');
-            
+
             // Trigger change detection to update the view
             console.log('Triggering change detection...');
             this.editorComponentRef.changeDetectorRef.detectChanges();
             console.log('Change detection triggered');
-            
+
             // Subscribe to outputs
             if (this.editorComponentRef.instance.update) {
                 console.log('Subscribing to update event');
@@ -407,7 +400,7 @@ export class PageBuilderComponent implements OnInit {
             } else {
                 console.error('Editor instance has no update EventEmitter!');
             }
-            
+
             // Subscribe to close/cancel event (different components use different names)
             const closeEmitter = this.editorComponentRef.instance.cancel || this.editorComponentRef.instance.closed;
             if (closeEmitter) {
@@ -417,7 +410,7 @@ export class PageBuilderComponent implements OnInit {
                     this.handleEditorCancel();
                 });
             }
-            
+
             console.log('Editor loaded and events wired up');
             console.log('=== END LOAD EDITOR ===');
         } else {
@@ -452,41 +445,41 @@ export class PageBuilderComponent implements OnInit {
             settings: JSON.parse(JSON.stringify(mergedSettings)),
             title: (updatedSettings && updatedSettings.title) || (selected.settings && selected.settings.title) || selected.type
         };
-        
+
         console.log('Updated widget object created:', updatedWidget);
         console.log('Settings in updated widget:', updatedWidget.settings);
         console.log('Services in updated widget:', updatedWidget.settings.services);
         console.log('Services count in updated widget:', updatedWidget.settings.services?.length || 0);
-        
+
         const currentWidgets = this.widgets();
-        const index = currentWidgets.findIndex(w => w.id === selected.id);
-        
+        const index = currentWidgets.findIndex((w) => w.id === selected.id);
+
         console.log('Widget index in array:', index);
         console.log('Current widgets array length:', currentWidgets.length);
-        
+
         if (index > -1) {
             currentWidgets[index] = updatedWidget;
             this.widgets.set([...currentWidgets]);
             this.selectedWidget.set(updatedWidget);
-            
+
             console.log('Widget updated in array at index:', index);
             console.log('Updated widgets array:', currentWidgets);
-            
+
             // Save to backend
             this.saveWidgets();
-            
+
             this.messageService.add({
                 severity: 'success',
                 summary: 'Content Updated',
                 detail: 'Widget content has been updated successfully.'
             });
-            
+
             console.log('Widget updated and saved successfully');
             console.log('=== END UPDATE WIDGET CONTENT ===');
         } else {
             console.error('Widget not found in array');
         }
-        
+
         this.showContentEditor.set(false);
     }
 
@@ -496,15 +489,15 @@ export class PageBuilderComponent implements OnInit {
             header: 'Confirm Delete',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
-                const currentWidgets = this.widgets().filter(w => w.id !== widget.id);
+                const currentWidgets = this.widgets().filter((w) => w.id !== widget.id);
                 this.widgets.set(currentWidgets);
                 this.saveWidgets();
-                
+
                 if (this.selectedWidget()?.id === widget.id) {
                     this.selectedWidget.set(null);
                     this.showLayoutSettings.set(false);
                 }
-                
+
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Widget Deleted',
@@ -518,7 +511,7 @@ export class PageBuilderComponent implements OnInit {
         const cloned = this.pageLayoutService.cloneWidget(widget, this.widgets());
         this.widgets.set([...this.widgets(), cloned]);
         this.saveWidgets();
-        
+
         this.messageService.add({
             severity: 'success',
             summary: 'Widget Duplicated',
@@ -528,7 +521,7 @@ export class PageBuilderComponent implements OnInit {
 
     moveWidgetUp(widget: WidgetConfig): void {
         if (!widget.layout) return;
-        
+
         const newRow = Math.max(1, widget.layout.row - 1);
         if (this.pageLayoutService.moveWidget(widget, widget.layout.column, newRow, this.widgets())) {
             this.widgets.set([...this.widgets()]);
@@ -538,7 +531,7 @@ export class PageBuilderComponent implements OnInit {
 
     moveWidgetDown(widget: WidgetConfig): void {
         if (!widget.layout) return;
-        
+
         const newRow = widget.layout.row + 1;
         if (this.pageLayoutService.moveWidget(widget, widget.layout.column, newRow, this.widgets())) {
             this.widgets.set([...this.widgets()]);
@@ -550,7 +543,7 @@ export class PageBuilderComponent implements OnInit {
         this.pageLayoutService.setFullWidth(widget, true);
         this.widgets.set([...this.widgets()]);
         this.saveWidgets();
-        
+
         this.messageService.add({
             severity: 'info',
             summary: 'Full Width',
@@ -562,7 +555,7 @@ export class PageBuilderComponent implements OnInit {
         const compacted = this.pageLayoutService.compactGrid(this.widgets());
         this.widgets.set([...compacted]);
         this.saveWidgets();
-        
+
         this.messageService.add({
             severity: 'success',
             summary: 'Layout Compacted',
@@ -588,15 +581,15 @@ export class PageBuilderComponent implements OnInit {
             this.widgetService.loadWidgetsFromSource(widgetsToSave);
             return;
         }
-        
+
         console.log('=== SAVING WIDGETS ===');
         const widgetsToSave = this.widgets();
         console.log('Widgets count:', widgetsToSave.length);
         console.log('Widgets to save:', JSON.stringify(widgetsToSave, null, 2));
-        
+
         // Deep clone to ensure we're saving a clean copy without references
         const clonedWidgets = JSON.parse(JSON.stringify(widgetsToSave));
-        
+
         this.widgetService.saveWidgets(clonedWidgets).subscribe({
             next: () => {
                 console.log('✓ Widgets saved successfully to backend');
@@ -622,12 +615,12 @@ export class PageBuilderComponent implements OnInit {
     }
 
     getWidgetComponent(widgetType: string): any {
-        const type = WIDGET_TYPES.find(t => t.name === widgetType);
+        const type = WIDGET_TYPES.find((t) => t.name === widgetType);
         return type?.component;
     }
 
     getWidgetEditorComponent(widgetType: string): any {
-        const type = WIDGET_TYPES.find(t => t.name === widgetType);
+        const type = WIDGET_TYPES.find((t) => t.name === widgetType);
         return type?.editorComponent;
     }
 
@@ -649,7 +642,7 @@ export class PageBuilderComponent implements OnInit {
     private generateId(): string {
         return `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     }
-    
+
     // Handle padding changes when "All Sides" mode is active
     onPaddingAllChange(value: number): void {
         const widget = this.selectedWidget();
@@ -661,7 +654,7 @@ export class PageBuilderComponent implements OnInit {
             widget.layout.paddingLeft = undefined;
         }
     }
-    
+
     // Handle margin changes when "All Sides" mode is active
     onMarginAllChange(value: number): void {
         const widget = this.selectedWidget();
@@ -737,7 +730,7 @@ export class PageBuilderComponent implements OnInit {
                 this.showLayoutSettings.set(false);
                 this.showContentEditor.set(false);
                 this.showWidgetPicker.set(false);
-                
+
                 // Reset SEO settings to defaults
                 this.seoSettings.set({
                     pageTitle: '',
@@ -749,13 +742,13 @@ export class PageBuilderComponent implements OnInit {
                     twitterCard: 'summary_large_image',
                     canonicalUrl: ''
                 });
-                
+
                 // Reset theme to defaults by clearing custom CSS and theme colors
                 this.resetThemeToDefaults();
-                
+
                 // Save the empty state to backend
                 this.saveWidgets();
-                
+
                 // Save reset SEO settings
                 this.widgetService.saveSeoSettings(this.seoSettings()).subscribe({
                     next: () => {
@@ -765,14 +758,14 @@ export class PageBuilderComponent implements OnInit {
                         console.error('Error resetting SEO settings:', error);
                     }
                 });
-                
+
                 // Show post-reset dialog for theme selection
                 this.showPostResetDialog.set(true);
-                
+
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Page Reset Complete',
-                    detail: 'Page has been reset to defaults. Choose how you\'d like to start building.'
+                    detail: "Page has been reset to defaults. Choose how you'd like to start building."
                 });
             },
             reject: () => {
@@ -787,17 +780,17 @@ export class PageBuilderComponent implements OnInit {
         if (customThemeStyle) {
             customThemeStyle.remove();
         }
-        
+
         // Remove custom CSS
         const customCssStyle = document.getElementById('tenant-custom-css');
         if (customCssStyle) {
             customCssStyle.remove();
         }
-        
+
         // Clear tenant settings in the service to force reload of defaults
         // This will trigger the theme service to load default theme
         this.themeService.loadTenantCss();
-        
+
         console.log('Theme reset to defaults');
     }
 
@@ -832,9 +825,9 @@ export class PageBuilderComponent implements OnInit {
         // Get funeral-specific templates
         const allTemplates = this.landingPageTemplateService.getStaticTemplates();
         console.log('All templates available:', allTemplates);
-        
-        const funeralTemplates = allTemplates.filter(template => 
-            template.category === 'Funeral'
+
+        const funeralTemplates = allTemplates.filter(
+            (template) => template.category === 'Funeral'
             // Remove tenant type filter temporarily to show all funeral templates
         );
         console.log('Funeral templates filtered:', funeralTemplates);
@@ -849,32 +842,32 @@ export class PageBuilderComponent implements OnInit {
     private applyTemplate(template: LandingPageTemplate): void {
         try {
             const components = this.landingPageTemplateService.generatePageComponents(template.id);
-            
-            // Convert template components to widget configs
-            const widgetConfigs: WidgetConfig[] = components.map(component => {
-                // Find matching widget type
-                const widgetType = this.findWidgetTypeForComponent(component.type);
-                if (!widgetType) {
-                    console.warn(`No widget type found for component: ${component.type}`);
-                    return null;
-                }
 
-                return {
-                    id: this.generateId(),
-                    type: widgetType.name,
-                    title: component.properties['title'] || widgetType.name,
-                    settings: {
-                        ...widgetType.defaultConfig,
-                        ...component.properties,
-                        ...component.content
+            // Convert template components to widget configs
+            const widgetConfigs: WidgetConfig[] = components
+                .map((component) => {
+                    // Find matching widget type
+                    const widgetType = this.findWidgetTypeForComponent(component.type);
+                    if (!widgetType) {
+                        console.warn(`No widget type found for component: ${component.type}`);
+                        return null;
                     }
-                };
-            }).filter(widget => widget !== null) as WidgetConfig[];
+
+                    return {
+                        id: this.generateId(),
+                        type: widgetType.name,
+                        title: component.properties['title'] || widgetType.name,
+                        settings: {
+                            ...widgetType.defaultConfig,
+                            ...component.properties,
+                            ...component.content
+                        }
+                    };
+                })
+                .filter((widget) => widget !== null) as WidgetConfig[];
 
             // Apply layout to all widgets
-            const widgetsWithLayout = widgetConfigs.map(widget => 
-                this.pageLayoutService.initializeWidgetLayout(widget)
-            );
+            const widgetsWithLayout = widgetConfigs.map((widget) => this.pageLayoutService.initializeWidgetLayout(widget));
 
             // Set the widgets
             this.widgets.set(widgetsWithLayout);
@@ -901,20 +894,20 @@ export class PageBuilderComponent implements OnInit {
     private findWidgetTypeForComponent(componentType: string): WidgetType | undefined {
         // Map template component types to widget types
         const typeMapping: Record<string, string> = {
-            'hero': 'hero-section',
-            'about': 'about-section',
-            'services': 'services-overview',
-            'obituaries': 'news-updates',
-            'contact': 'contact-form',
-            'preplanning': 'benefits-checklist',
-            'resources': 'services-overview',
-            'memorial': 'services-overview',
-            'pricing': 'pricing-table',
-            'faq': 'faq-section'
+            hero: 'hero-section',
+            about: 'about-section',
+            services: 'services-overview',
+            obituaries: 'news-updates',
+            contact: 'contact-form',
+            preplanning: 'benefits-checklist',
+            resources: 'services-overview',
+            memorial: 'services-overview',
+            pricing: 'pricing-table',
+            faq: 'faq-section'
         };
 
         const widgetTypeName = typeMapping[componentType];
-        return WIDGET_TYPES.find(type => type.name === widgetTypeName);
+        return WIDGET_TYPES.find((type) => type.name === widgetTypeName);
     }
 
     cancelTemplateSelection(): void {

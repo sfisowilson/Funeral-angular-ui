@@ -57,17 +57,21 @@ export const appRoutes: Routes = [
             { path: 'payment-settings', data: { breadcrumb: 'Payment Settings' }, loadComponent: () => import('./app/components/tenant-payment-settings/tenant-payment-settings.component').then((m) => m.TenantPaymentSettingsComponent) },
             { path: 'debit-orders', data: { breadcrumb: 'Debit Order Management' }, loadComponent: () => import('./app/components/debit-order-management/debit-order-management.component').then((m) => m.DebitOrderManagementComponent) },
             { path: 'invoices', data: { breadcrumb: 'Invoices' }, loadComponent: () => import('./app/components/tenant-invoices/tenant-invoices.component').then((m) => m.TenantInvoicesComponent) },
-            { path: 'grant-applications', data: { breadcrumb: 'Grant Applications' }, loadComponent: () => import('./app/building-blocks/ngo-grant-applications-widget/ngo-grant-applications-admin.component').then((m) => m.NgoGrantApplicationsAdminComponent) },
+            {
+                path: 'grant-applications',
+                data: { breadcrumb: 'Grant Applications' },
+                loadComponent: () => import('./app/building-blocks/ngo-grant-applications-widget/ngo-grant-applications-admin.component').then((m) => m.NgoGrantApplicationsAdminComponent)
+            },
             { path: 'forms', data: { breadcrumb: 'Form Management' }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) },
             {
                 path: 'dynamic-entities',
                 data: { breadcrumb: 'Dynamic Entities' },
                 children: [
                     { path: '', redirectTo: 'types', pathMatch: 'full' },
-                    { path: 'types', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-type-management.component').then(m => m.DynamicEntityTypeManagementComponent) },
-                    { path: 'records/:typeKey', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then(m => m.DynamicEntityRecordManagementComponent) },
-                    { path: 'records', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then(m => m.DynamicEntityRecordManagementComponent) },
-                    { path: 'relations', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-relation-management.component').then(m => m.DynamicEntityRelationManagementComponent) }
+                    { path: 'types', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-type-management.component').then((m) => m.DynamicEntityTypeManagementComponent) },
+                    { path: 'records/:typeKey', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then((m) => m.DynamicEntityRecordManagementComponent) },
+                    { path: 'records', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then((m) => m.DynamicEntityRecordManagementComponent) },
+                    { path: 'relations', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-relation-management.component').then((m) => m.DynamicEntityRelationManagementComponent) }
                 ]
             }
         ]
@@ -89,17 +93,21 @@ export const appRoutes: Routes = [
             { path: 'contract-signing/:memberId', data: { breadcrumb: 'Sign Contract', skipProfileCheck: true }, loadComponent: () => import('./app/pages/contract-signing/contract-signing.component').then((m) => m.ContractSigningComponent) },
             { path: 'payment-settings', data: { breadcrumb: 'Payment Settings' }, loadComponent: () => import('./app/components/tenant-payment-settings/tenant-payment-settings.component').then((m) => m.TenantPaymentSettingsComponent) },
             { path: 'invoices', data: { breadcrumb: 'My Invoices' }, loadComponent: () => import('./app/components/tenant-invoices/tenant-invoices.component').then((m) => m.TenantInvoicesComponent) },
-            { path: 'grant-applications', data: { breadcrumb: 'Grant Applications' }, loadComponent: () => import('./app/building-blocks/ngo-grant-applications-widget/ngo-grant-applications-admin.component').then((m) => m.NgoGrantApplicationsAdminComponent) },
+            {
+                path: 'grant-applications',
+                data: { breadcrumb: 'Grant Applications' },
+                loadComponent: () => import('./app/building-blocks/ngo-grant-applications-widget/ngo-grant-applications-admin.component').then((m) => m.NgoGrantApplicationsAdminComponent)
+            },
             { path: 'forms', data: { breadcrumb: 'Form Management' }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) },
             {
                 path: 'dynamic-entities',
                 data: { breadcrumb: 'Dynamic Entities' },
                 children: [
                     { path: '', redirectTo: 'types', pathMatch: 'full' },
-                    { path: 'types', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-type-management.component').then(m => m.DynamicEntityTypeManagementComponent) },
-                    { path: 'records/:typeKey', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then(m => m.DynamicEntityRecordManagementComponent) },
-                    { path: 'records', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then(m => m.DynamicEntityRecordManagementComponent) },
-                    { path: 'relations', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-relation-management.component').then(m => m.DynamicEntityRelationManagementComponent) }
+                    { path: 'types', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-type-management.component').then((m) => m.DynamicEntityTypeManagementComponent) },
+                    { path: 'records/:typeKey', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then((m) => m.DynamicEntityRecordManagementComponent) },
+                    { path: 'records', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-record-management.component').then((m) => m.DynamicEntityRecordManagementComponent) },
+                    { path: 'relations', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-relation-management.component').then((m) => m.DynamicEntityRelationManagementComponent) }
                 ]
             }
         ]
@@ -117,4 +125,3 @@ export const appRoutes: Routes = [
     { path: 'notfound', loadComponent: () => import('./app/pages/notfound/notfound').then((m) => m.Notfound) },
     { path: '**', redirectTo: '/notfound' }
 ];
-

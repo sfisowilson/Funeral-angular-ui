@@ -18,22 +18,8 @@ import { CustomPagesServiceProxy, ApiServiceProxy, PageListItemDto, CreatePageDt
 @Component({
     selector: 'app-page-management',
     standalone: true,
-    imports: [
-        CommonModule,
-        RouterModule,
-        FormsModule,
-        ButtonModule,
-        TableModule,
-        CardModule,
-        TagModule,
-        ToastModule,
-        ConfirmDialogModule,
-        DialogModule,
-        InputTextModule,
-        CheckboxModule,
-        TooltipModule
-    ],
-    providers: [MessageService, ConfirmationService,ApiServiceProxy, CustomPagesServiceProxy ],
+    imports: [CommonModule, RouterModule, FormsModule, ButtonModule, TableModule, CardModule, TagModule, ToastModule, ConfirmDialogModule, DialogModule, InputTextModule, CheckboxModule, TooltipModule],
+    providers: [MessageService, ConfirmationService, ApiServiceProxy, CustomPagesServiceProxy],
     templateUrl: './page-management.component.html',
     styleUrl: './page-management.component.scss'
 })

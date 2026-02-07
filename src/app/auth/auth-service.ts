@@ -54,7 +54,6 @@ export class AuthService {
     isAuthenticated(): boolean {
         const token = this.getToken();
 
-
         if (!token) {
             console.log('- Result: No token found');
             return false;
@@ -137,18 +136,12 @@ export class AuthService {
     getUserId(): string | null {
         if (!this.decodedUserToken) return null;
         // Check common JWT claims for user ID
-        return this.decodedUserToken.sub || 
-               this.decodedUserToken.userId || 
-               this.decodedUserToken.nameid || 
-               this.decodedUserToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
-               null;
+        return this.decodedUserToken.sub || this.decodedUserToken.userId || this.decodedUserToken.nameid || this.decodedUserToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || null;
     }
 
     getUserEmail(): string | null {
         if (!this.decodedUserToken) return null;
-        return this.decodedUserToken.email || 
-               this.decodedUserToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ||
-               null;
+        return this.decodedUserToken.email || this.decodedUserToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || null;
     }
 
     getTenantType(): number | null {

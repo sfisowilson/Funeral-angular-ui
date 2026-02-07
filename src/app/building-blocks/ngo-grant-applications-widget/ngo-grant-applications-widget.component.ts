@@ -43,11 +43,11 @@ export class NgoGrantApplicationsWidgetComponent implements OnInit {
     loading = true;
 
     statusColors: any = {
-        'submitted': '#3b82f6',
+        submitted: '#3b82f6',
         'under-review': '#f59e0b',
-        'approved': '#10b981',
-        'rejected': '#ef4444',
-        'completed': '#8b5cf6'
+        approved: '#10b981',
+        rejected: '#ef4444',
+        completed: '#8b5cf6'
     };
 
     constructor(private ngoService: NgoServiceProxy) {}
@@ -78,10 +78,13 @@ export class NgoGrantApplicationsWidgetComponent implements OnInit {
     }
 
     formatStatus(status: string): string {
-        return status?.replace('-', ' ')
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ') || 'Unknown';
+        return (
+            status
+                ?.replace('-', ' ')
+                .split(' ')
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ') || 'Unknown'
+        );
     }
 
     getStatusColor(status: string): string {

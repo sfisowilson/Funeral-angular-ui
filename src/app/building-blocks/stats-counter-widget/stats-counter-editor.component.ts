@@ -122,15 +122,13 @@ export class StatsCounterEditorComponent implements OnInit {
 
     moveStatUp(index: number) {
         if (index > 0) {
-            [this.config.settings.stats[index - 1], this.config.settings.stats[index]] = 
-            [this.config.settings.stats[index], this.config.settings.stats[index - 1]];
+            [this.config.settings.stats[index - 1], this.config.settings.stats[index]] = [this.config.settings.stats[index], this.config.settings.stats[index - 1]];
         }
     }
 
     moveStatDown(index: number) {
         if (index < this.config.settings.stats.length - 1) {
-            [this.config.settings.stats[index], this.config.settings.stats[index + 1]] = 
-            [this.config.settings.stats[index + 1], this.config.settings.stats[index]];
+            [this.config.settings.stats[index], this.config.settings.stats[index + 1]] = [this.config.settings.stats[index + 1], this.config.settings.stats[index]];
         }
     }
 

@@ -19,50 +19,59 @@ import { BookingService, Booking, BookingWidgetConfig } from '../../../building-
 @Component({
     selector: 'app-booking-management',
     standalone: true,
-    imports: [
-        CommonModule, FormsModule, TableModule, ButtonModule, CalendarModule, 
-        DropdownModule, DialogModule, CardModule, TagModule, ToastModule, 
-        ConfirmDialogModule, ToolbarModule, ProgressSpinnerModule, CheckboxModule
-    ],
+    imports: [CommonModule, FormsModule, TableModule, ButtonModule, CalendarModule, DropdownModule, DialogModule, CardModule, TagModule, ToastModule, ConfirmDialogModule, ToolbarModule, ProgressSpinnerModule, CheckboxModule],
     providers: [MessageService, ConfirmationService],
     templateUrl: './booking-management.component.html',
-    styles: [`
-        .booking-status-pending { background-color: #fff3cd; color: #856404; }
-        .booking-status-confirmed { background-color: #d4edda; color: #155724; }
-        .booking-status-cancelled { background-color: #f8d7da; color: #721c24; }
-        
-        .booking-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .booking-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .calendar-view {
-            min-height: 600px;
-        }
-        
-        .config-section {
-            background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-        
-        .working-hours-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-        
-        .day-config {
-            background-color: white;
-            padding: 1rem;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-        }
-    `]
+    styles: [
+        `
+            .booking-status-pending {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+            .booking-status-confirmed {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            .booking-status-cancelled {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+
+            .booking-card {
+                transition:
+                    transform 0.2s,
+                    box-shadow 0.2s;
+            }
+            .booking-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            .calendar-view {
+                min-height: 600px;
+            }
+
+            .config-section {
+                background-color: #f8f9fa;
+                padding: 1.5rem;
+                border-radius: 8px;
+                margin-bottom: 2rem;
+            }
+
+            .working-hours-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .day-config {
+                background-color: white;
+                padding: 1rem;
+                border-radius: 6px;
+                border: 1px solid #ddd;
+            }
+        `
+    ]
 })
 export class BookingManagementComponent implements OnInit {
     @ViewChild('dt') dt!: Table;
@@ -142,7 +151,7 @@ export class BookingManagementComponent implements OnInit {
         // Date range filter
         if (this.dateRange && this.dateRange.length === 2) {
             const [startDate, endDate] = this.dateRange;
-            filtered = filtered.filter(booking => {
+            filtered = filtered.filter((booking) => {
                 const bookingDate = new Date(booking.bookingDate);
                 return bookingDate >= startDate && bookingDate <= endDate;
             });
@@ -150,18 +159,14 @@ export class BookingManagementComponent implements OnInit {
 
         // Status filter
         if (this.selectedStatus) {
-            filtered = filtered.filter(booking => booking.status === this.selectedStatus);
+            filtered = filtered.filter((booking) => booking.status === this.selectedStatus);
         }
 
         // Global filter
         if (this.globalFilter) {
             const filterText = this.globalFilter.toLowerCase();
-            filtered = filtered.filter(booking =>
-                booking.customerName.toLowerCase().includes(filterText) ||
-                booking.customerEmail.toLowerCase().includes(filterText) ||
-                booking.services.some((service: any) => 
-                    service.name.toLowerCase().includes(filterText)
-                )
+            filtered = filtered.filter(
+                (booking) => booking.customerName.toLowerCase().includes(filterText) || booking.customerEmail.toLowerCase().includes(filterText) || booking.services.some((service: any) => service.name.toLowerCase().includes(filterText))
             );
         }
 
@@ -294,7 +299,7 @@ export class BookingManagementComponent implements OnInit {
 
     private updateBookingInList(updatedBooking: Booking): void {
         const bookings = this.bookings();
-        const index = bookings.findIndex(b => b.id === updatedBooking.id);
+        const index = bookings.findIndex((b) => b.id === updatedBooking.id);
         if (index > -1) {
             bookings[index] = updatedBooking;
             this.bookings.set([...bookings]);
@@ -303,18 +308,15 @@ export class BookingManagementComponent implements OnInit {
     }
 
     private removeBookingFromList(bookingId: string): void {
-        const bookings = this.bookings().filter(b => b.id !== bookingId);
+        const bookings = this.bookings().filter((b) => b.id !== bookingId);
         this.bookings.set(bookings);
         this.applyFilters();
     }
 
     private convertToCSV(bookings: Booking[]): string {
-        const headers = [
-            'ID', 'Customer Name', 'Email', 'Phone', 'Date', 'Time', 
-            'Services', 'Status', 'Created At'
-        ];
-        
-        const rows = bookings.map(booking => [
+        const headers = ['ID', 'Customer Name', 'Email', 'Phone', 'Date', 'Time', 'Services', 'Status', 'Created At'];
+
+        const rows = bookings.map((booking) => [
             booking.id,
             booking.customerName,
             booking.customerEmail,
@@ -326,15 +328,19 @@ export class BookingManagementComponent implements OnInit {
             new Date(booking.createdAt).toLocaleString()
         ]);
 
-        return [headers, ...rows].map(row => row.join(',')).join('\n');
+        return [headers, ...rows].map((row) => row.join(',')).join('\n');
     }
 
     getStatusSeverity(status: string): string {
         switch (status) {
-            case 'pending': return 'warning';
-            case 'confirmed': return 'success';
-            case 'cancelled': return 'danger';
-            default: return 'info';
+            case 'pending':
+                return 'warning';
+            case 'confirmed':
+                return 'success';
+            case 'cancelled':
+                return 'danger';
+            default:
+                return 'info';
         }
     }
 

@@ -1,141 +1,99 @@
 <div class="banking-details-step">
-  <div class="card mb-4">
-    <div class="card-header">
-      <h4 class="mb-0">Banking Details</h4>
-      <small class="text-muted">Please provide your bank account information for policy payments</small>
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4 class="mb-0">Banking Details</h4>
+            <small class="text-muted">Please provide your bank account information for policy payments</small>
+        </div>
+        <div class="card-body">
+            <form [formGroup]="bankingForm" (ngSubmit)="onSubmit()" class="modern-form">
+                <!-- Bank Name -->
+                <div class="mb-3">
+                    <label for="bankName" class="form-label required">Bank Name</label>
+                    <select id="bankName" class="form-select" formControlName="bankName" [ngClass]="{ 'is-invalid': isFieldInvalid('bankName') }">
+                        <option value="">Select your bank</option>
+                        <option *ngFor="let bank of banks" [value]="bank.value">{{ bank.label }}</option>
+                    </select>
+                    <div *ngIf="isFieldInvalid('bankName')" class="invalid-feedback d-block">{{ getFieldError('bankName') }}</div>
+                </div>
+
+                <!-- Account Number -->
+                <div class="mb-3">
+                    <label for="accountNumber" class="form-label required">Account Number</label>
+                    <input id="accountNumber" formControlName="accountNumber" placeholder="Enter your account number" type="text" maxlength="15" class="form-control" [ngClass]="{ 'is-invalid': isFieldInvalid('accountNumber') }" />
+                    <div *ngIf="isFieldInvalid('accountNumber')" class="invalid-feedback d-block">{{ getFieldError('accountNumber') }}</div>
+                </div>
+
+                <!-- Account Type -->
+                <div class="mb-3">
+                    <label for="accountType" class="form-label required">Account Type</label>
+                    <select id="accountType" class="form-select" formControlName="accountType" [ngClass]="{ 'is-invalid': isFieldInvalid('accountType') }">
+                        <option value="">Select account type</option>
+                        <option *ngFor="let type of accountTypes" [value]="type.value">{{ type.label }}</option>
+                    </select>
+                    <div *ngIf="isFieldInvalid('accountType')" class="invalid-feedback d-block">{{ getFieldError('accountType') }}</div>
+                </div>
+
+                <!-- Branch Code -->
+                <div class="mb-3">
+                    <label for="branchCode" class="form-label required">Branch Code</label>
+                    <input id="branchCode" formControlName="branchCode" placeholder="Enter 6-digit branch code" type="text" maxlength="6" class="form-control" [ngClass]="{ 'is-invalid': isFieldInvalid('branchCode') }" />
+                    <div *ngIf="isFieldInvalid('branchCode')" class="invalid-feedback d-block">{{ getFieldError('branchCode') }}</div>
+                </div>
+
+                <!-- Branch Name -->
+                <div class="mb-3">
+                    <label for="branchName" class="form-label required">Branch Name</label>
+                    <input id="branchName" formControlName="branchName" placeholder="Enter branch name" type="text" class="form-control" [ngClass]="{ 'is-invalid': isFieldInvalid('branchName') }" />
+                    <div *ngIf="isFieldInvalid('branchName')" class="invalid-feedback d-block">{{ getFieldError('branchName') }}</div>
+                </div>
+
+                <!-- Account Holder Name -->
+                <div class="mb-3">
+                    <label for="accountHolderName" class="form-label required">Account Holder Name</label>
+                    <input id="accountHolderName" formControlName="accountHolderName" placeholder="Enter account holder's full name" type="text" class="form-control" [ngClass]="{ 'is-invalid': isFieldInvalid('accountHolderName') }" />
+                    <div *ngIf="isFieldInvalid('accountHolderName')" class="invalid-feedback d-block">{{ getFieldError('accountHolderName') }}</div>
+                    <small class="form-text text-muted mt-1"> Name as it appears on your bank account </small>
+                </div>
+
+                <!-- Debit Day -->
+                <div class="mb-3">
+                    <label for="debitDay" class="form-label required">Debit Day</label>
+                    <select id="debitDay" class="form-select" formControlName="debitDay" [ngClass]="{ 'is-invalid': isFieldInvalid('debitDay') }">
+                        <option value="">Select day of month for debit</option>
+                        <option *ngFor="let day of debitDays" [value]="day.value">{{ day.label }}</option>
+                    </select>
+                    <div *ngIf="isFieldInvalid('debitDay')" class="invalid-feedback d-block">{{ getFieldError('debitDay') }}</div>
+                    <small class="form-text text-muted mt-1">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Your account will be debited on this day each month for policy payments
+                    </small>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="alert alert-info mb-3" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Secure Information:</strong> Your banking details are encrypted and stored securely. They will only be used for policy-related transactions.
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn-secondary-theme" (click)="skipStep()" [disabled]="loading()">
+                        <i class="bi bi-arrow-right me-2"></i>
+                        <span>Skip for Now</span>
+                    </button>
+
+                    <button type="submit" class="btn-primary-theme btn-theme-lg" [disabled]="loading()">
+                        <ng-container *ngIf="loading(); else notLoading">
+                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <span>Saving...</span>
+                        </ng-container>
+                        <ng-template #notLoading>
+                            <i class="bi bi-check me-2"></i>
+                            <span>{{ existingBankingDetails() ? 'Update' : 'Save' }} & Continue</span>
+                        </ng-template>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="card-body">
-      <form [formGroup]="bankingForm" (ngSubmit)="onSubmit()" class="modern-form">
-      <!-- Bank Name -->
-      <div class="mb-3">
-        <label for="bankName" class="form-label required">Bank Name</label>
-        <select id="bankName" class="form-select" formControlName="bankName" [ngClass]="{'is-invalid': isFieldInvalid('bankName')}">
-          <option value="">Select your bank</option>
-          <option *ngFor="let bank of banks" [value]="bank.value">{{ bank.label }}</option>
-        </select>
-        <div *ngIf="isFieldInvalid('bankName')" class="invalid-feedback d-block">{{ getFieldError('bankName') }}</div>
-      </div>
-
-      <!-- Account Number -->
-      <div class="mb-3">
-        <label for="accountNumber" class="form-label required">Account Number</label>
-        <input
-          id="accountNumber"
-          formControlName="accountNumber"
-          placeholder="Enter your account number"
-          type="text"
-          maxlength="15"
-          class="form-control"
-          [ngClass]="{'is-invalid': isFieldInvalid('accountNumber')}"
-        />
-        <div *ngIf="isFieldInvalid('accountNumber')" class="invalid-feedback d-block">{{ getFieldError('accountNumber') }}</div>
-      </div>
-
-      <!-- Account Type -->
-      <div class="mb-3">
-        <label for="accountType" class="form-label required">Account Type</label>
-        <select id="accountType" class="form-select" formControlName="accountType" [ngClass]="{'is-invalid': isFieldInvalid('accountType')}">
-          <option value="">Select account type</option>
-          <option *ngFor="let type of accountTypes" [value]="type.value">{{ type.label }}</option>
-        </select>
-        <div *ngIf="isFieldInvalid('accountType')" class="invalid-feedback d-block">{{ getFieldError('accountType') }}</div>
-      </div>
-
-      <!-- Branch Code -->
-      <div class="mb-3">
-        <label for="branchCode" class="form-label required">Branch Code</label>
-        <input
-          id="branchCode"
-          formControlName="branchCode"
-          placeholder="Enter 6-digit branch code"
-          type="text"
-          maxlength="6"
-          class="form-control"
-          [ngClass]="{'is-invalid': isFieldInvalid('branchCode')}"
-        />
-        <div *ngIf="isFieldInvalid('branchCode')" class="invalid-feedback d-block">{{ getFieldError('branchCode') }}</div>
-      </div>
-
-      <!-- Branch Name -->
-      <div class="mb-3">
-        <label for="branchName" class="form-label required">Branch Name</label>
-        <input
-          id="branchName"
-          formControlName="branchName"
-          placeholder="Enter branch name"
-          type="text"
-          class="form-control"
-          [ngClass]="{'is-invalid': isFieldInvalid('branchName')}"
-        />
-        <div *ngIf="isFieldInvalid('branchName')" class="invalid-feedback d-block">{{ getFieldError('branchName') }}</div>
-      </div>
-
-      <!-- Account Holder Name -->
-      <div class="mb-3">
-        <label for="accountHolderName" class="form-label required">Account Holder Name</label>
-        <input
-          id="accountHolderName"
-          formControlName="accountHolderName"
-          placeholder="Enter account holder's full name"
-          type="text"
-          class="form-control"
-          [ngClass]="{'is-invalid': isFieldInvalid('accountHolderName')}"
-        />
-        <div *ngIf="isFieldInvalid('accountHolderName')" class="invalid-feedback d-block">{{ getFieldError('accountHolderName') }}</div>
-        <small class="form-text text-muted mt-1">
-          Name as it appears on your bank account
-        </small>
-      </div>
-
-      <!-- Debit Day -->
-      <div class="mb-3">
-        <label for="debitDay" class="form-label required">Debit Day</label>
-        <select id="debitDay" class="form-select" formControlName="debitDay" [ngClass]="{'is-invalid': isFieldInvalid('debitDay')}">
-          <option value="">Select day of month for debit</option>
-          <option *ngFor="let day of debitDays" [value]="day.value">{{ day.label }}</option>
-        </select>
-        <div *ngIf="isFieldInvalid('debitDay')" class="invalid-feedback d-block">{{ getFieldError('debitDay') }}</div>
-        <small class="form-text text-muted mt-1">
-          <i class="bi bi-info-circle me-1"></i>
-          Your account will be debited on this day each month for policy payments
-        </small>
-      </div>
-
-      <!-- Security Notice -->
-      <div class="alert alert-info mb-3" role="alert">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Secure Information:</strong> Your banking details are encrypted and stored securely. 
-        They will only be used for policy-related transactions.
-      </div>
-
-      <!-- Submit Button -->
-      <div class="d-flex justify-content-between mt-4">
-        <button
-          type="button"
-          class="btn-secondary-theme"
-          (click)="skipStep()"
-          [disabled]="loading()"
-        >
-          <i class="bi bi-arrow-right me-2"></i>
-          <span>Skip for Now</span>
-        </button>
-        
-        <button
-          type="submit"
-          class="btn-primary-theme btn-theme-lg"
-          [disabled]="loading()"
-        >
-          <ng-container *ngIf="loading(); else notLoading">
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            <span>Saving...</span>
-          </ng-container>
-          <ng-template #notLoading>
-            <i class="bi bi-check me-2"></i>
-            <span>{{ existingBankingDetails() ? 'Update' : 'Save' }} & Continue</span>
-          </ng-template>
-        </button>
-      </div>
-      </form>
-    </div>
-  </div>
 </div>

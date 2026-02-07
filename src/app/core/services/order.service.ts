@@ -84,7 +84,7 @@ export class OrderService {
 
     getOrderByNumber(orderNumber: string): Observable<Order> {
         // Would filter on client side or use dedicated endpoint
-        return new Observable(observer => observer.complete());
+        return new Observable((observer) => observer.complete());
     }
 
     getCustomerOrders(customerId: string): Observable<Order[]> {
@@ -97,7 +97,7 @@ export class OrderService {
     }
 
     updateOrder(id: string, order: Partial<Order>): Observable<Order> {
-        return new Observable(observer => {
+        return new Observable((observer) => {
             observer.next(order as Order);
             observer.complete();
         });
@@ -109,11 +109,11 @@ export class OrderService {
     }
 
     updatePaymentStatus(id: string, paymentStatus: string): Observable<Order> {
-        return new Observable(observer => observer.complete());
+        return new Observable((observer) => observer.complete());
     }
 
     updateFulfillmentStatus(id: string, fulfillmentStatus: string, trackingNumber?: string): Observable<Order> {
-        return new Observable(observer => observer.complete());
+        return new Observable((observer) => observer.complete());
     }
 
     cancelOrder(id: string, reason?: string): Observable<Order> {
@@ -122,7 +122,7 @@ export class OrderService {
     }
 
     refundOrder(id: string, amount: number, reason?: string): Observable<Order> {
-        return new Observable(observer => observer.complete());
+        return new Observable((observer) => observer.complete());
     }
 
     getOrderStats(): Observable<OrderStats> {
@@ -135,11 +135,11 @@ export class OrderService {
 
     private mapStatusToEnum(status: string): number {
         const statusMap: Record<string, number> = {
-            'pending': 0,
-            'processing': 1,
-            'completed': 2,
-            'cancelled': 3,
-            'refunded': 4
+            pending: 0,
+            processing: 1,
+            completed: 2,
+            cancelled: 3,
+            refunded: 4
         };
         return statusMap[status.toLowerCase()] || 0;
     }

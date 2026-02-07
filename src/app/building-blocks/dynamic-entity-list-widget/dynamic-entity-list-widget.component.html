@@ -1,82 +1,53 @@
 <div class="dynamic-entity-list-widget p-4">
-  <div class="mb-4">
-    <h2 *ngIf="settings.title" class="text-xl font-bold mb-1">{{ settings.title }}</h2>
-    <p *ngIf="settings.description" class="text-sm text-gray-600">{{ settings.description }}</p>
-  </div>
-
-  <div *ngIf="!hasConfiguredEntity" class="text-sm text-gray-500">
-    This widget is not configured yet. Please select an entity type in the page editor.
-  </div>
-
-  <div *ngIf="hasConfiguredEntity">
-    <div class="flex flex-wrap items-center gap-2 mb-3">
-      <input
-        type="text"
-        class="form-control max-w-xs"
-        placeholder="Filter by name or key..."
-        [(ngModel)]="filterText"
-      />
-
-      <button
-        type="button"
-        class="btn btn-primary ml-auto"
-        (click)="openCreateDialog()"
-        [disabled]="!settings.showAddButton || loading"
-      >
-        Add
-      </button>
+    <div class="mb-4">
+        <h2 *ngIf="settings.title" class="text-xl font-bold mb-1">{{ settings.title }}</h2>
+        <p *ngIf="settings.description" class="text-sm text-gray-600">{{ settings.description }}</p>
     </div>
 
-    <div *ngIf="loading" class="text-sm text-gray-500">Loading records...</div>
-    <div *ngIf="!loading && error" class="text-sm text-red-500">{{ error }}</div>
+    <div *ngIf="!hasConfiguredEntity" class="text-sm text-gray-500">This widget is not configured yet. Please select an entity type in the page editor.</div>
 
-    <div *ngIf="!loading && !error && filteredRecords.length === 0" class="text-sm text-gray-500">
-      {{ settings.emptyMessage || 'No records found.' }}
+    <div *ngIf="hasConfiguredEntity">
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+            <input type="text" class="form-control max-w-xs" placeholder="Filter by name or key..." [(ngModel)]="filterText" />
+
+            <button type="button" class="btn btn-primary ml-auto" (click)="openCreateDialog()" [disabled]="!settings.showAddButton || loading">Add</button>
+        </div>
+
+        <div *ngIf="loading" class="text-sm text-gray-500">Loading records...</div>
+        <div *ngIf="!loading && error" class="text-sm text-red-500">{{ error }}</div>
+
+        <div *ngIf="!loading && !error && filteredRecords.length === 0" class="text-sm text-gray-500">
+            {{ settings.emptyMessage || 'No records found.' }}
+        </div>
+
+        <div *ngIf="!loading && !error && filteredRecords.length > 0" class="overflow-x-auto">
+            <table class="table-auto w-full text-sm">
+                <thead>
+                    <tr class="border-b">
+                        <th class="text-left py-2 px-2">Name</th>
+                        <th class="text-left py-2 px-2">Key</th>
+                        <th *ngFor="let field of dynamicFields" [hidden]="field.showInList === false" class="text-left py-2 px-2">
+                            {{ field.label || field.name }}
+                        </th>
+                        <th class="py-2 px-2 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let record of filteredRecords" class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-2 font-medium">{{ record.displayName }}</td>
+                        <td class="py-2 px-2 text-gray-600">{{ record.externalKey }}</td>
+                        <td *ngFor="let field of dynamicFields" [hidden]="field.showInList === false" class="py-2 px-2">
+                            {{ getFieldDisplay(record, field) }}
+                        </td>
+                        <td class="py-2 px-2 text-right whitespace-nowrap">
+                            <button type="button" class="btn btn-sm btn-secondary mr-1" (click)="openEditDialog(record)">Edit</button>
+                            <button *ngIf="settings.allowDelete" type="button" class="btn btn-sm btn-danger" (click)="deleteRecord(record)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div *ngIf="!loading && !error && filteredRecords.length > 0" class="overflow-x-auto">
-      <table class="table-auto w-full text-sm">
-        <thead>
-          <tr class="border-b">
-            <th class="text-left py-2 px-2">Name</th>
-            <th class="text-left py-2 px-2">Key</th>
-            <th *ngFor="let field of dynamicFields" [hidden]="field.showInList === false" class="text-left py-2 px-2">
-              {{ field.label || field.name }}
-            </th>
-            <th class="py-2 px-2 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let record of filteredRecords" class="border-b hover:bg-gray-50">
-            <td class="py-2 px-2 font-medium">{{ record.displayName }}</td>
-            <td class="py-2 px-2 text-gray-600">{{ record.externalKey }}</td>
-            <td *ngFor="let field of dynamicFields" [hidden]="field.showInList === false" class="py-2 px-2">
-              {{ getFieldDisplay(record, field) }}
-            </td>
-            <td class="py-2 px-2 text-right whitespace-nowrap">
-              <button type="button" class="btn btn-sm btn-secondary mr-1" (click)="openEditDialog(record)">
-                Edit
-              </button>
-              <button
-                *ngIf="settings.allowDelete"
-                type="button"
-                class="btn btn-sm btn-danger"
-                (click)="deleteRecord(record)"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <app-dynamic-entity-record-widget
-    *ngIf="showDialog"
-    [entityTypeKey]="settings.entityTypeKey"
-    [record]="selectedRecord"
-    (close)="closeDialog($event)"
-    (saved)="loadRecords()">
-  </app-dynamic-entity-record-widget>
+    <app-dynamic-entity-record-widget *ngIf="showDialog" [entityTypeKey]="settings.entityTypeKey" [record]="selectedRecord" (close)="closeDialog($event)" (saved)="loadRecords()"> </app-dynamic-entity-record-widget>
 </div>

@@ -55,7 +55,7 @@ export class IdentityVerificationFormComponent implements OnInit {
     maxDate = new Date(); // Add maxDate property
     tenantFeatures = signal<TenantFeaturesDto | null>(null);
     featuresLoading = signal(true);
-    
+
     // Bootstrap alert properties
     alertMessage: string = '';
     alertType: 'success' | 'danger' | 'warning' | 'info' = 'info';
@@ -312,7 +312,7 @@ export class IdentityVerificationFormComponent implements OnInit {
         this.alertMessage = message;
         this.alertType = type;
         this.showAlert = true;
-        
+
         // Auto-hide after 5 seconds
         setTimeout(() => {
             this.showAlert = false;

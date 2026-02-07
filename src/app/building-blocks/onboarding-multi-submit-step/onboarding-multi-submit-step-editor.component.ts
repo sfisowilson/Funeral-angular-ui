@@ -3,18 +3,27 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
 import { DynamicFileUploadComponent, UploadedFile } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
-import {
-    OnboardingStepAdminService,
-    OnboardingStepConfigurationDto,
-    ListDisplayColumnConfig
-} from '../../core/services/onboarding-step-admin.service';
-import {
-    FormDto,
-    FormServiceProxy,
-    DynamicEntityServiceProxy,
-    DynamicEntityTypeDto,
-    FileUploadServiceProxy
-} from '../../core/services/service-proxies';
+import { OnboardingStepAdminService, OnboardingStepConfigurationDto, ListDisplayColumnConfig } from '../../core/services/onboarding-step-admin.service';
+import { FormDto, FormServiceProxy, DynamicEntityServiceProxy, DynamicEntityTypeDto, FileUploadServiceProxy } from '../../core/services/service-proxies';
+import type {
+    CalculatorCondition,
+    CalculatorConfig,
+    CalculatorFormula,
+    CalculatorVariableDerivation
+} from '../../shared/components/embedded-calculator/embedded-calculator.component';
+
+interface StepLimitRule {
+    targetValue: string;
+    minItems: number;
+    maxItems: number;
+}
+
+interface DataValidationRule {
+    type: 'uniqueInList' | 'notMatchMemberField';
+    fieldKey: string;
+    targetFieldKey?: string; // used for notMatchMemberField
+    errorMessage: string;
+}
 
 interface EditorMultiSubmitStepConfig {
     id: string;
@@ -27,6 +36,30 @@ interface EditorMultiSubmitStepConfig {
     termsContent?: string;
     termsPdfPath?: string;
     termsPdfName?: string;
+
+    validationRules?: DataValidationRule[];
+
+    // Calculator configuration (stored as JSON string at runtime)
+    calculatorEnabled?: boolean;
+    calculatorRowResultTemplate?: string;
+    calculatorFinalResultTemplate?: string;
+    calculatorShowRowResults?: boolean;
+    calculatorShowFinalResult?: boolean;
+    calculatorShowSteps?: boolean;
+    calculatorRowCollectionKey?: string;
+    calculatorRowItemAlias?: string;
+
+    // Structured calculator editing (preferred)
+    calculatorGlobalVariables?: CalculatorVariableDerivation[];
+    calculatorGlobalFormulas?: CalculatorFormula[];
+    calculatorRowVariables?: CalculatorVariableDerivation[];
+    calculatorRowFormulas?: CalculatorFormula[];
+    calculatorPostRowVariables?: CalculatorVariableDerivation[];
+    calculatorPostRowFormulas?: CalculatorFormula[];
+
+    // Advanced override (optional)
+    calculatorUseAdvancedJson?: boolean;
+    calculatorConfigJson?: string;
 }
 
 @Component({
@@ -52,6 +85,15 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
     saveMessage = '';
     saveError = '';
 
+    parentFields = [
+        { label: 'ID Number', value: 'idNumber' },
+        { label: 'Policy Number', value: 'policyNumber' },
+        { label: 'Email', value: 'email' },
+        { label: 'Cell Number', value: 'cellNumber' },
+        { label: 'First Name', value: 'firstName' },
+        { label: 'Last Name', value: 'lastName' }
+    ];
+
     constructor(
         private onboardingStepAdminService: OnboardingStepAdminService,
         private formService: FormServiceProxy,
@@ -62,6 +104,10 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
         this.settings = {
             title: this.config.settings?.title || 'Multi-submit onboarding step',
             minItems: this.config.settings?.minItems || 0,
+            maxItems: this.config.settings?.maxItems || 0,
+            validationMode: this.config.settings?.validationMode || 'simple',
+            limitSourceField: this.config.settings?.limitSourceField || '',
+            limitRules: this.config.settings?.limitRules || [],
             nextUrl: this.config.settings?.nextUrl || '',
             enableCompletionPdf: this.config.settings?.enableCompletionPdf === true,
             completionPdfMode: this.config.settings?.completionPdfMode || 'system',
@@ -72,6 +118,38 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
         this.initializeEditorSteps();
         this.loadForms();
         this.loadDynamicEntityTypes();
+    }
+
+    getAvailableFormFields(step: EditorMultiSubmitStepConfig): { label: string; value: string }[] {
+        if (!step.formId) return [];
+        const form = this.forms.find(f => f.id === step.formId);
+        if (!form) return [];
+
+        // Try getting fields from Dynamic Entity
+        const dynamicId = (form as any).dynamicEntityTypeId;
+        if (dynamicId) {
+            const entity = this.dynamicEntityTypes.find(e => e.id === dynamicId);
+            if (entity && entity.fieldsJson) {
+                try {
+                    const fields = JSON.parse(entity.fieldsJson);
+                    if (Array.isArray(fields)) {
+                        return fields.map((f: any) => ({ label: f.label || f.name, value: f.name }));
+                    }
+                } catch { }
+            }
+        }
+
+        // Fallback to form fields
+        if (form.fields) {
+            try {
+                const fields = JSON.parse(form.fields);
+                if (Array.isArray(fields)) {
+                    return fields.map((f: any) => ({ label: f.label || f.name, value: f.name }));
+                }
+            } catch { }
+        }
+
+        return [];
     }
 
     private generateId(index: number): string {
@@ -89,8 +167,30 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
                 formId: s.formId,
                 stepKey: s.stepKey || '',
                 termsContent: s.termsContent,
+                validationRules: (s.validationRules || []).map((r: any) => ({
+                    type: r.type,
+                    fieldKey: r.fieldKey,
+                    targetFieldKey: r.targetFieldKey,
+                    errorMessage: r.errorMessage
+                })),
                 termsPdfPath: s.termsPdfPath,
                 termsPdfName: s.termsPdfName,
+                calculatorEnabled: !!s.calculatorConfig,
+                calculatorUseAdvancedJson: false,
+                calculatorConfigJson: this.prettyJsonOrEmpty(s.calculatorConfig),
+                calculatorRowResultTemplate: this.readCalculatorTemplate(s.calculatorConfig, 'row'),
+                calculatorFinalResultTemplate: this.readCalculatorTemplate(s.calculatorConfig, 'final'),
+                calculatorShowRowResults: this.readCalculatorFlag(s.calculatorConfig, 'showRowResults', true),
+                calculatorShowFinalResult: this.readCalculatorFlag(s.calculatorConfig, 'showFinalResult', true),
+                calculatorShowSteps: this.readCalculatorFlag(s.calculatorConfig, 'showCalculationSteps', false),
+                calculatorRowCollectionKey: this.readRowCollectionKey(s.calculatorConfig),
+                calculatorRowItemAlias: this.readRowItemAlias(s.calculatorConfig),
+                calculatorGlobalVariables: this.readArray<CalculatorVariableDerivation>(s.calculatorConfig, (cfg) => cfg.variables),
+                calculatorGlobalFormulas: this.readArray<CalculatorFormula>(s.calculatorConfig, (cfg) => cfg.formulas),
+                calculatorRowVariables: this.readArray<CalculatorVariableDerivation>(s.calculatorConfig, (cfg) => cfg.rowMode?.variables),
+                calculatorRowFormulas: this.readArray<CalculatorFormula>(s.calculatorConfig, (cfg) => cfg.rowMode?.formulas),
+                calculatorPostRowVariables: this.readArray<CalculatorVariableDerivation>(s.calculatorConfig, (cfg) => cfg.postRowVariables),
+                calculatorPostRowFormulas: this.readArray<CalculatorFormula>(s.calculatorConfig, (cfg) => cfg.postRowFormulas),
                 columns: (s.columns || []).map((c: any) => ({
                     fieldKey: c.fieldKey || '',
                     header: c.header || '',
@@ -98,6 +198,13 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
                     format: c.format
                 })) as ListDisplayColumnConfig[]
             }));
+
+            // If calculatorConfig exists but cannot be parsed, force advanced JSON mode so we don't overwrite it.
+            for (const step of this.editorSteps) {
+                if (step.calculatorEnabled && step.calculatorConfigJson && !this.parseCalculatorConfig(step.calculatorConfigJson)) {
+                    step.calculatorUseAdvancedJson = true;
+                }
+            }
         } else {
             // Backwards compatibility: fall back to single stepKey on settings
             const existingStepKey = this.config.settings?.stepKey || '';
@@ -107,15 +214,238 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
                     title: 'Multi-submit step',
                     type: 'form',
                     isMultiSubmit: true,
+                    validationRules: [],
                     formId: undefined,
                     stepKey: existingStepKey,
                     columns: [],
                     termsContent: '',
                     termsPdfPath: '',
-                    termsPdfName: ''
+                    termsPdfName: '',
+                    calculatorEnabled: false,
+                    calculatorUseAdvancedJson: false,
+                    calculatorConfigJson: '',
+                    calculatorGlobalVariables: [],
+                    calculatorGlobalFormulas: [],
+                    calculatorRowVariables: [],
+                    calculatorRowFormulas: [],
+                    calculatorPostRowVariables: [],
+                    calculatorPostRowFormulas: []
                 }
             ];
         }
+    }
+
+    private normalizeKeyLoose(input: string): string {
+        return String(input || '')
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '');
+    }
+
+    private getSuggestedCollectionKey(step: EditorMultiSubmitStepConfig): string {
+        const byStepKey = this.availableSteps.find((s) => s.stepKey === step.stepKey);
+        if (byStepKey?.dynamicEntityTypeKey) {
+            return this.normalizeKeyLoose(byStepKey.dynamicEntityTypeKey);
+        }
+        return 'items';
+    }
+
+    private parseCalculatorConfig(raw: any): CalculatorConfig | null {
+        if (!raw) return null;
+        if (typeof raw === 'string') {
+            try {
+                return JSON.parse(raw);
+            } catch {
+                return null;
+            }
+        }
+        if (typeof raw === 'object') {
+            return raw as CalculatorConfig;
+        }
+        return null;
+    }
+
+    private prettyJsonOrEmpty(raw: any): string {
+        const parsed = this.parseCalculatorConfig(raw);
+        if (!parsed) return '';
+        try {
+            return JSON.stringify(parsed, null, 2);
+        } catch {
+            return '';
+        }
+    }
+
+    private readCalculatorTemplate(raw: any, kind: 'row' | 'final'): string {
+        const cfg = this.parseCalculatorConfig(raw);
+        if (!cfg) return '';
+        if (kind === 'row') {
+            return cfg?.rowMode?.rowResultTemplate || '';
+        }
+        return cfg?.display?.finalResultTemplate || '';
+    }
+
+    private readCalculatorFlag(raw: any, key: 'showRowResults' | 'showFinalResult' | 'showCalculationSteps', fallback: boolean): boolean {
+        const cfg = this.parseCalculatorConfig(raw);
+        if (!cfg) return fallback;
+        const val = cfg?.display?.[key];
+        return typeof val === 'boolean' ? val : fallback;
+    }
+
+    private readRowCollectionKey(raw: any): string {
+        const cfg = this.parseCalculatorConfig(raw);
+        return cfg?.rowMode?.sourceCollectionKey || '';
+    }
+
+    private readRowItemAlias(raw: any): string {
+        const cfg = this.parseCalculatorConfig(raw);
+        return cfg?.rowMode?.itemAlias || '';
+    }
+
+    private readArray<T>(raw: any, getter: (cfg: CalculatorConfig) => any): T[] {
+        const cfg = this.parseCalculatorConfig(raw);
+        if (!cfg) return [];
+        const arr = getter(cfg);
+        return Array.isArray(arr) ? (arr as T[]) : [];
+    }
+
+    private ensureArrays(step: EditorMultiSubmitStepConfig): void {
+        step.calculatorGlobalVariables = Array.isArray(step.calculatorGlobalVariables) ? step.calculatorGlobalVariables : [];
+        step.calculatorGlobalFormulas = Array.isArray(step.calculatorGlobalFormulas) ? step.calculatorGlobalFormulas : [];
+        step.calculatorRowVariables = Array.isArray(step.calculatorRowVariables) ? step.calculatorRowVariables : [];
+        step.calculatorRowFormulas = Array.isArray(step.calculatorRowFormulas) ? step.calculatorRowFormulas : [];
+        step.calculatorPostRowVariables = Array.isArray(step.calculatorPostRowVariables) ? step.calculatorPostRowVariables : [];
+        step.calculatorPostRowFormulas = Array.isArray(step.calculatorPostRowFormulas) ? step.calculatorPostRowFormulas : [];
+
+        const normalizeDerivations = (list: CalculatorVariableDerivation[]) => {
+            for (const d of list) {
+                d.cases = Array.isArray(d.cases) ? d.cases : [];
+                for (const c of d.cases) {
+                    (c as any).when = Array.isArray((c as any).when) ? (c as any).when : [];
+                    if (!(c as any).when.length) {
+                        (c as any).when = [this.createDefaultCondition()];
+                    }
+                }
+            }
+        };
+
+        normalizeDerivations(step.calculatorGlobalVariables);
+        normalizeDerivations(step.calculatorRowVariables);
+        normalizeDerivations(step.calculatorPostRowVariables);
+    }
+
+    private buildCalculatorConfigFromEditor(step: EditorMultiSubmitStepConfig): CalculatorConfig {
+        this.ensureArrays(step);
+
+        const cfg: CalculatorConfig = {
+            autoCalculate: true,
+            showBreakdown: true,
+            display: {
+                showRowResults: step.calculatorShowRowResults !== false,
+                showFinalResult: step.calculatorShowFinalResult !== false,
+                showCalculationSteps: step.calculatorShowSteps === true,
+                finalResultTemplate: step.calculatorFinalResultTemplate || ''
+            },
+            variables: step.calculatorGlobalVariables,
+            formulas: step.calculatorGlobalFormulas,
+            postRowVariables: step.calculatorPostRowVariables,
+            postRowFormulas: step.calculatorPostRowFormulas,
+            rowMode: {
+                enabled: true,
+                sourceCollectionKey: step.calculatorRowCollectionKey || undefined,
+                itemAlias: step.calculatorRowItemAlias || undefined,
+                variables: step.calculatorRowVariables,
+                formulas: step.calculatorRowFormulas,
+                rowResultTemplate: step.calculatorRowResultTemplate || ''
+            }
+        };
+
+        return cfg;
+    }
+
+    private syncEditorToCalculatorJson(step: EditorMultiSubmitStepConfig): void {
+        if (!step.calculatorEnabled) {
+            step.calculatorConfigJson = '';
+            return;
+        }
+
+        if (step.calculatorUseAdvancedJson) {
+            // Leave JSON as-is
+            return;
+        }
+
+        try {
+            const cfg = this.buildCalculatorConfigFromEditor(step);
+            step.calculatorConfigJson = JSON.stringify(cfg, null, 2);
+        } catch {
+            this.saveError = 'Failed to generate calculator config JSON.';
+        }
+    }
+
+    onCalculatorFieldChanged(step: EditorMultiSubmitStepConfig): void {
+        this.saveMessage = '';
+        this.saveError = '';
+        this.syncEditorToCalculatorJson(step);
+    }
+
+    private createDefaultCondition(): CalculatorCondition {
+        return { field: '', operator: 'equals', value: '' };
+    }
+
+    addDerivation(list: CalculatorVariableDerivation[] | undefined): void {
+        if (!Array.isArray(list)) return;
+        list.push({
+            key: '',
+            sourceField: '',
+            operation: 'toNumber',
+            defaultValue: 0,
+            cases: []
+        });
+    }
+
+    removeDerivation(list: CalculatorVariableDerivation[] | undefined, index: number): void {
+        if (!Array.isArray(list)) return;
+        list.splice(index, 1);
+    }
+
+    addDerivationCase(derivation: CalculatorVariableDerivation): void {
+        derivation.cases = Array.isArray(derivation.cases) ? derivation.cases : [];
+        derivation.cases.push({
+            when: [this.createDefaultCondition()],
+            value: 0
+        });
+    }
+
+    removeDerivationCase(derivation: CalculatorVariableDerivation, index: number): void {
+        if (!Array.isArray(derivation.cases)) return;
+        derivation.cases.splice(index, 1);
+    }
+
+    addFormula(list: CalculatorFormula[] | undefined): void {
+        if (!Array.isArray(list)) return;
+        list.push({
+            key: '',
+            label: '',
+            expression: '',
+            includeInTotal: true
+        });
+    }
+
+    removeFormula(list: CalculatorFormula[] | undefined, index: number): void {
+        if (!Array.isArray(list)) return;
+        list.splice(index, 1);
+    }
+
+    applyCalculatorQuickSetup(step: EditorMultiSubmitStepConfig): void {
+        const suggestedCollectionKey = this.getSuggestedCollectionKey(step);
+
+        step.calculatorEnabled = true;
+        step.calculatorUseAdvancedJson = false;
+        step.calculatorRowCollectionKey = step.calculatorRowCollectionKey || suggestedCollectionKey;
+        step.calculatorShowRowResults = step.calculatorShowRowResults !== false;
+        step.calculatorShowFinalResult = step.calculatorShowFinalResult !== false;
+        step.calculatorShowSteps = step.calculatorShowSteps === true;
+        this.ensureArrays(step);
+        this.syncEditorToCalculatorJson(step);
     }
 
     private loadSteps(): void {
@@ -306,6 +636,35 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
         }
     }
 
+    addLimitRule(): void {
+        this.settings.limitRules.push({
+            targetValue: '',
+            minItems: 1,
+            maxItems: 1
+        });
+    }
+
+    addValidationRule(step: EditorMultiSubmitStepConfig): void {
+        if (!step.validationRules) {
+            step.validationRules = [];
+        }
+        step.validationRules.push({
+            type: 'uniqueInList',
+            fieldKey: '',
+            errorMessage: 'Duplicate value found.'
+        });
+    }
+
+    removeValidationRule(step: EditorMultiSubmitStepConfig, index: number): void {
+        if (step.validationRules) {
+            step.validationRules.splice(index, 1);
+        }
+    }
+
+    removeLimitRule(index: number): void {
+        this.settings.limitRules.splice(index, 1);
+    }
+
     save(): void {
         this.saveMessage = '';
         this.saveError = '';
@@ -321,7 +680,22 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
             return;
         }
 
-        const cleanedSteps = this.editorSteps.map((s, index) => ({
+        const cleanedSteps = this.editorSteps.map((s, index) => {
+            this.ensureArrays(s);
+            // Always refresh generated JSON unless advanced override is enabled.
+            this.syncEditorToCalculatorJson(s);
+
+            let calculatorConfig: string | undefined;
+            if (s.type === 'form' && s.calculatorEnabled) {
+                if (s.calculatorUseAdvancedJson && s.calculatorConfigJson && String(s.calculatorConfigJson).trim().length) {
+                    calculatorConfig = String(s.calculatorConfigJson);
+                } else {
+                    const cfg = this.buildCalculatorConfigFromEditor(s);
+                    calculatorConfig = JSON.stringify(cfg, null, 2);
+                }
+            }
+
+            return {
             id: s.id,
             title: s.title || `Multi-submit step ${index + 1}`,
             type: s.type,
@@ -331,13 +705,27 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
             termsContent: s.type === 'terms' ? s.termsContent : undefined,
             termsPdfPath: s.type === 'terms' ? s.termsPdfPath : undefined,
             termsPdfName: s.type === 'terms' ? s.termsPdfName : undefined,
+            validationRules: (s.validationRules || [])
+                .filter(r => r.fieldKey)
+                .map(r => ({
+                    type: r.type,
+                    fieldKey: r.fieldKey,
+                    targetFieldKey: r.targetFieldKey,
+                    errorMessage: r.errorMessage
+                })),
+            calculatorConfig,
             columns: (s.columns || []).filter((c) => c.fieldKey && c.header)
-        }));
+            };
+        });
 
         this.config.settings = {
             ...this.config.settings,
             title: this.settings.title,
             minItems: this.settings.minItems,
+            maxItems: this.settings.maxItems,
+            validationMode: this.settings.validationMode,
+            limitSourceField: this.settings.limitSourceField,
+            limitRules: this.settings.limitRules,
             nextUrl: this.settings.nextUrl,
             enableCompletionPdf: this.settings.enableCompletionPdf === true,
             completionPdfMode: this.settings.completionPdfMode || 'system',

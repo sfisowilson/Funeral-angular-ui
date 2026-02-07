@@ -1,11 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HttpResponse
-} from '@angular/common/http';
+import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -16,22 +10,22 @@ import { map } from 'rxjs/operators';
  */
 @Injectable()
 export class SwaggerResponseInterceptor implements HttpInterceptor {
-  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    return next.handle(request).pipe(
-      map((event: HttpEvent<unknown>) => {
-        // Only process successful HTTP responses
-        if (event instanceof HttpResponse) {
-          const response = event.body;
-          
-          // Check if it's a SwaggerResponse object with a result property
-          if (response && typeof response === 'object' && 'result' in response && !Array.isArray(response)) {
-            // Clone the response event with the unwrapped result
-            return event.clone({ body: response.result });
-          }
-        }
-        
-        return event;
-      })
-    );
-  }
+    intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+        return next.handle(request).pipe(
+            map((event: HttpEvent<unknown>) => {
+                // Only process successful HTTP responses
+                if (event instanceof HttpResponse) {
+                    const response = event.body;
+
+                    // Check if it's a SwaggerResponse object with a result property
+                    if (response && typeof response === 'object' && 'result' in response && !Array.isArray(response)) {
+                        // Clone the response event with the unwrapped result
+                        return event.clone({ body: response.result });
+                    }
+                }
+
+                return event;
+            })
+        );
+    }
 }

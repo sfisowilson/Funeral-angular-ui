@@ -1,13 +1,10 @@
 <div class="about-us-editor">
-        <div class="editor-section d-flex justify-content-end mb-3">
-            <button type="button" class="btn-primary-theme" (click)="onSave()">
-                <i class="bi bi-save"></i> Save
-            </button>
-        </div>
+    <div class="editor-section d-flex justify-content-end mb-3">
+        <button type="button" class="btn-primary-theme" (click)="onSave()"><i class="bi bi-save"></i> Save</button>
+    </div>
     <p-toast></p-toast>
 
     <p-accordion [multiple]="true" [activeIndex]="[0]">
-        
         <!-- Color Settings -->
         <!-- <p-accordionTab header="Color Settings">
             <div class="p-field">
@@ -47,8 +44,7 @@
         <!-- Hero Section -->
         <p-accordionTab header="Hero Section">
             <div class="p-field">
-                <p-checkbox [(ngModel)]="config.settings.showHero" [binary]="true" 
-                           label="Show Hero Section"></p-checkbox>
+                <p-checkbox [(ngModel)]="config.settings.showHero" [binary]="true" label="Show Hero Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showHero">
                 <div class="p-field">
@@ -63,19 +59,15 @@
                 </div>
                 <div class="p-field">
                     <label>Hero Title</label>
-                    <input type="text" pInputText [(ngModel)]="config.settings.heroTitle" 
-                           placeholder="About Us" />
+                    <input type="text" pInputText [(ngModel)]="config.settings.heroTitle" placeholder="About Us" />
                 </div>
                 <div class="p-field">
                     <label>Hero Subtitle</label>
-                    <textarea pInputTextarea [(ngModel)]="config.settings.heroSubtitle" 
-                             rows="3" placeholder="A brief introduction..."></textarea>
+                    <textarea pInputTextarea [(ngModel)]="config.settings.heroSubtitle" rows="3" placeholder="A brief introduction..."></textarea>
                 </div>
                 <div class="p-field">
                     <label>Hero Image</label>
-                    <p-fileUpload mode="basic" name="heroImage" accept="image/*" [maxFileSize]="5000000" 
-                                 (onSelect)="onHeroImageUpload($event)" chooseLabel="Upload Hero Image" 
-                                 [headers]="tenantIdHeader"></p-fileUpload>
+                    <p-fileUpload mode="basic" name="heroImage" accept="image/*" [maxFileSize]="5000000" (onSelect)="onHeroImageUpload($event)" chooseLabel="Upload Hero Image" [headers]="tenantIdHeader"></p-fileUpload>
                     <p *ngIf="config.settings.heroImage" class="upload-success">✓ Image uploaded</p>
                 </div>
             </div>
@@ -84,8 +76,7 @@
         <!-- Story Section -->
         <p-accordionTab header="Story Section">
             <div class="p-field">
-                <p-checkbox [(ngModel)]="config.settings.showStory" [binary]="true" 
-                           label="Show Story Section"></p-checkbox>
+                <p-checkbox [(ngModel)]="config.settings.showStory" [binary]="true" label="Show Story Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showStory">
                 <div class="p-field">
@@ -100,24 +91,19 @@
                 </div>
                 <div class="p-field">
                     <label>Story Badge</label>
-                    <input type="text" pInputText [(ngModel)]="config.settings.storyBadge" 
-                           placeholder="Our Story" />
+                    <input type="text" pInputText [(ngModel)]="config.settings.storyBadge" placeholder="Our Story" />
                 </div>
                 <div class="p-field">
                     <label>Story Title</label>
-                    <input type="text" pInputText [(ngModel)]="config.settings.storyTitle" 
-                           placeholder="How It All Began" />
+                    <input type="text" pInputText [(ngModel)]="config.settings.storyTitle" placeholder="How It All Began" />
                 </div>
                 <div class="p-field">
                     <label>Story Content</label>
-                    <textarea pInputTextarea [(ngModel)]="config.settings.storyContent" 
-                             rows="8" placeholder="Tell your company's story..."></textarea>
+                    <textarea pInputTextarea [(ngModel)]="config.settings.storyContent" rows="8" placeholder="Tell your company's story..."></textarea>
                 </div>
                 <div class="p-field">
                     <label>Story Image</label>
-                    <p-fileUpload mode="basic" name="storyImage" accept="image/*" [maxFileSize]="5000000" 
-                                 (onSelect)="onStoryImageUpload($event)" chooseLabel="Upload Story Image" 
-                                 [headers]="tenantIdHeader"></p-fileUpload>
+                    <p-fileUpload mode="basic" name="storyImage" accept="image/*" [maxFileSize]="5000000" (onSelect)="onStoryImageUpload($event)" chooseLabel="Upload Story Image" [headers]="tenantIdHeader"></p-fileUpload>
                     <p *ngIf="config.settings.storyImage" class="upload-success">✓ Image uploaded</p>
                 </div>
             </div>
@@ -126,8 +112,7 @@
         <!-- Mission & Vision -->
         <p-accordionTab header="Mission & Vision">
             <div class="p-field">
-                <p-checkbox [(ngModel)]="config.settings.showMissionVision" [binary]="true" 
-                           label="Show Mission & Vision"></p-checkbox>
+                <p-checkbox [(ngModel)]="config.settings.showMissionVision" [binary]="true" label="Show Mission & Vision"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showMissionVision">
                 <div class="p-field">
@@ -142,13 +127,11 @@
                 </div>
                 <div class="p-field">
                     <label>Mission Statement</label>
-                    <textarea pInputTextarea [(ngModel)]="config.settings.mission" 
-                             rows="4" placeholder="Our mission is to..."></textarea>
+                    <textarea pInputTextarea [(ngModel)]="config.settings.mission" rows="4" placeholder="Our mission is to..."></textarea>
                 </div>
                 <div class="p-field">
                     <label>Vision Statement</label>
-                    <textarea pInputTextarea [(ngModel)]="config.settings.vision" 
-                             rows="4" placeholder="Our vision is to..."></textarea>
+                    <textarea pInputTextarea [(ngModel)]="config.settings.vision" rows="4" placeholder="Our vision is to..."></textarea>
                 </div>
             </div>
         </p-accordionTab>
@@ -156,8 +139,7 @@
         <!-- Values -->
         <p-accordionTab header="Values">
             <div class="p-field">
-                <p-checkbox [(ngModel)]="config.settings.showValues" [binary]="true" 
-                           label="Show Values Section"></p-checkbox>
+                <p-checkbox [(ngModel)]="config.settings.showValues" [binary]="true" label="Show Values Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showValues">
                 <div class="p-field">
@@ -172,39 +154,32 @@
                 </div>
                 <div class="p-field">
                     <label>Values Badge</label>
-                    <input type="text" pInputText [(ngModel)]="config.settings.valuesBadge" 
-                           placeholder="Our Values" />
+                    <input type="text" pInputText [(ngModel)]="config.settings.valuesBadge" placeholder="Our Values" />
                 </div>
                 <div class="p-field">
                     <label>Values Title</label>
-                    <input type="text" pInputText [(ngModel)]="config.settings.valuesTitle" 
-                           placeholder="What We Stand For" />
+                    <input type="text" pInputText [(ngModel)]="config.settings.valuesTitle" placeholder="What We Stand For" />
                 </div>
                 <div class="values-list">
                     <div *ngFor="let value of config.settings.values; let i = index" class="value-item">
                         <div class="item-header">
                             <h4>Value {{ i + 1 }}</h4>
-                            <button pButton icon="pi pi-trash" class="btn-danger-theme btn-sm" 
-                                    (click)="removeValue(i)"></button>
+                            <button pButton icon="pi pi-trash" class="btn-danger-theme btn-sm" (click)="removeValue(i)"></button>
                         </div>
                         <div class="p-field">
                             <label>Icon (PrimeIcons class)</label>
-                            <input type="text" pInputText [(ngModel)]="value.icon" 
-                                   placeholder="pi pi-check-circle" />
+                            <input type="text" pInputText [(ngModel)]="value.icon" placeholder="pi pi-check-circle" />
                         </div>
                         <div class="p-field">
                             <label>Title</label>
-                            <input type="text" pInputText [(ngModel)]="value.title" 
-                                   placeholder="Integrity" />
+                            <input type="text" pInputText [(ngModel)]="value.title" placeholder="Integrity" />
                         </div>
                         <div class="p-field">
                             <label>Description</label>
-                            <textarea pInputTextarea [(ngModel)]="value.description" 
-                                     rows="3" placeholder="We uphold the highest standards..."></textarea>
+                            <textarea pInputTextarea [(ngModel)]="value.description" rows="3" placeholder="We uphold the highest standards..."></textarea>
                         </div>
                     </div>
-                    <button pButton label="Add Value" icon="pi pi-plus" 
-                            class="btn-outline-primary-theme" (click)="addValue()"></button>
+                    <button pButton label="Add Value" icon="pi pi-plus" class="btn-outline-primary-theme" (click)="addValue()"></button>
                 </div>
             </div>
         </p-accordionTab>
@@ -212,8 +187,7 @@
         <!-- Stats -->
         <p-accordionTab header="Statistics">
             <div class="p-field">
-                <p-checkbox [(ngModel)]="config.settings.showStats" [binary]="true" 
-                           label="Show Statistics Section"></p-checkbox>
+                <p-checkbox [(ngModel)]="config.settings.showStats" [binary]="true" label="Show Statistics Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showStats">
                 <div class="p-field">
@@ -230,22 +204,18 @@
                     <div *ngFor="let stat of config.settings.stats; let i = index" class="stat-item">
                         <div class="item-header">
                             <h4>Stat {{ i + 1 }}</h4>
-                            <button pButton icon="pi pi-trash" class="btn-danger-theme btn-sm" 
-                                    (click)="removeStat(i)"></button>
+                            <button pButton icon="pi pi-trash" class="btn-danger-theme btn-sm" (click)="removeStat(i)"></button>
                         </div>
                         <div class="p-field">
                             <label>Number</label>
-                            <input type="text" pInputText [(ngModel)]="stat.number" 
-                                   placeholder="25+" />
+                            <input type="text" pInputText [(ngModel)]="stat.number" placeholder="25+" />
                         </div>
                         <div class="p-field">
                             <label>Label</label>
-                            <input type="text" pInputText [(ngModel)]="stat.label" 
-                                   placeholder="Years Experience" />
+                            <input type="text" pInputText [(ngModel)]="stat.label" placeholder="Years Experience" />
                         </div>
                     </div>
-                    <button pButton label="Add Statistic" icon="pi pi-plus" 
-                            class="btn-outline-primary-theme" (click)="addStat()"></button>
+                    <button pButton label="Add Statistic" icon="pi pi-plus" class="btn-outline-primary-theme" (click)="addStat()"></button>
                 </div>
             </div>
         </p-accordionTab>
@@ -253,8 +223,7 @@
         <!-- Team -->
         <p-accordionTab header="Team Members">
             <div class="p-field">
-                <p-checkbox [(ngModel)]="config.settings.showTeam" [binary]="true" 
-                           label="Show Team Section"></p-checkbox>
+                <p-checkbox [(ngModel)]="config.settings.showTeam" [binary]="true" label="Show Team Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showTeam">
                 <div class="p-field">
@@ -269,62 +238,57 @@
                 </div>
                 <div class="p-field">
                     <label>Team Badge</label>
-                    <input type="text" pInputText [(ngModel)]="config.settings.teamBadge" 
-                           placeholder="Our Team" />
+                    <input type="text" pInputText [(ngModel)]="config.settings.teamBadge" placeholder="Our Team" />
                 </div>
                 <div class="p-field">
                     <label>Team Title</label>
-                    <input type="text" pInputText [(ngModel)]="config.settings.teamTitle" 
-                           placeholder="Meet The Team" />
+                    <input type="text" pInputText [(ngModel)]="config.settings.teamTitle" placeholder="Meet The Team" />
                 </div>
                 <div class="p-field">
                     <label>Team Description</label>
-                    <textarea pInputTextarea [(ngModel)]="config.settings.teamDescription" 
-                             rows="3" placeholder="Meet the amazing people..."></textarea>
+                    <textarea pInputTextarea [(ngModel)]="config.settings.teamDescription" rows="3" placeholder="Meet the amazing people..."></textarea>
                 </div>
                 <div class="team-list">
                     <div *ngFor="let member of config.settings.teamMembers; let i = index" class="team-member-item">
                         <div class="item-header">
                             <h4>Team Member {{ i + 1 }}</h4>
-                            <button pButton icon="pi pi-trash" class="btn-danger-theme btn-sm" 
-                                    (click)="removeTeamMember(i)"></button>
+                            <button pButton icon="pi pi-trash" class="btn-danger-theme btn-sm" (click)="removeTeamMember(i)"></button>
                         </div>
                         <div class="p-field">
                             <label>Name</label>
-                            <input type="text" pInputText [(ngModel)]="member.name" 
-                                   placeholder="John Doe" />
+                            <input type="text" pInputText [(ngModel)]="member.name" placeholder="John Doe" />
                         </div>
                         <div class="p-field">
                             <label>Role</label>
-                            <input type="text" pInputText [(ngModel)]="member.role" 
-                                   placeholder="CEO" />
+                            <input type="text" pInputText [(ngModel)]="member.role" placeholder="CEO" />
                         </div>
                         <div class="p-field">
                             <label>Bio</label>
-                            <textarea pInputTextarea [(ngModel)]="member.bio" 
-                                     rows="3" placeholder="Brief biography..."></textarea>
+                            <textarea pInputTextarea [(ngModel)]="member.bio" rows="3" placeholder="Brief biography..."></textarea>
                         </div>
                         <div class="p-field">
                             <label>LinkedIn URL</label>
-                            <input type="text" pInputText [(ngModel)]="member.linkedin" 
-                                   placeholder="https://linkedin.com/in/..." />
+                            <input type="text" pInputText [(ngModel)]="member.linkedin" placeholder="https://linkedin.com/in/..." />
                         </div>
                         <div class="p-field">
                             <label>Twitter URL</label>
-                            <input type="text" pInputText [(ngModel)]="member.twitter" 
-                                   placeholder="https://twitter.com/..." />
+                            <input type="text" pInputText [(ngModel)]="member.twitter" placeholder="https://twitter.com/..." />
                         </div>
                         <div class="p-field">
                             <label>Photo</label>
-                            <p-fileUpload mode="basic" name="teamMemberPhoto" accept="image/*" [maxFileSize]="5000000" 
-                                         (onSelect)="onTeamMemberImageUpload($event, i)" 
-                                         [chooseLabel]="member.image ? 'Change Photo' : 'Upload Photo'" 
-                                         [headers]="tenantIdHeader"></p-fileUpload>
+                            <p-fileUpload
+                                mode="basic"
+                                name="teamMemberPhoto"
+                                accept="image/*"
+                                [maxFileSize]="5000000"
+                                (onSelect)="onTeamMemberImageUpload($event, i)"
+                                [chooseLabel]="member.image ? 'Change Photo' : 'Upload Photo'"
+                                [headers]="tenantIdHeader"
+                            ></p-fileUpload>
                             <p *ngIf="member.image" class="upload-success">✓ Photo uploaded</p>
                         </div>
                     </div>
-                    <button pButton label="Add Team Member" icon="pi pi-plus" 
-                            class="btn-outline-primary-theme" (click)="addTeamMember()"></button>
+                    <button pButton label="Add Team Member" icon="pi pi-plus" class="btn-outline-primary-theme" (click)="addTeamMember()"></button>
                 </div>
             </div>
         </p-accordionTab>
@@ -332,8 +296,7 @@
         <!-- CTA Section -->
         <p-accordionTab header="Call to Action">
             <div class="p-field">
-                <p-checkbox [(ngModel)]="config.settings.showCTA" [binary]="true" 
-                           label="Show CTA Section"></p-checkbox>
+                <p-checkbox [(ngModel)]="config.settings.showCTA" [binary]="true" label="Show CTA Section"></p-checkbox>
             </div>
             <div *ngIf="config.settings.showCTA">
                 <div class="p-field">
@@ -348,61 +311,50 @@
                 </div>
                 <div class="p-field">
                     <label>CTA Title</label>
-                    <input type="text" pInputText [(ngModel)]="config.settings.ctaTitle" 
-                           placeholder="Ready to Get Started?" />
+                    <input type="text" pInputText [(ngModel)]="config.settings.ctaTitle" placeholder="Ready to Get Started?" />
                 </div>
                 <div class="p-field">
                     <label>CTA Text</label>
-                    <textarea pInputTextarea [(ngModel)]="config.settings.ctaText" 
-                             rows="3" placeholder="Join us today and experience..."></textarea>
+                    <textarea pInputTextarea [(ngModel)]="config.settings.ctaText" rows="3" placeholder="Join us today and experience..."></textarea>
                 </div>
                 <div class="cta-buttons-config">
                     <h4>Primary Button</h4>
                     <div class="p-field">
-                        <p-checkbox [(ngModel)]="config.settings.showCtaPrimaryButton" [binary]="true" 
-                                   label="Show Primary Button"></p-checkbox>
+                        <p-checkbox [(ngModel)]="config.settings.showCtaPrimaryButton" [binary]="true" label="Show Primary Button"></p-checkbox>
                     </div>
                     <div *ngIf="config.settings.showCtaPrimaryButton">
                         <div class="p-field">
                             <label>Button Text</label>
-                            <input type="text" pInputText [(ngModel)]="config.settings.ctaPrimaryButton.text" 
-                                   placeholder="Get Started" />
+                            <input type="text" pInputText [(ngModel)]="config.settings.ctaPrimaryButton.text" placeholder="Get Started" />
                         </div>
                         <div class="p-field">
                             <label>Button Link</label>
-                            <input type="text" pInputText [(ngModel)]="config.settings.ctaPrimaryButton.link" 
-                                   placeholder="/contact" />
+                            <input type="text" pInputText [(ngModel)]="config.settings.ctaPrimaryButton.link" placeholder="/contact" />
                         </div>
                     </div>
-                    
+
                     <h4 class="mt-3">Secondary Button</h4>
                     <div class="p-field">
-                        <p-checkbox [(ngModel)]="config.settings.showCtaSecondaryButton" [binary]="true" 
-                                   label="Show Secondary Button"></p-checkbox>
+                        <p-checkbox [(ngModel)]="config.settings.showCtaSecondaryButton" [binary]="true" label="Show Secondary Button"></p-checkbox>
                     </div>
                     <div *ngIf="config.settings.showCtaSecondaryButton">
                         <div class="p-field">
                             <label>Button Text</label>
-                            <input type="text" pInputText [(ngModel)]="config.settings.ctaSecondaryButton.text" 
-                                   placeholder="Learn More" />
+                            <input type="text" pInputText [(ngModel)]="config.settings.ctaSecondaryButton.text" placeholder="Learn More" />
                         </div>
                         <div class="p-field">
                             <label>Button Link</label>
-                            <input type="text" pInputText [(ngModel)]="config.settings.ctaSecondaryButton.link" 
-                                   placeholder="/services" />
+                            <input type="text" pInputText [(ngModel)]="config.settings.ctaSecondaryButton.link" placeholder="/services" />
                         </div>
                     </div>
                 </div>
             </div>
         </p-accordionTab>
-
     </p-accordion>
 
     <!-- Save/Cancel Buttons -->
     <div class="editor-actions">
-        <button pButton label="Save Changes" icon="pi pi-check" 
-                class="btn-primary-theme" (click)="onSubmit()"></button>
-        <button pButton label="Cancel" icon="pi pi-times" 
-                class="btn-secondary-theme" (click)="onCancel()"></button>
+        <button pButton label="Save Changes" icon="pi pi-check" class="btn-primary-theme" (click)="onSubmit()"></button>
+        <button pButton label="Cancel" icon="pi pi-times" class="btn-secondary-theme" (click)="onCancel()"></button>
     </div>
 </div>

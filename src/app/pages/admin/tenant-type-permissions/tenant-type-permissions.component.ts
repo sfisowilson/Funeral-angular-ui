@@ -38,24 +38,43 @@ interface NewPermission {
 @Component({
     selector: 'app-tenant-type-permissions',
     standalone: true,
-    imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule, TagModule, MultiSelectModule],
+    imports: [
+        CommonModule,
+        TableModule,
+        FormsModule,
+        ButtonModule,
+        RippleModule,
+        ToastModule,
+        ToolbarModule,
+        InputTextModule,
+        TextareaModule,
+        DialogModule,
+        InputIconModule,
+        IconFieldModule,
+        ConfirmDialogModule,
+        DropdownModule,
+        TagModule,
+        MultiSelectModule
+    ],
     providers: [MessageService, ConfirmationService, TenantTypePermissionServiceProxy, LookupServiceProxy, PermissionServiceProxy],
     templateUrl: './tenant-type-permissions.component.html',
-    styles: [`
-        :host ::ng-deep .p-multiselect-panel {
-            position: fixed !important;
-            z-index: 9999 !important;
-        }
-        
-        :host ::ng-deep .p-multiselect-panel .p-multiselect-items-wrapper {
-            max-height: 300px !important;
-            overflow-y: auto !important;
-        }
-        
-        :host ::ng-deep .p-dialog {
-            z-index: 1000 !important;
-        }
-    `]
+    styles: [
+        `
+            :host ::ng-deep .p-multiselect-panel {
+                position: fixed !important;
+                z-index: 9999 !important;
+            }
+
+            :host ::ng-deep .p-multiselect-panel .p-multiselect-items-wrapper {
+                max-height: 300px !important;
+                overflow-y: auto !important;
+            }
+
+            :host ::ng-deep .p-dialog {
+                z-index: 1000 !important;
+            }
+        `
+    ]
 })
 export class TenantTypePermissionsComponent {
     permissionDialog: boolean = false;
@@ -206,12 +225,10 @@ export class TenantTypePermissionsComponent {
 
         // Store original permissions
         this.originalTenantTypePermissions = [...this.permissions()];
-        
+
         // Find available permissions that are already assigned to this tenant type
-        this.selectedPermissionsForTenantType = this.availablePermissions().filter((permission) => 
-            this.originalTenantTypePermissions.some((ttp) => ttp.permissionName === permission.name)
-        );
-        
+        this.selectedPermissionsForTenantType = this.availablePermissions().filter((permission) => this.originalTenantTypePermissions.some((ttp) => ttp.permissionName === permission.name));
+
         this.permissionDialog = true;
     }
 
@@ -221,14 +238,10 @@ export class TenantTypePermissionsComponent {
         }
 
         // Permissions to add
-        const permissionsToAdd = this.selectedPermissionsForTenantType.filter((selectedPerm) => 
-            !this.originalTenantTypePermissions.some((originalPerm) => originalPerm.permissionName === selectedPerm.name)
-        );
+        const permissionsToAdd = this.selectedPermissionsForTenantType.filter((selectedPerm) => !this.originalTenantTypePermissions.some((originalPerm) => originalPerm.permissionName === selectedPerm.name));
 
         // Permissions to remove
-        const permissionsToRemove = this.originalTenantTypePermissions.filter((originalPerm) => 
-            !this.selectedPermissionsForTenantType.some((selectedPerm) => selectedPerm.name === originalPerm.permissionName)
-        );
+        const permissionsToRemove = this.originalTenantTypePermissions.filter((originalPerm) => !this.selectedPermissionsForTenantType.some((selectedPerm) => selectedPerm.name === originalPerm.permissionName));
 
         if (permissionsToAdd.length === 0 && permissionsToRemove.length === 0) {
             this.messageService.add({
@@ -251,7 +264,7 @@ export class TenantTypePermissionsComponent {
             assignDto.tenantType = this.selectedTenantType!;
             assignDto.permissionName = permission.name;
             assignDto.description = `Permission for ${this.getTenantTypeName(this.selectedTenantType!)}`;
-            
+
             this.tenantTypePermissionService.assignPermissionToTenantType(assignDto).subscribe({
                 next: () => {
                     completedCount++;
@@ -271,7 +284,7 @@ export class TenantTypePermissionsComponent {
             const removeDto = new RemovePermissionDto();
             removeDto.tenantType = this.selectedTenantType!;
             removeDto.permissionName = permission.permissionName;
-            
+
             this.tenantTypePermissionService.removePermissionFromTenantType(removeDto).subscribe({
                 next: () => {
                     completedCount++;
@@ -290,7 +303,7 @@ export class TenantTypePermissionsComponent {
             if (completedCount === totalOperations) {
                 this.loadPermissions();
                 this.permissionDialog = false;
-                
+
                 if (hasError) {
                     this.messageService.add({
                         severity: 'warn',
@@ -322,7 +335,7 @@ export class TenantTypePermissionsComponent {
             assignDto.tenantType = this.newPermission.tenantType;
             assignDto.permissionName = this.newPermission.permissionName;
             assignDto.description = this.newPermission.description;
-            
+
             this.tenantTypePermissionService.assignPermissionToTenantType(assignDto).subscribe({
                 next: () => {
                     this.messageService.add({
@@ -361,7 +374,7 @@ export class TenantTypePermissionsComponent {
                 const removeDto = new RemovePermissionDto();
                 removeDto.tenantType = permission.tenantType;
                 removeDto.permissionName = permission.permissionName;
-                
+
                 this.tenantTypePermissionService.removePermissionFromTenantType(removeDto).subscribe({
                     next: () => {
                         this.messageService.add({
@@ -397,11 +410,11 @@ export class TenantTypePermissionsComponent {
                     let errors = 0;
                     const total = this.selectedPermissions!.length;
 
-                    this.selectedPermissions!.forEach(permission => {
+                    this.selectedPermissions!.forEach((permission) => {
                         const removeDto = new RemovePermissionDto();
                         removeDto.tenantType = permission.tenantType;
                         removeDto.permissionName = permission.permissionName;
-                        
+
                         this.tenantTypePermissionService.removePermissionFromTenantType(removeDto).subscribe({
                             next: () => {
                                 completed++;

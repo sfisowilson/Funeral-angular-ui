@@ -4,145 +4,143 @@ import { map } from 'rxjs/operators';
 import { ProductServiceProxy, ProductDto, CreateProductDto, UpdateProductDto, CategoryDto, CreateCategoryDto, ProductStatsDto } from './service-proxies';
 
 export interface Product {
-  id: string;
-  name: string;
-  sku?: string;
-  description?: string;
-  shortDescription?: string;
-  price: number;
-  compareAtPrice?: number;
-  cost?: number;
-  stockQuantity: number;
-  lowStockThreshold?: number;
-  trackInventory: boolean;
-  isActive: boolean;
-  isFeatured: boolean;
-  category?: string;
-  categoryId?: string;
-  tags?: string[];
-  images?: ProductImage[];
-  variants?: ProductVariant[];
-  metaTitle?: string;
-  metaDescription?: string;
-  metaKeywords?: string;
-  weight?: number;
-  length?: number;
-  width?: number;
-  height?: number;
-  weightUnit?: string;
-  dimensionUnit?: string;
+    id: string;
+    name: string;
+    sku?: string;
+    description?: string;
+    shortDescription?: string;
+    price: number;
+    compareAtPrice?: number;
+    cost?: number;
+    stockQuantity: number;
+    lowStockThreshold?: number;
+    trackInventory: boolean;
+    isActive: boolean;
+    isFeatured: boolean;
+    category?: string;
+    categoryId?: string;
+    tags?: string[];
+    images?: ProductImage[];
+    variants?: ProductVariant[];
+    metaTitle?: string;
+    metaDescription?: string;
+    metaKeywords?: string;
+    weight?: number;
+    length?: number;
+    width?: number;
+    height?: number;
+    weightUnit?: string;
+    dimensionUnit?: string;
 }
 
 export interface ProductImage {
-  id?: string;
-  imageUrl: string;
-  url?: string;  // Alias for imageUrl
-  altText?: string;
-  displayOrder: number;
-  isPrimary: boolean;
+    id?: string;
+    imageUrl: string;
+    url?: string; // Alias for imageUrl
+    altText?: string;
+    displayOrder: number;
+    isPrimary: boolean;
 }
 
 export interface ProductVariant {
-  id?: string;
-  name: string;
-  variantType?: string;
-  sku?: string;
-  priceAdjustment?: number;
-  stockQuantity: number;
-  isActive: boolean;
+    id?: string;
+    name: string;
+    variantType?: string;
+    sku?: string;
+    priceAdjustment?: number;
+    stockQuantity: number;
+    isActive: boolean;
 }
 
 export interface Category {
-  id?: string;
-  name: string;
-  slug?: string;
-  description?: string;
-  image?: string;
-  imageUrl?: string;
-  parentCategoryId?: string;
-  displayOrder?: number;
-  isActive: boolean;
+    id?: string;
+    name: string;
+    slug?: string;
+    description?: string;
+    image?: string;
+    imageUrl?: string;
+    parentCategoryId?: string;
+    displayOrder?: number;
+    isActive: boolean;
 }
 
 export interface ProductStats {
-  totalProducts: number;
-  activeProducts: number;
-  lowStockProducts: number;
-  totalInventoryValue: number;
-  featuredProducts: number;
-  totalCategories: number;
+    totalProducts: number;
+    activeProducts: number;
+    lowStockProducts: number;
+    totalInventoryValue: number;
+    featuredProducts: number;
+    totalCategories: number;
 }
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class ProductService {
-  constructor(private productProxy: ProductServiceProxy) {}
+    constructor(private productProxy: ProductServiceProxy) {}
 
-  getProducts(isActive?: boolean, categoryId?: string): Observable<Product[]> {
-    return this.productProxy.product_GetAll(isActive, categoryId) as any as Observable<Product[]>;
-  }
+    getProducts(isActive?: boolean, categoryId?: string): Observable<Product[]> {
+        return this.productProxy.product_GetAll(isActive, categoryId) as any as Observable<Product[]>;
+    }
 
-  getActiveProducts(): Observable<Product[]> {
-    return this.getProducts(true);
-  }
+    getActiveProducts(): Observable<Product[]> {
+        return this.getProducts(true);
+    }
 
-  getFeaturedProducts(): Observable<Product[]> {
-    return this.productProxy.product_GetAll(true, undefined) as any as Observable<Product[]>;
-  }
+    getFeaturedProducts(): Observable<Product[]> {
+        return this.productProxy.product_GetAll(true, undefined) as any as Observable<Product[]>;
+    }
 
-  getProduct(id: string): Observable<Product> {
-    return this.productProxy.product_GetById(id) as any as Observable<Product>;
-  }
+    getProduct(id: string): Observable<Product> {
+        return this.productProxy.product_GetById(id) as any as Observable<Product>;
+    }
 
-  createProduct(product: Product): Observable<Product> {
-    const dto = new CreateProductDto(product as any);
-    return this.productProxy.product_Create(dto) as any as Observable<Product>;
-  }
+    createProduct(product: Product): Observable<Product> {
+        const dto = new CreateProductDto(product as any);
+        return this.productProxy.product_Create(dto) as any as Observable<Product>;
+    }
 
-  updateProduct(id: string, product: Product): Observable<Product> {
-    const dto = new UpdateProductDto({ ...product, id: id } as any);
-    return this.productProxy.product_Update(dto) as any as Observable<Product>;
-  }
+    updateProduct(id: string, product: Product): Observable<Product> {
+        const dto = new UpdateProductDto({ ...product, id: id } as any);
+        return this.productProxy.product_Update(dto) as any as Observable<Product>;
+    }
 
-  deleteProduct(id: string): Observable<void> {
-    return this.productProxy.product_Delete(id).pipe(
-      map(() => undefined)
-    );
-  }
+    deleteProduct(id: string): Observable<void> {
+        return this.productProxy.product_Delete(id).pipe(map(() => undefined));
+    }
 
-  updateInventory(productId: string, stockQuantity: number, variantId?: string): Observable<void> {
-    // Inventory update would need a separate endpoint - for now just return empty observable
-    return new Observable(observer => {
-      observer.next();
-      observer.complete();
-    });
-  }
+    updateInventory(productId: string, stockQuantity: number, variantId?: string): Observable<void> {
+        // Inventory update would need a separate endpoint - for now just return empty observable
+        return new Observable((observer) => {
+            observer.next();
+            observer.complete();
+        });
+    }
 
-  getCategories(): Observable<Category[]> {
-    return this.productProxy.category_GetAll() as any as Observable<Category[]>;
-  }
+    getCategories(): Observable<Category[]> {
+        return this.productProxy.category_GetAll() as any as Observable<Category[]>;
+    }
 
-  createCategory(category: Category): Observable<Category> {
-    const dto = new CreateCategoryDto(category as any);
-    return this.productProxy.category_Create(dto) as any as Observable<Category>;
-  }
+    createCategory(category: Category): Observable<Category> {
+        const dto = new CreateCategoryDto(category as any);
+        return this.productProxy.category_Create(dto) as any as Observable<Category>;
+    }
 
-  getProductStats(): Observable<ProductStats> {
-    return this.productProxy.product_GetStats().pipe(
-      map((response: any) => ({
-        totalProducts: response.data?.totalProducts || 0,
-        activeProducts: response.data?.activeProducts || 0,
-        lowStockProducts: response.data?.lowStockProducts || 0,
-        totalInventoryValue: response.data?.totalInventoryValue || 0,
-        featuredProducts: response.data?.featuredProducts || 0,
-        totalCategories: response.data?.totalCategories || 0
-      }))
-    );
-  }
+    getProductStats(): Observable<ProductStats> {
+        return this.productProxy.product_GetStats().pipe(
+            map((response: any) => ({
+                totalProducts: response.data?.totalProducts || 0,
+                activeProducts: response.data?.activeProducts || 0,
+                lowStockProducts: response.data?.lowStockProducts || 0,
+                totalInventoryValue: response.data?.totalInventoryValue || 0,
+                featuredProducts: response.data?.featuredProducts || 0,
+                totalCategories: response.data?.totalCategories || 0
+            }))
+        );
+    }
 
-  searchProducts(query: string): Observable<Product[]> {
-    // Search would typically filter on the client side or use a dedicated endpoint
-    return this.getProducts();
-  }
+    searchProducts(query: string): Observable<Product[]> {
+        // Search would typically filter on the client side or use a dedicated endpoint
+        return this.getProducts();
+    }
 }

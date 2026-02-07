@@ -3,12 +3,8 @@
 <div class="card">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <button class="btn-primary-theme me-2" (click)="openNew()">
-                <i class="bi bi-plus-lg"></i> New
-            </button>
-            <button class="btn-secondary-theme" (click)="exportCSV()">
-                <i class="bi bi-download"></i> Export
-            </button>
+            <button class="btn-primary-theme me-2" (click)="openNew()"><i class="bi bi-plus-lg"></i> New</button>
+            <button class="btn-secondary-theme" (click)="exportCSV()"><i class="bi bi-download"></i> Export</button>
         </div>
     </div>
 
@@ -31,7 +27,9 @@
             </thead>
             <tbody>
                 <tr *ngFor="let coupon of coupons()">
-                    <td><span class="fw-bold">{{ coupon.code }}</span></td>
+                    <td>
+                        <span class="fw-bold">{{ coupon.code }}</span>
+                    </td>
                     <td>{{ coupon.name }}</td>
                     <td>{{ coupon.description }}</td>
                     <td>{{ coupon.discountType === 'Percentage' ? '%' : 'Fixed' }}</td>
@@ -40,15 +38,15 @@
                         <span *ngIf="coupon.discountType === 'FixedAmount'">R {{ coupon.discountValue | number: '1.2-2' }}</span>
                     </td>
                     <td>
-                        <span class="badge" [class.bg-success]="+coupon.durationInMonths === 1" [class.bg-info]="+coupon.durationInMonths > 1">
-                            {{ coupon.durationInMonths }}{{ +coupon.durationInMonths === 1 ? ' mo' : ' mos' }}
-                        </span>
+                        <span class="badge" [class.bg-success]="+coupon.durationInMonths === 1" [class.bg-info]="+coupon.durationInMonths > 1"> {{ coupon.durationInMonths }}{{ +coupon.durationInMonths === 1 ? ' mo' : ' mos' }} </span>
                     </td>
                     <td>
                         <span *ngIf="!coupon.applicableTenantTypes || coupon.applicableTenantTypes.length === 0" class="badge bg-secondary">All</span>
                         <span *ngFor="let type of coupon.applicableTenantTypes" class="badge bg-primary me-1">{{ type }}</span>
                     </td>
-                    <td>{{ coupon.currentRedemptions }}<span *ngIf="coupon.maxRedemptions"> / {{ coupon.maxRedemptions }}</span></td>
+                    <td>
+                        {{ coupon.currentRedemptions }}<span *ngIf="coupon.maxRedemptions"> / {{ coupon.maxRedemptions }}</span>
+                    </td>
                     <td>
                         <span *ngIf="coupon.validUntil">{{ coupon.validUntil | date: 'short' }}</span>
                         <span *ngIf="!coupon.validUntil" class="text-secondary">Never</span>
@@ -120,14 +118,7 @@
 
                     <div class="col-md-6">
                         <label for="durationInMonths" class="form-label">Duration (Billing Cycles) *</label>
-                        <input type="number" 
-                               class="form-control" 
-                               id="durationInMonths" 
-                               name="durationInMonths"
-                               [ngModel]="coupon.durationInMonths" 
-                               (ngModelChange)="onDurationChange($event)"
-                               min="1" 
-                               required />
+                        <input type="number" class="form-control" id="durationInMonths" name="durationInMonths" [ngModel]="coupon.durationInMonths" (ngModelChange)="onDurationChange($event)" min="1" required />
                         <small class="text-muted d-block mt-1">
                             <i class="bi bi-info-circle"></i>
                             <span *ngIf="+coupon.durationInMonths === 1">One-time discount (first billing cycle only)</span>
@@ -141,13 +132,14 @@
                         <div class="row">
                             <div class="col-md-3" *ngFor="let type of tenantTypes">
                                 <div class="form-check">
-                                    <input 
-                                        type="checkbox" 
-                                        class="form-check-input" 
+                                    <input
+                                        type="checkbox"
+                                        class="form-check-input"
                                         [id]="'tenantType_' + type.value"
                                         [value]="type.value"
                                         [checked]="coupon.applicableTenantTypes?.includes(type.value)"
-                                        (change)="onTenantTypeChange(type.value, $event)">
+                                        (change)="onTenantTypeChange(type.value, $event)"
+                                    />
                                     <label class="form-check-label" [for]="'tenantType_' + type.value">
                                         {{ type.label }}
                                     </label>
@@ -177,14 +169,14 @@
 
                     <div class="col-12">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="isFirstTimeOnly" [(ngModel)]="coupon.isFirstTimeOnly">
+                            <input type="checkbox" class="form-check-input" id="isFirstTimeOnly" [(ngModel)]="coupon.isFirstTimeOnly" />
                             <label class="form-check-label" for="isFirstTimeOnly">First Time Use Only</label>
                         </div>
                     </div>
 
                     <div class="col-12" *ngIf="coupon.id">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="isActive" [(ngModel)]="coupon.isActive">
+                            <input type="checkbox" class="form-check-input" id="isActive" [(ngModel)]="coupon.isActive" />
                             <label class="form-check-label" for="isActive">Active</label>
                         </div>
                     </div>
@@ -196,12 +188,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-secondary-theme" (click)="hideDialog()">
-                    <i class="bi bi-x-lg"></i> Cancel
-                </button>
-                <button type="button" class="btn-primary-theme" (click)="saveCoupon()">
-                    <i class="bi bi-check-lg"></i> Save
-                </button>
+                <button type="button" class="btn-secondary-theme" (click)="hideDialog()"><i class="bi bi-x-lg"></i> Cancel</button>
+                <button type="button" class="btn-primary-theme" (click)="saveCoupon()"><i class="bi bi-check-lg"></i> Save</button>
             </div>
         </div>
     </div>

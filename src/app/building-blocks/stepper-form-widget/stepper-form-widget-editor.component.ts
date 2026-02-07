@@ -131,8 +131,8 @@ export class StepperFormWidgetEditorComponent implements OnInit {
             title: this.settings.title,
             showProgressBar: this.settings.showProgressBar,
             successMessage: this.settings.successMessage,
-             enableCompletionPdf: this.settings.enableCompletionPdf,
-             completionPdfMode: this.settings.completionPdfMode,
+            enableCompletionPdf: this.settings.enableCompletionPdf,
+            completionPdfMode: this.settings.completionPdfMode,
             requireSignature: this.settings.requireSignature,
             completionPdfUrl: this.settings.completionPdfUrl || undefined,
             steps: cleanedSteps

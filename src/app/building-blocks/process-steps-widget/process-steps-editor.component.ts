@@ -14,7 +14,6 @@ export class ProcessStepsEditorComponent implements OnInit {
     @Input() config: any;
     @Output() update = new EventEmitter<any>();
 
-
     ngOnInit() {
         if (!this.config.settings) {
             this.config.settings = {};
@@ -148,8 +147,7 @@ export class ProcessStepsEditorComponent implements OnInit {
 
     moveStepUp(index: number) {
         if (index > 0) {
-            [this.config.settings.steps[index - 1], this.config.settings.steps[index]] = 
-            [this.config.settings.steps[index], this.config.settings.steps[index - 1]];
+            [this.config.settings.steps[index - 1], this.config.settings.steps[index]] = [this.config.settings.steps[index], this.config.settings.steps[index - 1]];
             // Renumber
             this.config.settings.steps.forEach((step: ProcessStep, i: number) => {
                 step.number = i + 1;
@@ -159,8 +157,7 @@ export class ProcessStepsEditorComponent implements OnInit {
 
     moveStepDown(index: number) {
         if (index < this.config.settings.steps.length - 1) {
-            [this.config.settings.steps[index], this.config.settings.steps[index + 1]] = 
-            [this.config.settings.steps[index + 1], this.config.settings.steps[index]];
+            [this.config.settings.steps[index], this.config.settings.steps[index + 1]] = [this.config.settings.steps[index + 1], this.config.settings.steps[index]];
             // Renumber
             this.config.settings.steps.forEach((step: ProcessStep, i: number) => {
                 step.number = i + 1;

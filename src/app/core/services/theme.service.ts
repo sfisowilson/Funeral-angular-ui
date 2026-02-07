@@ -68,7 +68,7 @@ export class ThemeService {
         }
 
         let cssVariables = '';
-        
+
         // Theme colors with fallback defaults
         const primaryColor = settings.primaryColor || '#667eea';
         const secondaryColor = settings.secondaryColor || '#f8e0c0';
@@ -76,7 +76,7 @@ export class ThemeService {
         const textColor = settings.textColor || '#333333';
         const backgroundColor = settings.backgroundColor || '#ffffff';
         const borderColor = settings.borderColor || '#e5e7eb';
-        
+
         cssVariables += `--primary-color: ${primaryColor};\n`;
         cssVariables += `--secondary-color: ${secondaryColor};\n`;
         cssVariables += `--accent-color: ${accentColor};\n`;
@@ -85,7 +85,7 @@ export class ThemeService {
         cssVariables += `--border-color: ${borderColor};\n`;
         const primaryActiveColor = settings.primaryActiveColor || '#4355b8';
         cssVariables += `--primary-active-color: ${primaryActiveColor};\n`;
-        
+
         // Button-specific variables
         if (settings.buttonPrimaryBackground) {
             cssVariables += `--button-primary-background: ${settings.buttonPrimaryBackground};\n`;
@@ -151,7 +151,7 @@ export class ThemeService {
         if (settings.buttonFontWeight) {
             cssVariables += `--button-font-weight: ${settings.buttonFontWeight};\n`;
         }
-        
+
         // Typography
         if (settings.fontFamily) {
             cssVariables += `--font-family: ${settings.fontFamily};\n`;
@@ -234,37 +234,37 @@ export class ThemeService {
             cssVariables += `--code-background: ${settings.surface800};
 `;
 
-        // Common semantic colors
-        if (settings.successColor) {
-            cssVariables += `--success-color: ${settings.successColor};\n`;
-        }
-        if (settings.errorColor) {
-            cssVariables += `--error-color: ${settings.errorColor};\n`;
-        }
-        if (settings.warningColor) {
-            cssVariables += `--warning-color: ${settings.warningColor};\n`;
-        }
-        if (settings.infoColor) {
-            cssVariables += `--info-color: ${settings.infoColor};\n`;
-        }
-        if (settings.mutedColor) {
-            cssVariables += `--muted-color: ${settings.mutedColor};\n`;
-        }
-        if (settings.textDarkColor) {
-            cssVariables += `--text-dark: ${settings.textDarkColor};\n`;
-        }
-        if (settings.whiteColor) {
-            cssVariables += `--white: ${settings.whiteColor};\n`;
-        }
-        if (settings.blackColor) {
-            cssVariables += `--black: ${settings.blackColor};\n`;
-        }
-        if (settings.spinnerBorderColor) {
-            cssVariables += `--spinner-border: ${settings.spinnerBorderColor};\n`;
-        }
-        if (settings.spinnerTopColor) {
-            cssVariables += `--spinner-top: ${settings.spinnerTopColor};\n`;
-        }
+            // Common semantic colors
+            if (settings.successColor) {
+                cssVariables += `--success-color: ${settings.successColor};\n`;
+            }
+            if (settings.errorColor) {
+                cssVariables += `--error-color: ${settings.errorColor};\n`;
+            }
+            if (settings.warningColor) {
+                cssVariables += `--warning-color: ${settings.warningColor};\n`;
+            }
+            if (settings.infoColor) {
+                cssVariables += `--info-color: ${settings.infoColor};\n`;
+            }
+            if (settings.mutedColor) {
+                cssVariables += `--muted-color: ${settings.mutedColor};\n`;
+            }
+            if (settings.textDarkColor) {
+                cssVariables += `--text-dark: ${settings.textDarkColor};\n`;
+            }
+            if (settings.whiteColor) {
+                cssVariables += `--white: ${settings.whiteColor};\n`;
+            }
+            if (settings.blackColor) {
+                cssVariables += `--black: ${settings.blackColor};\n`;
+            }
+            if (settings.spinnerBorderColor) {
+                cssVariables += `--spinner-border: ${settings.spinnerBorderColor};\n`;
+            }
+            if (settings.spinnerTopColor) {
+                cssVariables += `--spinner-top: ${settings.spinnerTopColor};\n`;
+            }
         }
         if (settings.surface100) {
             cssVariables += `--code-color: ${settings.surface100};
@@ -332,7 +332,7 @@ export class ThemeService {
         let style = document.createElement('style');
         style.id = 'tenant-custom-css';
         style.type = 'text/css';
-        
+
         // Add high priority by appending at the end of head (loaded last = highest priority)
         // Also ensure it overrides everything with higher specificity
         head.appendChild(style);
@@ -341,7 +341,7 @@ export class ThemeService {
             // Wrap all rules in :root to increase specificity if needed
             // This ensures custom CSS can override even !important rules from other sources
             style.innerHTML = content;
-            
+
             // Log for debugging
             console.log('Custom CSS applied successfully. Length:', content.length);
         };
@@ -362,36 +362,26 @@ export class ThemeService {
     private darkenColor(color: string, percent: number): string {
         // Parse hex color
         if (!color || !color.startsWith('#')) return color;
-        
+
         const num = parseInt(color.replace('#', ''), 16);
         const amt = Math.round(2.55 * percent);
         const R = (num >> 16) - amt;
-        const G = (num >> 8 & 0x00FF) - amt;
-        const B = (num & 0x0000FF) - amt;
-        
-        return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-            (B < 255 ? B < 1 ? 0 : B : 255))
-            .toString(16)
-            .slice(1)
-            .toUpperCase();
+        const G = ((num >> 8) & 0x00ff) - amt;
+        const B = (num & 0x0000ff) - amt;
+
+        return '#' + (0x1000000 + (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 + (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 + (B < 255 ? (B < 1 ? 0 : B) : 255)).toString(16).slice(1).toUpperCase();
     }
 
     private lightenColor(color: string, percent: number): string {
         // Parse hex color
         if (!color || !color.startsWith('#')) return color;
-        
+
         const num = parseInt(color.replace('#', ''), 16);
         const amt = Math.round(2.55 * percent);
         const R = (num >> 16) + amt;
-        const G = (num >> 8 & 0x00FF) + amt;
-        const B = (num & 0x0000FF) + amt;
-        
-        return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-            (B < 255 ? B < 1 ? 0 : B : 255))
-            .toString(16)
-            .slice(1)
-            .toUpperCase();
+        const G = ((num >> 8) & 0x00ff) + amt;
+        const B = (num & 0x0000ff) + amt;
+
+        return '#' + (0x1000000 + (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 + (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 + (B < 255 ? (B < 1 ? 0 : B) : 255)).toString(16).slice(1).toUpperCase();
     }
 }

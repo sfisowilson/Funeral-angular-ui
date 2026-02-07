@@ -18,7 +18,7 @@ export interface BookingWidgetEditorConfig {
     accentColor: string;
     buttonColor: string;
     buttonTextColor: string;
-    
+
     // Booking configuration
     showInDashboard: boolean;
     showOnLandingPage: boolean;
@@ -28,7 +28,7 @@ export interface BookingWidgetEditorConfig {
     bookingLeadTime: number;
     maxBookingDuration: number;
     slotDuration: number;
-    
+
     // Working hours (simplified for editor)
     enableMonday: boolean;
     mondayStart: string;
@@ -51,13 +51,13 @@ export interface BookingWidgetEditorConfig {
     enableSunday: boolean;
     sundayStart: string;
     sundayEnd: string;
-    
+
     // Notifications
     enableEmailNotifications: boolean;
     notificationEmail: string;
     sendCustomerConfirmation: boolean;
     sendAdminNotification: boolean;
-    
+
     // Calendar
     enableCalendarReminders: boolean;
     calendarProvider: string;
@@ -66,17 +66,7 @@ export interface BookingWidgetEditorConfig {
 @Component({
     selector: 'app-booking-editor',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        InputTextModule,
-        CheckboxModule,
-        InputNumberModule,
-        DropdownModule,
-        ColorPickerModule,
-        AccordionModule,
-        InputSwitchModule
-    ],
+    imports: [CommonModule, FormsModule, InputTextModule, CheckboxModule, InputNumberModule, DropdownModule, ColorPickerModule, AccordionModule, InputSwitchModule],
     template: `
         <div class="booking-editor p-4" style="min-height: 400px; overflow: visible;">
             <p-accordion [multiple]="true" [activeIndex]="[0]">
@@ -85,36 +75,30 @@ export interface BookingWidgetEditorConfig {
                     <div class="grid grid-cols-1 gap-4">
                         <div class="field">
                             <label class="block mb-2 font-semibold">Widget Title</label>
-                            <input pInputText [(ngModel)]="config.title" class="w-full" 
-                                   (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.title" class="w-full" (ngModelChange)="onChange()" />
                         </div>
                         <div class="field">
                             <label class="block mb-2 font-semibold">Subtitle</label>
-                            <input pInputText [(ngModel)]="config.subtitle" class="w-full" 
-                                   (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.subtitle" class="w-full" (ngModelChange)="onChange()" />
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="field">
                                 <label class="block mb-2 font-semibold">Background Color</label>
-                                <p-colorPicker [(ngModel)]="config.backgroundColor" 
-                                              (ngModelChange)="onChange()"></p-colorPicker>
+                                <p-colorPicker [(ngModel)]="config.backgroundColor" (ngModelChange)="onChange()"></p-colorPicker>
                             </div>
                             <div class="field">
                                 <label class="block mb-2 font-semibold">Text Color</label>
-                                <p-colorPicker [(ngModel)]="config.textColor" 
-                                              (ngModelChange)="onChange()"></p-colorPicker>
+                                <p-colorPicker [(ngModel)]="config.textColor" (ngModelChange)="onChange()"></p-colorPicker>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="field">
                                 <label class="block mb-2 font-semibold">Accent Color</label>
-                                <p-colorPicker [(ngModel)]="config.accentColor" 
-                                              (ngModelChange)="onChange()"></p-colorPicker>
+                                <p-colorPicker [(ngModel)]="config.accentColor" (ngModelChange)="onChange()"></p-colorPicker>
                             </div>
                             <div class="field">
                                 <label class="block mb-2 font-semibold">Button Color</label>
-                                <p-colorPicker [(ngModel)]="config.buttonColor" 
-                                              (ngModelChange)="onChange()"></p-colorPicker>
+                                <p-colorPicker [(ngModel)]="config.buttonColor" (ngModelChange)="onChange()"></p-colorPicker>
                             </div>
                         </div>
                     </div>
@@ -124,32 +108,25 @@ export interface BookingWidgetEditorConfig {
                 <p-accordionTab header="Booking Settings">
                     <div class="grid grid-cols-1 gap-4">
                         <div class="field flex items-center gap-2">
-                            <p-inputSwitch [(ngModel)]="config.requireEmail" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.requireEmail" (ngModelChange)="onChange()"></p-inputSwitch>
                             <label>Require Email</label>
                         </div>
                         <div class="field flex items-center gap-2">
-                            <p-inputSwitch [(ngModel)]="config.requirePhone" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.requirePhone" (ngModelChange)="onChange()"></p-inputSwitch>
                             <label>Require Phone Number</label>
                         </div>
                         <div class="field">
                             <label class="block mb-2 font-semibold">Minimum Lead Time (hours)</label>
-                            <p-inputNumber [(ngModel)]="config.bookingLeadTime" [min]="1" [max]="168" 
-                                          (ngModelChange)="onChange()"></p-inputNumber>
+                            <p-inputNumber [(ngModel)]="config.bookingLeadTime" [min]="1" [max]="168" (ngModelChange)="onChange()"></p-inputNumber>
                             <small class="text-gray-500">Hours in advance required for booking</small>
                         </div>
                         <div class="field">
                             <label class="block mb-2 font-semibold">Max Booking Duration (hours)</label>
-                            <p-inputNumber [(ngModel)]="config.maxBookingDuration" [min]="1" [max]="8" 
-                                          (ngModelChange)="onChange()"></p-inputNumber>
+                            <p-inputNumber [(ngModel)]="config.maxBookingDuration" [min]="1" [max]="8" (ngModelChange)="onChange()"></p-inputNumber>
                         </div>
                         <div class="field">
                             <label class="block mb-2 font-semibold">Time Slot Duration (minutes)</label>
-                            <p-dropdown [(ngModel)]="config.slotDuration" [options]="slotDurationOptions" 
-                                       optionLabel="label" optionValue="value"
-                                       [appendTo]="'body'" [style]="{width:'100%'}"
-                                       (ngModelChange)="onChange()"></p-dropdown>
+                            <p-dropdown [(ngModel)]="config.slotDuration" [options]="slotDurationOptions" optionLabel="label" optionValue="value" [appendTo]="'body'" [style]="{ width: '100%' }" (ngModelChange)="onChange()"></p-dropdown>
                         </div>
                     </div>
                 </p-accordionTab>
@@ -159,80 +136,59 @@ export interface BookingWidgetEditorConfig {
                     <div class="space-y-4">
                         <!-- Monday -->
                         <div class="flex items-center gap-4">
-                            <p-inputSwitch [(ngModel)]="config.enableMonday" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.enableMonday" (ngModelChange)="onChange()"></p-inputSwitch>
                             <span class="w-24 font-semibold">Monday</span>
-                            <input pInputText [(ngModel)]="config.mondayStart" class="w-20" 
-                                   [disabled]="!config.enableMonday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.mondayStart" class="w-20" [disabled]="!config.enableMonday" (ngModelChange)="onChange()" />
                             <span>to</span>
-                            <input pInputText [(ngModel)]="config.mondayEnd" class="w-20" 
-                                   [disabled]="!config.enableMonday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.mondayEnd" class="w-20" [disabled]="!config.enableMonday" (ngModelChange)="onChange()" />
                         </div>
                         <!-- Tuesday -->
                         <div class="flex items-center gap-4">
-                            <p-inputSwitch [(ngModel)]="config.enableTuesday" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.enableTuesday" (ngModelChange)="onChange()"></p-inputSwitch>
                             <span class="w-24 font-semibold">Tuesday</span>
-                            <input pInputText [(ngModel)]="config.tuesdayStart" class="w-20" 
-                                   [disabled]="!config.enableTuesday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.tuesdayStart" class="w-20" [disabled]="!config.enableTuesday" (ngModelChange)="onChange()" />
                             <span>to</span>
-                            <input pInputText [(ngModel)]="config.tuesdayEnd" class="w-20" 
-                                   [disabled]="!config.enableTuesday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.tuesdayEnd" class="w-20" [disabled]="!config.enableTuesday" (ngModelChange)="onChange()" />
                         </div>
                         <!-- Wednesday -->
                         <div class="flex items-center gap-4">
-                            <p-inputSwitch [(ngModel)]="config.enableWednesday" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.enableWednesday" (ngModelChange)="onChange()"></p-inputSwitch>
                             <span class="w-24 font-semibold">Wednesday</span>
-                            <input pInputText [(ngModel)]="config.wednesdayStart" class="w-20" 
-                                   [disabled]="!config.enableWednesday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.wednesdayStart" class="w-20" [disabled]="!config.enableWednesday" (ngModelChange)="onChange()" />
                             <span>to</span>
-                            <input pInputText [(ngModel)]="config.wednesdayEnd" class="w-20" 
-                                   [disabled]="!config.enableWednesday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.wednesdayEnd" class="w-20" [disabled]="!config.enableWednesday" (ngModelChange)="onChange()" />
                         </div>
                         <!-- Thursday -->
                         <div class="flex items-center gap-4">
-                            <p-inputSwitch [(ngModel)]="config.enableThursday" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.enableThursday" (ngModelChange)="onChange()"></p-inputSwitch>
                             <span class="w-24 font-semibold">Thursday</span>
-                            <input pInputText [(ngModel)]="config.thursdayStart" class="w-20" 
-                                   [disabled]="!config.enableThursday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.thursdayStart" class="w-20" [disabled]="!config.enableThursday" (ngModelChange)="onChange()" />
                             <span>to</span>
-                            <input pInputText [(ngModel)]="config.thursdayEnd" class="w-20" 
-                                   [disabled]="!config.enableThursday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.thursdayEnd" class="w-20" [disabled]="!config.enableThursday" (ngModelChange)="onChange()" />
                         </div>
                         <!-- Friday -->
                         <div class="flex items-center gap-4">
-                            <p-inputSwitch [(ngModel)]="config.enableFriday" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.enableFriday" (ngModelChange)="onChange()"></p-inputSwitch>
                             <span class="w-24 font-semibold">Friday</span>
-                            <input pInputText [(ngModel)]="config.fridayStart" class="w-20" 
-                                   [disabled]="!config.enableFriday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.fridayStart" class="w-20" [disabled]="!config.enableFriday" (ngModelChange)="onChange()" />
                             <span>to</span>
-                            <input pInputText [(ngModel)]="config.fridayEnd" class="w-20" 
-                                   [disabled]="!config.enableFriday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.fridayEnd" class="w-20" [disabled]="!config.enableFriday" (ngModelChange)="onChange()" />
                         </div>
                         <!-- Saturday -->
                         <div class="flex items-center gap-4">
-                            <p-inputSwitch [(ngModel)]="config.enableSaturday" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.enableSaturday" (ngModelChange)="onChange()"></p-inputSwitch>
                             <span class="w-24 font-semibold">Saturday</span>
-                            <input pInputText [(ngModel)]="config.saturdayStart" class="w-20" 
-                                   [disabled]="!config.enableSaturday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.saturdayStart" class="w-20" [disabled]="!config.enableSaturday" (ngModelChange)="onChange()" />
                             <span>to</span>
-                            <input pInputText [(ngModel)]="config.saturdayEnd" class="w-20" 
-                                   [disabled]="!config.enableSaturday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.saturdayEnd" class="w-20" [disabled]="!config.enableSaturday" (ngModelChange)="onChange()" />
                         </div>
                         <!-- Sunday -->
                         <div class="flex items-center gap-4">
-                            <p-inputSwitch [(ngModel)]="config.enableSunday" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.enableSunday" (ngModelChange)="onChange()"></p-inputSwitch>
                             <span class="w-24 font-semibold">Sunday</span>
-                            <input pInputText [(ngModel)]="config.sundayStart" class="w-20" 
-                                   [disabled]="!config.enableSunday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.sundayStart" class="w-20" [disabled]="!config.enableSunday" (ngModelChange)="onChange()" />
                             <span>to</span>
-                            <input pInputText [(ngModel)]="config.sundayEnd" class="w-20" 
-                                   [disabled]="!config.enableSunday" (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.sundayEnd" class="w-20" [disabled]="!config.enableSunday" (ngModelChange)="onChange()" />
                         </div>
                     </div>
                 </p-accordionTab>
@@ -241,23 +197,19 @@ export interface BookingWidgetEditorConfig {
                 <p-accordionTab header="Notifications">
                     <div class="grid grid-cols-1 gap-4">
                         <div class="field flex items-center gap-2">
-                            <p-inputSwitch [(ngModel)]="config.enableEmailNotifications" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.enableEmailNotifications" (ngModelChange)="onChange()"></p-inputSwitch>
                             <label>Enable Email Notifications</label>
                         </div>
                         <div class="field" *ngIf="config.enableEmailNotifications">
                             <label class="block mb-2 font-semibold">Notification Email</label>
-                            <input pInputText [(ngModel)]="config.notificationEmail" class="w-full" 
-                                   (ngModelChange)="onChange()" />
+                            <input pInputText [(ngModel)]="config.notificationEmail" class="w-full" (ngModelChange)="onChange()" />
                         </div>
                         <div class="field flex items-center gap-2" *ngIf="config.enableEmailNotifications">
-                            <p-inputSwitch [(ngModel)]="config.sendCustomerConfirmation" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.sendCustomerConfirmation" (ngModelChange)="onChange()"></p-inputSwitch>
                             <label>Send Customer Confirmation Email</label>
                         </div>
                         <div class="field flex items-center gap-2" *ngIf="config.enableEmailNotifications">
-                            <p-inputSwitch [(ngModel)]="config.sendAdminNotification" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.sendAdminNotification" (ngModelChange)="onChange()"></p-inputSwitch>
                             <label>Send Admin Notification</label>
                         </div>
                     </div>
@@ -267,16 +219,12 @@ export interface BookingWidgetEditorConfig {
                 <p-accordionTab header="Calendar Integration">
                     <div class="grid grid-cols-1 gap-4">
                         <div class="field flex items-center gap-2">
-                            <p-inputSwitch [(ngModel)]="config.enableCalendarReminders" 
-                                          (ngModelChange)="onChange()"></p-inputSwitch>
+                            <p-inputSwitch [(ngModel)]="config.enableCalendarReminders" (ngModelChange)="onChange()"></p-inputSwitch>
                             <label>Enable Calendar Reminders</label>
                         </div>
                         <div class="field" *ngIf="config.enableCalendarReminders">
                             <label class="block mb-2 font-semibold">Calendar Provider</label>
-                            <p-dropdown [(ngModel)]="config.calendarProvider" [options]="calendarOptions" 
-                                       optionLabel="label" optionValue="value"
-                                       [appendTo]="'body'" [style]="{width:'100%'}"
-                                       (ngModelChange)="onChange()"></p-dropdown>
+                            <p-dropdown [(ngModel)]="config.calendarProvider" [options]="calendarOptions" optionLabel="label" optionValue="value" [appendTo]="'body'" [style]="{ width: '100%' }" (ngModelChange)="onChange()"></p-dropdown>
                         </div>
                     </div>
                 </p-accordionTab>

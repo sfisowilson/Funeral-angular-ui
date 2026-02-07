@@ -63,10 +63,10 @@ export class RecentClaimsWidgetComponent implements OnInit {
 
     getStatusSeverity(status: string): string {
         const severityMap: Record<string, string> = {
-            'Approved': 'success',
-            'Pending': 'warning',
+            Approved: 'success',
+            Pending: 'warning',
             'Under Review': 'info',
-            'Rejected': 'danger'
+            Rejected: 'danger'
         };
         return severityMap[status] || 'info';
     }

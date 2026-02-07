@@ -28,7 +28,7 @@ export class ForgotPasswordComponent extends TenantBaseComponent {
         private fb: FormBuilder,
         private authServiceProxy: AuthServiceProxy,
         private router: Router,
-        private _tenantSettings: TenantSettingsService,
+        private _tenantSettings: TenantSettingsService
     ) {
         super(injector);
         this.form = this.fb.group({

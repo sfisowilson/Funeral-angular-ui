@@ -27,10 +27,7 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div *ngFor="let report of reports" class="report-card rounded-lg p-6 shadow-md" 
-                        [style.background-color]="config.cardBackgroundColor"
-                        [style.border-left]="'5px solid ' + config.accentColor">
-                        
+                    <div *ngFor="let report of reports" class="report-card rounded-lg p-6 shadow-md" [style.background-color]="config.cardBackgroundColor" [style.border-left]="'5px solid ' + config.accentColor">
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h3 class="font-bold" [style.color]="config.reportTitleColor" [style.font-size.px]="config.reportTitleSize">
@@ -40,9 +37,7 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
                                     {{ formatDate(report.reportPeriod) }}
                                 </p>
                             </div>
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold" 
-                                [style.background-color]="report.isPublished ? config.publishedColor : config.draftColor"
-                                [style.color]="config.statusTextColor">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold" [style.background-color]="report.isPublished ? config.publishedColor : config.draftColor" [style.color]="config.statusTextColor">
                                 {{ report.isPublished ? 'Published' : 'Draft' }}
                             </span>
                         </div>
@@ -64,9 +59,7 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
                             <div class="flex justify-between text-sm mb-2">
                                 <span [style.color]="config.metricLabelColor">Progress: {{ getProgressPercentage(report.achievedAmount, report.targetAmount) }}%</span>
                             </div>
-                            <p-progressBar 
-                                [value]="getProgressPercentage(report.achievedAmount, report.targetAmount)" 
-                                [style]="{'height': '8px'}"></p-progressBar>
+                            <p-progressBar [value]="getProgressPercentage(report.achievedAmount, report.targetAmount)" [style]="{ height: '8px' }"></p-progressBar>
                         </div>
 
                         <!-- Summary -->
@@ -76,51 +69,42 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
 
                         <!-- Actions -->
                         <div class="flex gap-2">
-                            <button pButton 
-                                [label]="config.readMoreText || 'View Full Report'" 
-                                size="small"
-                                [style.background-color]="config.buttonColor" 
-                                [style.color]="config.buttonTextColor"
-                                (click)="viewReport(report)"></button>
-                            
-                            <button *ngIf="report.attachmentUrl" pButton 
-                                [label]="config.downloadText || 'Download'" 
-                                size="small" 
-                                severity="secondary"
-                                (click)="downloadReport(report)"></button>
+                            <button pButton [label]="config.readMoreText || 'View Full Report'" size="small" [style.background-color]="config.buttonColor" [style.color]="config.buttonTextColor" (click)="viewReport(report)"></button>
+
+                            <button *ngIf="report.attachmentUrl" pButton [label]="config.downloadText || 'Download'" size="small" severity="secondary" (click)="downloadReport(report)"></button>
                         </div>
                     </div>
                 </div>
 
                 <div *ngIf="config.showViewAllButton && !loading" class="text-center mt-12">
-                    <button pButton 
-                        [label]="config.viewAllButtonText || 'View All Reports'" 
-                        [style.background-color]="config.viewAllButtonColor" 
-                        [style.color]="config.viewAllButtonTextColor"
-                        (click)="viewAllReports()"></button>
+                    <button pButton [label]="config.viewAllButtonText || 'View All Reports'" [style.background-color]="config.viewAllButtonColor" [style.color]="config.viewAllButtonTextColor" (click)="viewAllReports()"></button>
                 </div>
             </div>
         </div>
     `,
-    styles: [`
-        .report-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .report-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-        .metrics-grid {
-            background-color: rgba(0, 0, 0, 0.02);
-            padding: 12px;
-            border-radius: 6px;
-        }
-    `]
+    styles: [
+        `
+            .report-card {
+                transition:
+                    transform 0.3s ease,
+                    box-shadow 0.3s ease;
+            }
+            .report-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            }
+            .metrics-grid {
+                background-color: rgba(0, 0, 0, 0.02);
+                padding: 12px;
+                border-radius: 6px;
+            }
+        `
+    ]
 })
 export class NgoImpactReportsWidgetComponent implements OnInit {
     @Input() config: any = {
         title: 'Our Impact',
-        subtitle: 'See the difference we\'re making together',
+        subtitle: "See the difference we're making together",
         backgroundColor: '#f9fafb',
         padding: 40,
         titleColor: '#111827',
@@ -182,10 +166,12 @@ export class NgoImpactReportsWidgetComponent implements OnInit {
         try {
             if (!metricsJson) return [];
             const metrics = typeof metricsJson === 'string' ? JSON.parse(metricsJson) : metricsJson;
-            return Object.entries(metrics).map(([label, value]) => ({
-                label: label.replace(/([A-Z])/g, ' $1').trim(),
-                value: value
-            })).slice(0, 4);
+            return Object.entries(metrics)
+                .map(([label, value]) => ({
+                    label: label.replace(/([A-Z])/g, ' $1').trim(),
+                    value: value
+                }))
+                .slice(0, 4);
         } catch {
             return [];
         }

@@ -3,7 +3,6 @@
     <p-confirmDialog></p-confirmDialog>
 
     <p-accordion [multiple]="true" [activeIndex]="[0]">
-        
         <!-- General Settings -->
         <p-accordionTab header="General Settings">
             <div class="p-fluid contact-us-form-wrapper">
@@ -41,7 +40,7 @@
                         <strong>Show Branches Section</strong>
                     </label>
                 </div>
-                
+
                 <div *ngIf="settings.showBranches">
                     <div class="p-field mb-3">
                         <label for="branchesBackgroundColor">Section Background Color (Optional)</label>
@@ -51,7 +50,7 @@
 
                     <div class="card mt-4">
                         <h3>Branches</h3>
-                        <p-table [value]="branches" [tableStyle]="{ 'min-width': '0', 'width': '100%' }" responsiveLayout="stack" [breakpoint]="'768px'">
+                        <p-table [value]="branches" [tableStyle]="{ 'min-width': '0', width: '100%' }" responsiveLayout="stack" [breakpoint]="'768px'">
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th>Name</th>
@@ -96,7 +95,7 @@
                         <strong>Show Social Media Section</strong>
                     </label>
                 </div>
-                
+
                 <div *ngIf="settings.showSocialMedia">
                     <div class="p-field mb-3">
                         <label for="socialMediaBackgroundColor">Section Background Color (Optional)</label>
@@ -106,7 +105,7 @@
 
                     <div class="card mt-4">
                         <h3>Social Media Handles</h3>
-                        <p-table [value]="socialMediaHandles" [tableStyle]="{ 'min-width': '0', 'width': '100%' }" responsiveLayout="stack" [breakpoint]="'768px'">
+                        <p-table [value]="socialMediaHandles" [tableStyle]="{ 'min-width': '0', width: '100%' }" responsiveLayout="stack" [breakpoint]="'768px'">
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th>Platform</th>
@@ -148,7 +147,7 @@
                         <small class="d-block text-muted">Enable a contact form where visitors can send messages directly</small>
                     </label>
                 </div>
-                
+
                 <div *ngIf="settings.showContactForm">
                     <div class="p-field mb-3">
                         <label for="formBackgroundColor">Form Background Color (Optional)</label>
@@ -168,26 +167,26 @@
                         <strong>Show CTA Section</strong>
                     </label>
                 </div>
-                
+
                 <div *ngIf="settings.showCTA">
                     <div class="p-field mb-3">
                         <label for="ctaBackgroundColor">CTA Background Color (Optional)</label>
                         <input id="ctaBackgroundColor" type="color" pInputText [(ngModel)]="settings.ctaBackgroundColor" />
                         <small class="text-muted">Leave empty for transparent background</small>
                     </div>
-                    
+
                     <div class="p-field mb-3">
                         <label for="ctaTitle">CTA Title</label>
                         <input id="ctaTitle" type="text" pInputText [(ngModel)]="settings.ctaTitle" placeholder="Have Questions?" />
                     </div>
-                    
+
                     <div class="p-field mb-3">
                         <label for="ctaText">CTA Text</label>
                         <textarea pInputTextarea id="ctaText" [(ngModel)]="settings.ctaText" rows="3" placeholder="Get in touch with us today..."></textarea>
                     </div>
 
-                    <hr class="my-4">
-                    
+                    <hr class="my-4" />
+
                     <!-- Primary Button -->
                     <h4>Primary Button</h4>
                     <div class="p-field-checkbox mb-3">
@@ -196,7 +195,7 @@
                             <strong>Show Primary Button</strong>
                         </label>
                     </div>
-                    
+
                     <div *ngIf="settings.showCtaPrimaryButton" class="mb-4">
                         <div class="p-field mb-3">
                             <label for="primaryBtnText">Button Text</label>
@@ -208,7 +207,7 @@
                         </div>
                     </div>
 
-                    <hr class="my-4">
+                    <hr class="my-4" />
 
                     <!-- Secondary Button -->
                     <h4>Secondary Button</h4>
@@ -218,7 +217,7 @@
                             <strong>Show Secondary Button</strong>
                         </label>
                     </div>
-                    
+
                     <div *ngIf="settings.showCtaSecondaryButton" class="mb-4">
                         <div class="p-field mb-3">
                             <label for="secondaryBtnText">Button Text</label>
@@ -232,17 +231,14 @@
                 </div>
             </div>
         </p-accordionTab>
-
     </p-accordion>
 
     <!-- Save button at the end -->
     <div class="mt-4 d-flex justify-content-end gap-2">
-        <button type="button" class="btn-primary-theme" (click)="saveSettings()">
-            <i class="pi pi-check me-2"></i>Save Changes
-        </button>
+        <button type="button" class="btn-primary-theme" (click)="saveSettings()"><i class="pi pi-check me-2"></i>Save Changes</button>
     </div>
 
-    <p-dialog header="Branch Details" [(visible)]="displayBranchDialog" [modal]="true" [style]="{ 'width': '90vw', 'max-width': '600px' }">
+    <p-dialog header="Branch Details" [(visible)]="displayBranchDialog" [modal]="true" [style]="{ width: '90vw', 'max-width': '600px' }">
         <div class="p-fluid">
             <div class="p-field">
                 <label for="branchName">Name</label>
@@ -267,7 +263,7 @@
         </ng-template>
     </p-dialog>
 
-    <p-dialog header="Social Media Details" [(visible)]="displaySocialMediaDialog" [modal]="true" [style]="{ 'width': '90vw', 'max-width': '600px' }">
+    <p-dialog header="Social Media Details" [(visible)]="displaySocialMediaDialog" [modal]="true" [style]="{ width: '90vw', 'max-width': '600px' }">
         <div class="p-fluid">
             <div class="p-field">
                 <label for="platform">Platform</label>

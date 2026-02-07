@@ -47,17 +47,27 @@ export class FaqWidgetComponent {
     @Input() config: any = {};
 
     @HostBinding('class.faq-widget')
-    get class() { return true; }
+    get class() {
+        return true;
+    }
 
     @HostBinding('style.background-color')
-    get backgroundColor() { return this.config.settings?.backgroundColor; }
+    get backgroundColor() {
+        return this.config.settings?.backgroundColor;
+    }
 
     @HostBinding('style.padding.px')
-    get padding() { return this.config.settings?.padding; }
+    get padding() {
+        return this.config.settings?.padding;
+    }
 
     @HostBinding('style.--accordion-header-color')
-    get accordionHeaderColor() { return this.config.settings?.accordionHeaderColor; }
+    get accordionHeaderColor() {
+        return this.config.settings?.accordionHeaderColor;
+    }
 
     @HostBinding('style.--accordion-text-color')
-    get accordionTextColor() { return this.config.settings?.accordionTextColor; }
+    get accordionTextColor() {
+        return this.config.settings?.accordionTextColor;
+    }
 }

@@ -87,13 +87,11 @@ export class TopbarWidget implements OnInit {
         this.logoUrl = settings.logoUrl;
         this.tenantName = settings.tenantName;
         this.isLoggedIn = this.authService.isAuthenticated();
-        
+
         // Load custom pages for navigation
         this.customPagesService.all().subscribe({
             next: (pages) => {
-                this.customPages = pages
-                    .filter((p: any) => p.isActive && p.showInNavbar)
-                    .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
+                this.customPages = pages.filter((p: any) => p.isActive && p.showInNavbar).sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
             },
             error: (error) => {
                 console.error('Error loading custom pages:', error);

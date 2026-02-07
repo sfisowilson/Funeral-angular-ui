@@ -17,9 +17,9 @@ export class TenantService {
         const parts = hostname.split('.');
         const baseDomain = environment.baseDomain;
         const hostSubdomain = environment.hostSubdomain;
-        
+
         console.log('Determining tenant:', { hostname, baseDomain, hostSubdomain, parts });
-        
+
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             this.currentTenantType = 'host';
             this.tenantId = 'host';

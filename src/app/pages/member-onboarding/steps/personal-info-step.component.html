@@ -11,234 +11,161 @@
             <!-- Dynamic Form -->
             <div *ngIf="!loading() && formGroup()" class="form-container">
                 <form [formGroup]="formGroup()!" (ngSubmit)="onSubmit()">
-            
-            <!-- Basic Member Information Section (always shown) -->
-            <div class="category-section" *ngIf="memberData()">
-                <p-card header="Basic Information" class="category-card">
-                    <div class="info-banner">
-                        <i class="pi pi-info-circle"></i>
-                        <span>Your core contact information. If your ID number was entered incorrectly during registration, you can update it here.</span>
-                    </div>
-                    
-                    <div class="fields-grid">
-                        <div class="field-group">
-                            <label for="identificationNumber" class="field-label">
-                                ID Number
-                                <span class="required-asterisk">*</span>
-                            </label>
-                            <input 
-                                id="identificationNumber"
-                                [(ngModel)]="memberData()!.identificationNumber"
-                                (ngModelChange)="onIdNumberChange()"
-                                [ngModelOptions]="{standalone: true}"
-                                placeholder="Enter South African ID number"
-                                maxlength="13"
-                                class="form-control"
-                                [class.is-invalid]="idInfo() && !idInfo()!.isValid"
-                                [class.is-valid]="idInfo() && idInfo()!.isValid"
-                            />
-                            <div class="form-text text-danger" *ngIf="idInfo() && !idInfo()!.isValid">
-                                <i class="bi bi-x-circle"></i> {{ idInfo()!.errorMessage }}
+                    <!-- Basic Member Information Section (always shown) -->
+                    <div class="category-section" *ngIf="memberData()">
+                        <p-card header="Basic Information" class="category-card">
+                            <div class="info-banner">
+                                <i class="pi pi-info-circle"></i>
+                                <span>Your core contact information. If your ID number was entered incorrectly during registration, you can update it here.</span>
                             </div>
-                            <div class="form-text text-success" *ngIf="idInfo() && idInfo()!.isValid">
-                                <i class="bi bi-check-circle"></i> Valid SA ID Number
-                            </div>
-                            <div class="form-text" *ngIf="!idInfo()">
-                                South African ID number (13 digits)
-                            </div>
-                        </div>
-                        
-                        <!-- Auto-populated Date of Birth -->
-                        <div class="col-md-6" *ngIf="parsedDateOfBirth()">
-                            <label for="dateOfBirth" class="field-label">
-                                Date of Birth (from ID)
-                            </label>
-                            <input 
-                                id="dateOfBirth"
-                                [value]="parsedDateOfBirth()! | date:'dd/MM/yyyy'"
-                                readonly
-                                class="form-control"
-                            />
-                            <div class="form-text">Age: {{ idInfo()?.age }} years</div>
-                        </div>
-                        
-                        <!-- Auto-populated Gender -->
-                        <div class="col-md-6" *ngIf="parsedGender()">
-                            <label for="gender" class="field-label">
-                                Gender (from ID)
-                            </label>
-                            <input 
-                                id="gender"
-                                [value]="parsedGender()"
-                                readonly
-                                class="form-control"
-                            />
-                        </div>
 
-                        <div class="col-md-6">
-                            <label for="email" class="field-label">
-                                Email Address
-                                <span class="required-asterisk">*</span>
-                            </label>
-                            <input 
-                                id="email"
-                                type="email"
-                                [(ngModel)]="memberData()!.email"
-                                [ngModelOptions]="{standalone: true}"
-                                placeholder="Enter email address"
-                                class="form-control"
-                            />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="phone1" class="field-label">
-                                Primary Phone
-                                <span class="required-asterisk">*</span>
-                            </label>
-                            <input
-                                id="phone1"
-                                type="tel"
-                                [(ngModel)]="memberData()!.phone1"
-                                [ngModelOptions]="{standalone: true}"
-                                placeholder="(012) 345-6789"
-                                class="form-control"
-                            />
-                        </div>
-                        <div class="col-md-6">
-                            <label for="phone2" class="field-label">
-                                Secondary Phone
-                            </label>
-                            <input
-                                id="phone2"
-                                type="tel"
-                                [(ngModel)]="memberData()!.phone2"
-                                [ngModelOptions]="{standalone: true}"
-                                placeholder="(012) 345-6789"
-                                class="form-control"
-                            />
-                        </div>
-                    </div>
-                </p-card>
-            </div>
+                            <div class="fields-grid">
+                                <div class="field-group">
+                                    <label for="identificationNumber" class="field-label">
+                                        ID Number
+                                        <span class="required-asterisk">*</span>
+                                    </label>
+                                    <input
+                                        id="identificationNumber"
+                                        [(ngModel)]="memberData()!.identificationNumber"
+                                        (ngModelChange)="onIdNumberChange()"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        placeholder="Enter South African ID number"
+                                        maxlength="13"
+                                        class="form-control"
+                                        [class.is-invalid]="idInfo() && !idInfo()!.isValid"
+                                        [class.is-valid]="idInfo() && idInfo()!.isValid"
+                                    />
+                                    <div class="form-text text-danger" *ngIf="idInfo() && !idInfo()!.isValid"><i class="bi bi-x-circle"></i> {{ idInfo()!.errorMessage }}</div>
+                                    <div class="form-text text-success" *ngIf="idInfo() && idInfo()!.isValid"><i class="bi bi-check-circle"></i> Valid SA ID Number</div>
+                                    <div class="form-text" *ngIf="!idInfo()">South African ID number (13 digits)</div>
+                                </div>
 
-            <!-- Loop through categories -->
-            <div *ngFor="let category of categories()" class="category-section">
-                <div class="card mb-4">
-                    <div class="card-header">{{ getCategoryDisplayName(category.name) }}</div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div *ngFor="let field of category.fields" class="col-md-6">
-                                <label [for]="field.config.fieldKey!" class="field-label">
-                                    {{ field.config.fieldLabel }}
-                                    <span *ngIf="isFieldRequired(field)" class="required-asterisk">*</span>
-                                </label>
-                                <input 
-                                    *ngIf="field.config.fieldType === 'text' || field.config.fieldType === 'email' || field.config.fieldType === 'tel'"
-                                    [id]="field.config.fieldKey!"
-                                    [formControlName]="field.config.fieldKey!"
-                                    [type]="field.config.fieldType"
-                                    [placeholder]="field.config.placeholder || ''"
-                                    class="form-control"
-                                />
-                                <input
-                                    *ngIf="field.config.fieldType === 'date'"
-                                    type="date"
-                                    [id]="field.config.fieldKey!"
-                                    [formControlName]="field.config.fieldKey!"
-                                    [placeholder]="field.config.placeholder || 'Select date'"
-                                    class="form-control"
-                                />
-                                <select
-                                    *ngIf="field.config.fieldType === 'select'"
-                                    [id]="field.config.fieldKey!"
-                                    [formControlName]="field.config.fieldKey!"
-                                    class="form-select"
-                                >
-                                    <option value="" disabled selected>{{ field.config.placeholder || 'Select an option' }}</option>
-                                    <option *ngFor="let option of getFieldOptions(field)" [value]="option">{{ option }}</option>
-                                </select>
-                                <div *ngIf="field.config.fieldType === 'radio'" class="form-check">
-                                    <div *ngFor="let option of field.options; let i = index" class="form-check">
+                                <!-- Auto-populated Date of Birth -->
+                                <div class="col-md-6" *ngIf="parsedDateOfBirth()">
+                                    <label for="dateOfBirth" class="field-label"> Date of Birth (from ID) </label>
+                                    <input id="dateOfBirth" [value]="parsedDateOfBirth()! | date: 'dd/MM/yyyy'" readonly class="form-control" />
+                                    <div class="form-text">Age: {{ idInfo()?.age }} years</div>
+                                </div>
+
+                                <!-- Auto-populated Gender -->
+                                <div class="col-md-6" *ngIf="parsedGender()">
+                                    <label for="gender" class="field-label"> Gender (from ID) </label>
+                                    <input id="gender" [value]="parsedGender()" readonly class="form-control" />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="email" class="field-label">
+                                        Email Address
+                                        <span class="required-asterisk">*</span>
+                                    </label>
+                                    <input id="email" type="email" [(ngModel)]="memberData()!.email" [ngModelOptions]="{ standalone: true }" placeholder="Enter email address" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone1" class="field-label">
+                                        Primary Phone
+                                        <span class="required-asterisk">*</span>
+                                    </label>
+                                    <input id="phone1" type="tel" [(ngModel)]="memberData()!.phone1" [ngModelOptions]="{ standalone: true }" placeholder="(012) 345-6789" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone2" class="field-label"> Secondary Phone </label>
+                                    <input id="phone2" type="tel" [(ngModel)]="memberData()!.phone2" [ngModelOptions]="{ standalone: true }" placeholder="(012) 345-6789" class="form-control" />
+                                </div>
+                            </div>
+                        </p-card>
+                    </div>
+
+                    <!-- Loop through categories -->
+                    <div *ngFor="let category of categories()" class="category-section">
+                        <div class="card mb-4">
+                            <div class="card-header">{{ getCategoryDisplayName(category.name) }}</div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div *ngFor="let field of category.fields" class="col-md-6">
+                                        <label [for]="field.config.fieldKey!" class="field-label">
+                                            {{ field.config.fieldLabel }}
+                                            <span *ngIf="isFieldRequired(field)" class="required-asterisk">*</span>
+                                        </label>
                                         <input
-                                            class="form-check-input"
-                                            type="radio"
-                                            [id]="field.config.fieldKey! + '_' + i"
+                                            *ngIf="field.config.fieldType === 'text' || field.config.fieldType === 'email' || field.config.fieldType === 'tel'"
+                                            [id]="field.config.fieldKey!"
                                             [formControlName]="field.config.fieldKey!"
-                                            [value]="option"
+                                            [type]="field.config.fieldType"
+                                            [placeholder]="field.config.placeholder || ''"
+                                            class="form-control"
                                         />
-                                        <label class="form-check-label ms-2" [for]="field.config.fieldKey! + '_' + i">{{ option }}</label>
+                                        <input
+                                            *ngIf="field.config.fieldType === 'date'"
+                                            type="date"
+                                            [id]="field.config.fieldKey!"
+                                            [formControlName]="field.config.fieldKey!"
+                                            [placeholder]="field.config.placeholder || 'Select date'"
+                                            class="form-control"
+                                        />
+                                        <select *ngIf="field.config.fieldType === 'select'" [id]="field.config.fieldKey!" [formControlName]="field.config.fieldKey!" class="form-select">
+                                            <option value="" disabled selected>{{ field.config.placeholder || 'Select an option' }}</option>
+                                            <option *ngFor="let option of getFieldOptions(field)" [value]="option">{{ option }}</option>
+                                        </select>
+                                        <div *ngIf="field.config.fieldType === 'radio'" class="form-check">
+                                            <div *ngFor="let option of field.options; let i = index" class="form-check">
+                                                <input class="form-check-input" type="radio" [id]="field.config.fieldKey! + '_' + i" [formControlName]="field.config.fieldKey!" [value]="option" />
+                                                <label class="form-check-label ms-2" [for]="field.config.fieldKey! + '_' + i">{{ option }}</label>
+                                            </div>
+                                        </div>
+                                        <div *ngIf="field.config.fieldType === 'checkbox'" class="form-check">
+                                            <input class="form-check-input" type="checkbox" [id]="field.config.fieldKey!" [formControlName]="field.config.fieldKey!" />
+                                            <label class="form-check-label ms-2" [for]="field.config.fieldKey!">{{ field.config.fieldLabel }}</label>
+                                        </div>
+                                        <textarea
+                                            *ngIf="field.config.fieldType === 'textarea'"
+                                            [id]="field.config.fieldKey!"
+                                            [formControlName]="field.config.fieldKey!"
+                                            [placeholder]="field.config.placeholder || ''"
+                                            rows="3"
+                                            class="form-control"
+                                        ></textarea>
+
+                                        <!-- Calculator Field (can be restricted by tenant type via config) -->
+                                        <app-embedded-calculator *ngIf="field.config.fieldType === 'calculator'" [formData]="getFormDataSnapshot()" (calculated)="onCalculatorChange(field, $event)"> </app-embedded-calculator>
+
+                                        <!-- Repeater Field -->
+                                        <app-dynamic-repeater-field *ngIf="field.config.fieldType === 'repeater'" [(value)]="repeaterValues[field.config.fieldKey!]" (valueChange)="onRepeaterChange(field, $event)"> </app-dynamic-repeater-field>
+
+                                        <!-- File Upload Field -->
+                                        <app-dynamic-file-upload
+                                            *ngIf="field.config.fieldType === 'fileupload'"
+                                            [value]="fileUploadValues[field.config.fieldKey!]"
+                                            [viewMode]="viewMode"
+                                            [memberId]="memberId"
+                                            (valueChange)="onFileUploadChange(field, $event)"
+                                        >
+                                        </app-dynamic-file-upload>
+
+                                        <div class="form-text text-danger" *ngIf="shouldShowError(field)">
+                                            {{ getFieldError(field) }}
+                                        </div>
+                                        <div class="form-text" *ngIf="field.config.helpText">
+                                            {{ field.config.helpText }}
+                                        </div>
                                     </div>
                                 </div>
-                                <div *ngIf="field.config.fieldType === 'checkbox'" class="form-check">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        [id]="field.config.fieldKey!"
-                                        [formControlName]="field.config.fieldKey!"
-                                    />
-                                    <label class="form-check-label ms-2" [for]="field.config.fieldKey!">{{ field.config.fieldLabel }}</label>
-                                </div>
-                                <textarea 
-                                    *ngIf="field.config.fieldType === 'textarea'"
-                                    [id]="field.config.fieldKey!"
-                                    [formControlName]="field.config.fieldKey!"
-                                    [placeholder]="field.config.placeholder || ''"
-                                    rows="3"
-                                    class="form-control"
-                                ></textarea>
-                                
-                                <!-- Calculator Field (can be restricted by tenant type via config) -->
-                                <app-embedded-calculator
-                                    *ngIf="field.config.fieldType === 'calculator'"
-                                    [formData]="getFormDataSnapshot()"
-                                    (calculated)="onCalculatorChange(field, $event)">
-                                </app-embedded-calculator>
-                                
-                                <!-- Repeater Field -->
-                                <app-dynamic-repeater-field
-                                    *ngIf="field.config.fieldType === 'repeater'"
-                                    [(value)]="repeaterValues[field.config.fieldKey!]"
-                                    (valueChange)="onRepeaterChange(field, $event)">
-                                </app-dynamic-repeater-field>
-                                
-                                <!-- File Upload Field -->
-                                <app-dynamic-file-upload
-                                    *ngIf="field.config.fieldType === 'fileupload'"
-                                    [value]="fileUploadValues[field.config.fieldKey!]"
-                                    [viewMode]="viewMode"
-                                    [memberId]="memberId"
-                                    (valueChange)="onFileUploadChange(field, $event)">
-                                </app-dynamic-file-upload>
-                                
-                                <div class="form-text text-danger" *ngIf="shouldShowError(field)">
-                                    {{ getFieldError(field) }}
-                                </div>
-                                <div class="form-text" *ngIf="field.config.helpText">
-                                    {{ field.config.helpText }}
-                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-actions mt-3">
+                        <button type="submit" class="btn-primary-theme" [disabled]="saving() || loading()">
+                            <span *ngIf="saving()" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            <i class="bi bi-check-lg"></i> Save & Continue
+                        </button>
+                    </div>
+                </form>
             </div>
 
-            <!-- Submit Button -->
-            <div class="form-actions mt-3">
-                <button 
-                    type="submit"
-                    class="btn-primary-theme"
-                    [disabled]="saving() || loading()"
-                >
-                    <span *ngIf="saving()" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <i class="bi bi-check-lg"></i> Save & Continue
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="!loading() && categories().length === 0" class="alert alert-warning mt-3">
-        No form configuration found. Please contact your administrator.
-    </div>
+            <!-- Empty State -->
+            <div *ngIf="!loading() && categories().length === 0" class="alert alert-warning mt-3">No form configuration found. Please contact your administrator.</div>
         </p-tabPanel>
 
         <!-- Documents Tab -->
@@ -250,9 +177,7 @@
                 </div>
 
                 <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <i class="bi bi-cloud-upload me-2"></i>Upload Documents
-                    </div>
+                    <div class="card-header bg-light"><i class="bi bi-cloud-upload me-2"></i>Upload Documents</div>
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-5">
@@ -265,9 +190,7 @@
                             <div class="col-md-5">
                                 <label for="fileInput" class="form-label">Select File *</label>
                                 <input type="file" id="fileInput" (change)="onFileSelect($event.target)" accept="image/*,application/pdf" class="form-control" />
-                                <div class="form-text text-success" *ngIf="selectedFile">
-                                    <i class="bi bi-check-circle"></i> Selected: {{ selectedFile.name }}
-                                </div>
+                                <div class="form-text text-success" *ngIf="selectedFile"><i class="bi bi-check-circle"></i> Selected: {{ selectedFile.name }}</div>
                             </div>
                             <div class="col-md-2">
                                 <button type="button" class="btn-primary-theme w-100" [disabled]="!selectedFile || !selectedDocumentType || uploading()" (click)="uploadMemberDocument()">
@@ -281,9 +204,7 @@
 
                 <!-- Uploaded Documents List -->
                 <div class="card" *ngIf="uploadedDocuments().length > 0">
-                    <div class="card-header bg-light">
-                        <i class="bi bi-file-earmark-text me-2"></i>Uploaded Documents
-                    </div>
+                    <div class="card-header bg-light"><i class="bi bi-file-earmark-text me-2"></i>Uploaded Documents</div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0 align-middle">
@@ -323,7 +244,7 @@
                 <!-- Empty State -->
                 <div class="card text-center py-5" *ngIf="uploadedDocuments().length === 0">
                     <div class="card-body">
-                        <i class="bi bi-file-earmark text-muted" style="font-size: 4rem;"></i>
+                        <i class="bi bi-file-earmark text-muted" style="font-size: 4rem"></i>
                         <h5 class="mt-3 text-muted">No documents uploaded yet</h5>
                         <p class="text-muted">Upload your ID document and other required documents above</p>
                     </div>

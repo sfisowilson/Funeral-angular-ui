@@ -28,51 +28,55 @@ export interface TemplateCategory {
     imports: [CommonModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, DialogModule, ConfirmDialogModule, DropdownModule, CardModule, ImageModule, ProgressSpinnerModule, TagModule],
     providers: [MessageService, ConfirmationService],
     templateUrl: './landing-page-generator.component.html',
-    styles: [`
-        .template-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .template-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-        .template-card.selected {
-            border: 3px solid #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        .category-badge {
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .feature-list {
-            list-style: none;
-            padding: 0;
-        }
-        .feature-list li {
-            padding: 0.25rem 0;
-            display: flex;
-            align-items: center;
-        }
-        .feature-list li::before {
-            content: "✓";
-            color: #10b981;
-            font-weight: bold;
-            margin-right: 0.5rem;
-        }
-        .template-thumbnail {
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        .preview-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-        }
-    `]
+    styles: [
+        `
+            .template-card {
+                transition:
+                    transform 0.2s,
+                    box-shadow 0.2s;
+                cursor: pointer;
+            }
+            .template-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            }
+            .template-card.selected {
+                border: 3px solid #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+            .category-badge {
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            .feature-list {
+                list-style: none;
+                padding: 0;
+            }
+            .feature-list li {
+                padding: 0.25rem 0;
+                display: flex;
+                align-items: center;
+            }
+            .feature-list li::before {
+                content: '✓';
+                color: #10b981;
+                font-weight: bold;
+                margin-right: 0.5rem;
+            }
+            .template-thumbnail {
+                height: 200px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+            .preview-section {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 2rem;
+                border-radius: 12px;
+                margin-bottom: 2rem;
+            }
+        `
+    ]
 })
 export class LandingPageGeneratorComponent {
     templates = signal<LandingPageTemplate[]>([]);
@@ -82,7 +86,7 @@ export class LandingPageGeneratorComponent {
     isLoading = signal<boolean>(false);
     isGenerating = signal<boolean>(false);
     showPreviewDialog = false;
-    
+
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
@@ -110,7 +114,7 @@ export class LandingPageGeneratorComponent {
 
     private loadTemplates(): void {
         this.isLoading.set(true);
-        
+
         // Use static templates for now, can be replaced with API call
         setTimeout(() => {
             const templates = this.templateService.getStaticTemplates();
@@ -121,11 +125,11 @@ export class LandingPageGeneratorComponent {
 
     get filteredTemplates(): LandingPageTemplate[] {
         let filtered = this.templates();
-        
+
         if (this.selectedCategory) {
-            filtered = filtered.filter(template => template.category === this.selectedCategory);
+            filtered = filtered.filter((template) => template.category === this.selectedCategory);
         }
-        
+
         return filtered;
     }
 
@@ -160,21 +164,24 @@ export class LandingPageGeneratorComponent {
 
     private performGeneration(): void {
         this.isGenerating.set(true);
-        
+
         // Generate page components using the service
         const pageComponents = this.templateService.generatePageComponents(this.selectedTemplate!.id);
-        
+
         // Simulate generation process
         setTimeout(() => {
             this.isGenerating.set(false);
-            
+
             // Store generated components in localStorage for the page builder to use
-            localStorage.setItem('generatedPageComponents', JSON.stringify({
-                templateId: this.selectedTemplate!.id,
-                templateName: this.selectedTemplate!.name,
-                components: pageComponents
-            }));
-            
+            localStorage.setItem(
+                'generatedPageComponents',
+                JSON.stringify({
+                    templateId: this.selectedTemplate!.id,
+                    templateName: this.selectedTemplate!.name,
+                    components: pageComponents
+                })
+            );
+
             this.messageService.add({
                 severity: 'success',
                 summary: 'Landing Page Generated',
@@ -190,7 +197,7 @@ export class LandingPageGeneratorComponent {
     }
 
     getCategoryIcon(categoryName: string): string {
-        const category = this.categories().find(cat => cat.name === categoryName);
+        const category = this.categories().find((cat) => cat.name === categoryName);
         return category?.icon || 'pi pi-file';
     }
 

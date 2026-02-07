@@ -1,169 +1,115 @@
 <div class="page-editor-container">
-  <p-toast />
+    <p-toast />
+    <p-confirmDialog header="Confirmation" icon="pi pi-exclamation-triangle"></p-confirmDialog>
 
-  @if (loading()) {
-    <div class="flex justify-center items-center min-h-screen">
-      <p-progressSpinner />
-    </div>
-  } @else {
-    @if (page(); as currentPage) {
-    <div class="editor-layout">
-      <!-- Header -->
-      <div class="editor-header p-4 bg-white shadow-sm mb-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-2xl font-bold">{{ currentPage.name }}</h1>
-            <div class="flex items-center gap-2 text-gray-600">
-              <p>Edit page content and settings</p>
-              @if (hasUnsavedChanges()) {
-                <span class="text-orange-600 text-sm">• Saving...</span>
-              } @else if (lastSaved()) {
-                <span class="text-green-600 text-sm">• Saved {{ getTimeSince(lastSaved()!) }}</span>
-              }
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <button
-              pButton
-              label="Cancel"
-              icon="pi pi-times"
-              class="p-button-text"
-              (click)="cancel()"
-            ></button>
-            <button
-              pButton
-              label="Save Page"
-              icon="pi pi-save"
-              [loading]="saving()"
-              (click)="savePage()"
-            ></button>
-          </div>
+    @if (loading()) {
+        <div class="flex justify-center items-center min-h-screen">
+            <p-progressSpinner />
         </div>
-      </div>
+    } @else {
+        @if (page(); as currentPage) {
+            <div class="editor-layout">
+                <!-- Header -->
+                <div class="editor-header p-4 bg-white shadow-sm mb-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-2xl font-bold">{{ currentPage.name }}</h1>
+                            <div class="flex items-center gap-2 text-gray-600">
+                                <p>Edit page content and settings</p>
+                                @if (hasUnsavedChanges()) {
+                                    <span class="text-orange-600 text-sm">• Saving...</span>
+                                } @else if (lastSaved()) {
+                                    <span class="text-green-600 text-sm">• Saved {{ getTimeSince(lastSaved()!) }}</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                             <button
+                                pButton
+                                label="Sync Steps"
+                                icon="pi pi-sync"
+                                class="p-button-warning p-button-outlined"
+                                (click)="syncOnboardingSteps()"
+                                title="Overwrite backend onboarding steps with this page's config">
+                            </button>
+                            <button pButton label="Cancel" icon="pi pi-times" class="p-button-text" (click)="cancel()"></button>
+                            <button pButton label="Save Page" icon="pi pi-save" [loading]="saving()" (click)="savePage()"></button>
+                        </div>
+                    </div>
+                </div>
 
-      <!-- Settings Section -->
-      <div class="settings-section p-4 bg-white shadow-sm mb-4">
-        <h3 class="text-lg font-semibold mb-3">Page Settings</h3>
-        <div class="row g-3">
-          <div class="col-12 col-md-6">
-            <div class="mb-3">
-              <label class="form-label">Page Name</label>
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="currentPage.name"
-                (ngModelChange)="onNameChange($event)"
-                placeholder="Enter page name"
-              />
-            </div>
-          </div>
-          <div class="col-12 col-md-6">
-            <div class="mb-3">
-              <label class="form-label">Slug (URL)</label>
-              <div class="input-group">
-                <span class="input-group-text">/</span>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="currentPage.slug"
-                  placeholder="page-url"
-                />
-              </div>
-              <small class="text-muted">Full URL: /{{ currentPage.slug }}</small>
-            </div>
-          </div>
-          <div class="col-12 col-md-6">
-            <div class="mb-3">
-              <label class="form-label">Page Title (SEO)</label>
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="currentPage.title"
-                placeholder="SEO title"
-              />
-            </div>
-          </div>
-          <div class="col-12 col-md-6">
-            <div class="mb-3">
-              <label class="form-label">Description (SEO)</label>
-              <textarea
-                class="form-control"
-                [(ngModel)]="currentPage.description"
-                rows="2"
-                placeholder="SEO description"
-              ></textarea>
-            </div>
-          </div>
-          <div class="col-12 mt-2">
-            <div class="row g-3">
-              <div class="col-12 col-md-6">
-                <div class="form-check">
-                  <input
-                    id="isPublic"
-                    type="checkbox"
-                    class="form-check-input"
-                    [(ngModel)]="currentPage.isPublic"
-                  />
-                  <label class="form-check-label" for="isPublic">Public Page</label>
+                <!-- Settings Section -->
+                <div class="settings-section p-4 bg-white shadow-sm mb-4">
+                    <h3 class="text-lg font-semibold mb-3">Page Settings</h3>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Page Name</label>
+                                <input type="text" class="form-control" [(ngModel)]="currentPage.name" (ngModelChange)="onNameChange($event)" placeholder="Enter page name" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Slug (URL)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">/</span>
+                                    <input type="text" class="form-control" [(ngModel)]="currentPage.slug" placeholder="page-url" />
+                                </div>
+                                <small class="text-muted">Full URL: /{{ currentPage.slug }}</small>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Page Title (SEO)</label>
+                                <input type="text" class="form-control" [(ngModel)]="currentPage.title" placeholder="SEO title" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Description (SEO)</label>
+                                <textarea class="form-control" [(ngModel)]="currentPage.description" rows="2" placeholder="SEO description"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <div class="form-check">
+                                        <input id="isPublic" type="checkbox" class="form-check-input" [(ngModel)]="currentPage.isPublic" />
+                                        <label class="form-check-label" for="isPublic">Public Page</label>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input id="showInNavbar" type="checkbox" class="form-check-input" [(ngModel)]="currentPage.showInNavbar" />
+                                        <label class="form-check-label" for="showInNavbar">Show in Navbar</label>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input id="showInFooter" type="checkbox" class="form-check-input" [(ngModel)]="currentPage.showInFooter" />
+                                        <label class="form-check-label" for="showInFooter">Show in Footer</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="form-check">
+                                        <input id="isOnboardingPage" type="checkbox" class="form-check-input" [(ngModel)]="currentPage.isOnboardingPage" />
+                                        <label class="form-check-label" for="isOnboardingPage">Onboarding Page</label>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input id="isBlockingOnboarding" type="checkbox" class="form-check-input" [(ngModel)]="currentPage.isBlockingOnboarding" />
+                                        <label class="form-check-label" for="isBlockingOnboarding">Blocking Onboarding</label>
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        <input id="requiresOnboardingApproval" type="checkbox" class="form-check-input" [(ngModel)]="currentPage.requiresOnboardingApproval" />
+                                        <label class="form-check-label" for="requiresOnboardingApproval">Requires Onboarding Approval</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-check mt-2">
-                  <input
-                    id="showInNavbar"
-                    type="checkbox"
-                    class="form-check-input"
-                    [(ngModel)]="currentPage.showInNavbar"
-                  />
-                  <label class="form-check-label" for="showInNavbar">Show in Navbar</label>
-                </div>
-                <div class="form-check mt-2">
-                  <input
-                    id="showInFooter"
-                    type="checkbox"
-                    class="form-check-input"
-                    [(ngModel)]="currentPage.showInFooter"
-                  />
-                  <label class="form-check-label" for="showInFooter">Show in Footer</label>
-                </div>
-              </div>
-              <div class="col-12 col-md-6">
-                <div class="form-check">
-                  <input
-                    id="isOnboardingPage"
-                    type="checkbox"
-                    class="form-check-input"
-                    [(ngModel)]="currentPage.isOnboardingPage"
-                  />
-                  <label class="form-check-label" for="isOnboardingPage">Onboarding Page</label>
-                </div>
-                <div class="form-check mt-2">
-                  <input
-                    id="isBlockingOnboarding"
-                    type="checkbox"
-                    class="form-check-input"
-                    [(ngModel)]="currentPage.isBlockingOnboarding"
-                  />
-                  <label class="form-check-label" for="isBlockingOnboarding">Blocking Onboarding</label>
-                </div>
-                <div class="form-check mt-2">
-                  <input
-                    id="requiresOnboardingApproval"
-                    type="checkbox"
-                    class="form-check-input"
-                    [(ngModel)]="currentPage.requiresOnboardingApproval"
-                  />
-                  <label class="form-check-label" for="requiresOnboardingApproval">Requires Onboarding Approval</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Page Builder Component -->
-      <div class="builder-section">
-        <app-page-builder></app-page-builder>
-      </div>
-    </div>
+                <!-- Page Builder Component -->
+                <div class="builder-section">
+                    <app-page-builder></app-page-builder>
+                </div>
+            </div>
+        }
     }
-  }
 </div>

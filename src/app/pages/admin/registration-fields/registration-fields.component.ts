@@ -10,12 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { 
-    OnboardingFieldConfigurationServiceProxy, 
-    OnboardingFieldConfigurationDto, 
-    CreateOnboardingFieldConfigurationDto,
-    UpdateOnboardingFieldConfigurationDto 
-} from '../../../core/services/service-proxies';
+import { OnboardingFieldConfigurationServiceProxy, OnboardingFieldConfigurationDto, CreateOnboardingFieldConfigurationDto, UpdateOnboardingFieldConfigurationDto } from '../../../core/services/service-proxies';
 
 interface FieldTypeOption {
     label: string;
@@ -31,18 +26,7 @@ interface ValidationRule {
 @Component({
     selector: 'app-registration-fields',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        ToastModule,
-        ButtonModule,
-        TableModule,
-        DialogModule,
-        InputTextModule,
-        DropdownModule,
-        CheckboxModule,
-        InputNumberModule
-    ],
+    imports: [CommonModule, FormsModule, ToastModule, ButtonModule, TableModule, DialogModule, InputTextModule, DropdownModule, CheckboxModule, InputNumberModule],
     providers: [MessageService, OnboardingFieldConfigurationServiceProxy],
     templateUrl: './registration-fields.component.html',
     styleUrl: './registration-fields.component.scss'
@@ -50,12 +34,12 @@ interface ValidationRule {
 export class RegistrationFieldsComponent implements OnInit {
     fields: OnboardingFieldConfigurationDto[] = [];
     loading: boolean = false;
-    
+
     // Dialog state
     displayDialog: boolean = false;
     isEditMode: boolean = false;
     selectedField: OnboardingFieldConfigurationDto | null = null;
-    
+
     // Form data - using any to avoid class instantiation issues
     fieldForm: any = {
         fieldKey: '',
@@ -74,7 +58,7 @@ export class RegistrationFieldsComponent implements OnInit {
         maxLength: undefined,
         minLength: undefined
     };
-    
+
     // Field type options
     fieldTypes: FieldTypeOption[] = [
         { label: 'Text', value: 'text' },
@@ -301,7 +285,7 @@ export class RegistrationFieldsComponent implements OnInit {
     }
 
     moveFieldUp(field: OnboardingFieldConfigurationDto): void {
-        const currentIndex = this.fields.findIndex(f => f.id === field.id);
+        const currentIndex = this.fields.findIndex((f) => f.id === field.id);
         if (currentIndex > 0) {
             const previousField = this.fields[currentIndex - 1];
             this.swapDisplayOrder(field, previousField);
@@ -309,7 +293,7 @@ export class RegistrationFieldsComponent implements OnInit {
     }
 
     moveFieldDown(field: OnboardingFieldConfigurationDto): void {
-        const currentIndex = this.fields.findIndex(f => f.id === field.id);
+        const currentIndex = this.fields.findIndex((f) => f.id === field.id);
         if (currentIndex < this.fields.length - 1) {
             const nextField = this.fields[currentIndex + 1];
             this.swapDisplayOrder(field, nextField);
@@ -318,7 +302,7 @@ export class RegistrationFieldsComponent implements OnInit {
 
     private swapDisplayOrder(field1: OnboardingFieldConfigurationDto, field2: OnboardingFieldConfigurationDto): void {
         const temp = field1.displayOrder;
-        
+
         // Update field1
         const updateDto1 = new UpdateOnboardingFieldConfigurationDto({
             id: field1.id,
@@ -360,7 +344,7 @@ export class RegistrationFieldsComponent implements OnInit {
         });
 
         this.loading = true;
-        
+
         // Update both fields
         this.fieldService.onboardingFieldConfiguration_Update(updateDto1).subscribe({
             next: () => {
@@ -397,7 +381,7 @@ export class RegistrationFieldsComponent implements OnInit {
     }
 
     getFieldTypeLabel(type: string | undefined): string {
-        const fieldType = this.fieldTypes.find(ft => ft.value === type);
+        const fieldType = this.fieldTypes.find((ft) => ft.value === type);
         return fieldType ? fieldType.label : type || 'Unknown';
     }
 }

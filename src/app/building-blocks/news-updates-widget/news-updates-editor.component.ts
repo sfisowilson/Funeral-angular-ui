@@ -111,9 +111,7 @@ import { CalendarModule } from 'primeng/calendar';
             </p-fieldset>
 
             <div class="editor-section d-flex justify-content-end mb-3">
-                <button type="button" class="btn btn-success" (click)="updateWidget()">
-                    <i class="bi bi-save"></i> Save
-                </button>
+                <button type="button" class="btn btn-success" (click)="updateWidget()"><i class="bi bi-save"></i> Save</button>
             </div>
         </div>
     `

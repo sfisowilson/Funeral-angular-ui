@@ -1,227 +1,225 @@
 <div class="container-fluid py-4">
-  <!-- Header Section -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="h3 mb-1 fw-bold text-dark">Impact Reports</h1>
-      <p class="text-muted mb-0">Track and manage your organization's impact reports</p>
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1 fw-bold text-dark">Impact Reports</h1>
+            <p class="text-muted mb-0">Track and manage your organization's impact reports</p>
+        </div>
+        <button class="btn btn-primary btn-lg" (click)="openNewDialog()"><i class="bi bi-file-earmark-plus me-2"></i>New Report</button>
     </div>
-    <button class="btn btn-primary btn-lg" (click)="openNewDialog()">
-      <i class="bi bi-file-earmark-plus me-2"></i>New Report
-    </button>
-  </div>
 
-  <!-- Stats Cards -->
-  <div class="row mb-4" *ngIf="impactReports && impactReports.length > 0">
-    <div class="col-md-3 col-sm-6 mb-3">
-      <div class="card border-0 shadow-sm bg-light">
-        <div class="card-body p-3">
-          <div class="d-flex align-items-center">
-            <div class="flex-grow-1">
-              <p class="text-muted mb-1 small">Total Reports</p>
-              <p class="h4 mb-0 fw-bold">{{ impactReports.length }}</p>
+    <!-- Stats Cards -->
+    <div class="row mb-4" *ngIf="impactReports && impactReports.length > 0">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-1 small">Total Reports</p>
+                            <p class="h4 mb-0 fw-bold">{{ impactReports.length }}</p>
+                        </div>
+                        <i class="bi bi-file-earmark-text text-primary" style="font-size: 2rem; opacity: 0.3"></i>
+                    </div>
+                </div>
             </div>
-            <i class="bi bi-file-earmark-text text-primary" style="font-size: 2rem; opacity: 0.3;"></i>
-          </div>
         </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-      <div class="card border-0 shadow-sm bg-light">
-        <div class="card-body p-3">
-          <div class="d-flex align-items-center">
-            <div class="flex-grow-1">
-              <p class="text-muted mb-1 small">Published</p>
-              <p class="h4 mb-0 fw-bold text-success">{{ getPublishedReportCount() }}</p>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-1 small">Published</p>
+                            <p class="h4 mb-0 fw-bold text-success">{{ getPublishedReportCount() }}</p>
+                        </div>
+                        <i class="bi bi-check-circle text-success" style="font-size: 2rem; opacity: 0.3"></i>
+                    </div>
+                </div>
             </div>
-            <i class="bi bi-check-circle text-success" style="font-size: 2rem; opacity: 0.3;"></i>
-          </div>
         </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-      <div class="card border-0 shadow-sm bg-light">
-        <div class="card-body p-3">
-          <div class="d-flex align-items-center">
-            <div class="flex-grow-1">
-              <p class="text-muted mb-1 small">Drafts</p>
-              <p class="h4 mb-0 fw-bold text-warning">{{ getDraftReportCount() }}</p>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-1 small">Drafts</p>
+                            <p class="h4 mb-0 fw-bold text-warning">{{ getDraftReportCount() }}</p>
+                        </div>
+                        <i class="bi bi-pencil text-warning" style="font-size: 2rem; opacity: 0.3"></i>
+                    </div>
+                </div>
             </div>
-            <i class="bi bi-pencil text-warning" style="font-size: 2rem; opacity: 0.3;"></i>
-          </div>
         </div>
-      </div>
-    </div>
-    <div class="col-md-3 col-sm-6 mb-3">
-      <div class="card border-0 shadow-sm bg-light">
-        <div class="card-body p-3">
-          <div class="d-flex align-items-center">
-            <div class="flex-grow-1">
-              <p class="text-muted mb-1 small">Categories</p>
-              <p class="h4 mb-0 fw-bold">{{ getUniqueCategoriesCount() }}</p>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <p class="text-muted mb-1 small">Categories</p>
+                            <p class="h4 mb-0 fw-bold">{{ getUniqueCategoriesCount() }}</p>
+                        </div>
+                        <i class="bi bi-tag text-info" style="font-size: 2rem; opacity: 0.3"></i>
+                    </div>
+                </div>
             </div>
-            <i class="bi bi-tag text-info" style="font-size: 2rem; opacity: 0.3;"></i>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Main Content Card -->
-  <div class="card border-0 shadow-sm">
-    <div class="card-body p-0">
-      <!-- Table Section -->
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr>
-              <th class="ps-4">Title</th>
-              <th>Category</th>
-              <th>Period</th>
-              <th>Report Date</th>
-              <th>Status</th>
-              <th class="text-center pe-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let report of impactReports" class="border-bottom">
-              <td class="ps-4">
-                <div class="fw-bold text-dark">{{ report.title }}</div>
-                <small class="text-muted d-block">{{ report.description | slice:0:45 }}...</small>
-              </td>
-              <td>
-                <span class="badge bg-info text-dark">{{ report.category }}</span>
-              </td>
-              <td>{{ report.period }}</td>
-              <td class="text-muted small">{{ report.reportDate | date: 'short' }}</td>
-              <td>
-                <span 
-                  class="badge"
-                  [ngClass]="{
-                    'bg-success': report.isPublished,
-                    'bg-warning text-dark': !report.isPublished
-                  }"
-                >
-                  {{ report.isPublished ? 'Published' : 'Draft' }}
-                </span>
-              </td>
-              <td class="text-center pe-4">
-                <button class="btn btn-sm btn-outline-info me-2" (click)="viewReport(report)" title="View" data-bs-toggle="tooltip">
-                  <i class="bi bi-eye"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-primary me-2" (click)="openEditDialog(report)" title="Edit" data-bs-toggle="tooltip">
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" (click)="deleteReport(report)" title="Delete" data-bs-toggle="tooltip">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="!impactReports || impactReports.length === 0">
-              <td colspan="6" class="text-center py-5">
-                <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem; opacity: 0.5;"></i>
-                <p class="text-muted mt-3 mb-0">No impact reports yet</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Main Content Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <!-- Table Section -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Title</th>
+                            <th>Category</th>
+                            <th>Period</th>
+                            <th>Report Date</th>
+                            <th>Status</th>
+                            <th class="text-center pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let report of impactReports" class="border-bottom">
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">{{ report.title }}</div>
+                                <small class="text-muted d-block">{{ report.description | slice: 0 : 45 }}...</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-dark">{{ report.category }}</span>
+                            </td>
+                            <td>{{ report.period }}</td>
+                            <td class="text-muted small">{{ report.reportDate | date: 'short' }}</td>
+                            <td>
+                                <span
+                                    class="badge"
+                                    [ngClass]="{
+                                        'bg-success': report.isPublished,
+                                        'bg-warning text-dark': !report.isPublished
+                                    }"
+                                >
+                                    {{ report.isPublished ? 'Published' : 'Draft' }}
+                                </span>
+                            </td>
+                            <td class="text-center pe-4">
+                                <button class="btn btn-sm btn-outline-info me-2" (click)="viewReport(report)" title="View" data-bs-toggle="tooltip">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary me-2" (click)="openEditDialog(report)" title="Edit" data-bs-toggle="tooltip">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" (click)="deleteReport(report)" title="Delete" data-bs-toggle="tooltip">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!impactReports || impactReports.length === 0">
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem; opacity: 0.5"></i>
+                                <p class="text-muted mt-3 mb-0">No impact reports yet</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- Modal for Create/Edit -->
 <div class="modal fade" tabindex="-1" [class.show]="displayDialog" [style.display]="displayDialog ? 'block' : 'none'" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content border-0 shadow-lg">
-      <div class="modal-header border-bottom-0 bg-light">
-        <h5 class="modal-title fw-bold">
-          <i [ngClass]="isEdit ? 'bi bi-pencil-square' : 'bi bi-file-earmark-plus'" class="me-2"></i>
-          {{ isEdit ? 'Edit Report' : 'New Report' }}
-        </h5>
-        <button type="button" class="btn-close" (click)="closeDialog()" aria-label="Close"></button>
-      </div>
-      
-      <div class="modal-body p-4" *ngIf="selectedReport">
-        <form [formGroup]="reportForm">
-          <div class="mb-3">
-            <label for="title" class="form-label">Report Title</label>
-            <input type="text" class="form-control" id="title" formControlName="title">
-          </div>
-          
-          <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" formControlName="description" rows="3"></textarea>
-          </div>
-          
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="category" class="form-label">Category</label>
-              <select class="form-select" id="category" formControlName="category">
-                <option value="">Select Category</option>
-                <option *ngFor="let option of categoryOptions" [value]="option.value">{{ option.label }}</option>
-              </select>
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 bg-light">
+                <h5 class="modal-title fw-bold">
+                    <i [ngClass]="isEdit ? 'bi bi-pencil-square' : 'bi bi-file-earmark-plus'" class="me-2"></i>
+                    {{ isEdit ? 'Edit Report' : 'New Report' }}
+                </h5>
+                <button type="button" class="btn-close" (click)="closeDialog()" aria-label="Close"></button>
             </div>
-            
-            <div class="col-md-6 mb-3">
-              <label for="period" class="form-label">Period</label>
-              <select class="form-select" id="period" formControlName="period">
-                <option value="">Select Period</option>
-                <option *ngFor="let option of periodOptions" [value]="option.value">{{ option.label }}</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="reportDate" class="form-label">Report Date</label>
-              <input type="date" class="form-control" id="reportDate" formControlName="reportDate">
-            </div>
-            
-            <div class="col-md-6 mb-3">
-              <div class="form-check form-switch mt-4">
-                <input class="form-check-input" type="checkbox" id="isPublished" formControlName="isPublished">
-                <label class="form-check-label" for="isPublished">Published</label>
-              </div>
-            </div>
-          </div>
 
-          <!-- Impact Metrics Section -->
-          <div class="border-top pt-3 mt-3 mb-3" formGroupName="metrics">
-            <h6 class="fw-bold mb-3">Impact Metrics</h6>
-            
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="beneficiariesReached" class="form-label">Beneficiaries Reached</label>
-                <input type="number" class="form-control" id="beneficiariesReached" formControlName="beneficiariesReached" min="0">
-              </div>
-              
-              <div class="col-md-6 mb-3">
-                <label for="fundsUtilized" class="form-label">Funds Utilized (ZAR)</label>
-                <input type="number" class="form-control" id="fundsUtilized" formControlName="fundsUtilized" min="0" step="0.01">
-              </div>
-              
-              <div class="col-md-6 mb-3">
-                <label for="projectsCompleted" class="form-label">Projects Completed</label>
-                <input type="number" class="form-control" id="projectsCompleted" formControlName="projectsCompleted" min="0">
-              </div>
-              
-              <div class="col-md-6 mb-3">
-                <label for="volunteerHours" class="form-label">Volunteer Hours</label>
-                <input type="number" class="form-control" id="volunteerHours" formControlName="volunteerHours" min="0" step="0.5">
-              </div>
+            <div class="modal-body p-4" *ngIf="selectedReport">
+                <form [formGroup]="reportForm">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Report Title</label>
+                        <input type="text" class="form-control" id="title" formControlName="title" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" formControlName="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" formControlName="category">
+                                <option value="">Select Category</option>
+                                <option *ngFor="let option of categoryOptions" [value]="option.value">{{ option.label }}</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="period" class="form-label">Period</label>
+                            <select class="form-select" id="period" formControlName="period">
+                                <option value="">Select Period</option>
+                                <option *ngFor="let option of periodOptions" [value]="option.value">{{ option.label }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="reportDate" class="form-label">Report Date</label>
+                            <input type="date" class="form-control" id="reportDate" formControlName="reportDate" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" id="isPublished" formControlName="isPublished" />
+                                <label class="form-check-label" for="isPublished">Published</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Impact Metrics Section -->
+                    <div class="border-top pt-3 mt-3 mb-3" formGroupName="metrics">
+                        <h6 class="fw-bold mb-3">Impact Metrics</h6>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="beneficiariesReached" class="form-label">Beneficiaries Reached</label>
+                                <input type="number" class="form-control" id="beneficiariesReached" formControlName="beneficiariesReached" min="0" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="fundsUtilized" class="form-label">Funds Utilized (ZAR)</label>
+                                <input type="number" class="form-control" id="fundsUtilized" formControlName="fundsUtilized" min="0" step="0.01" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="projectsCompleted" class="form-label">Projects Completed</label>
+                                <input type="number" class="form-control" id="projectsCompleted" formControlName="projectsCompleted" min="0" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="volunteerHours" class="form-label">Volunteer Hours</label>
+                                <input type="number" class="form-control" id="volunteerHours" formControlName="volunteerHours" min="0" step="0.5" />
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
-          </div>
-        </form>
-      </div>
-      
-      <div class="modal-footer">
-        <button type="button" class="btn-secondary-theme" (click)="closeDialog()">Cancel</button>
-        <button type="button" class="btn-primary-theme" (click)="saveReport()" [disabled]="loading">
-          {{ loading ? 'Saving...' : 'Save' }}
-        </button>
-      </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary-theme" (click)="closeDialog()">Cancel</button>
+                <button type="button" class="btn-primary-theme" (click)="saveReport()" [disabled]="loading">
+                    {{ loading ? 'Saving...' : 'Save' }}
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- Backdrop -->

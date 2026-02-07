@@ -16,19 +16,7 @@ import { CalendarModule } from 'primeng/calendar';
 @Component({
     selector: 'app-ngo-grant-applications-admin',
     standalone: true,
-    imports: [
-        CommonModule,
-        ReactiveFormsModule,
-        ButtonModule,
-        InputTextModule,
-        InputNumberModule,
-        DropdownModule,
-        DialogModule,
-        TableModule,
-        ConfirmDialogModule,
-        ToastModule,
-        CalendarModule
-    ],
+    imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, InputNumberModule, DropdownModule, DialogModule, TableModule, ConfirmDialogModule, ToastModule, CalendarModule],
     providers: [ConfirmationService, MessageService],
     template: `
         <p-toast></p-toast>
@@ -44,10 +32,7 @@ import { CalendarModule } from 'primeng/calendar';
 
             <div class="row mb-3">
                 <div class="col-12">
-                    <button class="btn btn-primary" 
-                        (click)="openAddDialog()">
-                        <i class="bi bi-plus-circle me-2"></i>Add New Grant Application
-                    </button>
+                    <button class="btn btn-primary" (click)="openAddDialog()"><i class="bi bi-plus-circle me-2"></i>Add New Grant Application</button>
                 </div>
             </div>
 
@@ -79,26 +64,20 @@ import { CalendarModule } from 'primeng/calendar';
                                                 {{ formatStatus(app.status) }}
                                             </span>
                                         </td>
-                                        <td>{{ app.requestedAmount | currency:'ZAR':'symbol':'1.0-0' }}</td>
-                                        <td>{{ app.approvedAmount | currency:'ZAR':'symbol':'1.0-0' }}</td>
+                                        <td>{{ app.requestedAmount | currency: 'ZAR' : 'symbol' : '1.0-0' }}</td>
+                                        <td>{{ app.approvedAmount | currency: 'ZAR' : 'symbol' : '1.0-0' }}</td>
                                         <td class="small">{{ app.timeline }}</td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-primary me-1" 
-                                                title="Edit"
-                                                (click)="openEditDialog(app)">
+                                            <button class="btn btn-sm btn-outline-primary me-1" title="Edit" (click)="openEditDialog(app)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-outline-danger" 
-                                                title="Delete"
-                                                (click)="deleteGrant(app)">
+                                            <button class="btn btn-sm btn-outline-danger" title="Delete" (click)="deleteGrant(app)">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
                                     <tr *ngIf="applications.length === 0">
-                                        <td colspan="8" class="text-center text-muted py-4">
-                                            No grant applications found. Click "Add New Grant Application" to create one.
-                                        </td>
+                                        <td colspan="8" class="text-center text-muted py-4">No grant applications found. Click "Add New Grant Application" to create one.</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -127,21 +106,15 @@ import { CalendarModule } from 'primeng/calendar';
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Organization Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" formControlName="organizationName"
-                                            [class.is-invalid]="grantForm.get('organizationName')?.hasError('required') && grantForm.get('organizationName')?.touched" />
-                                        <small class="text-danger" *ngIf="grantForm.get('organizationName')?.hasError('required') && grantForm.get('organizationName')?.touched">
-                                            Organization name is required
-                                        </small>
+                                        <input type="text" class="form-control" formControlName="organizationName" [class.is-invalid]="grantForm.get('organizationName')?.hasError('required') && grantForm.get('organizationName')?.touched" />
+                                        <small class="text-danger" *ngIf="grantForm.get('organizationName')?.hasError('required') && grantForm.get('organizationName')?.touched"> Organization name is required </small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Contact Person <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" formControlName="contactPerson"
-                                            [class.is-invalid]="grantForm.get('contactPerson')?.hasError('required') && grantForm.get('contactPerson')?.touched" />
-                                        <small class="text-danger" *ngIf="grantForm.get('contactPerson')?.hasError('required') && grantForm.get('contactPerson')?.touched">
-                                            Contact person is required
-                                        </small>
+                                        <input type="text" class="form-control" formControlName="contactPerson" [class.is-invalid]="grantForm.get('contactPerson')?.hasError('required') && grantForm.get('contactPerson')?.touched" />
+                                        <small class="text-danger" *ngIf="grantForm.get('contactPerson')?.hasError('required') && grantForm.get('contactPerson')?.touched"> Contact person is required </small>
                                     </div>
                                 </div>
                             </div>
@@ -150,14 +123,14 @@ import { CalendarModule } from 'primeng/calendar';
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Email <span class="text-danger">*</span></label>
-                                        <input type="email" class="form-control" formControlName="email"
-                                            [class.is-invalid]="(grantForm.get('email')?.hasError('required') || grantForm.get('email')?.hasError('email')) && grantForm.get('email')?.touched" />
-                                        <small class="text-danger" *ngIf="grantForm.get('email')?.hasError('required') && grantForm.get('email')?.touched">
-                                            Email is required
-                                        </small>
-                                        <small class="text-danger" *ngIf="grantForm.get('email')?.hasError('email') && grantForm.get('email')?.touched">
-                                            Invalid email format
-                                        </small>
+                                        <input
+                                            type="email"
+                                            class="form-control"
+                                            formControlName="email"
+                                            [class.is-invalid]="(grantForm.get('email')?.hasError('required') || grantForm.get('email')?.hasError('email')) && grantForm.get('email')?.touched"
+                                        />
+                                        <small class="text-danger" *ngIf="grantForm.get('email')?.hasError('required') && grantForm.get('email')?.touched"> Email is required </small>
+                                        <small class="text-danger" *ngIf="grantForm.get('email')?.hasError('email') && grantForm.get('email')?.touched"> Invalid email format </small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -175,36 +148,27 @@ import { CalendarModule } from 'primeng/calendar';
 
                             <div class="mb-3">
                                 <label class="form-label">Project Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" formControlName="projectName"
-                                    [class.is-invalid]="grantForm.get('projectName')?.hasError('required') && grantForm.get('projectName')?.touched" />
-                                <small class="text-danger" *ngIf="grantForm.get('projectName')?.hasError('required') && grantForm.get('projectName')?.touched">
-                                    Project name is required
-                                </small>
+                                <input type="text" class="form-control" formControlName="projectName" [class.is-invalid]="grantForm.get('projectName')?.hasError('required') && grantForm.get('projectName')?.touched" />
+                                <small class="text-danger" *ngIf="grantForm.get('projectName')?.hasError('required') && grantForm.get('projectName')?.touched"> Project name is required </small>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Project Description <span class="text-danger">*</span></label>
-                                <textarea class="form-control" formControlName="projectDescription" rows="3"
-                                    [class.is-invalid]="grantForm.get('projectDescription')?.hasError('required') && grantForm.get('projectDescription')?.touched"></textarea>
-                                <small class="text-danger" *ngIf="grantForm.get('projectDescription')?.hasError('required') && grantForm.get('projectDescription')?.touched">
-                                    Description is required
-                                </small>
+                                <textarea class="form-control" formControlName="projectDescription" rows="3" [class.is-invalid]="grantForm.get('projectDescription')?.hasError('required') && grantForm.get('projectDescription')?.touched"></textarea>
+                                <small class="text-danger" *ngIf="grantForm.get('projectDescription')?.hasError('required') && grantForm.get('projectDescription')?.touched"> Description is required </small>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Project Category <span class="text-danger">*</span></label>
-                                        <select class="form-select" formControlName="projectCategory"
-                                            [class.is-invalid]="grantForm.get('projectCategory')?.hasError('required') && grantForm.get('projectCategory')?.touched">
+                                        <select class="form-select" formControlName="projectCategory" [class.is-invalid]="grantForm.get('projectCategory')?.hasError('required') && grantForm.get('projectCategory')?.touched">
                                             <option value="">Select category</option>
                                             <option *ngFor="let cat of categoryOptions" [value]="cat.value">
                                                 {{ cat.label }}
                                             </option>
                                         </select>
-                                        <small class="text-danger" *ngIf="grantForm.get('projectCategory')?.hasError('required') && grantForm.get('projectCategory')?.touched">
-                                            Category is required
-                                        </small>
+                                        <small class="text-danger" *ngIf="grantForm.get('projectCategory')?.hasError('required') && grantForm.get('projectCategory')?.touched"> Category is required </small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -228,21 +192,15 @@ import { CalendarModule } from 'primeng/calendar';
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Requested Amount (ZAR) <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" formControlName="requestedAmount"
-                                            [class.is-invalid]="grantForm.get('requestedAmount')?.hasError('required') && grantForm.get('requestedAmount')?.touched" />
-                                        <small class="text-danger" *ngIf="grantForm.get('requestedAmount')?.hasError('required') && grantForm.get('requestedAmount')?.touched">
-                                            Amount is required
-                                        </small>
+                                        <input type="number" class="form-control" formControlName="requestedAmount" [class.is-invalid]="grantForm.get('requestedAmount')?.hasError('required') && grantForm.get('requestedAmount')?.touched" />
+                                        <small class="text-danger" *ngIf="grantForm.get('requestedAmount')?.hasError('required') && grantForm.get('requestedAmount')?.touched"> Amount is required </small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Approved Amount (ZAR) <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" formControlName="approvedAmount"
-                                            [class.is-invalid]="grantForm.get('approvedAmount')?.hasError('required') && grantForm.get('approvedAmount')?.touched" />
-                                        <small class="text-danger" *ngIf="grantForm.get('approvedAmount')?.hasError('required') && grantForm.get('approvedAmount')?.touched">
-                                            Amount is required
-                                        </small>
+                                        <input type="number" class="form-control" formControlName="approvedAmount" [class.is-invalid]="grantForm.get('approvedAmount')?.hasError('required') && grantForm.get('approvedAmount')?.touched" />
+                                        <small class="text-danger" *ngIf="grantForm.get('approvedAmount')?.hasError('required') && grantForm.get('approvedAmount')?.touched"> Amount is required </small>
                                     </div>
                                 </div>
                             </div>
@@ -254,12 +212,14 @@ import { CalendarModule } from 'primeng/calendar';
 
                             <div class="mb-3">
                                 <label class="form-label">Project Timeline <span class="text-danger">*</span></label>
-                                <textarea class="form-control" formControlName="timeline" rows="2" 
+                                <textarea
+                                    class="form-control"
+                                    formControlName="timeline"
+                                    rows="2"
                                     placeholder="e.g., 6 months, Q1-Q2 2026"
-                                    [class.is-invalid]="grantForm.get('timeline')?.hasError('required') && grantForm.get('timeline')?.touched"></textarea>
-                                <small class="text-danger" *ngIf="grantForm.get('timeline')?.hasError('required') && grantForm.get('timeline')?.touched">
-                                    Timeline is required
-                                </small>
+                                    [class.is-invalid]="grantForm.get('timeline')?.hasError('required') && grantForm.get('timeline')?.touched"
+                                ></textarea>
+                                <small class="text-danger" *ngIf="grantForm.get('timeline')?.hasError('required') && grantForm.get('timeline')?.touched"> Timeline is required </small>
                             </div>
 
                             <div class="row">
@@ -272,8 +232,7 @@ import { CalendarModule } from 'primeng/calendar';
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Application/Donation URL</label>
-                                        <input type="url" class="form-control" formControlName="applicationUrl"
-                                            placeholder="https://..." />
+                                        <input type="url" class="form-control" formControlName="applicationUrl" placeholder="https://..." />
                                         <small class="form-text text-muted">Where donors/applicants should go to donate or apply</small>
                                     </div>
                                 </div>
@@ -287,9 +246,7 @@ import { CalendarModule } from 'primeng/calendar';
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" (click)="displayDialog = false">Cancel</button>
-                        <button type="button" class="btn btn-primary" (click)="saveGrant()" [disabled]="grantForm.invalid">
-                            {{ editingId ? 'Update' : 'Add' }} Grant Application
-                        </button>
+                        <button type="button" class="btn btn-primary" (click)="saveGrant()" [disabled]="grantForm.invalid">{{ editingId ? 'Update' : 'Add' }} Grant Application</button>
                     </div>
                 </div>
             </div>
@@ -298,14 +255,16 @@ import { CalendarModule } from 'primeng/calendar';
         <!-- Modal Backdrop -->
         <div class="modal-backdrop fade" [class.show]="displayDialog" *ngIf="displayDialog"></div>
     `,
-    styles: [`
-        .modal.show {
-            display: block;
-        }
-        .form-label {
-            margin-bottom: 0.5rem;
-        }
-    `]
+    styles: [
+        `
+            .modal.show {
+                display: block;
+            }
+            .form-label {
+                margin-bottom: 0.5rem;
+            }
+        `
+    ]
 })
 export class NgoGrantApplicationsAdminComponent implements OnInit {
     applications: any[] = [];
@@ -491,10 +450,13 @@ export class NgoGrantApplicationsAdminComponent implements OnInit {
     }
 
     formatStatus(status: string): string {
-        return status?.replace('-', ' ')
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ') || 'Unknown';
+        return (
+            status
+                ?.replace('-', ' ')
+                .split(' ')
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ') || 'Unknown'
+        );
     }
 
     getStatusBadgeClass(status: string): string {

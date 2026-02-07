@@ -55,15 +55,10 @@ import { CheckboxModule } from 'primeng/checkbox';
 
                 <p-fieldset legend="Button" [toggleable]="true">
                     <div class="flex flex-col mb-4">
-                        <p-checkbox 
-                            formControlName="showButton"
-                            [binary]="true"
-                            label="Show Action Button"
-                            inputId="showButton">
-                        </p-checkbox>
+                        <p-checkbox formControlName="showButton" [binary]="true" label="Show Action Button" inputId="showButton"> </p-checkbox>
                         <small class="text-gray-600 mt-1">Toggle to show or hide the call-to-action button</small>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6" *ngIf="form.get('showButton')?.value">
                         <div class="flex flex-col">
                             <label for="buttonText" class="font-medium text-gray-700 mb-2">Button Text</label>
@@ -93,8 +88,8 @@ import { CheckboxModule } from 'primeng/checkbox';
                 </p-fieldset>
 
                 <div class="flex justify-end gap-3 pt-6">
-                        <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-outlined" (click)="onCancel()"></button>
-                        <button pButton type="submit" label="Save Changes" icon="pi pi-check"></button>
+                    <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-outlined" (click)="onCancel()"></button>
+                    <button pButton type="submit" label="Save Changes" icon="pi pi-check"></button>
                 </div>
             </form>
         </div>
@@ -143,7 +138,7 @@ export class HeroEditorComponent implements OnInit, OnChanges {
         console.log('Form value:', this.form.value);
         console.log('Form valid:', this.form.valid);
         console.log('Update emitter observers:', this.update.observers.length);
-        
+
         if (this.form.valid) {
             console.log('Emitting update event with:', this.form.value);
             this.update.emit(this.form.value);

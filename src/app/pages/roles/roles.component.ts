@@ -49,7 +49,7 @@ export class RolesComponent {
         private confirmationService: ConfirmationService,
         private roleService: RoleServiceProxy,
         private permissionService: PermissionServiceProxy,
-        private rolePermissionService: RolePermissionServiceProxy,
+        private rolePermissionService: RolePermissionServiceProxy
     ) {}
 
     ngOnInit() {
@@ -58,23 +58,29 @@ export class RolesComponent {
     }
 
     loadRoles() {
-        this.roleService.role_GetAllRoles().pipe(unwrap<RoleDto[]>()).subscribe((roles) => {
-            this.roles.set(roles);
-        });
+        this.roleService
+            .role_GetAllRoles()
+            .pipe(unwrap<RoleDto[]>())
+            .subscribe((roles) => {
+                this.roles.set(roles);
+            });
     }
 
     loadPermissions() {
-        this.permissionService.permission_GetAllPermissions().pipe(unwrap<Permission[]>()).subscribe({
-            next: (allPermissions: Permission[]) => {
-                this.availablePermissions.set(allPermissions);
-                this.filteredPermissions.set(allPermissions);
-            },
-            error: (error: any) => {
-                console.error('Error loading all permissions:', error);
-                this.availablePermissions.set([]);
-                this.filteredPermissions.set([]);
-            }
-        });
+        this.permissionService
+            .permission_GetAllPermissions()
+            .pipe(unwrap<Permission[]>())
+            .subscribe({
+                next: (allPermissions: Permission[]) => {
+                    this.availablePermissions.set(allPermissions);
+                    this.filteredPermissions.set(allPermissions);
+                },
+                error: (error: any) => {
+                    console.error('Error loading all permissions:', error);
+                    this.availablePermissions.set([]);
+                    this.filteredPermissions.set([]);
+                }
+            });
     }
 
     onGlobalFilter(table: Table, event: Event) {
@@ -95,12 +101,10 @@ export class RolesComponent {
     openPermissionDialog(role: RoleDto) {
         this.role = RoleDto.fromJS(role);
         this.originalRolePermissions = (role.permissions || []).map((p) => RolePermission.fromJS({ roleId: role.id, permissionId: p.id }));
-        
+
         // Use filtered permissions based on tenant type
         const permissionsToUse = this.filteredPermissions();
-        this.selectedPermissions = permissionsToUse.filter((permission) => 
-            this.originalRolePermissions.some((rp) => rp.permissionId === permission.id)
-        );
+        this.selectedPermissions = permissionsToUse.filter((permission) => this.originalRolePermissions.some((rp) => rp.permissionId === permission.id));
         this.permissionDialog = true;
     }
 
@@ -217,7 +221,7 @@ export class RolesComponent {
                         if (completedCount === totalToAdd) {
                             this.loadRoles(); // Reload roles to reflect changes
                             this.permissionDialog = false;
-                            
+
                             if (hasError) {
                                 this.messageService.add({
                                     severity: 'warn',
@@ -248,7 +252,7 @@ export class RolesComponent {
                         hasError = true;
                         completedCount++;
                         console.error('Failed to assign permission:', error);
-                        
+
                         // Still check if all are complete
                         if (completedCount === totalToAdd) {
                             this.loadRoles();

@@ -1,12 +1,15 @@
 <div class="identity-verification-form">
     <!-- Bootstrap Alert -->
-    <div *ngIf="showAlert" class="alert alert-{{alertType}} alert-dismissible fade show" role="alert">
-        <i class="bi" [ngClass]="{
-            'bi-check-circle-fill': alertType === 'success',
-            'bi-exclamation-triangle-fill': alertType === 'warning',
-            'bi-info-circle-fill': alertType === 'info',
-            'bi-x-circle-fill': alertType === 'danger'
-        }"></i>
+    <div *ngIf="showAlert" class="alert alert-{{ alertType }} alert-dismissible fade show" role="alert">
+        <i
+            class="bi"
+            [ngClass]="{
+                'bi-check-circle-fill': alertType === 'success',
+                'bi-exclamation-triangle-fill': alertType === 'warning',
+                'bi-info-circle-fill': alertType === 'info',
+                'bi-x-circle-fill': alertType === 'danger'
+            }"
+        ></i>
         {{ alertMessage }}
         <button type="button" class="btn-close" (click)="closeAlert()" aria-label="Close"></button>
     </div>
@@ -110,7 +113,16 @@
                 <!-- Verification Type Field -->
                 <div class="field mb-4">
                     <label for="verificationType" class="block text-900 font-medium mb-2"> Verification Type <span class="text-red-500">*</span> </label>
-                    <p-dropdown formControlName="verificationType" [options]="verificationTypes" optionLabel="label" optionValue="value" placeholder="Select verification type" class="w-full" [class.ng-invalid]="isFieldInvalid('verificationType')" appendTo="body">
+                    <p-dropdown
+                        formControlName="verificationType"
+                        [options]="verificationTypes"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Select verification type"
+                        class="w-full"
+                        [class.ng-invalid]="isFieldInvalid('verificationType')"
+                        appendTo="body"
+                    >
                         <ng-template pTemplate="selectedItem" let-selectedOption>
                             <div class="flex align-items-center gap-2" *ngIf="selectedOption">
                                 <i [class]="selectedOption.icon" class="text-blue-500"></i>
@@ -137,12 +149,7 @@
                 <!-- Action Buttons -->
                 <div class="flex justify-content-between gap-3">
                     <!-- Quick Verify Button -->
-                    <button 
-                        *ngIf="showQuickVerify"
-                        type="button" 
-                        class="btn btn-outline-secondary flex-1"
-                        [disabled]="quickVerifying()"
-                        (click)="performQuickVerification()">
+                    <button *ngIf="showQuickVerify" type="button" class="btn btn-outline-secondary flex-1" [disabled]="quickVerifying()" (click)="performQuickVerification()">
                         <i class="pi pi-bolt me-2"></i>
                         @if (quickVerifying()) {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -151,10 +158,7 @@
                     </button>
 
                     <!-- Submit Button -->
-                    <button 
-                        type="submit" 
-                        class="btn-primary-theme flex-1"
-                        [disabled]="verificationForm.invalid || submitting()">
+                    <button type="submit" class="btn-primary-theme flex-1" [disabled]="verificationForm.invalid || submitting()">
                         <i class="pi pi-shield me-2"></i>
                         @if (submitting()) {
                             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>

@@ -71,20 +71,26 @@ export class SubscriptionPlansComponent {
 
     ngOnInit() {
         this.loadSubscriptionPlans();
-        this.lookupService.getEnumValues('TenantType').pipe(unwrap<any[]>()).subscribe(
-            (data: any[]) => {
-                this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
-            },
-            (error) => {
-                console.error('Error loading tenant types:', error);
-            }
-        );
+        this.lookupService
+            .getEnumValues('TenantType')
+            .pipe(unwrap<any[]>())
+            .subscribe(
+                (data: any[]) => {
+                    this.tenantTypes = data.map((item: any) => ({ label: item.name, value: item.value }));
+                },
+                (error) => {
+                    console.error('Error loading tenant types:', error);
+                }
+            );
     }
 
     loadSubscriptionPlans() {
-        this.subscriptionPlanService.subscriptionPlan_GetAll().pipe(unwrap<SubscriptionPlanDto[]>()).subscribe((plans) => {
-            this.subscriptionPlans.set(plans);
-        });
+        this.subscriptionPlanService
+            .subscriptionPlan_GetAll()
+            .pipe(unwrap<SubscriptionPlanDto[]>())
+            .subscribe((plans) => {
+                this.subscriptionPlans.set(plans);
+            });
 
         this.cols = [
             { field: 'name', header: 'Name' },

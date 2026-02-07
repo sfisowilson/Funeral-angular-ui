@@ -78,15 +78,7 @@
         <!-- Phase 3: Dependent Classification Section -->
         <div class="field">
             <label for="dependentType">Dependent Type</label>
-            <p-dropdown 
-                id="dependentType" 
-                [(ngModel)]="dependent.dependentType" 
-                [options]="dependentTypeOptions" 
-                optionLabel="label" 
-                optionValue="value" 
-                placeholder="Select dependent type"
-                [showClear]="true">
-            </p-dropdown>
+            <p-dropdown id="dependentType" [(ngModel)]="dependent.dependentType" [options]="dependentTypeOptions" optionLabel="label" optionValue="value" placeholder="Select dependent type" [showClear]="true"> </p-dropdown>
             <small class="text-muted-color" *ngIf="dependent.dependentType">
                 {{ getAgeLimitWarning(dependent.dependentType) }}
             </small>
@@ -94,17 +86,8 @@
 
         <div class="field">
             <label for="dateOfBirth">Date of Birth</label>
-            <p-calendar 
-                id="dateOfBirth" 
-                [(ngModel)]="dependent.dateOfBirth" 
-                dateFormat="yy-mm-dd" 
-                [showIcon]="true"
-                [maxDate]="maxDate"
-                placeholder="Select date of birth">
-            </p-calendar>
-            <small class="text-muted-color" *ngIf="dependent.calculatedAge !== null && dependent.calculatedAge !== undefined">
-                Current Age: {{ dependent.calculatedAge }} years
-            </small>
+            <p-calendar id="dateOfBirth" [(ngModel)]="dependent.dateOfBirth" dateFormat="yy-mm-dd" [showIcon]="true" [maxDate]="maxDate" placeholder="Select date of birth"> </p-calendar>
+            <small class="text-muted-color" *ngIf="dependent.calculatedAge !== null && dependent.calculatedAge !== undefined"> Current Age: {{ dependent.calculatedAge }} years </small>
         </div>
 
         <!-- Extended Family Count Indicator -->
@@ -113,7 +96,7 @@
                 <div class="p-message-wrapper">
                     <span class="p-message-icon pi pi-info-circle"></span>
                     <div class="p-message-detail">
-                        Extended Family Members: {{ getExtendedFamilyCount() }} of 4 
+                        Extended Family Members: {{ getExtendedFamilyCount() }} of 4
                         <span *ngIf="getExtendedFamilyCount() >= 4">(Maximum reached)</span>
                     </div>
                 </div>

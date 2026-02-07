@@ -7,16 +7,37 @@ import { FormsModule } from '@angular/forms';
     standalone: true,
     imports: [CommonModule, FormsModule],
     template: `
-    <div class="editor">
-      <div class="form-group"><label>Title</label><input type="text" class="form-control" [(ngModel)]="config.title" (ngModelChange)="onChange()"></div>
-      <div class="form-group"><label>Products to Show</label><input type="number" class="form-control" [(ngModel)]="config.productsToShow" (ngModelChange)="onChange()"></div>
-      <div class="form-group"><label>Button Text</label><input type="text" class="form-control" [(ngModel)]="config.buttonText" (ngModelChange)="onChange()"></div>
-      <div class="form-group"><label><input type="checkbox" [(ngModel)]="config.showTitle" (ngModelChange)="onChange()"> Show Title</label></div>
-      <div class="form-group"><label>Background</label><input type="color" class="form-control" [(ngModel)]="config.backgroundColor" (ngModelChange)="onChange()"></div>
-      <div class="form-group"><label>Button Color</label><input type="color" class="form-control" [(ngModel)]="config.buttonColor" (ngModelChange)="onChange()"></div>
-    </div>
+        <div class="editor">
+            <div class="form-group"><label>Title</label><input type="text" class="form-control" [(ngModel)]="config.title" (ngModelChange)="onChange()" /></div>
+            <div class="form-group"><label>Products to Show</label><input type="number" class="form-control" [(ngModel)]="config.productsToShow" (ngModelChange)="onChange()" /></div>
+            <div class="form-group"><label>Button Text</label><input type="text" class="form-control" [(ngModel)]="config.buttonText" (ngModelChange)="onChange()" /></div>
+            <div class="form-group">
+                <label><input type="checkbox" [(ngModel)]="config.showTitle" (ngModelChange)="onChange()" /> Show Title</label>
+            </div>
+            <div class="form-group"><label>Background</label><input type="color" class="form-control" [(ngModel)]="config.backgroundColor" (ngModelChange)="onChange()" /></div>
+            <div class="form-group"><label>Button Color</label><input type="color" class="form-control" [(ngModel)]="config.buttonColor" (ngModelChange)="onChange()" /></div>
+        </div>
     `,
-    styles: [`.editor { padding: 1rem; } .form-group { margin-bottom: 1rem; } label { display: block; margin-bottom: 0.5rem; } .form-control { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }`]
+    styles: [
+        `
+            .editor {
+                padding: 1rem;
+            }
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            label {
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+            .form-control {
+                width: 100%;
+                padding: 0.5rem;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+        `
+    ]
 })
 export class FeaturedProductsEditorComponent implements OnInit {
     @Input() config: any = {};
@@ -29,5 +50,7 @@ export class FeaturedProductsEditorComponent implements OnInit {
         }
     }
 
-    onChange(): void { this.configChange.emit(this.config); }
+    onChange(): void {
+        this.configChange.emit(this.config);
+    }
 }

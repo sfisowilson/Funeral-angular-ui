@@ -23,7 +23,7 @@ interface DynamicFormField {
     imports: [CommonModule, ReactiveFormsModule],
     templateUrl: './form-widget.component.html',
     styleUrls: ['./form-widget.component.scss'],
-    providers: [FormServiceProxy]
+    providers: [FormServiceProxy, DynamicEntityServiceProxy]
 })
 export class FormWidgetComponent implements OnInit {
     @Input() config!: WidgetConfig;
@@ -118,8 +118,11 @@ export class FormWidgetComponent implements OnInit {
                     options: Array.isArray(f.options)
                         ? f.options
                         : typeof f.options === 'string'
-                        ? f.options.split(',').map((o: string) => o.trim()).filter((o: string) => !!o)
-                        : undefined,
+                          ? f.options
+                                .split(',')
+                                .map((o: string) => o.trim())
+                                .filter((o: string) => !!o)
+                          : undefined,
                     order: typeof f.order === 'number' ? f.order : index,
                     lookupEntityTypeKey: f.lookupEntityTypeKey
                 }))
@@ -357,11 +360,7 @@ export class FormWidgetComponent implements OnInit {
             if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(token) || /^\d*\.?\d+$/.test(token)) {
                 output.push(token);
             } else if (token in precedence) {
-                while (
-                    ops.length &&
-                    ops[ops.length - 1] in precedence &&
-                    precedence[ops[ops.length - 1]] >= precedence[token]
-                ) {
+                while (ops.length && ops[ops.length - 1] in precedence && precedence[ops[ops.length - 1]] >= precedence[token]) {
                     output.push(ops.pop() as string);
                 }
                 ops.push(token);
@@ -451,9 +450,7 @@ export class FormWidgetComponent implements OnInit {
                 return rawValue.filter((x) => !!x).length;
             }
 
-            const numbers: number[] = rawValue
-                .map((x) => (typeof x === 'number' ? x : parseFloat(x)))
-                .filter((n) => !isNaN(n));
+            const numbers: number[] = rawValue.map((x) => (typeof x === 'number' ? x : parseFloat(x))).filter((n) => !isNaN(n));
 
             if (!numbers.length) {
                 return 0;

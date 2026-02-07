@@ -23,6 +23,10 @@ export class TenantSettingsService {
         @Inject(API_BASE_URL) private baseUrl: string
     ) {}
 
+    get currentSettings(): TenantSettingDto | undefined {
+        return this.settings;
+    }
+
     loadSettings(): Promise<any> {
         const host = window.location.hostname;
         // Extract subdomain intelligently to handle multi-level TLDs like dev.co.za or mizo.co.za
@@ -34,7 +38,7 @@ export class TenantSettingsService {
             // Remove the base domain and the trailing dot
             subdomain = host.substring(0, host.length - baseDomain.length - 1);
         }
-        
+
         // Only set the header if there's an actual subdomain (not the base domain)
         if (subdomain && subdomain !== 'www') {
             this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', subdomain);
@@ -111,7 +115,7 @@ export class TenantSettingsService {
         if (!this.settings || !this.settings.settings) {
             return false;
         }
-        
+
         try {
             const parsedSettings = JSON.parse(this.settings.settings);
             // Check if feature is explicitly enabled

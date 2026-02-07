@@ -15,26 +15,26 @@ export class ProductManagementComponent implements OnInit {
     filteredProducts: Product[] = [];
     categories: Category[] = [];
     stats: ProductStats | null = null;
-    
+
     selectedProduct: Product | null = null;
     isModalOpen = false;
     isEditMode = false;
-    
+
     searchTerm = '';
     selectedCategory = '';
     selectedStatus = '';
-    
+
     // Form fields
     productForm: Partial<Product> = this.getEmptyProduct();
-    
+
     constructor(private productService: ProductService) {}
-    
+
     ngOnInit(): void {
         this.loadProducts();
         this.loadCategories();
         this.loadStats();
     }
-    
+
     loadProducts(): void {
         this.productService.getProducts().subscribe({
             next: (data) => {
@@ -46,7 +46,7 @@ export class ProductManagementComponent implements OnInit {
             }
         });
     }
-    
+
     loadCategories(): void {
         this.productService.getCategories().subscribe({
             next: (data) => {
@@ -57,7 +57,7 @@ export class ProductManagementComponent implements OnInit {
             }
         });
     }
-    
+
     loadStats(): void {
         this.productService.getProductStats().subscribe({
             next: (data) => {
@@ -68,21 +68,17 @@ export class ProductManagementComponent implements OnInit {
             }
         });
     }
-    
+
     applyFilters(): void {
-        this.filteredProducts = this.products.filter(product => {
-            const matchesSearch = !this.searchTerm || 
-                product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                (product.sku && product.sku.toLowerCase().includes(this.searchTerm.toLowerCase()));
+        this.filteredProducts = this.products.filter((product) => {
+            const matchesSearch = !this.searchTerm || product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) || (product.sku && product.sku.toLowerCase().includes(this.searchTerm.toLowerCase()));
             const matchesCategory = !this.selectedCategory || product.category === this.selectedCategory;
-            const matchesStatus = !this.selectedStatus || 
-                (this.selectedStatus === 'active' && product.isActive) ||
-                (this.selectedStatus === 'inactive' && !product.isActive);
-            
+            const matchesStatus = !this.selectedStatus || (this.selectedStatus === 'active' && product.isActive) || (this.selectedStatus === 'inactive' && !product.isActive);
+
             return matchesSearch && matchesCategory && matchesStatus;
         });
     }
-    
+
     openModal(product?: Product): void {
         if (product) {
             this.isEditMode = true;
@@ -93,15 +89,15 @@ export class ProductManagementComponent implements OnInit {
         }
         this.isModalOpen = true;
     }
-    
+
     closeModal(): void {
         this.isModalOpen = false;
         this.productForm = this.getEmptyProduct();
     }
-    
+
     saveProduct(): void {
         const product = this.productForm as Product;
-        
+
         if (this.isEditMode && product.id) {
             this.productService.updateProduct(product.id, product).subscribe({
                 next: () => {
@@ -126,7 +122,7 @@ export class ProductManagementComponent implements OnInit {
             });
         }
     }
-    
+
     deleteProduct(id: string): void {
         if (confirm('Are you sure you want to delete this product?')) {
             this.productService.deleteProduct(id).subscribe({
@@ -140,7 +136,7 @@ export class ProductManagementComponent implements OnInit {
             });
         }
     }
-    
+
     toggleProductStatus(product: Product): void {
         product.isActive = !product.isActive;
         this.productService.updateProduct(product.id, product).subscribe({
@@ -154,7 +150,7 @@ export class ProductManagementComponent implements OnInit {
             }
         });
     }
-    
+
     toggleFeatured(product: Product): void {
         product.isFeatured = !product.isFeatured;
         this.productService.updateProduct(product.id, product).subscribe({
@@ -167,7 +163,7 @@ export class ProductManagementComponent implements OnInit {
             }
         });
     }
-    
+
     addImage(): void {
         if (!this.productForm.images) {
             this.productForm.images = [];
@@ -180,13 +176,13 @@ export class ProductManagementComponent implements OnInit {
             displayOrder: this.productForm.images.length
         });
     }
-    
+
     removeImage(index: number): void {
         if (this.productForm.images) {
             this.productForm.images.splice(index, 1);
         }
     }
-    
+
     addVariant(): void {
         if (!this.productForm.variants) {
             this.productForm.variants = [];
@@ -198,13 +194,13 @@ export class ProductManagementComponent implements OnInit {
             isActive: true
         });
     }
-    
+
     removeVariant(index: number): void {
         if (this.productForm.variants) {
             this.productForm.variants.splice(index, 1);
         }
     }
-    
+
     private getEmptyProduct(): Partial<Product> {
         return {
             name: '',
@@ -222,14 +218,14 @@ export class ProductManagementComponent implements OnInit {
             isFeatured: false
         };
     }
-    
+
     getStockStatus(product: Product): string {
         if (!product.trackInventory) return 'Not Tracked';
         if (product.stockQuantity === 0) return 'Out of Stock';
         if (product.lowStockThreshold && product.stockQuantity <= product.lowStockThreshold) return 'Low Stock';
         return 'In Stock';
     }
-    
+
     getStockClass(product: Product): string {
         const status = this.getStockStatus(product);
         if (status === 'Out of Stock') return 'badge-danger';

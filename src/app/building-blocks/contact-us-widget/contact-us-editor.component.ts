@@ -91,7 +91,7 @@ export class ContactUsEditorComponent implements OnInit {
         if (!this.settings.ctaSecondaryButton) {
             this.settings.ctaSecondaryButton = { text: '', link: '' };
         }
-        
+
         this.branches = this.settings.branches ? [...this.settings.branches] : [];
         this.socialMediaHandles = this.settings.socialMediaHandles ? [...this.settings.socialMediaHandles] : [];
     }
