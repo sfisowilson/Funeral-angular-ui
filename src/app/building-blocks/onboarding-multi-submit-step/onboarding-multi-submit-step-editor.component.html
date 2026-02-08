@@ -234,7 +234,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Row item alias (optional)</label>
                                 <input type="text" class="form-control" [(ngModel)]="step.calculatorRowItemAlias" (ngModelChange)="onCalculatorFieldChanged(step)" placeholder="e.g. item" />
-                                <div class="form-text">If set, you can use tokens like &#123;&#123;item.age&#125;&#125;. Otherwise use &#123;&#123;age&#125;&#125;.</div>
+                                <div class="form-text">If set, you can use tokens like <code>item.age</code>. Otherwise use <code>age</code>.</div>
                             </div>
                         </div>
 
@@ -256,8 +256,7 @@
                                     <table class="table table-sm align-middle">
                                         <thead>
                                             <tr>
-                                                <th style="width: 18%">Var key</th>
-                                                <th style="width: 24%">Source field</th>
+                                                <th style="width: 34%">Field</th>
                                                 <th style="width: 18%">Operation</th>
                                                 <th style="width: 12%">Default</th>
                                                 <th style="width: 18%">Cases</th>
@@ -266,8 +265,16 @@
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let v of step.calculatorGlobalVariables; let vi = index">
-                                                <td><input type="text" class="form-control form-control-sm" [(ngModel)]="v.key" (ngModelChange)="onCalculatorFieldChanged(step)" placeholder="v_grade" /></td>
-                                                <td><input type="text" class="form-control form-control-sm" [(ngModel)]="v.sourceField" (ngModelChange)="onCalculatorFieldChanged(step)" placeholder="grade" /></td>
+                                                <td>
+                                                    <select
+                                                        class="form-select form-select-sm"
+                                                        [(ngModel)]="v.sourceField"
+                                                        (ngModelChange)="onGlobalVariableFieldChange(step, v, $event)"
+                                                    >
+                                                        <option [ngValue]="''">Select field...</option>
+                                                        <option *ngFor="let f of getCalculatorFieldOptions(step)" [ngValue]="f.value">{{ f.label }}</option>
+                                                    </select>
+                                                </td>
                                                 <td>
                                                     <select class="form-select form-select-sm" [(ngModel)]="v.operation" (ngModelChange)="onCalculatorFieldChanged(step)">
                                                         <option value="copy">copy</option>
@@ -285,7 +292,7 @@
                                                 </td>
                                             </tr>
                                             <tr *ngIf="(step.calculatorGlobalVariables?.length || 0) === 0">
-                                                <td colspan="6" class="text-muted small">No global variables yet. Add one to convert a select/checkbox/text field into a number.</td>
+                                                <td colspan="5" class="text-muted small">No global variables yet. Add one to convert a select/checkbox/text field into a number.</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -308,7 +315,16 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr *ngFor="let c of v.cases; let ci = index">
-                                                        <td><input type="text" class="form-control form-control-sm" [(ngModel)]="c.when[0].field" (ngModelChange)="onCalculatorFieldChanged(step)" placeholder="grade" /></td>
+                                                        <td>
+                                                            <select
+                                                                class="form-select form-select-sm"
+                                                                [(ngModel)]="c.when[0].field"
+                                                                (ngModelChange)="onCalculatorFieldChanged(step)"
+                                                            >
+                                                                <option [ngValue]="''">Select field...</option>
+                                                                <option *ngFor="let f of getCalculatorFieldOptions(step)" [ngValue]="f.value">{{ f.label }}</option>
+                                                            </select>
+                                                        </td>
                                                         <td>
                                                             <select class="form-select form-select-sm" [(ngModel)]="c.when[0].operator" (ngModelChange)="onCalculatorFieldChanged(step)">
                                                                 <option value="equals">equals</option>
@@ -384,8 +400,7 @@
                                     <table class="table table-sm align-middle">
                                         <thead>
                                             <tr>
-                                                <th style="width: 20%">Var key</th>
-                                                <th style="width: 30%">Source field</th>
+                                                <th style="width: 40%">Field (this entity)</th>
                                                 <th style="width: 20%">Operation</th>
                                                 <th style="width: 20%">Default</th>
                                                 <th style="width: 10%"></th>
@@ -393,8 +408,16 @@
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let v of step.calculatorRowVariables; let vi = index">
-                                                <td><input type="text" class="form-control form-control-sm" [(ngModel)]="v.key" (ngModelChange)="onCalculatorFieldChanged(step)" placeholder="eggCount" /></td>
-                                                <td><input type="text" class="form-control form-control-sm" [(ngModel)]="v.sourceField" (ngModelChange)="onCalculatorFieldChanged(step)" placeholder="eggCount" /></td>
+                                                <td>
+                                                    <select
+                                                        class="form-select form-select-sm"
+                                                        [(ngModel)]="v.sourceField"
+                                                        (ngModelChange)="onRowVariableFieldChange(step, v, $event)"
+                                                    >
+                                                        <option [ngValue]="''">Select field...</option>
+                                                        <option *ngFor="let f of getCalculatorFieldOptions(step)" [ngValue]="f.value">{{ f.label }}</option>
+                                                    </select>
+                                                </td>
                                                 <td>
                                                     <select class="form-select form-select-sm" [(ngModel)]="v.operation" (ngModelChange)="onCalculatorFieldChanged(step)">
                                                         <option value="copy">copy</option>
@@ -409,7 +432,7 @@
                                                 </td>
                                             </tr>
                                             <tr *ngIf="(step.calculatorRowVariables?.length || 0) === 0">
-                                                <td colspan="5" class="text-muted small">No row variables yet. Add one to normalize each row's fields.</td>
+                                                <td colspan="4" class="text-muted small">No row variables yet. Add one to normalize each row's fields.</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -462,8 +485,7 @@
                                     <table class="table table-sm align-middle">
                                         <thead>
                                             <tr>
-                                                <th style="width: 20%">Var key</th>
-                                                <th style="width: 35%">Source field</th>
+                                                <th style="width: 35%">Field</th>
                                                 <th style="width: 20%">Operation</th>
                                                 <th style="width: 15%">Default</th>
                                                 <th style="width: 10%"></th>
@@ -471,8 +493,16 @@
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let v of step.calculatorPostRowVariables; let vi = index">
-                                                <td><input type="text" class="form-control form-control-sm" [(ngModel)]="v.key" (ngModelChange)="onCalculatorFieldChanged(step)" placeholder="v_categoryCode" /></td>
-                                                <td><input type="text" class="form-control form-control-sm" [(ngModel)]="v.sourceField" (ngModelChange)="onCalculatorFieldChanged(step)" placeholder="recordCount" /></td>
+                                                <td>
+                                                    <select
+                                                        class="form-select form-select-sm"
+                                                        [(ngModel)]="v.sourceField"
+                                                        (ngModelChange)="onPostRowVariableFieldChange(step, v, $event)"
+                                                    >
+                                                        <option [ngValue]="''">Select field...</option>
+                                                        <option *ngFor="let f of getCalculatorFieldOptions(step)" [ngValue]="f.value">{{ f.label }}</option>
+                                                    </select>
+                                                </td>
                                                 <td>
                                                     <select class="form-select form-select-sm" [(ngModel)]="v.operation" (ngModelChange)="onCalculatorFieldChanged(step)">
                                                         <option value="copy">copy</option>
@@ -487,7 +517,7 @@
                                                 </td>
                                             </tr>
                                             <tr *ngIf="(step.calculatorPostRowVariables?.length || 0) === 0">
-                                                <td colspan="5" class="text-muted small">Optional: derive a category or flags after all rows are submitted.</td>
+                                                <td colspan="4" class="text-muted small">Optional: derive a category or flags after all rows are submitted.</td>
                                             </tr>
                                         </tbody>
                                     </table>

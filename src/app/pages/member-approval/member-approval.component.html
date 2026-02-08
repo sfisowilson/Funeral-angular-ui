@@ -68,7 +68,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Member ID</th>
+                                <th>{{ memberNumberLabel }}</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -81,7 +81,7 @@
                         <tbody>
                             @for (member of pendingMembers(); track member.id) {
                                 <tr>
-                                    <td>{{ member.id }}</td>
+                                    <td>{{ member.memberNumber || member.id }}</td>
                                     <td>{{ member.firstNames }} {{ member.surname }}</td>
                                     <td>{{ member.email }}</td>
                                     <td>{{ member.phone1 }}</td>
@@ -137,7 +137,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p><strong>Member ID:</strong> {{ member.id }}</p>
+                                    <p><strong>{{ memberNumberLabel }}:</strong> {{ member.memberNumber || member.id }}</p>
                                     <p><strong>Full Name:</strong> {{ member.firstNames }} {{ member.surname }}</p>
                                     <p><strong>Email:</strong> {{ member.email }}</p>
                                     <p><strong>Phone:</strong> {{ member.phone1 }}</p>

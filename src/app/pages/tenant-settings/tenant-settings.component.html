@@ -22,20 +22,7 @@
                 </div>
             </div>
 
-            <!-- Payment Gateway Configuration -->
-            <div class="bg-white p-6 rounded-lg shadow">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="text-xl font-semibold text-gray-700 mb-1"><i class="bi bi-credit-card me-2 text-primary"></i>Payment Gateway Configuration</h2>
-                        <p class="text-sm text-gray-600 mb-0">Configure Ozow payment gateway credentials</p>
-                    </div>
 
-                    <div class="alert alert-info mb-0">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        <strong>Important:</strong> Payment gateway configuration has been moved to backend settings. Contact your administrator to configure payment credentials.
-                    </div>
-                </div>
-            </div>
 
             <!-- Security & Verification Settings -->
             <div class="bg-white p-6 rounded-lg shadow">
@@ -89,32 +76,104 @@
                             <p class="text-sm text-gray-600 mt-1">Enable the appointment booking system. This will show the Booking Management menu and allow you to add a booking widget to your landing page.</p>
                         </div>
                     </div>
+
+                    <!-- Member Number Settings -->
+                    <div class="flex items-start gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                        <input
+                            type="checkbox"
+                            id="enableMemberNumber"
+                            [(ngModel)]="_settings.memberNumberConfig!.enabled"
+                            class="form-check-input h-5 w-5 text-indigo-600 mt-1"
+                        />
+                        <div class="flex-1 space-y-3">
+                            <div>
+                                <label for="enableMemberNumber" class="font-medium text-gray-800 cursor-pointer"> Enable Member Number </label>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    Automatically generate a unique membership number for each member based on your configured format.
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" [class.opacity-50]="!_settings.memberNumberConfig!.enabled">
+                                <div class="flex flex-col">
+                                    <label class="font-medium text-gray-700 mb-1">Label</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        [(ngModel)]="_settings.memberNumberConfig!.label"
+                                        placeholder="e.g., Membership Number"
+                                        [disabled]="!_settings.memberNumberConfig!.enabled"
+                                    />
+                                    <small class="text-xs text-gray-500 mt-1">Label used on approval screens and emails.</small>
+                                </div>
+
+                                <div class="flex flex-col">
+                                    <label class="font-medium text-gray-700 mb-1">Prefix</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        [(ngModel)]="_settings.memberNumberConfig!.prefix"
+                                        placeholder="e.g., MEM"
+                                        [disabled]="!_settings.memberNumberConfig!.enabled"
+                                    />
+                                    <small class="text-xs text-gray-500 mt-1">Optional prefix added before the number.</small>
+                                </div>
+
+                                <div class="flex flex-col">
+                                    <label class="font-medium text-gray-700 mb-1">Separator</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        [(ngModel)]="_settings.memberNumberConfig!.separator"
+                                        placeholder="e.g., -"
+                                        [disabled]="!_settings.memberNumberConfig!.enabled"
+                                    />
+                                    <small class="text-xs text-gray-500 mt-1">Character between prefix and number (can be empty).</small>
+                                </div>
+
+                                <div class="flex flex-col">
+                                    <label class="font-medium text-gray-700 mb-1">Starting Number</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        [(ngModel)]="_settings.memberNumberConfig!.startingNumber"
+                                        min="1"
+                                        [disabled]="!_settings.memberNumberConfig!.enabled"
+                                    />
+                                    <small class="text-xs text-gray-500 mt-1">First number to use when generating new members.</small>
+                                </div>
+
+                                <div class="flex flex-col">
+                                    <label class="font-medium text-gray-700 mb-1">Minimum Digits</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        [(ngModel)]="_settings.memberNumberConfig!.minDigits"
+                                        min="1"
+                                        [disabled]="!_settings.memberNumberConfig!.enabled"
+                                    />
+                                    <small class="text-xs text-gray-500 mt-1">Numbers are zero-padded to this length.</small>
+                                </div>
+
+                                <div class="flex flex-col md:col-span-2">
+                                    <label class="font-medium text-gray-700 mb-1">When to Generate</label>
+                                    <select
+                                        class="form-select"
+                                        [(ngModel)]="_settings.memberNumberConfig!.triggerMode"
+                                        [disabled]="!_settings.memberNumberConfig!.enabled"
+                                    >
+                                        <option *ngFor="let option of memberNumberTriggerModes" [value]="option.value">{{ option.label }}</option>
+                                    </select>
+                                    <small class="text-xs text-gray-500 mt-1">
+                                        Default: if onboarding approval is required, generate on approval; otherwise generate when onboarding is completed.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Onboarding Workflow Settings -->
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4">Onboarding Workflow</h2>
-                <p class="text-sm text-gray-600 mb-4">Configure how new member applications are handled</p>
 
-                <div class="space-y-4">
-                    <div class="flex items-center gap-3 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                        <input type="checkbox" id="requiresOnboardingApproval" [(ngModel)]="_settings.requiresOnboardingApproval" class="form-check-input h-5 w-5 text-purple-600" />
-                        <div class="flex-1">
-                            <label for="requiresOnboardingApproval" class="font-medium text-gray-800 cursor-pointer"> Require Administrator Approval </label>
-                            <p class="text-sm text-gray-600 mt-1">If enabled, new member applications will be set to "Pending" status and must be approved by an administrator. If disabled, applications are automatically approved.</p>
-                        </div>
-                    </div>
-
-                    <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg" *ngIf="_settings.requiresOnboardingApproval">
-                        <div class="flex flex-col">
-                             <label for="onboardingSubmitButtonLabel" class="font-medium text-gray-700 mb-2">Submit Button Label</label>
-                             <input type="text" id="onboardingSubmitButtonLabel" [(ngModel)]="_settings.onboardingSubmitButtonLabel" class="form-control" placeholder="e.g. Submit Application" />
-                             <p class="text-sm text-gray-600 mt-1">The text to display on the final button of the onboarding wizard (instead of "Finish").</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- File Uploads -->
             <div class="bg-white p-6 rounded-lg shadow">
@@ -137,22 +196,6 @@
                         <div class="flex items-center gap-4">
                             <input type="file" name="cssFile" accept=".css" class="form-control" (change)="onCssFileUpload($event)" />
                             <a *ngIf="customCssId" (click)="downloadCss()" class="btn-secondary-theme mt-2">Download CSS</a>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col md:col-span-2">
-                        <label for="contractTemplate" class="font-medium text-gray-700 mb-2">Onboarding Contract Template (PDF)</label>
-                        <div class="alert alert-info mb-3">
-                            <i class="bi bi-info-circle me-2"></i>
-                            Upload a PDF template with fillable form fields for member onboarding contracts. The system will automatically populate fields like member name, ID number, policy details, etc.
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <input type="file" name="contractTemplate" accept=".pdf" class="form-control" (change)="onContractTemplateUpload($event)" />
-                            <button *ngIf="_settings.contractTemplateFileId" (click)="removeContractTemplate()" class="btn-danger-theme"><i class="bi bi-trash me-1"></i> Remove Template</button>
-                        </div>
-                        <div *ngIf="_settings.contractTemplateFileId" class="alert alert-success mt-2">
-                            <i class="bi bi-check-circle me-2"></i>
-                            Contract template is active (ID: {{ _settings.contractTemplateFileId }})
                         </div>
                     </div>
 

@@ -143,10 +143,6 @@ export class AppMenu implements OnInit {
                 ]
             },
             {
-                label: 'Assets',
-                items: [{ label: 'Asset Management', icon: 'pi pi-fw pi-box', routerLink: ['/admin/pages/asset-management'], visible: this.authService.hasPermission('Permission.asset.view') }]
-            },
-            {
                 label: 'Pages',
                 icon: 'pi pi-fw pi-briefcase',
                 routerLink: ['/pages'],
@@ -163,7 +159,6 @@ export class AppMenu implements OnInit {
                             { label: 'Dashboard Settings', icon: 'pi pi-fw pi-sliders-h', routerLink: ['/admin/pages/dashboard-settings'], visible: isAdmin },
                             { label: 'Users', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/users'], visible: this.authService.hasPermission('Permission.user.view') },
                             { label: 'Roles', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/roles'], visible: this.authService.hasPermission('Permission.role.view') },
-                            { label: 'Policies', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/policies'], visible: this.authService.hasPermission('Permission.policy.view') },
                             { label: 'Tenant Type Permissions', icon: 'pi pi-key', routerLink: ['/admin/pages/tenant-type-permissions'], visible: this.authService.hasPermission('Permission.role.view') && !this.isBasicPlan }
                         ]
                     },
@@ -201,8 +196,6 @@ export class AppMenu implements OnInit {
                         items: [
                             { label: 'Member Management', icon: 'pi pi-users', routerLink: ['/admin/pages/member-management'], visible: this.authService.hasPermission('Permission.member.view') },
                             { label: 'Member Approval', icon: 'pi pi-fw pi-check-circle', routerLink: ['/admin/pages/member-approval'], visible: this.authService.hasPermission('Permission.member.view') },
-                            { label: 'Claims', icon: 'pi pi-fw pi-file', routerLink: ['/admin/pages/claims'], visible: this.authService.hasPermission('Permission.claim.view') },
-                            { label: 'Funeral Events', icon: 'pi pi-fw pi-calendar', routerLink: ['/admin/pages/funeral-events'], visible: this.authService.hasPermission('Permission.event.view') },
                             { label: 'Booking Management', icon: 'pi pi-calendar', routerLink: ['/admin/pages/booking-management'], visible: isAdmin && this.hasBookingFeature }
                         ]
                     },

@@ -5,11 +5,13 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { WidgetConfig } from '../widget-config';
 import { OnboardingMultiSubmitService, MultiSubmitStepContextDto, SaveMultiSubmitRecordDto } from '../../core/services/onboarding-multi-submit.service';
 import { EmbeddedCalculatorComponent, CalculatorConfig, CalculatorResult } from '../../shared/components/embedded-calculator/embedded-calculator.component';
 import { OnboardingStepConfigurationClient } from '../../core/services/onboarding-step-configuration.client';
+import { OnboardingCalculatorAggregatorService } from '../../core/services/onboarding-calculator-aggregator.service';
 import { PublicFormService } from '../../core/services/public-form.service';
 import { OnboardingStepType, OnboardingPdfServiceProxy, MemberServiceProxy, SaveSignatureDto, MemberProfileCompletionServiceProxy } from '../../core/services/service-proxies';
 import { saIdNumberValidator } from '../../shared/validators/sa-id-number.validator';
@@ -27,6 +29,20 @@ export interface DataValidationRule {
     fieldKey: string;
     targetFieldKey?: string; // For notMatchMemberField (e.g., 'idNumber')
     errorMessage?: string;
+}
+
+interface RowLimitConditionConfig {
+    sourceEntityTypeId?: string;
+    sourceFieldKey?: string;
+    sourceKey: string;
+    equalsValue: string;
+}
+
+interface RowLimitRuleConfig {
+    order: number;
+    conditions: RowLimitConditionConfig[];
+    maxItems: number;
+    errorMessage: string;
 }
 
 interface ListDisplayColumnConfig {
@@ -113,6 +129,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     limitSourceField = '';
     limitRules: StepLimitRule[] = [];
     validationRules: DataValidationRule[] = [];
+    rowLimitRules: RowLimitRuleConfig[] = [];
+    private activeRowLimitRule: RowLimitRuleConfig | null = null;
+    private rowLimitSourceValues: Record<string, string[]> = {};
     effectiveMin = 0;
     effectiveMax = 0;
     nextUrl: string | undefined;
@@ -166,7 +185,8 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         private router: Router,
         private route: ActivatedRoute,
         private http: HttpClient,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private calculatorAggregator: OnboardingCalculatorAggregatorService
     ) {}
 
     private initializeButtonLabel(): void {
@@ -225,72 +245,236 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.effectiveMin = this.minItems;
         this.effectiveMax = this.maxItems;
 
-        if (this.validationMode !== 'dynamic') {
-            return;
+        if (this.validationMode === 'dynamic') {
+            if (!this.limitSourceField) {
+                console.warn('resolveEffectiveLimits: Dynamic mode enabled but no limitSourceField configured.');
+            } else {
+                // Try to find the value
+                let sourceValue: string | null = null;
+
+                // 1. Query Params
+                const params = this.route.snapshot.queryParams;
+                if (params && params[this.limitSourceField]) {
+                    sourceValue = params[this.limitSourceField];
+                }
+
+                // 2. Session Storage (raw)
+                if (!sourceValue) {
+                    sourceValue = sessionStorage.getItem(this.limitSourceField);
+                }
+
+                // 3. Session Storage (structured - onboarding_session)
+                if (!sourceValue) {
+                    try {
+                        const sessionJson = sessionStorage.getItem('onboarding_session');
+                        if (sessionJson) {
+                            const sessionData = JSON.parse(sessionJson);
+                            if (sessionData && sessionData[this.limitSourceField]) {
+                                sourceValue = sessionData[this.limitSourceField];
+                            }
+                        }
+                    } catch { /* ignore */ }
+                }
+
+                // 4. Session Storage (structured - form_data fallback)
+                if (!sourceValue) {
+                    try {
+                        const formDataJson = sessionStorage.getItem('form_data');
+                        if (formDataJson) {
+                            const formData = JSON.parse(formDataJson);
+                            if (formData && formData[this.limitSourceField]) {
+                                sourceValue = formData[this.limitSourceField];
+                            }
+                        }
+                    } catch { /* ignore */ }
+                }
+
+                if (!sourceValue) {
+                    console.log(`resolveEffectiveLimits: Computed value for field '${this.limitSourceField}' not found.`);
+                } else {
+                    const normalizedValue = String(sourceValue).trim().toLowerCase();
+
+                    // Find matching rule
+                    const rule = this.limitRules.find((r) => r.targetValue && r.targetValue.trim().toLowerCase() === normalizedValue);
+
+                    if (rule) {
+                        console.log(`resolveEffectiveLimits: Matched rule for value '${sourceValue}'. Min=${rule.minItems}, Max=${rule.maxItems}`);
+                        this.effectiveMin = rule.minItems;
+                        this.effectiveMax = rule.maxItems;
+                    } else {
+                        console.log(`resolveEffectiveLimits: No rule matched for value '${sourceValue}'. Using defaults.`);
+                    }
+                }
+            }
         }
 
-        if (!this.limitSourceField) {
-            console.warn('resolveEffectiveLimits: Dynamic mode enabled but no limitSourceField configured.');
-            return;
-        }
+        // Row-limit rules (configured on the form) are evaluated after simple/dynamic limits
+        // and can further reduce the effectiveMax for this step based on previous answers.
+        this.applyRowLimitRules();
+    }
 
-        // Try to find the value
-        let sourceValue: string | null = null;
+    private getSessionValue(key: string): string | null {
+        if (!key) {
+            return null;
+        }
 
         // 1. Query Params
         const params = this.route.snapshot.queryParams;
-        if (params && params[this.limitSourceField]) {
-            sourceValue = params[this.limitSourceField];
+        if (params && params[key] != null) {
+            return String(params[key]);
         }
 
         // 2. Session Storage (raw)
-        if (!sourceValue) {
-            sourceValue = sessionStorage.getItem(this.limitSourceField);
+        const direct = sessionStorage.getItem(key);
+        if (direct) {
+            return direct;
         }
 
-        // 3. Session Storage (structured - onboarding_session)
-        if (!sourceValue) {
-            try {
-                const sessionJson = sessionStorage.getItem('onboarding_session');
-                if (sessionJson) {
-                    const sessionData = JSON.parse(sessionJson);
-                    if (sessionData && sessionData[this.limitSourceField]) {
-                        sourceValue = sessionData[this.limitSourceField];
-                    }
+        // 3. onboarding_session JSON
+        try {
+            const sessionJson = sessionStorage.getItem('onboarding_session');
+            if (sessionJson) {
+                const sessionData = JSON.parse(sessionJson);
+                if (sessionData && sessionData[key] != null) {
+                    return String(sessionData[key]);
                 }
-            } catch { /* ignore */ }
+            }
+        } catch {
+            // ignore
         }
 
-        // 4. Session Storage (structured - form_data fallback)
-        if (!sourceValue) {
-            try {
-                const formDataJson = sessionStorage.getItem('form_data');
-                if (formDataJson) {
-                    const formData = JSON.parse(formDataJson);
-                    if (formData && formData[this.limitSourceField]) {
-                        sourceValue = formData[this.limitSourceField];
-                    }
+        // 4. form_data JSON (fallback)
+        try {
+            const formDataJson = sessionStorage.getItem('form_data');
+            if (formDataJson) {
+                const formData = JSON.parse(formDataJson);
+                if (formData && formData[key] != null) {
+                    return String(formData[key]);
                 }
-            } catch { /* ignore */ }
+            }
+        } catch {
+            // ignore
         }
 
-        if (!sourceValue) {
-            console.log(`resolveEffectiveLimits: Computed value for field '${this.limitSourceField}' not found.`);
+        return null;
+    }
+
+    private applyRowLimitRules(): void {
+        this.activeRowLimitRule = null;
+
+        if (!this.rowLimitRules || this.rowLimitRules.length === 0) {
             return;
         }
 
-        const normalizedValue = String(sourceValue).trim().toLowerCase();
+        // Evaluate rules in ascending order; first match wins.
+        const ordered = [...this.rowLimitRules].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-        // Find matching rule
-        const rule = this.limitRules.find((r) => r.targetValue && r.targetValue.trim().toLowerCase() === normalizedValue);
+        let matchedMax: number | null = null;
 
-        if (rule) {
-            console.log(`resolveEffectiveLimits: Matched rule for value '${sourceValue}'. Min=${rule.minItems}, Max=${rule.maxItems}`);
-            this.effectiveMin = rule.minItems;
-            this.effectiveMax = rule.maxItems;
-        } else {
-            console.log(`resolveEffectiveLimits: No rule matched for value '${sourceValue}'. Using defaults.`);
+        for (const rule of ordered) {
+            if (!rule.conditions || rule.conditions.length === 0) {
+                continue;
+            }
+
+            let allMatch = true;
+            for (const cond of rule.conditions) {
+                const expected = String(cond.equalsValue || '').trim().toLowerCase();
+                if (!expected) {
+                    allMatch = false;
+                    break;
+                }
+
+                let matched = false;
+
+                // Preferred path: dynamic entity source (entity + field) as configured in admin UI
+                if (cond.sourceEntityTypeId && cond.sourceFieldKey) {
+                    const cacheKey = `${cond.sourceEntityTypeId}|${cond.sourceFieldKey.trim().toLowerCase()}`;
+                    const values = this.rowLimitSourceValues[cacheKey];
+
+                    if (Array.isArray(values) && values.length > 0) {
+                        matched = values.some((v) => String(v || '').trim().toLowerCase() === expected);
+                    }
+                }
+
+                // Backwards-compatible fallback: use a raw session key when no entity/field is specified
+                if (!matched && !cond.sourceEntityTypeId && cond.sourceKey) {
+                    const value = this.getSessionValue(cond.sourceKey);
+                    if (value != null) {
+                        const normalizedActual = String(value).trim().toLowerCase();
+                        matched = normalizedActual === expected;
+                    }
+                }
+
+                if (!matched) {
+                    allMatch = false;
+                    break;
+                }
+            }
+
+            if (allMatch) {
+                this.activeRowLimitRule = rule;
+                if (rule.maxItems > 0) {
+                    matchedMax = rule.maxItems;
+                }
+                break;
+            }
         }
+
+        // When row-limit rules exist, defaults (static/dynamic) should only apply if there are no rules at all.
+        // If no rule matched, treat as unlimited for max-items; otherwise use the matched rule's max.
+        if (matchedMax != null) {
+            this.effectiveMax = matchedMax;
+        } else {
+            this.effectiveMax = 0; // unlimited when rules exist but none match
+        }
+    }
+
+    private loadRowLimitSourceValues(): void {
+        this.rowLimitSourceValues = {};
+
+        if (!this.rowLimitRules || this.rowLimitRules.length === 0) {
+            this.applyRowLimitRules();
+            return;
+        }
+
+        const lookups: { cacheKey: string; entityTypeId: string; fieldKey: string }[] = [];
+
+        for (const rule of this.rowLimitRules) {
+            if (!rule.conditions) continue;
+            for (const cond of rule.conditions) {
+                if (!cond.sourceEntityTypeId || !cond.sourceFieldKey) continue;
+                const cacheKey = `${cond.sourceEntityTypeId}|${cond.sourceFieldKey.trim().toLowerCase()}`;
+                if (!lookups.some((l) => l.cacheKey === cacheKey)) {
+                    lookups.push({ cacheKey, entityTypeId: cond.sourceEntityTypeId, fieldKey: cond.sourceFieldKey });
+                }
+            }
+        }
+
+        if (lookups.length === 0) {
+            this.applyRowLimitRules();
+            return;
+        }
+
+        const requests = lookups.map((l) =>
+            this.multiSubmitService.getDynamicFieldValues(l.entityTypeId, l.fieldKey)
+        );
+
+        forkJoin(requests).subscribe({
+            next: (results) => {
+                results.forEach((values, index) => {
+                    const lookup = lookups[index];
+                    this.rowLimitSourceValues[lookup.cacheKey] = Array.isArray(values) ? values : [];
+                });
+
+                this.applyRowLimitRules();
+            },
+            error: () => {
+                // On error, log and fall back to defaults (no matches => unlimited)
+                console.error('Failed to resolve dynamic field values for row-limit rules');
+                this.rowLimitSourceValues = {};
+                this.applyRowLimitRules();
+            }
+        });
     }
 
     private ensureMemberContextIfNeeded(): void {
@@ -379,6 +563,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
     ngOnInit(): void {
         this.initializeButtonLabel();
+
+        // Start each widget instance with a clean aggregated calculator state
+        // so cross-step calculations only consider the current flow's data.
+        this.calculatorAggregator.reset();
         const settings = (this.config && this.config.settings) || {};
         this.configuredSteps = (settings.steps || []) as any[];
 
@@ -930,6 +1118,18 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 if (Array.isArray(parsed.validationRules)) {
                     result.validationRules = parsed.validationRules;
                 }
+                if (Array.isArray((parsed as any).rowLimitRules)) {
+                    this.rowLimitRules = (parsed as any).rowLimitRules as RowLimitRuleConfig[];
+                    // Ensure a stable order field and sane defaults, then load dynamic sources and apply row-limit effect.
+                    this.rowLimitRules = this.rowLimitRules.map((r, idx) => ({
+                        order: typeof r.order === 'number' ? r.order : idx + 1,
+                        conditions: Array.isArray(r.conditions) ? r.conditions : [],
+                        maxItems: typeof r.maxItems === 'number' ? r.maxItems : 0,
+                        errorMessage: r.errorMessage || 'You have reached the maximum number of rows allowed for this step.'
+                    }));
+
+                    this.loadRowLimitSourceValues();
+                }
             }
 
             if (fieldsRaw.length > 0) {
@@ -1315,18 +1515,22 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             if (!item.relationship && record.displayName) {
                 item.relationship = record.displayName;
             }
-
             items.push(item);
         }
 
         const collectionKey = this.getCollectionKey();
 
-        // The embedded calculator watches collection keys (for example, entity-specific
-        // arrays like beneficiaries) and auto-recalculates via ngOnChanges when
-        // formData changes.
-        this.calculatorFormData = {
-            [collectionKey]: items
-        };
+        // Update the cross-step aggregator so calculators can operate on
+        // all onboarding entities (children, adults, elders, etc.) that
+        // have been visited in this flow.
+        this.calculatorAggregator.updateCollection(collectionKey, items);
+
+        // The embedded calculator watches collection keys (for example,
+        // entity-specific arrays like beneficiaries) and auto-recalculates
+        // via ngOnChanges when formData changes. We now feed it the
+        // aggregated data across all relevant collections so totals and
+        // breakdowns can span multiple onboarding steps.
+        this.calculatorFormData = this.calculatorAggregator.getFormDataSnapshot();
     }
 
     private getCollectionKey(): string {
@@ -1386,11 +1590,20 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             }
         }
 
+        // Row-limit rules are always blocking when violated, regardless of enforceOnNavigation.
+        if (this.activeRowLimitRule && this.effectiveMax > 0 && this.records.length > this.effectiveMax) {
+            return false;
+        }
+
         return true;
     }
 
     get constraintWarningMessage(): string | null {
         const count = this.records.length;
+
+        if (this.activeRowLimitRule && this.effectiveMax > 0 && count > this.effectiveMax) {
+            return this.activeRowLimitRule.errorMessage || null;
+        }
 
         if (this.effectiveMin > 0 && count < this.effectiveMin) {
             const label = this.effectiveMin === 1 ? (this.singularLabel || 'item') : (this.pluralLabel || 'items');

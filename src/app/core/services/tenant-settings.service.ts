@@ -14,6 +14,7 @@ export class TenantSettingsService {
     private settings: TenantSettingDto | undefined;
     private settingsPromise: Promise<any> | null = null;
     tenantIdHeader!: HttpHeaders;
+    private parsedSettings: any | null = null;
 
     constructor(
         private tenantService: TenantSettingServiceProxy,
@@ -58,6 +59,7 @@ export class TenantSettingsService {
             .toPromise()
             .then((response) => {
                 this.settings = response.result;
+                this.parsedSettings = null;
                 this.spinnerService.hide();
                 return this.settings;
             })
@@ -79,6 +81,7 @@ export class TenantSettingsService {
         // Clear cache to force reload
         this.settings = undefined;
         this.settingsPromise = null;
+        this.parsedSettings = null;
         return this.loadSettings();
     }
 
@@ -112,18 +115,38 @@ export class TenantSettingsService {
     }
 
     hasFeature(featureName: string): boolean {
+        const parsedSettings = this.getParsedSettings();
+        // Check if feature is explicitly enabled
+        return parsedSettings[featureName] === true || parsedSettings[featureName] === 'true';
+    }
+
+    private getParsedSettings(): any {
         if (!this.settings || !this.settings.settings) {
-            return false;
+            return {};
+        }
+
+        if (this.parsedSettings) {
+            return this.parsedSettings;
         }
 
         try {
-            const parsedSettings = JSON.parse(this.settings.settings);
-            // Check if feature is explicitly enabled
-            return parsedSettings[featureName] === true || parsedSettings[featureName] === 'true';
+            this.parsedSettings = JSON.parse(this.settings.settings);
         } catch (error) {
             console.error('Error parsing tenant settings:', error);
-            return false;
+            this.parsedSettings = {};
         }
+
+        return this.parsedSettings;
+    }
+
+    getMemberNumberLabel(): string {
+        const parsed = this.getParsedSettings();
+        return parsed.memberNumberConfig?.label || 'Member Number';
+    }
+
+    isMemberNumberEnabled(): boolean {
+        const parsed = this.getParsedSettings();
+        return parsed.memberNumberConfig?.enabled === true;
     }
 }
 

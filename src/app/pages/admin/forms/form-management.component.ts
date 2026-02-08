@@ -29,6 +29,46 @@ interface DataValidationRule {
     errorMessage: string;
 }
 
+interface RowLimitConditionConfig {
+    /**
+     * Dynamic entity type that the value comes from (for admin UX only).
+     */
+    sourceEntityTypeId?: string;
+    /**
+     * Field/key on the selected dynamic entity (for admin UX only).
+     */
+    sourceFieldKey?: string;
+    /**
+     * Key used to look up a value from previous steps/session when evaluating this rule.
+     * This typically matches the underlying field name captured earlier in onboarding (e.g. "transportType").
+     */
+    sourceKey: string;
+    /**
+     * The value that the sourceKey must equal (case-insensitive) for this condition to match.
+     */
+    equalsValue: string;
+}
+
+interface RowLimitRuleConfig {
+    /**
+     * Rules are evaluated in ascending order; the first rule whose conditions all match wins.
+     */
+    order: number;
+    /**
+     * All conditions in this array must match (logical AND) for the rule to apply.
+     */
+    conditions: RowLimitConditionConfig[];
+    /**
+     * Maximum number of rows allowed for the target list when this rule matches.
+     */
+    maxItems: number;
+    /**
+     * Custom validation message shown to the member when they exceed the allowed rows.
+     * This should normally tell them which earlier step/selection to change or that they must remove rows.
+     */
+    errorMessage: string;
+}
+
 interface CalculatorLookupCondition {
     field: string;
     operator: 'eq' | 'lt' | 'lte' | 'gt' | 'gte' | 'between';
@@ -119,6 +159,7 @@ export class FormManagementComponent implements OnInit {
     loading: boolean = false;
     formFields: FormField[] = [];
     validationRules: DataValidationRule[] = [];
+    rowLimitRules: RowLimitRuleConfig[] = [];
     
     parentFields = [
         { label: 'ID Number', value: 'idNumber' },
@@ -208,6 +249,7 @@ export class FormManagementComponent implements OnInit {
     private loadFormFieldsFromJson(json: string | undefined | null): void {
         this.formFields = [];
         this.validationRules = [];
+        this.rowLimitRules = [];
         if (!json) {
             this.addField();
             return;
@@ -223,6 +265,30 @@ export class FormManagementComponent implements OnInit {
                 fieldsToLoad = parsed.fields;
                 if (Array.isArray(parsed.validationRules)) {
                     this.validationRules = parsed.validationRules;
+                }
+                if (Array.isArray((parsed as any).rowLimitRules)) {
+                    this.rowLimitRules = (parsed as any).rowLimitRules.map((r: any) => ({
+                        order: typeof r.order === 'number' ? r.order : 1,
+                        conditions: Array.isArray(r.conditions)
+                            ? r.conditions.map((c: any) => ({
+                                    sourceEntityTypeId: c.sourceEntityTypeId,
+                                    sourceFieldKey: c.sourceFieldKey,
+                                    sourceKey: c.sourceKey || c.sourceFieldKey || '',
+                                    equalsValue: c.equalsValue || ''
+                                }))
+                            : [
+                                {
+                                    sourceEntityTypeId: undefined,
+                                    sourceFieldKey: undefined,
+                                    sourceKey: '',
+                                    equalsValue: ''
+                                }
+                            ],
+                        maxItems: typeof r.maxItems === 'number' ? r.maxItems : 1,
+                        errorMessage:
+                            r.errorMessage ||
+                            'You have reached the maximum number of rows allowed for this step. Please remove a row or change your previous selections.'
+                    }));
                 }
             }
 
@@ -369,7 +435,8 @@ export class FormManagementComponent implements OnInit {
 
         const finalPayload = {
             fields: payload,
-            validationRules: this.validationRules
+            validationRules: this.validationRules,
+            rowLimitRules: this.rowLimitRules
         };
 
         this.form.fields = JSON.stringify(finalPayload, null, 2);
@@ -668,6 +735,88 @@ export class FormManagementComponent implements OnInit {
 
     removeValidationRule(index: number): void {
         this.validationRules.splice(index, 1);
+    }
+
+    addRowLimitRule(): void {
+        const nextOrder = this.rowLimitRules.length
+            ? Math.max(...this.rowLimitRules.map((r) => r.order ?? 0)) + 1
+            : 1;
+
+        this.rowLimitRules.push({
+            order: nextOrder,
+            conditions: [
+                {
+                    sourceEntityTypeId: undefined,
+                    sourceFieldKey: undefined,
+                    sourceKey: '',
+                    equalsValue: ''
+                }
+            ],
+            maxItems: 1,
+            errorMessage: 'You have reached the maximum number of rows allowed for this step. Please remove a row or change your previous selections.'
+        });
+    }
+
+    removeRowLimitRule(index: number): void {
+        this.rowLimitRules.splice(index, 1);
+        this.resequenceRowLimitOrders();
+    }
+
+    moveRowLimitRuleUp(index: number): void {
+        if (index <= 0) return;
+        const tmp = this.rowLimitRules[index - 1];
+        this.rowLimitRules[index - 1] = this.rowLimitRules[index];
+        this.rowLimitRules[index] = tmp;
+        this.resequenceRowLimitOrders();
+    }
+
+    moveRowLimitRuleDown(index: number): void {
+        if (index >= this.rowLimitRules.length - 1) return;
+        const tmp = this.rowLimitRules[index + 1];
+        this.rowLimitRules[index + 1] = this.rowLimitRules[index];
+        this.rowLimitRules[index] = tmp;
+        this.resequenceRowLimitOrders();
+    }
+
+    private resequenceRowLimitOrders(): void {
+        this.rowLimitRules = this.rowLimitRules.map((r, idx) => ({ ...r, order: idx + 1 }));
+    }
+
+    addRowLimitCondition(rule: RowLimitRuleConfig): void {
+        rule.conditions.push({
+            sourceEntityTypeId: rule.conditions[0]?.sourceEntityTypeId,
+            sourceFieldKey: undefined,
+            sourceKey: '',
+            equalsValue: ''
+        });
+    }
+
+    removeRowLimitCondition(rule: RowLimitRuleConfig, index: number): void {
+        rule.conditions.splice(index, 1);
+        if (rule.conditions.length === 0) {
+            // Always keep at least one empty condition so the rule is editable.
+            rule.conditions.push({
+                sourceEntityTypeId: undefined,
+                sourceFieldKey: undefined,
+                sourceKey: '',
+                equalsValue: ''
+            });
+        }
+    }
+
+    getRowLimitFieldsForEntity(entityTypeId: string | null | undefined): { label: string; value: string }[] {
+        if (!entityTypeId) return [];
+        const entity = this.dynamicEntityTypes.find((e) => e.id === entityTypeId);
+        if (!entity || !entity.fieldsJson) return [];
+        try {
+            const fields = JSON.parse(entity.fieldsJson as any);
+            if (Array.isArray(fields)) {
+                return fields.map((f: any) => ({ label: f.label || f.name, value: f.name }));
+            }
+        } catch {
+            // ignore parse errors, fallback to empty list
+        }
+        return [];
     }
 
     ngOnInit() {

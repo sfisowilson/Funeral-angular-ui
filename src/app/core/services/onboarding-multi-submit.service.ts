@@ -36,6 +36,18 @@ export class OnboardingMultiSubmitService {
         return this.http.get<MultiSubmitStepContextDto>(`${this.baseUrl}/OnboardingMultiSubmit_GetStepContext`, { params });
     }
 
+    /**
+     * Resolve values for a specific dynamic entity field for the current member.
+     * Used by row-limit rules configured with a DynamicEntityType and field.
+     */
+    getDynamicFieldValues(entityTypeId: string, fieldKey: string): Observable<string[]> {
+        let params = new HttpParams()
+            .set('entityTypeId', entityTypeId)
+            .set('fieldKey', fieldKey);
+
+        return this.http.get<string[]>(`${this.baseUrl}/OnboardingMultiSubmit_GetDynamicFieldValues`, { params });
+    }
+
     saveRecord(dto: SaveMultiSubmitRecordDto): Observable<any> {
         return this.http.post<any>(`${this.baseUrl}/OnboardingMultiSubmit_SaveRecord`, dto);
     }

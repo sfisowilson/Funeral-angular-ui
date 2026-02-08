@@ -46,6 +46,16 @@ interface NotificationSettings {
     notifyUsersOnPolicyUpdate?: boolean;
 }
 
+interface MemberNumberConfig {
+    enabled?: boolean;
+    label?: string;
+    prefix?: string;
+    separator?: string;
+    startingNumber?: number;
+    minDigits?: number;
+    triggerMode?: string;
+}
+
 interface Settings extends NotificationSettings {
     customCssId?: string;
     currency?: string;
@@ -84,6 +94,7 @@ interface Settings extends NotificationSettings {
     hasBooking?: boolean;
     requiresOnboardingApproval?: boolean;
     onboardingSubmitButtonLabel?: string;
+    memberNumberConfig?: MemberNumberConfig;
 }
 
 interface TeamMember {
@@ -107,7 +118,17 @@ interface TeamMember {
 })
 export class TenantSettingsComponent implements OnInit {
     tenantSettings!: TenantSettingDto;
-    _settings: Settings = {};
+    _settings: Settings = {
+        memberNumberConfig: {
+            enabled: false,
+            label: 'Member Number',
+            prefix: 'MEM',
+            separator: '-',
+            startingNumber: 1000,
+            minDigits: 6,
+            triggerMode: 'Default'
+        }
+    };
     submitted: boolean = false;
     notificationSettings: NotificationSettings = {};
     currency: string = 'R'; // Default to Rands
@@ -125,6 +146,21 @@ export class TenantSettingsComponent implements OnInit {
         { label: 'Indian Rupee (₹)', value: 'INR' }
     ];
     tenantIdHeader!: HttpHeaders;
+
+    memberNumberTriggerModes: { label: string; value: string }[] = [
+        {
+            label: 'Use default based on approval setting',
+            value: 'Default'
+        },
+        {
+            label: 'On approval',
+            value: 'OnApproval'
+        },
+        {
+            label: 'On onboarding completion',
+            value: 'OnOnboardingComplete'
+        }
+    ];
 
     // Team Management Properties
     showTeamManagementDialog: boolean = false;
@@ -219,6 +255,27 @@ export class TenantSettingsComponent implements OnInit {
                     }
                 } else {
                     this._settings = {}; // Initialize if settings is null or undefined
+                }
+
+                // Ensure member number config exists with sensible defaults
+                if (!this._settings.memberNumberConfig) {
+                    this._settings.memberNumberConfig = {
+                        enabled: false,
+                        label: 'Member Number',
+                        prefix: 'MEM',
+                        separator: '-',
+                        startingNumber: 1000,
+                        minDigits: 6,
+                        triggerMode: 'Default'
+                    };
+                } else {
+                    this._settings.memberNumberConfig.enabled = this._settings.memberNumberConfig.enabled ?? false;
+                    this._settings.memberNumberConfig.label = this._settings.memberNumberConfig.label || 'Member Number';
+                    this._settings.memberNumberConfig.prefix = this._settings.memberNumberConfig.prefix ?? 'MEM';
+                    this._settings.memberNumberConfig.separator = this._settings.memberNumberConfig.separator ?? '-';
+                    this._settings.memberNumberConfig.startingNumber = this._settings.memberNumberConfig.startingNumber ?? 1000;
+                    this._settings.memberNumberConfig.minDigits = this._settings.memberNumberConfig.minDigits ?? 6;
+                    this._settings.memberNumberConfig.triggerMode = this._settings.memberNumberConfig.triggerMode || 'Default';
                 }
 
                 // Initialize properties from _settings, providing defaults if not present in JSON
@@ -327,6 +384,9 @@ export class TenantSettingsComponent implements OnInit {
             // Save team members
             existingSettings.teamMembers = this.teamMembers;
 
+            // Member number configuration
+            existingSettings.memberNumberConfig = this._settings.memberNumberConfig;
+
             // Create a TenantSettingDto to send to the service
             const tenantSettingDtoToSend: TenantSettingDto = new TenantSettingDto();
             tenantSettingDtoToSend.id = this.tenantSettings.id;
@@ -424,75 +484,7 @@ export class TenantSettingsComponent implements OnInit {
         });
     }
 
-    onContractTemplateUpload(event: any) {
-        const file = event.target.files[0];
-        if (!file) return;
 
-        if (file.type !== 'application/pdf') {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Invalid File',
-                detail: 'Only PDF files are allowed for contract templates',
-                life: 5000
-            });
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const headers = new HttpHeaders();
-        // Let browser set content-type for multipart/form-data
-
-        this.http.post(`${this.baseUrl}/api/TenantSetting/upload-contract-template`, formData, { headers }).subscribe({
-            next: (result: any) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Contract template uploaded successfully',
-                    life: 3000
-                });
-                this._settings.contractTemplateFileId = result.fileId;
-                this.hasChanges = true;
-            },
-            error: (error: any) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to upload contract template: ' + (error?.error?.message || error?.message || 'Unknown error'),
-                    life: 5000
-                });
-                console.error('Contract template upload error:', error);
-            }
-        });
-
-        // Reset file input
-        event.target.value = '';
-    }
-
-    removeContractTemplate() {
-        this.http.delete(`${this.baseUrl}/api/TenantSetting/remove-contract-template`).subscribe({
-            next: () => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Contract template removed successfully',
-                    life: 3000
-                });
-                this._settings.contractTemplateFileId = undefined;
-                this.hasChanges = true;
-            },
-            error: (error: any) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to remove contract template: ' + (error?.error?.message || error?.message || 'Unknown error'),
-                    life: 5000
-                });
-                console.error('Contract template removal error:', error);
-            }
-        });
-    }
 
     syncFieldConfigurations() {
         this.http.post(`${this.baseUrl}/api/OnboardingFieldConfiguration/OnboardingFieldConfiguration_InitializeDefaults`, {}).subscribe({

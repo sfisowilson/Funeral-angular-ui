@@ -7,14 +7,41 @@
                 <div>
                     <h1 class="text-3xl font-bold text-gray-800 m-0">
                         <i class="bi bi-list-check text-primary me-2"></i>
-                        Onboarding Step List Configuration
+                        Onboarding Configuration
                     </h1>
-                    <p class="text-gray-600 mt-2 mb-0">Configure list columns, actions, and min/max constraints for onboarding steps that use multi-submit entity records (e.g. dependents, beneficiaries).</p>
+                    <p class="text-gray-600 mt-2 mb-0">Manage onboarding steps and workflow settings.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Settings -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex justify-content-between align-items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-700 m-0">Workflow Settings</h2>
+                <button pButton label="Save Workflow Settings" icon="pi pi-check" (click)="saveWorkflowSettings()" [loading]="savingSettings"></button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Approval Requirement -->
+                <div class="flex items-center gap-3 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                    <p-checkbox [(ngModel)]="requiresOnboardingApproval" [binary]="true" inputId="requiresApproval"></p-checkbox>
+                    <div class="flex-1">
+                        <label for="requiresApproval" class="font-medium text-gray-800 cursor-pointer block">Require Administrator Approval</label>
+                        <small class="text-gray-600">New applications are "Pending" until approved by an admin.</small>
+                    </div>
+                </div>
+
+                <!-- Submit Button Label -->
+                <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg" [class.opacity-50]="!requiresOnboardingApproval">
+                    <label for="submitLabel" class="font-medium text-gray-700 mb-2 block">Submit Button Label</label>
+                    <input pInputText id="submitLabel" [(ngModel)]="onboardingSubmitButtonLabel" [disabled]="!requiresOnboardingApproval" placeholder="e.g. Submit Application" class="w-full" />
+                    <small class="text-gray-600 mt-1 block">Custom label for the final button (default: "Finish").</small>
                 </div>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Step List Configuration</h2>
             <p-table
                 [value]="steps"
                 [loading]="loading"

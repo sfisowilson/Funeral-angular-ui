@@ -308,6 +308,44 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
         return Array.isArray(arr) ? (arr as T[]) : [];
     }
 
+    getCalculatorFieldOptions(step: EditorMultiSubmitStepConfig): { label: string; value: string }[] {
+        return this.getAvailableFormFields(step);
+    }
+
+    private buildVariableKey(prefix: string | null, fieldKey: string): string {
+        const base = String(fieldKey || '')
+            .trim()
+            .replace(/[^a-zA-Z0-9_]/g, '');
+        if (!base) {
+            return '';
+        }
+        return prefix ? `${prefix}_${base}` : base;
+    }
+
+    onGlobalVariableFieldChange(step: EditorMultiSubmitStepConfig, variable: CalculatorVariableDerivation, fieldKey: string): void {
+        variable.sourceField = fieldKey;
+        if (!variable.key || variable.key === variable.sourceField) {
+            variable.key = this.buildVariableKey('v', fieldKey);
+        }
+        this.onCalculatorFieldChanged(step);
+    }
+
+    onRowVariableFieldChange(step: EditorMultiSubmitStepConfig, variable: CalculatorVariableDerivation, fieldKey: string): void {
+        variable.sourceField = fieldKey;
+        if (!variable.key || variable.key === variable.sourceField) {
+            variable.key = this.buildVariableKey(null, fieldKey);
+        }
+        this.onCalculatorFieldChanged(step);
+    }
+
+    onPostRowVariableFieldChange(step: EditorMultiSubmitStepConfig, variable: CalculatorVariableDerivation, fieldKey: string): void {
+        variable.sourceField = fieldKey;
+        if (!variable.key || variable.key === variable.sourceField) {
+            variable.key = this.buildVariableKey('vpost', fieldKey);
+        }
+        this.onCalculatorFieldChanged(step);
+    }
+
     private ensureArrays(step: EditorMultiSubmitStepConfig): void {
         step.calculatorGlobalVariables = Array.isArray(step.calculatorGlobalVariables) ? step.calculatorGlobalVariables : [];
         step.calculatorGlobalFormulas = Array.isArray(step.calculatorGlobalFormulas) ? step.calculatorGlobalFormulas : [];

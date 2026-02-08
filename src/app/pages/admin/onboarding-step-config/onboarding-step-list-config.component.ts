@@ -10,18 +10,26 @@ import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { OnboardingStepAdminService, OnboardingStepConfigurationDto, ListDisplayColumnConfig, ListDisplayConfig } from '../../../core/services/onboarding-step-admin.service';
+import { TenantSettingServiceProxy, TenantSettingDto } from '../../../core/services/service-proxies';
+import { TenantSettingsService } from '../../../core/services/tenant-settings.service';
 
 @Component({
     selector: 'app-onboarding-step-list-config',
     standalone: true,
     imports: [CommonModule, FormsModule, ToastModule, TableModule, DialogModule, InputTextModule, InputNumberModule, CheckboxModule, ButtonModule],
-    providers: [MessageService],
+    providers: [MessageService, TenantSettingServiceProxy, TenantSettingsService],
     templateUrl: './onboarding-step-list-config.component.html',
     styleUrls: ['./onboarding-step-list-config.component.scss']
 })
 export class OnboardingStepListConfigComponent implements OnInit {
     steps: OnboardingStepConfigurationDto[] = [];
     loading = false;
+
+    // Tenant Settings for Workflow
+    requiresOnboardingApproval: boolean = false;
+    onboardingSubmitButtonLabel: string = '';
+    tenantSettings: TenantSettingDto | null = null;
+    savingSettings: boolean = false;
 
     dialogVisible = false;
     selectedStep: OnboardingStepConfigurationDto | null = null;
@@ -47,11 +55,52 @@ export class OnboardingStepListConfigComponent implements OnInit {
 
     constructor(
         private stepService: OnboardingStepAdminService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private tenantSettingService: TenantSettingServiceProxy,
+        private tenantSettingsService: TenantSettingsService
     ) {}
 
     ngOnInit(): void {
         this.loadSteps();
+        this.loadTenantSettings();
+    }
+
+    loadTenantSettings(): void {
+        this.tenantSettingsService.loadSettings().then((settings) => {
+            this.tenantSettings = settings;
+            // These properties stick on the DTO as extra properties in the backend usually, checking how they were accessed in TenantSettingsComponent
+            // They were cast as any: (this.tenantSettings as any).requiresOnboardingApproval
+            this.requiresOnboardingApproval = (this.tenantSettings as any).requiresOnboardingApproval || false;
+            this.onboardingSubmitButtonLabel = (this.tenantSettings as any).onboardingSubmitButtonLabel || '';
+        }).catch(err => {
+            console.error('Failed to load tenant settings', err);
+        });
+    }
+
+    saveWorkflowSettings(): void {
+        if (!this.tenantSettings) return;
+        
+        this.savingSettings = true;
+        
+        // Clone to avoid direct mutation issues if any, though not strictly necessary here
+        const dto = new TenantSettingDto();
+        dto.init(this.tenantSettings);
+        
+        // Attach the extended properties
+        (dto as any).requiresOnboardingApproval = this.requiresOnboardingApproval;
+        (dto as any).onboardingSubmitButtonLabel = this.onboardingSubmitButtonLabel;
+
+        this.tenantSettingService.tenantSetting_UpdateTenantSetting(dto).subscribe({
+            next: () => {
+                this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Workflow settings saved successfully' });
+                this.savingSettings = false;
+            },
+            error: (err) => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save settings' });
+                console.error(err);
+                this.savingSettings = false;
+            }
+        });
     }
 
     loadSteps(): void {

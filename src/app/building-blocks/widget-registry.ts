@@ -107,6 +107,7 @@ import { DynamicEntityListWidgetComponent } from './dynamic-entity-list-widget/d
 import { DynamicEntityListWidgetEditorComponent } from './dynamic-entity-list-widget/dynamic-entity-list-widget-editor.component';
 import { OnboardingMultiSubmitStepComponent } from './onboarding-multi-submit-step/onboarding-multi-submit-step.component';
 import { OnboardingMultiSubmitStepEditorComponent } from './onboarding-multi-submit-step/onboarding-multi-submit-step-editor.component';
+import { OnboardingGlobalCalculatorWidgetComponent } from './onboarding-global-calculator-widget/onboarding-global-calculator-widget.component';
 
 export interface WidgetType {
     name: string;
@@ -197,6 +198,16 @@ export const WIDGET_TYPES: WidgetType[] = [
             stepKeyOverride: ''
         },
         icon: 'list-check'
+    },
+    {
+        name: 'onboarding-global-calculator',
+        component: OnboardingGlobalCalculatorWidgetComponent,
+        editorComponent: StepperFormWidgetEditorComponent,
+        defaultConfig: {
+            title: 'Onboarding Price Summary',
+            calculatorConfigJson: ''
+        },
+        icon: 'calculator'
     },
     {
         name: 'whatsapp',

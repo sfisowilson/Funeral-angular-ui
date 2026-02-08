@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { MemberApprovalServiceProxy, PendingMemberDto, MemberApprovalDetailDto, ApproveMemberRequest, RejectMemberRequest, RequestMemberUpdatesRequest } from '../../core/services/service-proxies';
+import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -32,11 +33,24 @@ export class MemberApprovalComponent implements OnInit {
 
     alert = signal<{ type: 'success' | 'danger' | 'warning'; message: string } | null>(null);
 
-    constructor(private memberApprovalService: MemberApprovalServiceProxy) {}
+    memberNumberLabel = 'Member Number';
+
+    constructor(
+        private memberApprovalService: MemberApprovalServiceProxy,
+        private tenantSettingsService: TenantSettingsService
+    ) {}
 
     ngOnInit() {
         this.loadPendingMembers();
         this.loadStats();
+
+         // Load configurable label for member number
+        try {
+            this.memberNumberLabel = this.tenantSettingsService.getMemberNumberLabel();
+        } catch (error) {
+            console.error('Error getting member number label from tenant settings:', error);
+            this.memberNumberLabel = 'Member Number';
+        }
     }
 
     loadPendingMembers() {

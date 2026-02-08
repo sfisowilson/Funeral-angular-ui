@@ -16477,6 +16477,74 @@ export class OnboardingMultiSubmitServiceProxy {
         }
         return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @param entityTypeId (optional) 
+     * @param fieldKey (optional) 
+     * @return OK
+     */
+    onboardingMultiSubmit_GetDynamicFieldValues(entityTypeId: string | undefined, fieldKey: string | undefined): Observable<SwaggerResponse<string[]>> {
+        let url_ = this.baseUrl + "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_GetDynamicFieldValues?";
+        if (entityTypeId === null)
+            throw new globalThis.Error("The parameter 'entityTypeId' cannot be null.");
+        else if (entityTypeId !== undefined)
+            url_ += "entityTypeId=" + encodeURIComponent("" + entityTypeId) + "&";
+        if (fieldKey === null)
+            throw new globalThis.Error("The parameter 'fieldKey' cannot be null.");
+        else if (fieldKey !== undefined)
+            url_ += "fieldKey=" + encodeURIComponent("" + fieldKey) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOnboardingMultiSubmit_GetDynamicFieldValues(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOnboardingMultiSubmit_GetDynamicFieldValues(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<string[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<string[]>>;
+        }));
+    }
+
+    protected processOnboardingMultiSubmit_GetDynamicFieldValues(response: HttpResponseBase): Observable<SwaggerResponse<string[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(item);
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<string[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable()
@@ -17593,6 +17661,309 @@ export class OrderServiceProxy {
             }));
         }
         return _observableOf<SwaggerResponse<OrderStatsDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable()
+export class PageWidgetConfigServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    pageWidgetConfig_GetByPage(pageKey: string): Observable<SwaggerResponse<PageWidgetConfigDto[]>> {
+        let url_ = this.baseUrl + "/api/PageWidgetConfig/PageWidgetConfig_GetByPage/{pageKey}";
+        if (pageKey === undefined || pageKey === null)
+            throw new globalThis.Error("The parameter 'pageKey' must be defined.");
+        url_ = url_.replace("{pageKey}", encodeURIComponent("" + pageKey));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPageWidgetConfig_GetByPage(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPageWidgetConfig_GetByPage(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PageWidgetConfigDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PageWidgetConfigDto[]>>;
+        }));
+    }
+
+    protected processPageWidgetConfig_GetByPage(response: HttpResponseBase): Observable<SwaggerResponse<PageWidgetConfigDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PageWidgetConfigDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<PageWidgetConfigDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    pageWidgetConfig_GetVisibleByRolesForPage(body: PageRolesRequest | undefined): Observable<SwaggerResponse<PageWidgetConfigDto[]>> {
+        let url_ = this.baseUrl + "/api/PageWidgetConfig/PageWidgetConfig_GetVisibleByRolesForPage";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPageWidgetConfig_GetVisibleByRolesForPage(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPageWidgetConfig_GetVisibleByRolesForPage(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PageWidgetConfigDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PageWidgetConfigDto[]>>;
+        }));
+    }
+
+    protected processPageWidgetConfig_GetVisibleByRolesForPage(response: HttpResponseBase): Observable<SwaggerResponse<PageWidgetConfigDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(PageWidgetConfigDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<PageWidgetConfigDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    pageWidgetConfig_Create(body: CreatePageWidgetConfigDto | undefined): Observable<SwaggerResponse<PageWidgetConfigDto>> {
+        let url_ = this.baseUrl + "/api/PageWidgetConfig/PageWidgetConfig_Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPageWidgetConfig_Create(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPageWidgetConfig_Create(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PageWidgetConfigDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PageWidgetConfigDto>>;
+        }));
+    }
+
+    protected processPageWidgetConfig_Create(response: HttpResponseBase): Observable<SwaggerResponse<PageWidgetConfigDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PageWidgetConfigDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<PageWidgetConfigDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    pageWidgetConfig_Update(body: UpdatePageWidgetConfigDto | undefined): Observable<SwaggerResponse<PageWidgetConfigDto>> {
+        let url_ = this.baseUrl + "/api/PageWidgetConfig/PageWidgetConfig_Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPageWidgetConfig_Update(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPageWidgetConfig_Update(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PageWidgetConfigDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PageWidgetConfigDto>>;
+        }));
+    }
+
+    protected processPageWidgetConfig_Update(response: HttpResponseBase): Observable<SwaggerResponse<PageWidgetConfigDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PageWidgetConfigDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<PageWidgetConfigDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    pageWidgetConfig_Delete(id: string): Observable<SwaggerResponse<boolean>> {
+        let url_ = this.baseUrl + "/api/PageWidgetConfig/PageWidgetConfig_Delete/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPageWidgetConfig_Delete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPageWidgetConfig_Delete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<boolean>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<boolean>>;
+        }));
+    }
+
+    protected processPageWidgetConfig_Delete(response: HttpResponseBase): Observable<SwaggerResponse<boolean>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : null as any;
+    
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<boolean>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
@@ -32834,6 +33205,8 @@ export class CreateDashboardWidgetSettingDto implements ICreateDashboardWidgetSe
     isVisible!: boolean;
     allowedRoles!: string[] | undefined;
     displayOrder!: number;
+    settingsJson!: string | undefined;
+    layoutJson!: string | undefined;
 
     constructor(data?: ICreateDashboardWidgetSettingDto) {
         if (data) {
@@ -32855,6 +33228,8 @@ export class CreateDashboardWidgetSettingDto implements ICreateDashboardWidgetSe
                     this.allowedRoles!.push(item);
             }
             this.displayOrder = _data["displayOrder"];
+            this.settingsJson = _data["settingsJson"];
+            this.layoutJson = _data["layoutJson"];
         }
     }
 
@@ -32876,6 +33251,8 @@ export class CreateDashboardWidgetSettingDto implements ICreateDashboardWidgetSe
                 data["allowedRoles"].push(item);
         }
         data["displayOrder"] = this.displayOrder;
+        data["settingsJson"] = this.settingsJson;
+        data["layoutJson"] = this.layoutJson;
         return data;
     }
 }
@@ -32886,6 +33263,8 @@ export interface ICreateDashboardWidgetSettingDto {
     isVisible: boolean;
     allowedRoles: string[] | undefined;
     displayOrder: number;
+    settingsJson: string | undefined;
+    layoutJson: string | undefined;
 }
 
 export class CreateDonationSessionDto implements ICreateDonationSessionDto {
@@ -34189,6 +34568,74 @@ export interface ICreatePageDto {
     requiresOnboardingApproval: boolean;
 }
 
+export class CreatePageWidgetConfigDto implements ICreatePageWidgetConfigDto {
+    pageKey!: string | undefined;
+    widgetKey!: string | undefined;
+    isVisible!: boolean;
+    allowedRoles!: string[] | undefined;
+    displayOrder!: number;
+    settingsJson!: string | undefined;
+    layoutJson!: string | undefined;
+
+    constructor(data?: ICreatePageWidgetConfigDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageKey = _data["pageKey"];
+            this.widgetKey = _data["widgetKey"];
+            this.isVisible = _data["isVisible"];
+            if (Array.isArray(_data["allowedRoles"])) {
+                this.allowedRoles = [] as any;
+                for (let item of _data["allowedRoles"])
+                    this.allowedRoles!.push(item);
+            }
+            this.displayOrder = _data["displayOrder"];
+            this.settingsJson = _data["settingsJson"];
+            this.layoutJson = _data["layoutJson"];
+        }
+    }
+
+    static fromJS(data: any): CreatePageWidgetConfigDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreatePageWidgetConfigDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageKey"] = this.pageKey;
+        data["widgetKey"] = this.widgetKey;
+        data["isVisible"] = this.isVisible;
+        if (Array.isArray(this.allowedRoles)) {
+            data["allowedRoles"] = [];
+            for (let item of this.allowedRoles)
+                data["allowedRoles"].push(item);
+        }
+        data["displayOrder"] = this.displayOrder;
+        data["settingsJson"] = this.settingsJson;
+        data["layoutJson"] = this.layoutJson;
+        return data;
+    }
+}
+
+export interface ICreatePageWidgetConfigDto {
+    pageKey: string | undefined;
+    widgetKey: string | undefined;
+    isVisible: boolean;
+    allowedRoles: string[] | undefined;
+    displayOrder: number;
+    settingsJson: string | undefined;
+    layoutJson: string | undefined;
+}
+
 export class CreatePaymentSessionDto implements ICreatePaymentSessionDto {
     tenantId!: string;
     subscriptionPlanId!: string;
@@ -35372,6 +35819,8 @@ export class DashboardWidgetSettingDto implements IDashboardWidgetSettingDto {
     isVisible!: boolean;
     allowedRoles!: string[] | undefined;
     displayOrder!: number;
+    settingsJson!: string | undefined;
+    layoutJson!: string | undefined;
 
     constructor(data?: IDashboardWidgetSettingDto) {
         if (data) {
@@ -35394,6 +35843,8 @@ export class DashboardWidgetSettingDto implements IDashboardWidgetSettingDto {
                     this.allowedRoles!.push(item);
             }
             this.displayOrder = _data["displayOrder"];
+            this.settingsJson = _data["settingsJson"];
+            this.layoutJson = _data["layoutJson"];
         }
     }
 
@@ -35416,6 +35867,8 @@ export class DashboardWidgetSettingDto implements IDashboardWidgetSettingDto {
                 data["allowedRoles"].push(item);
         }
         data["displayOrder"] = this.displayOrder;
+        data["settingsJson"] = this.settingsJson;
+        data["layoutJson"] = this.layoutJson;
         return data;
     }
 }
@@ -35427,6 +35880,8 @@ export interface IDashboardWidgetSettingDto {
     isVisible: boolean;
     allowedRoles: string[] | undefined;
     displayOrder: number;
+    settingsJson: string | undefined;
+    layoutJson: string | undefined;
 }
 
 export class DebitOrderBatchDto implements IDebitOrderBatchDto {
@@ -38846,6 +39301,7 @@ export interface IMember {
 
 export class MemberApprovalDetailDto implements IMemberApprovalDetailDto {
     id!: string;
+    memberNumber!: string | undefined;
     title!: string | undefined;
     firstNames!: string | undefined;
     surname!: string | undefined;
@@ -38898,6 +39354,7 @@ export class MemberApprovalDetailDto implements IMemberApprovalDetailDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.memberNumber = _data["memberNumber"];
             this.title = _data["title"];
             this.firstNames = _data["firstNames"];
             this.surname = _data["surname"];
@@ -38970,6 +39427,7 @@ export class MemberApprovalDetailDto implements IMemberApprovalDetailDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["memberNumber"] = this.memberNumber;
         data["title"] = this.title;
         data["firstNames"] = this.firstNames;
         data["surname"] = this.surname;
@@ -39035,6 +39493,7 @@ export class MemberApprovalDetailDto implements IMemberApprovalDetailDto {
 
 export interface IMemberApprovalDetailDto {
     id: string;
+    memberNumber: string | undefined;
     title: string | undefined;
     firstNames: string | undefined;
     surname: string | undefined;
@@ -40842,6 +41301,126 @@ export interface IPageMetaTagsDto {
     ogImage: string | undefined;
 }
 
+export class PageRolesRequest implements IPageRolesRequest {
+    pageKey!: string | undefined;
+    roles!: string[] | undefined;
+
+    constructor(data?: IPageRolesRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageKey = _data["pageKey"];
+            if (Array.isArray(_data["roles"])) {
+                this.roles = [] as any;
+                for (let item of _data["roles"])
+                    this.roles!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): PageRolesRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageRolesRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageKey"] = this.pageKey;
+        if (Array.isArray(this.roles)) {
+            data["roles"] = [];
+            for (let item of this.roles)
+                data["roles"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IPageRolesRequest {
+    pageKey: string | undefined;
+    roles: string[] | undefined;
+}
+
+export class PageWidgetConfigDto implements IPageWidgetConfigDto {
+    id!: string;
+    pageKey!: string | undefined;
+    widgetKey!: string | undefined;
+    isVisible!: boolean;
+    allowedRoles!: string[] | undefined;
+    displayOrder!: number;
+    settingsJson!: string | undefined;
+    layoutJson!: string | undefined;
+
+    constructor(data?: IPageWidgetConfigDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.pageKey = _data["pageKey"];
+            this.widgetKey = _data["widgetKey"];
+            this.isVisible = _data["isVisible"];
+            if (Array.isArray(_data["allowedRoles"])) {
+                this.allowedRoles = [] as any;
+                for (let item of _data["allowedRoles"])
+                    this.allowedRoles!.push(item);
+            }
+            this.displayOrder = _data["displayOrder"];
+            this.settingsJson = _data["settingsJson"];
+            this.layoutJson = _data["layoutJson"];
+        }
+    }
+
+    static fromJS(data: any): PageWidgetConfigDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PageWidgetConfigDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["pageKey"] = this.pageKey;
+        data["widgetKey"] = this.widgetKey;
+        data["isVisible"] = this.isVisible;
+        if (Array.isArray(this.allowedRoles)) {
+            data["allowedRoles"] = [];
+            for (let item of this.allowedRoles)
+                data["allowedRoles"].push(item);
+        }
+        data["displayOrder"] = this.displayOrder;
+        data["settingsJson"] = this.settingsJson;
+        data["layoutJson"] = this.layoutJson;
+        return data;
+    }
+}
+
+export interface IPageWidgetConfigDto {
+    id: string;
+    pageKey: string | undefined;
+    widgetKey: string | undefined;
+    isVisible: boolean;
+    allowedRoles: string[] | undefined;
+    displayOrder: number;
+    settingsJson: string | undefined;
+    layoutJson: string | undefined;
+}
+
 export class PageWidgetDto implements IPageWidgetDto {
     id!: string | undefined;
     type!: string | undefined;
@@ -41765,6 +42344,7 @@ export interface IPdfTemplateFieldInfo {
 
 export class PendingMemberDto implements IPendingMemberDto {
     id!: string;
+    memberNumber!: string | undefined;
     title!: string | undefined;
     firstNames!: string | undefined;
     surname!: string | undefined;
@@ -41792,6 +42372,7 @@ export class PendingMemberDto implements IPendingMemberDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.memberNumber = _data["memberNumber"];
             this.title = _data["title"];
             this.firstNames = _data["firstNames"];
             this.surname = _data["surname"];
@@ -41823,6 +42404,7 @@ export class PendingMemberDto implements IPendingMemberDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["memberNumber"] = this.memberNumber;
         data["title"] = this.title;
         data["firstNames"] = this.firstNames;
         data["surname"] = this.surname;
@@ -41847,6 +42429,7 @@ export class PendingMemberDto implements IPendingMemberDto {
 
 export interface IPendingMemberDto {
     id: string;
+    memberNumber: string | undefined;
     title: string | undefined;
     firstNames: string | undefined;
     surname: string | undefined;
@@ -47124,6 +47707,8 @@ export class UpdateDashboardWidgetSettingDto implements IUpdateDashboardWidgetSe
     isVisible!: boolean;
     allowedRoles!: string[] | undefined;
     displayOrder!: number;
+    settingsJson!: string | undefined;
+    layoutJson!: string | undefined;
 
     constructor(data?: IUpdateDashboardWidgetSettingDto) {
         if (data) {
@@ -47144,6 +47729,8 @@ export class UpdateDashboardWidgetSettingDto implements IUpdateDashboardWidgetSe
                     this.allowedRoles!.push(item);
             }
             this.displayOrder = _data["displayOrder"];
+            this.settingsJson = _data["settingsJson"];
+            this.layoutJson = _data["layoutJson"];
         }
     }
 
@@ -47164,6 +47751,8 @@ export class UpdateDashboardWidgetSettingDto implements IUpdateDashboardWidgetSe
                 data["allowedRoles"].push(item);
         }
         data["displayOrder"] = this.displayOrder;
+        data["settingsJson"] = this.settingsJson;
+        data["layoutJson"] = this.layoutJson;
         return data;
     }
 }
@@ -47173,6 +47762,8 @@ export interface IUpdateDashboardWidgetSettingDto {
     isVisible: boolean;
     allowedRoles: string[] | undefined;
     displayOrder: number;
+    settingsJson: string | undefined;
+    layoutJson: string | undefined;
 }
 
 export class UpdateDynamicEntityRecordDto implements IUpdateDynamicEntityRecordDto {
@@ -48189,6 +48780,70 @@ export interface IUpdatePageDto {
     isBlockingOnboarding: boolean;
     requiresOnboardingApproval: boolean;
     metaTags: PageMetaTagsDto;
+}
+
+export class UpdatePageWidgetConfigDto implements IUpdatePageWidgetConfigDto {
+    id!: string;
+    isVisible!: boolean;
+    allowedRoles!: string[] | undefined;
+    displayOrder!: number;
+    settingsJson!: string | undefined;
+    layoutJson!: string | undefined;
+
+    constructor(data?: IUpdatePageWidgetConfigDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.isVisible = _data["isVisible"];
+            if (Array.isArray(_data["allowedRoles"])) {
+                this.allowedRoles = [] as any;
+                for (let item of _data["allowedRoles"])
+                    this.allowedRoles!.push(item);
+            }
+            this.displayOrder = _data["displayOrder"];
+            this.settingsJson = _data["settingsJson"];
+            this.layoutJson = _data["layoutJson"];
+        }
+    }
+
+    static fromJS(data: any): UpdatePageWidgetConfigDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePageWidgetConfigDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["isVisible"] = this.isVisible;
+        if (Array.isArray(this.allowedRoles)) {
+            data["allowedRoles"] = [];
+            for (let item of this.allowedRoles)
+                data["allowedRoles"].push(item);
+        }
+        data["displayOrder"] = this.displayOrder;
+        data["settingsJson"] = this.settingsJson;
+        data["layoutJson"] = this.layoutJson;
+        return data;
+    }
+}
+
+export interface IUpdatePageWidgetConfigDto {
+    id: string;
+    isVisible: boolean;
+    allowedRoles: string[] | undefined;
+    displayOrder: number;
+    settingsJson: string | undefined;
+    layoutJson: string | undefined;
 }
 
 export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingRequest {

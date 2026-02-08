@@ -1,17 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { DASHBOARD_WIDGETS } from '../dashboard/dashboard-widgets.registry';
-import { DashboardWidgetServiceProxy, DashboardWidgetSettingDto, CreateDashboardWidgetSettingDto, UpdateDashboardWidgetSettingDto, RoleServiceProxy, RoleDto } from '../../core/services/service-proxies';
+import { DashboardWidgetServiceProxy, CreateDashboardWidgetSettingDto, UpdateDashboardWidgetSettingDto, RoleServiceProxy } from '../../core/services/service-proxies';
 
 // Local interface for component state
 interface WidgetSetting {
@@ -21,13 +12,15 @@ interface WidgetSetting {
     isVisible: boolean;
     allowedRoles?: string[];
     displayOrder: number;
+    settingsJson?: string;
+    layoutJson?: string;
 }
 
 @Component({
     selector: 'app-dashboard-settings',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, InputSwitchModule, MultiSelectModule, InputNumberModule, ToastModule],
-    providers: [MessageService, DashboardWidgetServiceProxy, RoleServiceProxy],
+    imports: [CommonModule, FormsModule],
+    providers: [DashboardWidgetServiceProxy, RoleServiceProxy],
     templateUrl: './dashboard-settings.component.html',
     styleUrl: './dashboard-settings.component.scss'
 })
@@ -36,13 +29,17 @@ export class DashboardSettingsComponent implements OnInit {
     loading = signal(false);
     showDialog = signal(false);
     isEditMode = signal(false);
+    notification = signal<string | null>(null);
+    notificationType = signal<'success' | 'error' | 'warn' | null>(null);
     currentWidget: WidgetSetting = {
         id: '00000000-0000-0000-0000-000000000000',
         widgetKey: '',
         widgetName: '',
         isVisible: true,
         allowedRoles: [],
-        displayOrder: 0
+        displayOrder: 0,
+        settingsJson: undefined,
+        layoutJson: undefined
     };
 
     availableRoles = signal<{ label: string; value: string }[]>([]);
@@ -53,7 +50,6 @@ export class DashboardSettingsComponent implements OnInit {
     }));
 
     constructor(
-        private messageService: MessageService,
         private dashboardWidgetService: DashboardWidgetServiceProxy,
         private roleService: RoleServiceProxy
     ) {}
@@ -74,11 +70,7 @@ export class DashboardSettingsComponent implements OnInit {
             },
             error: (error) => {
                 console.error('Error loading roles:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to load roles'
-                });
+                this.showNotification('error', 'Failed to load roles');
             }
         });
     }
@@ -93,18 +85,16 @@ export class DashboardSettingsComponent implements OnInit {
                     widgetName: dto.widgetName,
                     isVisible: dto.isVisible ?? true,
                     allowedRoles: dto.allowedRoles ?? [],
-                    displayOrder: dto.displayOrder ?? 0
+                    displayOrder: dto.displayOrder ?? 0,
+                    settingsJson: dto.settingsJson,
+                    layoutJson: dto.layoutJson
                 }));
                 this.widgets.set(mappedWidgets);
                 this.loading.set(false);
             },
             error: (error) => {
                 console.error('Error loading dashboard widgets:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to load dashboard widgets'
-                });
+                this.showNotification('error', 'Failed to load dashboard widgets');
                 this.loading.set(false);
             }
         });
@@ -117,7 +107,9 @@ export class DashboardSettingsComponent implements OnInit {
             widgetName: '',
             isVisible: true,
             allowedRoles: ['TenantAdmin'],
-            displayOrder: this.widgets().length + 1
+            displayOrder: this.widgets().length + 1,
+            settingsJson: undefined,
+            layoutJson: undefined
         };
         this.isEditMode.set(false);
         this.showDialog.set(true);
@@ -131,11 +123,7 @@ export class DashboardSettingsComponent implements OnInit {
 
     saveWidget() {
         if (!this.currentWidget.widgetKey || !this.currentWidget.widgetName) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Validation Error',
-                detail: 'Please fill in all required fields'
-            });
+            this.showNotification('warn', 'Please fill in all required fields');
             return;
         }
 
@@ -146,26 +134,20 @@ export class DashboardSettingsComponent implements OnInit {
                 id: this.currentWidget.id || '',
                 isVisible: this.currentWidget.isVisible,
                 allowedRoles: this.currentWidget.allowedRoles || [],
-                displayOrder: this.currentWidget.displayOrder
+                displayOrder: this.currentWidget.displayOrder,
+                settingsJson: this.currentWidget.settingsJson,
+                layoutJson: this.currentWidget.layoutJson
             });
 
             this.dashboardWidgetService.dashboardWidget_Update(updateDto).subscribe({
                 next: (result) => {
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Widget updated successfully'
-                    });
+                    this.showNotification('success', 'Widget updated successfully');
                     this.showDialog.set(false);
                     this.loadWidgets();
                 },
                 error: (error) => {
                     console.error('Error saving widget:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to save widget'
-                    });
+                    this.showNotification('error', 'Failed to save widget');
                     this.loading.set(false);
                 }
             });
@@ -175,26 +157,20 @@ export class DashboardSettingsComponent implements OnInit {
                 widgetName: this.currentWidget.widgetName || '',
                 isVisible: this.currentWidget.isVisible,
                 allowedRoles: this.currentWidget.allowedRoles || [],
-                displayOrder: this.currentWidget.displayOrder
+                displayOrder: this.currentWidget.displayOrder,
+                settingsJson: this.currentWidget.settingsJson,
+                layoutJson: this.currentWidget.layoutJson
             });
 
             this.dashboardWidgetService.dashboardWidget_Create(createDto).subscribe({
                 next: (result) => {
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Success',
-                        detail: 'Widget created successfully'
-                    });
+                    this.showNotification('success', 'Widget created successfully');
                     this.showDialog.set(false);
                     this.loadWidgets();
                 },
                 error: (error) => {
                     console.error('Error saving widget:', error);
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: 'Failed to save widget'
-                    });
+                    this.showNotification('error', 'Failed to save widget');
                     this.loading.set(false);
                 }
             });
@@ -206,20 +182,12 @@ export class DashboardSettingsComponent implements OnInit {
 
         this.dashboardWidgetService.dashboardWidget_InitializeDefaults().subscribe({
             next: (result) => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Success',
-                    detail: 'Default widgets initialized successfully'
-                });
+                this.showNotification('success', 'Default widgets initialized successfully');
                 this.loadWidgets();
             },
             error: (error) => {
                 console.error('Error initializing defaults:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to initialize default widgets'
-                });
+                this.showNotification('error', 'Failed to initialize default widgets');
                 this.loading.set(false);
             }
         });
@@ -234,5 +202,22 @@ export class DashboardSettingsComponent implements OnInit {
         if (selectedWidget) {
             this.currentWidget.widgetName = selectedWidget.name;
         }
+    }
+
+    clearNotification() {
+        this.notification.set(null);
+        this.notificationType.set(null);
+    }
+
+    trackByWidgetId(index: number, widget: WidgetSetting): string | number | undefined {
+        return widget.id ?? index;
+    }
+
+    private showNotification(type: 'success' | 'error' | 'warn', message: string) {
+        this.notificationType.set(type);
+        this.notification.set(message);
+        setTimeout(() => {
+            this.clearNotification();
+        }, 4000);
     }
 }

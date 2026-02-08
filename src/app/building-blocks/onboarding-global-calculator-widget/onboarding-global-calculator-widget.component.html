@@ -1,0 +1,7 @@
+<div class="onboarding-global-calculator-widget" *ngIf="calculatorConfig">
+    <app-embedded-calculator
+        [config]="calculatorConfig!"
+        [formData]="calculatorFormData"
+        [(value)]="calculatorResult">
+    </app-embedded-calculator>
+</div>

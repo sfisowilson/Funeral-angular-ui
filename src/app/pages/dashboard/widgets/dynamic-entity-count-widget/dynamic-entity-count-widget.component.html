@@ -1,0 +1,19 @@
+<div class="dynamic-entity-count-card">
+    <div class="card-header">
+        <h3>{{ title }}</h3>
+    </div>
+    <div class="card-body" *ngIf="!loading() && !error()">
+        <div class="count-value">
+            {{ count() ?? 0 }}
+        </div>
+        <div class="count-label">
+            Total records in {{ entityTypeKey }}
+        </div>
+    </div>
+    <div class="card-body" *ngIf="loading()">
+        <span class="text-muted">Loading...</span>
+    </div>
+    <div class="card-body" *ngIf="!loading() && error()">
+        <span class="text-danger">{{ error() }}</span>
+    </div>
+</div>

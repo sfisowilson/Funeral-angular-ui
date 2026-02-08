@@ -764,6 +764,129 @@
                         </div>
                     </div>
 
+                    <!-- Row Limit Rules (for multi-submit onboarding lists) -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0 fw-semibold">Row Limit Rules (Multi-row steps)</label>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addRowLimitRule()">Add row limit</button>
+                        </div>
+
+                        <div class="card card-body p-3">
+                            <p class="text-muted small mb-2">
+                                These rules limit how many rows a member can add in onboarding multi-submit steps
+                                based on values captured in previous steps (for example, selected transport type).
+                                Rules are evaluated in order; the first rule whose conditions all match will apply.
+                            </p>
+
+                            <div *ngIf="rowLimitRules.length === 0" class="text-muted small">
+                                No row limit rules defined yet.
+                            </div>
+
+                            <div class="table-responsive" *ngIf="rowLimitRules.length > 0">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 8%">Order</th>
+                                            <th style="width: 32%">Conditions (previous step fields)</th>
+                                            <th style="width: 15%">Max rows</th>
+                                            <th style="width: 35%">Validation message</th>
+                                            <th style="width: 10%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let rule of rowLimitRules; let ri = index">
+                                            <td>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <span class="badge bg-light text-dark">{{ rule.order }}</span>
+                                                    <div class="btn-group btn-group-sm ms-1" role="group">
+                                                        <button type="button" class="btn btn-outline-secondary" (click)="moveRowLimitRuleUp(ri)" [disabled]="ri === 0">
+                                                            <i class="bi bi-arrow-up"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary" (click)="moveRowLimitRuleDown(ri)" [disabled]="ri === rowLimitRules.length - 1">
+                                                            <i class="bi bi-arrow-down"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="small text-muted mb-1">All conditions must match (AND):</div>
+                                                <div class="row g-1 align-items-center mb-1" *ngFor="let cond of rule.conditions; let ci = index">
+                                                    <div class="col-4">
+                                                        <select
+                                                            class="form-select form-select-sm"
+                                                            [(ngModel)]="cond.sourceEntityTypeId"
+                                                            name="rowLimitEntity{{ri}}_{{ci}}"
+                                                        >
+                                                            <option [ngValue]="undefined">Select entity...</option>
+                                                            <option *ngFor="let et of dynamicEntityTypes" [ngValue]="et.id">{{ et.name }}</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <select
+                                                            class="form-select form-select-sm"
+                                                            [(ngModel)]="cond.sourceFieldKey"
+                                                            name="rowLimitField{{ri}}_{{ci}}"
+                                                            (ngModelChange)="cond.sourceKey = cond.sourceFieldKey || ''"
+                                                        >
+                                                            <option [ngValue]="undefined">Select field...</option>
+                                                            <option *ngFor="let f of getRowLimitFieldsForEntity(cond.sourceEntityTypeId)" [ngValue]="f.value">
+                                                                {{ f.label }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <input
+                                                            type="text"
+                                                            class="form-control form-control-sm"
+                                                            [(ngModel)]="cond.equalsValue"
+                                                            name="rowLimitValue{{ri}}_{{ci}}"
+                                                            placeholder="e.g. bicycle"
+                                                        />
+                                                    </div>
+                                                    <div class="col-2 text-end">
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeRowLimitCondition(rule, ci)" [disabled]="rule.conditions.length === 1">
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary mt-1" (click)="addRowLimitCondition(rule)">
+                                                    + Add condition
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    class="form-control form-control-sm"
+                                                    [(ngModel)]="rule.maxItems"
+                                                    name="rowLimitMax{{ri}}"
+                                                    min="1"
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control form-control-sm"
+                                                    [(ngModel)]="rule.errorMessage"
+                                                    name="rowLimitMsg{{ri}}"
+                                                    placeholder="Custom message shown when the limit is exceeded"
+                                                />
+                                                <div class="form-text small">
+                                                    Use step labels in your message, for example:
+                                                    "Please select a bigger transport vehicle in 'Transport Details' to add more passengers."
+                                                </div>
+                                            </td>
+                                            <td class="text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeRowLimitRule(ri)">
+                                                    ✕
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="notificationEmail" class="form-label">Notification Email</label>

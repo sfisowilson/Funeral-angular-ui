@@ -24,7 +24,13 @@ export class Dashboard implements OnInit {
     loading = signal(true);
 
     // Reference widget components for Angular compiler
-    private readonly widgetComponents = [StatsSummaryWidgetComponent, RevenueChartWidgetComponent, MemberGrowthWidgetComponent, RecentClaimsWidgetComponent, MyOnboardingWidgetComponent];
+    private readonly widgetComponents = [
+        StatsSummaryWidgetComponent,
+        RevenueChartWidgetComponent,
+        MemberGrowthWidgetComponent,
+        RecentClaimsWidgetComponent,
+        MyOnboardingWidgetComponent
+    ];
 
     constructor(
         private authService: AuthService,

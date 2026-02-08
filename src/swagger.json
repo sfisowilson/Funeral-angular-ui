@@ -12073,6 +12073,61 @@
         }
       }
     },
+    "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_GetDynamicFieldValues": {
+      "get": {
+        "tags": [
+          "OnboardingMultiSubmit"
+        ],
+        "parameters": [
+          {
+            "name": "entityTypeId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "fieldKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/OnboardingPdf/OnboardingPdf_PreviewPdf": {
       "get": {
         "tags": [
@@ -12703,6 +12758,247 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrderStatsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PageWidgetConfig/PageWidgetConfig_GetByPage/{pageKey}": {
+      "get": {
+        "tags": [
+          "PageWidgetConfig"
+        ],
+        "parameters": [
+          {
+            "name": "pageKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageWidgetConfigDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageWidgetConfigDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageWidgetConfigDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PageWidgetConfig/PageWidgetConfig_GetVisibleByRolesForPage": {
+      "post": {
+        "tags": [
+          "PageWidgetConfig"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageRolesRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageRolesRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageRolesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageWidgetConfigDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageWidgetConfigDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageWidgetConfigDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PageWidgetConfig/PageWidgetConfig_Create": {
+      "post": {
+        "tags": [
+          "PageWidgetConfig"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePageWidgetConfigDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePageWidgetConfigDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePageWidgetConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageWidgetConfigDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageWidgetConfigDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageWidgetConfigDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PageWidgetConfig/PageWidgetConfig_Update": {
+      "put": {
+        "tags": [
+          "PageWidgetConfig"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePageWidgetConfigDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePageWidgetConfigDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePageWidgetConfigDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageWidgetConfigDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageWidgetConfigDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageWidgetConfigDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PageWidgetConfig/PageWidgetConfig_Delete/{id}": {
+      "delete": {
+        "tags": [
+          "PageWidgetConfig"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "boolean"
                 }
               }
             }
@@ -23898,6 +24194,14 @@
           "displayOrder": {
             "type": "integer",
             "format": "int32"
+          },
+          "settingsJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "layoutJson": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -24842,6 +25146,42 @@
         },
         "additionalProperties": false
       },
+      "CreatePageWidgetConfigDto": {
+        "type": "object",
+        "properties": {
+          "pageKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "widgetKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "isVisible": {
+            "type": "boolean"
+          },
+          "allowedRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "settingsJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "layoutJson": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CreatePaymentSessionDto": {
         "type": "object",
         "properties": {
@@ -25740,6 +26080,14 @@
           "displayOrder": {
             "type": "integer",
             "format": "int32"
+          },
+          "settingsJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "layoutJson": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -29391,6 +29739,63 @@
             "nullable": true
           },
           "ogImage": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PageRolesRequest": {
+        "type": "object",
+        "properties": {
+          "pageKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PageWidgetConfigDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pageKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "widgetKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "isVisible": {
+            "type": "boolean"
+          },
+          "allowedRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "settingsJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "layoutJson": {
             "type": "string",
             "nullable": true
           }
@@ -33213,6 +33618,14 @@
           "displayOrder": {
             "type": "integer",
             "format": "int32"
+          },
+          "settingsJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "layoutJson": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -33891,6 +34304,38 @@
           },
           "metaTags": {
             "$ref": "#/components/schemas/PageMetaTagsDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePageWidgetConfigDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isVisible": {
+            "type": "boolean"
+          },
+          "allowedRoles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "settingsJson": {
+            "type": "string",
+            "nullable": true
+          },
+          "layoutJson": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
