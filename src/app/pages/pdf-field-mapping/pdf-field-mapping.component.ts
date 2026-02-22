@@ -6,12 +6,15 @@ import { environment } from '../../../environments/environment';
 import {
     PdfFieldMappingServiceProxy,
     PdfFieldMappingDto,
-    CreatePdfFieldMappingRequest,
-    UpdatePdfFieldMappingRequest,
     PdfTemplateAnalysisResult,
     PdfTemplateFieldInfo,
-    TenantSettingServiceProxy,
-    FileUploadServiceProxy
+    FileUploadServiceProxy,
+    FileParameter,
+    PdfMappingProfileDto,
+    CreatePdfMappingProfileRequest,
+    UpdatePdfMappingProfileRequest,
+    CreatePdfFieldMappingRequest,
+    UpdatePdfFieldMappingRequest
 } from '../../core/services/service-proxies';
 
 interface ConditionalRule {
@@ -31,11 +34,14 @@ interface FieldGroup {
     selector: 'app-pdf-field-mapping',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [PdfFieldMappingServiceProxy, TenantSettingServiceProxy, FileUploadServiceProxy],
+    providers: [PdfFieldMappingServiceProxy, FileUploadServiceProxy],
     templateUrl: './pdf-field-mapping.component.html',
     styleUrl: './pdf-field-mapping.component.scss'
 })
 export class PdfFieldMappingComponent implements OnInit {
+    profiles: PdfMappingProfileDto[] = [];
+    selectedProfileId: string | null = null;
+
     mappings: PdfFieldMappingDto[] = [];
     templateAnalysis: PdfTemplateAnalysisResult | null = null;
     currentTemplateFileId: string | null = null;
@@ -131,15 +137,21 @@ export class PdfFieldMappingComponent implements OnInit {
 
     constructor(
         private pdfFieldMappingService: PdfFieldMappingServiceProxy,
-        private tenantSettingService: TenantSettingServiceProxy,
         private fileUploadService: FileUploadServiceProxy,
         private http: HttpClient
     ) {}
 
     ngOnInit(): void {
-        this.loadMappings();
-        this.loadCurrentTemplate();
+        this.loadProfiles();
         this.loadAvailableFields();
+    }
+
+    get selectedProfile(): PdfMappingProfileDto | null {
+        if (!this.selectedProfileId) {
+            return null;
+        }
+
+        return this.profiles.find((profile) => profile.id === this.selectedProfileId) || null;
     }
 
     loadAvailableFields(): void {
@@ -468,8 +480,73 @@ export class PdfFieldMappingComponent implements OnInit {
         setTimeout(() => (this.showAlert = false), 5000);
     }
 
+    loadProfiles(): void {
+        this.pdfFieldMappingService.pdfFieldMapping_GetProfiles().subscribe({
+            next: (response) => {
+                const rows = response?.result || [];
+                this.profiles = rows;
+
+                const preferredProfile = this.profiles.find((p) => p.id === this.selectedProfileId)
+                    || this.profiles.find((p) => p.isDefault)
+                    || this.profiles[0]
+                    || null;
+
+                this.selectedProfileId = preferredProfile?.id || null;
+                this.loadMappings();
+                this.loadCurrentTemplate();
+            },
+            error: (error) => {
+                this.showToast('danger', 'Error', 'Failed to load mapping profiles');
+                console.error('Error loading mapping profiles:', error);
+            }
+        });
+    }
+
+    onProfileChange(): void {
+        this.loadMappings();
+        this.loadCurrentTemplate();
+    }
+
+    createProfile(): void {
+        const name = prompt('Enter a name for the new PDF mapping');
+        if (!name || !name.trim()) {
+            return;
+        }
+
+        const payload = {
+            name: name.trim(),
+            templateFileId: undefined,
+            isEnabled: true,
+            isDefault: false,
+            displayOrder: this.profiles.length
+        };
+
+        this.pdfFieldMappingService
+            .pdfFieldMapping_CreateProfile(new CreatePdfMappingProfileRequest(payload))
+            .subscribe({
+            next: (response) => {
+                const created = response?.result;
+                if (created?.id) {
+                    this.selectedProfileId = created.id;
+                }
+
+                this.showToast('success', 'Success', 'New PDF mapping created');
+                this.loadProfiles();
+            },
+            error: (error) => {
+                this.showToast('danger', 'Error', 'Failed to create PDF mapping profile');
+                console.error('Error creating profile:', error);
+            }
+        });
+    }
+
     loadMappings(): void {
-        this.pdfFieldMappingService.pdfFieldMapping_GetAll().subscribe({
+        if (!this.selectedProfileId) {
+            this.mappings = [];
+            return;
+        }
+
+        this.pdfFieldMappingService.pdfFieldMapping_GetAll(this.selectedProfileId).subscribe({
             next: (response) => {
                 this.mappings = response?.result || [];
             },
@@ -481,26 +558,15 @@ export class PdfFieldMappingComponent implements OnInit {
     }
 
     loadCurrentTemplate(): void {
-        this.tenantSettingService.tenantSetting_GetCurrentTenantSettings().subscribe({
-            next: (response) => {
-                const settings = response?.result;
-                if (settings?.contractTemplateFileId) {
-                    this.currentTemplateFileId = settings.contractTemplateFileId;
-                    console.log('Template file ID set to:', this.currentTemplateFileId);
-                    // Load file metadata to show details
-                    this.loadFileMetadata(settings.contractTemplateFileId);
-                } else {
-                    this.currentTemplateFileId = null;
-                    this.currentTemplateFile = null;
-                    console.log('No contract template file ID found');
-                }
-            },
-            error: (error) => {
-                console.error('Error loading tenant settings:', error);
-                this.currentTemplateFileId = null;
-                this.currentTemplateFile = null;
-            }
-        });
+        const selected = this.selectedProfile;
+        if (!selected?.templateFileId) {
+            this.currentTemplateFileId = null;
+            this.currentTemplateFile = null;
+            return;
+        }
+
+        this.currentTemplateFileId = selected.templateFileId;
+        this.loadFileMetadata(selected.templateFileId);
     }
 
     loadFileMetadata(fileId: string): void {
@@ -550,26 +616,57 @@ export class PdfFieldMappingComponent implements OnInit {
         const file = event.target.files[0];
         if (!file) return;
 
+        if (!this.selectedProfileId) {
+            this.showToast('warning', 'Select Mapping', 'Please select or create a PDF mapping first');
+            event.target.value = '';
+            return;
+        }
+
         if (file.type !== 'application/pdf') {
             this.showToast('danger', 'Invalid File', 'Only PDF files are allowed for contract templates');
             event.target.value = '';
             return;
         }
 
-        const formData = new FormData();
-        formData.append('file', file);
+        const fileParameter: FileParameter = {
+            data: file,
+            fileName: file.name
+        };
 
-        this.http.post(`${this.baseUrl}/api/TenantSetting/upload-contract-template`, formData).subscribe({
-            next: (result: any) => {
-                this.showToast('success', 'Success', 'Contract template uploaded successfully');
-                this.currentTemplateFileId = result.fileId;
-                console.log('Upload successful, template ID:', result.fileId);
-                // Reload to confirm it's saved
-                setTimeout(() => this.loadCurrentTemplate(), 500);
+        this.fileUploadService.file_UploadFile('PdfMappingTemplate', undefined, undefined, undefined, false, fileParameter).subscribe({
+            next: (uploadResponse) => {
+                const uploadedFileId = uploadResponse?.result?.id;
+                if (!uploadedFileId) {
+                    this.showToast('danger', 'Error', 'Template upload returned no file ID');
+                    return;
+                }
+
+                this.pdfFieldMappingService
+                    .pdfFieldMapping_UpdateProfile(
+                        this.selectedProfileId,
+                        new UpdatePdfMappingProfileRequest({
+                            name: undefined,
+                            templateFileId: uploadedFileId,
+                            clearTemplateFileId: undefined,
+                            isEnabled: undefined,
+                            isDefault: undefined,
+                            displayOrder: undefined
+                        })
+                    )
+                    .subscribe({
+                    next: () => {
+                        this.showToast('success', 'Success', 'Template uploaded for selected PDF mapping');
+                        this.loadProfiles();
+                    },
+                    error: (error: any) => {
+                        this.showToast('danger', 'Error', 'Failed to assign template to mapping profile');
+                        console.error('Profile template assignment error:', error);
+                    }
+                });
             },
             error: (error: any) => {
-                this.showToast('danger', 'Error', 'Failed to upload contract template: ' + (error?.error?.message || error?.message || 'Unknown error'));
-                console.error('Contract template upload error:', error);
+                this.showToast('danger', 'Error', 'Failed to upload template: ' + (error?.error?.message || error?.message || 'Unknown error'));
+                console.error('Template upload error:', error);
             }
         });
 
@@ -581,16 +678,33 @@ export class PdfFieldMappingComponent implements OnInit {
             return;
         }
 
-        this.http.delete(`${this.baseUrl}/api/TenantSetting/remove-contract-template`).subscribe({
+        if (!this.selectedProfileId) {
+            return;
+        }
+
+        this.pdfFieldMappingService
+            .pdfFieldMapping_UpdateProfile(
+                this.selectedProfileId,
+                new UpdatePdfMappingProfileRequest({
+                    name: undefined,
+                    templateFileId: undefined,
+                    clearTemplateFileId: true,
+                    isEnabled: undefined,
+                    isDefault: undefined,
+                    displayOrder: undefined
+                })
+            )
+            .subscribe({
             next: () => {
-                this.showToast('success', 'Success', 'Contract template removed successfully');
+                this.showToast('success', 'Success', 'Template removed from selected PDF mapping');
                 this.currentTemplateFileId = null;
                 this.currentTemplateFile = null;
                 this.templateAnalysis = null;
+                this.loadProfiles();
             },
             error: (error: any) => {
-                this.showToast('danger', 'Error', 'Failed to remove contract template: ' + (error?.error?.message || error?.message || 'Unknown error'));
-                console.error('Contract template removal error:', error);
+                this.showToast('danger', 'Error', 'Failed to remove template: ' + (error?.error?.message || error?.message || 'Unknown error'));
+                console.error('Template removal error:', error);
             }
         });
     }
@@ -604,7 +718,7 @@ export class PdfFieldMappingComponent implements OnInit {
 
         this.pdfFieldMappingService.pdfFieldMapping_AnalyzeTemplate(fileId).subscribe({
             next: (response) => {
-                this.templateAnalysis = response?.result;
+                this.templateAnalysis = response?.result || null;
 
                 // Merge suggested fields from backend into the component's list
                 if (response?.result?.suggestedSourceFields) {
@@ -698,7 +812,13 @@ export class PdfFieldMappingComponent implements OnInit {
     }
 
     createMapping(): void {
+        if (!this.selectedProfileId) {
+            this.showToast('warning', 'Select Mapping', 'Please select a PDF mapping first');
+            return;
+        }
+
         const request = new CreatePdfFieldMappingRequest({
+            profileId: this.selectedProfileId,
             sourceField: this.mappingForm.sourceField,
             pdfFieldName: this.mappingForm.pdfFieldName,
             mappingType: this.mappingForm.mappingType,
@@ -722,7 +842,9 @@ export class PdfFieldMappingComponent implements OnInit {
 
         this.pdfFieldMappingService.pdfFieldMapping_Create(request).subscribe({
             next: (response) => {
-                this.mappings.push(response?.result);
+                if (response?.result) {
+                    this.mappings.push(response.result);
+                }
                 this.showToast('success', 'Success', 'Mapping created successfully');
                 this.showMappingDialog = false;
             },
@@ -737,6 +859,7 @@ export class PdfFieldMappingComponent implements OnInit {
         if (!this.selectedMapping) return;
 
         const request = new UpdatePdfFieldMappingRequest({
+            profileId: this.selectedProfileId,
             sourceField: this.mappingForm.sourceField,
             pdfFieldName: this.mappingForm.pdfFieldName,
             mappingType: this.mappingForm.mappingType,
@@ -761,6 +884,9 @@ export class PdfFieldMappingComponent implements OnInit {
         this.pdfFieldMappingService.pdfFieldMapping_Update(this.selectedMapping.id, request).subscribe({
             next: (response) => {
                 const mapping = response?.result;
+                if (!mapping) {
+                    return;
+                }
                 const index = this.mappings.findIndex((m) => m.id === this.selectedMapping!.id);
                 if (index !== -1) {
                     this.mappings[index] = mapping;
@@ -796,6 +922,7 @@ export class PdfFieldMappingComponent implements OnInit {
         const newState = !mapping.isEnabled;
 
         const request = new UpdatePdfFieldMappingRequest({
+            profileId: this.selectedProfileId,
             sourceField: mapping.sourceField,
             pdfFieldName: mapping.pdfFieldName,
             mappingType: mapping.mappingType,

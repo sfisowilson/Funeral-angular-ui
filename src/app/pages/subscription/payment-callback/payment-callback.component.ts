@@ -75,7 +75,7 @@ export class PaymentCallbackComponent implements OnInit {
 
     loadSubscriptionDetails(): void {
         this.subscriptionService.tenantSubscription_GetActive().subscribe({
-            next: (subscription) => {
+            next: (subscription : any) => {
                 this.subscriptionId = subscription.id;
             },
             error: (error) => {

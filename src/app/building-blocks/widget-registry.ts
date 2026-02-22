@@ -7,8 +7,6 @@ import { CtaWidgetComponent } from './cta-widget/cta-widget.component';
 import { CtaEditorComponent } from './cta-widget/cta-editor.component';
 import { GalleryWidgetComponent } from './gallery-widget/gallery-widget.component';
 import { GalleryEditorComponent } from './gallery-widget/gallery-editor.component';
-import { PolicyComparisonWidgetComponent } from './policy-comparison-widget/policy-comparison-widget.component';
-import { PolicyComparisonEditorComponent } from './policy-comparison-widget/policy-comparison-editor.component';
 import { ContactUsWidgetComponent } from './contact-us-widget/contact-us-widget.component';
 import { ContactUsEditorComponent } from './contact-us-widget/contact-us-editor.component';
 import { TeamEditorWidgetComponent } from './team-editor-widget/team-editor-widget.component';
@@ -698,16 +696,6 @@ export const WIDGET_TYPES: WidgetType[] = [
             ]
         },
         icon: 'images'
-    },
-    {
-        name: 'policy-comparison',
-        component: PolicyComparisonWidgetComponent,
-        editorComponent: PolicyComparisonEditorComponent,
-        defaultConfig: {
-            title: 'Compare Policies',
-            policyIds: [] // This will store the IDs of policies to compare
-        },
-        icon: 'balance-scale' // Assuming a suitable icon from PrimeIcons
     },
     {
         name: 'contact-us',

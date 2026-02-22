@@ -6,6 +6,22 @@ import { MemberApprovalServiceProxy, PendingMemberDto, MemberApprovalDetailDto, 
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { environment } from '../../../environments/environment';
 
+interface AdminMappedAttachmentFile {
+    id: string;
+    fileName: string;
+    contentType?: string;
+    size?: number;
+    entityType?: string;
+    sourceLabels?: string[];
+    fieldKeys?: string[];
+    downloadUrl?: string;
+}
+
+interface AdminMappedAttachmentGroup {
+    entityType: string;
+    files: AdminMappedAttachmentFile[];
+}
+
 @Component({
     selector: 'app-member-approval',
     standalone: true,
@@ -30,6 +46,10 @@ export class MemberApprovalComponent implements OnInit {
     rejectionReason = '';
     updateRequestMessage = '';
     updateRequestFields: string[] = [];
+    mappedAttachments: AdminMappedAttachmentFile[] = [];
+    mappedAttachmentGroups: AdminMappedAttachmentGroup[] = [];
+    loadingMappedAttachments = false;
+    mappedAttachmentsError = '';
 
     alert = signal<{ type: 'success' | 'danger' | 'warning'; message: string } | null>(null);
 
@@ -79,6 +99,7 @@ export class MemberApprovalComponent implements OnInit {
         this.memberApprovalService.memberApproval_GetMemberDetail(id).subscribe({
             next: (response) => {
                 this.selectedMember.set(response?.result || null);
+                this.loadMappedAttachmentsForMember(id);
                 this.showDetailModal.set(true);
                 this.loading.set(false);
             },
@@ -199,6 +220,10 @@ export class MemberApprovalComponent implements OnInit {
         this.showRejectModal.set(false);
         this.showRequestUpdatesModal.set(false);
         this.selectedMember.set(null);
+        this.mappedAttachments = [];
+        this.mappedAttachmentGroups = [];
+        this.loadingMappedAttachments = false;
+        this.mappedAttachmentsError = '';
     }
 
     showAlert(type: 'success' | 'danger' | 'warning', message: string) {
@@ -235,5 +260,95 @@ export class MemberApprovalComponent implements OnInit {
                 this.loading.set(false);
             }
         });
+    }
+
+    private loadMappedAttachmentsForMember(memberId: string): void {
+        this.loadingMappedAttachments = true;
+        this.mappedAttachmentsError = '';
+        this.mappedAttachments = [];
+        this.mappedAttachmentGroups = [];
+
+        const url = `${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_MappedAttachments`;
+        const payload = {
+            memberId,
+            attachmentMappings: []
+        };
+
+        this.http.post<any[]>(url, payload).subscribe({
+            next: (response) => {
+                const rows = Array.isArray(response) ? response : [];
+                this.mappedAttachments = rows.map((row: any) => ({
+                    id: String(row.id || ''),
+                    fileName: String(row.fileName || 'Unnamed file'),
+                    contentType: row.contentType || undefined,
+                    size: typeof row.size === 'number' ? row.size : undefined,
+                    entityType: row.entityType || undefined,
+                    sourceLabels: Array.isArray(row.sourceLabels) ? row.sourceLabels.filter((v: any) => !!v).map((v: any) => String(v)) : [],
+                    fieldKeys: Array.isArray(row.fieldKeys) ? row.fieldKeys.filter((v: any) => !!v).map((v: any) => String(v)) : [],
+                    downloadUrl: `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${String(row.id || '')}`
+                }));
+
+                this.mappedAttachmentGroups = this.groupMappedAttachments(this.mappedAttachments);
+                this.loadingMappedAttachments = false;
+            },
+            error: (err) => {
+                console.error('Error loading mapped attachments for member approval:', err);
+                this.mappedAttachmentsError = 'Failed to load mapped attachments.';
+                this.loadingMappedAttachments = false;
+            }
+        });
+    }
+
+    private groupMappedAttachments(files: AdminMappedAttachmentFile[]): AdminMappedAttachmentGroup[] {
+        const grouped = new Map<string, AdminMappedAttachmentFile[]>();
+
+        for (const file of files) {
+            const key = (file.entityType || '').trim() || 'Other';
+            if (!grouped.has(key)) {
+                grouped.set(key, []);
+            }
+
+            grouped.get(key)!.push(file);
+        }
+
+        return Array.from(grouped.entries()).map(([entityType, items]) => ({
+            entityType,
+            files: items
+        }));
+    }
+
+    isPdfAttachment(file: AdminMappedAttachmentFile): boolean {
+        const contentType = (file.contentType || '').toLowerCase();
+        const fileName = (file.fileName || '').toLowerCase();
+        return contentType.includes('pdf') || fileName.endsWith('.pdf');
+    }
+
+    isImageAttachment(file: AdminMappedAttachmentFile): boolean {
+        const contentType = (file.contentType || '').toLowerCase();
+        const fileName = (file.fileName || '').toLowerCase();
+
+        if (contentType.startsWith('image/')) {
+            return true;
+        }
+
+        return ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg'].some((ext) => fileName.endsWith(ext));
+    }
+
+    formatFileSize(bytes: number | undefined): string {
+        if (!bytes || bytes <= 0) {
+            return '';
+        }
+
+        if (bytes < 1024) {
+            return `${bytes} B`;
+        }
+
+        const kb = bytes / 1024;
+        if (kb < 1024) {
+            return `${kb.toFixed(1)} KB`;
+        }
+
+        const mb = kb / 1024;
+        return `${mb.toFixed(1)} MB`;
     }
 }

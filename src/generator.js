@@ -4,7 +4,8 @@ const https = require('https'); // For handling HTTPS requests
 const { exec } = require('child_process');
 
 // Configuration
-const SWAGGER_URL = 'https://localhost:44375/swagger/v1/swagger.json'; // Replace with your Swagger URL
+// Swagger URL (IIS Express SSL port)
+const SWAGGER_URL = 'https://localhost:44375/swagger/v1/swagger.json';
 const OUTPUT_DIR = 'C:/Projects/Funeral/Frontend/src/app/core/services/service-proxies.ts'; // Output directory for Angular services
 const SWAGGER_FILE = './swagger.json'; // Temporary file to store Swagger JSON
 const NSWAH_CONFIG = './nswag.json'; // NSwag configuration file

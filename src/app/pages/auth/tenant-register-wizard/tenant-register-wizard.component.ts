@@ -2,7 +2,7 @@ import { Component, OnInit, signal, Injector, NO_ERRORS_SCHEMA, effect, runInInj
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
-import { AuthServiceProxy, TenantCreateUpdateDto, PlanConfigurationServiceProxy, PaymentServiceProxy, CouponServiceProxy, TenantType, TenantServiceProxy, TenantTypeDto } from '../../../core/services/service-proxies';
+import { AuthServiceProxy, TenantCreateUpdateDto, PlanConfigurationServiceProxy, PaymentServiceProxy, CouponServiceProxy, TenantType, TenantServiceProxy, TenantTypeDto, TenantSubscriptionServiceProxy, CreateSubscriptionDto } from '../../../core/services/service-proxies';
 import { TenantBaseComponent } from '../../../core/tenant-base.component';
 import { ORGANIZATION_TYPES, OrganizationType, OrgTypeQuestion } from './organization-types.config';
 
@@ -15,7 +15,7 @@ interface Alert {
     selector: 'app-tenant-register-wizard',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
-    providers: [AuthServiceProxy, PlanConfigurationServiceProxy, PaymentServiceProxy, CouponServiceProxy, TenantServiceProxy],
+    providers: [AuthServiceProxy, PlanConfigurationServiceProxy, PaymentServiceProxy, CouponServiceProxy, TenantServiceProxy, TenantSubscriptionServiceProxy],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './tenant-register-wizard.component.html',
     styleUrls: ['./tenant-register-wizard.component.scss']
@@ -94,6 +94,9 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     confirmMessage = '';
     confirmAction: (() => void) | null = null;
 
+    // Trial choice modal
+    showTrialChoiceModal = false;
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
@@ -103,6 +106,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         private paymentService: PaymentServiceProxy,
         private couponService: CouponServiceProxy,
         private tenantProxy: TenantServiceProxy,
+        private tenantSubscriptionService: TenantSubscriptionServiceProxy,
         protected override injector: Injector
     ) {
         super(injector);
@@ -518,6 +522,18 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         this.showPlanFeaturesModal.set(true);
     }
 
+    private supportsCardlessTrialForSelectedPlan(): boolean {
+        const plan = this.selectedPlan();
+        if (!plan) {
+            return false;
+        }
+
+        const trialDays = plan.trialDays ?? 0;
+        const requiresCreditCard = plan.requiresCreditCard ?? false;
+
+        return trialDays > 0 && !requiresCreditCard;
+    }
+
     async nextStep(): Promise<void> {
         const currentStep = this.activeIndex();
 
@@ -561,6 +577,12 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 return;
             }
 
+            // If the selected plan supports a cardless trial, offer a choice
+            if (this.supportsCardlessTrialForSelectedPlan()) {
+                this.showTrialChoiceModal = true;
+                return;
+            }
+
             // Move to payment - this will auto-trigger payment creation via effect
             this.activeIndex.set(2);
         }
@@ -579,6 +601,58 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         }
     }
 
+    private async createTenantIfNotExistsAndMaybePersist(saveIncompleteRegistration: boolean): Promise<string> {
+        if (this.createdTenantId()) {
+            return this.createdTenantId()!;
+        }
+
+        const formValue = this.accountForm.value;
+        const selectedPlan = this.selectedPlan();
+
+        if (!selectedPlan) {
+            throw new Error('Please select a subscription plan');
+        }
+
+        const tenantDto: TenantCreateUpdateDto = TenantCreateUpdateDto.fromJS({
+            id: '00000000-0000-0000-0000-000000000000',
+            name: formValue.organizationName,
+            email: formValue.email,
+            password: formValue.password,
+            domain: formValue.domain.toLowerCase(),
+            address: formValue.address,
+            phone1: formValue.phone1,
+            phone2: formValue.phone2,
+            registrationNumber: formValue.registrationNumber,
+            subscriptionPlanId: selectedPlan.subscriptionPlanId || selectedPlan.id,
+            selectedPlanConfigurationId: selectedPlan.id,
+            couponCode: this.couponCode() || null,
+            billingCycle: this.billingCycle
+        });
+
+        const authResponse = await this.authService.auth_RegisterTenant(tenantDto).toPromise();
+        const authResult = authResponse?.result;
+
+        if (!authResult || !authResult.succeeded || !authResult.tenantId) {
+            throw new Error(authResult?.message || 'Failed to create tenant account');
+        }
+
+        this.createdTenantId.set(authResult.tenantId);
+
+        if (saveIncompleteRegistration) {
+            localStorage.setItem(
+                'incompleteRegistration',
+                JSON.stringify({
+                    tenantId: authResult.tenantId,
+                    timestamp: Date.now(),
+                    planId: selectedPlan.id,
+                    billingCycle: this.billingCycle
+                })
+            );
+        }
+
+        return authResult.tenantId;
+    }
+
     async createTenantAndInitiatePayment(): Promise<void> {
         try {
             this.wizardLoading.set(true);
@@ -586,43 +660,11 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             const formValue = this.accountForm.value;
             const selectedPlan = this.selectedPlan();
 
-            // Create tenant DTO
-            const tenantDto: TenantCreateUpdateDto = TenantCreateUpdateDto.fromJS({
-                id: '00000000-0000-0000-0000-000000000000',
-                name: formValue.organizationName,
-                email: formValue.email,
-                password: formValue.password,
-                domain: formValue.domain.toLowerCase(),
-                address: formValue.address,
-                phone1: formValue.phone1,
-                phone2: formValue.phone2,
-                registrationNumber: formValue.registrationNumber,
-                subscriptionPlanId: selectedPlan?.subscriptionPlanId || selectedPlan?.id, // Use linked SubscriptionPlan ID
-                selectedPlanConfigurationId: selectedPlan?.id, // Plan configuration ID
-                couponCode: this.couponCode() || null, // Include coupon if valid
-                billingCycle: this.billingCycle // 0 = Monthly, 1 = Yearly
-            });
-
-            // Register tenant
-            const authResponse = await this.authService.auth_RegisterTenant(tenantDto).toPromise();
-            const authResult = authResponse?.result;
-
-            if (!authResult || !authResult.succeeded || !authResult.tenantId) {
-                throw new Error(authResult?.message || 'Failed to create tenant account');
+            if (!selectedPlan) {
+                throw new Error('Please select a subscription plan');
             }
 
-            this.createdTenantId.set(authResult.tenantId);
-
-            // Save incomplete registration to localStorage
-            localStorage.setItem(
-                'incompleteRegistration',
-                JSON.stringify({
-                    tenantId: authResult.tenantId,
-                    timestamp: Date.now(),
-                    planId: selectedPlan?.id,
-                    billingCycle: this.billingCycle
-                })
-            );
+            const tenantId = await this.createTenantIfNotExistsAndMaybePersist(true);
 
             // Create payment session
             const couponValidation = this.couponValidation();
@@ -636,7 +678,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             });
 
             const paymentDto: any = {
-                tenantId: authResult.tenantId,
+                tenantId: tenantId,
                 subscriptionPlanId: selectedPlan?.subscriptionPlanId || selectedPlan?.id, // Use linked SubscriptionPlan ID
                 firstName: formValue.firstName,
                 lastName: formValue.lastName,
@@ -674,6 +716,65 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         } catch (error: any) {
             this.showAlert(error.message || 'Failed to complete registration', 'danger');
             this.wizardLoading.set(false);
+        }
+    }
+
+    async createTenantAndStartTrial(): Promise<void> {
+        try {
+            this.wizardLoading.set(true);
+
+            const selectedPlan = this.selectedPlan();
+
+            if (!selectedPlan) {
+                throw new Error('Please select a subscription plan');
+            }
+
+            const trialDays = selectedPlan.trialDays ?? 0;
+
+            if (trialDays <= 0) {
+                throw new Error('Selected plan does not support a trial');
+            }
+
+            const tenantId = await this.createTenantIfNotExistsAndMaybePersist(false);
+
+            const subscriptionDto = CreateSubscriptionDto.fromJS({
+                tenantId: tenantId,
+                subscriptionPlanId: selectedPlan.subscriptionPlanId || selectedPlan.id,
+                couponCode: this.couponCode() || undefined,
+                startTrial: true,
+                trialDays: trialDays,
+                autoRenew: true
+            });
+
+            const subscriptionResponse = await this.tenantSubscriptionService.tenantSubscription_Create(subscriptionDto).toPromise();
+            const subscription = subscriptionResponse?.result;
+
+            if (!subscription) {
+                throw new Error('Failed to create trial subscription');
+            }
+
+            this.showAlert(`Your ${trialDays}-day free trial has been started.`, 'success');
+
+            const formValue = this.accountForm.value;
+            const subdomain: string = (formValue.domain || '').toLowerCase().trim();
+
+            if (subdomain) {
+                const protocol = window.location.protocol === 'http:' ? 'http:' : 'https:';
+                const targetUrl = `${protocol}//${subdomain}.site`;
+                window.location.href = targetUrl;
+            } else {
+                this.router.navigate(['/auth/login'], {
+                    queryParams: {
+                        email: formValue.email
+                    }
+                });
+            }
+        } catch (error: any) {
+            console.error('Trial creation error:', error);
+            this.showAlert(error.message || 'Failed to start trial', 'danger');
+        } finally {
+            this.wizardLoading.set(false);
+            this.showTrialChoiceModal = false;
         }
     }
 

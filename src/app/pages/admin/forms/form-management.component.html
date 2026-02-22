@@ -641,6 +641,7 @@
                                             <th style="width: 20%">Placeholder</th>
                                             <th style="width: 15%">Options</th>
                                             <th style="width: 10%">Required</th>
+                                            <th style="width: 10%">Hidden</th>
                                             <th style="width: 10%">Actions</th>
                                         </tr>
                                     </thead>
@@ -679,9 +680,47 @@
                                                     [disabled]="!(field.type === 'select' || field.type === 'checkbox' || field.type === 'radio')"
                                                     placeholder="Option 1, Option 2"
                                                 />
+
+                                                <div *ngIf="field.type === 'file'" class="mt-2 d-grid gap-2">
+                                                    <select
+                                                        class="form-select form-select-sm"
+                                                        [(ngModel)]="field.fileMode"
+                                                        name="fieldFileMode{{ i }}"
+                                                        (ngModelChange)="onFileModeChange(field)">
+                                                        <option value="single">Single file</option>
+                                                        <option value="multiple">Multiple files</option>
+                                                    </select>
+
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        class="form-control form-control-sm"
+                                                        [(ngModel)]="field.maxFiles"
+                                                        name="fieldMaxFiles{{ i }}"
+                                                        [disabled]="field.fileMode !== 'multiple'"
+                                                        placeholder="Max files" />
+
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        class="form-control form-control-sm"
+                                                        [(ngModel)]="field.maxSizeMB"
+                                                        name="fieldMaxSizeMB{{ i }}"
+                                                        placeholder="Max size (MB)" />
+
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-sm"
+                                                        [(ngModel)]="field.acceptedTypes"
+                                                        name="fieldAcceptedTypes{{ i }}"
+                                                        placeholder=".pdf, .jpg, image/*" />
+                                                </div>
                                             </td>
                                             <td class="text-center">
                                                 <input class="form-check-input" type="checkbox" [(ngModel)]="field.required" name="fieldRequired{{ i }}" />
+                                            </td>
+                                            <td class="text-center">
+                                                <input class="form-check-input" type="checkbox" [(ngModel)]="field.hidden" name="fieldHidden{{ i }}" />
                                             </td>
                                             <td class="text-nowrap">
                                                 <button type="button" class="btn btn-sm btn-outline-secondary me-1" (click)="moveFieldUp(i)" [disabled]="i === 0">
@@ -700,7 +739,7 @@
                             </div>
 
                             <small class="form-text text-muted mt-2 d-block">
-                                Supported types: text, idNumber, email, tel, number, textarea, select, checkbox, radio, date, file. Options are used for select, checkbox and radio fields (comma-separated).
+                                Supported types: text, idNumber, email, tel, number, textarea, select, checkbox, radio, date, file. Options are used for select, checkbox and radio fields (comma-separated). File fields support single/multiple uploads, max file count, max size (MB), and accepted types.
                             </small>
                         </div>
                     </div>
@@ -756,6 +795,224 @@
                                             </td>
                                             <td class="text-end">
                                                 <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeValidationRule(ri)">✕</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conditional Field Rules -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0 fw-semibold">Conditional Field Logic</label>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addConditionalRule()">
+                                Add conditional rule
+                            </button>
+                        </div>
+
+                        <div class="card card-body p-3">
+                            <p class="text-muted small mb-2">
+                                Use these rules to show or hide fields, or make them required, based on the value of other fields in this form.
+                                All conditions within a rule must match for it to apply.
+                            </p>
+
+                            <div *ngIf="conditionalRules.length === 0" class="text-muted small">
+                                No conditional rules defined yet.
+                            </div>
+
+                            <div *ngIf="conditionalRules.length > 0" class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 20%">Target field</th>
+                                            <th style="width: 40%">Conditions (all must match)</th>
+                                            <th style="width: 20%">Behaviour</th>
+                                            <th style="width: 15%">Required when matched</th>
+                                            <th style="width: 5%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let rule of conditionalRules; let ri = index">
+                                            <td>
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    [(ngModel)]="rule.targetFieldKey"
+                                                    name="condTarget{{ri}}"
+                                                >
+                                                    <option [ngValue]="''">Select field...</option>
+                                                    <option *ngFor="let f of formFields" [ngValue]="f.name">
+                                                        {{ f.label || f.name }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="small text-muted mb-1">When all of these conditions are true:</div>
+                                                <div
+                                                    class="row g-1 align-items-center mb-1"
+                                                    *ngFor="let cond of rule.conditions; let ci = index"
+                                                >
+                                                    <div class="col-5">
+                                                        <select
+                                                            class="form-select form-select-sm"
+                                                            [(ngModel)]="cond.sourceFieldKey"
+                                                            name="condSource{{ri}}_{{ci}}"
+                                                        >
+                                                            <option [ngValue]="''">Select field...</option>
+                                                            <option *ngFor="let f of formFields" [ngValue]="f.name">
+                                                                {{ f.label || f.name }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-5">
+                                                        <input
+                                                            type="text"
+                                                            class="form-control form-control-sm"
+                                                            [(ngModel)]="cond.equalsValue"
+                                                            name="condValue{{ri}}_{{ci}}"
+                                                            placeholder="Equals value (e.g. Yes)"
+                                                        />
+                                                    </div>
+                                                    <div class="col-2 text-end">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-sm btn-outline-danger"
+                                                            (click)="removeConditionalCondition(rule, ci)"
+                                                            [disabled]="rule.conditions.length === 1"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-secondary mt-1"
+                                                    (click)="addConditionalCondition(rule)"
+                                                >
+                                                    + Add condition
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    [(ngModel)]="rule.behavior"
+                                                    name="condBehavior{{ri}}"
+                                                >
+                                                    <option value="showWhenMatched">Show field when matched</option>
+                                                    <option value="hideWhenMatched">Hide field when matched</option>
+                                                </select>
+                                            </td>
+                                            <td class="text-center">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    [(ngModel)]="rule.setRequiredWhenMatched"
+                                                    name="condRequired{{ri}}"
+                                                />
+                                            </td>
+                                            <td class="text-end">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    (click)="removeConditionalRule(ri)"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Member-based Prefill Rules -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0 fw-semibold">Member-based Prefill</label>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addMemberPrefillRule()">
+                                Add prefill mapping
+                            </button>
+                        </div>
+
+                        <div class="card card-body p-3">
+                            <p class="text-muted small mb-2">
+                                Configure which fields should be prepopulated from the current logged-in member's profile
+                                when this form is used in onboarding flows. These values are applied as initial defaults;
+                                members can still change them before submitting.
+                            </p>
+
+                            <div *ngIf="memberPrefillRules.length === 0" class="text-muted small">
+                                No member prefill mappings defined yet.
+                            </div>
+
+                            <div *ngIf="memberPrefillRules.length > 0" class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 30%">Target field</th>
+                                            <th style="width: 40%">Member property</th>
+                                            <th style="width: 25%">Overwrite existing value</th>
+                                            <th style="width: 5%"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let rule of memberPrefillRules; let ri = index">
+                                            <td>
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    [(ngModel)]="rule.targetFieldKey"
+                                                    name="memberPrefillTarget{{ri}}"
+                                                >
+                                                    <option [ngValue]="''">Select field...</option>
+                                                    <option *ngFor="let f of formFields" [ngValue]="f.name">
+                                                        {{ f.label || f.name }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <select
+                                                    class="form-select form-select-sm mb-1"
+                                                    [(ngModel)]="rule.memberProperty"
+                                                    name="memberPrefillProp{{ri}}"
+                                                >
+                                                    <option [ngValue]="''">Select common member property...</option>
+                                                    <option value="firstName">First Name</option>
+                                                    <option value="lastName">Last Name</option>
+                                                    <option value="identificationNumber">ID Number</option>
+                                                    <option value="emailAddress">Email Address</option>
+                                                    <option value="cellPhoneNumber">Cell Phone</option>
+                                                    <option value="membershipNumber">Membership Number</option>
+                                                </select>
+                                                <input
+                                                    type="text"
+                                                    class="form-control form-control-sm"
+                                                    [(ngModel)]="rule.memberProperty"
+                                                    name="memberPrefillPropCustom{{ri}}"
+                                                    placeholder="Or enter a custom Member property name (e.g. customField1)"
+                                                />
+                                            </td>
+                                            <td class="text-center">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    [(ngModel)]="rule.overwriteExisting"
+                                                    name="memberPrefillOverwrite{{ri}}"
+                                                />
+                                                <div class="form-text small">
+                                                    When checked, the Member value will replace any existing value
+                                                    (for example, when also prefilling from the last submission).
+                                                </div>
+                                            </td>
+                                            <td class="text-end">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    (click)="removeMemberPrefillRule(ri)"
+                                                >
+                                                    ✕
+                                                </button>
                                             </td>
                                         </tr>
                                     </tbody>

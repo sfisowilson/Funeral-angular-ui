@@ -335,6 +335,33 @@ export class PageBuilderComponent implements OnInit {
         });
     }
 
+    saveContentEditor(): void {
+        const editorInstance = this.editorComponentRef?.instance as any;
+
+        if (editorInstance?.form) {
+            editorInstance.form.markAllAsTouched?.();
+            if (editorInstance.form.invalid) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Validation',
+                    detail: 'Please fix validation errors before saving.'
+                });
+                return;
+            }
+        }
+
+        const saveMethodNames = ['onSubmit', 'save', 'onSave', 'submit', 'saveChanges'];
+        const saveMethod = saveMethodNames.find((name) => typeof editorInstance?.[name] === 'function');
+
+        if (saveMethod) {
+            editorInstance[saveMethod]();
+            return;
+        }
+
+        this.saveWidgets();
+        this.showContentEditor.set(false);
+    }
+
     private loadEditor(): void {
         if (!this.editorContainer || !this.selectedWidget()) return;
 
@@ -387,19 +414,11 @@ export class PageBuilderComponent implements OnInit {
             this.editorComponentRef.changeDetectorRef.detectChanges();
             console.log('Change detection triggered');
 
-            // Subscribe to outputs
-            if (this.editorComponentRef.instance.update) {
-                console.log('Subscribing to update event');
-                this.editorComponentRef.instance.update.subscribe((settings: any) => {
-                    console.log('=== UPDATE EVENT RECEIVED FROM EDITOR ===');
-                    console.log('Settings received:', settings);
-                    console.log('Services in settings:', settings?.services);
-                    console.log('Services count:', settings?.services?.length || 0);
-                    this.handleEditorUpdate(settings);
-                });
-            } else {
-                console.error('Editor instance has no update EventEmitter!');
-            }
+            // Subscribe to outputs (different editors use different output names)
+            this.subscribeToEditorOutput('update');
+            this.subscribeToEditorOutput('configChange');
+            this.subscribeToEditorOutput('settingsChange');
+            this.subscribeToEditorOutput('save');
 
             // Subscribe to close/cancel event (different components use different names)
             const closeEmitter = this.editorComponentRef.instance.cancel || this.editorComponentRef.instance.closed;
@@ -418,7 +437,34 @@ export class PageBuilderComponent implements OnInit {
         }
     }
 
-    updateWidgetContent(updatedSettings: any): void {
+    private subscribeToEditorOutput(outputName: string): void {
+        const emitter = (this.editorComponentRef?.instance as any)?.[outputName];
+        if (!emitter || typeof emitter.subscribe !== 'function') {
+            return;
+        }
+
+        console.log(`Subscribing to ${outputName} event`);
+        emitter.subscribe((payload: any) => {
+            console.log(`=== ${outputName.toUpperCase()} EVENT RECEIVED FROM EDITOR ===`);
+            const isLiveChangeEvent = outputName === 'configChange' || outputName === 'settingsChange';
+            this.handleEditorUpdate(payload, !isLiveChangeEvent);
+        });
+    }
+
+    private normalizeEditorPayload(payload: any): any {
+        if (!payload || typeof payload !== 'object') {
+            return payload;
+        }
+
+        // Some editors emit the whole widget config object instead of settings.
+        if ('settings' in payload && payload.settings && typeof payload.settings === 'object') {
+            return payload.settings;
+        }
+
+        return payload;
+    }
+
+    updateWidgetContent(updatedSettings: any, closeEditor: boolean = true): void {
         const selected = this.selectedWidget();
         if (!selected) {
             console.error('No widget selected');
@@ -468,11 +514,13 @@ export class PageBuilderComponent implements OnInit {
             // Save to backend
             this.saveWidgets();
 
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Content Updated',
-                detail: 'Widget content has been updated successfully.'
-            });
+            if (closeEditor) {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Content Updated',
+                    detail: 'Widget content has been updated successfully.'
+                });
+            }
 
             console.log('Widget updated and saved successfully');
             console.log('=== END UPDATE WIDGET CONTENT ===');
@@ -480,7 +528,9 @@ export class PageBuilderComponent implements OnInit {
             console.error('Widget not found in array');
         }
 
-        this.showContentEditor.set(false);
+        if (closeEditor) {
+            this.showContentEditor.set(false);
+        }
     }
 
     deleteWidget(widget: WidgetConfig): void {
@@ -624,11 +674,12 @@ export class PageBuilderComponent implements OnInit {
         return type?.editorComponent;
     }
 
-    handleEditorUpdate(updatedSettings: any): void {
+    handleEditorUpdate(updatedSettings: any, closeEditor: boolean = true): void {
         console.log('=== HANDLE EDITOR UPDATE ===');
         console.log('Updated settings:', updatedSettings);
-        console.log('ImageUrl in updated settings:', updatedSettings.imageUrl);
-        this.updateWidgetContent(updatedSettings);
+        const normalizedSettings = this.normalizeEditorPayload(updatedSettings);
+        console.log('ImageUrl in updated settings:', normalizedSettings?.imageUrl);
+        this.updateWidgetContent(normalizedSettings, closeEditor);
     }
 
     handleEditorCancel(): void {

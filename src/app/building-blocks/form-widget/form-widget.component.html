@@ -13,87 +13,109 @@
             <div class="form-widget-layout" *ngIf="formGroup; else plainFormTpl">
                 <div class="form-widget-main">
                     <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
-                        <div *ngFor="let field of fields" class="mb-3">
-                            <label [attr.for]="field.name" class="form-label">
-                                {{ field.label }}
-                                <span class="text-danger" *ngIf="field.required">*</span>
-                            </label>
+                        <ng-container *ngFor="let field of fields">
+                            <div class="mb-3" *ngIf="!isFieldHidden(field.name) && !isFieldStaticallyHidden(field)">
+                                <label [attr.for]="field.name" class="form-label">
+                                    {{ field.label }}
+                                    <span class="text-danger" *ngIf="field.required">*</span>
+                                </label>
 
-                            <!-- Text-like inputs -->
-                            <input
-                                *ngIf="['text', 'email', 'tel', 'number', 'date', 'idNumber'].includes(field.type)"
-                                [type]="field.type === 'date' ? 'date' : field.type === 'idNumber' ? 'text' : field.type"
-                                class="form-control"
-                                [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
-                                [id]="field.name"
-                                [placeholder]="field.placeholder"
-                                [formControlName]="field.name"
-                            />
+                                <!-- Text-like inputs -->
+                                <input
+                                    *ngIf="['text', 'email', 'tel', 'number', 'idNumber'].includes(field.type)"
+                                    [type]="field.type === 'idNumber' ? 'text' : field.type"
+                                    class="form-control"
+                                    [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                                    [id]="field.name"
+                                    [placeholder]="field.placeholder"
+                                    [formControlName]="field.name"
+                                />
 
-                            <!-- Textarea -->
-                            <textarea
-                                *ngIf="field.type === 'textarea'"
-                                class="form-control"
-                                [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
-                                [id]="field.name"
-                                [placeholder]="field.placeholder"
-                                [formControlName]="field.name"
-                                rows="4"
-                            ></textarea>
+                                <p-calendar
+                                    *ngIf="field.type === 'date'"
+                                    [formControlName]="field.name"
+                                    [inputId]="field.name"
+                                    dateFormat="yy-mm-dd"
+                                    [showIcon]="true"
+                                    [appendTo]="'body'"
+                                    [style]="{ width: '100%' }"
+                                    styleClass="w-full"
+                                ></p-calendar>
 
-                            <!-- Select -->
-                            <select
-                                *ngIf="field.type === 'select' && field.options && field.options.length"
-                                class="form-select"
-                                [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
-                                [id]="field.name"
-                                [formControlName]="field.name"
-                            >
-                                <option value="">Select...</option>
-                                <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
-                            </select>
+                                <!-- Textarea -->
+                                <textarea
+                                    *ngIf="field.type === 'textarea'"
+                                    class="form-control"
+                                    [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                                    [id]="field.name"
+                                    [placeholder]="field.placeholder"
+                                    [formControlName]="field.name"
+                                    rows="4"
+                                ></textarea>
 
-                            <!-- Lookup: options from DynamicEntity records -->
-                            <select
-                                *ngIf="field.type === 'lookup'"
-                                class="form-select"
-                                [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
-                                [id]="field.name"
-                                [formControlName]="field.name"
-                            >
-                                <option value="">Select...</option>
-                                <option *ngFor="let opt of getLookupOptions(field)" [ngValue]="opt.id">{{ opt.label }}</option>
-                            </select>
+                                <!-- Select -->
+                                <select
+                                    *ngIf="field.type === 'select' && field.options && field.options.length"
+                                    class="form-select"
+                                    [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                                    [id]="field.name"
+                                    [formControlName]="field.name"
+                                >
+                                    <option value="">Select...</option>
+                                    <option *ngFor="let opt of field.options" [value]="opt">{{ opt }}</option>
+                                </select>
 
-                            <!-- Radio buttons -->
-                            <div *ngIf="field.type === 'radio' && field.options && field.options.length">
-                                <div class="form-check" *ngFor="let opt of field.options">
-                                    <input class="form-check-input" type="radio" [id]="field.name + '_' + opt" [value]="opt" [formControlName]="field.name" />
-                                    <label class="form-check-label" [attr.for]="field.name + '_' + opt">
-                                        {{ opt }}
-                                    </label>
-                                </div>
-                            </div>
+                                <!-- Lookup: options from DynamicEntity records -->
+                                <select
+                                    *ngIf="field.type === 'lookup'"
+                                    class="form-select"
+                                    [class.is-invalid]="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)"
+                                    [id]="field.name"
+                                    [formControlName]="field.name"
+                                >
+                                    <option value="">Select...</option>
+                                    <option *ngFor="let opt of getLookupOptions(field)" [ngValue]="opt.id">{{ opt.label }}</option>
+                                </select>
 
-                            <!-- Checkbox group -->
-                            <div *ngIf="field.type === 'checkbox' && field.options && field.options.length">
-                                <ng-container *ngIf="getCheckboxControl(field) as checkboxArray">
-                                    <div class="form-check" *ngFor="let opt of getCheckboxOptions(field); let i = index">
-                                        <input class="form-check-input" type="checkbox" [id]="field.name + '_' + i" [formControl]="checkboxArray.at(i)" />
-                                        <label class="form-check-label" [attr.for]="field.name + '_' + i">
+                                <!-- Radio buttons -->
+                                <div *ngIf="field.type === 'radio' && field.options && field.options.length">
+                                    <div class="form-check" *ngFor="let opt of field.options">
+                                        <input class="form-check-input" type="radio" [id]="field.name + '_' + opt" [value]="opt" [formControlName]="field.name" />
+                                        <label class="form-check-label" [attr.for]="field.name + '_' + opt">
                                             {{ opt }}
                                         </label>
                                     </div>
-                                </ng-container>
-                            </div>
+                                </div>
 
-                            <!-- Validation errors -->
-                            <div class="invalid-feedback d-block" *ngIf="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)">
-                                <span *ngIf="formGroup.get(field.name)?.errors?.['required']">This field is required.</span>
-                                <span *ngIf="formGroup.get(field.name)?.errors?.['email']">Please enter a valid email address.</span>
-                                <span *ngIf="formGroup.get(field.name)?.errors?.['saIdNumber']">Please enter a valid South African ID number.</span>
+                                <!-- Checkbox group -->
+                                <div *ngIf="field.type === 'checkbox' && field.options && field.options.length">
+                                    <ng-container *ngIf="getCheckboxControl(field) as checkboxArray">
+                                        <div class="form-check" *ngFor="let opt of getCheckboxOptions(field); let i = index">
+                                            <input class="form-check-input" type="checkbox" [id]="field.name + '_' + i" [formControl]="checkboxArray.at(i)" />
+                                            <label class="form-check-label" [attr.for]="field.name + '_' + i">
+                                                {{ opt }}
+                                            </label>
+                                        </div>
+                                    </ng-container>
+                                </div>
+
+                                <!-- File upload -->
+                                <div *ngIf="field.type === 'file'" class="mb-2">
+                                    <app-dynamic-file-upload
+                                        [config]="getFileUploadConfig(field)"
+                                        [initialFileIds]="getInitialFileIds(field)"
+                                        (filesUploaded)="onFilesUploaded(field, $event)">
+                                    </app-dynamic-file-upload>
+                                </div>
+
+                                <!-- Validation errors -->
+                                <div class="invalid-feedback d-block" *ngIf="formGroup.get(field.name)?.invalid && (formGroup.get(field.name)?.touched || formGroup.get(field.name)?.dirty)">
+                                    <span *ngIf="formGroup.get(field.name)?.errors?.['required']">This field is required.</span>
+                                    <span *ngIf="formGroup.get(field.name)?.errors?.['email']">Please enter a valid email address.</span>
+                                    <span *ngIf="formGroup.get(field.name)?.errors?.['saIdNumber']">Please enter a valid South African ID number.</span>
+                                </div>
                             </div>
-                        </div>
+                        </ng-container>
 
                         <div *ngIf="successMessage" class="alert alert-success" role="alert">
                             {{ successMessage }}

@@ -367,7 +367,12 @@
                     <div class="right-actions">
                         <a routerLink="/auth/login" class="btn btn-link"> Already have an account? Login </a>
 
-                        <button type="button" class="btn-primary-theme" [disabled]="wizardLoading() || (activeIndex() === 0 && !selectedPlan())" (click)="nextStep()">
+                        <button
+                            type="button"
+                            class="btn-primary-theme"
+                            [disabled]="wizardLoading() || (activeIndex() === 0 && !selectedPlan()) || activeIndex() === 2"
+                            (click)="nextStep()"
+                        >
                             <span *ngIf="wizardLoading()" class="spinner-border spinner-border-sm me-2" role="status"></span>
                             <span *ngIf="!wizardLoading()">
                                 {{ activeIndex() === 1 ? 'Proceed to Payment' : 'Continue' }}
@@ -660,6 +665,39 @@
                 <button type="button" class="btn btn-primary-theme fw-bold" (click)="selectPlan(selectedPlanForFeatures()); showPlanFeaturesModal.set(false)">
                     <i class="bi bi-check-lg me-2"></i>
                     Select This Plan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Trial Choice Modal -->
+<div class="modal" [class.show]="showTrialChoiceModal" [style.display]="showTrialChoiceModal ? 'block' : 'none'" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">How would you like to start?</h5>
+                <button type="button" class="btn-close" (click)="showTrialChoiceModal = false"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3" *ngIf="selectedPlan()">
+                    The plan <strong>{{ selectedPlan()?.planName }}</strong> includes a
+                    <strong>{{ selectedPlan()?.trialDays }}-day free trial</strong> with
+                    <strong>no credit card required</strong>.
+                </p>
+                <p class="text-muted small mb-0">
+                    You can either start your free trial now and add payment details later, or continue directly to paid subscription setup.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" [disabled]="wizardLoading()" (click)="showTrialChoiceModal = false">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-outline-primary-theme" [disabled]="wizardLoading()" (click)="showTrialChoiceModal = false; activeIndex.set(2)">
+                    Continue to Payment
+                </button>
+                <button type="button" class="btn btn-primary-theme" [disabled]="wizardLoading()" (click)="createTenantAndStartTrial()">
+                    Start Free Trial (No Card)
                 </button>
             </div>
         </div>

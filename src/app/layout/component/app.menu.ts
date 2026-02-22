@@ -167,7 +167,6 @@ export class AppMenu implements OnInit {
                         icon: 'pi pi-fw pi-id-card',
                         items: [
                             { label: 'Registration Fields', icon: 'pi pi-fw pi-list-check', routerLink: ['/admin/pages/registration-fields'], visible: isAdmin },
-                            { label: 'Field Definitions', icon: 'pi pi-fw pi-th-large', routerLink: ['/admin/pages/field-definitions'], visible: isAdmin && !this.isBasicPlan },
                             { label: 'Form Management', icon: 'pi pi-fw pi-list', routerLink: ['/admin/forms'], visible: this.authService.hasPermission('Permission.form.view') },
                             {
                                 label: 'Dynamic Entities',
@@ -179,7 +178,7 @@ export class AppMenu implements OnInit {
                                     ...dynamicEntityItems
                                 ]
                             },
-                            { label: 'PDF Field Mapping', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/pdf-field-mapping'], visible: isAdmin && !this.isBasicPlan }
+                            { label: 'Manage PDF Mappings', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/pdf-field-mapping'], visible: isAdmin && !this.isBasicPlan }
                         ]
                     },
                     {

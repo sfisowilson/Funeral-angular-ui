@@ -45,6 +45,8 @@
                                     <option value="number">Number</option>
                                     <option value="select">Dropdown</option>
                                     <option value="checkbox">Checkbox</option>
+                                    <option value="date">Date</option>
+                                    <option value="file">File</option>
                                 </select>
                             </div>
                             <div class="flex-1">
@@ -70,6 +72,80 @@
                             <div class="flex-1">
                                 <label class="block text-xs font-semibold">Options (comma-separated)</label>
                                 <input class="form-control form-control-sm" [(ngModel)]="field.options" [name]="'options_' + i" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2" *ngIf="field.type === 'date'">
+                            <div class="md:col-span-2">
+                                <label class="inline-flex items-center text-xs">
+                                    <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.splitDateParts" [name]="'splitDateParts_' + i" (ngModelChange)="onDateSplitToggle(field)" />
+                                    <span>Store day/month/year as separate fields</span>
+                                </label>
+                            </div>
+
+                            <div *ngIf="field.splitDateParts">
+                                <label class="inline-flex items-center text-xs">
+                                    <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.datePartVisibility.day" [name]="'datePartVisibilityDay_' + i" (ngModelChange)="onDatePartVisibilityChange(field)" />
+                                    <span>Show Day field</span>
+                                </label>
+                            </div>
+
+                            <div *ngIf="field.splitDateParts">
+                                <label class="inline-flex items-center text-xs">
+                                    <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.datePartVisibility.month" [name]="'datePartVisibilityMonth_' + i" (ngModelChange)="onDatePartVisibilityChange(field)" />
+                                    <span>Show Month field</span>
+                                </label>
+                            </div>
+
+                            <div *ngIf="field.splitDateParts">
+                                <label class="inline-flex items-center text-xs">
+                                    <input type="checkbox" class="form-check-input mr-1" [(ngModel)]="field.datePartVisibility.year" [name]="'datePartVisibilityYear_' + i" (ngModelChange)="onDatePartVisibilityChange(field)" />
+                                    <span>Show Year field</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2" *ngIf="field.type === 'file'">
+                            <div>
+                                <label class="block text-xs font-semibold">File Mode</label>
+                                <select
+                                    class="form-select form-select-sm"
+                                    [(ngModel)]="field.fileMode"
+                                    [name]="'fileMode_' + i"
+                                    (ngModelChange)="onFileModeChange(field)">
+                                    <option value="single">Single</option>
+                                    <option value="multiple">Multiple</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold">Max Files</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    class="form-control form-control-sm"
+                                    [(ngModel)]="field.maxFiles"
+                                    [name]="'maxFiles_' + i"
+                                    [disabled]="field.fileMode !== 'multiple'" />
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold">Max Size (MB)</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    class="form-control form-control-sm"
+                                    [(ngModel)]="field.maxSizeMB"
+                                    [name]="'maxSizeMB_' + i" />
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold">Accepted Types</label>
+                                <input
+                                    class="form-control form-control-sm"
+                                    [(ngModel)]="field.acceptedTypes"
+                                    [name]="'acceptedTypes_' + i"
+                                    placeholder=".pdf, .jpg, image/*" />
                             </div>
                         </div>
                         <div class="flex justify-between items-center">

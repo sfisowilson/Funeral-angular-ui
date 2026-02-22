@@ -20,7 +20,6 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { MemberDto, MemberServiceProxy, MemberStatus, CreateMemberDto } from '../../core/services/service-proxies';
 import { unwrap } from '../../core/services/response-unwrapper';
 import { DependentsComponent } from '../dependents/dependents.component';
-import { BeneficiariesComponent } from '../beneficiaries/beneficiaries.component';
 
 interface ExtendedMemberDto extends MemberDto {
     policyId?: string;
@@ -46,8 +45,7 @@ interface ExtendedMemberDto extends MemberDto {
         InputMaskModule,
         InputTextarea,
         TooltipModule,
-        DependentsComponent,
-        BeneficiariesComponent
+        DependentsComponent
     ],
     providers: [MessageService, ConfirmationService, MemberServiceProxy],
     templateUrl: './member-management.component.html',
@@ -59,7 +57,6 @@ export class MemberManagementComponent implements OnInit {
     member: ExtendedMemberDto = new MemberDto();
     memberDialog: boolean = false;
     dependentsDialog: boolean = false;
-    beneficiariesDialog: boolean = false;
     submitted: boolean = false;
     cols: any[] = [];
 
@@ -178,11 +175,6 @@ export class MemberManagementComponent implements OnInit {
     manageDependents(member: MemberDto) {
         this.member = MemberDto.fromJS(member); // Create a new instance of MemberDto
         this.dependentsDialog = true;
-    }
-
-    manageBeneficiaries(member: MemberDto) {
-        this.member = MemberDto.fromJS(member); // Create a new instance of MemberDto
-        this.beneficiariesDialog = true;
     }
 
     viewOnboarding(member: MemberDto) {

@@ -4,6 +4,7 @@ import { Component, Input, OnInit, OnChanges, Output, EventEmitter, SimpleChange
 import { Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -17,6 +18,8 @@ import { OnboardingStepType, OnboardingPdfServiceProxy, MemberServiceProxy, Save
 import { saIdNumberValidator } from '../../shared/validators/sa-id-number.validator';
 import { DynamicFileUploadComponent } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
+import { AuthService } from '../../auth/auth-service';
+import { applyDateSplitParts, normalizeDateValue, toDateOnlyString } from '../../core/utils/date-field-utils';
 
 export interface StepLimitRule {
     targetValue: string; // The value to match i.e. "Plan A" or "123"
@@ -43,6 +46,18 @@ interface RowLimitRuleConfig {
     conditions: RowLimitConditionConfig[];
     maxItems: number;
     errorMessage: string;
+}
+
+interface ConditionalFieldConditionConfig {
+    sourceFieldKey: string;
+    equalsValue: string;
+}
+
+interface ConditionalFieldRuleConfig {
+    targetFieldKey: string;
+    conditions: ConditionalFieldConditionConfig[];
+    behavior: 'showWhenMatched' | 'hideWhenMatched';
+    setRequiredWhenMatched?: boolean;
 }
 
 interface ListDisplayColumnConfig {
@@ -77,13 +92,47 @@ interface DynamicFormField {
     required: boolean;
     placeholder?: string;
     options?: string[];
+    fileMode?: 'single' | 'multiple';
+    maxFiles?: number;
+    maxSizeMB?: number;
+    acceptedTypes?: string[];
     order: number;
+    hidden?: boolean;
+    splitDateParts?: boolean;
+    datePartKeys?: {
+        day?: string;
+        month?: string;
+        year?: string;
+    };
+}
+
+interface CompletionAttachmentFile {
+    id: string;
+    fileName: string;
+    contentType?: string;
+    size?: number;
+    entityType?: string;
+    sourceLabels?: string[];
+    fieldKeys?: string[];
+    downloadUrl?: string;
+    previewUrl?: SafeResourceUrl;
+}
+
+interface CompletionAttachmentGroup {
+    entityType: string;
+    files: CompletionAttachmentFile[];
+}
+
+interface CompletionPdfPreview {
+    profileId?: string;
+    profileName?: string;
+    url: SafeResourceUrl;
 }
 
 @Component({
     selector: 'app-onboarding-multi-submit-step',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, EmbeddedCalculatorComponent, DynamicFileUploadComponent],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarModule, EmbeddedCalculatorComponent, DynamicFileUploadComponent],
     templateUrl: './onboarding-multi-submit-step.component.html',
     styleUrls: ['./onboarding-multi-submit-step.component.scss'],
     providers: [OnboardingPdfServiceProxy, MemberServiceProxy, MemberProfileCompletionServiceProxy]
@@ -136,6 +185,11 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     effectiveMax = 0;
     nextUrl: string | undefined;
 
+    // Conditional field rules loaded from the underlying Form definition
+    private conditionalRules: ConditionalFieldRuleConfig[] = [];
+    private hiddenFieldNames = new Set<string>();
+    private recomputeConditionalState: (() => void) | null = null;
+
     // Member Context for Validation
     memberProfile: any | null = null;
     isMemberProfileLoaded = false;
@@ -155,10 +209,18 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     // Completion / Signature state
     isCompleteStep = false;
     completionPdfUrl: SafeResourceUrl | null = null;
+    completionPdfPreviews: CompletionPdfPreview[] = [];
+    private completionPdfProfileNames: Record<string, string> = {};
+    mappedCompletionAttachments: CompletionAttachmentFile[] = [];
+    mappedCompletionAttachmentGroups: CompletionAttachmentGroup[] = [];
+    hasConfiguredAttachmentMappings = false;
+    loadingMappedAttachments = false;
+    mappedAttachmentsError = '';
     requireSignature = false;
     isDrawing = false;
     isCompletingFlow = false;
     private ctx!: CanvasRenderingContext2D;
+    private canvasReady = false;
     private lastX = 0;
     private lastY = 0;
 
@@ -170,6 +232,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     // Approval Workflow
     submitButtonLabel = 'Finish & Submit';
     savedSignatureUrl: string | null = null;
+    signatureSignedAtText: string | null = null;
     isSavingSignature = false;
 
     constructor(
@@ -186,7 +249,8 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         private route: ActivatedRoute,
         private http: HttpClient,
         private cdr: ChangeDetectorRef,
-        private calculatorAggregator: OnboardingCalculatorAggregatorService
+        private calculatorAggregator: OnboardingCalculatorAggregatorService,
+        private authService: AuthService
     ) {}
 
     private initializeButtonLabel(): void {
@@ -240,6 +304,38 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         return this.normalizeKey(value).replace(/[^a-z0-9]/g, '');
     }
 
+    private readScopedSessionJson(storageKey: string): Record<string, any> | null {
+        try {
+            const raw = sessionStorage.getItem(storageKey);
+            if (!raw) {
+                return null;
+            }
+
+            const parsed = JSON.parse(raw);
+            if (!parsed || typeof parsed !== 'object') {
+                return null;
+            }
+
+            const currentUserId = this.authService.getUserId();
+            if (!currentUserId) {
+                return parsed as Record<string, any>;
+            }
+
+            const ownershipId = (parsed as any).memberId || (parsed as any).userId;
+            if (!ownershipId) {
+                return parsed as Record<string, any>;
+            }
+
+            if (String(ownershipId).toLowerCase() !== String(currentUserId).toLowerCase()) {
+                return null;
+            }
+
+            return parsed as Record<string, any>;
+        } catch {
+            return null;
+        }
+    }
+
     private resolveEffectiveLimits(): void {
         // Defaults
         this.effectiveMin = this.minItems;
@@ -265,28 +361,18 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
                 // 3. Session Storage (structured - onboarding_session)
                 if (!sourceValue) {
-                    try {
-                        const sessionJson = sessionStorage.getItem('onboarding_session');
-                        if (sessionJson) {
-                            const sessionData = JSON.parse(sessionJson);
-                            if (sessionData && sessionData[this.limitSourceField]) {
-                                sourceValue = sessionData[this.limitSourceField];
-                            }
-                        }
-                    } catch { /* ignore */ }
+                    const sessionData = this.readScopedSessionJson('onboarding_session');
+                    if (sessionData && sessionData[this.limitSourceField]) {
+                        sourceValue = sessionData[this.limitSourceField];
+                    }
                 }
 
                 // 4. Session Storage (structured - form_data fallback)
                 if (!sourceValue) {
-                    try {
-                        const formDataJson = sessionStorage.getItem('form_data');
-                        if (formDataJson) {
-                            const formData = JSON.parse(formDataJson);
-                            if (formData && formData[this.limitSourceField]) {
-                                sourceValue = formData[this.limitSourceField];
-                            }
-                        }
-                    } catch { /* ignore */ }
+                    const formData = this.readScopedSessionJson('form_data');
+                    if (formData && formData[this.limitSourceField]) {
+                        sourceValue = formData[this.limitSourceField];
+                    }
                 }
 
                 if (!sourceValue) {
@@ -331,29 +417,15 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         }
 
         // 3. onboarding_session JSON
-        try {
-            const sessionJson = sessionStorage.getItem('onboarding_session');
-            if (sessionJson) {
-                const sessionData = JSON.parse(sessionJson);
-                if (sessionData && sessionData[key] != null) {
-                    return String(sessionData[key]);
-                }
-            }
-        } catch {
-            // ignore
+        const sessionData = this.readScopedSessionJson('onboarding_session');
+        if (sessionData && sessionData[key] != null) {
+            return String(sessionData[key]);
         }
 
         // 4. form_data JSON (fallback)
-        try {
-            const formDataJson = sessionStorage.getItem('form_data');
-            if (formDataJson) {
-                const formData = JSON.parse(formDataJson);
-                if (formData && formData[key] != null) {
-                    return String(formData[key]);
-                }
-            }
-        } catch {
-            // ignore
+        const formData = this.readScopedSessionJson('form_data');
+        if (formData && formData[key] != null) {
+            return String(formData[key]);
         }
 
         return null;
@@ -1130,26 +1202,81 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
                     this.loadRowLimitSourceValues();
                 }
+                if (Array.isArray((parsed as any).conditionalRules)) {
+                    this.conditionalRules = (parsed as any).conditionalRules.map((r: any) => {
+                        const rawConditions = Array.isArray(r.conditions) && r.conditions.length
+                            ? r.conditions
+                            : [{ sourceFieldKey: '', equalsValue: '' }];
+
+                        const conditions: ConditionalFieldConditionConfig[] = rawConditions.map((c: any) => ({
+                            sourceFieldKey: c.sourceFieldKey || '',
+                            equalsValue: c.equalsValue != null ? String(c.equalsValue) : ''
+                        }));
+
+                        const behavior: 'showWhenMatched' | 'hideWhenMatched' =
+                            r.behavior === 'hideWhenMatched' ? 'hideWhenMatched' : 'showWhenMatched';
+
+                        return {
+                            targetFieldKey: r.targetFieldKey || '',
+                            conditions,
+                            behavior,
+                            setRequiredWhenMatched: !!r.setRequiredWhenMatched
+                        } as ConditionalFieldRuleConfig;
+                    });
+                } else {
+                    this.conditionalRules = [];
+                }
             }
 
             if (fieldsRaw.length > 0) {
                 result.fields = fieldsRaw
-                    .map((f: any, index: number) => ({
-                        name: f.name || `field_${index}`,
-                        label: f.label || f.name || `Field ${index + 1}`,
-                        type: f.type || 'text',
-                        required: !!f.required,
-                        placeholder: f.placeholder || '',
-                        options: Array.isArray(f.options)
-                            ? f.options
-                            : typeof f.options === 'string'
-                            ? f.options
-                                    .split(',')
-                                    .map((o: string) => o.trim())
-                                    .filter((o: string) => !!o)
-                            : undefined,
-                        order: typeof f.order === 'number' ? f.order : index
-                    }))
+                    .map((f: any, index: number) => {
+                        const fileMode: 'single' | 'multiple' = f.fileMode === 'multiple' || !!f.fileConfig?.allowMultiple ? 'multiple' : 'single';
+                        return {
+                            name: f.name || `field_${index}`,
+                            label: f.label || f.name || `Field ${index + 1}`,
+                            type: f.type || 'text',
+                            required: !!f.required,
+                            placeholder: f.placeholder || '',
+                            options: Array.isArray(f.options)
+                                ? f.options
+                                : typeof f.options === 'string'
+                                ? f.options
+                                        .split(',')
+                                        .map((o: string) => o.trim())
+                                        .filter((o: string) => !!o)
+                                : undefined,
+                            fileMode,
+                            maxFiles:
+                                typeof f.maxFiles === 'number'
+                                    ? f.maxFiles
+                                    : typeof f.fileConfig?.maxFiles === 'number'
+                                      ? f.fileConfig.maxFiles
+                                      : fileMode === 'multiple'
+                                        ? 5
+                                        : 1,
+                            maxSizeMB:
+                                typeof f.maxSizeMB === 'number'
+                                    ? f.maxSizeMB
+                                    : typeof f.fileConfig?.maxSizeMB === 'number'
+                                      ? f.fileConfig.maxSizeMB
+                                      : 10,
+                            acceptedTypes: Array.isArray(f.acceptedTypes)
+                                ? f.acceptedTypes
+                                : Array.isArray(f.fileConfig?.acceptedTypes)
+                                  ? f.fileConfig.acceptedTypes
+                                  : typeof f.acceptedTypes === 'string'
+                                    ? f.acceptedTypes
+                                          .split(',')
+                                          .map((o: string) => o.trim())
+                                          .filter((o: string) => !!o)
+                                    : ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'],
+                                                        order: typeof f.order === 'number' ? f.order : index,
+                                                        hidden: !!f.hidden,
+                                                        splitDateParts: !!f.splitDateParts,
+                                                        datePartKeys: f.datePartKeys
+                        };
+                    })
                     .sort((a, b) => a.order - b.order);
             }
         } catch {
@@ -1224,6 +1351,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             if (field.type === 'checkbox' && field.options && field.options.length) {
                 const controls = field.options.map(() => this.fb.control(false));
                 group[field.name] = this.fb.array(controls);
+            } else if (field.type === 'file') {
+                group[field.name] = this.fb.control([], validators);
+            } else if (field.type === 'date') {
+                group[field.name] = this.fb.control(null, validators);
             } else {
                 group[field.name] = this.fb.control('', validators);
             }
@@ -1231,7 +1362,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
         this.activeFormGroup = this.fb.group(group);
 
-        // Auto-populate Age/Gender from ID Number
+        this.initializeConditionalFieldLogic();
+
+        // Auto-populate Date of Birth/Age/Gender from ID Number
         this.formFields
             .filter((f) => f.type === 'idNumber')
             .forEach((idField) => {
@@ -1262,6 +1395,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         const fullYear = yy <= currentYearShort ? 2000 + yy : 1900 + yy;
 
         const dob = new Date(fullYear, mm - 1, dd);
+        if (dob.getFullYear() !== fullYear || dob.getMonth() !== mm - 1 || dob.getDate() !== dd) {
+            return;
+        }
         const today = new Date();
 
         let age = today.getFullYear() - dob.getFullYear();
@@ -1272,12 +1408,22 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         age = Math.max(0, age);
 
         const gender = genderDigit >= 5000 ? 'Male' : 'Female';
+        const dobValue = `${dob.getFullYear()}-${String(dob.getMonth() + 1).padStart(2, '0')}-${String(dob.getDate()).padStart(2, '0')}`;
 
         // Find target fields
+        const dobTarget = this.formFields.find(
+            (f) =>
+                f.name.toLowerCase() === `${idFieldName}_dateOfBirth`.toLowerCase() ||
+                f.name.toLowerCase() === 'dateofbirth' ||
+                f.name.toLowerCase() === 'dob'
+        );
         const ageTarget = this.formFields.find((f) => f.name.toLowerCase() === `${idFieldName}_age`.toLowerCase() || f.name.toLowerCase() === 'age');
         const genderTarget = this.formFields.find((f) => f.name.toLowerCase() === `${idFieldName}_gender`.toLowerCase() || f.name.toLowerCase() === 'gender');
 
         if (this.activeFormGroup) {
+            if (dobTarget) {
+                this.activeFormGroup.get(dobTarget.name)?.setValue(dobValue);
+            }
             if (ageTarget) {
                 // Only set if empty or previously auto-filled (checking pristine might be too strict, just overwrite)
                 this.activeFormGroup.get(ageTarget.name)?.setValue(age);
@@ -1309,6 +1455,8 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                         arr.at(i).setValue(false, { emitEvent: false });
                     }
                 }
+            } else if (field.type === 'file') {
+                this.activeFormGroup.get(field.name)?.setValue([], { emitEvent: false });
             } else {
                 this.activeFormGroup.get(field.name)?.setValue('', { emitEvent: false });
             }
@@ -1316,6 +1464,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
         this.activeFormGroup.markAsPristine();
         this.activeFormGroup.markAsUntouched();
+
+        if (this.recomputeConditionalState) {
+            this.recomputeConditionalState();
+        }
     }
 
     private applyDataToActiveForm(data: Record<string, any>): void {
@@ -1349,12 +1501,31 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 continue;
             }
 
+            if (field.type === 'file') {
+                const normalized = Array.isArray(rawValue)
+                    ? rawValue.filter((v: any) => typeof v === 'string' && !!v)
+                    : typeof rawValue === 'string' && rawValue
+                      ? [rawValue]
+                      : [];
+                this.activeFormGroup.get(field.name)?.setValue(normalized, { emitEvent: false });
+                continue;
+            }
+
+            if (field.type === 'date') {
+                this.activeFormGroup.get(field.name)?.setValue(normalizeDateValue(rawValue), { emitEvent: false });
+                continue;
+            }
+
             const next = rawValue === undefined || rawValue === null ? '' : rawValue;
             this.activeFormGroup.get(field.name)?.setValue(next, { emitEvent: false });
         }
 
         this.activeFormGroup.markAsPristine();
         this.activeFormGroup.markAsUntouched();
+
+        if (this.recomputeConditionalState) {
+            this.recomputeConditionalState();
+        }
     }
 
     private buildDataFromActiveForm(): Record<string, any> {
@@ -1377,17 +1548,162 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 continue;
             }
 
+            if (field.type === 'file') {
+                const raw = this.activeFormGroup.get(field.name)?.value;
+                const normalized = Array.isArray(raw)
+                    ? raw.filter((v: any) => typeof v === 'string' && !!v)
+                    : typeof raw === 'string' && raw
+                      ? [raw]
+                      : [];
+                data[field.name] = normalized;
+                continue;
+            }
+
             const raw = this.activeFormGroup.get(field.name)?.value;
 
             if (field.type === 'number') {
                 const n = raw === '' || raw === null || raw === undefined ? null : Number(raw);
                 data[field.name] = Number.isFinite(n as any) ? n : raw;
+            } else if (field.type === 'date') {
+                data[field.name] = toDateOnlyString(raw);
             } else {
                 data[field.name] = raw;
             }
         }
 
+        applyDateSplitParts(data, this.formFields);
+
         return data;
+    }
+
+    private initializeConditionalFieldLogic(): void {
+        this.hiddenFieldNames = new Set<string>();
+        this.recomputeConditionalState = null;
+
+        if (!this.activeFormGroup || !this.formFields || !this.formFields.length || !this.conditionalRules || !this.conditionalRules.length) {
+            return;
+        }
+
+        const controlMap: Record<string, any> = {};
+        const defaultRequired: Record<string, boolean> = {};
+
+        for (const field of this.formFields) {
+            controlMap[field.name] = this.activeFormGroup.get(field.name);
+            defaultRequired[field.name] = !!field.required;
+        }
+
+        const evaluateRule = (rule: ConditionalFieldRuleConfig): boolean => {
+            if (!rule.conditions || !rule.conditions.length) {
+                return false;
+            }
+
+            return rule.conditions.every((cond) => {
+                if (!cond.sourceFieldKey) {
+                    return false;
+                }
+                const ctrl = controlMap[cond.sourceFieldKey];
+                if (!ctrl) {
+                    return false;
+                }
+                const actual = ctrl.value;
+                const expected = String(cond.equalsValue || '').trim().toLowerCase();
+                const actualNorm = actual == null ? '' : String(actual).trim().toLowerCase();
+                return expected !== '' && actualNorm === expected;
+            });
+        };
+
+        const applyAll = () => {
+            this.hiddenFieldNames = new Set<string>();
+            const requiredOverride = new Set<string>();
+
+            for (const rule of this.conditionalRules) {
+                if (!rule.targetFieldKey) {
+                    continue;
+                }
+                const isMatch = evaluateRule(rule);
+                const behavior = rule.behavior || 'showWhenMatched';
+
+                if (behavior === 'showWhenMatched') {
+                    if (!isMatch) {
+                        this.hiddenFieldNames.add(rule.targetFieldKey);
+                    }
+                } else if (behavior === 'hideWhenMatched') {
+                    if (isMatch) {
+                        this.hiddenFieldNames.add(rule.targetFieldKey);
+                    }
+                }
+
+                if (rule.setRequiredWhenMatched && isMatch) {
+                    requiredOverride.add(rule.targetFieldKey);
+                }
+            }
+
+            for (const field of this.formFields) {
+                const ctrl = controlMap[field.name];
+                if (!ctrl) continue;
+
+                const validators: any[] = [];
+                const isHidden = this.hiddenFieldNames.has(field.name);
+                const baseRequired = !!defaultRequired[field.name];
+                const isRequiredNow = !isHidden && (baseRequired || requiredOverride.has(field.name));
+
+                if (isRequiredNow) {
+                    validators.push(Validators.required);
+                }
+                if (field.type === 'email') {
+                    validators.push(Validators.email);
+                }
+                if (field.type === 'idNumber') {
+                    validators.push(saIdNumberValidator());
+                }
+
+                if (field.type === 'checkbox' && field.options && field.options.length) {
+                    const arr = ctrl as FormArray;
+                    if (isRequiredNow) {
+                        const atLeastOne = (c: FormArray) => {
+                            const hasAny = c.controls.some((fc) => !!fc.value);
+                            return hasAny ? null : { required: true };
+                        };
+                        arr.setValidators(atLeastOne as any);
+                    } else {
+                        arr.clearValidators();
+                    }
+                    arr.updateValueAndValidity({ emitEvent: false });
+                } else {
+                    ctrl.setValidators(validators);
+                    ctrl.updateValueAndValidity({ emitEvent: false });
+                }
+            }
+        };
+
+        this.recomputeConditionalState = applyAll;
+        applyAll();
+
+        const sourceKeys = new Set<string>();
+        for (const rule of this.conditionalRules) {
+            for (const cond of rule.conditions) {
+                if (cond.sourceFieldKey) {
+                    sourceKeys.add(cond.sourceFieldKey);
+                }
+            }
+        }
+
+        sourceKeys.forEach((key) => {
+            const ctrl = controlMap[key];
+            if (ctrl && ctrl.valueChanges) {
+                ctrl.valueChanges.subscribe(() => {
+                    applyAll();
+                });
+            }
+        });
+    }
+
+    isFieldHidden(fieldName: string): boolean {
+        return this.hiddenFieldNames.has(fieldName);
+    }
+
+    isFieldStaticallyHidden(field: DynamicFormField): boolean {
+        return !!field.hidden;
     }
 
     private ensureCalculatorInitialized(force: boolean = false): void {
@@ -1635,10 +1951,18 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.stepStates[this.currentStepIndex] = { termsAgreed: this.termsAgreed };
 
         if (this.currentStepIndex < this.configuredSteps.length - 1) {
-            this.currentStepIndex++;
-            console.log('onNext: Advancing to internal step index:', this.currentStepIndex);
-            this.loadInternalStep(this.configuredSteps[this.currentStepIndex]);
-            return;
+            let nextIndex = this.currentStepIndex + 1;
+
+            while (nextIndex < this.configuredSteps.length && this.shouldSkipInternalStep(nextIndex)) {
+                nextIndex++;
+            }
+
+            if (nextIndex < this.configuredSteps.length) {
+                this.currentStepIndex = nextIndex;
+                console.log('onNext: Advancing to internal step index:', this.currentStepIndex);
+                this.loadInternalStep(this.configuredSteps[this.currentStepIndex]);
+                return;
+            }
         }
 
         // Check if we are entering the completion/signature step
@@ -1666,13 +1990,61 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         }
     }
 
+    private shouldSkipInternalStep(index: number): boolean {
+        const stepConfig = this.configuredSteps && this.configuredSteps[index];
+        if (!stepConfig || !Array.isArray(stepConfig.skipRules)) {
+            return false;
+        }
+
+        const rules = stepConfig.skipRules as { conditions: { sourceKey: string; equalsValue: string }[] }[];
+        if (!rules.length) {
+            return false;
+        }
+
+        for (const rule of rules) {
+            if (!rule.conditions || !rule.conditions.length) {
+                continue;
+            }
+
+            let allMatch = true;
+            for (const cond of rule.conditions) {
+                const key = (cond && cond.sourceKey) || '';
+                const expected = String(cond.equalsValue || '').trim().toLowerCase();
+                if (!key || !expected) {
+                    allMatch = false;
+                    break;
+                }
+
+                const actual = this.getSessionValue(key);
+                const actualNorm = actual == null ? '' : String(actual).trim().toLowerCase();
+                if (actualNorm !== expected) {
+                    allMatch = false;
+                    break;
+                }
+            }
+
+            if (allMatch) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     // --- Completion Logic ---
 
     private loadCompletionPdf(settings: any): void {
         const mode = settings.completionPdfMode || 'system';
+        const attachmentMappings = this.getCompletionAttachmentMappings(settings);
+        const profileIds = this.getCompletionPdfProfileIds(settings);
+        this.loadMappedCompletionAttachments(attachmentMappings);
+        this.loadCompletionPdfProfileNames();
+        this.completionPdfPreviews = [];
+        this.completionPdfUrl = null;
 
         if (mode === 'custom' && settings.completionPdfUrl) {
             this.completionPdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(settings.completionPdfUrl);
+            this.completionPdfPreviews = [{ url: this.completionPdfUrl }];
             this.loading = false;
             return;
         }
@@ -1680,29 +2052,248 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.loading = true;
         this.error = '';
 
-        // Direct HTTP call instead of generated proxy which returns void for blobs
-        const url = `${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_PreviewPdf`;
+        const effectiveProfileIds = profileIds.length > 0 ? profileIds : [undefined];
+        let completed = 0;
+        let hasError = false;
 
-        this.http.get(url, { responseType: 'blob' }).subscribe({
-            next: (blob) => {
-                const objectUrl = URL.createObjectURL(blob);
-                this.completionPdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
-                this.loading = false;
+        effectiveProfileIds.forEach((profileId) => {
+            let url = `${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_PreviewPdf`;
+            const params: string[] = [];
+
+            if (attachmentMappings.length > 0) {
+                params.push(`attachmentMappings=${encodeURIComponent(JSON.stringify(attachmentMappings))}`);
+            }
+
+            if (profileId) {
+                params.push(`mappingProfileId=${encodeURIComponent(profileId)}`);
+            }
+
+            if (params.length > 0) {
+                url += `?${params.join('&')}`;
+            }
+
+            this.http.get(url, { responseType: 'blob' }).subscribe({
+                next: (blob) => {
+                    const objectUrl = URL.createObjectURL(blob);
+                    const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
+                    this.completionPdfPreviews.push({
+                        profileId,
+                        profileName: this.getCompletionPdfProfileName(profileId),
+                        url: safeUrl
+                    });
+
+                    completed += 1;
+                    if (completed === effectiveProfileIds.length) {
+                        this.completionPdfUrl = this.completionPdfPreviews.length > 0 ? this.completionPdfPreviews[0].url : null;
+                        this.loading = false;
+                    }
+                },
+                error: (err) => {
+                    console.error('PDF Generation failed', err);
+                    hasError = true;
+                    completed += 1;
+
+                    if (completed === effectiveProfileIds.length) {
+                        this.error = hasError ? 'Failed to generate one or more completion PDFs.' : '';
+                        this.loading = false;
+                    }
+                }
+            });
+        });
+    }
+
+    private getCompletionPdfProfileIds(settings: any): string[] {
+        if (!settings || !Array.isArray(settings.completionPdfMappingProfileIds)) {
+            return [];
+        }
+
+        return settings.completionPdfMappingProfileIds
+            .filter((id: any) => !!id)
+            .map((id: any) => String(id));
+    }
+
+    private loadCompletionPdfProfileNames(): void {
+        this.http.get<any[]>(`${environment.apiUrl}/api/PdfFieldMapping/PdfFieldMapping_GetProfiles`).subscribe({
+            next: (rows) => {
+                const profiles = Array.isArray(rows) ? rows : [];
+                const nextMap: Record<string, string> = {};
+
+                for (const profile of profiles) {
+                    if (profile?.id && profile?.name) {
+                        nextMap[String(profile.id)] = String(profile.name);
+                    }
+                }
+
+                this.completionPdfProfileNames = nextMap;
+                this.completionPdfPreviews = this.completionPdfPreviews.map((preview) => ({
+                    ...preview,
+                    profileName: this.getCompletionPdfProfileName(preview.profileId)
+                }));
             },
-            error: (err) => {
-                console.error('PDF Generation failed', err);
-                this.error = 'Failed to generate completion PDF.';
-                this.loading = false;
+            error: () => {
+                this.completionPdfProfileNames = {};
             }
         });
+    }
+
+    private getCompletionPdfProfileName(profileId?: string): string | undefined {
+        if (!profileId) {
+            return undefined;
+        }
+
+        return this.completionPdfProfileNames[profileId];
+    }
+
+    private getCompletionAttachmentMappings(settings: any): any[] {
+        if (!settings || !Array.isArray(settings.completionAttachmentMappings)) {
+            return [];
+        }
+
+        return settings.completionAttachmentMappings
+            .filter((m: any) => !!m && !!m.fieldKey && (!!m.dynamicEntityTypeKey || !!m.formId))
+            .map((m: any) => ({
+                sourceType: m.sourceType || (m.dynamicEntityTypeKey ? 'dynamicEntity' : 'formSubmission'),
+                dynamicEntityTypeKey: m.dynamicEntityTypeKey || undefined,
+                formId: m.formId || undefined,
+                fieldKey: m.fieldKey,
+                sourceLabel: m.sourceLabel || undefined,
+                stepKey: m.stepKey || undefined
+            }));
+    }
+
+    private loadMappedCompletionAttachments(attachmentMappings: any[]): void {
+        this.hasConfiguredAttachmentMappings = Array.isArray(attachmentMappings) && attachmentMappings.length > 0;
+        this.mappedAttachmentsError = '';
+
+        if (!this.hasConfiguredAttachmentMappings) {
+            this.mappedCompletionAttachments = [];
+            this.mappedCompletionAttachmentGroups = [];
+            this.loadingMappedAttachments = false;
+            return;
+        }
+
+        this.loadingMappedAttachments = true;
+
+        const url = `${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_MappedAttachments`;
+        const payload = {
+            attachmentMappings
+        };
+
+        this.http.post<any[]>(url, payload).subscribe({
+            next: (response) => {
+                const rows = Array.isArray(response) ? response : [];
+                this.mappedCompletionAttachments = rows.map((row: any) => ({
+                    id: String(row.id || ''),
+                    fileName: String(row.fileName || 'Unnamed file'),
+                    contentType: row.contentType || undefined,
+                    size: typeof row.size === 'number' ? row.size : undefined,
+                    entityType: row.entityType || undefined,
+                    sourceLabels: Array.isArray(row.sourceLabels) ? row.sourceLabels.filter((v: any) => !!v).map((v: any) => String(v)) : [],
+                    fieldKeys: Array.isArray(row.fieldKeys) ? row.fieldKeys.filter((v: any) => !!v).map((v: any) => String(v)) : [],
+                    downloadUrl: `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${String(row.id || '')}`,
+                    previewUrl: this.sanitizer.bypassSecurityTrustResourceUrl(`${environment.apiUrl}/api/FileUpload/File_DownloadFile/${String(row.id || '')}`)
+                }));
+                this.mappedCompletionAttachmentGroups = this.groupMappedCompletionAttachments(this.mappedCompletionAttachments);
+                this.loadingMappedAttachments = false;
+            },
+            error: (err) => {
+                console.error('Failed to load mapped completion attachments', err);
+                this.mappedCompletionAttachments = [];
+                this.mappedCompletionAttachmentGroups = [];
+                this.loadingMappedAttachments = false;
+                this.mappedAttachmentsError = 'Failed to load mapped attachments.';
+            }
+        });
+    }
+
+    private groupMappedCompletionAttachments(files: CompletionAttachmentFile[]): CompletionAttachmentGroup[] {
+        const grouped = new Map<string, CompletionAttachmentFile[]>();
+
+        for (const file of files) {
+            const key = (file.entityType || '').trim() || 'Other';
+            if (!grouped.has(key)) {
+                grouped.set(key, []);
+            }
+
+            grouped.get(key)!.push(file);
+        }
+
+        return Array.from(grouped.entries()).map(([entityType, items]) => ({
+            entityType,
+            files: items
+        }));
+    }
+
+    isPdfAttachment(file: CompletionAttachmentFile): boolean {
+        const contentType = (file.contentType || '').toLowerCase();
+        const fileName = (file.fileName || '').toLowerCase();
+        return contentType.includes('pdf') || fileName.endsWith('.pdf');
+    }
+
+    isImageAttachment(file: CompletionAttachmentFile): boolean {
+        const contentType = (file.contentType || '').toLowerCase();
+        const fileName = (file.fileName || '').toLowerCase();
+
+        if (contentType.startsWith('image/')) {
+            return true;
+        }
+
+        return ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg'].some((ext) => fileName.endsWith(ext));
+    }
+
+    formatFileSize(bytes: number | undefined): string {
+        if (!bytes || bytes <= 0) {
+            return '';
+        }
+
+        if (bytes < 1024) {
+            return `${bytes} B`;
+        }
+
+        const kb = bytes / 1024;
+        if (kb < 1024) {
+            return `${kb.toFixed(1)} KB`;
+        }
+
+        const mb = kb / 1024;
+        return `${mb.toFixed(1)} MB`;
     }
 
     // --- Signature Logic ---
 
     private checkExistingSignature(): void {
         console.log('checkExistingSignature: Checking for existing member signature...');
-        // First try to look up the member explicitly through authentication context or session if possible,
-        // but since we don't have a SessionService imported here, we rely on the profile completion status.
+        const loadSignatureForMember = (memberId: string | null | undefined): void => {
+            if (!memberId || memberId === '00000000-0000-0000-0000-000000000000') {
+                this.savedSignatureUrl = null;
+                this.signatureSignedAtText = null;
+                this.cdr.detectChanges();
+                return;
+            }
+
+            this.memberService.member_GetById(memberId).subscribe({
+                next: (memberResponse) => {
+                    const signatureUrl = memberResponse.result?.signatureDataUrl;
+                    const signedAt = memberResponse.result?.signedAt;
+                    console.log('checkExistingSignature: Signature URL found:', !!signatureUrl);
+
+                    this.savedSignatureUrl = signatureUrl || null;
+                    this.signatureSignedAtText = signatureUrl ? this.formatSignedAt(signedAt) : null;
+                    this.cdr.detectChanges();
+
+                    if (!signatureUrl) {
+                        setTimeout(() => this.initializeCanvas(), 0);
+                    }
+                },
+                error: (err) => {
+                    console.error('checkExistingSignature: Failed to get member details', err);
+                    this.savedSignatureUrl = null;
+                    this.signatureSignedAtText = null;
+                    this.cdr.detectChanges();
+                    setTimeout(() => this.initializeCanvas(), 0);
+                }
+            });
+        };
 
         this.memberProfileCompletionService.profileCompletion_GetMyStatus().subscribe({
             next: (statusResponse) => {
@@ -1710,41 +2301,92 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 console.log('checkExistingSignature: Member ID found:', memberId);
 
                 if (memberId && memberId !== '00000000-0000-0000-0000-000000000000') {
-                    this.memberService.member_GetById(memberId).subscribe({
-                        next: (memberResponse) => {
-                            const signatureUrl = memberResponse.result?.signatureDataUrl;
-                            console.log('checkExistingSignature: Signature URL found:', !!signatureUrl);
-                            // Ensure change detection runs
-                            if (signatureUrl) {
-                                this.savedSignatureUrl = signatureUrl;
-                                this.cdr.detectChanges(); // Force UI update
-                            }
-                        },
-                        error: (err) => console.error('checkExistingSignature: Failed to get member details', err)
-                    });
-                } else {
-                    console.warn('checkExistingSignature: No valid member ID in profile completion status.');
+                    loadSignatureForMember(memberId);
+                    return;
                 }
+
+                const fallbackUserId = this.authService.getUserId();
+                console.warn('checkExistingSignature: No member ID in profile status, falling back to auth user ID:', fallbackUserId);
+                loadSignatureForMember(fallbackUserId);
             },
-            error: (err) => console.error('checkExistingSignature: Failed to get profile status', err)
+            error: (err) => {
+                console.error('checkExistingSignature: Failed to get profile status', err);
+                const fallbackUserId = this.authService.getUserId();
+                loadSignatureForMember(fallbackUserId);
+            }
         });
     }
 
+    private formatSignedAt(signedAt: any): string | null {
+        if (!signedAt) {
+            return null;
+        }
+
+        try {
+            if (typeof signedAt?.toFormat === 'function') {
+                return signedAt.toFormat('yyyy-LL-dd HH:mm');
+            }
+
+            const parsed = new Date(signedAt);
+            if (Number.isNaN(parsed.getTime())) {
+                return null;
+            }
+
+            return parsed.toLocaleString();
+        } catch {
+            return null;
+        }
+    }
+
     initializeCanvas(attempt = 1): void {
-        if (this.canvasRef) {
+        if (this.savedSignatureUrl) {
+            this.canvasReady = false;
+            return;
+        }
+
+        if (this.canvasRef?.nativeElement) {
             const canvas = this.canvasRef.nativeElement;
-            this.ctx = canvas.getContext('2d')!;
-            this.ctx.strokeStyle = '#000000';
-            this.ctx.lineWidth = 2;
-            this.ctx.lineCap = 'round';
-            this.ctx.lineJoin = 'round';
+            const context = canvas.getContext('2d');
+            if (!context) {
+                this.canvasReady = false;
+                return;
+            }
+
+            const displayWidth = Math.max(1, Math.floor(canvas.clientWidth || 700));
+            const displayHeight = Math.max(1, Math.floor(canvas.clientHeight || 200));
+            const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+
+            const targetWidth = Math.floor(displayWidth * pixelRatio);
+            const targetHeight = Math.floor(displayHeight * pixelRatio);
+            if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+            }
+
+            context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+            context.strokeStyle = '#000000';
+            context.lineWidth = 2;
+            context.lineCap = 'round';
+            context.lineJoin = 'round';
+
+            this.ctx = context;
+            this.canvasReady = true;
         } else if (attempt < 10) {
             // Retry initialization if DOM not ready
             setTimeout(() => this.initializeCanvas(attempt + 1), 200);
+        } else {
+            this.canvasReady = false;
         }
     }
 
     startDrawing(event: MouseEvent): void {
+        if (!this.canvasReady) {
+            this.initializeCanvas();
+        }
+        if (!this.canvasRef?.nativeElement || !this.ctx) {
+            return;
+        }
+
         this.isDrawing = true;
         const rect = this.canvasRef.nativeElement.getBoundingClientRect();
         this.lastX = event.clientX - rect.left;
@@ -1773,6 +2415,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
     // Touch support for mobile
     handleTouchStart(event: TouchEvent): void {
+        if (!this.canvasReady) {
+            this.initializeCanvas();
+        }
+        if (!this.canvasRef?.nativeElement || !this.ctx) {
+            return;
+        }
+
         if (event.cancelable) event.preventDefault();
         this.isDrawing = true;
         const touch = event.touches[0];
@@ -1802,7 +2451,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     clearSignature(): void {
         if (this.ctx && this.canvasRef) {
             const canvas = this.canvasRef.nativeElement;
-            this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+            this.ctx.clearRect(0, 0, canvas.clientWidth || canvas.width, canvas.clientHeight || canvas.height);
         }
     }
 
@@ -1822,6 +2471,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.memberService.member_SaveSignature(dto).subscribe({
             next: () => {
                 this.savedSignatureUrl = signatureDataUrl;
+                this.signatureSignedAtText = new Date().toLocaleString();
                 this.isSavingSignature = false;
                 
                 // Re-load the PDF to include the signature
@@ -1838,6 +2488,8 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
     editSignature(): void {
         this.savedSignatureUrl = null;
+        this.signatureSignedAtText = null;
+        this.canvasReady = false;
         // Wait for view to update so canvas exists
         setTimeout(() => this.initializeCanvas(), 0);
     }
@@ -1899,15 +2551,44 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         });
     }
 
+    getFileUploadConfig(field: DynamicFormField): any {
+        const mode = field.fileMode || 'single';
+        return {
+            label: field.label,
+            required: field.required,
+            documentType: 'OnboardingMultiSubmit',
+            allowMultiple: mode === 'multiple',
+            maxFiles: mode === 'multiple' ? Math.max(1, Number(field.maxFiles ?? 5)) : 1,
+            maxSizeMB: Math.max(1, Number(field.maxSizeMB ?? 10)),
+            acceptedTypes: field.acceptedTypes && field.acceptedTypes.length ? field.acceptedTypes : ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx']
+        };
+    }
+
+    getInitialFileIds(field: DynamicFormField): string[] {
+        const raw = this.activeFormGroup?.get(field.name)?.value;
+        if (Array.isArray(raw)) {
+            return raw.filter((v) => typeof v === 'string' && !!v) as string[];
+        }
+        if (typeof raw === 'string' && raw.trim()) {
+            return [raw.trim()];
+        }
+        return [];
+    }
+
     onFileUploaded(field: any, event: any): void {
         const control = this.activeFormGroup?.get(field.name);
-        if (control) {
-            // Store the file ID as the value
-            // Event is expected to be an array of files, take the first one or ID directly if simplified
-            const fileId = Array.isArray(event) ? event[0]?.id : event?.id;
-            control.setValue(fileId);
-            control.markAsDirty();
-            control.markAsTouched();
+        if (!control) {
+            return;
         }
+
+        const fileIds = Array.isArray(event)
+            ? event.map((f: any) => f?.id).filter((id: any) => typeof id === 'string' && !!id)
+            : typeof event?.id === 'string' && event.id
+              ? [event.id]
+              : [];
+
+        control.setValue(fileIds);
+        control.markAsDirty();
+        control.markAsTouched();
     }
 }

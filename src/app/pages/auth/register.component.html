@@ -32,48 +32,6 @@
             <form [formGroup]="form">
                 <!-- Member Registration Form -->
                 <div>
-                    <div *ngIf="selectedPolicy" class="alert alert-info mb-3">
-                        <strong>Policy:</strong> {{ selectedPolicy.name }}
-                        <button type="button" class="btn-secondary-theme btn-sm float-end" (click)="showPolicySelection()">Change</button>
-                    </div>
-                    <div *ngIf="!selectedPolicy && policies.length > 0" class="mb-3">
-                        <button type="button" class="btn-primary-theme w-100" (click)="showPolicySelection()">Select Policy</button>
-                    </div>
-                    <!-- Policy Selection Bootstrap Modal -->
-                    <div class="modal fade show" tabindex="-1" [ngStyle]="{ display: showModal ? 'block' : 'none', background: 'rgba(0,0,0,0.5)' }" *ngIf="showModal">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Select a Policy</h5>
-                                    <button type="button" class="btn-close" (click)="closePolicyModal()"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div *ngIf="policies.length === 0" class="alert alert-warning">No policies available.</div>
-                                    <div *ngIf="policies.length > 0">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3" *ngFor="let policy of policies">
-                                                <div class="card h-100" [class.border-primary]="selectedPolicy?.id === policy.id">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title">{{ policy.name }}</h5>
-                                                        <p class="card-text">{{ policy.policyAttributes?.[0]?.description || '' }}</p>
-                                                        <p><strong>Price:</strong> {{ policy.price | currency: 'ZAR' }}</p>
-                                                        <p><strong>Payout:</strong> {{ policy.payoutAmount | currency: 'ZAR' }}</p>
-                                                        <ul>
-                                                            <li *ngFor="let attr of policy.policyAttributes">{{ attr.description }}</li>
-                                                        </ul>
-                                                        <button type="button" class="btn btn-outline-primary w-100 mt-2" (click)="onPolicySelected(policy)">Select</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn-secondary-theme" (click)="closePolicyModal()">Cancel</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="mb-3">
                         <label for="memberEmail" class="form-label"><i class="bi bi-envelope"></i> Email Address</label>
                         <input type="email" class="form-control" id="memberEmail" name="member-email" autocomplete="email" placeholder="Enter email address" formControlName="email" />
@@ -83,6 +41,10 @@
                         <input type="password" class="form-control" id="memberPassword" placeholder="Enter password" formControlName="password" />
                     </div>
                     <div class="mb-3">
+                        <label for="memberConfirmPassword" class="form-label"><i class="bi bi-lock"></i> Confirm Password</label>
+                        <input type="password" class="form-control" id="memberConfirmPassword" placeholder="Re-enter password" formControlName="confirmPassword" />
+                    </div>
+                    <div class="mb-3">
                         <label for="memberFirstName" class="form-label"><i class="bi bi-person"></i> First Name</label>
                         <input type="text" class="form-control" id="memberFirstName" placeholder="Enter first name" formControlName="firstName" />
                     </div>
@@ -90,71 +52,11 @@
                         <label for="memberLastName" class="form-label"><i class="bi bi-person"></i> Last Name</label>
                         <input type="text" class="form-control" id="memberLastName" placeholder="Enter last name" formControlName="lastName" />
                     </div>
-                    <div class="mb-3">
-                        <label for="memberPhoneNumber" class="form-label"><i class="bi bi-telephone"></i> Phone Number</label>
-                        <input type="tel" class="form-control" id="memberPhoneNumber" placeholder="(012) 345-6789" formControlName="phoneNumber" />
-                    </div>
-
-                    <!-- Dynamic Fields -->
-                    <div *ngFor="let field of dynamicFields" class="mb-3">
-                        <ng-container *ngIf="field.fieldKey">
-                            <label [for]="field.fieldKey" class="form-label">
-                                <i class="bi bi-input-cursor-text"></i>
-                                {{ field.fieldLabel }}
-                                <span *ngIf="field.isRequired" class="text-danger">*</span>
-                            </label>
-                            <div [ngSwitch]="field.fieldType">
-                                <!-- Text Input -->
-                                <input *ngSwitchCase="'text'" type="text" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey" />
-
-                                <!-- Textarea -->
-                                <textarea *ngSwitchCase="'textarea'" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey"></textarea>
-
-                                <!-- Number Input -->
-                                <input *ngSwitchCase="'number'" type="number" class="form-control" [id]="field.fieldKey" [placeholder]="field.placeholder || ''" [formControlName]="field.fieldKey" />
-
-                                <!-- Date Input -->
-                                <input *ngSwitchCase="'date'" type="date" class="form-control" [id]="field.fieldKey" [formControlName]="field.fieldKey" />
-
-                                <!-- Checkbox -->
-                                <div *ngSwitchCase="'checkbox'" class="form-check">
-                                    <input type="checkbox" class="form-check-input" [id]="field.fieldKey" [formControlName]="field.fieldKey" />
-                                    <label class="form-check-label" [for]="field.fieldKey">{{ field.placeholder || '' }}</label>
-                                </div>
-
-                                <!-- Dropdown/Select -->
-                                <select *ngSwitchCase="'dropdown'" class="form-select" [id]="field.fieldKey" [formControlName]="field.fieldKey">
-                                    <option value="">{{ field.placeholder || 'Select...' }}</option>
-                                    <option *ngFor="let option of getOptions(field.optionsJson)" [value]="option.value">{{ option.label }}</option>
-                                </select>
-                            </div>
-                            <div *ngIf="form.get(field.fieldKey)?.invalid && (form.get(field.fieldKey)?.dirty || form.get(field.fieldKey)?.touched)" class="text-danger mt-1">
-                                <small *ngIf="form.get(field.fieldKey)?.errors?.['required']">{{ field.fieldLabel }} is required.</small>
-                            </div>
-                        </ng-container>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="memberIdNumber" class="form-label"><i class="bi bi-card-text"></i> ID Number (SA) - Optional</label>
-                        <input type="text" class="form-control" id="memberIdNumber" placeholder="e.g. 0001015009087" formControlName="identificationNumber" (ngModelChange)="onIdNumberChange()" maxlength="13" />
-                        <small *ngIf="!idInfo()" class="d-block mt-1 text-muted"><i class="bi bi-info-circle"></i> Providing your ID number enables identity verification after registration</small>
-                        <small *ngIf="idInfo() && !idInfo()!.isValid" class="d-block mt-1 text-danger">{{ idInfo()!.errorMessage }}</small>
-                        <small *ngIf="idInfo() && idInfo()!.isValid" class="d-block mt-1 text-success"><i class="bi bi-check-circle"></i> Valid SA ID Number</small>
-                    </div>
-                    <div *ngIf="parsedDateOfBirth()" class="mb-3">
-                        <label for="memberDob" class="form-label"><i class="bi bi-calendar"></i> Date of Birth (from ID)</label>
-                        <input type="text" class="form-control" id="memberDob" [value]="parsedDateOfBirth() | date: 'dd/MM/yyyy'" disabled />
-                        <small class="d-block mt-1 text-muted"><i class="bi bi-info-circle"></i> Age: {{ idInfo()?.age }} years</small>
-                    </div>
-                    <div *ngIf="parsedGender()" class="mb-3">
-                        <label for="memberGender" class="form-label"><i class="bi bi-person"></i> Gender (from ID)</label>
-                        <input type="text" class="form-control" id="memberGender" [value]="parsedGender()" disabled />
-                    </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="mt-4">
-                    <button type="button" class="btn-primary-theme w-100" [disabled]="isBusy || (!isHostTenant && form.value.identificationNumber && idInfo() && !idInfo()!.isValid)" (click)="register()">
+                    <button type="button" class="btn-primary-theme w-100" [disabled]="isBusy" (click)="register()">
                         <span *ngIf="isBusy" class="spinner-border spinner-border-sm me-2"></span>
                         {{ isBusy ? 'Creating Account...' : 'Create Account' }}
                     </button>
@@ -178,33 +80,3 @@
     </div>
 </div>
 
-<!-- Identity Verification Modal -->
-<div *ngIf="showVerificationDialog" class="modal d-block" style="background: rgba(0, 0, 0, 0.5)">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Complete Your Registration</h5>
-                <button type="button" class="btn-close" (click)="closeVerificationDialog()"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center mb-4">
-                    <i class="bi bi-shield text-primary" style="font-size: 2.5rem"></i>
-                    <h5 class="mt-3 mb-2">Registration Successful!</h5>
-                    <p class="text-muted">Verify your identity to complete registration and enhance account security.</p>
-                </div>
-                <app-identity-verification-form
-                    [title]="'Identity Verification'"
-                    [subtitle]="'Verify your identity to complete registration'"
-                    [userId]="registeredUserId"
-                    [initialData]="{ idNumber: form.value.identificationNumber, firstName: form.value.firstName, lastName: form.value.lastName }"
-                    (verificationComplete)="onVerificationComplete($event)"
-                    (verificationStarted)="onVerificationStarted()"
-                >
-                </app-identity-verification-form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary-theme" (click)="skipVerificationAndContinue()">Skip for Now</button>
-            </div>
-        </div>
-    </div>
-</div>

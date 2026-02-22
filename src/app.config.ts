@@ -14,7 +14,6 @@ import {
     FileUploadServiceProxy,
     MemberProfileCompletionServiceProxy,
     DependentServiceProxy,
-    BeneficiaryServiceProxy,
     TermsServiceProxy,
     RequiredDocumentServiceProxy,
     VerificationServiceProxy,
@@ -31,6 +30,7 @@ import {
     NgoServiceProxy,
     CustomPagesServiceProxy
 } from './app/core/services/service-proxies';
+import { MemberContextService } from './app/core/services/member-context.service';
 import { AuthService } from './app/auth/auth-service';
 import { AuthInterceptor } from './app/auth/auth.service';
 import { appInitializerProvider } from './app/core/services/tenant-settings.service';
@@ -55,12 +55,12 @@ export function initializeTenant(tenantService: TenantService) {
 export const appConfig: ApplicationConfig = {
     providers: [
         AuthService,
+        MemberContextService,
         TenantSettingServiceProxy,
         FileUploadServiceProxy,
         MemberProfileCompletionServiceProxy,
         CustomPagesServiceProxy,
         DependentServiceProxy,
-        BeneficiaryServiceProxy,
         TermsServiceProxy,
         RequiredDocumentServiceProxy,
         VerificationServiceProxy,

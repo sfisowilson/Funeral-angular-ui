@@ -72,7 +72,6 @@
                         <button pButton pRipple icon="pi pi-pencil" class="btn-rounded btn-primary-theme mr-2" (click)="editMember(member)" pTooltip="Edit Member" tooltipPosition="top"></button>
                         <button pButton pRipple icon="pi pi-eye" class="btn-rounded btn-primary-theme mr-2" (click)="viewOnboarding(member)" pTooltip="View Onboarding" tooltipPosition="top"></button>
                         <button pButton pRipple icon="pi pi-users" class="btn-rounded btn-primary-theme mr-2" (click)="manageDependents(member)" pTooltip="Manage Dependents" tooltipPosition="top"></button>
-                        <button pButton pRipple icon="pi pi-user-plus" class="btn-rounded btn-primary-theme mr-2" (click)="manageBeneficiaries(member)" pTooltip="Manage Beneficiaries" tooltipPosition="top"></button>
                         <button pButton pRipple icon="pi pi-trash" class="btn-rounded btn-danger-theme" (click)="deleteMember(member)" pTooltip="Delete Member" tooltipPosition="top"></button>
                     </div>
                 </td>
@@ -309,8 +308,4 @@
 
 <p-dialog [(visible)]="dependentsDialog" [style]="{ width: '750px' }" header="Dependents" [modal]="true" class="p-fluid">
     <app-dependents [memberId]="member.id"></app-dependents>
-</p-dialog>
-
-<p-dialog [(visible)]="beneficiariesDialog" [style]="{ width: '750px' }" header="Beneficiaries" [modal]="true" class="p-fluid">
-    <app-beneficiaries [memberId]="member.id"></app-beneficiaries>
 </p-dialog>

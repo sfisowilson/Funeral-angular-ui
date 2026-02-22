@@ -3,10 +3,9 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../auth/auth-service';
 import { CommonModule } from '@angular/common';
-import { AuthServiceProxy, OnboardingFieldConfigurationDto, OnboardingFieldConfigurationServiceProxy, PolicyDto, PolicyServiceProxy, RegisterRequest, TenantCreateUpdateDto } from '../../core/services/service-proxies';
+import { AuthServiceProxy, OnboardingFieldConfigurationDto, OnboardingFieldConfigurationServiceProxy, RegisterRequest, TenantCreateUpdateDto } from '../../core/services/service-proxies';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { LookupServiceProxy, TenantType } from '../../core/services/service-proxies';
-import { PolicySelectionModalComponent } from './policy-selection-modal/policy-selection-modal.component';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 import { IdentityVerificationFormComponent } from '../../shared/components/identity-verification/identity-verification-form.component';
 import { SAIdValidator, SAIdInfo } from '../../shared/utils/sa-id-validator';
@@ -17,7 +16,7 @@ import { ToastModule } from 'primeng/toast';
     selector: 'app-register',
     standalone: true,
     imports: [CommonModule, FormsModule, RouterModule, ReactiveFormsModule, IdentityVerificationFormComponent, ToastModule],
-    providers: [AuthServiceProxy, LookupServiceProxy, PolicyServiceProxy, OnboardingFieldConfigurationServiceProxy, MessageService],
+    providers: [AuthServiceProxy, LookupServiceProxy, OnboardingFieldConfigurationServiceProxy, MessageService],
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss'
 })
@@ -32,23 +31,20 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     isBusy: boolean = false;
     isHostTenant: boolean = false;
     tenantTypes: { label: string; value: TenantType }[] = [];
-    selectedPolicy: PolicyDto | null = null;
-    policies: PolicyDto[] = [];
-    showModal: boolean = false;
     alertMessage: string = '';
     alertType: 'success' | 'error' | 'warning' | 'info' = 'info';
     showAlert: boolean = false;
     agentCode: string | null = null;
 
-    // Dynamic fields
+    // Dynamic fields (no longer used on this simplified member registration page, but kept for backwards compatibility)
     dynamicFields: OnboardingFieldConfigurationDto[] = [];
 
-    // Identity verification properties
+    // Identity verification (no longer used on this simplified page)
     showVerificationDialog: boolean = false;
     registeredUserId?: string;
     skipVerification: boolean = false;
 
-    // SA ID validation
+    // SA ID validation (no longer used on this simplified page)
     idInfo = signal<SAIdInfo | null>(null);
     parsedDateOfBirth = signal<Date | null>(null);
     parsedGender = signal<string | null>(null);
@@ -61,7 +57,6 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
         protected override tenantSettingsService: TenantSettingsService,
         private lookupService: LookupServiceProxy,
         private route: ActivatedRoute,
-        private policyService: PolicyServiceProxy,
         private onboardingFieldService: OnboardingFieldConfigurationServiceProxy,
         private messageService: MessageService,
         protected override injector: Injector
@@ -111,44 +106,9 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 this.form = this.fb.group({
                     email: ['', [Validators.required, Validators.email]],
                     password: ['', Validators.required],
+                    confirmPassword: ['', Validators.required],
                     firstName: ['', Validators.required],
-                    lastName: ['', Validators.required],
-                    phoneNumber: [''],
-                    policyId: [null],
-                    identificationNumber: [''] // Add ID number for verification
-                });
-
-                // Load policies for member registration
-                this.policyService.policy_GetAllPolicies(undefined, undefined, undefined, undefined, undefined).subscribe({
-                    next: (response) => {
-                        this.policies = response?.result || [];
-                    },
-                    error: (error) => {
-                        console.error('Error loading policies:', error);
-                    }
-                });
-
-                this.route.queryParams.subscribe((params) => {
-                    if (params['policyId']) {
-                        const policyId = +params['policyId'];
-                        this.form.patchValue({ policyId: policyId });
-                        this.policyService.policy_GetById(policyId.toString()).subscribe((response) => {
-                            this.selectedPolicy = response?.result || null;
-                        });
-                    } else {
-                        this.showPolicySelection();
-                    }
-                });
-
-                // Fetch dynamic fields
-                this.onboardingFieldService.onboardingFieldConfiguration_GetEnabledByContext('Registration').subscribe((response) => {
-                    // Filter out fields that don't have a fieldKey, as they cannot be used.
-                    this.dynamicFields = response?.result?.filter((f) => f.fieldKey) || [];
-                    this.dynamicFields.forEach((field) => {
-                        // Now we can be sure field.fieldKey is a string.
-                        const validators = field.isRequired ? [Validators.required] : [];
-                        this.form.addControl(field.fieldKey!, this.fb.control('', validators));
-                    });
+                    lastName: ['', Validators.required]
                 });
             }
         } catch (error) {
@@ -167,11 +127,11 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
             return;
         }
         console.log('RegisterComponent.register: form is valid, proceeding');
-        // If ID number is provided, it must be valid
-        if (!this.isHostTenant && this.form.value.identificationNumber) {
-            const idInfo = this.idInfo();
-            if (!idInfo || !idInfo.isValid) {
-                this.showAlertMessage('error', 'Please enter a valid South African ID number or leave the field empty.');
+        // Ensure passwords match on member registration
+        if (!this.isHostTenant) {
+            const fv = this.form.value;
+            if (fv.password !== fv.confirmPassword) {
+                this.showAlertMessage('error', 'Passwords do not match.');
                 this.isBusy = false;
                 return;
             }
@@ -224,23 +184,8 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 password: fv.password || '',
                 firstName: fv.firstName || '',
                 lastName: fv.lastName || '',
-                phoneNumber: fv.phoneNumber || undefined,
-                identificationNumber: fv.identificationNumber || undefined,
-                policyId: fv.policyId || undefined,
-                agentCode: this.agentCode || undefined,
-                customFields: {}
+                agentCode: this.agentCode || undefined
             };
-
-            // Populate custom fields
-            this.dynamicFields.forEach((field) => {
-                const rawValue = fv[field.fieldKey];
-                if (!field.fieldKey || rawValue === undefined || rawValue === null) {
-                    return;
-                }
-
-                // Always send strings so the API can bind into Dictionary<string, string?>.
-                requestData.customFields[field.fieldKey] = rawValue.toString();
-            });
 
             const memberRegisterRequest: RegisterRequest = RegisterRequest.fromJS(requestData);
 
@@ -254,13 +199,7 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
                 .subscribe({
                     next: () => {
                         this.showAlertMessage('success', 'Member registered successfully');
-
-                        // Show identity verification dialog if ID number was provided
-                        if (this.form.value.identificationNumber && !this.skipVerification) {
-                            this.showVerificationDialog = true;
-                        } else {
-                            this.router.navigate(['/auth/login']);
-                        }
+                        this.router.navigate(['/auth/login']);
                     },
                     error: (error) => {
                         this.showAlertMessage('error', this.getErrorMessage(error));
@@ -308,23 +247,6 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
             this.tenantName = 'Funeral Management System';
         }
         this.loading = false;
-    }
-
-    showPolicySelection() {
-        if (this.policies.length === 0) {
-            this.showModal = false;
-            return;
-        }
-
-        this.showModal = true;
-    }
-    onPolicySelected(policy: PolicyDto) {
-        this.selectedPolicy = policy;
-        this.form.patchValue({ policyId: policy.id });
-        this.showModal = false;
-    }
-    closePolicyModal() {
-        this.showModal = false;
     }
 
     onVerificationComplete(result: any) {

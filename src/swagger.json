@@ -5,1337 +5,6 @@
     "version": "1.0"
   },
   "paths": {
-    "/api/Asset/Asset_CreateAsset": {
-      "post": {
-        "tags": [
-          "Asset"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssetDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssetDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssetDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Asset/Asset_GetAssetById/{id}": {
-      "get": {
-        "tags": [
-          "Asset"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Asset/Asset_GetAllAssets": {
-      "get": {
-        "tags": [
-          "Asset"
-        ],
-        "parameters": [
-          {
-            "name": "SearchText",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Offset",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Order",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Asset/Asset_UpdateAsset/{id}": {
-      "put": {
-        "tags": [
-          "Asset"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssetDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssetDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssetDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Asset/Asset_DeleteAsset/{id}": {
-      "delete": {
-        "tags": [
-          "Asset"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "boolean"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetAll": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetById/{id}": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetByType/{assetType}": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "assetType",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/AssetType"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetByStatus/{status}": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "status",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/AssetStatus"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetAvailable": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_Create": {
-      "post": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAssetDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAssetDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAssetDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_Update": {
-      "put": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAssetDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAssetDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAssetDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_Delete/{id}": {
-      "delete": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetStats": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetStatsDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetStatsDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetStatsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_Checkout": {
-      "post": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CheckoutAssetDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CheckoutAssetDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CheckoutAssetDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetCheckoutDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetCheckoutDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetCheckoutDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_Checkin": {
-      "post": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CheckinAssetDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CheckinAssetDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CheckinAssetDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetCheckoutDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetCheckoutDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetCheckoutDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetAllCheckouts": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetActiveCheckouts": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetOverdueCheckouts": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetMyCheckouts": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetCheckoutsByUser/{userId}": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetCheckoutsByAsset/{assetId}": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "assetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetCheckoutDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetCheckoutById/{id}": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetCheckoutDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetCheckoutDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetCheckoutDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_CancelCheckout/{checkoutId}": {
-      "post": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "checkoutId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_CreateInspection/{assetId}": {
-      "post": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "assetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InspectionLogDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InspectionLogDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/InspectionLogDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetInspectionLogDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetInspectionLogDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetInspectionLogDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetInspectionsByAsset/{assetId}": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "assetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetInspectionLogDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetInspectionLogDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetInspectionLogDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetInspectionsByCheckout/{checkoutId}": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "checkoutId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetInspectionLogDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetInspectionLogDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetInspectionLogDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetInspectionById/{id}": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetInspectionLogDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetInspectionLogDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AssetInspectionLogDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_ScheduleMaintenance": {
-      "post": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ScheduleMaintenanceDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ScheduleMaintenanceDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ScheduleMaintenanceDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_CompleteMaintenance": {
-      "post": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompleteMaintenanceDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompleteMaintenanceDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompleteMaintenanceDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/AssetManagement/AssetManagement_GetAssetsNeedingMaintenance": {
-      "get": {
-        "tags": [
-          "AssetManagement"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AssetDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Auth/Auth_RegisterTenant": {
       "post": {
         "tags": [
@@ -1680,630 +349,6 @@
         }
       }
     },
-    "/api/Beneficiary/Beneficiary_GetById/{id}": {
-      "get": {
-        "tags": [
-          "Beneficiary"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BeneficiaryDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BeneficiaryDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BeneficiaryDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Beneficiary/Beneficiary_GetAllBeneficiaries": {
-      "get": {
-        "tags": [
-          "Beneficiary"
-        ],
-        "parameters": [
-          {
-            "name": "SearchText",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Offset",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Order",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BeneficiaryDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BeneficiaryDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BeneficiaryDto"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Beneficiary/Beneficiary_GetMyBeneficiaries": {
-      "get": {
-        "tags": [
-          "Beneficiary"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BeneficiaryDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BeneficiaryDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BeneficiaryDto"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Beneficiary/Beneficiary_GetBeneficiariesByMemberId/{memberId}": {
-      "get": {
-        "tags": [
-          "Beneficiary"
-        ],
-        "parameters": [
-          {
-            "name": "memberId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BeneficiaryDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BeneficiaryDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BeneficiaryDto"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Beneficiary/Beneficiary_CreateBeneficiary": {
-      "post": {
-        "tags": [
-          "Beneficiary"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BeneficiaryDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BeneficiaryDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/BeneficiaryDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BeneficiaryDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BeneficiaryDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BeneficiaryDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Beneficiary/Beneficiary_UpdateBeneficiary": {
-      "put": {
-        "tags": [
-          "Beneficiary"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BeneficiaryDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BeneficiaryDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/BeneficiaryDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/BeneficiaryDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BeneficiaryDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BeneficiaryDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Beneficiary/Beneficiary_DeleteBeneficiary/{id}": {
-      "delete": {
-        "tags": [
-          "Beneficiary"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Booking/create": {
       "post": {
         "tags": [
@@ -2634,568 +679,6 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BookingNotificationResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_CheckEligibility": {
-      "post": {
-        "tags": [
-          "Claim"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClaimEligibilityCheckDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClaimEligibilityCheckDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClaimEligibilityCheckDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimEligibilityResultDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimEligibilityResultDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimEligibilityResultDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_CreateEnhancedClaim": {
-      "post": {
-        "tags": [
-          "Claim"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EnhancedCreateClaimDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EnhancedCreateClaimDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EnhancedCreateClaimDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_GetProcessTracking/{id}": {
-      "get": {
-        "tags": [
-          "Claim"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimProcessTrackingDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimProcessTrackingDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimProcessTrackingDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_GetByBeneficiary/{beneficiaryId}": {
-      "get": {
-        "tags": [
-          "Claim"
-        ],
-        "parameters": [
-          {
-            "name": "beneficiaryId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClaimDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClaimDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClaimDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_GetByMember/{memberId}": {
-      "get": {
-        "tags": [
-          "Claim"
-        ],
-        "parameters": [
-          {
-            "name": "memberId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClaimDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClaimDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClaimDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_UpdateClaimDocuments/{id}": {
-      "post": {
-        "tags": [
-          "Claim"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "boolean"
-                }
-              }
-            },
-            "text/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "boolean"
-                }
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_CreateClaim": {
-      "post": {
-        "tags": [
-          "Claim"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateClaimDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateClaimDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateClaimDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_GetClaimById/{id}": {
-      "get": {
-        "tags": [
-          "Claim"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_GetAllClaims": {
-      "get": {
-        "tags": [
-          "Claim"
-        ],
-        "parameters": [
-          {
-            "name": "SearchText",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Offset",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Order",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClaimDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClaimDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ClaimDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_UpdateClaimStatus/{id}": {
-      "put": {
-        "tags": [
-          "Claim"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/ClaimStatus"
-            }
-          },
-          {
-            "name": "notes",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClaimDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Claim/Claim_DeleteClaim/{id}": {
-      "delete": {
-        "tags": [
-          "Claim"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "boolean"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "boolean"
                 }
               }
             }
@@ -7472,318 +4955,6 @@
         "responses": {
           "200": {
             "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/FuneralEvent/FuneralEvent_CreateFuneralEvent": {
-      "post": {
-        "tags": [
-          "FuneralEvent"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FuneralEventDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FuneralEventDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/FuneralEventDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/FuneralEvent/FuneralEvent_GetFuneralEventById/{id}": {
-      "get": {
-        "tags": [
-          "FuneralEvent"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/FuneralEvent/FuneralEvent_GetAllFuneralEvents": {
-      "get": {
-        "tags": [
-          "FuneralEvent"
-        ],
-        "parameters": [
-          {
-            "name": "SearchText",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Offset",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Order",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FuneralEventDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FuneralEventDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FuneralEventDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/FuneralEvent/FuneralEvent_UpdateFuneralEvent/{id}": {
-      "put": {
-        "tags": [
-          "FuneralEvent"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FuneralEventDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FuneralEventDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/FuneralEventDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/FuneralEvent/FuneralEvent_UpdateFuneralEventStatus/{id}": {
-      "put": {
-        "tags": [
-          "FuneralEvent"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/FuneralEventStatus"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FuneralEventDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/FuneralEvent/FuneralEvent_DeleteFuneralEvent/{id}": {
-      "delete": {
-        "tags": [
-          "FuneralEvent"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "boolean"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
           }
         }
       }
@@ -12140,6 +9311,20 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "attachmentMappings",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mappingProfileId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -12204,8 +9389,96 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "attachmentMappings",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mappingProfileId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/OnboardingPdf/OnboardingPdf_MappedAttachments": {
+      "post": {
+        "tags": [
+          "OnboardingPdf"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetMappedCompletionAttachmentsRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetMappedCompletionAttachmentsRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetMappedCompletionAttachmentsRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -13716,10 +10989,188 @@
         }
       }
     },
+    "/api/PdfFieldMapping/PdfFieldMapping_GetProfiles": {
+      "get": {
+        "tags": [
+          "PdfFieldMapping"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PdfMappingProfileDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PdfMappingProfileDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PdfMappingProfileDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PdfFieldMapping/PdfFieldMapping_CreateProfile": {
+      "post": {
+        "tags": [
+          "PdfFieldMapping"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePdfMappingProfileRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePdfMappingProfileRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePdfMappingProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfMappingProfileDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfMappingProfileDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfMappingProfileDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PdfFieldMapping/PdfFieldMapping_UpdateProfile/{id}": {
+      "put": {
+        "tags": [
+          "PdfFieldMapping"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePdfMappingProfileRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePdfMappingProfileRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePdfMappingProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfMappingProfileDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfMappingProfileDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfMappingProfileDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PdfFieldMapping/PdfFieldMapping_DeleteProfile/{id}": {
+      "delete": {
+        "tags": [
+          "PdfFieldMapping"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/PdfFieldMapping/PdfFieldMapping_GetAll": {
       "get": {
         "tags": [
           "PdfFieldMapping"
+        ],
+        "parameters": [
+          {
+            "name": "profileId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -14515,1327 +11966,6 @@
         "responses": {
           "200": {
             "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Policy/Policy_GetById/{id}": {
-      "get": {
-        "tags": [
-          "Policy"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Policy/Policy_GetAllPolicies": {
-      "get": {
-        "tags": [
-          "Policy"
-        ],
-        "parameters": [
-          {
-            "name": "SearchText",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Offset",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Order",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PolicyDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PolicyDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PolicyDto"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Policy/Policy_CreatePolicy": {
-      "post": {
-        "tags": [
-          "Policy"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Policy/Policy_UpdatePolicy": {
-      "post": {
-        "tags": [
-          "Policy"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Policy/Policy_DeletePolicy/{id}": {
-      "delete": {
-        "tags": [
-          "Policy"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyAttribute/PolicyAttribute_GetById/{id}": {
-      "get": {
-        "tags": [
-          "PolicyAttribute"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyAttributeDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyAttributeDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyAttributeDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyAttribute/PolicyAttribute_GetAllPolicies": {
-      "get": {
-        "tags": [
-          "PolicyAttribute"
-        ],
-        "parameters": [
-          {
-            "name": "policyId",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "SearchText",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Offset",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "Order",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "PageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PolicyAttributeDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PolicyAttributeDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PolicyAttributeDto"
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyAttribute/PolicyAttribute_UpdatePolicyAttribute": {
-      "post": {
-        "tags": [
-          "PolicyAttribute"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyAttributeDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyAttributeDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyAttributeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyAttributeDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyAttributeDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyAttributeDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyAttribute/PolicyAttribute_CreatePolicyAttribute": {
-      "post": {
-        "tags": [
-          "PolicyAttribute"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyAttributeDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyAttributeDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyAttributeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyAttributeDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyAttributeDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyAttributeDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyAttribute/PolicyAttribute_DeletePolicyAttribute/{id}": {
-      "delete": {
-        "tags": [
-          "PolicyAttribute"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyEnrollmentApproval/PolicyApproval_SubmitForApproval/{enrollmentId}": {
-      "post": {
-        "tags": [
-          "PolicyEnrollmentApproval"
-        ],
-        "parameters": [
-          {
-            "name": "enrollmentId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyEnrollmentApproval/PolicyApproval_Approve/{enrollmentId}": {
-      "post": {
-        "tags": [
-          "PolicyEnrollmentApproval"
-        ],
-        "parameters": [
-          {
-            "name": "enrollmentId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ApproveEnrollmentDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ApproveEnrollmentDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ApproveEnrollmentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyEnrollmentApproval/PolicyApproval_Reject/{enrollmentId}": {
-      "post": {
-        "tags": [
-          "PolicyEnrollmentApproval"
-        ],
-        "parameters": [
-          {
-            "name": "enrollmentId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RejectEnrollmentDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RejectEnrollmentDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RejectEnrollmentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyEnrollmentApproval/PolicyApproval_RequestChanges/{enrollmentId}": {
-      "post": {
-        "tags": [
-          "PolicyEnrollmentApproval"
-        ],
-        "parameters": [
-          {
-            "name": "enrollmentId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RequestChangesDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RequestChangesDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RequestChangesDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyEnrollmentApproval/PolicyApproval_GetByReference/{referenceNumber}": {
-      "get": {
-        "tags": [
-          "PolicyEnrollmentApproval"
-        ],
-        "parameters": [
-          {
-            "name": "referenceNumber",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyEnrollmentApproval/PolicyApproval_GetPendingApprovals": {
-      "get": {
-        "tags": [
-          "PolicyEnrollmentApproval"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PolicyEnrollmentDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyNumber/PolicyNumber_GetConfiguration": {
-      "get": {
-        "tags": [
-          "PolicyNumber"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyNumberConfigDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyNumberConfigDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PolicyNumberConfigDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyNumber/PolicyNumber_SaveConfiguration": {
-      "post": {
-        "tags": [
-          "PolicyNumber"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyNumberConfigDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyNumberConfigDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PolicyNumberConfigDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/PolicyNumber/PolicyNumber_Generate": {
-      "post": {
-        "tags": [
-          "PolicyNumber"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GeneratePolicyNumberRequestDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GeneratePolicyNumberRequestDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/GeneratePolicyNumberRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/GeneratePolicyNumberResponseDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GeneratePolicyNumberResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GeneratePolicyNumberResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyNumber/PolicyNumber_Validate": {
-      "post": {
-        "tags": [
-          "PolicyNumber"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ValidatePolicyNumberRequestDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ValidatePolicyNumberRequestDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ValidatePolicyNumberRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidatePolicyNumberResponseDto"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidatePolicyNumberResponseDto"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidatePolicyNumberResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PolicyNumber/PolicyNumber_GetExampleFormat": {
-      "get": {
-        "tags": [
-          "PolicyNumber"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
           }
         }
       }
@@ -16975,6 +13105,35 @@
                   "items": {
                     "$ref": "#/components/schemas/ResourceBookingDto"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Resource/Resource_GetUsageStats": {
+      "get": {
+        "tags": [
+          "Resource"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceUsageDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceUsageDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourceUsageDto"
                 }
               }
             }
@@ -21375,16 +17534,6 @@
         },
         "additionalProperties": false
       },
-      "ApproveEnrollmentDto": {
-        "type": "object",
-        "properties": {
-          "notes": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "ApproveMemberRequest": {
         "type": "object",
         "properties": {
@@ -21408,381 +17557,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "AssetCheckoutDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "assetId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "assetName": {
-            "type": "string",
-            "nullable": true
-          },
-          "assetIdentificationNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkedOutByUserId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "checkedOutByName": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkedOutByRole": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkoutDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "expectedReturnDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "purpose": {
-            "type": "string",
-            "nullable": true
-          },
-          "destination": {
-            "type": "string",
-            "nullable": true
-          },
-          "startingOdometer": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "endingOdometer": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "fuelLevelCheckout": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "fuelLevelCheckin": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/CheckoutStatus"
-          },
-          "statusName": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "checkinDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "checkedInByUserId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "checkedInByName": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkoutNotes": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkinNotes": {
-            "type": "string",
-            "nullable": true
-          },
-          "returnedInGoodCondition": {
-            "type": "boolean",
-            "nullable": true
-          },
-          "damageReported": {
-            "type": "string",
-            "nullable": true
-          },
-          "isOverdue": {
-            "type": "boolean",
-            "readOnly": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": false
-      },
-      "AssetDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "assetType": {
-            "$ref": "#/components/schemas/AssetType"
-          },
-          "assetTypeName": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/AssetStatus"
-          },
-          "statusName": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "identificationNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "make": {
-            "type": "string",
-            "nullable": true
-          },
-          "model": {
-            "type": "string",
-            "nullable": true
-          },
-          "year": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "quantity": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "currentLocation": {
-            "type": "string",
-            "nullable": true
-          },
-          "requiresInspection": {
-            "type": "boolean"
-          },
-          "inspectionCheckpoints": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "lastMaintenanceDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "nextMaintenanceDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "purchaseDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "purchaseCost": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "conditionNotes": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AssetInspectionLogDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "assetId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "assetName": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkoutId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "inspectionType": {
-            "$ref": "#/components/schemas/InspectionType"
-          },
-          "inspectionTypeName": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "inspectionDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "inspectedByUserId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "inspectedByName": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkpoints": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/InspectionCheckpoint"
-            },
-            "nullable": true
-          },
-          "overallResult": {
-            "$ref": "#/components/schemas/InspectionResult"
-          },
-          "overallResultName": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "attachments": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "issuesFound": {
-            "type": "boolean"
-          },
-          "issueDescription": {
-            "type": "string",
-            "nullable": true
-          },
-          "inspectorSignature": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "additionalProperties": false
-      },
-      "AssetStatsDto": {
-        "type": "object",
-        "properties": {
-          "totalAssets": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "availableAssets": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "checkedOutAssets": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "underMaintenanceAssets": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "overdueCheckouts": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "assetsByType": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "nullable": true
-          },
-          "recentCheckouts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AssetCheckoutDto"
-            },
-            "nullable": true
-          },
-          "assetsNeedingMaintenance": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AssetDto"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AssetStatus": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
-      "AssetType": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "type": "integer",
-        "format": "int32"
       },
       "AssignPermissionDto": {
         "type": "object",
@@ -21830,201 +17604,6 @@
           "tenantId": {
             "type": "string",
             "format": "uuid",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "Beneficiary": {
-        "required": [
-          "tenantId"
-        ],
-        "type": "object",
-        "properties": {
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "createdBy": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "updatedBy": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "isDeleted": {
-            "type": "boolean"
-          },
-          "rowVersion": {
-            "type": "string",
-            "format": "byte",
-            "nullable": true
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "address": {
-            "type": "string",
-            "nullable": true
-          },
-          "phone1": {
-            "type": "string",
-            "nullable": true
-          },
-          "phone2": {
-            "type": "string",
-            "nullable": true
-          },
-          "identificationNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "relationship": {
-            "type": "string",
-            "nullable": true
-          },
-          "benefitPercentage": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "memberId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "member": {
-            "$ref": "#/components/schemas/Member"
-          },
-          "tenantId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "tenant": {
-            "$ref": "#/components/schemas/Tenant"
-          },
-          "isVerified": {
-            "type": "boolean"
-          },
-          "verifiedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "claims": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Claim"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "BeneficiaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "memberId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "address": {
-            "type": "string",
-            "nullable": true
-          },
-          "phone1": {
-            "type": "string",
-            "nullable": true
-          },
-          "phone2": {
-            "type": "string",
-            "nullable": true
-          },
-          "identificationNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "relationship": {
-            "type": "string",
-            "nullable": true
-          },
-          "benefitPercentage": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "BeneficiaryInfoDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "age": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "dateOfBirth": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "firstName": {
-            "type": "string",
-            "nullable": true
-          },
-          "lastName": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "BeneficiarySummary": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "relationship": {
-            "type": "string",
-            "nullable": true
-          },
-          "allocationPercentage": {
-            "type": "number",
-            "format": "double",
             "nullable": true
           }
         },
@@ -22213,13 +17792,6 @@
               "$ref": "#/components/schemas/DependentInfoDto"
             },
             "nullable": true
-          },
-          "beneficiaries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BeneficiaryInfoDto"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -22400,100 +17972,6 @@
         },
         "additionalProperties": false
       },
-      "CheckinAssetDto": {
-        "type": "object",
-        "properties": {
-          "checkoutId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "endingOdometer": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "fuelLevelCheckin": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "returnedInGoodCondition": {
-            "type": "boolean"
-          },
-          "damageReported": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkinNotes": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkinInspection": {
-            "$ref": "#/components/schemas/InspectionLogDto"
-          }
-        },
-        "additionalProperties": false
-      },
-      "CheckoutAssetDto": {
-        "type": "object",
-        "properties": {
-          "assetId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "expectedReturnDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "purpose": {
-            "type": "string",
-            "nullable": true
-          },
-          "destination": {
-            "type": "string",
-            "nullable": true
-          },
-          "startingOdometer": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "fuelLevelCheckout": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "checkoutNotes": {
-            "type": "string",
-            "nullable": true
-          },
-          "checkoutInspection": {
-            "$ref": "#/components/schemas/InspectionLogDto"
-          }
-        },
-        "additionalProperties": false
-      },
-      "CheckoutStatus": {
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
-      "CheckpointStatus": {
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
       "Claim": {
         "required": [
           "claimAmount",
@@ -22629,9 +18107,6 @@
             "type": "string",
             "format": "uuid",
             "nullable": true
-          },
-          "beneficiary": {
-            "$ref": "#/components/schemas/Beneficiary"
           },
           "dependentId": {
             "type": "string",
@@ -22952,296 +18427,6 @@
         "type": "integer",
         "format": "int32"
       },
-      "ClaimDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "memberId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "policyId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "claimAmount": {
-            "type": "number",
-            "format": "double"
-          },
-          "claimDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ClaimEligibilityCheckDto": {
-        "required": [
-          "claimantType",
-          "claimType",
-          "memberId",
-          "policyId",
-          "requestingUserId"
-        ],
-        "type": "object",
-        "properties": {
-          "memberId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "policyId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "claimType": {
-            "$ref": "#/components/schemas/ClaimType"
-          },
-          "claimantType": {
-            "$ref": "#/components/schemas/ClaimantType"
-          },
-          "beneficiaryId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "requestingUserId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ClaimEligibilityResultDto": {
-        "type": "object",
-        "properties": {
-          "isEligible": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "requirements": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "requiredDocuments": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "isPolicyActive": {
-            "type": "boolean"
-          },
-          "isWaitingPeriodSatisfied": {
-            "type": "boolean"
-          },
-          "arePremiumsCurrent": {
-            "type": "boolean"
-          },
-          "maxClaimAmount": {
-            "type": "number",
-            "format": "double"
-          },
-          "outstandingPremiums": {
-            "type": "number",
-            "format": "double"
-          },
-          "isClaimantAuthorized": {
-            "type": "boolean"
-          },
-          "requiresAdditionalVerification": {
-            "type": "boolean"
-          },
-          "authorizationNotes": {
-            "type": "string",
-            "nullable": true
-          },
-          "isDeceasedCovered": {
-            "type": "boolean"
-          },
-          "coverageType": {
-            "type": "string",
-            "nullable": true
-          },
-          "coverageAmount": {
-            "type": "number",
-            "format": "double"
-          },
-          "exclusions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "expectedProcessingTime": {
-            "type": "string",
-            "nullable": true
-          },
-          "requiresManagerApproval": {
-            "type": "boolean"
-          },
-          "priority": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ClaimProcessStepDto": {
-        "type": "object",
-        "properties": {
-          "stepNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "stepName": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "isRequired": {
-            "type": "boolean"
-          },
-          "completedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "completedBy": {
-            "type": "string",
-            "nullable": true
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "requiredActions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "requiredDocuments": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "ClaimProcessTrackingDto": {
-        "type": "object",
-        "properties": {
-          "claimId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "currentStatus": {
-            "type": "string",
-            "nullable": true
-          },
-          "currentStepName": {
-            "type": "string",
-            "nullable": true
-          },
-          "currentStepNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalSteps": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "percentageComplete": {
-            "type": "number",
-            "format": "double"
-          },
-          "lastUpdated": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "nextAction": {
-            "type": "string",
-            "nullable": true
-          },
-          "expectedCompletionDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "steps": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ClaimProcessStepDto"
-            },
-            "nullable": true
-          },
-          "lastContactDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "lastContactMethod": {
-            "type": "string",
-            "nullable": true
-          },
-          "nextFollowUpDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "requiresClaimantAction": {
-            "type": "boolean"
-          },
-          "pendingRequirements": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "ClaimStatus": {
         "enum": [
           0,
@@ -23348,19 +18533,30 @@
         "type": "integer",
         "format": "int32"
       },
-      "CompleteMaintenanceDto": {
+      "CompletionAttachmentMappingRequestDto": {
         "type": "object",
         "properties": {
-          "assetId": {
+          "sourceType": {
             "type": "string",
-            "format": "uuid"
-          },
-          "nextMaintenanceDate": {
-            "type": "string",
-            "format": "date-time",
             "nullable": true
           },
-          "notes": {
+          "dynamicEntityTypeKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "formId": {
+            "type": "string",
+            "nullable": true
+          },
+          "fieldKey": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "stepKey": {
             "type": "string",
             "nullable": true
           }
@@ -23767,72 +18963,6 @@
         },
         "additionalProperties": false
       },
-      "CreateAssetDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "assetType": {
-            "$ref": "#/components/schemas/AssetType"
-          },
-          "identificationNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "make": {
-            "type": "string",
-            "nullable": true
-          },
-          "model": {
-            "type": "string",
-            "nullable": true
-          },
-          "year": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "quantity": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "currentLocation": {
-            "type": "string",
-            "nullable": true
-          },
-          "requiresInspection": {
-            "type": "boolean"
-          },
-          "inspectionCheckpoints": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "purchaseDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "purchaseCost": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "conditionNotes": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "CreateBatchRequest": {
         "type": "object",
         "properties": {
@@ -23922,62 +19052,6 @@
             "maxLength": 1000,
             "type": "string",
             "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CreateClaimDto": {
-        "type": "object",
-        "properties": {
-          "memberId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "policyId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "requestedAmount": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "dateOfDeath": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "causeOfDeath": {
-            "type": "string",
-            "nullable": true
-          },
-          "placeOfDeath": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "beneficiaryId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "additionalNotes": {
-            "type": "string",
-            "nullable": true
-          },
-          "hasDeathCertificate": {
-            "type": "boolean"
-          },
-          "hasIdentityDocuments": {
-            "type": "boolean"
-          },
-          "hasMedicalReports": {
-            "type": "boolean"
-          },
-          "requiresPoliceReport": {
-            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -25256,6 +20330,11 @@
       "CreatePdfFieldMappingRequest": {
         "type": "object",
         "properties": {
+          "profileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
           "sourceField": {
             "type": "string",
             "nullable": true
@@ -25329,6 +20408,31 @@
           },
           "usePrefixInPdfFieldName": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePdfMappingProfileRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "templateFileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -26726,155 +21830,6 @@
         },
         "additionalProperties": false
       },
-      "EnhancedCreateClaimDto": {
-        "type": "object",
-        "properties": {
-          "memberId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "policyId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "requestedAmount": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "claimType": {
-            "type": "string",
-            "nullable": true
-          },
-          "claimantType": {
-            "type": "string",
-            "nullable": true
-          },
-          "dateOfDeath": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "causeOfDeath": {
-            "type": "string",
-            "nullable": true
-          },
-          "placeOfDeath": {
-            "type": "string",
-            "nullable": true
-          },
-          "claimantName": {
-            "type": "string",
-            "nullable": true
-          },
-          "claimantEmail": {
-            "type": "string",
-            "nullable": true
-          },
-          "claimantPhone": {
-            "type": "string",
-            "nullable": true
-          },
-          "claimantIdNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "claimantAddress": {
-            "type": "string",
-            "nullable": true
-          },
-          "deceasedPersonId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "deceasedPersonName": {
-            "type": "string",
-            "nullable": true
-          },
-          "deceasedPersonIdNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "relationshipToDeceased": {
-            "type": "string",
-            "nullable": true
-          },
-          "beneficiaryId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "dependentId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "bankName": {
-            "type": "string",
-            "nullable": true
-          },
-          "accountNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "branchCode": {
-            "type": "string",
-            "nullable": true
-          },
-          "accountHolderName": {
-            "type": "string",
-            "nullable": true
-          },
-          "funeralServiceProvider": {
-            "type": "string",
-            "nullable": true
-          },
-          "estimatedFuneralCosts": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "proposedFuneralDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "funeralLocation": {
-            "type": "string",
-            "nullable": true
-          },
-          "hasDeathCertificate": {
-            "type": "boolean"
-          },
-          "hasIdentityDocuments": {
-            "type": "boolean"
-          },
-          "hasMedicalReports": {
-            "type": "boolean"
-          },
-          "hasPoliceReport": {
-            "type": "boolean"
-          },
-          "hasProofOfRelationship": {
-            "type": "boolean"
-          },
-          "hasBankingDetails": {
-            "type": "boolean"
-          },
-          "additionalNotes": {
-            "type": "string",
-            "nullable": true
-          },
-          "requiresUrgentProcessing": {
-            "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
       "ErrorResponse": {
         "type": "object",
         "properties": {
@@ -27268,30 +22223,18 @@
         },
         "additionalProperties": false
       },
-      "GeneratePolicyNumberRequestDto": {
+      "GetMappedCompletionAttachmentsRequestDto": {
         "type": "object",
         "properties": {
           "memberId": {
             "type": "string",
-            "format": "uuid",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "GeneratePolicyNumberResponseDto": {
-        "type": "object",
-        "properties": {
-          "policyNumber": {
-            "type": "string",
             "nullable": true
           },
-          "generationStrategy": {
-            "type": "string",
-            "nullable": true
-          },
-          "message": {
-            "type": "string",
+          "attachmentMappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompletionAttachmentMappingRequestDto"
+            },
             "nullable": true
           }
         },
@@ -27479,85 +22422,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "InspectionCheckpoint": {
-        "type": "object",
-        "properties": {
-          "checkpoint": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "$ref": "#/components/schemas/CheckpointStatus"
-          },
-          "statusName": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "InspectionLogDto": {
-        "type": "object",
-        "properties": {
-          "inspectionType": {
-            "$ref": "#/components/schemas/InspectionType"
-          },
-          "checkpoints": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/InspectionCheckpoint"
-            },
-            "nullable": true
-          },
-          "overallResult": {
-            "$ref": "#/components/schemas/InspectionResult"
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "issuesFound": {
-            "type": "boolean"
-          },
-          "issueDescription": {
-            "type": "string",
-            "nullable": true
-          },
-          "inspectorSignature": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "InspectionResult": {
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ],
-        "type": "integer",
-        "format": "int32"
-      },
-      "InspectionType": {
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
-        "type": "integer",
-        "format": "int32"
       },
       "Invoice": {
         "type": "object",
@@ -28280,17 +23144,16 @@
             "format": "date-time",
             "nullable": true
           },
+          "memberNumber": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
           "dependents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Dependent"
-            },
-            "nullable": true
-          },
-          "beneficiaries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Beneficiary"
             },
             "nullable": true
           },
@@ -28343,6 +23206,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "memberNumber": {
+            "type": "string",
+            "nullable": true
           },
           "title": {
             "type": "string",
@@ -28493,13 +23360,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/DependentSummary"
-            },
-            "nullable": true
-          },
-          "beneficiaries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BeneficiarySummary"
             },
             "nullable": true
           },
@@ -28778,6 +23638,10 @@
             "format": "date-time",
             "nullable": true
           },
+          "memberNumber": {
+            "type": "string",
+            "nullable": true
+          },
           "signatureDataUrl": {
             "type": "string",
             "nullable": true
@@ -28791,13 +23655,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/DependentDto"
-            },
-            "nullable": true
-          },
-          "beneficiaries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BeneficiaryDto"
             },
             "nullable": true
           },
@@ -30284,6 +25141,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "profileId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "sourceField": {
             "type": "string",
             "nullable": true
@@ -30369,6 +25230,47 @@
         },
         "additionalProperties": false
       },
+      "PdfMappingProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "templateFileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
       "PdfTemplateAnalysisResult": {
         "type": "object",
         "properties": {
@@ -30436,6 +25338,10 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "memberNumber": {
+            "type": "string",
+            "nullable": true
           },
           "title": {
             "type": "string",
@@ -30754,39 +25660,6 @@
         },
         "additionalProperties": false
       },
-      "PolicyAttributeDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "property": {
-            "type": "string",
-            "nullable": true
-          },
-          "value": {
-            "type": "string",
-            "nullable": true
-          },
-          "dataType": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "isIncluded": {
-            "type": "boolean"
-          },
-          "policyId": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "additionalProperties": false
-      },
       "PolicyCoverAgeBracketDto": {
         "type": "object",
         "properties": {
@@ -30854,35 +25727,6 @@
           "premium_1To5Dependents_75Plus": {
             "type": "number",
             "format": "double"
-          }
-        },
-        "additionalProperties": false
-      },
-      "PolicyDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "price": {
-            "type": "number",
-            "format": "float"
-          },
-          "payoutAmount": {
-            "type": "number",
-            "format": "double"
-          },
-          "policyAttributes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PolicyAttributeDto"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -31073,57 +25917,6 @@
           "enrollmentDate": {
             "type": "string",
             "format": "date-time",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "PolicyNumberConfigDto": {
-        "required": [
-          "generationStrategy"
-        ],
-        "type": "object",
-        "properties": {
-          "generationStrategy": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "prefix": {
-            "type": "string",
-            "nullable": true
-          },
-          "separator": {
-            "type": "string",
-            "nullable": true
-          },
-          "startingNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "currentNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "sequentialDigits": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "randomLength": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "includeLetters": {
-            "type": "boolean"
-          },
-          "uppercase": {
-            "type": "boolean"
-          },
-          "maxRetryAttempts": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "exampleFormat": {
-            "type": "string",
             "nullable": true
           }
         },
@@ -31685,16 +26478,6 @@
         },
         "additionalProperties": false
       },
-      "RejectEnrollmentDto": {
-        "type": "object",
-        "properties": {
-          "reason": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "RejectMemberRequest": {
         "type": "object",
         "properties": {
@@ -31762,16 +26545,6 @@
               "type": "string",
               "format": "uuid"
             },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RequestChangesDto": {
-        "type": "object",
-        "properties": {
-          "reason": {
-            "type": "string",
             "nullable": true
           }
         },
@@ -31955,6 +26728,94 @@
           },
           "isAvailable": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResourceUsageDto": {
+        "type": "object",
+        "properties": {
+          "maxUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currentUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "usersRemaining": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxStorageGB": {
+            "type": "number",
+            "format": "double"
+          },
+          "currentStorageGB": {
+            "type": "number",
+            "format": "double"
+          },
+          "storagePercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "storageRemainingGB": {
+            "type": "number",
+            "format": "double"
+          },
+          "maxProducts": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentProducts": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "productPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "productsRemaining": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxMembers": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentMembers": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "memberPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "membersRemaining": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "allowOverage": {
+            "type": "boolean"
+          },
+          "estimatedOverageCost": {
+            "type": "number",
+            "format": "double"
+          },
+          "lastCalculated": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -32165,24 +27026,6 @@
           "signatureDataUrl": {
             "minLength": 1,
             "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ScheduleMaintenanceDto": {
-        "type": "object",
-        "properties": {
-          "assetId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "maintenanceDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -33422,79 +28265,6 @@
         },
         "additionalProperties": false
       },
-      "UpdateAssetDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "assetType": {
-            "$ref": "#/components/schemas/AssetType"
-          },
-          "status": {
-            "$ref": "#/components/schemas/AssetStatus"
-          },
-          "identificationNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "make": {
-            "type": "string",
-            "nullable": true
-          },
-          "model": {
-            "type": "string",
-            "nullable": true
-          },
-          "year": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "quantity": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "currentLocation": {
-            "type": "string",
-            "nullable": true
-          },
-          "requiresInspection": {
-            "type": "boolean"
-          },
-          "inspectionCheckpoints": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "lastMaintenanceDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "nextMaintenanceDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "conditionNotes": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "UpdateBookingStatusDto": {
         "type": "object",
         "properties": {
@@ -34343,6 +29113,11 @@
       "UpdatePdfFieldMappingRequest": {
         "type": "object",
         "properties": {
+          "profileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
           "sourceField": {
             "type": "string",
             "nullable": true
@@ -34419,6 +29194,38 @@
           },
           "usePrefixInPdfFieldName": {
             "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePdfMappingProfileRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "templateFileId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "clearTemplateFileId": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           }
         },
@@ -35116,40 +29923,6 @@
           "planAmount": {
             "type": "number",
             "format": "double"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ValidatePolicyNumberRequestDto": {
-        "required": [
-          "policyNumber"
-        ],
-        "type": "object",
-        "properties": {
-          "policyNumber": {
-            "minLength": 1,
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
-      "ValidatePolicyNumberResponseDto": {
-        "type": "object",
-        "properties": {
-          "isAvailable": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "existingMemberId": {
-            "type": "string",
-            "nullable": true
-          },
-          "existingPolicyId": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false

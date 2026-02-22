@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
 import { DynamicFileUploadComponent, UploadedFile } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
 import { OnboardingStepAdminService, OnboardingStepConfigurationDto, ListDisplayColumnConfig } from '../../core/services/onboarding-step-admin.service';
-import { FormDto, FormServiceProxy, DynamicEntityServiceProxy, DynamicEntityTypeDto, FileUploadServiceProxy } from '../../core/services/service-proxies';
+import { FormDto, FormServiceProxy, DynamicEntityServiceProxy, DynamicEntityTypeDto, FileUploadServiceProxy, PdfFieldMappingServiceProxy } from '../../core/services/service-proxies';
 import type {
     CalculatorCondition,
     CalculatorConfig,
@@ -23,6 +23,15 @@ interface DataValidationRule {
     fieldKey: string;
     targetFieldKey?: string; // used for notMatchMemberField
     errorMessage: string;
+}
+
+interface StepSkipConditionConfig {
+    sourceKey: string;
+    equalsValue: string;
+}
+
+interface StepSkipRuleConfig {
+    conditions: StepSkipConditionConfig[];
 }
 
 interface EditorMultiSubmitStepConfig {
@@ -60,6 +69,25 @@ interface EditorMultiSubmitStepConfig {
     // Advanced override (optional)
     calculatorUseAdvancedJson?: boolean;
     calculatorConfigJson?: string;
+
+    // Optional rules to skip this internal step when certain previous answers match
+    skipRules?: StepSkipRuleConfig[];
+}
+
+interface CompletionAttachmentMapping {
+    sourceStepId: string;
+    sourceLabel: string;
+    sourceType: 'dynamicEntity' | 'formSubmission';
+    stepKey?: string;
+    formId?: string;
+    dynamicEntityTypeKey?: string;
+    fieldKey: string;
+}
+
+interface PdfMappingProfileOption {
+    id: string;
+    name: string;
+    isDefault: boolean;
 }
 
 @Component({
@@ -68,7 +96,7 @@ interface EditorMultiSubmitStepConfig {
     imports: [CommonModule, FormsModule, DynamicFileUploadComponent],
     templateUrl: './onboarding-multi-submit-step-editor.component.html',
     styleUrls: ['./onboarding-multi-submit-step-editor.component.scss'],
-    providers: [FormServiceProxy, DynamicEntityServiceProxy, FileUploadServiceProxy]
+    providers: [FormServiceProxy, DynamicEntityServiceProxy, FileUploadServiceProxy, PdfFieldMappingServiceProxy]
 })
 export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
     @Input() config!: WidgetConfig;
@@ -84,6 +112,7 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
     editorSteps: EditorMultiSubmitStepConfig[] = [];
     saveMessage = '';
     saveError = '';
+    pdfMappingProfiles: PdfMappingProfileOption[] = [];
 
     parentFields = [
         { label: 'ID Number', value: 'idNumber' },
@@ -97,7 +126,8 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
     constructor(
         private onboardingStepAdminService: OnboardingStepAdminService,
         private formService: FormServiceProxy,
-        private dynamicEntityService: DynamicEntityServiceProxy
+        private dynamicEntityService: DynamicEntityServiceProxy,
+        private pdfFieldMappingService: PdfFieldMappingServiceProxy
     ) {}
 
     ngOnInit(): void {
@@ -112,12 +142,146 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
             enableCompletionPdf: this.config.settings?.enableCompletionPdf === true,
             completionPdfMode: this.config.settings?.completionPdfMode || 'system',
             requireSignature: this.config.settings?.requireSignature === true,
-            completionPdfUrl: this.config.settings?.completionPdfUrl || ''
+            completionPdfUrl: this.config.settings?.completionPdfUrl || '',
+            completionPdfMappingProfileIds: Array.isArray(this.config.settings?.completionPdfMappingProfileIds)
+                ? this.config.settings.completionPdfMappingProfileIds.map((id: any) => String(id))
+                : [],
+            completionAttachmentMappings: Array.isArray(this.config.settings?.completionAttachmentMappings)
+                ? this.config.settings.completionAttachmentMappings
+                : []
         };
 
         this.initializeEditorSteps();
+        this.normalizeCompletionAttachmentMappings();
+        this.loadPdfMappingProfiles();
         this.loadForms();
         this.loadDynamicEntityTypes();
+    }
+
+    private loadPdfMappingProfiles(): void {
+        this.pdfFieldMappingService.pdfFieldMapping_GetProfiles().subscribe({
+            next: (response) => {
+                this.pdfMappingProfiles = response?.result || [];
+                if (!Array.isArray(this.settings.completionPdfMappingProfileIds)) {
+                    this.settings.completionPdfMappingProfileIds = [];
+                }
+            },
+            error: () => {
+                this.pdfMappingProfiles = [];
+            }
+        });
+    }
+
+    private normalizeCompletionAttachmentMappings(): void {
+        if (!Array.isArray(this.settings?.completionAttachmentMappings)) {
+            this.settings.completionAttachmentMappings = [];
+            return;
+        }
+
+        this.settings.completionAttachmentMappings = this.settings.completionAttachmentMappings.map((raw: any) => {
+            const mapping: CompletionAttachmentMapping = {
+                sourceStepId: String(raw?.sourceStepId || ''),
+                sourceLabel: String(raw?.sourceLabel || ''),
+                sourceType: raw?.sourceType === 'dynamicEntity' ? 'dynamicEntity' : 'formSubmission',
+                stepKey: String(raw?.stepKey || ''),
+                formId: String(raw?.formId || ''),
+                dynamicEntityTypeKey: String(raw?.dynamicEntityTypeKey || ''),
+                fieldKey: String(raw?.fieldKey || '')
+            };
+
+            if (!mapping.sourceStepId) {
+                const legacyStep = this.editorSteps.find((s) =>
+                    (mapping.stepKey && s.stepKey === mapping.stepKey) ||
+                    (mapping.formId && s.formId === mapping.formId)
+                );
+
+                if (legacyStep) {
+                    mapping.sourceStepId = legacyStep.id;
+                }
+            }
+
+            return mapping;
+        });
+    }
+
+    getAttachmentSourceOptions(): { label: string; value: string }[] {
+        return (this.editorSteps || [])
+            .filter((s) => s.type === 'form' && !!s.formId)
+            .map((s) => {
+                const form = this.forms.find((f) => f.id === s.formId);
+                const dynamicEntityTypeKey = (form as any)?.dynamicEntityTypeKey as string | undefined;
+                const sourceType: 'dynamicEntity' | 'formSubmission' = s.isMultiSubmit && !!dynamicEntityTypeKey ? 'dynamicEntity' : 'formSubmission';
+                const tableName = sourceType === 'dynamicEntity'
+                    ? (dynamicEntityTypeKey || s.stepKey || s.title)
+                    : (form?.name || s.title);
+
+                return {
+                    label: `${s.title} (${tableName})`,
+                    value: s.id
+                };
+            });
+    }
+
+    getAttachmentFieldOptions(mapping: CompletionAttachmentMapping): { label: string; value: string }[] {
+        if (!mapping?.sourceStepId) {
+            return [];
+        }
+
+        const step = this.editorSteps.find((s) => s.id === mapping.sourceStepId);
+        if (!step) {
+            return [];
+        }
+
+        return this.getAvailableFormFields(step);
+    }
+
+    addCompletionAttachmentMapping(): void {
+        if (!Array.isArray(this.settings.completionAttachmentMappings)) {
+            this.settings.completionAttachmentMappings = [];
+        }
+
+        this.settings.completionAttachmentMappings.push({
+            sourceStepId: '',
+            sourceLabel: '',
+            sourceType: 'formSubmission',
+            stepKey: '',
+            formId: '',
+            dynamicEntityTypeKey: '',
+            fieldKey: ''
+        } as CompletionAttachmentMapping);
+    }
+
+    removeCompletionAttachmentMapping(index: number): void {
+        if (!Array.isArray(this.settings.completionAttachmentMappings)) {
+            return;
+        }
+
+        this.settings.completionAttachmentMappings.splice(index, 1);
+    }
+
+    onAttachmentSourceChange(mapping: CompletionAttachmentMapping): void {
+        mapping.sourceStepId = String(mapping.sourceStepId || '');
+        const step = this.editorSteps.find((s) => s.id === mapping.sourceStepId);
+        if (!step) {
+            mapping.sourceLabel = '';
+            mapping.sourceType = 'formSubmission';
+            mapping.stepKey = '';
+            mapping.formId = '';
+            mapping.dynamicEntityTypeKey = '';
+            mapping.fieldKey = '';
+            return;
+        }
+
+        const form = this.forms.find((f) => f.id === step.formId);
+        const dynamicEntityTypeKey = (form as any)?.dynamicEntityTypeKey as string | undefined;
+        const sourceType: 'dynamicEntity' | 'formSubmission' = step.isMultiSubmit && !!dynamicEntityTypeKey ? 'dynamicEntity' : 'formSubmission';
+
+        mapping.sourceLabel = step.title || '';
+        mapping.sourceType = sourceType;
+        mapping.stepKey = step.stepKey || '';
+        mapping.formId = step.formId || '';
+        mapping.dynamicEntityTypeKey = dynamicEntityTypeKey || '';
+        mapping.fieldKey = '';
     }
 
     getAvailableFormFields(step: EditorMultiSubmitStepConfig): { label: string; value: string }[] {
@@ -196,7 +360,22 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
                     header: c.header || '',
                     width: c.width,
                     format: c.format
-                })) as ListDisplayColumnConfig[]
+                })) as ListDisplayColumnConfig[],
+                skipRules: Array.isArray((s as any).skipRules)
+                    ? (s as any).skipRules.map((r: any) => ({
+                          conditions: Array.isArray(r.conditions) && r.conditions.length
+                              ? r.conditions.map((c: any) => ({
+                                    sourceKey: c.sourceKey || '',
+                                    equalsValue: c.equalsValue != null ? String(c.equalsValue) : ''
+                                }))
+                              : [
+                                    {
+                                        sourceKey: '',
+                                        equalsValue: ''
+                                    }
+                                ]
+                      }))
+                    : []
             }));
 
             // If calculatorConfig exists but cannot be parsed, force advanced JSON mode so we don't overwrite it.
@@ -229,7 +408,8 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
                     calculatorRowVariables: [],
                     calculatorRowFormulas: [],
                     calculatorPostRowVariables: [],
-                    calculatorPostRowFormulas: []
+                    calculatorPostRowFormulas: [],
+                    skipRules: []
                 }
             ];
         }
@@ -703,6 +883,39 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
         this.settings.limitRules.splice(index, 1);
     }
 
+    addSkipRule(step: EditorMultiSubmitStepConfig): void {
+        if (!step.skipRules) {
+            step.skipRules = [];
+        }
+        step.skipRules.push({
+            conditions: [
+                {
+                    sourceKey: '',
+                    equalsValue: ''
+                }
+            ]
+        });
+    }
+
+    removeSkipRule(step: EditorMultiSubmitStepConfig, index: number): void {
+        if (!step.skipRules) return;
+        step.skipRules.splice(index, 1);
+    }
+
+    addSkipCondition(rule: StepSkipRuleConfig): void {
+        rule.conditions.push({
+            sourceKey: '',
+            equalsValue: ''
+        });
+    }
+
+    removeSkipCondition(rule: StepSkipRuleConfig, index: number): void {
+        if (!rule.conditions || rule.conditions.length <= 1) {
+            return;
+        }
+        rule.conditions.splice(index, 1);
+    }
+
     save(): void {
         this.saveMessage = '';
         this.saveError = '';
@@ -752,7 +965,17 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
                     errorMessage: r.errorMessage
                 })),
             calculatorConfig,
-            columns: (s.columns || []).filter((c) => c.fieldKey && c.header)
+            columns: (s.columns || []).filter((c) => c.fieldKey && c.header),
+            skipRules: (s.skipRules || [])
+                .map(r => ({
+                    conditions: (r.conditions || [])
+                        .filter(c => c.sourceKey && c.equalsValue)
+                        .map(c => ({
+                            sourceKey: c.sourceKey,
+                            equalsValue: c.equalsValue
+                        }))
+                }))
+                .filter(r => r.conditions.length > 0)
             };
         });
 
@@ -769,6 +992,20 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
             completionPdfMode: this.settings.completionPdfMode || 'system',
             requireSignature: this.settings.requireSignature === true,
             completionPdfUrl: this.settings.completionPdfUrl || '',
+            completionPdfMappingProfileIds: (Array.isArray(this.settings.completionPdfMappingProfileIds) ? this.settings.completionPdfMappingProfileIds : [])
+                .filter((id: string) => !!id)
+                .map((id: string) => String(id)),
+            completionAttachmentMappings: (Array.isArray(this.settings.completionAttachmentMappings) ? this.settings.completionAttachmentMappings : [])
+                .filter((m: CompletionAttachmentMapping) => !!m.sourceStepId && !!m.fieldKey)
+                .map((m: CompletionAttachmentMapping) => ({
+                    sourceStepId: m.sourceStepId,
+                    sourceLabel: m.sourceLabel,
+                    sourceType: m.sourceType,
+                    stepKey: m.stepKey,
+                    formId: m.formId,
+                    dynamicEntityTypeKey: m.dynamicEntityTypeKey,
+                    fieldKey: m.fieldKey
+                })),
             steps: cleanedSteps
         };
 

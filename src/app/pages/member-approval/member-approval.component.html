@@ -267,6 +267,51 @@
                             </div>
                         }
                     }
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Mapped Attachments Preview</h6>
+                        </div>
+                        <div class="card-body">
+                            @if (loadingMappedAttachments) {
+                                <div class="text-muted small">Loading mapped attachments...</div>
+                            } @else if (mappedAttachmentsError) {
+                                <div class="alert alert-warning py-2 mb-0 small">{{ mappedAttachmentsError }}</div>
+                            } @else if (mappedAttachmentGroups.length === 0) {
+                                <div class="text-muted small">No mapped attachments found.</div>
+                            } @else {
+                                @for (group of mappedAttachmentGroups; track group.entityType) {
+                                    <details class="border rounded mb-2" open>
+                                        <summary class="px-3 py-2 fw-semibold" style="cursor: pointer">{{ group.entityType }} ({{ group.files.length }})</summary>
+
+                                        <div class="p-3 border-top" *ngFor="let file of group.files">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <div class="fw-semibold">{{ file.fileName }}</div>
+                                                    <div class="small text-muted" *ngIf="file.contentType">{{ file.contentType }}</div>
+                                                    <div class="small text-muted" *ngIf="file.sourceLabels && file.sourceLabels.length > 0">Source: {{ file.sourceLabels.join(', ') }}</div>
+                                                    <div class="small text-muted" *ngIf="file.fieldKeys && file.fieldKeys.length > 0">Field: {{ file.fieldKeys.join(', ') }}</div>
+                                                </div>
+                                                <span class="small text-muted">{{ formatFileSize(file.size) }}</span>
+                                            </div>
+
+                                            <div *ngIf="isPdfAttachment(file) && file.downloadUrl" class="border rounded overflow-hidden mb-2">
+                                                <iframe [src]="file.downloadUrl" style="width: 100%; height: 320px; border: none"></iframe>
+                                            </div>
+
+                                            <div *ngIf="isImageAttachment(file) && file.downloadUrl" class="border rounded p-2 text-center bg-light mb-2">
+                                                <img [src]="file.downloadUrl" [alt]="file.fileName" style="max-width: 100%; max-height: 320px" />
+                                            </div>
+
+                                            <div *ngIf="!isPdfAttachment(file) && !isImageAttachment(file)" class="small text-muted mb-2">Preview not available for this file type.</div>
+
+                                            <a *ngIf="file.downloadUrl" [href]="file.downloadUrl" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary">Open file</a>
+                                        </div>
+                                    </details>
+                                }
+                            }
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-info text-white me-auto" *ngIf="member.signedAt || member.signatureDataUrl" (click)="downloadContract(member.id!)"><i class="bi bi-file-earmark-pdf"></i> View Contract</button>

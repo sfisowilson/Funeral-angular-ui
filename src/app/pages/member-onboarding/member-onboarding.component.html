@@ -119,30 +119,23 @@
                                     <app-dependents-step [viewMode]="viewMode" [memberId]="memberId" [coverAmount]="getCoverAmount()" (stepComplete)="onStepComplete()"> </app-dependents-step>
                                 </div>
                             }
-                            @case ('beneficiaries') {
-                                <div class="step-info">
-                                    <h3>Step 3: Add Beneficiaries</h3>
-                                    <p>{{ viewMode ? 'View your beneficiaries' : 'Designate your beneficiaries who will receive benefits. You must add at least one beneficiary.' }}</p>
-                                    <app-beneficiaries-step [viewMode]="viewMode" [memberId]="memberId" (stepComplete)="onStepComplete()"> </app-beneficiaries-step>
-                                </div>
-                            }
                             @case ('banking-details') {
                                 <div class="step-info">
-                                    <h3>Step 4: Banking Details</h3>
+                                    <h3>Step 3: Banking Details</h3>
                                     <p>{{ viewMode ? 'View your banking details' : 'Provide your banking information for policy payments (optional).' }}</p>
                                     <app-banking-details-step [viewMode]="viewMode" [memberId]="memberId" (stepComplete)="onStepComplete()"> </app-banking-details-step>
                                 </div>
                             }
                             @case ('terms') {
                                 <div class="step-info">
-                                    <h3>Step 5: Accept Terms & Conditions</h3>
+                                    <h3>Step 4: Accept Terms & Conditions</h3>
                                     <p>{{ viewMode ? 'View accepted terms & conditions' : 'Please review and accept our terms and conditions to continue.' }}</p>
                                     <app-terms-step [viewMode]="viewMode" [memberId]="memberId" [hasAcceptedTerms]="completionStatus()?.hasAcceptedLatestTerms" (stepComplete)="onStepComplete()"> </app-terms-step>
                                 </div>
                             }
                             @case ('summary') {
                                 <div class="step-info">
-                                    <h3>Step 6: Summary & Signature</h3>
+                                    <h3>Step 5: Summary & Signature</h3>
                                     <p>{{ viewMode ? 'View your onboarding summary and signature' : 'Review your onboarding information and provide your digital signature.' }}</p>
                                     <app-summary-step [viewMode]="viewMode" [memberId]="memberId" (stepComplete)="onStepComplete()"> </app-summary-step>
                                 </div>

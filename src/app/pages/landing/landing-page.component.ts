@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ComponentFactoryResolver, ViewChild, ViewContainerRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, ViewChild, ViewContainerRef, OnDestroy, ComponentRef } from '@angular/core';
 import { WidgetService } from '@app/building-blocks/widget.service';
 import { WidgetConfig } from '@app/building-blocks/widget-config';
 import { WIDGET_TYPES, WidgetType } from '@app/building-blocks/widget-registry';
@@ -24,6 +24,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     widgetTypes: WidgetType[] = WIDGET_TYPES;
     showAddWidgetModal = false;
     editingWidget: WidgetConfig | null = null;
+    private editorComponentRef?: ComponentRef<any>;
 
     private widgetSubscription!: Subscription;
 
@@ -67,20 +68,76 @@ export class LandingPageComponent implements OnInit, OnDestroy {
             setTimeout(() => {
                 if (this.editorContainer) {
                     this.editorContainer.clear();
-                    const componentRef = this.editorContainer.createComponent(widgetType.editorComponent);
-                    componentRef.instance.config = widget;
-                    componentRef.instance.update.subscribe((updatedSettings: any) => {
-                        widget.settings = updatedSettings;
-                        this.widgetService.updateWidget(widget);
-                    });
+                    this.editorComponentRef = this.editorContainer.createComponent(widgetType.editorComponent);
+                    this.editorComponentRef.instance.config = widget;
+
+                    this.subscribeToEditorOutput('update', widget, true);
+                    this.subscribeToEditorOutput('save', widget, true);
+                    this.subscribeToEditorOutput('configChange', widget, false);
+                    this.subscribeToEditorOutput('settingsChange', widget, false);
 
                     // Manually trigger ngOnChanges to ensure the form is updated
-                    if (componentRef.instance.ngOnChanges) {
-                        componentRef.instance.ngOnChanges({ config: { currentValue: widget, previousValue: null, isFirstChange: () => true } });
+                    if (this.editorComponentRef.instance.ngOnChanges) {
+                        this.editorComponentRef.instance.ngOnChanges({ config: { currentValue: widget, previousValue: null, isFirstChange: () => true } });
                     }
                 }
             }, 0);
         }
+    }
+
+    saveEditorChanges(): void {
+        if (!this.editingWidget) {
+            return;
+        }
+
+        const editorInstance = this.editorComponentRef?.instance as any;
+
+        if (editorInstance?.form) {
+            editorInstance.form.markAllAsTouched?.();
+            if (editorInstance.form.invalid) {
+                return;
+            }
+        }
+
+        const saveMethodNames = ['onSubmit', 'save', 'onSave', 'submit', 'saveChanges'];
+        const saveMethod = saveMethodNames.find((name) => typeof editorInstance?.[name] === 'function');
+
+        if (saveMethod) {
+            editorInstance[saveMethod]();
+            return;
+        }
+
+        this.widgetService.updateWidget(this.editingWidget);
+        this.editingWidget = null;
+    }
+
+    private subscribeToEditorOutput(outputName: string, widget: WidgetConfig, closeEditor: boolean): void {
+        const emitter = (this.editorComponentRef?.instance as any)?.[outputName];
+        if (!emitter || typeof emitter.subscribe !== 'function') {
+            return;
+        }
+
+        emitter.subscribe((payload: any) => {
+            const normalizedSettings = this.normalizeEditorPayload(payload);
+            widget.settings = normalizedSettings;
+            this.widgetService.updateWidget(widget);
+
+            if (closeEditor) {
+                this.editingWidget = null;
+            }
+        });
+    }
+
+    private normalizeEditorPayload(payload: any): any {
+        if (!payload || typeof payload !== 'object') {
+            return payload;
+        }
+
+        if ('settings' in payload && payload.settings && typeof payload.settings === 'object') {
+            return payload.settings;
+        }
+
+        return payload;
     }
 
     deleteWidget(id: string): void {

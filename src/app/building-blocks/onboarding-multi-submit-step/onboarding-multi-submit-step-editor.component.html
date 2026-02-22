@@ -178,6 +178,91 @@
                             Data Validation Rules are now configured in the <strong>Form Settings</strong> (Admin > Forms). Please edit the form definition directly to add validation rules.
                         </div>
                     </div>
+
+                    <!-- Step Skip Rules -->
+                    <div class="mt-3 mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0 fw-semibold">Step Skip Rules (optional)</label>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                (click)="addSkipRule(step)"
+                            >
+                                Add skip rule
+                            </button>
+                        </div>
+
+                        <div class="card card-body p-3">
+                            <p class="text-muted small mb-2">
+                                When any skip rule matches, this internal step will be skipped when the member clicks
+                                <strong>Next Step</strong>. All conditions inside a single rule must match.
+                                Values are read from previous answers stored in the onboarding session
+                                (for example keys like <code>employmentStatus</code> or <code>hasEmployment</code>).
+                            </p>
+
+                            <div *ngIf="!step.skipRules || step.skipRules.length === 0" class="text-muted small">
+                                No skip rules defined yet.
+                            </div>
+
+                            <div *ngIf="step.skipRules && step.skipRules.length > 0">
+                                <div *ngFor="let rule of step.skipRules; let ri = index" class="border rounded p-2 mb-2 bg-light-subtle">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="small fw-semibold">Rule {{ ri + 1 }}</span>
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            (click)="removeSkipRule(step, ri)"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+
+                                    <div class="small text-muted mb-1">All of the following must match (AND):</div>
+                                    <div
+                                        class="row g-1 align-items-center mb-1"
+                                        *ngFor="let cond of rule.conditions; let ci = index"
+                                    >
+                                        <div class="col-md-5">
+                                            <input
+                                                type="text"
+                                                class="form-control form-control-sm"
+                                                [(ngModel)]="cond.sourceKey"
+                                                placeholder="Source key (e.g. employmentStatus)"
+                                                name="skipSource{{ri}}_{{ci}}"
+                                            />
+                                        </div>
+                                        <div class="col-md-5">
+                                            <input
+                                                type="text"
+                                                class="form-control form-control-sm"
+                                                [(ngModel)]="cond.equalsValue"
+                                                placeholder="Equals value (e.g. No)"
+                                                name="skipValue{{ri}}_{{ci}}"
+                                            />
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                (click)="removeSkipCondition(rule, ci)"
+                                                [disabled]="rule.conditions.length === 1"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-secondary mt-1"
+                                        (click)="addSkipCondition(rule)"
+                                    >
+                                        + Add condition
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -634,6 +719,15 @@
                         </select>
                         <div class="form-text">Uses your existing PDF mapping / generation setup. This only controls when the PDF is shown.</div>
                     </div>
+                    <div class="mb-2" *ngIf="settings.completionPdfMode === 'system'">
+                        <label class="form-label">PDF mappings to render (one or many)</label>
+                        <select class="form-select" multiple size="4" [(ngModel)]="settings.completionPdfMappingProfileIds">
+                            <option *ngFor="let profile of pdfMappingProfiles" [ngValue]="profile.id">
+                                {{ profile.name }} <span *ngIf="profile.isDefault">(Default)</span>
+                            </option>
+                        </select>
+                        <div class="form-text">Selected mappings will be rendered in order on the complete step.</div>
+                    </div>
                     <div class="form-check mb-2">
                         <input type="checkbox" class="form-check-input" id="requireSignatureCheckbox-{{ i }}" [(ngModel)]="settings.requireSignature" />
                         <label class="form-check-label" for="requireSignatureCheckbox-{{ i }}"> Require a digital signature on completion </label>
@@ -642,6 +736,41 @@
                         <label class="form-label">Completion PDF URL (optional)</label>
                         <input type="text" class="form-control" [(ngModel)]="settings.completionPdfUrl" placeholder="https://.../your-generated.pdf" />
                         <div class="form-text">If provided, users will see a button to open this PDF when the flow is completed.</div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0">Attach uploaded files to completion PDF</label>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addCompletionAttachmentMapping()">Add attachment source</button>
+                        </div>
+
+                        <div class="text-muted small mb-2" *ngIf="!settings.completionAttachmentMappings || settings.completionAttachmentMappings.length === 0">
+                            No attachment mappings configured.
+                        </div>
+
+                        <div class="border rounded p-2 mb-2" *ngFor="let mapping of settings.completionAttachmentMappings; let ai = index">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-5">
+                                    <label class="form-label mb-1">Table</label>
+                                    <select class="form-select form-select-sm" [(ngModel)]="mapping.sourceStepId" [name]="'completionAttachSource_' + ai" (ngModelChange)="onAttachmentSourceChange(mapping)">
+                                        <option [ngValue]="''">Select table...</option>
+                                        <option *ngFor="let src of getAttachmentSourceOptions()" [ngValue]="src.value">{{ src.label }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-5">
+                                    <label class="form-label mb-1">Field</label>
+                                    <select class="form-select form-select-sm" [(ngModel)]="mapping.fieldKey" [name]="'completionAttachField_' + ai" [disabled]="!mapping.sourceStepId">
+                                        <option [ngValue]="''">Select field...</option>
+                                        <option *ngFor="let field of getAttachmentFieldOptions(mapping)" [ngValue]="field.value">{{ field.label }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2 d-grid">
+                                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeCompletionAttachmentMapping(ai)">Remove</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

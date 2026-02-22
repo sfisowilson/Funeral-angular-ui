@@ -8,12 +8,33 @@
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1 class="h2 fw-bold mb-2">PDF Field Mapping</h1>
-            <p class="text-muted">Configure how database fields map to PDF form fields</p>
+            <h1 class="h2 fw-bold mb-2">Manage PDF Mappings</h1>
+            <p class="text-muted">Create multiple PDF mappings, select one, then update its fields and template</p>
         </div>
         <div class="col-md-4 text-md-end">
             <button class="btn-outline-secondary-theme me-2" (click)="loadCurrentTemplate()" [disabled]="!currentTemplateFileId"><i class="bi bi-search"></i> Analyze Template</button>
-            <button class="btn-primary-theme" (click)="openCreateDialog()"><i class="bi bi-plus-lg"></i> Create Mapping</button>
+            <button class="btn-primary-theme" (click)="openCreateDialog()" [disabled]="!selectedProfileId"><i class="bi bi-plus-lg"></i> Create Field Mapping</button>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">Select PDF Mapping</label>
+                    <select class="form-select" [(ngModel)]="selectedProfileId" (change)="onProfileChange()">
+                        <option [ngValue]="null">Select mapping...</option>
+                        <option *ngFor="let profile of profiles" [ngValue]="profile.id">
+                            {{ profile.name }} <span *ngIf="profile.isDefault">(Default)</span>
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <button class="btn-primary-theme" (click)="createProfile()">
+                        <i class="bi bi-plus-lg"></i> Create New PDF Mapping
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -21,6 +42,7 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <h5 class="card-title mb-3"><i class="bi bi-file-earmark-pdf"></i> PDF Contract Template</h5>
+            <p class="small mb-2" *ngIf="selectedProfile"><strong>Selected mapping:</strong> {{ selectedProfile.name }}</p>
             <p class="text-muted small mb-3">Upload a PDF template with fillable form fields for member onboarding contracts. The system will automatically populate fields like member name, ID number, policy details, etc.</p>
 
             <div *ngIf="currentTemplateFileId && currentTemplateFile" class="alert alert-success d-flex align-items-center justify-content-between mb-3">
@@ -50,7 +72,7 @@
 
             <div *ngIf="!currentTemplateFileId" class="alert alert-info mb-3">
                 <i class="bi bi-info-circle me-2"></i>
-                No template uploaded. Upload a PDF to enable field mapping.
+                No template uploaded for the selected mapping. Upload a PDF to enable field mapping.
             </div>
 
             <div class="d-flex justify-content-between align-items-center">
@@ -124,7 +146,7 @@
                             <th style="width: 60px">
                                 <i class="bi bi-toggle-on"></i>
                             </th>
-                            <th>Source Field</th>
+                            <th class="source-field-header">Source Field</th>
                             <th>PDF Field</th>
                             <th>Type</th>
                             <th>Category</th>
@@ -139,7 +161,7 @@
                                     <input class="form-check-input" type="checkbox" [(ngModel)]="mapping.isEnabled" (change)="toggleMapping(mapping)" />
                                 </div>
                             </td>
-                            <td>
+                            <td class="source-field-cell">
                                 <span class="fw-semibold text-primary">{{ mapping.sourceField }}</span>
                             </td>
                             <td>

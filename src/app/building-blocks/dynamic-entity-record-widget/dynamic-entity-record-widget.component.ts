@@ -1,15 +1,17 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
 import { DynamicEntityServiceProxy, CreateDynamicEntityRecordDto, UpdateDynamicEntityRecordDto, DynamicEntityRecordDto, DynamicEntityTypeDto } from '@app/core/services/service-proxies';
 import { DynamicFileUploadComponent } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
+import { applyDateSplitParts, normalizeDateValue, toDateOnlyString } from '@app/core/utils/date-field-utils';
 
 @Component({
     selector: 'app-dynamic-entity-record-widget',
     templateUrl: './dynamic-entity-record-widget.component.html',
     styleUrls: ['./dynamic-entity-record-widget.component.scss'],
     standalone: true,
-    imports: [CommonModule, FormsModule, DynamicFileUploadComponent],
+    imports: [CommonModule, FormsModule, CalendarModule, DynamicFileUploadComponent],
     providers: [DynamicEntityServiceProxy]
 })
 export class DynamicEntityRecordWidgetComponent implements OnInit {
@@ -21,6 +23,7 @@ export class DynamicEntityRecordWidgetComponent implements OnInit {
     entityType: DynamicEntityTypeDto | null = null;
     formData: any = {};
     dynamicFields: any[] = [];
+    dateValues: Record<string, Date | null> = {};
     loading = false;
     error = '';
     displayName = '';
@@ -47,6 +50,8 @@ export class DynamicEntityRecordWidgetComponent implements OnInit {
                         } catch {
                             this.dynamicFields = [];
                         }
+                        this.initializeDateValues();
+                        this.applyDateSplitDerivation();
                         this.loadLookupOptions();
                     } else {
                         this.dynamicFields = [];
@@ -59,6 +64,16 @@ export class DynamicEntityRecordWidgetComponent implements OnInit {
 
     onFormChange(data: any) {
         this.formData = data;
+    }
+
+    onDateChange(field: any, value: Date | null): void {
+        this.dateValues[field.name] = value;
+        this.formData[field.name] = toDateOnlyString(value);
+        this.applyDateSplitDerivation();
+    }
+
+    isHiddenField(field: any): boolean {
+        return !!field?.hidden;
     }
 
     getOptions(field: any): string[] {
@@ -78,12 +93,41 @@ export class DynamicEntityRecordWidgetComponent implements OnInit {
     }
 
     onFileUploaded(field: any, event: any): void {
-        // dynamic entities utilize formData object, not formGroup
-        // Event is expected to be an array of files or single object depending on component output
-        const fileId = Array.isArray(event) ? event[0]?.id : event?.id;
-        if (fileId) {
-             this.formData[field.name] = fileId;
+        const fileIds = Array.isArray(event)
+            ? event.map((f: any) => f?.id).filter((id: any) => typeof id === 'string' && !!id)
+            : typeof event?.id === 'string' && event.id
+              ? [event.id]
+              : [];
+        this.formData[field.name] = fileIds;
+    }
+
+    getFileUploadConfig(field: any): any {
+        const isMultiple = field?.fileMode === 'multiple' || !!field?.fileConfig?.allowMultiple;
+        return {
+            label: field?.label,
+            required: !!field?.required,
+            documentType: 'DynamicEntity',
+            allowMultiple: isMultiple,
+            maxFiles: isMultiple ? Math.max(1, Number(field?.maxFiles ?? field?.fileConfig?.maxFiles ?? 5)) : 1,
+            maxSizeMB: Math.max(1, Number(field?.maxSizeMB ?? field?.fileConfig?.maxSizeMB ?? 10)),
+            acceptedTypes:
+                Array.isArray(field?.acceptedTypes)
+                    ? field.acceptedTypes
+                    : Array.isArray(field?.fileConfig?.acceptedTypes)
+                      ? field.fileConfig.acceptedTypes
+                      : ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx']
+        };
+    }
+
+    getInitialFileIds(field: any): string[] {
+        const raw = this.formData[field?.name];
+        if (Array.isArray(raw)) {
+            return raw.filter((v) => typeof v === 'string' && !!v) as string[];
         }
+        if (typeof raw === 'string' && raw.trim()) {
+            return [raw.trim()];
+        }
+        return [];
     }
 
     private loadLookupOptions() {
@@ -137,6 +181,7 @@ export class DynamicEntityRecordWidgetComponent implements OnInit {
 
     save() {
         if (!this.entityType) return;
+        this.applyDateSplitDerivation();
         this.loading = true;
         this.error = '';
         const dto = this.record
@@ -176,5 +221,27 @@ export class DynamicEntityRecordWidgetComponent implements OnInit {
 
     cancel() {
         this.close.emit(false);
+    }
+
+    private initializeDateValues(): void {
+        this.dateValues = {};
+        for (const field of this.dynamicFields) {
+            if (!field || field.type !== 'date') {
+                continue;
+            }
+
+            this.dateValues[field.name] = normalizeDateValue(this.formData[field.name]);
+            if (this.dateValues[field.name]) {
+                this.formData[field.name] = toDateOnlyString(this.dateValues[field.name]);
+            }
+        }
+    }
+
+    private applyDateSplitDerivation(): void {
+        if (!this.formData || !this.dynamicFields?.length) {
+            return;
+        }
+
+        applyDateSplitParts(this.formData, this.dynamicFields);
     }
 }

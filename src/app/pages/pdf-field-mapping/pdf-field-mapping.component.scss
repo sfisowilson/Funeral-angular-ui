@@ -48,6 +48,18 @@
   }
 }
 
+// Make long Source Field values wrap instead of stretching the table
+.source-field-header,
+.source-field-cell {
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.source-field-cell {
+  max-width: 260px;
+}
+
 // Badge improvements
 .badge {
   padding: 0.35em 0.65em;

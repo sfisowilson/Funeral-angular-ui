@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
 import { WidgetConfig } from '../widget-config';
 import { FormDto, FormServiceProxy, CreateFormSubmissionDto, TermsAndConditionsDto, TermsServiceProxy, FormSubmissionDto } from '../../core/services/service-proxies';
 import { PublicFormService } from '../../core/services/public-form.service';
 import { AuthService } from '../../auth/auth-service';
 import { saIdNumberValidator } from '../../shared/validators/sa-id-number.validator';
+import { DynamicFileUploadComponent, FileUploadConfig, UploadedFile } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
+import { applyDateSplitParts, normalizeDateValue, toDateOnlyString } from '../../core/utils/date-field-utils';
 
 interface StepConfig {
     id: string;
@@ -21,7 +24,30 @@ interface DynamicFormField {
     required: boolean;
     placeholder?: string;
     options?: string[];
+    fileMode?: 'single' | 'multiple';
+    maxFiles?: number;
+    maxSizeMB?: number;
+    acceptedTypes?: string[];
     order: number;
+    hidden?: boolean;
+    splitDateParts?: boolean;
+    datePartKeys?: {
+        day?: string;
+        month?: string;
+        year?: string;
+    };
+}
+
+interface ConditionalFieldConditionConfig {
+    sourceFieldKey: string;
+    equalsValue: string;
+}
+
+interface ConditionalFieldRuleConfig {
+    targetFieldKey: string;
+    conditions: ConditionalFieldConditionConfig[];
+    behavior: 'showWhenMatched' | 'hideWhenMatched';
+    setRequiredWhenMatched?: boolean;
 }
 
 interface StepRuntime {
@@ -36,6 +62,10 @@ interface StepRuntime {
     terms?: TermsAndConditionsDto | null;
     acceptedTerms?: boolean;
     readonlyPrefilled?: boolean;
+
+    conditionalRules?: ConditionalFieldRuleConfig[];
+    hiddenFieldNames?: Set<string>;
+    recomputeConditionalState?: () => void;
 
     // Calculator configuration and state for this step's form (if any)
     calculatorEnabled?: boolean;
@@ -53,7 +83,7 @@ interface StepRuntime {
 @Component({
     selector: 'app-stepper-form-widget',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, FormsModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, CalendarModule, DynamicFileUploadComponent],
     templateUrl: './stepper-form-widget.component.html',
     styleUrls: ['./stepper-form-widget.component.scss'],
     providers: [FormServiceProxy, TermsServiceProxy]
@@ -182,8 +212,11 @@ export class StepperFormWidgetComponent implements OnInit {
                 }
 
                 step.formDefinition = form;
-                step.fields = this.parseFields(form.fields);
+                const parsed = this.parseFields(form.fields);
+                step.fields = parsed.fields;
+                step.conditionalRules = parsed.conditionalRules;
                 step.formGroup = this.buildForm(step.fields);
+                this.initializeConditionalFieldLogicForStep(step);
                 this.setupCalculatorFromConfig(step, form);
                 this.tryPrefillFromLatestSubmission(step);
                 step.loading = false;
@@ -211,34 +244,108 @@ export class StepperFormWidgetComponent implements OnInit {
         });
     }
 
-    private parseFields(json: string | undefined | null): DynamicFormField[] {
-        if (!json) return [];
+    private parseFields(json: string | undefined | null): { fields: DynamicFormField[]; conditionalRules: ConditionalFieldRuleConfig[] } {
+        const result: { fields: DynamicFormField[]; conditionalRules: ConditionalFieldRuleConfig[] } = { fields: [], conditionalRules: [] };
+
+        if (!json) return result;
 
         try {
             const parsed = JSON.parse(json);
-            if (!Array.isArray(parsed)) return [];
 
-            return parsed
-                .map((f: any, index: number) => ({
-                    name: f.name || `field_${index}`,
-                    label: f.label || f.name || `Field ${index + 1}`,
-                    type: f.type || 'text',
-                    required: !!f.required,
-                    placeholder: f.placeholder || '',
-                    options: Array.isArray(f.options)
-                        ? f.options
-                        : typeof f.options === 'string'
-                          ? f.options
-                                .split(',')
-                                .map((o: string) => o.trim())
-                                .filter((o: string) => !!o)
-                          : undefined,
-                    order: typeof f.order === 'number' ? f.order : index
-                }))
+            let rawFields: any[] = [];
+
+            if (Array.isArray(parsed)) {
+                rawFields = parsed;
+            } else if (parsed && typeof parsed === 'object') {
+                if (Array.isArray((parsed as any).fields)) {
+                    rawFields = (parsed as any).fields;
+                }
+
+                if (Array.isArray((parsed as any).conditionalRules)) {
+                    result.conditionalRules = (parsed as any).conditionalRules.map((r: any) => {
+                        const rawConditions = Array.isArray(r.conditions) && r.conditions.length
+                            ? r.conditions
+                            : [{ sourceFieldKey: '', equalsValue: '' }];
+
+                        const conditions: ConditionalFieldConditionConfig[] = rawConditions.map((c: any) => ({
+                            sourceFieldKey: c.sourceFieldKey || '',
+                            equalsValue: c.equalsValue != null ? String(c.equalsValue) : ''
+                        }));
+
+                        const behavior: 'showWhenMatched' | 'hideWhenMatched' =
+                            r.behavior === 'hideWhenMatched' ? 'hideWhenMatched' : 'showWhenMatched';
+
+                        return {
+                            targetFieldKey: r.targetFieldKey || '',
+                            conditions,
+                            behavior,
+                            setRequiredWhenMatched: !!r.setRequiredWhenMatched
+                        } as ConditionalFieldRuleConfig;
+                    });
+                } else {
+                    result.conditionalRules = [];
+                }
+            }
+
+            if (!Array.isArray(rawFields)) {
+                return result;
+            }
+
+            result.fields = rawFields
+                .map((f: any, index: number): DynamicFormField => {
+                    const fileMode: 'single' | 'multiple' = f.fileMode === 'multiple' || !!f.fileConfig?.allowMultiple ? 'multiple' : 'single';
+
+                    return {
+                        name: f.name || `field_${index}`,
+                        label: f.label || f.name || `Field ${index + 1}`,
+                        type: f.type || 'text',
+                        required: !!f.required,
+                        placeholder: f.placeholder || '',
+                        options: Array.isArray(f.options)
+                            ? f.options
+                            : typeof f.options === 'string'
+                              ? f.options
+                                    .split(',')
+                                    .map((o: string) => o.trim())
+                                    .filter((o: string) => !!o)
+                              : undefined,
+                        fileMode,
+                        maxFiles:
+                            typeof f.maxFiles === 'number'
+                                ? f.maxFiles
+                                : typeof f.fileConfig?.maxFiles === 'number'
+                                  ? f.fileConfig.maxFiles
+                                  : fileMode === 'multiple'
+                                    ? 5
+                                    : 1,
+                        maxSizeMB:
+                            typeof f.maxSizeMB === 'number'
+                                ? f.maxSizeMB
+                                : typeof f.fileConfig?.maxSizeMB === 'number'
+                                  ? f.fileConfig.maxSizeMB
+                                  : 10,
+                        acceptedTypes: Array.isArray(f.acceptedTypes)
+                            ? f.acceptedTypes
+                            : Array.isArray(f.fileConfig?.acceptedTypes)
+                              ? f.fileConfig.acceptedTypes
+                              : typeof f.acceptedTypes === 'string'
+                                ? f.acceptedTypes
+                                      .split(',')
+                                      .map((o: string) => o.trim())
+                                      .filter((o: string) => !!o)
+                                : ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'],
+                                                order: typeof f.order === 'number' ? f.order : index,
+                                                hidden: !!f.hidden,
+                                                splitDateParts: !!f.splitDateParts,
+                                                datePartKeys: f.datePartKeys
+                    };
+                })
                 .sort((a, b) => a.order - b.order);
         } catch {
-            return [];
+            return result;
         }
+
+        return result;
     }
 
     private setupCalculatorFromConfig(step: StepRuntime, formWithConfig: FormDto): void {
@@ -553,6 +660,10 @@ export class StepperFormWidgetComponent implements OnInit {
             if (field.type === 'checkbox' && field.options && field.options.length) {
                 const controls = field.options.map(() => this.fb.control(false));
                 group[field.name] = this.fb.array(controls, field.required ? this.atLeastOneCheckedValidator : []);
+            } else if (field.type === 'file') {
+                group[field.name] = this.fb.control([], validators);
+            } else if (field.type === 'date') {
+                group[field.name] = this.fb.control(null, validators);
             } else {
                 group[field.name] = ['', validators];
             }
@@ -568,6 +679,46 @@ export class StepperFormWidgetComponent implements OnInit {
     getCheckboxControl(step: StepRuntime, field: DynamicFormField): FormArray | null {
         if (!step.formGroup) return null;
         return step.formGroup.get(field.name) as FormArray;
+    }
+
+    getFileUploadConfig(field: DynamicFormField): FileUploadConfig {
+        const mode = field.fileMode || 'single';
+        return {
+            label: field.label,
+            required: !!field.required,
+            documentType: 'StepperFormSubmission',
+            allowMultiple: mode === 'multiple',
+            maxFiles: mode === 'multiple' ? Math.max(1, Number(field.maxFiles ?? 5)) : 1,
+            maxSizeMB: Math.max(1, Number(field.maxSizeMB ?? 10)),
+            acceptedTypes: field.acceptedTypes && field.acceptedTypes.length ? field.acceptedTypes : ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx']
+        };
+    }
+
+    getInitialFileIds(step: StepRuntime, field: DynamicFormField): string[] {
+        const raw = step.formGroup?.get(field.name)?.value;
+        if (Array.isArray(raw)) {
+            return raw.filter((v) => typeof v === 'string' && !!v) as string[];
+        }
+        if (typeof raw === 'string' && raw.trim()) {
+            return [raw.trim()];
+        }
+        return [];
+    }
+
+    onFilesUploaded(step: StepRuntime, field: DynamicFormField, files: UploadedFile[]): void {
+        if (!step.formGroup) {
+            return;
+        }
+
+        const control = step.formGroup.get(field.name);
+        if (!control) {
+            return;
+        }
+
+        const fileIds = (files || []).map((f) => f.id).filter((id) => !!id);
+        control.setValue(fileIds);
+        control.markAsDirty();
+        control.markAsTouched();
     }
 
     private atLeastOneCheckedValidator(control: FormArray): { [key: string]: any } | null {
@@ -617,9 +768,22 @@ export class StepperFormWidgetComponent implements OnInit {
                                     formArray.at(idx).setValue(checked);
                                 }
                             });
+                        } else if (field.type === 'file') {
+                            const normalized = Array.isArray(value)
+                                ? value.filter((v) => typeof v === 'string' && !!v)
+                                : typeof value === 'string' && value
+                                  ? [value]
+                                  : [];
+                            step.formGroup.get(field.name)?.setValue(normalized);
+                        } else if (field.type === 'date') {
+                            step.formGroup.get(field.name)?.setValue(normalizeDateValue(value));
                         } else if (step.formGroup.get(field.name)) {
                             step.formGroup.get(field.name)!.setValue(value);
                         }
+                    }
+
+                    if (step.recomputeConditionalState) {
+                        step.recomputeConditionalState();
                     }
 
                     // If this form is configured as single-submission and
@@ -639,6 +803,136 @@ export class StepperFormWidgetComponent implements OnInit {
                 // Ignore errors when attempting to prefill (e.g. no submission yet)
             }
         });
+    }
+
+    private initializeConditionalFieldLogicForStep(step: StepRuntime): void {
+        step.hiddenFieldNames = new Set<string>();
+        step.recomputeConditionalState = undefined;
+
+        if (!step.formGroup || !step.fields || !step.fields.length || !step.conditionalRules || !step.conditionalRules.length) {
+            return;
+        }
+
+        const controlMap: Record<string, any> = {};
+        const defaultRequired: Record<string, boolean> = {};
+
+        for (const field of step.fields) {
+            controlMap[field.name] = step.formGroup.get(field.name);
+            defaultRequired[field.name] = !!field.required;
+        }
+
+        const evaluateRule = (rule: ConditionalFieldRuleConfig): boolean => {
+            if (!rule.conditions || !rule.conditions.length) {
+                return false;
+            }
+
+            return rule.conditions.every((cond) => {
+                if (!cond.sourceFieldKey) {
+                    return false;
+                }
+                const ctrl = controlMap[cond.sourceFieldKey];
+                if (!ctrl) {
+                    return false;
+                }
+                const actual = ctrl.value;
+                const expected = String(cond.equalsValue || '').trim().toLowerCase();
+                const actualNorm = actual == null ? '' : String(actual).trim().toLowerCase();
+                return expected !== '' && actualNorm === expected;
+            });
+        };
+
+        const applyAll = () => {
+            step.hiddenFieldNames = new Set<string>();
+            const requiredOverride = new Set<string>();
+
+            for (const rule of step.conditionalRules || []) {
+                if (!rule.targetFieldKey) {
+                    continue;
+                }
+                const isMatch = evaluateRule(rule);
+                const behavior = rule.behavior || 'showWhenMatched';
+
+                if (behavior === 'showWhenMatched') {
+                    if (!isMatch) {
+                        step.hiddenFieldNames.add(rule.targetFieldKey);
+                    }
+                } else if (behavior === 'hideWhenMatched') {
+                    if (isMatch) {
+                        step.hiddenFieldNames.add(rule.targetFieldKey);
+                    }
+                }
+
+                if (rule.setRequiredWhenMatched && isMatch) {
+                    requiredOverride.add(rule.targetFieldKey);
+                }
+            }
+
+            for (const field of step.fields || []) {
+                const ctrl = controlMap[field.name];
+                if (!ctrl) continue;
+
+                const validators: any[] = [];
+                const isHidden = step.hiddenFieldNames?.has(field.name) ?? false;
+                const baseRequired = !!defaultRequired[field.name];
+                const isRequiredNow = !isHidden && (baseRequired || requiredOverride.has(field.name));
+
+                if (isRequiredNow) {
+                    validators.push(Validators.required);
+                }
+                if (field.type === 'email') {
+                    validators.push(Validators.email);
+                }
+                if (field.type === 'idNumber') {
+                    validators.push(saIdNumberValidator());
+                }
+
+                if (field.type === 'checkbox' && field.options && field.options.length) {
+                    const arr = ctrl as FormArray;
+                    if (isRequiredNow) {
+                        const atLeastOne = (c: FormArray) => {
+                            const hasAny = c.controls.some((fc) => !!fc.value);
+                            return hasAny ? null : { required: true };
+                        };
+                        arr.setValidators(atLeastOne as any);
+                    } else {
+                        arr.clearValidators();
+                    }
+                    arr.updateValueAndValidity({ emitEvent: false });
+                } else {
+                    ctrl.setValidators(validators);
+                    ctrl.updateValueAndValidity({ emitEvent: false });
+                }
+            }
+        };
+
+        step.recomputeConditionalState = applyAll;
+        applyAll();
+
+        const sourceKeys = new Set<string>();
+        for (const rule of step.conditionalRules || []) {
+            for (const cond of rule.conditions) {
+                if (cond.sourceFieldKey) {
+                    sourceKeys.add(cond.sourceFieldKey);
+                }
+            }
+        }
+
+        sourceKeys.forEach((key) => {
+            const ctrl = controlMap[key];
+            if (ctrl && ctrl.valueChanges) {
+                ctrl.valueChanges.subscribe(() => {
+                    applyAll();
+                });
+            }
+        });
+    }
+
+    isFieldHidden(step: StepRuntime, fieldName: string): boolean {
+        return step.hiddenFieldNames ? step.hiddenFieldNames.has(fieldName) : false;
+    }
+
+    isFieldStaticallyHidden(field: DynamicFormField): boolean {
+        return !!field.hidden;
     }
 
     // Basic signature drawing support for optional completion signature
@@ -787,10 +1081,23 @@ export class StepperFormWidgetComponent implements OnInit {
                     }
                 });
                 submissionPayload[field.name] = selected;
+            } else if (field.type === 'file') {
+                const normalized = Array.isArray(value)
+                    ? value.filter((v: any) => typeof v === 'string' && !!v)
+                    : typeof value === 'string' && value
+                      ? [value]
+                      : [];
+                submissionPayload[field.name] = normalized;
             } else {
                 submissionPayload[field.name] = value;
             }
+
+            if (field.type === 'date') {
+                submissionPayload[field.name] = toDateOnlyString(value);
+            }
         }
+
+        applyDateSplitParts(submissionPayload, step.fields || []);
 
         // Attach calculator result to submission payload if configured for this step
         if (step.calculatorEnabled && step.calculatorStoreMode === 'attach-to-submission' && step.calculatorResultKey) {

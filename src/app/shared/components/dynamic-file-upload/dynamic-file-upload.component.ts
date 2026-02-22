@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, signal, input } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, signal, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -66,20 +66,32 @@ export interface UploadedFile {
             <div *ngIf="!isMaxFilesReached() && !loadingFiles()" class="upload-section">
                 <input #fileInput type="file" [multiple]="config().allowMultiple" [accept]="getAcceptedTypes()" (change)="onFileSelect($event)" style="display: none" />
 
-                <button pButton type="button" [label]="uploadedFiles().length > 0 ? 'Upload Another File' : 'Choose File'" icon="pi pi-upload" (click)="fileInput.click()" [disabled]="uploading()" class="p-button-outlined"></button>
+                <button
+                    pButton
+                    type="button"
+                    [label]="uploadedFiles().length > 0 ? (config().allowMultiple ? 'Choose More Files' : 'Upload Another File') : (config().allowMultiple ? 'Choose Files' : 'Choose File')"
+                    icon="pi pi-upload"
+                    (click)="fileInput.click()"
+                    [disabled]="uploading()"
+                    class="p-button-outlined"></button>
 
-                <span *ngIf="selectedFile" class="selected-file-name">
+                <span *ngIf="selectedFiles.length > 0" class="selected-file-name">
                     <i class="pi pi-file"></i>
-                    {{ selectedFile.name }} ({{ formatFileSize(selectedFile.size) }})
+                    <ng-container *ngIf="selectedFiles.length === 1">
+                        {{ selectedFiles[0].name }} ({{ formatFileSize(selectedFiles[0].size) }})
+                    </ng-container>
+                    <ng-container *ngIf="selectedFiles.length > 1">
+                        {{ selectedFiles.length }} files selected
+                    </ng-container>
                 </span>
 
-                <button *ngIf="selectedFile && !uploading()" pButton type="button" label="Upload Now" icon="pi pi-cloud-upload" (click)="uploadFile()" class="p-button-success"></button>
+                <button *ngIf="selectedFiles.length > 0 && !uploading()" pButton type="button" label="Upload Now" icon="pi pi-cloud-upload" (click)="uploadFiles()" class="p-button"></button>
             </div>
 
             <!-- Upload Progress -->
             <div *ngIf="uploading()" class="upload-progress">
                 <p-progressBar [value]="uploadProgress()" [showValue]="true"></p-progressBar>
-                <small>Uploading {{ selectedFile?.name }}...</small>
+                <small>Uploading files...</small>
             </div>
 
             <!-- Max Files Warning -->
@@ -293,7 +305,7 @@ export interface UploadedFile {
         `
     ]
 })
-export class DynamicFileUploadComponent implements OnInit {
+export class DynamicFileUploadComponent implements OnInit, OnChanges {
     config = input<FileUploadConfig>({
         label: 'File Upload',
         allowMultiple: false,
@@ -314,43 +326,100 @@ export class DynamicFileUploadComponent implements OnInit {
     uploading = signal(false);
     uploadProgress = signal(0);
     loadingFiles = signal(false);
-    selectedFile?: File;
+    selectedFiles: File[] = [];
     touched = false;
+    private lastInputStateKey = '';
+    private metadataLoadToken = 0;
 
     constructor(
         private fileUploadService: FileUploadServiceProxy,
         private messageService: MessageService
     ) {}
 
-    async ngOnInit() {
-        // Load existing files
-        if (this.value && Array.isArray(this.value) && this.value.length > 0) {
+    ngOnInit() {
+        this.syncFromInputs();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['value'] || changes['initialFileIds']) {
+            this.syncFromInputs();
+        }
+    }
+
+    private getNormalizedInitialIds(): string[] {
+        const ids = Array.isArray(this.initialFileIds) ? this.initialFileIds : [];
+        return [...new Set(ids.map((id) => `${id || ''}`.trim()).filter((id) => !!id))];
+    }
+
+    private getInputStateKey(): string {
+        if (Array.isArray(this.value) && this.value.length > 0) {
+            const valueIds = this.value
+                .map((f) => `${f?.id || ''}`.trim())
+                .filter((id) => !!id)
+                .sort();
+            return `value:${valueIds.join('|')}`;
+        }
+
+        const initialIds = this.getNormalizedInitialIds().sort();
+        return `ids:${initialIds.join('|')}`;
+    }
+
+    private syncFromInputs(): void {
+        const nextStateKey = this.getInputStateKey();
+        if (nextStateKey === this.lastInputStateKey) {
+            return;
+        }
+
+        this.lastInputStateKey = nextStateKey;
+        this.selectedFiles = [];
+
+        if (Array.isArray(this.value) && this.value.length > 0) {
             this.uploadedFiles.set([...this.value]);
-        } else if (this.initialFileIds && this.initialFileIds.length > 0) {
-            // Fetch metadata for initial IDs
-            this.loadingFiles.set(true);
-            try {
-                const files: UploadedFile[] = [];
-                for (const id of this.initialFileIds) {
-                    if (!id) continue;
-                    const res = await firstValueFrom(this.fileUploadService.file_GetByFileId(id));
-                    if ((res as any).result) {
-                        const data = (res as any).result as FileMetadataDto;
-                        files.push({
-                            id: data.id!,
-                            fileName: data.fileName!,
-                            filePath: data.filePath!,
-                            fileSize: data.size || 0,
-                            uploadDate: new Date(),
-                            description: data.description
-                        });
-                    }
+            this.loadingFiles.set(false);
+            return;
+        }
+
+        const initialIds = this.getNormalizedInitialIds();
+        if (initialIds.length === 0) {
+            this.metadataLoadToken++;
+            this.uploadedFiles.set([]);
+            this.loadingFiles.set(false);
+            return;
+        }
+
+        const activeToken = ++this.metadataLoadToken;
+        this.loadingFiles.set(true);
+        void this.loadFilesByIds(initialIds, activeToken);
+    }
+
+    private async loadFilesByIds(initialIds: string[], activeToken: number): Promise<void> {
+        try {
+            const files: UploadedFile[] = [];
+            for (const id of initialIds) {
+                const res = await firstValueFrom(this.fileUploadService.file_GetByFileId(id));
+                if ((res as any).result) {
+                    const data = (res as any).result as FileMetadataDto;
+                    files.push({
+                        id: data.id!,
+                        fileName: data.fileName!,
+                        filePath: data.filePath!,
+                        fileSize: data.size || 0,
+                        uploadDate: new Date(),
+                        description: data.description
+                    });
                 }
+            }
+
+            if (activeToken === this.metadataLoadToken) {
                 this.uploadedFiles.set(files);
-            } catch (error) {
+            }
+        } catch (error) {
+            if (activeToken === this.metadataLoadToken) {
                 console.error('Error loading initial files:', error);
                 this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load initial files.' });
-            } finally {
+            }
+        } finally {
+            if (activeToken === this.metadataLoadToken) {
                 this.loadingFiles.set(false);
             }
         }
@@ -361,102 +430,97 @@ export class DynamicFileUploadComponent implements OnInit {
     }
 
     onFileSelect(event: any) {
-        const files = event.target.files;
-        if (files && files.length > 0) {
-            this.selectedFile = files[0];
+        const files = event.target.files as FileList | null;
+        if (!files || files.length === 0) {
+            return;
+        }
 
-            // Validate file size
-            const maxSize = (this.config().maxSizeMB || 5) * 1024 * 1024;
-            if (this.selectedFile && this.selectedFile.size > maxSize) {
+        const maxSize = (this.config().maxSizeMB || 5) * 1024 * 1024;
+        const acceptedTypes = this.config().acceptedTypes || [];
+        const maxFiles = this.config().allowMultiple ? this.config().maxFiles || 5 : 1;
+        const availableSlots = Math.max(0, maxFiles - this.uploadedFiles().length);
+
+        const pickedFiles = Array.from(files);
+        const nextSelected: File[] = [];
+
+        for (const file of pickedFiles) {
+            if (nextSelected.length >= availableSlots) {
+                break;
+            }
+
+            if (file.size > maxSize) {
                 this.messageService.add({
                     severity: 'error',
                     summary: 'File Too Large',
-                    detail: `File size exceeds ${this.config().maxSizeMB}MB limit`
+                    detail: `${file.name} exceeds ${this.config().maxSizeMB || 5}MB limit`
                 });
-                this.selectedFile = undefined;
-                event.target.value = '';
-                return;
+                continue;
             }
 
-            // Validate file type
-            const acceptedTypes = this.config().acceptedTypes || [];
-            if (acceptedTypes.length > 0 && this.selectedFile) {
-                const fileType = this.selectedFile.type;
-                const isAccepted = acceptedTypes.some((type) => {
-                    if (type.endsWith('/*')) {
-                        const category = type.replace('/*', '');
-                        return fileType.startsWith(category);
-                    }
-                    return type === fileType;
+            if (!this.isAcceptedFileType(file, acceptedTypes)) {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Invalid File Type',
+                    detail: `${file.name} is not an allowed file type`
                 });
-
-                if (!isAccepted) {
-                    this.messageService.add({
-                        severity: 'error',
-                        summary: 'Invalid File Type',
-                        detail: 'Please select a valid file type'
-                    });
-                    this.selectedFile = undefined;
-                    event.target.value = '';
-                }
+                continue;
             }
+
+            nextSelected.push(file);
+            if (!this.config().allowMultiple) {
+                break;
+            }
+        }
+
+        this.selectedFiles = nextSelected;
+        event.target.value = '';
+
+        if (pickedFiles.length > availableSlots) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'File Limit Reached',
+                detail: `Only ${availableSlots} more file(s) can be uploaded`
+            });
         }
     }
 
-    async uploadFile() {
-        if (!this.selectedFile) return;
+    async uploadFiles() {
+        if (!this.selectedFiles.length) return;
 
         this.touched = true;
         this.uploading.set(true);
         this.uploadProgress.set(0);
 
         try {
-            // Create FormData
-            const formData = new FormData();
-            formData.append('file', this.selectedFile);
+            const uploadedNow: UploadedFile[] = [];
 
-            if (this.config().documentType) {
-                formData.append('documentType', this.config().documentType!);
+            for (let index = 0; index < this.selectedFiles.length; index++) {
+                const selectedFile = this.selectedFiles[index];
+                const response = await firstValueFrom(
+                    this.fileUploadService.file_UploadFile(
+                        undefined,
+                        this.memberId || undefined,
+                        this.config().documentType || undefined,
+                        undefined,
+                        this.config().required || false,
+                        { data: selectedFile, fileName: selectedFile.name } as any
+                    )
+                );
+
+                uploadedNow.push({
+                    id: response?.result!.id!,
+                    fileName: response?.result!.fileName || selectedFile.name,
+                    filePath: response?.result!.filePath || '',
+                    fileSize: selectedFile.size,
+                    uploadDate: new Date(),
+                    description: this.config().documentType
+                });
+
+                const progress = Math.round(((index + 1) / this.selectedFiles.length) * 100);
+                this.uploadProgress.set(progress);
             }
-            if (this.memberId) {
-                formData.append('memberId', this.memberId);
-            }
 
-            // Simulate progress (since we can't get real progress from the proxy)
-            const progressInterval = setInterval(() => {
-                const current = this.uploadProgress();
-                if (current < 90) {
-                    this.uploadProgress.set(current + 10);
-                }
-            }, 200);
-
-            // Upload file
-            const memberId = this.memberId || undefined;
-            const response = await this.fileUploadService
-                .file_UploadFile(
-                    { data: formData, fileName: this.selectedFile.name } as any,
-                    memberId,
-                    undefined, // documentType
-                    undefined, // description
-                    undefined, // category
-                    undefined // tags
-                )
-                .toPromise();
-
-            clearInterval(progressInterval);
-            this.uploadProgress.set(100);
-
-            // Add to uploaded files list
-            const uploadedFile: UploadedFile = {
-                id: response?.result!.id!,
-                fileName: response?.result!.fileName || this.selectedFile.name,
-                filePath: response?.result!.filePath || '',
-                fileSize: this.selectedFile.size,
-                uploadDate: new Date(),
-                description: this.config().documentType
-            };
-
-            const updatedFiles = [...this.uploadedFiles(), uploadedFile];
+            const updatedFiles = [...this.uploadedFiles(), ...uploadedNow];
             this.uploadedFiles.set(updatedFiles);
             this.valueChange.emit(updatedFiles);
             this.filesUploaded.emit(updatedFiles);
@@ -464,11 +528,10 @@ export class DynamicFileUploadComponent implements OnInit {
             this.messageService.add({
                 severity: 'success',
                 summary: 'Upload Successful',
-                detail: `${this.selectedFile.name} uploaded successfully`
+                detail: `${uploadedNow.length} file(s) uploaded successfully`
             });
 
-            // Reset
-            this.selectedFile = undefined;
+            this.selectedFiles = [];
             this.uploading.set(false);
             this.uploadProgress.set(0);
         } catch (error) {
@@ -483,6 +546,33 @@ export class DynamicFileUploadComponent implements OnInit {
         }
     }
 
+    private isAcceptedFileType(file: File, acceptedTypes: string[]): boolean {
+        if (!acceptedTypes || acceptedTypes.length === 0) {
+            return true;
+        }
+
+        const fileType = (file.type || '').toLowerCase();
+        const fileName = file.name.toLowerCase();
+
+        return acceptedTypes.some((type) => {
+            const normalized = (type || '').trim().toLowerCase();
+            if (!normalized) {
+                return false;
+            }
+
+            if (normalized.startsWith('.')) {
+                return fileName.endsWith(normalized);
+            }
+
+            if (normalized.endsWith('/*')) {
+                const category = normalized.replace('/*', '');
+                return fileType.startsWith(category + '/');
+            }
+
+            return fileType === normalized;
+        });
+    }
+
     removeFile(file: UploadedFile) {
         if (confirm(`Are you sure you want to remove ${file.fileName}?`)) {
             // Call delete API
@@ -491,6 +581,7 @@ export class DynamicFileUploadComponent implements OnInit {
                     const updatedFiles = this.uploadedFiles().filter((f) => f.id !== file.id);
                     this.uploadedFiles.set(updatedFiles);
                     this.valueChange.emit(updatedFiles);
+                    this.filesUploaded.emit(updatedFiles);
 
                     this.messageService.add({
                         severity: 'success',

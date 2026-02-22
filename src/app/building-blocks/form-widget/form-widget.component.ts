@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
 import { WidgetConfig } from '../widget-config';
 import { FormServiceProxy, FormDto, CreateFormSubmissionDto, FormSubmissionDto, DynamicEntityServiceProxy, DynamicEntityTypeDto } from '../../core/services/service-proxies';
 import { AuthService } from '../../auth/auth-service';
 import { saIdNumberValidator } from '../../shared/validators/sa-id-number.validator';
+import { DynamicFileUploadComponent, FileUploadConfig, UploadedFile } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
+import { applyDateSplitParts, normalizeDateValue, toDateOnlyString } from '../../core/utils/date-field-utils';
 
 interface DynamicFormField {
     name: string;
@@ -13,14 +16,37 @@ interface DynamicFormField {
     required: boolean;
     placeholder?: string;
     options?: string[];
+    fileMode?: 'single' | 'multiple';
+    maxFiles?: number;
+    maxSizeMB?: number;
+    acceptedTypes?: string[];
     order: number;
     lookupEntityTypeKey?: string;
+    hidden?: boolean;
+    splitDateParts?: boolean;
+    datePartKeys?: {
+        day?: string;
+        month?: string;
+        year?: string;
+    };
+}
+
+interface ConditionalFieldConditionConfig {
+    sourceFieldKey: string;
+    equalsValue: string;
+}
+
+interface ConditionalFieldRuleConfig {
+    targetFieldKey: string;
+    conditions: ConditionalFieldConditionConfig[];
+    behavior: 'showWhenMatched' | 'hideWhenMatched';
+    setRequiredWhenMatched?: boolean;
 }
 
 @Component({
     selector: 'app-form-widget',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [CommonModule, ReactiveFormsModule, CalendarModule, DynamicFileUploadComponent],
     templateUrl: './form-widget.component.html',
     styleUrls: ['./form-widget.component.scss'],
     providers: [FormServiceProxy, DynamicEntityServiceProxy]
@@ -31,6 +57,10 @@ export class FormWidgetComponent implements OnInit {
     formDefinition: FormDto | null = null;
     fields: DynamicFormField[] = [];
     formGroup!: FormGroup;
+
+    private conditionalRules: ConditionalFieldRuleConfig[] = [];
+    private hiddenFieldNames = new Set<string>();
+    private recomputeConditionalState: (() => void) | null = null;
 
     loading = false;
     submitting = false;
@@ -102,30 +132,101 @@ export class FormWidgetComponent implements OnInit {
     }
 
     private parseFields(json: string | undefined | null): DynamicFormField[] {
+        this.conditionalRules = [];
+
         if (!json) return [];
 
         try {
             const parsed = JSON.parse(json);
-            if (!Array.isArray(parsed)) return [];
 
-            return parsed
-                .map((f: any, index: number) => ({
-                    name: f.name || `field_${index}`,
-                    label: f.label || f.name || `Field ${index + 1}`,
-                    type: f.type || 'text',
-                    required: !!f.required,
-                    placeholder: f.placeholder || '',
-                    options: Array.isArray(f.options)
-                        ? f.options
-                        : typeof f.options === 'string'
-                          ? f.options
-                                .split(',')
-                                .map((o: string) => o.trim())
-                                .filter((o: string) => !!o)
-                          : undefined,
-                    order: typeof f.order === 'number' ? f.order : index,
-                    lookupEntityTypeKey: f.lookupEntityTypeKey
-                }))
+            let rawFields: any[] = [];
+
+            if (Array.isArray(parsed)) {
+                rawFields = parsed;
+            } else if (parsed && typeof parsed === 'object') {
+                if (Array.isArray((parsed as any).fields)) {
+                    rawFields = (parsed as any).fields;
+                }
+
+                if (Array.isArray((parsed as any).conditionalRules)) {
+                    this.conditionalRules = (parsed as any).conditionalRules.map((r: any) => {
+                        const rawConditions = Array.isArray(r.conditions) && r.conditions.length
+                            ? r.conditions
+                            : [{ sourceFieldKey: '', equalsValue: '' }];
+
+                        const conditions: ConditionalFieldConditionConfig[] = rawConditions.map((c: any) => ({
+                            sourceFieldKey: c.sourceFieldKey || '',
+                            equalsValue: c.equalsValue != null ? String(c.equalsValue) : ''
+                        }));
+
+                        const behavior: 'showWhenMatched' | 'hideWhenMatched' =
+                            r.behavior === 'hideWhenMatched' ? 'hideWhenMatched' : 'showWhenMatched';
+
+                        return {
+                            targetFieldKey: r.targetFieldKey || '',
+                            conditions,
+                            behavior,
+                            setRequiredWhenMatched: !!r.setRequiredWhenMatched
+                        } as ConditionalFieldRuleConfig;
+                    });
+                } else {
+                    this.conditionalRules = [];
+                }
+            }
+
+            if (!Array.isArray(rawFields)) {
+                return [];
+            }
+
+            return rawFields
+                                .map((f: any, index: number) => {
+                                        const fileMode: 'single' | 'multiple' = f.fileMode === 'multiple' || !!f.fileConfig?.allowMultiple ? 'multiple' : 'single';
+                                        return {
+                                                name: f.name || `field_${index}`,
+                                                label: f.label || f.name || `Field ${index + 1}`,
+                                                type: f.type || 'text',
+                                                required: !!f.required,
+                                                placeholder: f.placeholder || '',
+                                                options: Array.isArray(f.options)
+                                                        ? f.options
+                                                        : typeof f.options === 'string'
+                                                            ? f.options
+                                                                        .split(',')
+                                                                        .map((o: string) => o.trim())
+                                                                        .filter((o: string) => !!o)
+                                                            : undefined,
+                                                fileMode,
+                                                maxFiles:
+                                                        typeof f.maxFiles === 'number'
+                                                                ? f.maxFiles
+                                                                : typeof f.fileConfig?.maxFiles === 'number'
+                                                                    ? f.fileConfig.maxFiles
+                                                                    : fileMode === 'multiple'
+                                                                        ? 5
+                                                                        : 1,
+                                                maxSizeMB:
+                                                        typeof f.maxSizeMB === 'number'
+                                                                ? f.maxSizeMB
+                                                                : typeof f.fileConfig?.maxSizeMB === 'number'
+                                                                    ? f.fileConfig.maxSizeMB
+                                                                    : 10,
+                                                acceptedTypes: Array.isArray(f.acceptedTypes)
+                                                        ? f.acceptedTypes
+                                                        : Array.isArray(f.fileConfig?.acceptedTypes)
+                                                            ? f.fileConfig.acceptedTypes
+                                                            : typeof f.acceptedTypes === 'string'
+                                                                ? f.acceptedTypes
+                                                                            .split(',')
+                                                                            .map((o: string) => o.trim())
+                                                                            .filter((o: string) => !!o)
+                                                                : ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'],
+                                                order: typeof f.order === 'number' ? f.order : index,
+                                                lookupEntityTypeKey: f.lookupEntityTypeKey,
+                                                hidden: !!f.hidden,
+                                                splitDateParts: !!f.splitDateParts,
+                                                datePartKeys: f.datePartKeys
+                                        };
+                                })
                 .sort((a, b) => a.order - b.order);
         } catch {
             return [];
@@ -150,6 +251,10 @@ export class FormWidgetComponent implements OnInit {
             if (field.type === 'checkbox' && field.options && field.options.length) {
                 const controls = field.options.map(() => this.fb.control(false));
                 group[field.name] = this.fb.array(controls, field.required ? this.atLeastOneCheckedValidator : []);
+            } else if (field.type === 'file') {
+                group[field.name] = this.fb.control([], validators);
+            } else if (field.type === 'date') {
+                group[field.name] = this.fb.control(null, validators);
             } else if (field.type === 'lookup') {
                 // Single-select lookup: store the related record ID
                 group[field.name] = ['', validators];
@@ -159,6 +264,7 @@ export class FormWidgetComponent implements OnInit {
         }
 
         this.formGroup = this.fb.group(group);
+        this.initializeConditionalFieldLogic();
     }
 
     private setupCalculatorFromConfig(formWithConfig: FormDto): void {
@@ -550,6 +656,42 @@ export class FormWidgetComponent implements OnInit {
         return this.formGroup.get(field.name) as FormArray;
     }
 
+    getFileUploadConfig(field: DynamicFormField): FileUploadConfig {
+        const mode = field.fileMode || 'single';
+        return {
+            label: field.label,
+            required: !!field.required,
+            documentType: 'FormSubmission',
+            allowMultiple: mode === 'multiple',
+            maxFiles: mode === 'multiple' ? Math.max(1, Number(field.maxFiles ?? 5)) : 1,
+            maxSizeMB: Math.max(1, Number(field.maxSizeMB ?? 10)),
+            acceptedTypes: field.acceptedTypes && field.acceptedTypes.length ? field.acceptedTypes : ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx']
+        };
+    }
+
+    getInitialFileIds(field: DynamicFormField): string[] {
+        const raw = this.formGroup?.get(field.name)?.value;
+        if (Array.isArray(raw)) {
+            return raw.filter((v) => typeof v === 'string' && !!v) as string[];
+        }
+        if (typeof raw === 'string' && raw.trim()) {
+            return [raw.trim()];
+        }
+        return [];
+    }
+
+    onFilesUploaded(field: DynamicFormField, files: UploadedFile[]): void {
+        const control = this.formGroup?.get(field.name);
+        if (!control) {
+            return;
+        }
+
+        const fileIds = (files || []).map((f) => f.id).filter((id) => !!id);
+        control.setValue(fileIds);
+        control.markAsDirty();
+        control.markAsTouched();
+    }
+
     // Lookup helpers
 
     private loadLookupOptionsIfNeeded(): void {
@@ -616,6 +758,136 @@ export class FormWidgetComponent implements OnInit {
         return control.controls.some((c) => c.value) ? null : { required: true };
     }
 
+    private initializeConditionalFieldLogic(): void {
+        this.hiddenFieldNames = new Set<string>();
+        this.recomputeConditionalState = null;
+
+        if (!this.formGroup || !this.fields || !this.fields.length || !this.conditionalRules || !this.conditionalRules.length) {
+            return;
+        }
+
+        const controlMap: Record<string, any> = {};
+        const defaultRequired: Record<string, boolean> = {};
+
+        for (const field of this.fields) {
+            controlMap[field.name] = this.formGroup.get(field.name);
+            defaultRequired[field.name] = !!field.required;
+        }
+
+        const evaluateRule = (rule: ConditionalFieldRuleConfig): boolean => {
+            if (!rule.conditions || !rule.conditions.length) {
+                return false;
+            }
+
+            return rule.conditions.every((cond) => {
+                if (!cond.sourceFieldKey) {
+                    return false;
+                }
+                const ctrl = controlMap[cond.sourceFieldKey];
+                if (!ctrl) {
+                    return false;
+                }
+                const actual = ctrl.value;
+                const expected = String(cond.equalsValue || '').trim().toLowerCase();
+                const actualNorm = actual == null ? '' : String(actual).trim().toLowerCase();
+                return expected !== '' && actualNorm === expected;
+            });
+        };
+
+        const applyAll = () => {
+            this.hiddenFieldNames = new Set<string>();
+            const requiredOverride = new Set<string>();
+
+            for (const rule of this.conditionalRules) {
+                if (!rule.targetFieldKey) {
+                    continue;
+                }
+                const isMatch = evaluateRule(rule);
+                const behavior = rule.behavior || 'showWhenMatched';
+
+                if (behavior === 'showWhenMatched') {
+                    if (!isMatch) {
+                        this.hiddenFieldNames.add(rule.targetFieldKey);
+                    }
+                } else if (behavior === 'hideWhenMatched') {
+                    if (isMatch) {
+                        this.hiddenFieldNames.add(rule.targetFieldKey);
+                    }
+                }
+
+                if (rule.setRequiredWhenMatched && isMatch) {
+                    requiredOverride.add(rule.targetFieldKey);
+                }
+            }
+
+            for (const field of this.fields) {
+                const ctrl = controlMap[field.name];
+                if (!ctrl) continue;
+
+                const validators: any[] = [];
+                const isHidden = this.hiddenFieldNames.has(field.name);
+                const baseRequired = !!defaultRequired[field.name];
+                const isRequiredNow = !isHidden && (baseRequired || requiredOverride.has(field.name));
+
+                if (isRequiredNow) {
+                    validators.push(Validators.required);
+                }
+                if (field.type === 'email') {
+                    validators.push(Validators.email);
+                }
+                if (field.type === 'idNumber') {
+                    validators.push(saIdNumberValidator());
+                }
+
+                if (field.type === 'checkbox' && field.options && field.options.length) {
+                    const arr = ctrl as FormArray;
+                    if (isRequiredNow) {
+                        const atLeastOne = (c: FormArray) => {
+                            const hasAny = c.controls.some((fc) => !!fc.value);
+                            return hasAny ? null : { required: true };
+                        };
+                        arr.setValidators(atLeastOne as any);
+                    } else {
+                        arr.clearValidators();
+                    }
+                    arr.updateValueAndValidity({ emitEvent: false });
+                } else {
+                    ctrl.setValidators(validators);
+                    ctrl.updateValueAndValidity({ emitEvent: false });
+                }
+            }
+        };
+
+        this.recomputeConditionalState = applyAll;
+        applyAll();
+
+        const sourceKeys = new Set<string>();
+        for (const rule of this.conditionalRules) {
+            for (const cond of rule.conditions) {
+                if (cond.sourceFieldKey) {
+                    sourceKeys.add(cond.sourceFieldKey);
+                }
+            }
+        }
+
+        sourceKeys.forEach((key) => {
+            const ctrl = controlMap[key];
+            if (ctrl && ctrl.valueChanges) {
+                ctrl.valueChanges.subscribe(() => {
+                    applyAll();
+                });
+            }
+        });
+    }
+
+    isFieldHidden(fieldName: string): boolean {
+        return this.hiddenFieldNames.has(fieldName);
+    }
+
+    isFieldStaticallyHidden(field: DynamicFormField): boolean {
+        return !!field.hidden;
+    }
+
     private tryPrefillFromLatestSubmission(): void {
         if (!this.formDefinition || !this.formDefinition.id) {
             return;
@@ -658,9 +930,22 @@ export class FormWidgetComponent implements OnInit {
                                     formArray.at(idx).setValue(checked);
                                 }
                             });
+                        } else if (field.type === 'file') {
+                            const normalized = Array.isArray(value)
+                                ? value.filter((v) => typeof v === 'string' && !!v)
+                                : typeof value === 'string' && value
+                                  ? [value]
+                                  : [];
+                            this.formGroup.get(field.name)?.setValue(normalized);
+                        } else if (field.type === 'date') {
+                            this.formGroup.get(field.name)?.setValue(normalizeDateValue(value));
                         } else if (this.formGroup.get(field.name)) {
                             this.formGroup.get(field.name)!.setValue(value);
                         }
+                    }
+
+                    if (this.recomputeConditionalState) {
+                        this.recomputeConditionalState();
                     }
                 } catch {
                     // Ignore prefill errors and leave form empty
@@ -698,10 +983,23 @@ export class FormWidgetComponent implements OnInit {
                     }
                 });
                 submissionPayload[field.name] = selected;
+            } else if (field.type === 'file') {
+                const normalized = Array.isArray(value)
+                    ? value.filter((v: any) => typeof v === 'string' && !!v)
+                    : typeof value === 'string' && value
+                      ? [value]
+                      : [];
+                submissionPayload[field.name] = normalized;
             } else {
                 submissionPayload[field.name] = value;
             }
+
+            if (field.type === 'date') {
+                submissionPayload[field.name] = toDateOnlyString(value);
+            }
         }
+
+        applyDateSplitParts(submissionPayload, this.fields);
 
         // Attach calculator result to submission payload if configured
         if (this.calculatorEnabled && this.calculatorStoreMode === 'attach-to-submission' && this.calculatorResultKey) {

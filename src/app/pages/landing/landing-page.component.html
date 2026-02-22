@@ -22,6 +22,7 @@
             <ng-container #editorContainer></ng-container>
         </ng-template>
         <ng-template pTemplate="footer">
+            <p-button (click)="saveEditorChanges()" label="Save Changes" icon="pi pi-check"></p-button>
             <p-button (click)="editingWidget = null" label="Close"></p-button>
         </ng-template>
     </p-dialog>

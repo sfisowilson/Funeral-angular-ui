@@ -28,10 +28,72 @@
         <div *ngIf="isCompleteStep" class="mb-4">
             <h5 class="mb-3">Review & Sign</h5>
 
-            <div class="alert alert-info" *ngIf="!completionPdfUrl && loading">Generating document preview...</div>
+            <div class="alert alert-info" *ngIf="completionPdfPreviews.length === 0 && loading">Generating document preview...</div>
 
-            <div *ngIf="completionPdfUrl" class="mb-4 border rounded">
-                <iframe [src]="completionPdfUrl" style="width: 100%; height: 600px; border: none"></iframe>
+            <div *ngIf="completionPdfPreviews.length > 0" class="mb-4">
+                <div *ngFor="let preview of completionPdfPreviews; let pi = index" class="border rounded mb-3">
+                    <div class="px-3 py-2 border-bottom bg-light">
+                        <strong>PDF {{ pi + 1 }}</strong>
+                        <span class="text-muted" *ngIf="preview.profileName"> • {{ preview.profileName }}</span>
+                    </div>
+                    <iframe [src]="preview.url" style="width: 100%; height: 600px; border: none"></iframe>
+                </div>
+            </div>
+
+            <div *ngIf="hasConfiguredAttachmentMappings" class="mb-4 border rounded p-3 bg-light-subtle">
+                <h6 class="mb-2">Mapped attachments</h6>
+
+                <div *ngIf="loadingMappedAttachments" class="text-muted small">Loading mapped attachments...</div>
+
+                <div *ngIf="mappedAttachmentsError" class="alert alert-warning py-2 mb-2 small">
+                    {{ mappedAttachmentsError }}
+                </div>
+
+                <div *ngIf="!loadingMappedAttachments && !mappedAttachmentsError && mappedCompletionAttachments.length === 0" class="text-muted small">
+                    No uploaded files found for the configured mappings.
+                </div>
+
+                <div *ngIf="!loadingMappedAttachments && !mappedAttachmentsError && mappedCompletionAttachmentGroups.length > 0">
+                    <details *ngFor="let group of mappedCompletionAttachmentGroups" class="border rounded mb-2 bg-white" open>
+                        <summary class="px-3 py-2 fw-semibold" style="cursor: pointer;">
+                            {{ group.entityType }} ({{ group.files.length }})
+                        </summary>
+
+                        <div class="p-3 border-top" *ngFor="let file of group.files">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <div class="fw-semibold">{{ file.fileName }}</div>
+                                    <div class="small text-muted" *ngIf="file.contentType">
+                                        {{ file.contentType }}
+                                    </div>
+                                    <div class="small text-muted" *ngIf="file.sourceLabels && file.sourceLabels.length > 0">
+                                        Source: {{ file.sourceLabels.join(', ') }}
+                                    </div>
+                                    <div class="small text-muted" *ngIf="file.fieldKeys && file.fieldKeys.length > 0">
+                                        Field: {{ file.fieldKeys.join(', ') }}
+                                    </div>
+                                </div>
+                                <span class="small text-muted">{{ formatFileSize(file.size) }}</span>
+                            </div>
+
+                            <div *ngIf="isPdfAttachment(file) && file.previewUrl" class="border rounded overflow-hidden mb-2">
+                                <iframe [src]="file.previewUrl" style="width: 100%; height: 320px; border: none"></iframe>
+                            </div>
+
+                            <div *ngIf="isImageAttachment(file) && file.downloadUrl" class="border rounded p-2 text-center bg-light mb-2">
+                                <img [src]="file.downloadUrl" [alt]="file.fileName" style="max-width: 100%; max-height: 320px" />
+                            </div>
+
+                            <div *ngIf="!isPdfAttachment(file) && !isImageAttachment(file)" class="small text-muted mb-2">
+                                Preview not available for this file type.
+                            </div>
+
+                            <a *ngIf="file.downloadUrl" [href]="file.downloadUrl" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary">
+                                Open file
+                            </a>
+                        </div>
+                    </details>
+                </div>
             </div>
 
             <div *ngIf="requireSignature" class="mb-4">
@@ -73,6 +135,9 @@
                         <div>
                             <i class="bi bi-check-circle-fill me-2"></i>
                             <strong>Signature Saved</strong>. The document above has been updated.
+                            <div *ngIf="signatureSignedAtText" class="small text-muted mt-1">
+                                Signed on {{ signatureSignedAtText }}
+                            </div>
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="editSignature()">Edit Signature</button>
                     </div>
@@ -251,25 +316,37 @@
                             </div>
 
                             <div *ngIf="activeFormGroup && formFields.length > 0" [formGroup]="activeFormGroup" class="row">
-                                <div
-                                    *ngFor="let field of formFields"
-                                    class="mb-3 col-12"
-                                    [ngClass]="{ 'col-md-6': !['textarea', 'file', 'checkbox', 'radio'].includes(field.type) }"
-                                >
+                                <ng-container *ngFor="let field of formFields">
+                                    <div
+                                        *ngIf="!isFieldHidden(field.name) && !isFieldStaticallyHidden(field)"
+                                        class="mb-3 col-12"
+                                        [ngClass]="{ 'col-md-6': !['textarea', 'file', 'checkbox', 'radio'].includes(field.type) }"
+                                    >
                                     <label [attr.for]="field.name" class="form-label">
                                         {{ field.label }}
                                         <span class="text-danger" *ngIf="field.required">*</span>
                                     </label>
 
                                     <input
-                                        *ngIf="['text', 'email', 'tel', 'number', 'date', 'idNumber'].includes(field.type)"
-                                        [type]="field.type === 'date' ? 'date' : field.type === 'idNumber' ? 'text' : field.type"
+                                        *ngIf="['text', 'email', 'tel', 'number', 'idNumber'].includes(field.type)"
+                                        [type]="field.type === 'idNumber' ? 'text' : field.type"
                                         class="form-control"
                                         [id]="field.name"
                                         [placeholder]="field.placeholder"
                                         [formControlName]="field.name"
                                         [class.is-invalid]="activeFormGroup.get(field.name)?.invalid && (activeFormGroup.get(field.name)?.touched || activeFormGroup.get(field.name)?.dirty)"
                                     />
+
+                                    <p-calendar
+                                        *ngIf="field.type === 'date'"
+                                        [formControlName]="field.name"
+                                        [inputId]="field.name"
+                                        dateFormat="yy-mm-dd"
+                                        [showIcon]="true"
+                                        [appendTo]="'body'"
+                                        [style]="{ width: '100%' }"
+                                        styleClass="w-full"
+                                    ></p-calendar>
 
                                     <textarea
                                         *ngIf="field.type === 'textarea'"
@@ -283,14 +360,8 @@
 
                                     <div *ngIf="field.type === 'file'" class="mb-3">
                                         <app-dynamic-file-upload
-                                            [config]="{
-                                                label: field.label,
-                                                required: field.required,
-                                                documentType: 'General',
-                                                maxSizeMB: 10,
-                                                acceptedTypes: ['.pdf', '.jpg', '.png', '.doc', '.docx']
-                                            }"
-                                            [initialFileIds]="activeFormGroup.get(field.name)?.value ? [activeFormGroup.get(field.name)?.value] : []"
+                                            [config]="getFileUploadConfig(field)"
+                                            [initialFileIds]="getInitialFileIds(field)"
                                             (filesUploaded)="onFileUploaded(field, $event)"
                                         >
                                         </app-dynamic-file-upload>
@@ -332,6 +403,7 @@
                                         <span *ngIf="activeFormGroup.get(field.name)?.errors?.['saIdNumber']">Please enter a valid South African ID number.</span>
                                     </div>
                                 </div>
+                                </ng-container>
                             </div>
 
                             <div *ngIf="activeFormGroup && formFields.length === 0 && !formLoadError" class="text-muted small mb-2">
@@ -366,6 +438,10 @@
             <button type="button" class="btn btn-outline-secondary" (click)="onPrev()" *ngIf="currentStepIndex > 0">Previous Step</button>
 
             <button type="button" class="btn btn-primary" (click)="onNext()" [disabled]="!canProceed">Next Step</button>
+        </div>
+
+        <div class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center mt-4 pt-3 border-top gap-2" *ngIf="isCompleteStep">
+            <button type="button" class="btn btn-outline-secondary" (click)="onPrev()" *ngIf="currentStepIndex > 0">Previous Step</button>
         </div>
     </ng-container>
 </div>

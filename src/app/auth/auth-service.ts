@@ -7,6 +7,7 @@ import { Observable, of } from 'rxjs';
 })
 export class AuthService {
     logout() {
+        this.clearOnboardingClientState();
         // Remove the token from local storage
         this.removeToken();
     }
@@ -33,8 +34,23 @@ export class AuthService {
     }
 
     setToken(token: string): Observable<boolean> {
+        const previousUserId = this.getCurrentDecodedUserId();
+        const incomingDecoded = this.jwtHelper.decodeToken(token);
+        const incomingUserId =
+            incomingDecoded?.sub ||
+            incomingDecoded?.userId ||
+            incomingDecoded?.nameid ||
+            incomingDecoded?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+            null;
+
+        // If the authenticated user changes in the same browser session,
+        // clear transient onboarding/session state to avoid data bleed.
+        if (previousUserId && incomingUserId && previousUserId !== incomingUserId) {
+            this.clearOnboardingClientState();
+        }
+
         localStorage.setItem(this.tokenKey, token);
-        this.decodedUserToken = this.jwtHelper.decodeToken(token);
+        this.decodedUserToken = incomingDecoded;
         return of(true);
     }
 
@@ -45,6 +61,27 @@ export class AuthService {
     removeToken(): void {
         localStorage.removeItem(this.tokenKey);
         this.decodedUserToken = null;
+    }
+
+    private getCurrentDecodedUserId(): string | null {
+        if (!this.decodedUserToken) return null;
+        return (
+            this.decodedUserToken.sub ||
+            this.decodedUserToken.userId ||
+            this.decodedUserToken.nameid ||
+            this.decodedUserToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+            null
+        );
+    }
+
+    private clearOnboardingClientState(): void {
+        try {
+            sessionStorage.removeItem('onboarding_session');
+            sessionStorage.removeItem('form_data');
+            sessionStorage.clear();
+        } catch {
+            // Ignore storage access issues
+        }
     }
 
     decodeToken(): any {
