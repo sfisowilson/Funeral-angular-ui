@@ -128,6 +128,7 @@ export class AppMenu implements OnInit {
             ];
 
             this.model = staticItems;
+            this.applyGroupVisibility(this.model);
             return;
         }
 
@@ -237,5 +238,41 @@ export class AppMenu implements OnInit {
                 ]
             }
         ];
+
+        this.applyGroupVisibility(this.model);
+    }
+
+    /**
+     * Recursively determines whether a list of items contains at least one
+     * visible item (leaf or group). An item is considered invisible only when
+     * its `visible` property is explicitly `false`.
+     */
+    private hasAnyVisibleItem(items: MenuItem[]): boolean {
+        return items.some((item) => {
+            if (item.visible === false) return false;
+            if (item.items && item.items.length > 0) {
+                return this.hasAnyVisibleItem(item.items);
+            }
+            return true;
+        });
+    }
+
+    /**
+     * Walks the menu tree bottom-up and sets `visible = false` on any group
+     * whose children are all hidden. Groups that already have an explicit
+     * `visible` value are left unchanged so their own permission logic takes
+     * precedence.
+     */
+    private applyGroupVisibility(items: MenuItem[]): void {
+        for (const item of items) {
+            if (item.items && item.items.length > 0) {
+                this.applyGroupVisibility(item.items);
+
+                // Only auto-compute visibility when none was explicitly set
+                if (item.visible === undefined) {
+                    item.visible = this.hasAnyVisibleItem(item.items);
+                }
+            }
+        }
     }
 }

@@ -12,7 +12,7 @@ import { TenantBaseComponent } from '../../core/tenant-base.component';
     selector: 'app-reset-password',
     standalone: true,
     imports: [CommonModule, ButtonModule, InputTextModule, PasswordModule, ReactiveFormsModule, RouterModule],
-    providers: [AuthServiceProxy],
+    providers: [],
     templateUrl: './reset-password.component.html',
     styleUrl: './reset-password.component.scss'
 })

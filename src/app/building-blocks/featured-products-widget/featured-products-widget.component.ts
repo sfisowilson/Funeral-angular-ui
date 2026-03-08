@@ -7,7 +7,7 @@ import { ProductServiceProxy } from '@app/core/services/service-proxies';
     selector: 'app-featured-products-widget',
     standalone: true,
     imports: [CommonModule],
-    providers: [ProductService, ProductServiceProxy],
+    providers: [ProductService],
     template: `
         <div class="featured-products" [ngStyle]="getStyles()">
             <div class="container">

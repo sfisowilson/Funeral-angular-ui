@@ -1,0 +1,65 @@
+<div 
+    class="parallax-section" 
+    [style.min-height.px]="minHeight"
+    [ngStyle]="getBackgroundStyle()"
+>
+    <!-- Background Layer -->
+    <div class="parallax-background" *ngIf="backgroundType === 'image' && backgroundImage">
+        <div 
+            class="parallax-image"
+            [style.background-image]="'url(' + backgroundImage + ')'"
+            [style.transform]="getParallaxTransform()"
+        ></div>
+    </div>
+
+    <!-- Video Background -->
+    <div class="parallax-background" *ngIf="backgroundType === 'video' && backgroundVideo">
+        <video 
+            class="parallax-video"
+            [src]="backgroundVideo"
+            autoplay
+            loop
+            muted
+            playsinline
+            [style.transform]="getParallaxTransform()"
+        ></video>
+    </div>
+
+    <!-- Overlay -->
+    <div class="parallax-overlay" [ngStyle]="getOverlayStyle()"></div>
+
+    <!-- Content -->
+    <div 
+        class="parallax-content" 
+        [class.align-left]="contentAlign === 'left'"
+        [class.align-center]="contentAlign === 'center'"
+        [class.align-right]="contentAlign === 'right'"
+    >
+        <div class="content-wrapper">
+            <h2 
+                *ngIf="title" 
+                class="title" 
+                [style.color]="titleColor"
+            >
+                {{ title }}
+            </h2>
+            
+            <p 
+                *ngIf="subtitle" 
+                class="subtitle" 
+                [style.color]="subtitleColor"
+            >
+                {{ subtitle }}
+            </p>
+
+            <button 
+                *ngIf="showCTA" 
+                class="cta-button btn-theme-primary"
+                (click)="onCTAClick()"
+            >
+                {{ ctaText }}
+                <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+</div>

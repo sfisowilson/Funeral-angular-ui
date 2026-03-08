@@ -9,7 +9,7 @@ import { DynamicEntityServiceProxy, CreateDynamicEntityTypeDto, UpdateDynamicEnt
     styleUrls: ['./dynamic-entity-type-widget.component.scss'],
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [DynamicEntityServiceProxy]
+    providers: []
 })
 export class DynamicEntityTypeWidgetComponent {
     @Input() entityType: DynamicEntityTypeDto | null = null;
@@ -100,23 +100,28 @@ export class DynamicEntityTypeWidgetComponent {
         }
 
         if (field.type === 'idNumber') {
-            const baseName = field.name || '';
-            const targetAgeName = baseName ? `${baseName}_age` : 'age';
-            const targetGenderName = baseName ? `${baseName}_gender` : 'gender';
-            const targetDateOfBirthName = baseName ? `${baseName}_dateOfBirth` : 'dateOfBirth';
+            const baseName = this.convertToCamelCase(field.name || 'idNumber') || 'idNumber';
+            field.name = baseName;
+            const targetAgeName = `${baseName}_age`;
+            const targetGenderName = `${baseName}_gender`;
+            const targetDateOfBirthName = `${baseName}_dateOfBirth`;
 
-            const normalizedNames = new Set(
+            const comparableNames = new Set(
                 this.fieldsJson
-                    .map((f) => (f?.name || '').toString().trim().toLowerCase())
+                    .map((f) => this.toComparableFieldKey((f?.name || '').toString()))
                     .filter((name) => !!name)
             );
 
-            const hasAge = normalizedNames.has(targetAgeName.toLowerCase()) || normalizedNames.has('age');
-            const hasGender = normalizedNames.has(targetGenderName.toLowerCase()) || normalizedNames.has('gender');
+            const hasAge =
+                comparableNames.has(this.toComparableFieldKey(targetAgeName)) ||
+                comparableNames.has(this.toComparableFieldKey('age'));
+            const hasGender =
+                comparableNames.has(this.toComparableFieldKey(targetGenderName)) ||
+                comparableNames.has(this.toComparableFieldKey('gender'));
             const hasDateOfBirth =
-                normalizedNames.has(targetDateOfBirthName.toLowerCase()) ||
-                normalizedNames.has('dateofbirth') ||
-                normalizedNames.has('dob');
+                comparableNames.has(this.toComparableFieldKey(targetDateOfBirthName)) ||
+                comparableNames.has(this.toComparableFieldKey('dateOfBirth')) ||
+                comparableNames.has(this.toComparableFieldKey('dob'));
 
             let inserted = false;
             let insertIdx = this.fieldsJson.indexOf(field) + 1;
@@ -263,6 +268,8 @@ export class DynamicEntityTypeWidgetComponent {
             }
         });
 
+        const canonicalFields = this.normalizeAndDeduplicateFields(preparedFields);
+
         this.loading = true;
         this.error = '';
         const dto = this.entityType
@@ -272,14 +279,14 @@ export class DynamicEntityTypeWidgetComponent {
                   key: this.key,
                   description: this.description,
                   isActive: this.isActive,
-                                    fieldsJson: JSON.stringify(preparedFields)
+                            fieldsJson: JSON.stringify(canonicalFields)
               } as UpdateDynamicEntityTypeDto)
             : ({
                   name: this.name,
                   key: this.key,
                   description: this.description,
                   isActive: this.isActive,
-                                    fieldsJson: JSON.stringify(preparedFields)
+                            fieldsJson: JSON.stringify(canonicalFields)
               } as CreateDynamicEntityTypeDto);
         let call;
         if (this.entityType) {
@@ -343,16 +350,22 @@ export class DynamicEntityTypeWidgetComponent {
      */
     convertToCamelCase(value: string): string {
         if (!value) return '';
-        const words = value
-            .trim()
-            .replace(/[^a-zA-Z0-9\s]/g, '')
-            .split(/\s+/);
-        
-        if (words.length === 0) return '';
-        
-        return words[0].toLowerCase() + words.slice(1)
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join('');
+        const sanitized = value.trim().replace(/[^a-zA-Z0-9_\s]/g, '');
+        const underscoreParts = sanitized.split('_').filter((part) => part.length > 0);
+
+        const toCamel = (segment: string): string => {
+            const words = segment.split(/\s+/).filter((w) => w.length > 0);
+            if (words.length === 0) return '';
+            return words[0].toLowerCase() + words.slice(1)
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join('');
+        };
+
+        if (underscoreParts.length === 0) {
+            return toCamel(sanitized);
+        }
+
+        return underscoreParts.map((segment) => toCamel(segment)).filter((part) => !!part).join('_');
     }
 
     /**
@@ -511,5 +524,96 @@ export class DynamicEntityTypeWidgetComponent {
         });
 
         return expanded;
+    }
+
+    private normalizeAndDeduplicateFields(fields: any[]): any[] {
+        const normalized = fields.map((field) => ({
+            ...field,
+            name: field?.name ? this.convertToCamelCase(field.name) : field?.name
+        }));
+
+        const deduped: any[] = [];
+        const seen = new Set<string>();
+
+        for (const field of normalized) {
+            const key = this.toComparableFieldKey(field?.name);
+            if (!key) {
+                deduped.push(field);
+                continue;
+            }
+
+            if (seen.has(key)) {
+                continue;
+            }
+
+            seen.add(key);
+            deduped.push(field);
+        }
+
+        const idFields = deduped.filter((field) => String(field?.type || '').toLowerCase() === 'idnumber' && !!field?.name);
+        for (const idField of idFields) {
+            const baseName = this.convertToCamelCase(idField.name);
+            idField.name = baseName;
+            this.ensureSingleDerivedField(deduped, idField, `${baseName}_dateOfBirth`, 'Date of Birth', 'date', 'Auto-populated from ID number');
+            this.ensureSingleDerivedField(deduped, idField, `${baseName}_age`, 'Age', 'number', 'Auto-calculated');
+            this.ensureSingleDerivedField(deduped, idField, `${baseName}_gender`, 'Gender', 'select', 'Select gender', 'Male, Female');
+        }
+
+        deduped.forEach((field, index) => {
+            field.order = index + 1;
+        });
+
+        return deduped;
+    }
+
+    private ensureSingleDerivedField(
+        fields: any[],
+        idField: any,
+        preferredName: string,
+        fallbackLabel: string,
+        fallbackType: string,
+        fallbackPlaceholder: string,
+        fallbackOptions: string = ''
+    ): void {
+        const preferredKey = this.toComparableFieldKey(preferredName);
+        const matchingIndexes = fields
+            .map((field, index) => ({ field, index }))
+            .filter(({ field }) => this.toComparableFieldKey(field?.name) === preferredKey)
+            .map(({ index }) => index);
+
+        if (matchingIndexes.length === 0) {
+            const insertAt = Math.min(fields.indexOf(idField) + 1, fields.length);
+            fields.splice(insertAt, 0, {
+                name: preferredName,
+                label: fallbackLabel,
+                type: fallbackType,
+                required: false,
+                placeholder: fallbackPlaceholder,
+                options: fallbackOptions,
+                order: 0,
+                showInList: true,
+                filterable: true,
+                readOnly: true
+            });
+            return;
+        }
+
+        const [keepIndex, ...removeIndexes] = matchingIndexes;
+        const keepField = fields[keepIndex];
+        keepField.name = preferredName;
+        keepField.label = keepField.label || fallbackLabel;
+        keepField.type = keepField.type || fallbackType;
+        keepField.required = false;
+        keepField.readOnly = true;
+        keepField.placeholder = keepField.placeholder || fallbackPlaceholder;
+        if (keepField.type === 'select' && !keepField.options) {
+            keepField.options = fallbackOptions;
+        }
+
+        removeIndexes.sort((a, b) => b - a).forEach((index) => fields.splice(index, 1));
+    }
+
+    private toComparableFieldKey(value: string | undefined | null): string {
+        return (value || '').toString().trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     }
 }

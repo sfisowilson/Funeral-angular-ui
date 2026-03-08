@@ -7,6 +7,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { WIDGET_TYPES } from '../../building-blocks/widget-registry';
 import { AuthService } from '@app/auth/auth-service';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
+import { TenantService } from '../../core/services/tenant.service';
 import { HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { PublicHeaderComponent } from '@app/shared/components/public-header/public-header.component';
@@ -15,7 +16,7 @@ import { PublicHeaderComponent } from '@app/shared/components/public-header/publ
     selector: 'app-dynamic-page',
     standalone: true,
     imports: [CommonModule, ProgressSpinnerModule, RouterModule, PublicHeaderComponent],
-    providers: [CustomPagesServiceProxy, TenantSettingsService],
+    providers: [TenantSettingsService],
     templateUrl: './dynamic-page.component.html',
     styleUrls: ['./dynamic-page.component.scss']
 })
@@ -29,6 +30,7 @@ export class DynamicPageComponent implements OnInit {
     tenantSettings: any = {};
     _settings: any = {};
     isStaticSite = false;
+    isHostTenant = false;
     navbarPages: PageListItemDto[] = [];
     footerPages: PageListItemDto[] = [];
     tenantIdHeader!: HttpHeaders;
@@ -41,12 +43,14 @@ export class DynamicPageComponent implements OnInit {
         private metaService: Meta,
         private authService: AuthService,
         private tenantSettingsService: TenantSettingsService,
+        private tenantService: TenantService,
         @Inject(API_BASE_URL) private baseUrl: string
     ) {}
 
     ngOnInit(): void {
         // Check auth state
         this.isLoggedIn = this.authService.isAuthenticated();
+        this.isHostTenant = this.tenantService.getTenantType() === 'host';
 
         // Set up tenant ID header
         const host = window.location.hostname;
@@ -148,7 +152,7 @@ export class DynamicPageComponent implements OnInit {
         // Transform from DB format { id, type, config, order } to WidgetConfig format { id, type, settings }
         return dbWidgets
             .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-            .map((w: any) => {
+            .map((w: any, index: number) => {
                 const rawConfig = w.config;
                 const settingsFromDb = rawConfig && typeof rawConfig === 'object' && (rawConfig as any).settings ? (rawConfig as any).settings : rawConfig;
                 const layoutFromDb = rawConfig && typeof rawConfig === 'object' ? (rawConfig as any).layout : undefined;
@@ -157,8 +161,8 @@ export class DynamicPageComponent implements OnInit {
                 const mergedSettings = { ...(widgetType?.defaultConfig || {}), ...(settingsFromDb || {}) };
 
                 return {
-                    id: w.id,
-                    type: w.type,
+                    id: w.id || w.Id || `widget-${index}`,
+                    type: w.type || w.Type,
                     settings: mergedSettings,
                     layout: layoutFromDb
                 };

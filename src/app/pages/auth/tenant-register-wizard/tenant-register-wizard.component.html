@@ -87,6 +87,41 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="card mb-4" *ngIf="availableThemes().length > 0">
+                            <div class="card-body">
+                                <h5 class="card-title">Choose a Website Theme <small class="text-muted">(optional)</small></h5>
+                                <p class="text-muted mb-3">A default theme is preselected. You can replace images and content after signup.</p>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6 col-lg-4" *ngFor="let theme of availableThemes()">
+                                        <button
+                                            type="button"
+                                            class="card h-100 text-start w-100"
+                                            [class.border-primary]="selectedThemeId() === theme.id"
+                                            [class.shadow-sm]="selectedThemeId() !== theme.id"
+                                            (click)="selectTheme(theme.id)"
+                                        >
+                                            <img
+                                                *ngIf="theme.thumbnail"
+                                                [src]="theme.thumbnail"
+                                                [alt]="theme.name"
+                                                class="card-img-top"
+                                                style="height: 140px; object-fit: cover"
+                                            />
+                                            <div class="card-body">
+                                                <h6 class="card-title mb-1">{{ theme.name }}</h6>
+                                                <p class="card-text text-muted small mb-2">{{ theme.description }}</p>
+                                                <span class="badge" [class.bg-primary]="selectedThemeId() === theme.id" [class.bg-light]="selectedThemeId() !== theme.id" [class.text-dark]="selectedThemeId() !== theme.id">
+                                                    {{ selectedThemeId() === theme.id ? 'Selected' : 'Select' }}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Real-Time Pricing Calculator -->
                         <div class="price-calculator card mb-4">
                             <div class="card-body">

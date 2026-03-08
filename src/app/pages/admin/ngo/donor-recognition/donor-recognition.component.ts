@@ -8,7 +8,7 @@ import { NgoServiceProxy, DonorRecognition } from '../../../../core/services/ser
     selector: 'app-donor-recognition',
     standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
-    providers: [NgoServiceProxy],
+    providers: [],
     templateUrl: './donor-recognition.component.html',
     styleUrl: './donor-recognition.component.scss'
 })

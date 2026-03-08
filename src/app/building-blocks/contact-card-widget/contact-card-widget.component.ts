@@ -45,20 +45,24 @@ export class ContactCardWidgetComponent {
         }
     };
 
+    // Support both direct ContactCardConfig (landing page builder)
+    // and WidgetConfig wrapper (DynamicPageComponent) where props land in config.settings
+    private get _s(): any { return (this.config as any).settings || {}; }
+
     get title(): string {
-        return this.config.title || '';
+        return this.config.title || this._s.title || '';
     }
 
     get subtitle(): string {
-        return this.config.subtitle || '';
+        return this.config.subtitle || this._s.subtitle || '';
     }
 
     get contactMethods(): ContactMethod[] {
-        return this.config.contactMethods || [];
+        return this.config.contactMethods || this._s.contactMethods || [];
     }
 
     get settings(): ContactCardSettings {
-        return this.config.settings || {};
+        return ((this.config as any).settings || {}) as ContactCardSettings;
     }
 
     get showMap(): boolean {

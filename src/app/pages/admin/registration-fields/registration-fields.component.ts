@@ -27,7 +27,7 @@ interface ValidationRule {
     selector: 'app-registration-fields',
     standalone: true,
     imports: [CommonModule, FormsModule, ToastModule, ButtonModule, TableModule, DialogModule, InputTextModule, DropdownModule, CheckboxModule, InputNumberModule],
-    providers: [MessageService, OnboardingFieldConfigurationServiceProxy],
+    providers: [MessageService],
     templateUrl: './registration-fields.component.html',
     styleUrl: './registration-fields.component.scss'
 })

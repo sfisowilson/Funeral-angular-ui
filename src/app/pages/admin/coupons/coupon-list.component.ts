@@ -23,7 +23,7 @@ interface DurationOption {
     selector: 'app-coupon-list',
     standalone: true,
     imports: [CommonModule, FormsModule, CalendarModule],
-    providers: [CouponServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './coupon-list.component.html',
     styleUrl: './coupon-list.component.scss'

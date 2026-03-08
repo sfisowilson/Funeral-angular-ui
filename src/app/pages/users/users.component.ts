@@ -21,7 +21,7 @@ import { unwrap } from '../../core/services/response-unwrapper';
     selector: 'app-users',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule, MultiSelectModule],
-    providers: [MessageService, ConfirmationService, UserServiceProxy, RoleServiceProxy, UserRoleServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './users.component.html'
 })
 export class UsersComponent {

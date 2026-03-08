@@ -16,7 +16,23 @@
                 </span>
             </div>
         </div>
-        <button pButton label="Create Page" icon="pi pi-plus" class="btn-primary-theme" (click)="openCreateDialog()" [disabled]="!pageLimits().canCreateMore"></button>
+        <div class="flex gap-2">
+            <button 
+                pButton 
+                label="Browse Themes" 
+                icon="pi pi-palette" 
+                class="p-button-outlined" 
+                (click)="openThemeBrowser()"
+            ></button>
+            <button 
+                pButton 
+                label="Create Page" 
+                icon="pi pi-plus" 
+                class="btn-primary-theme" 
+                (click)="openCreateDialog()" 
+                [disabled]="!pageLimits().canCreateMore"
+            ></button>
+        </div>
     </div>
 
     <p-card>
@@ -191,4 +207,7 @@
             </div>
         </ng-template>
     </p-dialog>
+
+    <!-- Theme Browser Component -->
+    <app-page-theme-browser></app-page-theme-browser>
 </div>

@@ -13,7 +13,7 @@ import { CustomPagesServiceProxy, PageListItemDto } from '../../../core/services
 @Component({
     selector: 'topbar-widget',
     imports: [RouterModule, StyleClassModule, ButtonModule, RippleModule, CommonModule],
-    providers: [CustomPagesServiceProxy],
+    providers: [],
     template: `<a class="flex items-center" href="#">
             <img [src]="logoUrl" class="h-12 mr-2" />
             <span class="text-surface-900 dark:text-surface-0 font-medium text-2xl leading-normal mr-20">{{ tenantName }}</span>

@@ -2,6 +2,7 @@
     <app-embedded-calculator
         [config]="calculatorConfig!"
         [formData]="calculatorFormData"
-        [(value)]="calculatorResult">
+        [(value)]="calculatorResult"
+        (calculated)="onCalculated($event)">
     </app-embedded-calculator>
 </div>

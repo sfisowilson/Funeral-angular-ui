@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { WidgetConfig } from '../widget-config';
-import { API_BASE_URL } from '../../core/services/service-proxies';
+import { ContactFormServiceProxy } from '../../core/services/service-proxies';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 
 interface Branch {
@@ -31,17 +30,13 @@ export class ContactUsWidgetComponent implements OnInit {
     isSubmitting = false;
     successMessage = '';
     errorMessage = '';
-    baseUrl: string;
     customStyles: SafeStyle = '';
 
     constructor(
         private fb: FormBuilder,
-        private http: HttpClient,
         private sanitizer: DomSanitizer,
-        @Inject(API_BASE_URL) baseUrl?: string
-    ) {
-        this.baseUrl = baseUrl ?? '';
-    }
+        private contactFormService: ContactFormServiceProxy
+    ) {}
 
     ngOnInit() {
         this.contactForm = this.fb.group({
@@ -81,9 +76,9 @@ export class ContactUsWidgetComponent implements OnInit {
             tenantSubdomain: subdomain
         };
 
-        this.http.post(`${this.baseUrl}/api/ContactForm/submit`, formData).subscribe({
-            next: (response: any) => {
-                this.successMessage = response.message || 'Thank you! Your message has been sent successfully.';
+        this.contactFormService.submit(formData as any).subscribe({
+            next: () => {
+                this.successMessage = 'Thank you! Your message has been sent successfully.';
                 this.contactForm.reset();
                 this.isSubmitting = false;
 

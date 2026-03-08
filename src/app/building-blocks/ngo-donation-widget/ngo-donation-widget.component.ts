@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { firstValueFrom } from 'rxjs';
+import { PaymentServiceProxy } from '../../core/services/service-proxies';
 
 @Component({
     selector: 'app-ngo-donation-widget',
@@ -202,11 +201,9 @@ export class NgoDonationWidgetComponent implements OnInit {
     isRecurring = false;
     processingDonation = false;
 
-    private apiUrl = environment.apiUrl;
-
     constructor(
         private messageService: MessageService,
-        private http: HttpClient
+        private paymentService: PaymentServiceProxy
     ) {}
 
     ngOnInit(): void {
@@ -258,7 +255,7 @@ export class NgoDonationWidgetComponent implements OnInit {
             };
 
             // Call the donation endpoint - backend handles payment processing with configured gateway
-            const response = await firstValueFrom(this.http.post<any>(`${this.apiUrl}/api/Payment/Payment_CreateDonationSession`, donationData));
+            const response = (await firstValueFrom(this.paymentService.payment_CreateDonationSession(donationData as any)))?.result as any;
 
             if (response && response.paymentUrl && response.paymentData) {
                 // Create a form and submit it to the payment gateway with the payment data

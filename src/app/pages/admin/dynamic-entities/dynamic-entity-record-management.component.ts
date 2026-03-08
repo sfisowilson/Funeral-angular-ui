@@ -12,7 +12,7 @@ import { DynamicEntityRecordWidgetComponent } from '@app/building-blocks/dynamic
     styleUrls: ['./dynamic-entity-record-management.component.scss'],
     standalone: true,
     imports: [CommonModule, FormsModule, DynamicEntityRecordWidgetComponent],
-    providers: [DynamicEntityServiceProxy]
+    providers: []
 })
 export class DynamicEntityRecordManagementComponent implements OnInit {
     entityTypes: DynamicEntityTypeDto[] = [];

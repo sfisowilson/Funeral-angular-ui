@@ -7,7 +7,7 @@ import { NgoServiceProxy, NgoEvent } from '../../../../core/services/service-pro
     selector: 'app-ngo-events',
     standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule],
-    providers: [NgoServiceProxy],
+    providers: [],
     templateUrl: './ngo-events.component.html',
     styleUrl: './ngo-events.component.scss'
 })

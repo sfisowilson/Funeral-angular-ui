@@ -20,7 +20,7 @@ import { HttpHeaders } from '@angular/common/http';
     selector: 'app-gallery-editor',
     standalone: true,
     imports: [FormsModule, CommonModule, ReactiveFormsModule, CardModule, InputTextModule, ButtonModule, FieldsetModule, FileUploadModule, DropdownModule, InputSwitchModule, ToastModule],
-    providers: [MessageService, FileUploadServiceProxy, TenantSettingsService],
+    providers: [MessageService, TenantSettingsService],
     templateUrl: './gallery-editor.component.html'
 })
 export class GalleryEditorComponent implements OnInit {

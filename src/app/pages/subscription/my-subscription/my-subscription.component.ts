@@ -8,7 +8,7 @@ import { TenantSubscriptionServiceProxy, PaymentServiceProxy, InvoiceServiceProx
     selector: 'app-my-subscription',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [TenantSubscriptionServiceProxy, PaymentServiceProxy, InvoiceServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './my-subscription.component.html',
     styleUrl: './my-subscription.component.scss'

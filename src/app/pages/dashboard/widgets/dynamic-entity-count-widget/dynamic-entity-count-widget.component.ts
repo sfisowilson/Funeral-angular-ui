@@ -6,7 +6,7 @@ import { DynamicEntityServiceProxy } from '@app/core/services/service-proxies';
     selector: 'app-dynamic-entity-count-widget',
     standalone: true,
     imports: [CommonModule],
-    providers: [DynamicEntityServiceProxy],
+    providers: [],
     templateUrl: './dynamic-entity-count-widget.component.html',
     styleUrl: './dynamic-entity-count-widget.component.scss'
 })

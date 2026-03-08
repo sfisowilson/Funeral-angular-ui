@@ -1,0 +1,11 @@
+.onboarding-summary-card {
+    @apply w-full;
+}
+
+:host ::ng-deep .p-tabview-nav {
+    @apply border-b border-gray-200;
+}
+
+:host ::ng-deep .p-tabview-nav li .p-tabview-nav-link {
+    @apply px-4 py-2 text-sm;
+}

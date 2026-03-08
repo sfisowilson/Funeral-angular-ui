@@ -56,7 +56,7 @@ interface NewPermission {
         TagModule,
         MultiSelectModule
     ],
-    providers: [MessageService, ConfirmationService, TenantTypePermissionServiceProxy, LookupServiceProxy, PermissionServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './tenant-type-permissions.component.html',
     styles: [
         `

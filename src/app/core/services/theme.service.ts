@@ -76,6 +76,8 @@ export class ThemeService {
         const textColor = settings.textColor || '#333333';
         const backgroundColor = settings.backgroundColor || '#ffffff';
         const borderColor = settings.borderColor || '#e5e7eb';
+        const surfaceGroundLightColor = settings.surfaceGroundLightColor || settings.surface950 || '#ffffff';
+        const surfaceGroundDarkColor = settings.surfaceGroundDarkColor || '#ffffff';
 
         cssVariables += `--primary-color: ${primaryColor};\n`;
         cssVariables += `--secondary-color: ${secondaryColor};\n`;
@@ -184,7 +186,7 @@ export class ThemeService {
 `;
         cssVariables += `--surface-overlay: ${backgroundColor};
 `;
-        cssVariables += `--surface-ground: ${this.lightenColor(backgroundColor, 2)};
+        cssVariables += `--surface-ground: ${surfaceGroundLightColor};
 `;
         if (settings.transitionDuration) {
             cssVariables += `--transition-duration: ${settings.transitionDuration};
@@ -224,10 +226,6 @@ export class ThemeService {
         }
         if (settings.focusRingShadow) {
             cssVariables += `--focus-ring-shadow: ${settings.focusRingShadow};
-`;
-        }
-        if (settings.surface950) {
-            cssVariables += `--surface-ground: ${settings.surface950};
 `;
         }
         if (settings.surface800) {
@@ -318,7 +316,7 @@ export class ThemeService {
             cssVariables += `--auth-placeholder-color: ${settings.textMutedColor};\n`;
         }
 
-        style.innerHTML = `:root {\n${cssVariables}}`;
+        style.innerHTML = `:root {\n${cssVariables}}\n:root[class*='app-dark'] {\n--surface-ground: ${surfaceGroundDarkColor};\n}`;
     }
 
     private applyCss(cssContent: any) {

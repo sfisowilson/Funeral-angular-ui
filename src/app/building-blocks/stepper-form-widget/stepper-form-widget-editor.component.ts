@@ -23,7 +23,7 @@ interface FormOption {
     imports: [CommonModule, FormsModule],
     templateUrl: './stepper-form-widget-editor.component.html',
     styleUrls: ['./stepper-form-widget-editor.component.scss'],
-    providers: [FormServiceProxy]
+    providers: []
 })
 export class StepperFormWidgetEditorComponent implements OnInit {
     @Input() config!: WidgetConfig;

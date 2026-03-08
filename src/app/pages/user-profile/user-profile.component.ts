@@ -10,7 +10,7 @@ import { AuthService } from '../../auth/auth-service';
     styleUrl: './user-profile.component.css',
     standalone: true,
     imports: [FormsModule, CommonModule],
-    providers: [UserProfileServiceProxy]
+    providers: []
 })
 export class UserProfileComponent implements OnInit, AfterViewInit {
     userProfile: UserProfileDto = new UserProfileDto();

@@ -16,7 +16,9 @@ import { DateTime, Duration } from "luxon";
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class AuthServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -602,7 +604,9 @@ export class AuthServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class BookingServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -961,7 +965,9 @@ export class BookingServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class ApiServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -1539,7 +1545,9 @@ export class ApiServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class ContactFormServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -1603,7 +1611,9 @@ export class ContactFormServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class CouponServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -2178,7 +2188,9 @@ export class CouponServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class CustomerServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -2525,7 +2537,9 @@ export class CustomerServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class CustomPagesServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -3100,7 +3114,9 @@ export class CustomPagesServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class DashboardWidgetServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -3452,7 +3468,9 @@ export class DashboardWidgetServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class BatchServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -3645,7 +3663,9 @@ export class BatchServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class Debit_orderServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -3859,7 +3879,9 @@ export class Debit_orderServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class DependentServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -4394,7 +4416,9 @@ export class DependentServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class DocumentRequirementServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -4582,7 +4606,9 @@ export class DocumentRequirementServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class DynamicEntityServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -5611,7 +5637,9 @@ export class DynamicEntityServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class EmailServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -5774,7 +5802,9 @@ export class EmailServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class FileUploadServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -6148,7 +6178,9 @@ export class FileUploadServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class FormServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -6828,7 +6860,9 @@ export class FormServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class InvoiceServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -7330,7 +7364,9 @@ export class InvoiceServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class LandingPageServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -7445,7 +7481,9 @@ export class LandingPageServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class LookupServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -7518,7 +7556,9 @@ export class LookupServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class MemberServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -8310,7 +8350,9 @@ export class MemberServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class MemberApprovalServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -8637,7 +8679,9 @@ export class MemberApprovalServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class MemberBankingDetailServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -8971,7 +9015,9 @@ export class MemberBankingDetailServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class MemberProfileCompletionServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -9366,7 +9412,9 @@ export class MemberProfileCompletionServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class MemberRegistrationServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -9656,7 +9704,9 @@ export class MemberRegistrationServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class NgoServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -10969,7 +11019,9 @@ export class NgoServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class NotificationTemplateServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -11255,7 +11307,9 @@ export class NotificationTemplateServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class OnboardingContractServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -11608,7 +11662,9 @@ export class OnboardingContractServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class OnboardingFieldConfigurationServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -12279,9 +12335,67 @@ export class OnboardingFieldConfigurationServiceProxy {
         }
         return _observableOf<SwaggerResponse<MemberOnboardingDataDto>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @param memberId (optional) 
+     * @return OK
+     */
+    onboardingFieldConfiguration_GetMemberDataById(memberId: string | undefined): Observable<SwaggerResponse<MemberOnboardingDataDto>> {
+        let url_ = this.baseUrl + "/api/OnboardingFieldConfiguration/OnboardingFieldConfiguration_GetMemberDataById?";
+        if (memberId === null)
+            throw new globalThis.Error("The parameter 'memberId' cannot be null.");
+        else if (memberId !== undefined)
+            url_ += "memberId=" + encodeURIComponent("" + memberId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOnboardingFieldConfiguration_GetMemberDataById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOnboardingFieldConfiguration_GetMemberDataById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<MemberOnboardingDataDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<MemberOnboardingDataDto>>;
+        }));
+    }
+
+    protected processOnboardingFieldConfiguration_GetMemberDataById(response: HttpResponseBase): Observable<SwaggerResponse<MemberOnboardingDataDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MemberOnboardingDataDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<MemberOnboardingDataDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class OnboardingFieldDefinitionServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -12596,7 +12710,9 @@ export class OnboardingFieldDefinitionServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class OnboardingFieldGroupServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -12911,7 +13027,9 @@ export class OnboardingFieldGroupServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class OnboardingMultiSubmitServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -13160,7 +13278,9 @@ export class OnboardingMultiSubmitServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class OnboardingPdfServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -13402,7 +13522,9 @@ export class OnboardingPdfServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class OnboardingStepConfigurationServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -13811,7 +13933,9 @@ export class OnboardingStepConfigurationServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class OnboardingStepFieldServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -14079,7 +14203,9 @@ export class OnboardingStepFieldServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class OrderServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -14367,7 +14493,9 @@ export class OrderServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PageWidgetConfigServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -14670,7 +14798,9 @@ export class PageWidgetConfigServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PaymentServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -15139,7 +15269,9 @@ export class PaymentServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class Payment_configServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -15524,7 +15656,9 @@ export class Payment_configServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class Payment_gatewayServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -15724,7 +15858,9 @@ export class Payment_gatewayServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PdfFieldMappingServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -16353,7 +16489,9 @@ export class PdfFieldMappingServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PermissionServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -16526,7 +16664,9 @@ export class PermissionServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PersonnelServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -16621,7 +16761,9 @@ export class PersonnelServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PlanConfigurationServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -17213,7 +17355,9 @@ export class PlanConfigurationServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class PremiumCalculationServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -17489,7 +17633,9 @@ export class PremiumCalculationServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class ProductServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -17957,7 +18103,9 @@ export class ProductServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class RequiredDocumentServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -18249,7 +18397,9 @@ export class RequiredDocumentServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class ResourceServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -18791,7 +18941,9 @@ export class ResourceServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class RoleServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -18973,7 +19125,9 @@ export class RoleServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class RolePermissionServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -19157,7 +19311,9 @@ export class RolePermissionServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class SubscriptionPlanServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -19451,7 +19607,9 @@ export class SubscriptionPlanServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class TenantServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -19805,7 +19963,9 @@ export class TenantServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class TenantApprovalServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -20143,7 +20303,9 @@ export class TenantApprovalServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class Tenant_bankingServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -20221,7 +20383,9 @@ export class Tenant_bankingServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class Tenant_invoiceServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -20575,7 +20739,9 @@ export class Tenant_invoiceServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class TenantSettingServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -21100,7 +21266,9 @@ export class TenantSettingServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class TenantSubscriptionServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -21748,7 +21916,9 @@ export class TenantSubscriptionServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class TenantTypePermissionServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -21977,7 +22147,9 @@ export class TenantTypePermissionServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class TermsServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -22320,7 +22492,9 @@ export class TermsServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class TimesheetServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -22639,7 +22813,9 @@ export class TimesheetServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class UserServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -23022,7 +23198,9 @@ export class UserServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class UserProfileServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -23500,7 +23678,9 @@ export class UserProfileServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class UserRoleServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -23681,7 +23861,9 @@ export class UserRoleServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class VerificationServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -24284,7 +24466,9 @@ export class VerificationServiceProxy {
     }
 }
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class WebhookServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -28480,6 +28664,7 @@ export class CreatePageDto implements ICreatePageDto {
     slug!: string | undefined;
     title!: string | undefined;
     description!: string | undefined;
+    content!: PageWidgetDto[] | undefined;
     isPublic!: boolean;
     requiresAuth!: boolean;
     showInNavbar!: boolean;
@@ -28503,6 +28688,11 @@ export class CreatePageDto implements ICreatePageDto {
             this.slug = _data["slug"];
             this.title = _data["title"];
             this.description = _data["description"];
+            if (Array.isArray(_data["content"])) {
+                this.content = [] as any;
+                for (let item of _data["content"])
+                    this.content!.push(PageWidgetDto.fromJS(item));
+            }
             this.isPublic = _data["isPublic"];
             this.requiresAuth = _data["requiresAuth"];
             this.showInNavbar = _data["showInNavbar"];
@@ -28526,6 +28716,11 @@ export class CreatePageDto implements ICreatePageDto {
         data["slug"] = this.slug;
         data["title"] = this.title;
         data["description"] = this.description;
+        if (Array.isArray(this.content)) {
+            data["content"] = [];
+            for (let item of this.content)
+                data["content"].push(item ? item.toJSON() : undefined as any);
+        }
         data["isPublic"] = this.isPublic;
         data["requiresAuth"] = this.requiresAuth;
         data["showInNavbar"] = this.showInNavbar;
@@ -28542,6 +28737,7 @@ export interface ICreatePageDto {
     slug: string | undefined;
     title: string | undefined;
     description: string | undefined;
+    content: PageWidgetDto[] | undefined;
     isPublic: boolean;
     requiresAuth: boolean;
     showInNavbar: boolean;
@@ -39841,6 +40037,7 @@ export class Tenant implements ITenant {
     id!: string;
     name!: string | undefined;
     domain!: string | undefined;
+    customDomain!: string | undefined;
     email!: string | undefined;
     address!: string | undefined;
     phone1!: string | undefined;
@@ -39878,6 +40075,7 @@ export class Tenant implements ITenant {
             this.id = _data["id"];
             this.name = _data["name"];
             this.domain = _data["domain"];
+            this.customDomain = _data["customDomain"];
             this.email = _data["email"];
             this.address = _data["address"];
             this.phone1 = _data["phone1"];
@@ -39919,6 +40117,7 @@ export class Tenant implements ITenant {
         data["id"] = this.id;
         data["name"] = this.name;
         data["domain"] = this.domain;
+        data["customDomain"] = this.customDomain;
         data["email"] = this.email;
         data["address"] = this.address;
         data["phone1"] = this.phone1;
@@ -39953,6 +40152,7 @@ export interface ITenant {
     id: string;
     name: string | undefined;
     domain: string | undefined;
+    customDomain: string | undefined;
     email: string | undefined;
     address: string | undefined;
     phone1: string | undefined;
@@ -40240,6 +40440,7 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
     password!: string | undefined;
     name!: string;
     domain!: string;
+    customDomain!: string | undefined;
     address!: string | undefined;
     phone1!: string | undefined;
     phone2!: string | undefined;
@@ -40247,6 +40448,7 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
     type!: TenantType;
     subscriptionPlanId!: string | undefined;
     selectedPlanConfigurationId!: string | undefined;
+    selectedThemeId!: string | undefined;
     couponCode!: string | undefined;
     billingCycle!: number;
     isStaticSite!: boolean;
@@ -40268,6 +40470,7 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
             this.password = _data["password"];
             this.name = _data["name"];
             this.domain = _data["domain"];
+            this.customDomain = _data["customDomain"];
             this.address = _data["address"];
             this.phone1 = _data["phone1"];
             this.phone2 = _data["phone2"];
@@ -40275,6 +40478,7 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
             this.type = _data["type"];
             this.subscriptionPlanId = _data["subscriptionPlanId"];
             this.selectedPlanConfigurationId = _data["selectedPlanConfigurationId"];
+            this.selectedThemeId = _data["selectedThemeId"];
             this.couponCode = _data["couponCode"];
             this.billingCycle = _data["billingCycle"];
             this.isStaticSite = _data["isStaticSite"];
@@ -40302,6 +40506,7 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
         data["password"] = this.password;
         data["name"] = this.name;
         data["domain"] = this.domain;
+        data["customDomain"] = this.customDomain;
         data["address"] = this.address;
         data["phone1"] = this.phone1;
         data["phone2"] = this.phone2;
@@ -40309,6 +40514,7 @@ export class TenantCreateUpdateDto implements ITenantCreateUpdateDto {
         data["type"] = this.type;
         data["subscriptionPlanId"] = this.subscriptionPlanId;
         data["selectedPlanConfigurationId"] = this.selectedPlanConfigurationId;
+        data["selectedThemeId"] = this.selectedThemeId;
         data["couponCode"] = this.couponCode;
         data["billingCycle"] = this.billingCycle;
         data["isStaticSite"] = this.isStaticSite;
@@ -40329,6 +40535,7 @@ export interface ITenantCreateUpdateDto {
     password: string | undefined;
     name: string;
     domain: string;
+    customDomain: string | undefined;
     address: string | undefined;
     phone1: string | undefined;
     phone2: string | undefined;
@@ -40336,6 +40543,7 @@ export interface ITenantCreateUpdateDto {
     type: TenantType;
     subscriptionPlanId: string | undefined;
     selectedPlanConfigurationId: string | undefined;
+    selectedThemeId: string | undefined;
     couponCode: string | undefined;
     billingCycle: number;
     isStaticSite: boolean;

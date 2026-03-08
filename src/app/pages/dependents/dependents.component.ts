@@ -39,7 +39,7 @@ import { VerificationStatusComponent } from '../../shared/components/verificatio
         IdentityVerificationFormComponent,
         VerificationStatusComponent
     ],
-    providers: [MessageService, ConfirmationService, DependentServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './dependents.component.html'
 })
 export class DependentsComponent implements OnInit, OnChanges {

@@ -52,6 +52,14 @@ export class TenantService {
                 console.log('✅ Detected as LANDING (www or empty)');
             }
         }
+        // Custom domain: a fully-qualified domain that is not under baseDomain
+        // e.g. "www.riverside-memorial.com". Pass the full hostname to the backend
+        // as the X-Tenant-ID header; the backend will match it against CustomDomain.
+        else if (hostname.includes('.')) {
+            this.currentTenantType = 'tenant';
+            this.tenantId = hostname;
+            console.log('✅ Detected as TENANT (custom domain):', hostname);
+        }
         // Default to landing page
         else {
             this.currentTenantType = 'landing';

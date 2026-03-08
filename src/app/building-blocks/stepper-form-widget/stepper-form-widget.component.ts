@@ -22,6 +22,7 @@ interface DynamicFormField {
     label: string;
     type: string;
     required: boolean;
+    defaultValue?: any;
     placeholder?: string;
     options?: string[];
     fileMode?: 'single' | 'multiple';
@@ -86,7 +87,7 @@ interface StepRuntime {
     imports: [CommonModule, ReactiveFormsModule, FormsModule, CalendarModule, DynamicFileUploadComponent],
     templateUrl: './stepper-form-widget.component.html',
     styleUrls: ['./stepper-form-widget.component.scss'],
-    providers: [FormServiceProxy, TermsServiceProxy]
+    providers: []
 })
 export class StepperFormWidgetComponent implements OnInit {
     @Input() config!: WidgetConfig;
@@ -300,6 +301,7 @@ export class StepperFormWidgetComponent implements OnInit {
                         label: f.label || f.name || `Field ${index + 1}`,
                         type: f.type || 'text',
                         required: !!f.required,
+                        defaultValue: f.defaultValue,
                         placeholder: f.placeholder || '',
                         options: Array.isArray(f.options)
                             ? f.options
@@ -658,18 +660,54 @@ export class StepperFormWidgetComponent implements OnInit {
             }
 
             if (field.type === 'checkbox' && field.options && field.options.length) {
-                const controls = field.options.map(() => this.fb.control(false));
+                const defaultFlags = this.getCheckboxDefaultFlags(field);
+                const controls = field.options.map((_, idx) => this.fb.control(defaultFlags[idx] || false));
                 group[field.name] = this.fb.array(controls, field.required ? this.atLeastOneCheckedValidator : []);
             } else if (field.type === 'file') {
                 group[field.name] = this.fb.control([], validators);
             } else if (field.type === 'date') {
-                group[field.name] = this.fb.control(null, validators);
+                group[field.name] = this.fb.control(normalizeDateValue(field.defaultValue), validators);
             } else {
-                group[field.name] = ['', validators];
+                group[field.name] = [this.getScalarDefaultValue(field), validators];
             }
         }
 
         return this.fb.group(group);
+    }
+
+    private getScalarDefaultValue(field: DynamicFormField): any {
+        if (field.defaultValue == null) {
+            return '';
+        }
+
+        if (field.type === 'number') {
+            const num = typeof field.defaultValue === 'number' ? field.defaultValue : parseFloat(field.defaultValue);
+            return isNaN(num) ? field.defaultValue : num;
+        }
+
+        return field.defaultValue;
+    }
+
+    private getCheckboxDefaultFlags(field: DynamicFormField): boolean[] {
+        const options = field.options || [];
+        if (!options.length) {
+            return [];
+        }
+
+        const raw = field.defaultValue;
+        const defaults = Array.isArray(raw)
+            ? raw
+            : typeof raw === 'string'
+              ? raw
+                    .split(',')
+                    .map((v: string) => v.trim())
+                    .filter((v: string) => !!v)
+              : raw != null
+                ? [String(raw).trim()]
+                : [];
+
+        const defaultSet = new Set(defaults.map((v: any) => String(v).trim().toLowerCase()).filter((v: string) => !!v));
+        return options.map((option) => defaultSet.has(String(option).trim().toLowerCase()));
     }
 
     getCheckboxOptions(field: DynamicFormField): string[] {

@@ -7,7 +7,7 @@ import { PaymentGatewayConfigDto, PaymentGatewayProvider, NgoServiceProxy } from
     selector: 'app-payment-gateway',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule],
-    providers: [NgoServiceProxy],
+    providers: [],
     templateUrl: './payment-gateway.component.html',
     styleUrls: ['./payment-gateway.component.scss']
 })

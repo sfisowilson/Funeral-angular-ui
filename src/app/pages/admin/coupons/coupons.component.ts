@@ -32,7 +32,7 @@ interface CouponDto {
     selector: 'app-coupons',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [CouponServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './coupons.component.html',
     styleUrls: ['./coupons.component.scss']

@@ -20,7 +20,7 @@ interface FormOption {
     selector: 'app-form-widget-editor',
     standalone: true,
     imports: [CommonModule, FormsModule, DropdownModule, ButtonModule, InputTextModule, TextareaModule, ToastModule],
-    providers: [FormServiceProxy, MessageService],
+    providers: [MessageService],
     templateUrl: './form-widget-editor.component.html',
     styleUrls: ['./form-widget-editor.component.scss']
 })

@@ -1,0 +1,51 @@
+<div 
+    class="marquee-widget" 
+    [style.padding.px]="padding"
+    [style.background-color]="backgroundColor"
+>
+    <div class="container">
+        <!-- Title -->
+        <h2 *ngIf="showTitle && title" class="title" [style.color]="titleColor">
+            {{ title }}
+        </h2>
+
+        <!-- Marquee Container -->
+        <div 
+            class="marquee-container"
+            [class.horizontal]="direction === 'left' || direction === 'right'"
+            [class.vertical]="direction === 'up' || direction === 'down'"
+            [class.pause-on-hover]="pauseOnHover"
+        >
+            <div 
+                class="marquee-content"
+                [ngStyle]="getAnimationStyle()"
+                [style.gap.px]="itemSpacing"
+            >
+                <div
+                    *ngFor="let item of duplicatedItems; let i = index"
+                    class="marquee-item"
+                    [class.clickable]="item.link"
+                    [style.transform]="'scale(' + itemScale + ')'"
+                    (click)="onItemClick(item)"
+                >
+                    <!-- Image Item -->
+                    <img 
+                        *ngIf="item.type === 'image'" 
+                        [src]="item.src" 
+                        [alt]="item.alt || 'Marquee item'"
+                        class="item-image"
+                    />
+
+                    <!-- Text Item -->
+                    <div 
+                        *ngIf="item.type === 'text'" 
+                        class="item-text"
+                        [style.color]="textColor"
+                    >
+                        {{ item.content }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

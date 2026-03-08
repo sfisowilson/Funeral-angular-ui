@@ -35,7 +35,7 @@ interface AccountTypeOption {
     InputNumberModule,
     ToastModule
   ],
-  providers: [MessageService, MemberBankingDetailServiceProxy],
+  providers: [MessageService],
   templateUrl: './banking-details-step.component.html',
   styleUrl: './banking-details-step.component.scss'
 })

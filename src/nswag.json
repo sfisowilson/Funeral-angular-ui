@@ -17,7 +17,7 @@
       "promiseType": "Promise",
       "httpClass": "HttpClient",
       "withCredentials": false,
-      "useSingletonProvider": false,
+      "useSingletonProvider": true,
       "injectionTokenType": "InjectionToken",
       "rxJsVersion": 7.0,
       "dateTimeType": "Luxon",

@@ -1,0 +1,45 @@
+<div 
+    class="glassmorphism-widget" 
+    [style.padding.px]="padding"
+    [ngStyle]="getBackgroundStyle()"
+>
+    <div class="container">
+        <!-- Header -->
+        <div class="header" *ngIf="showTitle || showSubtitle">
+            <h2 *ngIf="showTitle" class="title" [style.color]="titleColor">{{ title }}</h2>
+            <p *ngIf="showSubtitle" class="subtitle" [style.color]="subtitleColor">{{ subtitle }}</p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div 
+            class="cards-grid" 
+            [class.cols-2]="columns === 2"
+            [class.cols-3]="columns === 3"
+            [class.cols-4]="columns === 4"
+        >
+            <div
+                #card
+                *ngFor="let card of cards"
+                class="glass-card"
+                [class.clickable]="card.link"
+                [ngClass]="getShadowClass()"
+                [ngStyle]="getGlassStyle()"
+                (click)="onCardClick(card)"
+            >
+                <div class="card-glow" *ngIf="borderGlow"></div>
+                
+                <div class="card-content">
+                    <div class="icon-wrapper">
+                        <i [class]="card.icon" [style.color]="iconColor"></i>
+                    </div>
+                    
+                    <h3 class="card-title" [style.color]="cardTitleColor">{{ card.title }}</h3>
+                    
+                    <p class="card-description" [style.color]="cardTextColor">{{ card.description }}</p>
+                    
+                    <i *ngIf="card.link" class="bi bi-arrow-right card-arrow" [style.color]="iconColor"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

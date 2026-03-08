@@ -4,13 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { LogoItem } from './logo-cloud-widget.component';
 import { FileUploadServiceProxy, FileParameter, FileMetadataDto, API_BASE_URL } from '../../core/services/service-proxies';
 
+const picsumSeedUrl = (seed: string, width: number, height: number): string => `https://picsum.photos/seed/${seed}/${width}/${height}`;
+
 @Component({
     selector: 'app-logo-cloud-editor',
     standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './logo-cloud-editor.component.html',
     styleUrls: ['./logo-cloud-editor.component.scss'],
-    providers: [FileUploadServiceProxy]
+    providers: []
 })
 export class LogoCloudEditorComponent implements OnInit {
     @Input() config: any = {};
@@ -43,25 +45,25 @@ export class LogoCloudEditorComponent implements OnInit {
             this.config.logos = [
                 {
                     name: 'Partner 1',
-                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+1',
+                    imageUrl: picsumSeedUrl('partner-1', 150, 60),
                     link: '',
                     altText: 'Partner 1 Logo'
                 },
                 {
                     name: 'Partner 2',
-                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+2',
+                    imageUrl: picsumSeedUrl('partner-2', 150, 60),
                     link: '',
                     altText: 'Partner 2 Logo'
                 },
                 {
                     name: 'Partner 3',
-                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+3',
+                    imageUrl: picsumSeedUrl('partner-3', 150, 60),
                     link: '',
                     altText: 'Partner 3 Logo'
                 },
                 {
                     name: 'Partner 4',
-                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+4',
+                    imageUrl: picsumSeedUrl('partner-4', 150, 60),
                     link: '',
                     altText: 'Partner 4 Logo'
                 }
@@ -72,7 +74,7 @@ export class LogoCloudEditorComponent implements OnInit {
     addLogo() {
         const newLogo: LogoItem = {
             name: 'New Logo',
-            imageUrl: 'https://via.placeholder.com/150x60?text=New+Logo',
+            imageUrl: picsumSeedUrl(`new-logo-${Date.now()}`, 150, 60),
             link: '',
             altText: 'New Logo'
         };

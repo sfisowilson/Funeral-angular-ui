@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import {
     PdfFieldMappingServiceProxy,
@@ -34,7 +33,7 @@ interface FieldGroup {
     selector: 'app-pdf-field-mapping',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [PdfFieldMappingServiceProxy, FileUploadServiceProxy],
+    providers: [],
     templateUrl: './pdf-field-mapping.component.html',
     styleUrl: './pdf-field-mapping.component.scss'
 })
@@ -137,8 +136,7 @@ export class PdfFieldMappingComponent implements OnInit {
 
     constructor(
         private pdfFieldMappingService: PdfFieldMappingServiceProxy,
-        private fileUploadService: FileUploadServiceProxy,
-        private http: HttpClient
+        private fileUploadService: FileUploadServiceProxy
     ) {}
 
     ngOnInit(): void {
@@ -155,8 +153,9 @@ export class PdfFieldMappingComponent implements OnInit {
     }
 
     loadAvailableFields(): void {
-        this.http.get<string[]>(this.baseUrl + '/api/PdfFieldMapping/GetAvailableFields').subscribe({
-            next: (fields) => {
+        this.pdfFieldMappingService.getAvailableFields().subscribe({
+            next: (response) => {
+                const fields = (response?.result as string[]) || [];
                 console.log('=== Available fields from API ===');
                 console.log('Total fields received:', fields.length);
                 if (fields && fields.length > 0) {
@@ -571,12 +570,9 @@ export class PdfFieldMappingComponent implements OnInit {
 
     loadFileMetadata(fileId: string): void {
         console.log('Loading file metadata for fileId:', fileId);
-        
-        // Try direct HTTP call first to see raw response
-        this.http.get(`${this.baseUrl}/api/FileUpload/File_GetByFileId/${fileId}`).subscribe({
-            next: (directResponse: any) => {
-                console.log('Direct HTTP response:', directResponse);
-                this.currentTemplateFile = directResponse;
+        this.fileUploadService.file_GetByFileId(fileId).subscribe({
+            next: (response: any) => {
+                this.currentTemplateFile = response?.result || null;
                 
                 if (!this.currentTemplateFile || !this.currentTemplateFile.fileName) {
                     console.warn('File metadata missing fileName property');
@@ -584,7 +580,7 @@ export class PdfFieldMappingComponent implements OnInit {
                 }
             },
             error: (error) => {
-                console.error('Error loading file metadata (direct):', error);
+                console.error('Error loading file metadata:', error);
                 console.error('Error status:', error.status);
                 console.error('Error message:', error.message);
                 this.currentTemplateFile = null;

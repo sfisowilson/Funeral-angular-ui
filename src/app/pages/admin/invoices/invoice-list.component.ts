@@ -17,7 +17,7 @@ interface StatusOption {
     selector: 'app-invoice-list',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [InvoiceServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './invoice-list.component.html',
     styleUrl: './invoice-list.component.scss'

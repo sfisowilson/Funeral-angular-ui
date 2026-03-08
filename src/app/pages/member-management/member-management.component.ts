@@ -47,7 +47,7 @@ interface ExtendedMemberDto extends MemberDto {
         TooltipModule,
         DependentsComponent
     ],
-    providers: [MessageService, ConfirmationService, MemberServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './member-management.component.html',
     styleUrls: ['./member-management.component.scss']
 })

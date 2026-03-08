@@ -14,6 +14,7 @@ interface DynamicFormField {
     label: string;
     type: string;
     required: boolean;
+    defaultValue?: any;
     placeholder?: string;
     options?: string[];
     fileMode?: 'single' | 'multiple';
@@ -49,7 +50,7 @@ interface ConditionalFieldRuleConfig {
     imports: [CommonModule, ReactiveFormsModule, CalendarModule, DynamicFileUploadComponent],
     templateUrl: './form-widget.component.html',
     styleUrls: ['./form-widget.component.scss'],
-    providers: [FormServiceProxy, DynamicEntityServiceProxy]
+    providers: []
 })
 export class FormWidgetComponent implements OnInit {
     @Input() config!: WidgetConfig;
@@ -186,6 +187,7 @@ export class FormWidgetComponent implements OnInit {
                                                 label: f.label || f.name || `Field ${index + 1}`,
                                                 type: f.type || 'text',
                                                 required: !!f.required,
+                                                defaultValue: f.defaultValue,
                                                 placeholder: f.placeholder || '',
                                                 options: Array.isArray(f.options)
                                                         ? f.options
@@ -249,22 +251,58 @@ export class FormWidgetComponent implements OnInit {
             }
 
             if (field.type === 'checkbox' && field.options && field.options.length) {
-                const controls = field.options.map(() => this.fb.control(false));
+                const defaultFlags = this.getCheckboxDefaultFlags(field);
+                const controls = field.options.map((_, idx) => this.fb.control(defaultFlags[idx] || false));
                 group[field.name] = this.fb.array(controls, field.required ? this.atLeastOneCheckedValidator : []);
             } else if (field.type === 'file') {
                 group[field.name] = this.fb.control([], validators);
             } else if (field.type === 'date') {
-                group[field.name] = this.fb.control(null, validators);
+                group[field.name] = this.fb.control(normalizeDateValue(field.defaultValue), validators);
             } else if (field.type === 'lookup') {
                 // Single-select lookup: store the related record ID
-                group[field.name] = ['', validators];
+                group[field.name] = [this.getScalarDefaultValue(field), validators];
             } else {
-                group[field.name] = ['', validators];
+                group[field.name] = [this.getScalarDefaultValue(field), validators];
             }
         }
 
         this.formGroup = this.fb.group(group);
         this.initializeConditionalFieldLogic();
+    }
+
+    private getScalarDefaultValue(field: DynamicFormField): any {
+        if (field.defaultValue == null) {
+            return '';
+        }
+
+        if (field.type === 'number') {
+            const num = typeof field.defaultValue === 'number' ? field.defaultValue : parseFloat(field.defaultValue);
+            return isNaN(num) ? field.defaultValue : num;
+        }
+
+        return field.defaultValue;
+    }
+
+    private getCheckboxDefaultFlags(field: DynamicFormField): boolean[] {
+        const options = field.options || [];
+        if (!options.length) {
+            return [];
+        }
+
+        const raw = field.defaultValue;
+        const defaults = Array.isArray(raw)
+            ? raw
+            : typeof raw === 'string'
+              ? raw
+                    .split(',')
+                    .map((v: string) => v.trim())
+                    .filter((v: string) => !!v)
+              : raw != null
+                ? [String(raw).trim()]
+                : [];
+
+        const defaultSet = new Set(defaults.map((v: any) => String(v).trim().toLowerCase()).filter((v: string) => !!v));
+        return options.map((option) => defaultSet.has(String(option).trim().toLowerCase()));
     }
 
     private setupCalculatorFromConfig(formWithConfig: FormDto): void {

@@ -21,7 +21,7 @@ import { unwrap } from '../../core/services/response-unwrapper';
     selector: 'app-policy',
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, ConfirmDialogModule, DialogModule, InputTextModule, TableModule, ToastModule, ToolbarModule, CheckboxModule, InputNumberModule, TextareaModule],
-    providers: [MessageService, ConfirmationService, PolicyServiceProxy, PolicyAttributeServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './policy.component.html',
     styleUrls: ['./policy.component.scss']
 })

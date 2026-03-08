@@ -7,7 +7,7 @@ import { NgoServiceProxy, ImpactReport } from '../../../../core/services/service
     selector: 'app-impact-reports',
     standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule],
-    providers: [NgoServiceProxy],
+    providers: [],
     templateUrl: './impact-reports.component.html',
     styleUrl: './impact-reports.component.scss'
 })

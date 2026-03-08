@@ -11,7 +11,7 @@ import { AuthService } from '@app/auth/auth-service';
     styleUrls: ['./dynamic-entity-type-management.component.scss'],
     standalone: true,
     imports: [CommonModule, FormsModule, DynamicEntityTypeWidgetComponent],
-    providers: [DynamicEntityServiceProxy]
+    providers: []
 })
 export class DynamicEntityTypeManagementComponent implements OnInit {
     entityTypes: DynamicEntityTypeDto[] = [];

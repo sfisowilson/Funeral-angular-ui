@@ -53,6 +53,31 @@ export class OnboardingGlobalCalculatorWidgetComponent implements OnInit, OnDest
         });
     }
 
+    /**
+     * Called each time the embedded calculator produces a new result.
+     * Pushes the total premium and derived family tier back into the aggregator
+     * so the multi-submit completion step can write them to the Policy entity
+     * for PDF field mapping.
+     */
+    onCalculated(result: CalculatorResult): void {
+        this.calculatorResult = result;
+
+        const snapshot = this.aggregator.getFormDataSnapshot();
+        const dependentCount = ((snapshot['dependents'] as any[]) || []).length;
+        const familyTier = dependentCount <= 5 ? '1+5' : '1+9';
+
+        // Guard against re-entrance: only emit if values actually changed.
+        if (
+            snapshot['totalMonthlyPremium'] !== result.totalMonthlyPremium ||
+            snapshot['familyTier'] !== familyTier
+        ) {
+            this.aggregator.updateGlobals({
+                totalMonthlyPremium: result.totalMonthlyPremium,
+                familyTier
+            });
+        }
+    }
+
     ngOnDestroy(): void {
         if (this.sub) {
             this.sub.unsubscribe();

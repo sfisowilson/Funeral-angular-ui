@@ -17,7 +17,7 @@ interface GatewayOption {
     selector: 'app-payment-list',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [PaymentServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './payment-list.component.html',
     styleUrl: './payment-list.component.scss'

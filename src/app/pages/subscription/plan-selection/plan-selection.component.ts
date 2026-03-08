@@ -8,7 +8,7 @@ import { SubscriptionPlanServiceProxy, SubscriptionPlanDto, CouponServiceProxy, 
     selector: 'app-plan-selection',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [SubscriptionPlanServiceProxy, CouponServiceProxy, PaymentServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './plan-selection.component.html',
     styleUrls: ['./plan-selection.component.scss']

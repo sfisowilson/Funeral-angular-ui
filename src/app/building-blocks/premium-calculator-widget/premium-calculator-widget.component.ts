@@ -29,7 +29,7 @@ interface BreakdownItem {
     selector: 'app-premium-calculator-widget',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [PremiumCalculationServiceProxy],
+    providers: [],
     template: `
         <div
             [ngStyle]="{

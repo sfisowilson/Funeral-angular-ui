@@ -34,7 +34,7 @@ interface ExportColumn {
     selector: 'app-subscription-plans',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule, InputNumberModule],
-    providers: [MessageService, ConfirmationService, SubscriptionPlanServiceProxy, LookupServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './subscription-plans.component.html'
 })
 export class SubscriptionPlansComponent {

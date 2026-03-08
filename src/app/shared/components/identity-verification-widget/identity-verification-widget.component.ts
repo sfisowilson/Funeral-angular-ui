@@ -32,7 +32,7 @@ export interface VerificationWidgetConfig {
     selector: 'app-identity-verification-widget',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, CalendarModule, DropdownModule, CardModule, ToastModule],
-    providers: [UserProfileServiceProxy, MessageService],
+    providers: [MessageService],
     templateUrl: './identity-verification-widget.component.html',
     styleUrl: './identity-verification-widget.component.scss'
 })

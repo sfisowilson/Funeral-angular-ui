@@ -20,7 +20,7 @@ interface WidgetSetting {
     selector: 'app-dashboard-settings',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [DashboardWidgetServiceProxy, RoleServiceProxy],
+    providers: [],
     templateUrl: './dashboard-settings.component.html',
     styleUrl: './dashboard-settings.component.scss'
 })

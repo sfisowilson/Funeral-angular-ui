@@ -12,18 +12,20 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { AuthService } from '../../auth/auth-service';
-import { AuthServiceProxy } from '../../core/services/service-proxies';
+import { ApiServiceProxy, AuthServiceProxy, CustomPagesServiceProxy, TenantSettingDto, TenantSettingServiceProxy } from '../../core/services/service-proxies';
 import { HttpClient } from '@angular/common/http';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { ChangePasswordDialogComponent } from './change-password-dialog/change-password-dialog.component';
-import { take } from 'rxjs';
+import { firstValueFrom, take } from 'rxjs';
+import { CustomPageTemplateService } from '../../core/services/custom-page-template.service';
+import { ThemeApplicationService } from '../../core/services/theme-application.service';
 
 @Component({
     selector: 'app-login',
     standalone: true,
     imports: [CommonModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ReactiveFormsModule, ChangePasswordDialogComponent, MessageModule, ToastModule],
-    providers: [HttpClient, AuthServiceProxy, MessageService],
+    providers: [HttpClient, MessageService, ThemeApplicationService],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
 })
@@ -42,6 +44,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
     // Session expired message
     sessionExpired = signal<boolean>(false);
     returnUrl: string | null = null;
+    applyingThemeSetup = signal<boolean>(false);
 
     constructor(
         injector: Injector,
@@ -51,7 +54,11 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
         private route: ActivatedRoute,
         private service: AuthServiceProxy,
         private _tenantSettings: TenantSettingsService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private customPagesService: CustomPagesServiceProxy,
+        private templateService: CustomPageTemplateService,
+        private themeApplicationService: ThemeApplicationService,
+        private tenantSettingService: TenantSettingServiceProxy
     ) {
         super(injector);
         this.form = this.fb.group({
@@ -260,8 +267,10 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
         this.loginCredentials = null;
 
         // set token in auth service
-        this.authService.setToken(token).subscribe((success) => {
+        this.authService.setToken(token).subscribe(async (success) => {
             if (success) {
+                await this.autoApplyRegistrationThemeIfNeeded();
+
                 // Check if we have a return URL from session expiration
                 if (this.returnUrl && this.returnUrl !== '/auth/login') {
                     console.log('Login successful, redirecting to return URL:', this.returnUrl);
@@ -288,6 +297,97 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
                 this.router.navigateByUrl(redirectUrl);
             }
         });
+    }
+
+    private async autoApplyRegistrationThemeIfNeeded(): Promise<void> {
+        let startedApplying = false;
+        try {
+            if (this.tenantService.getTenantType() !== 'tenant') {
+                return;
+            }
+
+            const tenantSettings = await this._tenantSettings.refreshSettings();
+            const settingsJson = tenantSettings?.settings;
+            if (!settingsJson) {
+                return;
+            }
+
+            let parsedSettings: any = {};
+            try {
+                parsedSettings = JSON.parse(settingsJson);
+            } catch {
+                return;
+            }
+
+            const selectedThemeId = parsedSettings?.selectedThemeId;
+            const selectedThemeAppliedAt = parsedSettings?.selectedThemeAppliedAt;
+
+            if (!selectedThemeId || selectedThemeAppliedAt) {
+                return;
+            }
+
+            const existingPagesResponse = await firstValueFrom(this.customPagesService.all());
+            const existingPages = existingPagesResponse?.result || [];
+            if (existingPages.length > 0) {
+                return;
+            }
+
+            const template = this.templateService.getTemplateById(selectedThemeId);
+            if (!template) {
+                return;
+            }
+
+            startedApplying = true;
+            this.applyingThemeSetup.set(true);
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Setting up your site',
+                detail: 'Applying your selected theme. This may take a few seconds...',
+                life: 4000
+            });
+
+            const applyResult = await this.themeApplicationService.applyTheme(template);
+            if (!applyResult.success && applyResult.createdPages.length === 0) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Theme setup skipped',
+                    detail: 'Your selected theme could not be applied automatically right now.',
+                    life: 4000
+                });
+                return;
+            }
+
+            parsedSettings.selectedThemeAppliedAt = new Date().toISOString();
+
+            const updateDto = new TenantSettingDto();
+            updateDto.id = tenantSettings.id;
+            updateDto.tenantName = tenantSettings.tenantName;
+            updateDto.settings = JSON.stringify(parsedSettings);
+
+            await firstValueFrom(this.tenantSettingService.tenantSetting_UpdateTenantSetting(updateDto));
+            await this._tenantSettings.refreshSettings();
+
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Theme applied',
+                detail: 'Your selected theme has been set up successfully.',
+                life: 3000
+            });
+        } catch (error) {
+            console.error('Automatic registration theme application failed:', error);
+            if (startedApplying) {
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Theme setup issue',
+                    detail: 'We could not finish applying your selected theme automatically.',
+                    life: 4000
+                });
+            }
+        } finally {
+            if (startedApplying) {
+                this.applyingThemeSetup.set(false);
+            }
+        }
     }
 
     getRegisterRoute(): string {

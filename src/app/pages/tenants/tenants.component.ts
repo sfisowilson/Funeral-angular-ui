@@ -37,7 +37,7 @@ interface ExportColumn {
     selector: 'app-tenants',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule],
-    providers: [MessageService, ConfirmationService, TenantServiceProxy, LookupServiceProxy, TenantTypePermissionServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './tenants.component.html'
 })
 export class TenantsComponent {

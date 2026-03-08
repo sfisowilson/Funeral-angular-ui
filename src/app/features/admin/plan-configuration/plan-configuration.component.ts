@@ -26,7 +26,7 @@ interface PlanGroup {
     selector: 'app-plan-configuration',
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, CardModule, DialogModule, DropdownModule, InputNumberModule, InputTextModule, InputSwitchModule, CheckboxModule, ToastModule, ConfirmDialogModule, TabViewModule, TextareaModule],
-    providers: [MessageService, ConfirmationService, PlanConfigurationServiceProxy, PermissionServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './plan-configuration.component.html',
     styleUrls: ['./plan-configuration.component.scss']
 })

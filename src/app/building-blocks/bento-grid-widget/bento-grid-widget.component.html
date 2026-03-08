@@ -1,0 +1,42 @@
+<div class="bento-grid-widget" [style.padding.px]="padding" [style.background-color]="backgroundColor">
+    <div class="container">
+        <!-- Header -->
+        <div class="header" *ngIf="showTitle || showSubtitle">
+            <h2 *ngIf="showTitle" class="title" [style.color]="titleColor">{{ title }}</h2>
+            <p *ngIf="showSubtitle" class="subtitle" [style.color]="subtitleColor">{{ subtitle }}</p>
+        </div>
+
+        <!-- Bento Grid -->
+        <div 
+            class="bento-grid" 
+            [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'"
+            [style.gap.px]="gap"
+            [class.cols-2]="columns === 2"
+            [class.cols-3]="columns === 3"
+            [class.cols-4]="columns === 4"
+        >
+            <div
+                #gridItem
+                *ngFor="let item of items; let i = index"
+                class="bento-item"
+                [class.has-image]="hasImage(item)"
+                [class.clickable]="item.link"
+                [class.hover-lift]="hoverEffect === 'lift'"
+                [class.hover-scale]="hoverEffect === 'scale'"
+                [class.hover-glow]="hoverEffect === 'glow'"
+                [style.grid-area]="getItemSpan(item)"
+                [style.background]="hasImage(item) ? 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), ' + getItemBackground(item) : getItemBackground(item)"
+                [style.background-size]="'cover'"
+                [style.background-position]="'center'"
+                [style.color]="getItemTextColor(item)"
+                (click)="onItemClick(item)"
+            >
+                <div class="item-content">
+                    <h3 class="item-title">{{ item.title }}</h3>
+                    <p *ngIf="item.description" class="item-description">{{ item.description }}</p>
+                    <i *ngIf="item.link" class="bi bi-arrow-right item-arrow"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

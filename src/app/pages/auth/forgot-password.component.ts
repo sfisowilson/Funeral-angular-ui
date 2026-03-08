@@ -12,7 +12,7 @@ import { TenantSettingsService } from '@app/core/services/tenant-settings.servic
     selector: 'app-forgot-password',
     standalone: true,
     imports: [CommonModule, ButtonModule, InputTextModule, ReactiveFormsModule, RouterModule],
-    providers: [AuthServiceProxy],
+    providers: [],
     templateUrl: './forgot-password.component.html',
     styleUrl: './forgot-password.component.scss'
 })

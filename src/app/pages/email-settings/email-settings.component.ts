@@ -24,7 +24,7 @@ interface SmtpSettings {
     selector: 'app-email-settings',
     standalone: true,
     imports: [CommonModule, FormsModule, ToastModule, InputTextModule, CheckboxModule, ButtonModule, DialogModule, CardModule],
-    providers: [MessageService, EmailServiceProxy],
+    providers: [MessageService],
     templateUrl: './email-settings.component.html',
     styleUrl: './email-settings.component.scss'
 })

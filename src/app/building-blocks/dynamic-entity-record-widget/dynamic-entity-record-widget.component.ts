@@ -12,7 +12,7 @@ import { applyDateSplitParts, normalizeDateValue, toDateOnlyString } from '@app/
     styleUrls: ['./dynamic-entity-record-widget.component.scss'],
     standalone: true,
     imports: [CommonModule, FormsModule, CalendarModule, DynamicFileUploadComponent],
-    providers: [DynamicEntityServiceProxy]
+    providers: []
 })
 export class DynamicEntityRecordWidgetComponent implements OnInit {
     @Input() entityTypeKey: string = '';

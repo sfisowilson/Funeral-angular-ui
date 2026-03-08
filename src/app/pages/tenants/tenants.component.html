@@ -62,6 +62,10 @@
                 Domain
                 <p-sortIcon field="domain" />
             </th>
+            <th pSortableColumn="customDomain" style="min-width: 14rem">
+                Custom Domain
+                <p-sortIcon field="customDomain" />
+            </th>
             <th pSortableColumn="address" style="min-width: 10rem">
                 Address
                 <p-sortIcon field="address" />
@@ -93,6 +97,7 @@
             <td>{{ tenant.name }}</td>
             <td>{{ tenant.email }}</td>
             <td>{{ tenant.domain }}</td>
+            <td>{{ tenant.customDomain || '—' }}</td>
             <td>{{ tenant.address }}</td>
             <td>{{ tenant.phone1 }}</td>
             <td>{{ tenant.phone2 }}</td>
@@ -131,6 +136,11 @@
                 <label for="domain" class="block font-bold mb-3">Domain</label>
                 <input type="text" pInputText id="domain" [(ngModel)]="tenant.domain" required fluid />
                 <small class="text-red-500" *ngIf="submitted && !tenant.domain">Domain is required.</small>
+            </div>
+            <div>
+                <label for="customDomain" class="block font-bold mb-3">Custom Domain <span class="text-gray-400 font-normal">(optional)</span></label>
+                <input type="text" pInputText id="customDomain" [(ngModel)]="tenant.customDomain" placeholder="e.g. www.riverside-memorial.com" fluid />
+                <small class="text-gray-500">Point a DNS A-record to this server, then enter the full domain here.</small>
             </div>
             <div>
                 <label for="address" class="block font-bold mb-3">Address</label>

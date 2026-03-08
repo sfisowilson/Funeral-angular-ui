@@ -21,7 +21,7 @@ import { debounceTime, skip, concatMap } from 'rxjs/operators';
     selector: 'app-page-editor',
     standalone: true,
     imports: [CommonModule, FormsModule, CardModule, ButtonModule, ToastModule, ProgressSpinnerModule, PageBuilderComponent, ConfirmDialogModule],
-    providers: [MessageService, ApiServiceProxy, WidgetService, ConfirmationService, OnboardingStepConfigurationServiceProxy],
+    providers: [MessageService, WidgetService, ConfirmationService],
     templateUrl: './page-editor.component.html',
     styleUrls: ['./page-editor.component.scss']
 })

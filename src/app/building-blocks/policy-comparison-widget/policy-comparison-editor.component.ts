@@ -10,7 +10,7 @@ import { PolicyDto, PolicyServiceProxy } from '../../core/services/service-proxi
     selector: 'app-policy-comparison-editor',
     standalone: true,
     imports: [CommonModule, FormsModule, InputTextModule, MultiSelectModule],
-    providers: [PolicyServiceProxy],
+    providers: [],
     template: `
         <div class="p-fluid" style="min-height: 300px;">
             <div class="p-field">

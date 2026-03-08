@@ -334,6 +334,8 @@
                                         [id]="field.name"
                                         [placeholder]="field.placeholder"
                                         [formControlName]="field.name"
+                                        [attr.readonly]="field.readOnly ? true : null"
+                                        [class.bg-light]="field.readOnly"
                                         [class.is-invalid]="activeFormGroup.get(field.name)?.invalid && (activeFormGroup.get(field.name)?.touched || activeFormGroup.get(field.name)?.dirty)"
                                     />
 
@@ -355,6 +357,8 @@
                                         [placeholder]="field.placeholder"
                                         [formControlName]="field.name"
                                         rows="4"
+                                        [attr.readonly]="field.readOnly ? true : null"
+                                        [class.bg-light]="field.readOnly"
                                         [class.is-invalid]="activeFormGroup.get(field.name)?.invalid && (activeFormGroup.get(field.name)?.touched || activeFormGroup.get(field.name)?.dirty)"
                                     ></textarea>
 
@@ -401,6 +405,8 @@
                                         <span *ngIf="activeFormGroup.get(field.name)?.errors?.['required']">This field is required.</span>
                                         <span *ngIf="activeFormGroup.get(field.name)?.errors?.['email']">Please enter a valid email address.</span>
                                         <span *ngIf="activeFormGroup.get(field.name)?.errors?.['saIdNumber']">Please enter a valid South African ID number.</span>
+                                        <span *ngIf="activeFormGroup.get(field.name)?.errors?.['min']">Value must be at least {{ activeFormGroup.get(field.name)?.errors?.['min']?.min }}.</span>
+                                        <span *ngIf="activeFormGroup.get(field.name)?.errors?.['max']">Value must be at most {{ activeFormGroup.get(field.name)?.errors?.['max']?.max }}.</span>
                                     </div>
                                 </div>
                                 </ng-container>

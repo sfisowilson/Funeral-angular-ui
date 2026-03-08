@@ -1,16 +1,14 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
-import { environment } from '../../../environments/environment';
+import { NotificationTemplateServiceProxy } from '../../core/services/service-proxies';
 
 export interface EmailTemplateDto {
     id?: string;
@@ -24,7 +22,7 @@ export interface EmailTemplateDto {
 @Component({
     selector: 'app-email-templates',
     standalone: true,
-    imports: [CommonModule, FormsModule, ToastModule, TableModule, DialogModule, InputTextModule, InputTextarea, CheckboxModule, ButtonModule],
+    imports: [CommonModule, FormsModule, ToastModule, TableModule, DialogModule, InputTextModule, CheckboxModule, ButtonModule],
     providers: [MessageService],
     templateUrl: './email-templates.component.html',
     styleUrl: './email-templates.component.scss'
@@ -38,7 +36,7 @@ export class EmailTemplatesComponent implements OnInit {
     currentTemplate: EmailTemplateDto = this.createEmptyTemplate();
 
     constructor(
-        private http: HttpClient,
+        private notificationTemplateService: NotificationTemplateServiceProxy,
         private messageService: MessageService
     ) {}
 
@@ -58,10 +56,10 @@ export class EmailTemplatesComponent implements OnInit {
 
     loadTemplates() {
         this.loading.set(true);
-        const url = `${environment.apiUrl}/api/NotificationTemplate/NotificationTemplate_GetAll`;
-        this.http.get<EmailTemplateDto[]>(url).subscribe({
-            next: (templates) => {
-                this.templates.set(templates || []);
+        this.notificationTemplateService.notificationTemplate_GetAll().subscribe({
+            next: (response) => {
+                const templates = (response?.result as any as EmailTemplateDto[]) || [];
+                this.templates.set(templates);
                 this.loading.set(false);
             },
             error: () => {
@@ -104,10 +102,11 @@ export class EmailTemplatesComponent implements OnInit {
 
         this.saving.set(true);
         const isEdit = !!this.currentTemplate.id;
-        const endpoint = isEdit ? 'NotificationTemplate_Update' : 'NotificationTemplate_Create';
-        const url = `${environment.apiUrl}/api/NotificationTemplate/${endpoint}`;
+        const request$ = isEdit
+            ? this.notificationTemplateService.notificationTemplate_Update(this.currentTemplate as any)
+            : this.notificationTemplateService.notificationTemplate_Create(this.currentTemplate as any);
 
-        this.http.post<EmailTemplateDto>(url, this.currentTemplate).subscribe({
+        request$.subscribe({
             next: () => {
                 this.saving.set(false);
                 this.showDialog.set(false);
@@ -135,8 +134,7 @@ export class EmailTemplatesComponent implements OnInit {
             return;
         }
 
-        const url = `${environment.apiUrl}/api/NotificationTemplate/NotificationTemplate_Delete/${template.id}`;
-        this.http.post(url, {}).subscribe({
+        this.notificationTemplateService.notificationTemplate_Delete(template.id).subscribe({
             next: () => {
                 this.loadTemplates();
                 this.messageService.add({

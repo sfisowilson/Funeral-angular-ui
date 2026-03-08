@@ -43,6 +43,7 @@
         <div class="form-section">
             <!-- Session Expired Message -->
             <p-message *ngIf="sessionExpired()" severity="warn" text="Your session has expired. Please log in again to continue." styleClass="session-expired-message" [closable]="true" (onClose)="sessionExpired.set(false)"> </p-message>
+            <p-message *ngIf="applyingThemeSetup()" severity="info" text="Applying your selected theme. This may take a few seconds..." styleClass="session-expired-message" [closable]="false"> </p-message>
 
             <form [formGroup]="form" class="login-form">
                 <!-- Email Field -->

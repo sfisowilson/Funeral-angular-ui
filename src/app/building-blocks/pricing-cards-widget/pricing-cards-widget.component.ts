@@ -51,20 +51,24 @@ export class PricingCardsWidgetComponent {
         }
     };
 
+    // Support both direct PricingCardsConfig (landing page builder)
+    // and WidgetConfig wrapper (DynamicPageComponent) where props land in config.settings
+    private get _s(): any { return (this.config as any).settings || {}; }
+
     get title(): string {
-        return this.config.title || '';
+        return this.config.title || this._s.title || '';
     }
 
     get subtitle(): string {
-        return this.config.subtitle || '';
+        return this.config.subtitle || this._s.subtitle || '';
     }
 
     get tiers(): PricingTier[] {
-        return this.config.tiers || [];
+        return this.config.tiers || this._s.tiers || [];
     }
 
     get settings(): PricingCardsSettings {
-        return this.config.settings || {};
+        return this.config.settings || this._s.settings || {};
     }
 
     get showBillingToggle(): boolean {

@@ -22,6 +22,18 @@ export interface CalculatorAggregation {
     multiplier?: number;
 }
 
+/**
+ * Pre-variable aggregations that compute collection stats (count, sum, max, min, average)
+ * into named global variables BEFORE the variables/cases derivation phase.
+ * These are NOT added to totalMonthlyPremium — purely for use in variables.cases conditions.
+ */
+export interface GlobalAggregation {
+    key: string;          // variable name written into global context, e.g. 'dependentCount'
+    collectionKey: string; // e.g. 'dependents'
+    fieldKey?: string;     // required for sum/max/min/average; omit for count
+    operation: 'count' | 'sum' | 'average' | 'max' | 'min';
+}
+
 export interface CalculatorCondition {
     field: string;
     operator: 'equals' | 'gt' | 'lt' | 'gte' | 'lte' | 'between' | 'contains';
@@ -98,6 +110,12 @@ export interface CalculatorConfig {
     basePremiumOptions?: { label: string; value: number; coverAmount: number }[];
     preprocessingRules?: CalculatorPreprocessingRule[];
     aggregations?: CalculatorAggregation[];
+    /**
+     * Pre-variable global aggregations — computed before variables/cases, available as
+     * named context keys in variables.when conditions and formula expressions.
+     * Do NOT add to totalMonthlyPremium.
+     */
+    globalAggregations?: GlobalAggregation[];
     iterativeVariables?: CalculatorIterativeVariableConfig[];
 
     // New generic calculation model
@@ -483,6 +501,15 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
         return out;
     }
 
+    /** Normalize all keys of a plain object to lowercase so field lookups are case-insensitive. */
+    private normalizeKeys(obj: Record<string, any>): Record<string, any> {
+        const out: Record<string, any> = {};
+        for (const k of Object.keys(obj)) {
+            out[k.toLowerCase()] = obj[k];
+        }
+        return out;
+    }
+
     private evaluateVariableDerivations(
         derivations: CalculatorVariableDerivation[] | undefined,
         context: Record<string, any>,
@@ -502,13 +529,26 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
 
             let resolved: number | undefined;
             if (Array.isArray(d.cases) && d.cases.length > 0) {
-                for (const c of d.cases) {
+                let caseMatched = false;
+                for (let ci = 0; ci < d.cases.length; ci++) {
+                    const c = d.cases[ci];
                     const when = Array.isArray(c.when) ? c.when : [];
                     const matches = when.length === 0 ? true : when.every((cond) => this.evaluateCondition(cond, context));
                     if (matches) {
                         resolved = this.toFiniteNumber(c.value, this.toFiniteNumber(d.defaultValue, 0));
+                        console.log(`  [var:${d.key}][${stepScope}${rowIndex != null ? ':row' + rowIndex : ''}] case[${ci}] MATCHED → ${resolved}`);
+                        caseMatched = true;
                         break;
+                    } else {
+                        const failDetail = when.map((cond) => {
+                            const ctxVal = context[cond.field] ?? context[(cond.field || '').toLowerCase()];
+                            return `${cond.field}(ctx=${ctxVal})${cond.operator}${cond.value}${cond.value2 != null ? '...' + cond.value2 : ''}=FAIL`;
+                        }).join(', ');
+                        console.log(`  [var:${d.key}][${stepScope}${rowIndex != null ? ':row' + rowIndex : ''}] case[${ci}] NO MATCH: ${failDetail}`);
                     }
+                }
+                if (!caseMatched) {
+                    console.log(`  [var:${d.key}][${stepScope}${rowIndex != null ? ':row' + rowIndex : ''}] no case matched → default ${d.defaultValue ?? 0}`);
                 }
             }
 
@@ -738,7 +778,53 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
         const globalBuiltInsWithCounts = { ...globalBuiltIns, recordCount };
 
         const globalVars: Record<string, number> = {};
-        
+
+        // 0-pre. Global aggregations evaluated BEFORE variable derivations so their results
+        // are available as context in variables.when conditions (e.g. dependentCount, maxDependentAge).
+        console.group('[Calculator] Global Aggregations');
+        console.log('Collections available:', Object.keys(this.collections), this.collections);
+        for (const ga of (this.config().globalAggregations || [])) {
+            if (!ga?.key || !ga?.collectionKey) {
+                console.warn('  Skipping aggregation (missing key or collectionKey):', ga);
+                continue;
+            }
+            const coll = (this.collections[ga.collectionKey] || []).map((c: any) => this.normalizeKeys(c));
+            const fieldKeyNorm = (ga.fieldKey || '').toLowerCase();
+            console.log(`  [${ga.key}] collection="${ga.collectionKey}" (${coll.length} records) field="${fieldKeyNorm}" op="${ga.operation}"`);
+            if (coll.length > 0) {
+                console.log(`    raw field values:`, coll.map((c: any) => c[fieldKeyNorm]));
+            } else {
+                console.warn(`    collection "${ga.collectionKey}" is EMPTY — check collection key spelling`);
+            }
+            let gaVal = 0;
+            switch (ga.operation) {
+                case 'count':
+                    gaVal = coll.length;
+                    break;
+                case 'sum':
+                    gaVal = coll.reduce((a: number, c: any) => a + (Number(c[fieldKeyNorm]) || 0), 0);
+                    break;
+                case 'average':
+                    gaVal = coll.length > 0
+                        ? coll.reduce((a: number, c: any) => a + (Number(c[fieldKeyNorm]) || 0), 0) / coll.length
+                        : 0;
+                    break;
+                case 'max':
+                    gaVal = coll.length > 0
+                        ? Math.max(...coll.map((c: any) => Number(c[fieldKeyNorm]) || 0))
+                        : 0;
+                    break;
+                case 'min':
+                    gaVal = coll.length > 0
+                        ? Math.min(...coll.map((c: any) => Number(c[fieldKeyNorm]) || 0))
+                        : 0;
+                    break;
+            }
+            console.log(`    => ${ga.key} = ${gaVal}`);
+            globalVars[ga.key] = gaVal;
+        }
+        console.groupEnd();
+
         // Add Base Premium to breakdown ONLY if options exist and a selection is made
         if (this.basePremiumOptions().length > 0) {
             totalMonthlyPremium += basePremium;
@@ -750,11 +836,16 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
         }
 
         // 0. New global variables + formulas
+        // Include globalVars so globalAggregation results (e.g. dependentCount, maxDependentAge)
+        // are visible to variables.cases conditions.
         const globalContextForVars = this.buildMergedContext([
             globalBuiltInsWithCounts,
-            this.formData
+            this.formData,
+            globalVars
         ]);
         Object.assign(globalVars, this.evaluateVariableDerivations(this.config().variables, globalContextForVars, steps, 'global'));
+        console.log('[Calculator] globalVars after aggregations + variable derivations:', { ...globalVars });
+        console.log('[Calculator] globalContextForVars:', { ...globalContextForVars });
 
         // Rebuild context including newly derived globals
         let globalContext = this.buildMergedContext([
@@ -791,10 +882,24 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
         // 0b. Row mode evaluation (multi-submit style)
         if (rowModeCfg?.enabled && rowCollectionKey) {
             const rows = this.collections[rowCollectionKey] || [];
+            console.group('[Calculator] Row Mode');
+            console.log('sourceCollectionKey (config):', rowModeCfg.sourceCollectionKey);
+            console.log('rowCollectionKey (resolved):', rowCollectionKey);
+            console.log('Collections available:', Object.keys(this.collections));
+            if (rows.length === 0) {
+                console.warn(`  Collection "${rowCollectionKey}" is EMPTY or not found — check config sourceCollectionKey matches one of the available collections above`);
+            } else {
+                console.log(`  ${rows.length} row(s) to process`);
+                rows.forEach((row, i) => {
+                    const norm = this.normalizeKeys(typeof row === 'object' && row ? row : { value: row });
+                    console.log(`  Row[${i}] normalized keys:`, norm);
+                });
+            }
+            console.groupEnd();
             const alias = rowModeCfg.itemAlias;
 
             rows.forEach((row, index) => {
-                const rowFields = typeof row === 'object' && row ? row : { value: row };
+                const rowFields = this.normalizeKeys(typeof row === 'object' && row ? row : { value: row });
                 const rowBuiltIns = { ...globalBuiltInsWithCounts, rowIndex: index };
 
                 const rowBaseContext = this.buildMergedContext([
@@ -806,6 +911,7 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
                 ]);
 
                 const rowVars = this.evaluateVariableDerivations(rowModeCfg.variables, rowBaseContext, steps, 'row', index);
+                console.log(`  Row[${index}] vars:`, { ...rowVars }, '| context keys:', Object.keys(rowBaseContext));
                 let rowContext = this.buildMergedContext([
                     rowBuiltIns,
                     this.formData,
@@ -1044,8 +1150,27 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
     }
 
     resolveValue(path: string, context: any): any {
-        // Handle generic field resolving
-        return path.split('.').reduce((prev, curr) => (prev ? prev[curr] : undefined), context);
+        // Primary: exact path traversal (supports dot notation)
+        const exact = path.split('.').reduce((prev, curr) => (prev ? prev[curr] : undefined), context);
+        if (exact !== undefined) return exact;
+
+        // Fallback 1: lowercase key (handles mixed-case mismatches e.g. idnumber_Age vs idnumber_age)
+        const lower = path.toLowerCase();
+        if (context[lower] !== undefined) return context[lower];
+
+        // Fallback 2: lowercase + strip underscores (handles idnumber_age vs idnumberage)
+        const stripped = lower.replace(/_/g, '');
+        if (context[stripped] !== undefined) return context[stripped];
+
+        // Fallback 3: scan all context keys with stripped comparison
+        const strippedKey = stripped;
+        for (const k of Object.keys(context)) {
+            if (k.toLowerCase().replace(/_/g, '') === strippedKey) {
+                return context[k];
+            }
+        }
+
+        return undefined;
     }
 
     getSelectedCoverAmount(): number {

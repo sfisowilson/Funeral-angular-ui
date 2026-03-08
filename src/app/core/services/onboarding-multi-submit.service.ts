@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { map } from 'rxjs/operators';
+import { OnboardingMultiSubmitServiceProxy } from './service-proxies';
 
 export interface MultiSubmitStepContextDto {
     step: any;
@@ -24,16 +24,12 @@ export interface SaveMultiSubmitRecordDto {
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingMultiSubmitService {
-    private readonly baseUrl = environment.apiUrl + '/api/OnboardingMultiSubmit';
-
-    constructor(private http: HttpClient) {}
+    constructor(private onboardingMultiSubmitProxy: OnboardingMultiSubmitServiceProxy) {}
 
     getStepContext(stepKey?: string): Observable<MultiSubmitStepContextDto> {
-        let params = new HttpParams();
-        if (stepKey) {
-            params = params.set('stepKey', stepKey);
-        }
-        return this.http.get<MultiSubmitStepContextDto>(`${this.baseUrl}/OnboardingMultiSubmit_GetStepContext`, { params });
+        return this.onboardingMultiSubmitProxy
+            .onboardingMultiSubmit_GetStepContext(stepKey)
+            .pipe(map((response) => response.result as MultiSubmitStepContextDto));
     }
 
     /**
@@ -41,22 +37,20 @@ export class OnboardingMultiSubmitService {
      * Used by row-limit rules configured with a DynamicEntityType and field.
      */
     getDynamicFieldValues(entityTypeId: string, fieldKey: string): Observable<string[]> {
-        let params = new HttpParams()
-            .set('entityTypeId', entityTypeId)
-            .set('fieldKey', fieldKey);
-
-        return this.http.get<string[]>(`${this.baseUrl}/OnboardingMultiSubmit_GetDynamicFieldValues`, { params });
+        return this.onboardingMultiSubmitProxy
+            .onboardingMultiSubmit_GetDynamicFieldValues(entityTypeId, fieldKey)
+            .pipe(map((response) => (response.result as string[]) || []));
     }
 
     saveRecord(dto: SaveMultiSubmitRecordDto): Observable<any> {
-        return this.http.post<any>(`${this.baseUrl}/OnboardingMultiSubmit_SaveRecord`, dto);
+        return this.onboardingMultiSubmitProxy
+            .onboardingMultiSubmit_SaveRecord(dto as any)
+            .pipe(map((response) => response.result));
     }
 
     deleteRecord(stepKey: string | undefined, recordId: string): Observable<void> {
-        let params = new HttpParams().set('recordId', recordId);
-        if (stepKey) {
-            params = params.set('stepKey', stepKey);
-        }
-        return this.http.delete<void>(`${this.baseUrl}/OnboardingMultiSubmit_DeleteRecord`, { params });
+        return this.onboardingMultiSubmitProxy
+            .onboardingMultiSubmit_DeleteRecord(stepKey, recordId)
+            .pipe(map(() => undefined));
     }
 }

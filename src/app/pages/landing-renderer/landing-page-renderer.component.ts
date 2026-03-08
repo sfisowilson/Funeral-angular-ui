@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy, Inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { WidgetService } from '@app/building-blocks/widget.service';
 import { WidgetConfig } from '@app/building-blocks/widget-config';
 import { WIDGET_TYPES } from '@app/building-blocks/widget-registry';
@@ -20,7 +20,7 @@ import { environment } from '../../../environments/environment';
     selector: 'app-landing-page-renderer',
     standalone: true,
     imports: [CommonModule, ScrollRevealDirective, RouterModule, PublicHeaderComponent],
-    providers: [TenantSettingsService, CustomPagesServiceProxy],
+    providers: [TenantSettingsService],
     template: `
         <div class="flex flex-col min-h-screen">
             <!-- Header -->
@@ -33,6 +33,7 @@ import { environment } from '../../../environments/environment';
                 [homeLink]="'/'"
                 [registerUrl]="getRegisterUrl()"
                 [showNavbarPagesOnMobile]="true"
+                [darkTheme]="isHostTenant"
                 (logoutClicked)="logout()"
             ></app-public-header>
 
@@ -54,12 +55,37 @@ import { environment } from '../../../environments/environment';
             </ng-container>
 
             <!-- Footer -->
-            <footer class="bg-gray-100 mt-8">
-                <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center text-gray-600 text-sm">
-                    <p>&copy; {{ currentYear }} Mizo. All rights reserved.</p>
-                    <div class="mt-2 md:mt-0 space-x-4">
-                        <a href="#" class="hover:text-blue-600">Privacy</a>
-                        <a href="#" class="hover:text-blue-600">Terms</a>
+            <footer [class]="isHostTenant ? 'bg-[#0a0820] border-t border-purple-900/40' : 'bg-gray-100 mt-8'">
+                <div class="max-w-7xl mx-auto px-6 py-8">
+                    <div *ngIf="isHostTenant" class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                        <div class="md:col-span-2">
+                            <p class="text-white font-bold text-lg mb-2">Mizo</p>
+                            <p class="text-gray-400 text-sm max-w-xs">The complete platform for funeral service businesses. Professional website, member management, claims, and payments — all in one.</p>
+                        </div>
+                        <div>
+                            <p class="text-white font-semibold text-sm mb-3">Platform</p>
+                            <div class="space-y-2">
+                                <a routerLink="/features" class="block text-gray-400 hover:text-purple-400 text-sm transition">Features</a>
+                                <a routerLink="/pricing" class="block text-gray-400 hover:text-purple-400 text-sm transition">Pricing</a>
+                                <a routerLink="/how-it-works" class="block text-gray-400 hover:text-purple-400 text-sm transition">How It Works</a>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-white font-semibold text-sm mb-3">Company</p>
+                            <div class="space-y-2">
+                                <a routerLink="/contact" class="block text-gray-400 hover:text-purple-400 text-sm transition">Contact Us</a>
+                                <a [href]="getRegisterUrl()" class="block text-gray-400 hover:text-purple-400 text-sm transition">Start Free Trial</a>
+                                <a routerLink="/auth/login" class="block text-gray-400 hover:text-purple-400 text-sm transition">Login</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col md:flex-row justify-between items-center"
+                         [class]="isHostTenant ? 'border-t border-purple-900/40 pt-6 text-gray-500 text-sm' : 'text-gray-600 text-sm'">
+                        <p [class]="isHostTenant ? 'text-gray-500' : 'text-gray-600'">&copy; {{ currentYear }} Mizo. All rights reserved.</p>
+                        <div class="mt-2 md:mt-0 space-x-4">
+                            <a href="#" [class]="isHostTenant ? 'text-gray-500 hover:text-purple-400 transition' : 'hover:text-blue-600'">Privacy</a>
+                            <a href="#" [class]="isHostTenant ? 'text-gray-500 hover:text-purple-400 transition' : 'hover:text-blue-600'">Terms</a>
+                        </div>
                     </div>
                 </div>
             </footer>
@@ -117,6 +143,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     _settings: any = {};
     tenantSettings!: TenantSettingDto;
     isStaticSite = false;
+    isHostTenant = false;
     navbarPages: PageListItemDto[] = [];
 
     // Separate floating and normal widgets
@@ -139,6 +166,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         private tenantSettingService: TenantSettingsService,
         private tenantService: TenantService,
         private authService: AuthService,
+        private router: Router,
         private titleService: Title,
         @Inject(API_BASE_URL) private baseUrl: string,
         private pageLayoutService: PageLayoutService,
@@ -156,6 +184,19 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         });
 
         this.isLoggedIn = this.authService.isAuthenticated();
+        this.isHostTenant = this.tenantService.getTenantType() === 'host';
+
+        this.customPagesService.slug('home').subscribe({
+            next: (response) => {
+                const homePage = response?.result;
+                if (homePage?.isActive && this.router.url === '/') {
+                    this.router.navigateByUrl('/home');
+                }
+            },
+            error: () => {
+                // no custom home page - keep landing page as default root
+            }
+        });
 
         // Load custom pages for navigation
         this.customPagesService.all().subscribe({

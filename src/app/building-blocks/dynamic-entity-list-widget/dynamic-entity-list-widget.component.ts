@@ -9,7 +9,7 @@ import { DynamicEntityRecordWidgetComponent } from '../dynamic-entity-record-wid
     selector: 'app-dynamic-entity-list-widget',
     standalone: true,
     imports: [CommonModule, FormsModule, DynamicEntityRecordWidgetComponent],
-    providers: [DynamicEntityServiceProxy],
+    providers: [],
     templateUrl: './dynamic-entity-list-widget.component.html',
     styleUrls: ['./dynamic-entity-list-widget.component.scss']
 })

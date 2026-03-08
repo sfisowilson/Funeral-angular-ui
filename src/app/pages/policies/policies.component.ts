@@ -34,7 +34,7 @@ interface ExportColumn {
     selector: 'app-policies',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, TextareaModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, DropdownModule, CheckboxModule],
-    providers: [MessageService, ConfirmationService, PolicyServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './policies.component.html'
 })
 export class PoliciesComponent {

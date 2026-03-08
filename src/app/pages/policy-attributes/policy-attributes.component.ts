@@ -52,7 +52,7 @@ interface ExportColumn {
         InputNumberModule,
         TooltipModule
     ],
-    providers: [MessageService, ConfirmationService, PolicyAttributeServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './policy-attributes.component.html',
     styleUrl: './policy-attributes.component.scss'
 })

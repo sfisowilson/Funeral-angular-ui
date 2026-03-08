@@ -32,7 +32,7 @@ interface VerificationStatus {
     selector: 'app-identity-verification',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, ButtonModule, InputTextModule, CalendarModule, DropdownModule, TableModule, TagModule, ToastModule, CardModule, DividerModule, ProgressSpinnerModule],
-    providers: [UserProfileServiceProxy, MessageService],
+    providers: [MessageService],
     templateUrl: './identity-verification.component.html',
     styleUrl: './identity-verification.component.scss'
 })

@@ -20,7 +20,7 @@ import { unwrap } from '../../core/services/response-unwrapper';
     selector: 'app-roles',
     standalone: true,
     imports: [CommonModule, TableModule, FormsModule, ButtonModule, RippleModule, ToastModule, ToolbarModule, InputTextModule, DialogModule, InputIconModule, IconFieldModule, ConfirmDialogModule, MultiSelectModule],
-    providers: [MessageService, ConfirmationService, RoleServiceProxy, PermissionServiceProxy, RolePermissionServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './roles.component.html',
     styleUrl: './roles.component.scss'
 })

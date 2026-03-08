@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { unwrap } from '../core/services/response-unwrapper';
-import { Debit_orderServiceProxy, DebitOrderBatchDto, DebitOrderTransactionDto } from '../core/services/service-proxies';
+import { BatchServiceProxy, Debit_orderServiceProxy, DebitOrderBatchDto, DebitOrderTransactionDto, FileParameter } from '../core/services/service-proxies';
 
 // Re-export DTOs for backward compatibility
 export { DebitOrderBatchDto as DebitOrderBatch, DebitOrderTransactionDto as DebitOrderTransaction } from '../core/services/service-proxies';
@@ -21,14 +21,14 @@ export class DebitOrderService {
 
     constructor(
         private proxy: Debit_orderServiceProxy,
+        private batchProxy: BatchServiceProxy,
         http: HttpClient
     ) {
         this.http = http;
     }
 
-    // NOTE: createBatch() not yet in generated proxy - using direct HTTP call
     createBatch(request: CreateBatchRequest): Observable<DebitOrderBatchDto> {
-        return this.http.post<DebitOrderBatchDto>(`${this.apiUrl}/batch/create`, request);
+        return this.batchProxy.create(request as any).pipe(unwrap<DebitOrderBatchDto>());
     }
 
     getBatches(page: number = 1, pageSize: number = 20): Observable<DebitOrderBatchDto[]> {
@@ -54,12 +54,12 @@ export class DebitOrderService {
         );
     }
 
-    // NOTE: processResponse() uses FormData, not available in proxy - using direct HTTP call
     processResponse(file: File): Observable<{ message: string }> {
-        const formData = new FormData();
-        formData.append('responseFile', file);
-
-        return this.http.post<{ message: string }>(`${this.apiUrl}/batch/process-response`, formData);
+        const fileParameter: FileParameter = {
+            data: file,
+            fileName: file.name
+        };
+        return this.batchProxy.processResponse(fileParameter).pipe(unwrap<{ message: string }>());
     }
 
     downloadFile(blob: Blob, filename: string): void {

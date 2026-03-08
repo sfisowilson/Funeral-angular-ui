@@ -50,20 +50,24 @@ export class CTABannerWidgetComponent {
         }
     };
 
+    // Support both direct CTABannerConfig (landing page builder)
+    // and WidgetConfig wrapper (DynamicPageComponent) where props land in config.settings
+    private get _s(): any { return (this.config as any).settings || {}; }
+
     get headline(): string {
-        return this.config.headline || '';
+        return this.config.headline || this._s.headline || '';
     }
 
     get subheadline(): string {
-        return this.config.subheadline || '';
+        return this.config.subheadline || this._s.subheadline || '';
     }
 
     get buttons(): CTAButton[] {
-        return this.config.buttons || [];
+        return this.config.buttons || this._s.buttons || [];
     }
 
     get settings(): CTABannerSettings {
-        return (this.config.settings || ({} as any)) as CTABannerSettings;
+        return ((this.config as any).settings || {}) as CTABannerSettings;
     }
 
     get backgroundType(): string {

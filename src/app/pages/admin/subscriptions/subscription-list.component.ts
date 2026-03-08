@@ -12,7 +12,7 @@ interface StatusOption {
     selector: 'app-subscription-list',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [TenantSubscriptionServiceProxy, SubscriptionPlanServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './subscription-list.component.html',
     styleUrl: './subscription-list.component.scss'

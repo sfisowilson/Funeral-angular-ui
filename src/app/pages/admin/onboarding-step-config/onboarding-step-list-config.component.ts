@@ -17,7 +17,7 @@ import { TenantSettingsService } from '../../../core/services/tenant-settings.se
     selector: 'app-onboarding-step-list-config',
     standalone: true,
     imports: [CommonModule, FormsModule, ToastModule, TableModule, DialogModule, InputTextModule, InputNumberModule, CheckboxModule, ButtonModule],
-    providers: [MessageService, TenantSettingServiceProxy, TenantSettingsService],
+    providers: [MessageService, TenantSettingsService],
     templateUrl: './onboarding-step-list-config.component.html',
     styleUrls: ['./onboarding-step-list-config.component.scss']
 })

@@ -7,7 +7,7 @@ import { PaymentServiceProxy, InvoiceServiceProxy, TenantSubscriptionServiceProx
     selector: 'app-payment-callback',
     standalone: true,
     imports: [CommonModule],
-    providers: [PaymentServiceProxy, InvoiceServiceProxy, TenantSubscriptionServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './payment-callback.component.html',
     styleUrls: ['./payment-callback.component.scss']

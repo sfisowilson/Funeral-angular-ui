@@ -26,7 +26,8 @@ import {
     PolicyCoverRowDto,
     ExtendedFamilyBenefitRowDto,
     DependentCountTierDto,
-    PolicyCoverAgeBracketDto
+    PolicyCoverAgeBracketDto,
+    OnboardingFieldConfigurationServiceProxy
 } from '../../core/services/service-proxies';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { TeamEditorComponent } from '../../building-blocks/team-editor-widget/team-editor.component';
@@ -39,7 +40,7 @@ interface ExtendedFamilyColumn {
     coverAmount: number;
 }
 import { WidgetService } from '../../building-blocks/widget.service';
-import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 interface NotificationSettings {
@@ -66,6 +67,8 @@ interface Settings extends NotificationSettings {
     accentColor?: string;
     textColor?: string;
     backgroundColor?: string;
+    surfaceGroundLightColor?: string;
+    surfaceGroundDarkColor?: string;
     borderColor?: string;
     primaryActiveColor?: string;
     buttonPrimaryBackground?: string;
@@ -112,7 +115,7 @@ interface TeamMember {
     selector: 'app-tenant-settings',
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, ToastModule, FileUploadModule, CardModule, CheckboxModule, DropdownModule, ColorPickerModule, DialogModule, TeamEditorComponent],
-    providers: [MessageService, TenantSettingServiceProxy, FileUploadServiceProxy, TenantSettingsService, PremiumCalculationServiceProxy],
+    providers: [MessageService, TenantSettingsService],
     templateUrl: './tenant-settings.component.html',
     styleUrl: './tenant-settings.component.scss'
 })
@@ -195,7 +198,7 @@ export class TenantSettingsComponent implements OnInit {
         private tenantSettingsService: TenantSettingsService,
         private widgetService: WidgetService,
         private premiumCalculationService: PremiumCalculationServiceProxy,
-        private http: HttpClient,
+        private onboardingFieldConfigurationService: OnboardingFieldConfigurationServiceProxy,
         @Inject(API_BASE_URL) private baseUrl: string,
         @Inject(DOCUMENT) private document: Document
     ) {}
@@ -290,6 +293,8 @@ export class TenantSettingsComponent implements OnInit {
                 this._settings.accentColor = this._settings.accentColor || '#764ba2';
                 this._settings.textColor = this._settings.textColor || '#333333';
                 this._settings.backgroundColor = this._settings.backgroundColor || '#ffffff';
+                this._settings.surfaceGroundLightColor = this._settings.surfaceGroundLightColor || '#ffffff';
+                this._settings.surfaceGroundDarkColor = this._settings.surfaceGroundDarkColor || '#ffffff';
                 this._settings.borderColor = this._settings.borderColor || '#e5e7eb';
                 this._settings.primaryActiveColor = this._settings.primaryActiveColor || '#4355b8';
 
@@ -358,6 +363,8 @@ export class TenantSettingsComponent implements OnInit {
             existingSettings.accentColor = this._settings.accentColor;
             existingSettings.textColor = this._settings.textColor;
             existingSettings.backgroundColor = this._settings.backgroundColor;
+            existingSettings.surfaceGroundLightColor = this._settings.surfaceGroundLightColor;
+            existingSettings.surfaceGroundDarkColor = this._settings.surfaceGroundDarkColor;
             existingSettings.borderColor = this._settings.borderColor;
             existingSettings.primaryActiveColor = this._settings.primaryActiveColor;
             existingSettings.buttonPrimaryBackground = this._settings.buttonPrimaryBackground;
@@ -487,7 +494,7 @@ export class TenantSettingsComponent implements OnInit {
 
 
     syncFieldConfigurations() {
-        this.http.post(`${this.baseUrl}/api/OnboardingFieldConfiguration/OnboardingFieldConfiguration_InitializeDefaults`, {}).subscribe({
+        this.onboardingFieldConfigurationService.onboardingFieldConfiguration_InitializeDefaults().subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success',

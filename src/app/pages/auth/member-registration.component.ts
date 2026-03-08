@@ -20,7 +20,7 @@ import { SAIdValidator, SAIdInfo } from '../../shared/utils/sa-id-validator';
     selector: 'app-member-registration',
     standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, ButtonModule, InputTextModule, PasswordModule, InputMaskModule, CardModule, StepperModule, ToastModule, ProgressSpinnerModule],
-    providers: [MessageService, MemberRegistrationServiceProxy],
+    providers: [MessageService],
     templateUrl: './member-registration.component.html',
     styleUrl: './member-registration.component.scss'
 })

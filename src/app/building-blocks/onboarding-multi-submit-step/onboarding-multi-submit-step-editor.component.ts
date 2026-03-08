@@ -96,7 +96,7 @@ interface PdfMappingProfileOption {
     imports: [CommonModule, FormsModule, DynamicFileUploadComponent],
     templateUrl: './onboarding-multi-submit-step-editor.component.html',
     styleUrls: ['./onboarding-multi-submit-step-editor.component.scss'],
-    providers: [FormServiceProxy, DynamicEntityServiceProxy, FileUploadServiceProxy, PdfFieldMappingServiceProxy]
+    providers: []
 })
 export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
     @Input() config!: WidgetConfig;
@@ -112,6 +112,7 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
     editorSteps: EditorMultiSubmitStepConfig[] = [];
     saveMessage = '';
     saveError = '';
+    calculatorKeyErrorsByStepId: Record<string, string[]> = {};
     pdfMappingProfiles: PdfMappingProfileOption[] = [];
 
     parentFields = [
@@ -502,9 +503,39 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
         return prefix ? `${prefix}_${base}` : base;
     }
 
+    private sanitizeCalculatorKey(input: string): string {
+        let cleaned = String(input || '')
+            .trim()
+            .replace(/[^a-zA-Z0-9_]/g, '_')
+            .replace(/_+/g, '_');
+
+        if (!cleaned) {
+            return '';
+        }
+
+        if (/^[0-9]/.test(cleaned)) {
+            cleaned = `v_${cleaned}`;
+        }
+
+        return cleaned;
+    }
+
+    private isValidCalculatorKey(key: string): boolean {
+        return /^[A-Za-z_][A-Za-z0-9_]*$/.test(String(key || '').trim());
+    }
+
+    onVariableKeyChange(step: EditorMultiSubmitStepConfig, variable: CalculatorVariableDerivation, keyInput: string): void {
+        variable.key = this.sanitizeCalculatorKey(keyInput);
+        this.onCalculatorFieldChanged(step);
+    }
+
+    getCalculatorKeyErrors(step: EditorMultiSubmitStepConfig): string[] {
+        return this.calculatorKeyErrorsByStepId[step.id] || [];
+    }
+
     onGlobalVariableFieldChange(step: EditorMultiSubmitStepConfig, variable: CalculatorVariableDerivation, fieldKey: string): void {
         variable.sourceField = fieldKey;
-        if (!variable.key || variable.key === variable.sourceField) {
+        if (!variable.key) {
             variable.key = this.buildVariableKey('v', fieldKey);
         }
         this.onCalculatorFieldChanged(step);
@@ -512,7 +543,7 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
 
     onRowVariableFieldChange(step: EditorMultiSubmitStepConfig, variable: CalculatorVariableDerivation, fieldKey: string): void {
         variable.sourceField = fieldKey;
-        if (!variable.key || variable.key === variable.sourceField) {
+        if (!variable.key) {
             variable.key = this.buildVariableKey(null, fieldKey);
         }
         this.onCalculatorFieldChanged(step);
@@ -520,10 +551,77 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
 
     onPostRowVariableFieldChange(step: EditorMultiSubmitStepConfig, variable: CalculatorVariableDerivation, fieldKey: string): void {
         variable.sourceField = fieldKey;
-        if (!variable.key || variable.key === variable.sourceField) {
+        if (!variable.key) {
             variable.key = this.buildVariableKey('vpost', fieldKey);
         }
         this.onCalculatorFieldChanged(step);
+    }
+
+    private ensureDerivationKeys(list: CalculatorVariableDerivation[] | undefined, prefix: string | null): void {
+        if (!Array.isArray(list)) {
+            return;
+        }
+
+        for (const variable of list) {
+            variable.key = this.sanitizeCalculatorKey(variable.key || '');
+            if (!variable.key && variable.sourceField) {
+                variable.key = this.buildVariableKey(prefix, variable.sourceField);
+            }
+        }
+    }
+
+    private validateDerivationKeys(list: CalculatorVariableDerivation[] | undefined, listLabel: string): string[] {
+        if (!Array.isArray(list) || !list.length) {
+            return [];
+        }
+
+        const errors: string[] = [];
+        const seen = new Set<string>();
+
+        list.forEach((variable, index) => {
+            const key = String(variable?.key || '').trim();
+            const itemLabel = `${listLabel} #${index + 1}`;
+
+            if (!key) {
+                errors.push(`${itemLabel}: key is required.`);
+                return;
+            }
+
+            if (!this.isValidCalculatorKey(key)) {
+                errors.push(`${itemLabel}: key "${key}" is invalid. Use letters, numbers, and underscores, starting with a letter or underscore.`);
+                return;
+            }
+
+            if (seen.has(key)) {
+                errors.push(`${itemLabel}: duplicate key "${key}".`);
+                return;
+            }
+
+            seen.add(key);
+        });
+
+        return errors;
+    }
+
+    private validateCalculatorKeysForStep(step: EditorMultiSubmitStepConfig): string[] {
+        if (!step.calculatorEnabled || step.calculatorUseAdvancedJson) {
+            return [];
+        }
+
+        this.ensureArrays(step);
+        this.ensureDerivationKeys(step.calculatorGlobalVariables, 'v');
+        this.ensureDerivationKeys(step.calculatorRowVariables, null);
+        this.ensureDerivationKeys(step.calculatorPostRowVariables, 'vpost');
+
+        return [
+            ...this.validateDerivationKeys(step.calculatorGlobalVariables, 'Global variable'),
+            ...this.validateDerivationKeys(step.calculatorRowVariables, 'Row variable'),
+            ...this.validateDerivationKeys(step.calculatorPostRowVariables, 'Post-row variable')
+        ];
+    }
+
+    private refreshCalculatorKeyErrors(step: EditorMultiSubmitStepConfig): void {
+        this.calculatorKeyErrorsByStepId[step.id] = this.validateCalculatorKeysForStep(step);
     }
 
     private ensureArrays(step: EditorMultiSubmitStepConfig): void {
@@ -549,6 +647,10 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
         normalizeDerivations(step.calculatorGlobalVariables);
         normalizeDerivations(step.calculatorRowVariables);
         normalizeDerivations(step.calculatorPostRowVariables);
+
+        this.ensureDerivationKeys(step.calculatorGlobalVariables, 'v');
+        this.ensureDerivationKeys(step.calculatorRowVariables, null);
+        this.ensureDerivationKeys(step.calculatorPostRowVariables, 'vpost');
     }
 
     private buildCalculatorConfigFromEditor(step: EditorMultiSubmitStepConfig): CalculatorConfig {
@@ -602,6 +704,7 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
     onCalculatorFieldChanged(step: EditorMultiSubmitStepConfig): void {
         this.saveMessage = '';
         this.saveError = '';
+        this.refreshCalculatorKeyErrors(step);
         this.syncEditorToCalculatorJson(step);
     }
 
@@ -928,6 +1031,16 @@ export class OnboardingMultiSubmitStepEditorComponent implements OnInit {
         const multiSteps = this.editorSteps.filter((s) => s.type === 'form' && s.isMultiSubmit);
         if (!multiSteps.length) {
             this.saveError = 'Please mark at least one form step as multi-submit.';
+            return;
+        }
+
+        for (const step of this.editorSteps) {
+            this.refreshCalculatorKeyErrors(step);
+        }
+
+        const firstStepWithKeyErrors = this.editorSteps.find((step) => this.getCalculatorKeyErrors(step).length > 0);
+        if (firstStepWithKeyErrors) {
+            this.saveError = `Please fix calculator key issues in "${firstStepWithKeyErrors.title}" before saving.`;
             return;
         }
 

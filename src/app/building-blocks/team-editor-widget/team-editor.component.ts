@@ -38,7 +38,7 @@ interface TeamTemplate {
     selector: 'app-team-editor',
     standalone: true,
     imports: [CommonModule, FormsModule, InputTextModule, ButtonModule, TableModule, DialogModule, ConfirmDialogModule, ToastModule, MultiSelectModule, DropdownModule, TagModule, FileUploadModule, RadioButtonModule, TooltipModule],
-    providers: [MessageService, ConfirmationService, UserServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './team-editor.component.html',
     styleUrls: ['./team-editor.component.scss']
 })

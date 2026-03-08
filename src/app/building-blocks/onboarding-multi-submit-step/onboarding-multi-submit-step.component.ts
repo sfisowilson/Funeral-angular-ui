@@ -14,7 +14,7 @@ import { EmbeddedCalculatorComponent, CalculatorConfig, CalculatorResult } from 
 import { OnboardingStepConfigurationClient } from '../../core/services/onboarding-step-configuration.client';
 import { OnboardingCalculatorAggregatorService } from '../../core/services/onboarding-calculator-aggregator.service';
 import { PublicFormService } from '../../core/services/public-form.service';
-import { OnboardingStepType, OnboardingPdfServiceProxy, MemberServiceProxy, SaveSignatureDto, MemberProfileCompletionServiceProxy } from '../../core/services/service-proxies';
+import { OnboardingStepType, OnboardingPdfServiceProxy, MemberServiceProxy, SaveSignatureDto, MemberProfileCompletionServiceProxy, PdfFieldMappingServiceProxy, OnboardingMultiSubmitServiceProxy } from '../../core/services/service-proxies';
 import { saIdNumberValidator } from '../../shared/validators/sa-id-number.validator';
 import { DynamicFileUploadComponent } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
@@ -104,6 +104,9 @@ interface DynamicFormField {
         month?: string;
         year?: string;
     };
+    readOnly?: boolean;
+    minValue?: number;
+    maxValue?: number;
 }
 
 interface CompletionAttachmentFile {
@@ -135,7 +138,8 @@ interface CompletionPdfPreview {
     imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarModule, EmbeddedCalculatorComponent, DynamicFileUploadComponent],
     templateUrl: './onboarding-multi-submit-step.component.html',
     styleUrls: ['./onboarding-multi-submit-step.component.scss'],
-    providers: [OnboardingPdfServiceProxy, MemberServiceProxy, MemberProfileCompletionServiceProxy]
+    providers: [TenantSettingsService,
+        OnboardingMultiSubmitService, OnboardingStepConfigurationClient, PublicFormService]
 })
 export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, AfterViewInit {
     @Input() config!: WidgetConfig | any;
@@ -184,6 +188,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     effectiveMin = 0;
     effectiveMax = 0;
     nextUrl: string | undefined;
+    /** Step key of the Policy entity whose record should receive the computed premium at completion. */
+    premiumWriteBackStepKey = '';
+    /** Mapping of aggregator global keys to entity field names for the premium writeback. */
+    globalsToWriteBack: { globalKey: string; entityField: string }[] = [
+        { globalKey: 'totalMonthlyPremium', entityField: 'monthlyPremium' },
+        { globalKey: 'familyTier', entityField: 'familyTier' }
+    ];
 
     // Conditional field rules loaded from the underlying Form definition
     private conditionalRules: ConditionalFieldRuleConfig[] = [];
@@ -248,6 +259,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         private router: Router,
         private route: ActivatedRoute,
         private http: HttpClient,
+        private pdfFieldMappingService: PdfFieldMappingServiceProxy,
         private cdr: ChangeDetectorRef,
         private calculatorAggregator: OnboardingCalculatorAggregatorService,
         private authService: AuthService
@@ -289,6 +301,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             this.limitRules = Array.isArray(settings.limitRules) ? settings.limitRules : [];
             this.validationRules = Array.isArray(settings.validationRules) ? settings.validationRules : [];
             this.nextUrl = settings.nextUrl;
+            this.premiumWriteBackStepKey = settings.premiumWriteBackStepKey || '';
+            this.globalsToWriteBack = Array.isArray(settings.globalsToWriteBack)
+                ? settings.globalsToWriteBack
+                : [
+                    { globalKey: 'totalMonthlyPremium', entityField: 'monthlyPremium' },
+                    { globalKey: 'familyTier', entityField: 'familyTier' }
+                  ];
 
             this.resolveEffectiveLimits();
             this.ensureMemberContextIfNeeded();
@@ -650,6 +669,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.limitRules = Array.isArray(settings.limitRules) ? settings.limitRules : [];
         this.validationRules = Array.isArray(settings.validationRules) ? settings.validationRules : [];
         this.nextUrl = settings.nextUrl;
+        this.premiumWriteBackStepKey = settings.premiumWriteBackStepKey || '';
+        this.globalsToWriteBack = Array.isArray(settings.globalsToWriteBack)
+            ? settings.globalsToWriteBack
+            : [
+                { globalKey: 'totalMonthlyPremium', entityField: 'monthlyPremium' },
+                { globalKey: 'familyTier', entityField: 'familyTier' }
+              ];
 
         this.resolveEffectiveLimits();
         this.ensureMemberContextIfNeeded();
@@ -657,6 +683,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         if (this.configuredSteps.length > 0) {
             this.currentStepIndex = 0;
             this.loadInternalStep(this.configuredSteps[0]);
+            // Pre-populate the aggregator for ALL steps so the global calculator
+            // shows a meaningful total immediately, without the user having to
+            // navigate to each step first.
+            this.preloadAllStepsForCalculator();
         } else {
             // Legacy fallback: pretend the settings object itself is the step configuration
             this.loadInternalStep(settings);
@@ -1274,7 +1304,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                                                         order: typeof f.order === 'number' ? f.order : index,
                                                         hidden: !!f.hidden,
                                                         splitDateParts: !!f.splitDateParts,
-                                                        datePartKeys: f.datePartKeys
+                                                        datePartKeys: f.datePartKeys,
+                                                        readOnly: !!f.readOnly,
+                                                        minValue: typeof f.minValue === 'number' ? f.minValue : undefined,
+                                                        maxValue: typeof f.maxValue === 'number' ? f.maxValue : undefined
                         };
                     })
                     .sort((a, b) => a.order - b.order);
@@ -1346,6 +1379,12 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             }
             if (field.type === 'idNumber') {
                 validators.push(saIdNumberValidator());
+            }
+            if (field.minValue != null) {
+                validators.push(Validators.min(field.minValue));
+            }
+            if (field.maxValue != null) {
+                validators.push(Validators.max(field.maxValue));
             }
 
             if (field.type === 'checkbox' && field.options && field.options.length) {
@@ -1805,6 +1844,59 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         }
     }
 
+    /**
+     * Silently pre-loads records for every configured step and feeds them into
+     * the calculator aggregator so the global calculator widget can produce a
+     * meaningful total immediately on page load.
+     */
+    private preloadAllStepsForCalculator(): void {
+        const steps: any[] = this.configuredSteps || [];
+        for (const stepConfig of steps) {
+            if (!stepConfig) continue;
+            const t = (stepConfig.type || '').toLowerCase();
+            if (t === 'complete' || t === 'terms') continue;
+            let stepKey: string | null = stepConfig.stepKey || null;
+            if (!stepKey && stepConfig.formId) stepKey = 'form:' + stepConfig.formId;
+            if (!stepKey) continue;
+
+            this.multiSubmitService.getStepContext(stepKey).subscribe({
+                next: (ctx: any) => {
+                    const records: any[] = ctx?.records || [];
+                    const entityKey: string = ctx?.step?.dynamicEntityTypeKey || stepConfig.dynamicEntityTypeKey || '';
+                    const collectionKey: string = this.normalizeKeyLoose(entityKey) || 'items';
+
+                    const items: any[] = records
+                        .filter((r: any) => !!r.dataJson)
+                        .map((r: any) => {
+                            try {
+                                const parsed = JSON.parse(r.dataJson);
+                                const item: any = { ...parsed };
+                                if (!item.relationship && r.displayName) item.relationship = r.displayName;
+                                return item;
+                            } catch { return null; }
+                        })
+                        .filter((x: any) => x !== null);
+
+                    this.calculatorAggregator.updateCollection(collectionKey, items);
+
+                    // Extract cover amount if present on these records
+                    const coverAmount = items.reduce((found: number | null, item: any) => {
+                        if (found !== null) return found;
+                        const raw = item?.coverAmount ?? item?.cover_amount ?? item?.CoverAmount
+                                 ?? item?.cover ?? item?.Cover ?? item?.coveramount;
+                        if (raw == null) return null;
+                        const numeric = parseFloat(String(raw).replace(/[^0-9.]/g, ''));
+                        return isFinite(numeric) && numeric > 0 ? numeric : null;
+                    }, null);
+                    if (coverAmount !== null) {
+                        this.calculatorAggregator.updateGlobals({ coverAmount });
+                    }
+                },
+                error: () => { /* non-fatal: calculator works with whatever data is available */ }
+            });
+        }
+    }
+
     private updateCalculatorFormData(): void {
         if (!this.context) {
             this.calculatorFormData = {};
@@ -1840,6 +1932,23 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         // all onboarding entities (children, adults, elders, etc.) that
         // have been visited in this flow.
         this.calculatorAggregator.updateCollection(collectionKey, items);
+
+        // Propagate coverAmount from any record that carries it (e.g. the Policy step)
+        // into the aggregator globals so later-step calculators can reference it as a
+        // named global variable for cover × age-band matrix pricing.
+        const coverAmountFromItems = items.reduce((found: number | null, item: any) => {
+            if (found !== null) return found;
+            // Check all common field names — including string form "R5000" from a cover dropdown
+            const raw = item?.coverAmount ?? item?.cover_amount ?? item?.CoverAmount
+                     ?? item?.cover ?? item?.Cover ?? item?.coveramount;
+            if (raw == null) return null;
+            // Strip any non-numeric prefix/suffix ("R5000" → 5000, "10 000" → 10000)
+            const numeric = parseFloat(String(raw).replace(/[^0-9.]/g, ''));
+            return isFinite(numeric) && numeric > 0 ? numeric : null;
+        }, null);
+        if (coverAmountFromItems !== null) {
+            this.calculatorAggregator.updateGlobals({ coverAmount: coverAmountFromItems });
+        }
 
         // The embedded calculator watches collection keys (for example,
         // entity-specific arrays like beneficiaries) and auto-recalculates
@@ -2113,8 +2222,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     }
 
     private loadCompletionPdfProfileNames(): void {
-        this.http.get<any[]>(`${environment.apiUrl}/api/PdfFieldMapping/PdfFieldMapping_GetProfiles`).subscribe({
-            next: (rows) => {
+        this.pdfFieldMappingService.pdfFieldMapping_GetProfiles().subscribe({
+            next: (response) => {
+                const rows = response?.result as any[] | undefined;
                 const profiles = Array.isArray(rows) ? rows : [];
                 const nextMap: Record<string, string> = {};
 
@@ -2513,7 +2623,64 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
         this.isCompletingFlow = true;
         this.error = '';
-        this.finalizeCompletion();
+
+        if (this.premiumWriteBackStepKey) {
+            this.writePremiumToEntity(this.premiumWriteBackStepKey, this.globalsToWriteBack, () => {
+                this.finalizeCompletion();
+            });
+        } else {
+            this.finalizeCompletion();
+        }
+    }
+
+    /**
+     * Reads the computed globals (totalMonthlyPremium, familyTier, etc.) from the
+     * aggregator and patches them back onto the specified entity's first record so
+     * PDF templates can reference them as standard source fields.
+     */
+    private writePremiumToEntity(
+        stepKey: string,
+        fieldsMap: { globalKey: string; entityField: string }[],
+        onDone: () => void
+    ): void {
+        const snapshot = this.calculatorAggregator.getFormDataSnapshot();
+        this.multiSubmitService.getStepContext(stepKey).subscribe({
+            next: (ctx: any) => {
+                const records: any[] = ctx?.records || [];
+                if (records.length === 0) {
+                    onDone();
+                    return;
+                }
+                const record = records[0];
+                let parsed: any = {};
+                try {
+                    parsed = JSON.parse(record.dataJson || '{}');
+                } catch { /* */ }
+                let changed = false;
+                for (const fm of fieldsMap) {
+                    const val = snapshot[fm.globalKey];
+                    if (val !== undefined && val !== null) {
+                        parsed[fm.entityField] = val;
+                        changed = true;
+                    }
+                }
+                if (!changed) {
+                    onDone();
+                    return;
+                }
+                const payload: SaveMultiSubmitRecordDto = {
+                    stepKey,
+                    id: record.id,
+                    displayName: record.displayName ?? undefined,
+                    dataJson: JSON.stringify(parsed)
+                };
+                this.multiSubmitService.saveRecord(payload).subscribe({
+                    next: () => onDone(),
+                    error: () => onDone() // non-fatal — proceed even if writeback fails
+                });
+            },
+            error: () => onDone()
+        });
     }
 
     private finalizeCompletion(): void {

@@ -49,6 +49,14 @@ export const appRoutes: Routes = [
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', data: { breadcrumb: 'Dashboard' }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
+            {
+                path: 'member-onboarding',
+                data: { breadcrumb: 'My Onboarding' },
+                loadComponent: () =>
+                    import('./app/pages/member-onboarding-readonly-view/member-onboarding-readonly-view.component').then(
+                        (m) => m.MemberOnboardingReadonlyViewComponent
+                    )
+            },
             { path: 'pages', data: { breadcrumb: 'Pages' }, loadChildren: () => import('./app/pages/pages.routes') },
             { path: 'custom-pages', data: { breadcrumb: 'Page Management' }, loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) },
             { path: 'custom-pages/edit/:id', data: { breadcrumb: 'Edit Page' }, loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) },
@@ -87,6 +95,14 @@ export const appRoutes: Routes = [
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', data: { breadcrumb: 'Dashboard' }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
+            {
+                path: 'member-onboarding',
+                data: { breadcrumb: 'My Onboarding' },
+                loadComponent: () =>
+                    import('./app/pages/member-onboarding-readonly-view/member-onboarding-readonly-view.component').then(
+                        (m) => m.MemberOnboardingReadonlyViewComponent
+                    )
+            },
             { path: 'pages', data: { breadcrumb: 'Pages' }, loadChildren: () => import('./app/pages/pages.routes') },
             { path: 'custom-pages', data: { breadcrumb: 'Page Management' }, loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) },
             { path: 'custom-pages/edit/:id', data: { breadcrumb: 'Edit Page' }, loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) },

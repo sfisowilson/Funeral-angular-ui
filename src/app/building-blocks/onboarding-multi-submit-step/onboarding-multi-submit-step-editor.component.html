@@ -227,9 +227,12 @@
                                                 type="text"
                                                 class="form-control form-control-sm"
                                                 [(ngModel)]="cond.sourceKey"
-                                                placeholder="Source key (e.g. employmentStatus)"
+                                                placeholder="Source key (e.g. v_transportType)"
                                                 name="skipSource{{ri}}_{{ci}}"
                                             />
+                                            <div class="form-text mt-1" *ngIf="ci === 0">
+                                                Examples: <code>v_transportType</code>, <code>v_householdSize</code>
+                                            </div>
                                         </div>
                                         <div class="col-md-5">
                                             <input
@@ -336,20 +339,25 @@
                                     <h6 class="mb-0">Global variables (normalization rules)</h6>
                                     <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addDerivation(step.calculatorGlobalVariables); onCalculatorFieldChanged(step)">Add variable</button>
                                 </div>
+                                <div class="form-text mb-2">Use stable keys so later internal stages can reference them via source keys.</div>
 
                                 <div class="table-responsive">
                                     <table class="table table-sm align-middle">
                                         <thead>
                                             <tr>
-                                                <th style="width: 34%">Field</th>
-                                                <th style="width: 18%">Operation</th>
+                                                <th style="width: 20%">Var key</th>
+                                                <th style="width: 30%">Field</th>
+                                                <th style="width: 16%">Operation</th>
                                                 <th style="width: 12%">Default</th>
-                                                <th style="width: 18%">Cases</th>
-                                                <th style="width: 10%"></th>
+                                                <th style="width: 14%">Cases</th>
+                                                <th style="width: 8%"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let v of step.calculatorGlobalVariables; let vi = index">
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" [(ngModel)]="v.key" (ngModelChange)="onVariableKeyChange(step, v, $event)" placeholder="v_age" />
+                                                </td>
                                                 <td>
                                                     <select
                                                         class="form-select form-select-sm"
@@ -377,7 +385,7 @@
                                                 </td>
                                             </tr>
                                             <tr *ngIf="(step.calculatorGlobalVariables?.length || 0) === 0">
-                                                <td colspan="5" class="text-muted small">No global variables yet. Add one to convert a select/checkbox/text field into a number.</td>
+                                                <td colspan="6" class="text-muted small">No global variables yet. Add one to convert a select/checkbox/text field into a number.</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -485,14 +493,18 @@
                                     <table class="table table-sm align-middle">
                                         <thead>
                                             <tr>
-                                                <th style="width: 40%">Field (this entity)</th>
-                                                <th style="width: 20%">Operation</th>
-                                                <th style="width: 20%">Default</th>
+                                                <th style="width: 22%">Var key</th>
+                                                <th style="width: 34%">Field (this entity)</th>
+                                                <th style="width: 18%">Operation</th>
+                                                <th style="width: 16%">Default</th>
                                                 <th style="width: 10%"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let v of step.calculatorRowVariables; let vi = index">
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" [(ngModel)]="v.key" (ngModelChange)="onVariableKeyChange(step, v, $event)" placeholder="age" />
+                                                </td>
                                                 <td>
                                                     <select
                                                         class="form-select form-select-sm"
@@ -517,7 +529,7 @@
                                                 </td>
                                             </tr>
                                             <tr *ngIf="(step.calculatorRowVariables?.length || 0) === 0">
-                                                <td colspan="4" class="text-muted small">No row variables yet. Add one to normalize each row's fields.</td>
+                                                <td colspan="5" class="text-muted small">No row variables yet. Add one to normalize each row's fields.</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -570,7 +582,8 @@
                                     <table class="table table-sm align-middle">
                                         <thead>
                                             <tr>
-                                                <th style="width: 35%">Field</th>
+                                                <th style="width: 24%">Var key</th>
+                                                <th style="width: 31%">Field</th>
                                                 <th style="width: 20%">Operation</th>
                                                 <th style="width: 15%">Default</th>
                                                 <th style="width: 10%"></th>
@@ -578,6 +591,9 @@
                                         </thead>
                                         <tbody>
                                             <tr *ngFor="let v of step.calculatorPostRowVariables; let vi = index">
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" [(ngModel)]="v.key" (ngModelChange)="onVariableKeyChange(step, v, $event)" placeholder="vpost_category" />
+                                                </td>
                                                 <td>
                                                     <select
                                                         class="form-select form-select-sm"
@@ -602,7 +618,7 @@
                                                 </td>
                                             </tr>
                                             <tr *ngIf="(step.calculatorPostRowVariables?.length || 0) === 0">
-                                                <td colspan="4" class="text-muted small">Optional: derive a category or flags after all rows are submitted.</td>
+                                                <td colspan="5" class="text-muted small">Optional: derive a category or flags after all rows are submitted.</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -640,6 +656,15 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+
+                            <div class="col-12" *ngIf="getCalculatorKeyErrors(step).length > 0">
+                                <div class="alert alert-warning py-2 mb-0">
+                                    <div class="small fw-semibold mb-1">Calculator key issues</div>
+                                    <ul class="mb-0 small ps-3">
+                                        <li *ngFor="let keyError of getCalculatorKeyErrors(step)">{{ keyError }}</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>

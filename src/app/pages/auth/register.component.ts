@@ -16,7 +16,7 @@ import { ToastModule } from 'primeng/toast';
     selector: 'app-register',
     standalone: true,
     imports: [CommonModule, FormsModule, RouterModule, ReactiveFormsModule, IdentityVerificationFormComponent, ToastModule],
-    providers: [AuthServiceProxy, LookupServiceProxy, OnboardingFieldConfigurationServiceProxy, MessageService],
+    providers: [MessageService],
     templateUrl: './register.component.html',
     styleUrl: './register.component.scss'
 })

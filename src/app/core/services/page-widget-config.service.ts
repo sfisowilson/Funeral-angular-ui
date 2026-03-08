@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { map } from 'rxjs/operators';
+import { PageWidgetConfigServiceProxy } from './service-proxies';
 
 export interface PageWidgetConfigDto {
   id: string;
@@ -40,28 +40,36 @@ interface PageRolesRequest {
 
 @Injectable({ providedIn: 'root' })
 export class PageWidgetConfigService {
-  private readonly baseUrl = environment.apiUrl + '/api/PageWidgetConfig';
-
-  constructor(private http: HttpClient) {}
+  constructor(private pageWidgetConfigServiceProxy: PageWidgetConfigServiceProxy) {}
 
   getConfigsForPage(pageKey: string): Observable<PageWidgetConfigDto[]> {
-    return this.http.get<PageWidgetConfigDto[]>(`${this.baseUrl}/PageWidgetConfig_GetByPage/${encodeURIComponent(pageKey)}`);
+    return this.pageWidgetConfigServiceProxy
+      .pageWidgetConfig_GetByPage(pageKey)
+      .pipe(map((response) => (response.result as any as PageWidgetConfigDto[]) || []));
   }
 
   getVisibleConfigsForPage(pageKey: string, roles: string[]): Observable<PageWidgetConfigDto[]> {
     const body: PageRolesRequest = { pageKey, roles };
-    return this.http.post<PageWidgetConfigDto[]>(`${this.baseUrl}/PageWidgetConfig_GetVisibleByRolesForPage`, body);
+    return this.pageWidgetConfigServiceProxy
+      .pageWidgetConfig_GetVisibleByRolesForPage(body as any)
+      .pipe(map((response) => (response.result as any as PageWidgetConfigDto[]) || []));
   }
 
   createConfig(dto: CreatePageWidgetConfigDto): Observable<PageWidgetConfigDto> {
-    return this.http.post<PageWidgetConfigDto>(`${this.baseUrl}/PageWidgetConfig_Create`, dto);
+    return this.pageWidgetConfigServiceProxy
+      .pageWidgetConfig_Create(dto as any)
+      .pipe(map((response) => response.result as any as PageWidgetConfigDto));
   }
 
   updateConfig(dto: UpdatePageWidgetConfigDto): Observable<PageWidgetConfigDto> {
-    return this.http.put<PageWidgetConfigDto>(`${this.baseUrl}/PageWidgetConfig_Update`, dto);
+    return this.pageWidgetConfigServiceProxy
+      .pageWidgetConfig_Update(dto as any)
+      .pipe(map((response) => response.result as any as PageWidgetConfigDto));
   }
 
   deleteConfig(id: string): Observable<boolean> {
-    return this.http.delete<boolean>(`${this.baseUrl}/PageWidgetConfig_Delete/${id}`);
+    return this.pageWidgetConfigServiceProxy
+      .pageWidgetConfig_Delete(id)
+      .pipe(map((response) => !!response.result));
   }
 }

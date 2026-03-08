@@ -8,28 +8,7 @@ import { appRoutes } from './app.routes';
 import { environment } from './environments/environment';
 import { SwaggerResponseInterceptor } from './app/core/interceptors/swagger-response.interceptor';
 import { Http201SuccessInterceptor } from './app/core/interceptors/http-201-success.interceptor';
-import {
-    API_BASE_URL,
-    TenantSettingServiceProxy,
-    FileUploadServiceProxy,
-    MemberProfileCompletionServiceProxy,
-    DependentServiceProxy,
-    TermsServiceProxy,
-    RequiredDocumentServiceProxy,
-    VerificationServiceProxy,
-    PremiumCalculationServiceProxy,
-    AuthServiceProxy,
-    MemberServiceProxy,
-    MemberBankingDetailServiceProxy,
-    MemberRegistrationServiceProxy,
-    Payment_configServiceProxy,
-    Payment_gatewayServiceProxy,
-    Debit_orderServiceProxy,
-    Tenant_bankingServiceProxy,
-    Tenant_invoiceServiceProxy,
-    NgoServiceProxy,
-    CustomPagesServiceProxy
-} from './app/core/services/service-proxies';
+import { API_BASE_URL } from './app/core/services/service-proxies';
 import { MemberContextService } from './app/core/services/member-context.service';
 import { AuthService } from './app/auth/auth-service';
 import { AuthInterceptor } from './app/auth/auth.service';
@@ -56,25 +35,6 @@ export const appConfig: ApplicationConfig = {
     providers: [
         AuthService,
         MemberContextService,
-        TenantSettingServiceProxy,
-        FileUploadServiceProxy,
-        MemberProfileCompletionServiceProxy,
-        CustomPagesServiceProxy,
-        DependentServiceProxy,
-        TermsServiceProxy,
-        RequiredDocumentServiceProxy,
-        VerificationServiceProxy,
-        PremiumCalculationServiceProxy,
-        AuthServiceProxy,
-        MemberServiceProxy,
-        MemberBankingDetailServiceProxy,
-        MemberRegistrationServiceProxy,
-        Payment_configServiceProxy,
-        Payment_gatewayServiceProxy,
-        Debit_orderServiceProxy,
-        Tenant_bankingServiceProxy,
-        Tenant_invoiceServiceProxy,
-        NgoServiceProxy,
         appInitializerProvider,
         {
             provide: APP_INITIALIZER,

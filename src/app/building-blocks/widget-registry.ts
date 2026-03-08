@@ -106,6 +106,18 @@ import { DynamicEntityListWidgetEditorComponent } from './dynamic-entity-list-wi
 import { OnboardingMultiSubmitStepComponent } from './onboarding-multi-submit-step/onboarding-multi-submit-step.component';
 import { OnboardingMultiSubmitStepEditorComponent } from './onboarding-multi-submit-step/onboarding-multi-submit-step-editor.component';
 import { OnboardingGlobalCalculatorWidgetComponent } from './onboarding-global-calculator-widget/onboarding-global-calculator-widget.component';
+import { OnboardingGlobalCalculatorEditorComponent } from './onboarding-global-calculator-widget/onboarding-global-calculator-editor.component';
+// Modern Widgets (2026)
+import { BentoGridWidgetComponent } from './bento-grid-widget/bento-grid-widget.component';
+import { BentoGridEditorComponent } from './bento-grid-widget/bento-grid-editor.component';
+import { ParallaxSectionWidgetComponent } from './parallax-section-widget/parallax-section-widget.component';
+import { ParallaxSectionEditorComponent } from './parallax-section-widget/parallax-section-editor.component';
+import { GlassmorphismCardWidgetComponent } from './glassmorphism-card-widget/glassmorphism-card-widget.component';
+import { GlassmorphismCardEditorComponent } from './glassmorphism-card-widget/glassmorphism-card-editor.component';
+import { SplitScreenWidgetComponent } from './split-screen-widget/split-screen-widget.component';
+import { SplitScreenEditorComponent } from './split-screen-widget/split-screen-editor.component';
+import { MarqueeWidgetComponent } from './marquee-widget/marquee-widget.component';
+import { MarqueeEditorComponent } from './marquee-widget/marquee-editor.component';
 
 export interface WidgetType {
     name: string;
@@ -118,7 +130,165 @@ export interface WidgetType {
     tenantTypes?: string[]; // NGO, Funeral, BurialSociety
 }
 
+const picsumRandomUrl = (width: number, height: number, randomId: number): string => `https://picsum.photos/${width}/${height}?random=${randomId}`;
+const picsumSeedUrl = (seed: string, width: number, height: number): string => `https://picsum.photos/seed/${seed}/${width}/${height}`;
+
 export const WIDGET_TYPES: WidgetType[] = [
+    // Modern Widgets (2026)
+    {
+        name: 'bento-grid',
+        component: BentoGridWidgetComponent,
+        editorComponent: BentoGridEditorComponent,
+        defaultConfig: {
+            title: 'Featured Content',
+            subtitle: 'Explore our highlighted items',
+            showTitle: true,
+            showSubtitle: true,
+            columns: 4,
+            gap: 16,
+            padding: 60,
+            animateOnScroll: true,
+            hoverEffect: 'lift',
+            backgroundColor: '#f8f9fa',
+            titleColor: '#212529',
+            subtitleColor: '#6c757d',
+            items: [
+                {
+                    size: 'large',
+                    title: 'Featured Item',
+                    description: 'Main featured content',
+                    backgroundColor: '#667eea',
+                    textColor: '#ffffff'
+                },
+                {
+                    size: 'medium',
+                    title: 'Secondary Item',
+                    description: 'Additional content',
+                    backgroundColor: '#764ba2',
+                    textColor: '#ffffff'
+                }
+            ]
+        },
+        icon: 'grid-3x3'
+    },
+    {
+        name: 'parallax-section',
+        component: ParallaxSectionWidgetComponent,
+        editorComponent: ParallaxSectionEditorComponent,
+        defaultConfig: {
+            title: 'Parallax Section',
+            subtitle: 'Scroll to see the parallax effect in action',
+            backgroundType: 'gradient',
+            backgroundImage: '',
+            backgroundVideo: '',
+            gradientStart: '#667eea',
+            gradientEnd: '#764ba2',
+            parallaxSpeed: 0.5,
+            direction: 'vertical',
+            overlayColor: '#000000',
+            overlayOpacity: 0.4,
+            minHeight: 500,
+            contentAlign: 'center',
+            titleColor: '#ffffff',
+            subtitleColor: '#ffffff',
+            showCTA: false,
+            ctaText: 'Learn More',
+            ctaLink: '#'
+        },
+        icon: 'layers'
+    },
+    {
+        name: 'glassmorphism-card',
+        component: GlassmorphismCardWidgetComponent,
+        editorComponent: GlassmorphismCardEditorComponent,
+        defaultConfig: {
+            title: 'Our Services',
+            subtitle: 'Discover what we can do for you',
+            showTitle: true,
+            showSubtitle: true,
+            columns: 3,
+            glassBlur: 10,
+            glassOpacity: 0.15,
+            borderGlow: true,
+            borderColor: 'rgba(255,255,255,0.2)',
+            shadowIntensity: 'medium',
+            backgroundPattern: 'gradient',
+            gradientStart: '#667eea',
+            gradientEnd: '#764ba2',
+            titleColor: '#ffffff',
+            subtitleColor: 'rgba(255,255,255,0.8)',
+            cardTitleColor: '#ffffff',
+            cardTextColor: 'rgba(255,255,255,0.9)',
+            iconColor: '#ffffff',
+            padding: 80,
+            animateOnScroll: true,
+            cards: [
+                {
+                    icon: 'bi bi-star',
+                    title: 'Premium Service',
+                    description: 'High-quality service description'
+                }
+            ]
+        },
+        icon: 'square'
+    },
+    {
+        name: 'split-screen',
+        component: SplitScreenWidgetComponent,
+        editorComponent: SplitScreenEditorComponent,
+        defaultConfig: {
+            splitRatio: 50,
+            minHeight: 600,
+            gap: 40,
+            reverseOnMobile: true,
+            backgroundColor: '#ffffff',
+            leftBackgroundColor: 'transparent',
+            rightBackgroundColor: 'transparent',
+            textColor: '#212529',
+            leftContent: {
+                type: 'image',
+                image: '',
+                sticky: true,
+                verticalAlign: 'center'
+            },
+            rightContent: {
+                type: 'steps',
+                items: [
+                    {
+                        title: 'Step 1',
+                        description: 'First step description'
+                    },
+                    {
+                        title: 'Step 2',
+                        description: 'Second step description'
+                    }
+                ],
+                scrollable: true
+            }
+        },
+        icon: 'layout-split'
+    },
+    {
+        name: 'marquee',
+        component: MarqueeWidgetComponent,
+        editorComponent: MarqueeEditorComponent,
+        defaultConfig: {
+            title: 'Trusted By',
+            showTitle: true,
+            direction: 'left',
+            speed: 30,
+            pauseOnHover: true,
+            itemSpacing: 40,
+            duplicateCount: 2,
+            backgroundColor: 'transparent',
+            titleColor: '#212529',
+            textColor: '#212529',
+            padding: 60,
+            itemScale: 1.0,
+            items: []
+        },
+        icon: 'arrow-right-circle'
+    },
     {
         name: 'policy-cover-premium-table',
         component: PolicyCoverPremiumTableWidgetComponent,
@@ -200,7 +370,7 @@ export const WIDGET_TYPES: WidgetType[] = [
     {
         name: 'onboarding-global-calculator',
         component: OnboardingGlobalCalculatorWidgetComponent,
-        editorComponent: StepperFormWidgetEditorComponent,
+        editorComponent: OnboardingGlobalCalculatorEditorComponent,
         defaultConfig: {
             title: 'Onboarding Price Summary',
             calculatorConfigJson: ''
@@ -264,21 +434,21 @@ export const WIDGET_TYPES: WidgetType[] = [
             buttonTextSize: 16,
             slides: [
                 {
-                    imageUrl: 'https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?w=1200',
+                    imageUrl: picsumRandomUrl(1200, 700, 101),
                     title: 'Welcome to Our Services',
                     subtitle: 'Professional funeral planning with compassion and care',
                     buttonText: 'Learn More',
                     buttonLink: '#services'
                 },
                 {
-                    imageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200',
+                    imageUrl: picsumRandomUrl(1200, 700, 102),
                     title: 'Comprehensive Coverage',
                     subtitle: 'Protecting what matters most to you and your family',
                     buttonText: 'Get Started',
                     buttonLink: '#plans'
                 },
                 {
-                    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200',
+                    imageUrl: picsumRandomUrl(1200, 700, 103),
                     title: 'Here for You',
                     subtitle: 'Supporting families through every step of the journey',
                     buttonText: 'Contact Us',
@@ -690,9 +860,9 @@ export const WIDGET_TYPES: WidgetType[] = [
             title: 'Our Gallery',
             padding: 20,
             images: [
-                { src: 'https://via.placeholder.com/300', alt: 'Placeholder Image' },
-                { src: 'https://via.placeholder.com/300', alt: 'Placeholder Image' },
-                { src: 'https://via.placeholder.com/300', alt: 'Placeholder Image' }
+                { src: picsumRandomUrl(900, 600, 201), alt: 'Placeholder Image' },
+                { src: picsumRandomUrl(900, 600, 202), alt: 'Placeholder Image' },
+                { src: picsumRandomUrl(900, 600, 203), alt: 'Placeholder Image' }
             ]
         },
         icon: 'images'
@@ -1129,25 +1299,25 @@ export const WIDGET_TYPES: WidgetType[] = [
             logos: [
                 {
                     name: 'Partner 1',
-                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+1',
+                    imageUrl: picsumSeedUrl('partner-1', 150, 60),
                     link: '',
                     altText: 'Partner 1 Logo'
                 },
                 {
                     name: 'Partner 2',
-                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+2',
+                    imageUrl: picsumSeedUrl('partner-2', 150, 60),
                     link: '',
                     altText: 'Partner 2 Logo'
                 },
                 {
                     name: 'Partner 3',
-                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+3',
+                    imageUrl: picsumSeedUrl('partner-3', 150, 60),
                     link: '',
                     altText: 'Partner 3 Logo'
                 },
                 {
                     name: 'Partner 4',
-                    imageUrl: 'https://via.placeholder.com/150x60?text=Partner+4',
+                    imageUrl: picsumSeedUrl('partner-4', 150, 60),
                     link: '',
                     altText: 'Partner 4 Logo'
                 }
@@ -1252,7 +1422,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     company: 'Peaceful Rest Funeral Services',
                     content: 'We had our website up and running in just 8 minutes. The platform is incredibly intuitive, and our members love the self-service portal.',
                     rating: 5,
-                    imageUrl: 'https://via.placeholder.com/100x100?text=SM'
+                    imageUrl: picsumSeedUrl('testimonial-sm', 100, 100)
                 },
                 {
                     name: 'John Khumalo',
@@ -1260,7 +1430,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     company: 'Heritage Funeral Home',
                     content: "The unified platform brought all our tools together. We've reduced administrative time by 60% and can focus more on serving families.",
                     rating: 5,
-                    imageUrl: 'https://via.placeholder.com/100x100?text=JK'
+                    imageUrl: picsumSeedUrl('testimonial-jk', 100, 100)
                 },
                 {
                     name: 'Patricia Louw',
@@ -1268,7 +1438,7 @@ export const WIDGET_TYPES: WidgetType[] = [
                     company: 'Community Burial Society',
                     content: "We've saved over R5,000 per month by consolidating our tools. The ROI was clear within the first month!",
                     rating: 5,
-                    imageUrl: 'https://via.placeholder.com/100x100?text=PL'
+                    imageUrl: picsumSeedUrl('testimonial-pl', 100, 100)
                 }
             ]
         },

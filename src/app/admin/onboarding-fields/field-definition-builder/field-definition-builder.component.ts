@@ -45,7 +45,7 @@ interface FieldOption {
     selector: 'app-field-definition-builder',
     standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, DropdownModule, InputTextarea, CheckboxModule, ToastModule, ConfirmDialogModule, InputNumberModule],
-    providers: [MessageService, ConfirmationService, OnboardingFieldDefinitionServiceProxy],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './field-definition-builder.component.html',
     styleUrls: ['./field-definition-builder.component.scss']
 })

@@ -21,7 +21,7 @@ interface EntityTypeOption {
     selector: 'app-dynamic-entity-list-widget-editor',
     standalone: true,
     imports: [CommonModule, FormsModule, DropdownModule, ButtonModule, InputTextModule, TextareaModule, InputNumberModule, ToastModule],
-    providers: [DynamicEntityServiceProxy, MessageService],
+    providers: [MessageService],
     templateUrl: './dynamic-entity-list-widget-editor.component.html',
     styleUrls: ['./dynamic-entity-list-widget-editor.component.scss']
 })

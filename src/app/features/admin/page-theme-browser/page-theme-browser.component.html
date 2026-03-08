@@ -1,0 +1,276 @@
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [closable]="!applying"
+    [closeOnEscape]="!applying"
+    [dismissableMask]="!applying"
+    [style]="{ width: '90vw', maxWidth: '1400px', height: '90vh' }"
+    [contentStyle]="{ padding: 0, overflow: 'hidden' }"
+    header="Browse Page Themes"
+>
+    <!-- Main Browser View -->
+    <div *ngIf="!showPreview && !applying" class="theme-browser">
+        <!-- Search and Filters -->
+        <div class="browser-header">
+            <div class="search-box">
+                <i class="pi pi-search"></i>
+                <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="searchQuery"
+                    (ngModelChange)="onSearchChange()"
+                    placeholder="Search themes..."
+                    class="w-full"
+                />
+            </div>
+            
+            <div class="filters">
+                <div class="p-field-checkbox">
+                    <input
+                        type="checkbox"
+                        id="premiumOnly"
+                        [(ngModel)]="showPremiumOnly"
+                        (ngModelChange)="onPremiumFilterChange()"
+                    />
+                    <label for="premiumOnly" class="ml-2">Premium Only</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Tabs -->
+        <p-tabView [activeIndex]="activeCategoryIndex" (onChange)="onCategoryChange($event.index)">
+            <p-tabPanel *ngFor="let category of categories" [header]="category.label">
+                <!-- Themes Grid -->
+                <div class="themes-grid" *ngIf="filteredThemes.length > 0">
+                    <div *ngFor="let theme of filteredThemes" class="theme-card">
+                        <!-- Thumbnail with Color Overlay -->
+                        <div class="theme-thumbnail">
+                            <div
+                                class="color-preview"
+                                [style.background]="getColorSchemePreview(theme)"
+                            ></div>
+                            <div class="theme-overlay">
+                                <button
+                                    pButton
+                                    icon="pi pi-eye"
+                                    label="Preview"
+                                    class="p-button-rounded p-button-text"
+                                    (click)="previewTheme(theme)"
+                                ></button>
+                            </div>
+                        </div>
+
+                        <!-- Theme Info -->
+                        <div class="theme-info">
+                            <div class="theme-header">
+                                <h3>{{ theme.name }}</h3>
+                                <p-tag
+                                    *ngIf="theme.isPremium"
+                                    value="Premium"
+                                    severity="warning"
+                                    [rounded]="true"
+                                ></p-tag>
+                            </div>
+
+                            <p class="theme-description">{{ theme.description }}</p>
+
+                            <div class="theme-meta">
+                                <p-chip [label]="theme.pages.length + ' pages'" icon="pi pi-file"></p-chip>
+                                <p-tag
+                                    [value]="theme.category | titlecase"
+                                    [severity]="getSeverityForCategory(theme.category)"
+                                ></p-tag>
+                            </div>
+
+                            <div class="theme-actions">
+                                <button
+                                    pButton
+                                    label="Preview"
+                                    icon="pi pi-eye"
+                                    class="p-button-outlined p-button-sm"
+                                    (click)="previewTheme(theme)"
+                                ></button>
+                                <button
+                                    pButton
+                                    label="Apply Theme"
+                                    icon="pi pi-check"
+                                    class="p-button-sm"
+                                    (click)="applyTheme(theme)"
+                                ></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="filteredThemes.length === 0" class="empty-state">
+                    <i class="pi pi-search" style="font-size: 4rem; color: var(--text-color-secondary)"></i>
+                    <h3>No themes found</h3>
+                    <p>Try adjusting your search or filters</p>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
+    </div>
+
+    <!-- Theme Preview View -->
+    <div *ngIf="showPreview && selectedTheme && !applying" class="theme-preview">
+        <div class="preview-header">
+            <button
+                pButton
+                icon="pi pi-arrow-left"
+                label="Back to Themes"
+                class="p-button-text"
+                (click)="closePreview()"
+            ></button>
+        </div>
+
+        <div class="preview-content">
+            <div class="preview-main">
+                <h1>{{ selectedTheme.name }}</h1>
+                <p class="preview-description">{{ selectedTheme.description }}</p>
+
+                <!-- Color Scheme Preview -->
+                <div class="color-scheme-preview" *ngIf="selectedTheme.colorScheme">
+                    <h3>Color Scheme</h3>
+                    <div class="color-swatches">
+                        <div class="color-swatch">
+                            <div class="swatch" [style.background]="selectedTheme.colorScheme.primary"></div>
+                            <span>Primary</span>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch" [style.background]="selectedTheme.colorScheme.secondary"></div>
+                            <span>Secondary</span>
+                        </div>
+                        <div class="color-swatch">
+                            <div class="swatch" [style.background]="selectedTheme.colorScheme.accent"></div>
+                            <span>Accent</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual Preview -->
+                <div class="visual-preview" *ngIf="selectedTheme.pages.length > 0">
+                    <div class="visual-preview-header">
+                        <h3>Live Theme Preview</h3>
+                        <p>Switch pages to preview the actual widget layout and styling.</p>
+                    </div>
+
+                    <div class="visual-preview-layout">
+                        <div class="preview-page-list">
+                            <button
+                                type="button"
+                                class="preview-page-button"
+                                *ngFor="let page of selectedTheme.pages; let i = index"
+                                [class.active]="i === selectedPreviewPageIndex"
+                                (click)="selectPreviewPage(i)"
+                            >
+                                <span class="page-name">{{ page.name }}</span>
+                                <small>{{ page.widgets.length }} widgets</small>
+                            </button>
+                        </div>
+
+                        <div class="preview-canvas" *ngIf="getActivePreviewPage() as activePage">
+                            <div class="preview-canvas-header">
+                                <h4>{{ activePage.title || activePage.name }}</h4>
+                                <p>{{ activePage.description }}</p>
+                            </div>
+
+                            <div class="preview-canvas-content" *ngIf="getPreviewWidgets(activePage).length > 0; else noWidgets">
+                                <ng-container *ngFor="let widget of getPreviewWidgets(activePage)">
+                                    <ng-container *ngIf="getWidgetComponent(widget.type) as widgetComponent; else unknownWidget">
+                                        <ng-container *ngComponentOutlet="widgetComponent; inputs: { config: widget }"></ng-container>
+                                    </ng-container>
+                                    <ng-template #unknownWidget>
+                                        <div class="unknown-widget-message">
+                                            Widget type "{{ widget.type }}" is not available in this environment.
+                                        </div>
+                                    </ng-template>
+                                </ng-container>
+                            </div>
+                            <ng-template #noWidgets>
+                                <div class="unknown-widget-message">No widgets configured for this page.</div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page List -->
+                <div class="page-list">
+                    <h3>Included Pages ({{ selectedTheme.pages.length }})</h3>
+                    <div class="pages">
+                        <div *ngFor="let page of selectedTheme.pages" class="page-item">
+                            <div class="page-icon">
+                                <i [class]="page.showInNavbar ? 'pi pi-home' : 'pi pi-file'"></i>
+                            </div>
+                            <div class="page-details">
+                                <h4>{{ page.name }}</h4>
+                                <p>{{ page.widgets.length }} widgets</p>
+                                <div class="page-badges">
+                                    <p-chip *ngIf="page.showInNavbar" label="In Navbar" severity="info" size="small"></p-chip>
+                                    <p-chip *ngIf="page.showInFooter" label="In Footer" severity="info" size="small"></p-chip>
+                                    <p-chip *ngIf="page.isPublic" label="Public" severity="success" size="small"></p-chip>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Warning -->
+                <div *ngIf="subscriptionInfo && !subscriptionInfo.canApply" class="subscription-warning">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    <div>
+                        <strong>Subscription Limit Exceeded</strong>
+                        <p>
+                            You can have up to {{ subscriptionInfo.limit }} pages. You currently have
+                            {{ subscriptionInfo.current }} pages and need {{ subscriptionInfo.remaining }} more slots
+                            to apply this theme.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Apply Button -->
+                <div class="preview-actions">
+                    <button
+                        pButton
+                        label="Apply This Theme"
+                        icon="pi pi-check"
+                        class="p-button-lg p-button-success"
+                        (click)="applyTheme(selectedTheme)"
+                        [disabled]="subscriptionInfo && !subscriptionInfo.canApply"
+                    ></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Progress View -->
+    <div *ngIf="applying && applicationProgress" class="application-progress">
+        <div class="progress-content">
+            <p-progressSpinner></p-progressSpinner>
+            
+            <h2 *ngIf="applicationProgress.status === 'pending'">Preparing to apply theme...</h2>
+            <h2 *ngIf="applicationProgress.status === 'creating'">Creating pages...</h2>
+            <h2 *ngIf="applicationProgress.status === 'completed'">Theme applied successfully!</h2>
+            <h2 *ngIf="applicationProgress.status === 'error'">Application completed with errors</h2>
+
+            <div class="progress-details">
+                <p *ngIf="applicationProgress.currentPage">
+                    Creating: <strong>{{ applicationProgress.currentPage }}</strong>
+                </p>
+                <p>
+                    Progress: <strong>{{ applicationProgress.createdPages }} / {{ applicationProgress.totalPages }}</strong> pages
+                </p>
+            </div>
+
+            <div *ngIf="applicationProgress.status === 'completed'" class="success-message">
+                <i class="pi pi-check-circle" style="font-size: 3rem; color: var(--green-500)"></i>
+                <p>Redirecting to page management...</p>
+            </div>
+
+            <div *ngIf="applicationProgress.status === 'error' && applicationProgress.error" class="error-message">
+                <i class="pi pi-exclamation-circle" style="font-size: 3rem; color: var(--red-500)"></i>
+                <p>{{ applicationProgress.error }}</p>
+            </div>
+        </div>
+    </div>
+</p-dialog>

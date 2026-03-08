@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -14,16 +14,18 @@ import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CustomPagesServiceProxy, ApiServiceProxy, PageListItemDto, CreatePageDto, PageLimitsDto } from '../../../core/services/service-proxies';
+import { PageThemeBrowserComponent } from '../page-theme-browser/page-theme-browser.component';
 
 @Component({
     selector: 'app-page-management',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule, ButtonModule, TableModule, CardModule, TagModule, ToastModule, ConfirmDialogModule, DialogModule, InputTextModule, CheckboxModule, TooltipModule],
-    providers: [MessageService, ConfirmationService, ApiServiceProxy, CustomPagesServiceProxy],
+    imports: [CommonModule, RouterModule, FormsModule, ButtonModule, TableModule, CardModule, TagModule, ToastModule, ConfirmDialogModule, DialogModule, InputTextModule, CheckboxModule, TooltipModule, PageThemeBrowserComponent],
+    providers: [MessageService, ConfirmationService],
     templateUrl: './page-management.component.html',
     styleUrl: './page-management.component.scss'
 })
 export class PageManagementComponent implements OnInit {
+    @ViewChild(PageThemeBrowserComponent) themeBrowser!: PageThemeBrowserComponent;
     pages = signal<PageListItemDto[]>([]);
     loading = signal(false);
     showCreateDialog = signal(false);
@@ -241,5 +243,11 @@ export class PageManagementComponent implements OnInit {
 
     getSeverity(isActive: boolean): 'success' | 'warning' {
         return isActive ? 'success' : 'warning';
+    }
+
+    openThemeBrowser() {
+        if (this.themeBrowser) {
+            this.themeBrowser.open();
+        }
     }
 }

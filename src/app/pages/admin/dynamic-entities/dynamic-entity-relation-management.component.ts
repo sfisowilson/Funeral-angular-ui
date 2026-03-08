@@ -18,7 +18,7 @@ import { AuthService } from '@app/auth/auth-service';
     styleUrls: ['./dynamic-entity-relation-management.component.scss'],
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [DynamicEntityServiceProxy]
+    providers: []
 })
 export class DynamicEntityRelationManagementComponent implements OnInit {
     relationDefinitions: DynamicEntityRelationDefinitionDto[] = [];

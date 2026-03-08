@@ -8,7 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
     selector: 'app-grant-applications',
     standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
-    providers: [NgoServiceProxy],
+    providers: [],
     templateUrl: './grant-applications.component.html',
     styleUrl: './grant-applications.component.scss'
 })

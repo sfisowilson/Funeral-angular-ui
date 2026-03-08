@@ -36,7 +36,7 @@ import { AuthService } from '../../../auth/auth-service';
     selector: 'app-dependents-step',
     standalone: true,
     imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, TooltipModule, ToastModule, CalendarModule, InputMaskModule, FileUploadModule, DropdownModule, TabViewModule],
-    providers: [MessageService, MemberProfileCompletionServiceProxy, DependentServiceProxy, FileUploadServiceProxy, DocumentRequirementServiceProxy],
+    providers: [MessageService],
     templateUrl: './dependents-step.component.html',
     styleUrl: './dependents-step.component.scss'
 })

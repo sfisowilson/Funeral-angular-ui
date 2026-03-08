@@ -5,6 +5,7 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthServiceProxy, TenantCreateUpdateDto, PlanConfigurationServiceProxy, PaymentServiceProxy, CouponServiceProxy, TenantType, TenantServiceProxy, TenantTypeDto, TenantSubscriptionServiceProxy, CreateSubscriptionDto } from '../../../core/services/service-proxies';
 import { TenantBaseComponent } from '../../../core/tenant-base.component';
 import { ORGANIZATION_TYPES, OrganizationType, OrgTypeQuestion } from './organization-types.config';
+import { CustomPageTemplate, CustomPageTemplateService } from '../../../core/services/custom-page-template.service';
 
 interface Alert {
     type: string;
@@ -15,7 +16,7 @@ interface Alert {
     selector: 'app-tenant-register-wizard',
     standalone: true,
     imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
-    providers: [AuthServiceProxy, PlanConfigurationServiceProxy, PaymentServiceProxy, CouponServiceProxy, TenantServiceProxy, TenantSubscriptionServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './tenant-register-wizard.component.html',
     styleUrls: ['./tenant-register-wizard.component.scss']
@@ -45,6 +46,8 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
     // Available plans
     plans = signal<any[]>([]);
     selectedPlan = signal<any | null>(null);
+    availableThemes = signal<CustomPageTemplate[]>([]);
+    selectedThemeId = signal<string | null>(null);
 
     // Real-time pricing
     basePlanPrice = signal<number>(0);
@@ -107,6 +110,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         private couponService: CouponServiceProxy,
         private tenantProxy: TenantServiceProxy,
         private tenantSubscriptionService: TenantSubscriptionServiceProxy,
+        private customPageTemplateService: CustomPageTemplateService,
         protected override injector: Injector
     ) {
         super(injector);
@@ -117,6 +121,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         this.initializeForms();
         await this.loadTenantTypes();
         await this.loadPlans(undefined); // Load all plans initially
+        this.loadAvailableThemes();
         await this.loadProRataSetting(); // Load system pro-rata setting
         this.checkForIncompleteRegistration(); // Call after plans are loaded
 
@@ -458,6 +463,19 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         }
     }
 
+    loadAvailableThemes(): void {
+        const templates = this.customPageTemplateService.getAllTemplates();
+        this.availableThemes.set(templates);
+
+        if (!this.selectedThemeId() && templates.length > 0) {
+            this.selectedThemeId.set(templates[0].id);
+        }
+    }
+
+    selectTheme(themeId: string): void {
+        this.selectedThemeId.set(themeId);
+    }
+
     async validateCoupon(): Promise<void> {
         const plan = this.selectedPlan();
         if (!this.couponCode() || !plan) return;
@@ -625,6 +643,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             registrationNumber: formValue.registrationNumber,
             subscriptionPlanId: selectedPlan.subscriptionPlanId || selectedPlan.id,
             selectedPlanConfigurationId: selectedPlan.id,
+            selectedThemeId: this.selectedThemeId(),
             couponCode: this.couponCode() || null,
             billingCycle: this.billingCycle
         });

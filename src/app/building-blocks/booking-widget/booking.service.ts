@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { ApiServiceProxy, BookingServiceProxy } from '../../core/services/service-proxies';
 
 export interface TimeSlot {
     time: string;
@@ -69,7 +69,10 @@ export interface BookingWidgetConfig {
 export class BookingService {
     private baseUrl = '/api/booking';
 
-    constructor(private http: HttpClient) {}
+    constructor(
+        private bookingServiceProxy: BookingServiceProxy,
+        private apiServiceProxy: ApiServiceProxy
+    ) {}
 
     // Get available time slots for a specific date
     getAvailableTimeSlots(date: Date, config: BookingWidgetConfig): Observable<TimeSlot[]> {
@@ -83,40 +86,36 @@ export class BookingService {
 
     // Create a new booking
     createBooking(bookingRequest: BookingRequest): Observable<Booking> {
-        return this.http.post<Booking>(`${this.baseUrl}/create`, bookingRequest);
+        return this.bookingServiceProxy.create(bookingRequest as any).pipe(map((response) => response.result as any as Booking));
     }
 
     // Get all bookings for current tenant
     getBookings(): Observable<Booking[]> {
-        return this.http.get<Booking[]>(`${this.baseUrl}/list`);
+        return this.bookingServiceProxy.list(undefined, undefined, undefined).pipe(map((response) => (response.result as any as Booking[]) || []));
     }
 
     // Get bookings for a specific date range
     getBookingsByDateRange(startDate: Date, endDate: Date, status?: string): Observable<Booking[]> {
-        let params: any = {
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString()
-        };
-        if (status) {
-            params.status = status;
-        }
-        return this.http.get<Booking[]>(`${this.baseUrl}/list`, { params });
+        return this.bookingServiceProxy
+            .list(startDate.toISOString() as any, endDate.toISOString() as any, status)
+            .pipe(map((response) => (response.result as any as Booking[]) || []));
     }
 
     // Update booking status
     updateBookingStatus(bookingId: string, status: 'confirmed' | 'cancelled' | 'pending'): Observable<any> {
-        return this.http.put(`${this.baseUrl}/${bookingId}/status`, { status });
+        return this.bookingServiceProxy.status(bookingId, { status } as any).pipe(map((response) => response.result));
     }
 
     // Delete booking
     deleteBooking(bookingId: string): Observable<void> {
-        return this.http.delete<void>(`${this.baseUrl}/${bookingId}`);
+        return this.apiServiceProxy.bookingDelete(bookingId).pipe(map(() => undefined));
     }
 
     // Get booking widget configuration
     getBookingConfig(): Observable<BookingWidgetConfig> {
-        return this.http.get<BookingWidgetConfig>(`${this.baseUrl}/config`).pipe(
-            map((config: BookingWidgetConfig) => {
+        return this.bookingServiceProxy.configGet().pipe(
+            map((response) => {
+                const config = (response.result as any as BookingWidgetConfig) || ({} as BookingWidgetConfig);
                 // Ensure default values for new properties
                 return {
                     ...config,
@@ -133,7 +132,7 @@ export class BookingService {
 
     // Update booking widget configuration
     updateBookingConfig(config: BookingWidgetConfig): Observable<BookingWidgetConfig> {
-        return this.http.put<BookingWidgetConfig>(`${this.baseUrl}/config`, config);
+        return this.bookingServiceProxy.configPut(config as any).pipe(map((response) => response.result as any as BookingWidgetConfig));
     }
 
     // Generate time slots client-side (for demo purposes)
@@ -337,10 +336,11 @@ END:VCALENDAR`;
             }
         };
 
-        return this.http.post(`${this.baseUrl}/send-notifications`, payload).pipe(
+        return this.bookingServiceProxy.sendNotifications(payload as any).pipe(
             map((response: any) => {
+                const result = response?.result ?? response;
                 console.log('Notification response:', response);
-                return response;
+                return result;
             }),
             catchError((error) => {
                 console.error('Failed to send notifications:', error);

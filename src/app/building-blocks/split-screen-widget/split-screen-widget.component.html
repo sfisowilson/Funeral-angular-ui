@@ -1,0 +1,91 @@
+<div 
+    class="split-screen-widget" 
+    [style.min-height.px]="minHeight"
+    [style.background-color]="backgroundColor"
+    [class.reverse-mobile]="reverseOnMobile"
+>
+    <!-- Left Panel -->
+    <div 
+        class="split-panel left-panel"
+        [class.sticky]="leftContent.sticky"
+        [class.align-top]="leftContent.verticalAlign === 'top'"
+        [class.align-center]="leftContent.verticalAlign === 'center'"
+        [class.align-bottom]="leftContent.verticalAlign === 'bottom'"
+        [style.width]="getLeftWidth()"
+        [style.background-color]="leftBackgroundColor"
+    >
+        <div class="panel-content">
+            <!-- Image -->
+            <div *ngIf="leftContent.type === 'image'" class="media-container">
+                <img 
+                    [src]="leftContent.image" 
+                    alt="Split screen image"
+                    class="media-image"
+                />
+            </div>
+
+            <!-- Video -->
+            <div *ngIf="leftContent.type === 'video'" class="media-container">
+                <video 
+                    [src]="leftContent.video"
+                    class="media-video"
+                    controls
+                    autoplay
+                    loop
+                    muted
+                ></video>
+            </div>
+
+            <!-- Slideshow -->
+            <div *ngIf="leftContent.type === 'slideshow'" class="media-container slideshow">
+                <img 
+                    [src]="getCurrentImage()" 
+                    alt="Slideshow image"
+                    class="media-image"
+                />
+                <div class="slideshow-controls">
+                    <button class="control-btn prev" (click)="prevImage()">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button class="control-btn next" (click)="nextImage()">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div 
+        class="split-panel right-panel"
+        [class.scrollable]="rightContent.scrollable"
+        [style.width]="getRightWidth()"
+        [style.background-color]="rightBackgroundColor"
+    >
+        <div class="panel-content" [style.color]="textColor">
+            <!-- Text Content -->
+            <div *ngIf="rightContent.type === 'text'">
+                <ng-content></ng-content>
+            </div>
+
+            <!-- List Items -->
+            <div *ngIf="rightContent.type === 'list'" class="content-list">
+                <div *ngFor="let item of rightContent.items" class="list-item">
+                    <h3 class="item-title">{{ item.title }}</h3>
+                    <p class="item-description">{{ item.description }}</p>
+                </div>
+            </div>
+
+            <!-- Steps -->
+            <div *ngIf="rightContent.type === 'steps'" class="content-steps">
+                <div *ngFor="let item of rightContent.items; let i = index" class="step-item">
+                    <div class="step-number">{{ i + 1 }}</div>
+                    <div class="step-content">
+                        <h3 class="step-title">{{ item.title }}</h3>
+                        <p class="step-description">{{ item.description }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

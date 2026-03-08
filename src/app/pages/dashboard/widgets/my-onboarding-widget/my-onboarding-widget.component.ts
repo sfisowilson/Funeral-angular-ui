@@ -15,7 +15,7 @@ export class MyOnboardingWidgetComponent {
     constructor(private router: Router) {}
 
     viewOnboarding() {
-        this.router.navigate(['/member-onboarding'], {
+        this.router.navigate(['/admin/member-onboarding'], {
             queryParams: { view: 'true' }
         });
     }

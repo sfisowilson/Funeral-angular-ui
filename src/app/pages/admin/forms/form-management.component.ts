@@ -15,6 +15,7 @@ interface FormField {
     label: string;
     type: string;
     required: boolean;
+    defaultValue?: string;
     placeholder?: string;
     options?: string; // comma-separated for multi-option fields
     fileMode?: 'single' | 'multiple';
@@ -32,6 +33,8 @@ interface FormField {
     parentDateFieldKey?: string;
     datePart?: 'day' | 'month' | 'year';
     readOnly?: boolean;
+    minValue?: number;
+    maxValue?: number;
     order: number;
 }
 
@@ -204,7 +207,7 @@ interface FormCalculatorConfig {
     selector: 'app-form-management',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [FormServiceProxy, DynamicEntityServiceProxy],
+    providers: [],
     schemas: [NO_ERRORS_SCHEMA],
     templateUrl: './form-management.component.html',
     styleUrls: ['./form-management.component.scss']
@@ -420,12 +423,19 @@ export class FormManagementComponent implements OnInit {
                         parentDateFieldKey: f.parentDateFieldKey,
                         datePart: f.datePart,
                         readOnly: !!f.readOnly,
+                                                defaultValue: Array.isArray(f.defaultValue)
+                                                        ? f.defaultValue.join(', ')
+                                                        : f.defaultValue != null
+                                                            ? String(f.defaultValue)
+                                                            : '',
                         placeholder: f.placeholder || '',
                         options,
                         fileMode: normalizedFileMode,
                         maxFiles,
                         maxSizeMB: typeof f.maxSizeMB === 'number' ? f.maxSizeMB : typeof f.fileConfig?.maxSizeMB === 'number' ? f.fileConfig.maxSizeMB : 10,
                         acceptedTypes,
+                        minValue: typeof f.minValue === 'number' ? f.minValue : undefined,
+                        maxValue: typeof f.maxValue === 'number' ? f.maxValue : undefined,
                         order: typeof f.order === 'number' ? f.order : index
                     } as FormField;
                 });
@@ -517,6 +527,11 @@ export class FormManagementComponent implements OnInit {
                     parentDateFieldKey: f.parentDateFieldKey,
                     datePart: f.datePart,
                     readOnly: !!f.readOnly,
+                                        defaultValue: Array.isArray(f.defaultValue)
+                                                ? f.defaultValue.join(', ')
+                                                : f.defaultValue != null
+                                                    ? String(f.defaultValue)
+                                                    : '',
                     placeholder: f.placeholder || '',
                     options,
                     fileMode: normalizedFileMode,
@@ -534,6 +549,8 @@ export class FormManagementComponent implements OnInit {
                         : typeof acceptedTypesRaw === 'string'
                           ? acceptedTypesRaw
                           : '.pdf, .jpg, .jpeg, .png, .doc, .docx',
+                    minValue: typeof f.minValue === 'number' ? f.minValue : undefined,
+                    maxValue: typeof f.maxValue === 'number' ? f.maxValue : undefined,
                     order: typeof f.order === 'number' ? f.order : index
                 } as FormField;
             });
@@ -600,7 +617,9 @@ export class FormManagementComponent implements OnInit {
             }
         }
 
-        const payload = this.formFields
+        const normalizedFields = this.normalizeAndDeduplicateIdDerivedFields(this.formFields);
+
+        const payload = normalizedFields
             .slice()
             .sort((a, b) => a.order - b.order)
             .map((f) => ({
@@ -615,6 +634,17 @@ export class FormManagementComponent implements OnInit {
                 parentDateFieldKey: f.parentDateFieldKey,
                 datePart: f.datePart,
                 readOnly: !!f.readOnly,
+                minValue: f.minValue != null ? f.minValue : undefined,
+                maxValue: f.maxValue != null ? f.maxValue : undefined,
+                                defaultValue:
+                                        f.type === 'file'
+                                                ? undefined
+                                                : f.type === 'checkbox'
+                                                    ? (f.defaultValue || '')
+                                                                .split(',')
+                                                                .map((o) => o.trim())
+                                                                .filter((o) => !!o)
+                                                    : f.defaultValue || undefined,
                 placeholder: f.placeholder || undefined,
                 options: f.options
                     ? f.options
@@ -657,6 +687,65 @@ export class FormManagementComponent implements OnInit {
 
         this.form.fields = JSON.stringify(finalPayload, null, 2);
         return true;
+    }
+
+    private normalizeAndDeduplicateIdDerivedFields(fields: FormField[]): FormField[] {
+        const normalized = fields.map((field) => ({
+            ...field,
+            name: this.convertToCamelCase(field.name || '')
+        }));
+
+        const deduped: FormField[] = [];
+        const seen = new Set<string>();
+
+        for (const field of normalized) {
+            const key = this.toComparableFieldKey(field.name);
+            if (!key) {
+                deduped.push(field);
+                continue;
+            }
+
+            if (seen.has(key)) {
+                continue;
+            }
+
+            seen.add(key);
+            deduped.push(field);
+        }
+
+        const idFields = deduped.filter((f) => String(f.type || '').toLowerCase() === 'idnumber' && !!f.name);
+        for (const idField of idFields) {
+            const baseName = this.convertToCamelCase(idField.name || 'idNumber') || 'idNumber';
+            idField.name = baseName;
+            this.canonicalizeDerivedFieldName(deduped, `${baseName}_dateOfBirth`);
+            this.canonicalizeDerivedFieldName(deduped, `${baseName}_age`);
+            this.canonicalizeDerivedFieldName(deduped, `${baseName}_gender`);
+        }
+
+        return deduped.map((field, index) => ({ ...field, order: index }));
+    }
+
+    private canonicalizeDerivedFieldName(fields: FormField[], preferredName: string): void {
+        const preferredKey = this.toComparableFieldKey(preferredName);
+        const matchingIndexes = fields
+            .map((field, index) => ({ field, index }))
+            .filter(({ field }) => this.toComparableFieldKey(field.name) === preferredKey)
+            .map(({ index }) => index);
+
+        if (matchingIndexes.length <= 1) {
+            if (matchingIndexes.length === 1) {
+                fields[matchingIndexes[0]].name = preferredName;
+            }
+            return;
+        }
+
+        const [keepIndex, ...removeIndexes] = matchingIndexes;
+        fields[keepIndex].name = preferredName;
+        removeIndexes.sort((a, b) => b - a).forEach((index) => fields.splice(index, 1));
+    }
+
+    private toComparableFieldKey(value: string | undefined | null): string {
+        return (value || '').toString().trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     }
 
     private syncCalculatorConfigToJson(): void {
@@ -773,6 +862,7 @@ export class FormManagementComponent implements OnInit {
 
     onFieldTypeChange(field: FormField): void {
         if (field.type === 'file') {
+            field.defaultValue = '';
             field.fileMode = field.fileMode || 'single';
             field.maxFiles = field.fileMode === 'multiple' ? Math.max(2, Number(field.maxFiles ?? 5)) : 1;
             field.maxSizeMB = Math.max(1, Number(field.maxSizeMB ?? 10));
@@ -780,23 +870,28 @@ export class FormManagementComponent implements OnInit {
         }
 
         if (field.type === 'idNumber') {
-            const baseName = field.name || '';
+            const baseName = this.convertToCamelCase(field.name || 'idNumber') || 'idNumber';
+            field.name = baseName;
             const targetAgeName = baseName ? `${baseName}_age` : 'age';
             const targetGenderName = baseName ? `${baseName}_gender` : 'gender';
             const targetDateOfBirthName = baseName ? `${baseName}_dateOfBirth` : 'dateOfBirth';
 
-            const normalizedNames = new Set(
+            const comparableNames = new Set(
                 this.formFields
-                    .map((f) => (f?.name || '').toString().trim().toLowerCase())
+                    .map((f) => this.toComparableFieldKey((f?.name || '').toString()))
                     .filter((name) => !!name)
             );
 
-            const hasAge = normalizedNames.has(targetAgeName.toLowerCase()) || normalizedNames.has('age');
-            const hasGender = normalizedNames.has(targetGenderName.toLowerCase()) || normalizedNames.has('gender');
+            const hasAge =
+                comparableNames.has(this.toComparableFieldKey(targetAgeName)) ||
+                comparableNames.has(this.toComparableFieldKey('age'));
+            const hasGender =
+                comparableNames.has(this.toComparableFieldKey(targetGenderName)) ||
+                comparableNames.has(this.toComparableFieldKey('gender'));
             const hasDateOfBirth =
-                normalizedNames.has(targetDateOfBirthName.toLowerCase()) ||
-                normalizedNames.has('dateofbirth') ||
-                normalizedNames.has('dob');
+                comparableNames.has(this.toComparableFieldKey(targetDateOfBirthName)) ||
+                comparableNames.has(this.toComparableFieldKey('dateOfBirth')) ||
+                comparableNames.has(this.toComparableFieldKey('dob'));
 
             let inserted = false;
             let insertIdx = this.formFields.indexOf(field) + 1;
@@ -863,6 +958,7 @@ export class FormManagementComponent implements OnInit {
             required: false,
             hidden: false,
             splitDateParts: false,
+            defaultValue: '',
             placeholder: '',
             options: '',
             fileMode: 'single',
@@ -912,16 +1008,22 @@ export class FormManagementComponent implements OnInit {
      */
     convertToCamelCase(value: string): string {
         if (!value) return '';
-        const words = value
-            .trim()
-            .replace(/[^a-zA-Z0-9\s]/g, '')
-            .split(/\s+/);
-        
-        if (words.length === 0) return '';
-        
-        return words[0].toLowerCase() + words.slice(1)
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join('');
+        const sanitized = value.trim().replace(/[^a-zA-Z0-9_\s]/g, '');
+        const underscoreParts = sanitized.split('_').filter((part) => part.length > 0);
+
+        const toCamel = (segment: string): string => {
+            const words = segment.split(/\s+/).filter((w) => w.length > 0);
+            if (words.length === 0) return '';
+            return words[0].toLowerCase() + words.slice(1)
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join('');
+        };
+
+        if (underscoreParts.length === 0) {
+            return toCamel(sanitized);
+        }
+
+        return underscoreParts.map((segment) => toCamel(segment)).filter((part) => !!part).join('_');
     }
 
     /**

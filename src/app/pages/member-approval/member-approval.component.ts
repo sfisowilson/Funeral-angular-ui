@@ -26,7 +26,7 @@ interface AdminMappedAttachmentGroup {
     selector: 'app-member-approval',
     standalone: true,
     imports: [CommonModule, FormsModule],
-    providers: [MemberApprovalServiceProxy],
+    providers: [],
     templateUrl: './member-approval.component.html',
     styleUrl: './member-approval.component.scss'
 })

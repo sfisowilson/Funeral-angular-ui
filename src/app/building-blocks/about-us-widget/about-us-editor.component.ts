@@ -18,7 +18,7 @@ import { HttpHeaders } from '@angular/common/http';
     selector: 'app-about-us-editor',
     standalone: true,
     imports: [CommonModule, FormsModule, InputTextModule, InputTextarea, ButtonModule, FileUploadModule, ToastModule, AccordionModule, CheckboxModule],
-    providers: [MessageService, FileUploadServiceProxy, TenantSettingsService],
+    providers: [MessageService, TenantSettingsService],
     templateUrl: './about-us-editor.component.html',
     styleUrls: ['./about-us-editor.component.scss']
 })

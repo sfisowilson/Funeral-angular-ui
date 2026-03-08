@@ -1,0 +1,509 @@
+﻿<div class="p-3">
+    <h6 class="mb-3">Onboarding Global Calculator</h6>
+
+    <!-- Title -->
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Widget Title</label>
+        <input type="text" class="form-control" [(ngModel)]="localTitle" placeholder="e.g. Your Monthly Premium" />
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="activeTab === 'configure'" (click)="switchTab('configure')">
+                Configure
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" [class.active]="activeTab === 'json'" (click)="switchTab('json')">
+                JSON (Advanced)
+            </button>
+        </li>
+    </ul>
+
+    <!-- ═══════════════════════════════════════════════════════════════ CONFIGURE TAB -->
+    <div *ngIf="activeTab === 'configure'">
+
+        <!-- Loading indicator -->
+        <div *ngIf="loadingEntities" class="text-muted small mb-3">
+            <span class="spinner-border spinner-border-sm me-1"></span> Loading entity types…
+        </div>
+
+        <!-- datalists for field autocomplete -->
+        <datalist id="ctxFieldList">
+            <option *ngFor="let f of allContextFields" [value]="f"></option>
+        </datalist>
+        <datalist id="rowCtxFieldList">
+            <option *ngFor="let f of rowModeContextFields" [value]="f"></option>
+        </datalist>
+
+        <!-- ══════════════════════════════════════ GENERAL SETTINGS -->
+        <div class="card mb-3">
+            <div class="card-header py-2">
+                <span class="fw-semibold small">General Settings</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-auto">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showBreakdownToggle"
+                                   [(ngModel)]="showBreakdown" (ngModelChange)="onStructuredChange()" />
+                            <label class="form-check-label small" for="showBreakdownToggle">Show Breakdown</label>
+                        </div>
+                        <small class="text-muted d-block">Display the formula line items below the total.</small>
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="autoCalculateToggle"
+                                   [(ngModel)]="autoCalculate" (ngModelChange)="onStructuredChange()" />
+                            <label class="form-check-label small" for="autoCalculateToggle">Auto Calculate</label>
+                        </div>
+                        <small class="text-muted d-block">Recalculate whenever input data changes.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════ GLOBAL AGGREGATIONS -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-semibold small">Global Aggregations</span>
+                <button class="btn btn-sm btn-outline-primary" (click)="addAgg()">+ Add</button>
+            </div>
+            <div class="card-body p-0">
+                <div *ngIf="!aggRows.length" class="text-muted small p-3">
+                    No aggregations yet. Add one to derive values like <code>dependentCount</code> or <code>maxDependentAge</code>.
+                </div>
+                <table *ngIf="aggRows.length" class="table table-sm table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:18%">Key <small class="text-muted">(variable name)</small></th>
+                            <th style="width:26%">Collection (Entity)</th>
+                            <th style="width:24%">Field</th>
+                            <th style="width:16%">Operation</th>
+                            <th style="width:8%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of aggRows; let i = index">
+                            <td>
+                                <input type="text" class="form-control form-control-sm"
+                                       [(ngModel)]="row.key" (ngModelChange)="onStructuredChange()"
+                                       placeholder="e.g. dependentCount" />
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm"
+                                        [(ngModel)]="row.collectionKey" (ngModelChange)="onStructuredChange()">
+                                    <option value="">— select entity —</option>
+                                    <option *ngFor="let opt of entityTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+                                </select>
+                                <small *ngIf="row.collectionKey" class="text-muted">key: <code>{{ row.collectionKey }}</code></small>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm"
+                                        [(ngModel)]="row.fieldKey" (ngModelChange)="onStructuredChange()"
+                                        [disabled]="row.operation === 'count'">
+                                    <option value="">{{ row.operation === 'count' ? '— n/a for count —' : '— select field —' }}</option>
+                                    <option *ngFor="let f of getFieldsForEntity(row.collectionKey)" [value]="f.value">{{ f.label }} ({{ f.value }})</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm"
+                                        [(ngModel)]="row.operation" (ngModelChange)="onStructuredChange()">
+                                    <option *ngFor="let op of aggOperations" [value]="op">{{ op }}</option>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-danger" (click)="removeAgg(i)">✕</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div *ngIf="aggRows.length" class="card-footer text-muted small py-1">
+                Aggregation keys (e.g. <code>dependentCount</code>) become named values you can use in variable conditions below.
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════ PREPROCESSING RULES -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-semibold small">Preprocessing Rules <small class="text-muted ms-1">(derive fields before calculation, e.g. age from ID)</small></span>
+                <button class="btn btn-sm btn-outline-primary" (click)="addPreproc()">+ Add</button>
+            </div>
+            <div class="card-body p-0">
+                <div *ngIf="!preprocRules.length" class="text-muted small p-3">
+                    No preprocessing rules yet. Use these to compute <code>age</code> from an ID number or date before conditions run.
+                </div>
+                <table *ngIf="preprocRules.length" class="table table-sm table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:24%">Target Collection</th>
+                            <th style="width:22%">Source Field</th>
+                            <th style="width:22%">Target Field</th>
+                            <th style="width:20%">Operation</th>
+                            <th style="width:6%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let r of preprocRules; let pi = index">
+                            <td>
+                                <select class="form-select form-select-sm"
+                                        [(ngModel)]="r.targetCollectionKey" (ngModelChange)="onStructuredChange()">
+                                    <option value="">— select entity —</option>
+                                    <option *ngFor="let opt of entityTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm"
+                                       [(ngModel)]="r.sourceField" (ngModelChange)="onStructuredChange()"
+                                       placeholder="e.g. idnumber_Age" list="ctxFieldList" />
+                            </td>
+                            <td>
+                                <input type="text" class="form-control form-control-sm"
+                                       [(ngModel)]="r.targetField" (ngModelChange)="onStructuredChange()"
+                                       placeholder="e.g. age" />
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm"
+                                        [(ngModel)]="r.operation" (ngModelChange)="onStructuredChange()">
+                                    <option *ngFor="let op of preprocOps" [value]="op">{{ op }}</option>
+                                </select>
+                            </td>
+                            <td class="text-center align-middle">
+                                <button class="btn btn-sm btn-outline-danger" (click)="removePreproc(pi)">✕</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════ GLOBAL VARIABLES -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-semibold small">Variables <small class="text-muted ms-1">(case-matching price lookups)</small></span>
+                <button class="btn btn-sm btn-outline-primary" (click)="addVar()">+ Add Variable</button>
+            </div>
+            <div class="card-body">
+                <div *ngIf="!globalVars.length" class="text-muted small">
+                    No variables yet. Variables look up a numeric result based on conditions (cover amount, age, count, etc.).
+                </div>
+
+                <div *ngFor="let v of globalVars; let vi = index" class="border rounded mb-2">
+                    <!-- Variable header row -->
+                    <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-top">
+                        <button class="btn btn-sm btn-link p-0 text-decoration-none" (click)="v.expanded = !v.expanded">
+                            {{ v.expanded ? '▾' : '▸' }}
+                        </button>
+                        <div class="flex-grow-1 d-flex gap-2 align-items-center flex-wrap">
+                            <div>
+                                <label class="form-label mb-0 small">Key</label>
+                                <input type="text" class="form-control form-control-sm"
+                                       [(ngModel)]="v.key" (ngModelChange)="onStructuredChange()"
+                                       placeholder="e.g. immediateFamilyPremium" style="width:200px" />
+                            </div>
+                            <div>
+                                <label class="form-label mb-0 small">Default value</label>
+                                <input type="number" class="form-control form-control-sm"
+                                       [(ngModel)]="v.defaultValue" (ngModelChange)="onStructuredChange()"
+                                       style="width:90px" />
+                            </div>
+                            <span class="badge bg-secondary ms-1">{{ v.cases.length }} case(s)</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" (click)="removeVar(vi)">✕ Remove</button>
+                    </div>
+
+                    <!-- Cases -->
+                    <div *ngIf="v.expanded" class="p-2">
+                        <div *ngFor="let c of v.cases; let ci = index" class="border rounded mb-2 p-2">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <span class="small fw-semibold text-muted">Case {{ ci + 1 }}</span>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-1" (click)="removeCase(v, ci)" style="font-size:0.7rem">✕</button>
+                            </div>
+                            <div class="mb-2 d-flex align-items-center gap-2">
+                                <label class="form-label mb-0 small fw-semibold">Result value:</label>
+                                <input type="number" class="form-control form-control-sm"
+                                       [(ngModel)]="c.value" (ngModelChange)="onStructuredChange()" style="width:100px" />
+                            </div>
+                            <div class="mb-1 small text-muted fw-semibold">Conditions (all must match):</div>
+                            <div *ngFor="let cond of c.conditions; let ki = index"
+                                 class="d-flex gap-1 align-items-center mb-1 flex-wrap">
+                                <input type="text" class="form-control form-control-sm"
+                                       [(ngModel)]="cond.field" (ngModelChange)="onStructuredChange()"
+                                       list="ctxFieldList" placeholder="field" style="width:170px" />
+                                <select class="form-select form-select-sm"
+                                        [(ngModel)]="cond.operator" (ngModelChange)="onStructuredChange()"
+                                        style="width:105px">
+                                    <option *ngFor="let op of operators" [value]="op">{{ op }}</option>
+                                </select>
+                                <input type="number" class="form-control form-control-sm"
+                                       [(ngModel)]="cond.value" (ngModelChange)="onStructuredChange()"
+                                       placeholder="value" style="width:80px" />
+                                <ng-container *ngIf="cond.operator === 'between'">
+                                    <span class="small">to</span>
+                                    <input type="number" class="form-control form-control-sm"
+                                           [(ngModel)]="cond.value2" (ngModelChange)="onStructuredChange()"
+                                           placeholder="value2" style="width:80px" />
+                                </ng-container>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-1" (click)="removeCond(c, ki)" style="font-size:0.7rem">✕</button>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary mt-1" (click)="addCond(c)">+ Add Condition</button>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" (click)="addCase(v)">+ Add Case</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════ GLOBAL FORMULAS -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+                <span class="fw-semibold small">Formulas <small class="text-muted ms-1">(contribute to total premium)</small></span>
+                <button class="btn btn-sm btn-outline-primary" (click)="addFormula()">+ Add</button>
+            </div>
+            <div class="card-body p-0">
+                <div *ngIf="!globalFormulas.length" class="text-muted small p-3">
+                    No formulas yet. Formulas evaluate an expression and optionally add it to the total premium.
+                </div>
+                <table *ngIf="globalFormulas.length" class="table table-sm table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:16%">Key</th>
+                            <th style="width:20%">Label</th>
+                            <th style="width:42%">Expression <small class="text-muted">(use variable keys)</small></th>
+                            <th style="width:10%">In Total</th>
+                            <th style="width:6%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let f of globalFormulas; let fi = index">
+                            <td><input type="text" class="form-control form-control-sm" [(ngModel)]="f.key" (ngModelChange)="onStructuredChange()" placeholder="key" /></td>
+                            <td><input type="text" class="form-control form-control-sm" [(ngModel)]="f.label" (ngModelChange)="onStructuredChange()" placeholder="Immediate Family" /></td>
+                            <td><input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="f.expression" (ngModelChange)="onStructuredChange()" placeholder="immediateFamilyPremium" /></td>
+                            <td class="text-center align-middle"><input type="checkbox" [(ngModel)]="f.includeInTotal" (ngModelChange)="onStructuredChange()" /></td>
+                            <td class="text-center align-middle"><button class="btn btn-sm btn-outline-danger" (click)="removeFormula(fi)">✕</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════ DISPLAY CONFIG -->
+        <div class="card mb-3">
+            <div class="card-header py-2">
+                <span class="fw-semibold small">Display Configuration <small class="text-muted ms-1">(customise what is shown to the member)</small></span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Final Result Template</label>
+                        <input type="text" class="form-control form-control-sm font-monospace"
+                               [(ngModel)]="displayConfig.finalResultTemplate" (ngModelChange)="onStructuredChange()"
+                               placeholder="e.g. Your total premium is R {{totalMonthlyPremium}}" />
+                        <small class="text-muted">Use <code>&#123;&#123;variableKey&#125;&#125;</code> placeholders.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Breakdown Title</label>
+                        <input type="text" class="form-control form-control-sm"
+                               [(ngModel)]="displayConfig.breakdownTitle" (ngModelChange)="onStructuredChange()"
+                               placeholder="e.g. Premium Breakdown" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Row Results Title</label>
+                        <input type="text" class="form-control form-control-sm"
+                               [(ngModel)]="displayConfig.rowResultsTitle" (ngModelChange)="onStructuredChange()"
+                               placeholder="e.g. Extended Family" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Empty State Text</label>
+                        <input type="text" class="form-control form-control-sm"
+                               [(ngModel)]="displayConfig.emptyStateText" (ngModelChange)="onStructuredChange()"
+                               placeholder="e.g. Complete the form to see your premium." />
+                    </div>
+                    <div class="col-auto">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showCalcSteps"
+                                   [(ngModel)]="displayConfig.showCalculationSteps" (ngModelChange)="onStructuredChange()" />
+                            <label class="form-check-label small" for="showCalcSteps">Show Calculation Steps</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════ ROW MODE -->
+        <div class="card mb-3">
+            <div class="card-header py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold small">Per-Member Row Mode <small class="text-muted ms-1">(e.g. extended family individual pricing)</small></span>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="rowModeToggle"
+                               [(ngModel)]="rowMode.enabled" (ngModelChange)="onStructuredChange()" />
+                        <label class="form-check-label small" for="rowModeToggle">Enabled</label>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="rowMode.enabled" class="card-body">
+                <!-- Source entity + template -->
+                <div class="row mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold small">Source Collection (Entity)</label>
+                        <select class="form-select form-select-sm"
+                                [(ngModel)]="rowMode.sourceCollectionKey" (ngModelChange)="onStructuredChange()">
+                            <option value="">— select entity —</option>
+                            <option *ngFor="let opt of entityTypeOptions" [value]="opt.value">{{ opt.label }}</option>
+                        </select>
+                        <small *ngIf="rowMode.sourceCollectionKey" class="text-muted">key: <code>{{ rowMode.sourceCollectionKey }}</code></small>
+                    </div>
+                    <div class="col-md-7">
+                        <label class="form-label fw-semibold small">Row Result Template <small class="text-muted">(optional)</small></label>
+                        <input type="text" class="form-control form-control-sm font-monospace"
+                               [(ngModel)]="rowMode.rowResultTemplate" (ngModelChange)="onStructuredChange()"
+                               placeholder="e.g. Member premium: R {{extFamPremium}}" />
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold small">Item Alias <small class="text-muted">(name for each row item)</small></label>
+                        <input type="text" class="form-control form-control-sm"
+                               [(ngModel)]="rowMode.itemAlias" (ngModelChange)="onStructuredChange()"
+                               placeholder="e.g. Member" />
+                    </div>
+                </div>
+
+                <!-- Per-row variables -->
+                <div class="mb-1 fw-semibold small">Per-Row Variables</div>
+                <div *ngFor="let v of rowMode.variables; let rvi = index" class="border rounded mb-2">
+                    <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-top">
+                        <button class="btn btn-sm btn-link p-0 text-decoration-none" (click)="v.expanded = !v.expanded">{{ v.expanded ? '▾' : '▸' }}</button>
+                        <div class="flex-grow-1 d-flex gap-2 align-items-center flex-wrap">
+                            <div>
+                                <label class="form-label mb-0 small">Key</label>
+                                <input type="text" class="form-control form-control-sm"
+                                       [(ngModel)]="v.key" (ngModelChange)="onStructuredChange()"
+                                       placeholder="e.g. extFamPremium" style="width:190px" />
+                            </div>
+                            <div>
+                                <label class="form-label mb-0 small">Default</label>
+                                <input type="number" class="form-control form-control-sm"
+                                       [(ngModel)]="v.defaultValue" (ngModelChange)="onStructuredChange()" style="width:80px" />
+                            </div>
+                            <span class="badge bg-secondary">{{ v.cases.length }} case(s)</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" (click)="removeRowVar(rvi)">✕</button>
+                    </div>
+                    <div *ngIf="v.expanded" class="p-2">
+                        <div *ngFor="let c of v.cases; let rci = index" class="border rounded mb-2 p-2">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <span class="small fw-semibold text-muted">Case {{ rci + 1 }}</span>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-1" (click)="removeRowCase(v, rci)" style="font-size:0.7rem">✕</button>
+                            </div>
+                            <div class="mb-2 d-flex align-items-center gap-2">
+                                <label class="form-label mb-0 small fw-semibold">Result value:</label>
+                                <input type="number" class="form-control form-control-sm"
+                                       [(ngModel)]="c.value" (ngModelChange)="onStructuredChange()" style="width:100px" />
+                            </div>
+                            <div class="mb-1 small text-muted fw-semibold">Conditions:</div>
+                            <div *ngFor="let cond of c.conditions; let rki = index"
+                                 class="d-flex gap-1 align-items-center mb-1 flex-wrap">
+                                <input type="text" class="form-control form-control-sm"
+                                       [(ngModel)]="cond.field" (ngModelChange)="onStructuredChange()"
+                                       list="rowCtxFieldList" placeholder="field" style="width:170px" />
+                                <select class="form-select form-select-sm"
+                                        [(ngModel)]="cond.operator" (ngModelChange)="onStructuredChange()"
+                                        style="width:105px">
+                                    <option *ngFor="let op of operators" [value]="op">{{ op }}</option>
+                                </select>
+                                <input type="number" class="form-control form-control-sm"
+                                       [(ngModel)]="cond.value" (ngModelChange)="onStructuredChange()"
+                                       placeholder="value" style="width:80px" />
+                                <ng-container *ngIf="cond.operator === 'between'">
+                                    <span class="small">to</span>
+                                    <input type="number" class="form-control form-control-sm"
+                                           [(ngModel)]="cond.value2" (ngModelChange)="onStructuredChange()"
+                                           placeholder="value2" style="width:80px" />
+                                </ng-container>
+                                <button class="btn btn-sm btn-outline-danger py-0 px-1" (click)="removeRowCond(c, rki)" style="font-size:0.7rem">✕</button>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary mt-1" (click)="addRowCond(c)">+ Add Condition</button>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" (click)="addRowCase(v)">+ Add Case</button>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-primary mb-3" (click)="addRowVar()">+ Add Per-Row Variable</button>
+
+                <!-- Per-row formulas -->
+                <div class="mb-1 fw-semibold small">Per-Row Formulas</div>
+                <div *ngIf="!rowMode.formulas.length" class="text-muted small mb-2">No per-row formulas yet.</div>
+                <table *ngIf="rowMode.formulas.length" class="table table-sm table-bordered mb-2">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:16%">Key</th>
+                            <th style="width:22%">Label</th>
+                            <th style="width:42%">Expression</th>
+                            <th style="width:10%">In Total</th>
+                            <th style="width:6%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let f of rowMode.formulas; let rfi = index">
+                            <td><input type="text" class="form-control form-control-sm" [(ngModel)]="f.key" (ngModelChange)="onStructuredChange()" /></td>
+                            <td><input type="text" class="form-control form-control-sm" [(ngModel)]="f.label" (ngModelChange)="onStructuredChange()" placeholder="e.g. Ext. Family Member" /></td>
+                            <td><input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="f.expression" (ngModelChange)="onStructuredChange()" placeholder="e.g. extFamPremium" /></td>
+                            <td class="text-center align-middle"><input type="checkbox" [(ngModel)]="f.includeInTotal" (ngModelChange)="onStructuredChange()" /></td>
+                            <td class="text-center align-middle"><button class="btn btn-sm btn-outline-danger" (click)="removeRowFormula(rfi)">✕</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn btn-sm btn-outline-primary" (click)="addRowFormula()">+ Add Per-Row Formula</button>
+
+                <!-- Post-Row Formulas -->
+                <hr class="my-3" />
+                <div class="mb-1 fw-semibold small">Post-Row Formulas <small class="text-muted">(run once after all rows, can reference row totals)</small></div>
+                <div class="mb-1 text-muted small">These formulas run after all per-row iterations. Use <code>rowTotal</code> or any global variable.</div>
+                <div *ngIf="!rowMode.postRowFormulas.length" class="text-muted small mb-2">No post-row formulas yet.</div>
+                <table *ngIf="rowMode.postRowFormulas.length" class="table table-sm table-bordered mb-2">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:16%">Key</th>
+                            <th style="width:22%">Label</th>
+                            <th style="width:42%">Expression</th>
+                            <th style="width:10%">In Total</th>
+                            <th style="width:6%"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let f of rowMode.postRowFormulas; let pfi = index">
+                            <td><input type="text" class="form-control form-control-sm" [(ngModel)]="f.key" (ngModelChange)="onStructuredChange()" placeholder="key" /></td>
+                            <td><input type="text" class="form-control form-control-sm" [(ngModel)]="f.label" (ngModelChange)="onStructuredChange()" placeholder="e.g. Extended Family Total" /></td>
+                            <td><input type="text" class="form-control form-control-sm font-monospace" [(ngModel)]="f.expression" (ngModelChange)="onStructuredChange()" placeholder="e.g. rowTotal" /></td>
+                            <td class="text-center align-middle"><input type="checkbox" [(ngModel)]="f.includeInTotal" (ngModelChange)="onStructuredChange()" /></td>
+                            <td class="text-center align-middle"><button class="btn btn-sm btn-outline-danger" (click)="removePostRowFormula(pfi)">✕</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn btn-sm btn-outline-primary" (click)="addPostRowFormula()">+ Add Post-Row Formula</button>
+            </div>
+        </div>
+
+    </div><!-- /configure tab -->
+
+    <!-- ═══════════════════════════════════════════════════════════════ JSON TAB -->
+    <div *ngIf="activeTab === 'json'">
+        <label class="form-label fw-semibold">Calculator Config JSON</label>
+        <textarea class="form-control font-monospace"
+                  rows="22"
+                  [(ngModel)]="rawJson"
+                  (ngModelChange)="onJsonChange()"
+                  placeholder='{ "globalAggregations": [...], "variables": [...], "rowMode": {...}, "formulas": [...] }'>
+        </textarea>
+        <div *ngIf="jsonError" class="text-danger small mt-1">{{ jsonError }}</div>
+        <small class="text-muted">Direct JSON editing. Switch back to Configure to use the visual editor.</small>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-primary" (click)="save()" [disabled]="!!jsonError">Save</button>
+        <button class="btn btn-outline-secondary" (click)="cancel.emit()">Cancel</button>
+    </div>
+</div>

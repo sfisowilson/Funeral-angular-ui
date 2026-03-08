@@ -7,7 +7,7 @@ import { PremiumCalculationServiceProxy, PolicyCoverPremiumTableDto } from '../.
     selector: 'app-policy-cover-premium-table-widget',
     standalone: true,
     imports: [CommonModule, TableModule],
-    providers: [PremiumCalculationServiceProxy],
+    providers: [],
     template: `
         <div *ngIf="tableData && tableData.rows && tableData.rows.length > 0" class="policy-cover-premium-table-widget p-4">
             <h2 *ngIf="settings.title" class="text-center mb-4 text-2xl font-bold">{{ settings.title }}</h2>

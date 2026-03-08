@@ -1,75 +1,82 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import { map, tap } from 'rxjs/operators';
+import { ApiServiceProxy, CustomPagesServiceProxy } from './service-proxies';
 import { CustomPage, PageListItem, CreatePageRequest, UpdatePageRequest, PageLimits } from '../models/custom-page.model';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CustomPageService {
-    private apiUrl = `${environment.apiUrl}/api/custom-pages`;
     private pagesSubject = new BehaviorSubject<PageListItem[]>([]);
     public pages$ = this.pagesSubject.asObservable();
 
-    constructor(private http: HttpClient) {}
+    constructor(
+        private customPagesServiceProxy: CustomPagesServiceProxy,
+        private apiServiceProxy: ApiServiceProxy
+    ) {}
 
     getPages(): Observable<PageListItem[]> {
-        return this.http.get<PageListItem[]>(this.apiUrl).pipe(tap((pages) => this.pagesSubject.next(pages)));
+        return this.customPagesServiceProxy
+            .all()
+            .pipe(map((response) => (response.result as any as PageListItem[]) || []), tap((pages) => this.pagesSubject.next(pages)));
     }
 
     getPageBySlug(slug: string): Observable<CustomPage> {
-        return this.http.get<CustomPage>(`${this.apiUrl}/slug/${slug}`);
+        return this.customPagesServiceProxy.slug(slug).pipe(map((response) => response.result as any as CustomPage));
     }
 
     getPageById(id: string): Observable<CustomPage> {
-        return this.http.get<CustomPage>(`${this.apiUrl}/${id}`);
+        return this.apiServiceProxy.customPagesGet(id).pipe(map((response) => response.result as any as CustomPage));
     }
 
     getPublicPages(): Observable<PageListItem[]> {
-        return this.http.get<PageListItem[]>(`${this.apiUrl}/public`);
+        return this.customPagesServiceProxy.public().pipe(map((response) => (response.result as any as PageListItem[]) || []));
     }
 
     getNavbarPages(): Observable<PageListItem[]> {
-        return this.http.get<PageListItem[]>(`${this.apiUrl}/navbar`);
+        return this.customPagesServiceProxy.navbar().pipe(map((response) => (response.result as any as PageListItem[]) || []));
     }
 
     getFooterPages(): Observable<PageListItem[]> {
-        return this.http.get<PageListItem[]>(`${this.apiUrl}/footer`);
+        return this.customPagesServiceProxy.footer().pipe(map((response) => (response.result as any as PageListItem[]) || []));
     }
 
     createPage(request: CreatePageRequest): Observable<CustomPage> {
-        return this.http.post<CustomPage>(this.apiUrl, request).pipe(tap(() => this.getPages().subscribe()));
+        return this.apiServiceProxy
+            .customPagesPost(request as any)
+            .pipe(map((response) => response.result as any as CustomPage), tap(() => this.getPages().subscribe()));
     }
 
     updatePage(request: UpdatePageRequest): Observable<CustomPage> {
-        return this.http.put<CustomPage>(`${this.apiUrl}/${request.id}`, request).pipe(tap(() => this.getPages().subscribe()));
+        return this.apiServiceProxy
+            .customPagesPut(request.id, request as any)
+            .pipe(map((response) => response.result as any as CustomPage), tap(() => this.getPages().subscribe()));
     }
 
     deletePage(id: string): Observable<void> {
-        return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(tap(() => this.getPages().subscribe()));
+        return this.apiServiceProxy.customPagesDelete(id).pipe(map(() => undefined), tap(() => this.getPages().subscribe()));
     }
 
     duplicatePage(id: string): Observable<CustomPage> {
-        return this.http.post<CustomPage>(`${this.apiUrl}/${id}/duplicate`, {}).pipe(tap(() => this.getPages().subscribe()));
+        return this.customPagesServiceProxy
+            .duplicate(id)
+            .pipe(map((response) => response.result as any as CustomPage), tap(() => this.getPages().subscribe()));
     }
 
     updatePageOrder(pageId: string, location: 'navbar' | 'footer', order: number): Observable<void> {
-        return this.http.patch<void>(`${this.apiUrl}/${pageId}/order`, { location, order });
+        return this.customPagesServiceProxy.order(pageId, { location, order } as any).pipe(map(() => undefined));
     }
 
     togglePageStatus(id: string, isActive: boolean): Observable<void> {
-        return this.http.patch<void>(`${this.apiUrl}/${id}/status`, { isActive });
+        return this.customPagesServiceProxy.status(id, { isActive } as any).pipe(map(() => undefined));
     }
 
     getPageLimits(): Observable<PageLimits> {
-        return this.http.get<PageLimits>(`${this.apiUrl}/limits`);
+        return this.customPagesServiceProxy.limits().pipe(map((response) => response.result as any as PageLimits));
     }
 
     validateSlug(slug: string, excludeId?: string): Observable<boolean> {
-        const params: any = { slug };
-        if (excludeId) params.excludeId = excludeId;
-        return this.http.get<boolean>(`${this.apiUrl}/validate-slug`, { params });
+        return this.customPagesServiceProxy.validateSlug(slug, excludeId).pipe(map((response) => !!response.result));
     }
 }

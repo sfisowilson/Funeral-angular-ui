@@ -8,7 +8,7 @@ import { DateTime } from 'luxon';
     selector: 'app-blog',
     standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule],
-    providers: [NgoServiceProxy],
+    providers: [],
     templateUrl: './blog.component.html',
     styleUrls: ['./blog.component.scss']
 })
