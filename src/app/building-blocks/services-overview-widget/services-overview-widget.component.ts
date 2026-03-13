@@ -1,15 +1,16 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-services-overview-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, ButtonModule],
     template: `
-        <div class="services-overview-widget" [style.background-color]="config.settings.backgroundColor" [style.padding.px]="config.settings.padding">
+        <div class="services-overview-widget" [style.background-color]="config.settings.backgroundColor" [style.--widget-outer-padding.px]="config.settings.padding">
             <div class="container mx-auto">
-                <div class="text-center mb-12">
+                <div class="text-center mb-6 sm:mb-12">
                     <h2 class="mb-4" [style.color]="config.settings.titleColor" [style.font-size.px]="config.settings.titleSize">
                         {{ config.settings.title }}
                     </h2>
@@ -93,6 +94,14 @@ import { ButtonModule } from 'primeng/button';
     `,
     styles: [
         `
+            .services-overview-widget {
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                .services-overview-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+                }
+            }
             .service-card {
                 transition:
                     transform 0.3s ease,

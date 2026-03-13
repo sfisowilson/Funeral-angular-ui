@@ -1,4 +1,4 @@
-<div class="about-us-widget" [style.padding.px]="config.settings?.padding || 60" [ngStyle]="customStyles">
+<div class="about-us-widget" [style.--about-outer-padding.px]="config.settings?.padding || 60" [style]="customStyles">
     <!-- Hero Section -->
     <div
         class="hero-section"
@@ -13,7 +13,7 @@
             <p class="hero-subtitle">{{ config.settings?.heroSubtitle }}</p>
         </div>
         <div class="hero-image" *ngIf="config.settings?.heroImage">
-            <img [src]="getDownloadUrl(config.settings.heroImage)" alt="Hero Image" />
+            <img [src]="getDownloadUrl(config.settings.heroImage)" alt="Hero Image" loading="lazy" />
         </div>
     </div>
 
@@ -29,14 +29,14 @@
         <div class="section-container">
             <div class="section-header">
                 <span class="section-badge">{{ config.settings?.storyBadge || 'Our Story' }}</span>
-                <h2 class="section-title">{{ config.settings?.storyTitle }}</h2>
+                <h2 class="section-title" [style.color]="config.settings.storyTitleColor || null">{{ config.settings?.storyTitle }}</h2>
             </div>
             <div class="story-content">
                 <div class="story-text">
                     <p [innerHTML]="config.settings?.storyContent"></p>
                 </div>
                 <div class="story-image" *ngIf="config.settings?.storyImage">
-                    <img [src]="getDownloadUrl(config.settings.storyImage)" alt="Our Story" />
+                    <img [src]="getDownloadUrl(config.settings.storyImage)" alt="Our Story" loading="lazy" />
                 </div>
             </div>
         </div>
@@ -83,7 +83,7 @@
         <div class="section-container">
             <div class="section-header centered">
                 <span class="section-badge">{{ config.settings?.valuesBadge || 'Our Values' }}</span>
-                <h2 class="section-title">{{ config.settings?.valuesTitle || 'What We Stand For' }}</h2>
+                <h2 class="section-title" [style.color]="config.settings.valuesTitleColor || null">{{ config.settings?.valuesTitle || 'What We Stand For' }}</h2>
             </div>
             <div class="values-grid">
                 <div class="value-card" *ngFor="let value of config.settings.values">
@@ -128,7 +128,7 @@
         <div class="section-container">
             <div class="section-header centered">
                 <span class="section-badge">{{ config.settings?.teamBadge || 'Our Team' }}</span>
-                <h2 class="section-title">{{ config.settings?.teamTitle || 'Meet The Team' }}</h2>
+                <h2 class="section-title" [style.color]="config.settings.teamTitleColor || null">{{ config.settings?.teamTitle || 'Meet The Team' }}</h2>
                 <p class="section-description">{{ config.settings?.teamDescription }}</p>
             </div>
             <div class="team-grid">
@@ -165,7 +165,7 @@
     >
         <div class="section-container">
             <div class="cta-content">
-                <h2>{{ config.settings?.ctaTitle || 'Ready to Get Started?' }}</h2>
+                <h2 [style.color]="config.settings.ctaTitleColor || null">{{ config.settings?.ctaTitle || 'Ready to Get Started?' }}</h2>
                 <p>{{ config.settings?.ctaText }}</p>
                 <div class="cta-buttons">
                     <a *ngIf="config.settings?.showCtaPrimaryButton && config.settings?.ctaPrimaryButton?.text" [href]="config.settings.ctaPrimaryButton.link || '#'" class="cta-button btn-primary-theme">

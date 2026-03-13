@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface TabItem {
@@ -19,6 +19,7 @@ export interface TabbedContentSettings {
 @Component({
     selector: 'app-tabbed-content-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './tabbed-content-widget.component.html',
     styleUrls: ['./tabbed-content-widget.component.scss']

@@ -1,18 +1,19 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-pricing-table-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, ButtonModule],
     template: `
-        <div class="pricing-table-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
+        <div class="pricing-table-widget" [style.background-color]="config.backgroundColor" [style.--widget-outer-padding.px]="config.padding">
             <div class="container mx-auto">
-                <h2 class="text-center mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
+                <h2 class="text-center mb-4 sm:mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                     {{ config.title }}
                 </h2>
-                <p *ngIf="config.subtitle" class="text-center mb-12" [style.color]="config.subtitleColor" [style.font-size.px]="config.subtitleSize">
+                <p *ngIf="config.subtitle" class="text-center mb-6 sm:mb-12" [style.color]="config.subtitleColor" [style.font-size.px]="config.subtitleSize">
                     {{ config.subtitle }}
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -53,6 +54,14 @@ import { ButtonModule } from 'primeng/button';
     `,
     styles: [
         `
+            .pricing-table-widget {
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                .pricing-table-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+                }
+            }
             .pricing-card {
                 transition:
                     transform 0.3s ease,

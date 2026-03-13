@@ -1,10 +1,10 @@
-import { Component, OnInit, signal, Inject } from '@angular/core';
+import { Component, OnInit, signal, Inject, ChangeDetectionStrategy, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CustomPagesServiceProxy, CustomPageDto, PageListItemDto, API_BASE_URL } from '../../core/services/service-proxies';
 import { Meta, Title } from '@angular/platform-browser';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { WIDGET_TYPES } from '../../building-blocks/widget-registry';
+import { WIDGET_RENDER_LOADERS } from '../../building-blocks/widget-render-loaders';
 import { AuthService } from '@app/auth/auth-service';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { TenantService } from '../../core/services/tenant.service';
@@ -18,12 +18,19 @@ import { PublicHeaderComponent } from '@app/shared/components/public-header/publ
     imports: [CommonModule, ProgressSpinnerModule, RouterModule, PublicHeaderComponent],
     providers: [TenantSettingsService],
     templateUrl: './dynamic-page.component.html',
-    styleUrls: ['./dynamic-page.component.scss']
+    styleUrls: ['./dynamic-page.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DynamicPageComponent implements OnInit {
     page = signal<CustomPageDto | null>(null);
     loading = signal(true);
     error = signal<string | null>(null);
+
+    // Lazy-loaded widget component cache — populated after page data arrives
+    private readonly componentCache = new Map<string, Type<any>>();
+    // Memoised sorted-widget list — rebuilt only when page() reference changes
+    private _cachedSortedWidgets: any[] | null = null;
+    private _cachedPageRef: CustomPageDto | null | undefined = undefined;
     currentYear = new Date().getFullYear();
     isLoggedIn = false;
     mobileMenuOpen = false;
@@ -92,13 +99,21 @@ export class DynamicPageComponent implements OnInit {
     loadPage(slug: string): void {
         this.loading.set(true);
         this.error.set(null);
+        // Reset cache so the new page's widgets are re-resolved
+        this._cachedSortedWidgets = null;
+        this._cachedPageRef = undefined;
 
         this.customPagesService.slug(slug).subscribe({
             next: (response) => {
                 const page = response?.result || null;
                 this.page.set(page);
                 this.updateMetaTags(page);
-                this.loading.set(false);
+                // Preload the JS chunks for every widget type on this page in
+                // parallel, then reveal the page.  Keeps loading=true during
+                // the brief network round-trip so there's no empty flash.
+                this.preloadWidgets(page?.content || []).then(() => {
+                    this.loading.set(false);
+                });
             },
             error: (error) => {
                 console.error('Error loading page:', error);
@@ -148,30 +163,52 @@ export class DynamicPageComponent implements OnInit {
     }
 
     getSortedWidgets(): any[] {
-        const dbWidgets = this.page()?.content || [];
-        // Transform from DB format { id, type, config, order } to WidgetConfig format { id, type, settings }
-        return dbWidgets
+        const currentPage = this.page();
+        // Return memoised list when the page reference hasn't changed
+        if (this._cachedSortedWidgets !== null && this._cachedPageRef === currentPage) {
+            return this._cachedSortedWidgets;
+        }
+        this._cachedPageRef = currentPage;
+        const dbWidgets: any[] = (currentPage as any)?.content || [];
+        this._cachedSortedWidgets = dbWidgets
+            .slice() // never mutate the original array
             .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
             .map((w: any, index: number) => {
                 const rawConfig = w.config;
-                const settingsFromDb = rawConfig && typeof rawConfig === 'object' && (rawConfig as any).settings ? (rawConfig as any).settings : rawConfig;
-                const layoutFromDb = rawConfig && typeof rawConfig === 'object' ? (rawConfig as any).layout : undefined;
-
-                const widgetType = WIDGET_TYPES.find((t) => t.name === w.type);
-                const mergedSettings = { ...(widgetType?.defaultConfig || {}), ...(settingsFromDb || {}) };
-
+                const settings = rawConfig && typeof rawConfig === 'object' && rawConfig.settings
+                    ? rawConfig.settings
+                    : rawConfig ?? {};
                 return {
                     id: w.id || w.Id || `widget-${index}`,
                     type: w.type || w.Type,
-                    settings: mergedSettings,
-                    layout: layoutFromDb
+                    settings,
+                    layout: rawConfig?.layout
                 };
             });
+        return this._cachedSortedWidgets;
     }
 
-    getWidgetComponent(widgetType: string): any {
-        const widgetDefinition = WIDGET_TYPES.find((w) => w.name === widgetType);
-        return widgetDefinition?.component || null;
+    /** O(1) lookup — component types are resolved into the Map by preloadWidgets() */
+    getWidgetComponent(widgetType: string): Type<any> | null {
+        return this.componentCache.get(widgetType) ?? null;
+    }
+
+    /**
+     * Fetches the JS chunk for every widget type present on the page in parallel.
+     * Only runs the loader once per type per session (Map cache).
+     */
+    private async preloadWidgets(dbWidgets: any[]): Promise<void> {
+        const types = [...new Set(dbWidgets.map((w: any) => String(w.type)))];
+        await Promise.all(
+            types.map(async (type) => {
+                if (this.componentCache.has(type)) return;
+                const loader = WIDGET_RENDER_LOADERS[type];
+                if (loader) {
+                    const component = await loader();
+                    this.componentCache.set(type, component);
+                }
+            })
+        );
     }
 
     toggleMobileMenu(): void {

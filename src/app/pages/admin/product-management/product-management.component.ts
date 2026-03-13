@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService, Product, ProductStats, Category } from '../../../core/services/product.service';
+import { FileUploadServiceProxy, FileParameter } from '../../../core/services/service-proxies';
+import { TenantService } from '../../../core/services/tenant.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-product-management',
@@ -27,7 +30,19 @@ export class ProductManagementComponent implements OnInit {
     // Form fields
     productForm: Partial<Product> = this.getEmptyProduct();
 
-    constructor(private productService: ProductService) {}
+    // Category management
+    isCategoryModalOpen = false;
+    categoryForm: Partial<Category> = { name: '', description: '', isActive: true };
+    categoryError = '';
+
+    // Image upload
+    uploadingImageIndex: number | null = null;
+
+    constructor(
+        private productService: ProductService,
+        private fileUploadService: FileUploadServiceProxy,
+        private tenantService: TenantService
+    ) {}
 
     ngOnInit(): void {
         this.loadProducts();
@@ -72,7 +87,7 @@ export class ProductManagementComponent implements OnInit {
     applyFilters(): void {
         this.filteredProducts = this.products.filter((product) => {
             const matchesSearch = !this.searchTerm || product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) || (product.sku && product.sku.toLowerCase().includes(this.searchTerm.toLowerCase()));
-            const matchesCategory = !this.selectedCategory || product.category === this.selectedCategory;
+            const matchesCategory = !this.selectedCategory || product.categoryId === this.selectedCategory;
             const matchesStatus = !this.selectedStatus || (this.selectedStatus === 'active' && product.isActive) || (this.selectedStatus === 'inactive' && !product.isActive);
 
             return matchesSearch && matchesCategory && matchesStatus;
@@ -183,6 +198,57 @@ export class ProductManagementComponent implements OnInit {
         }
     }
 
+    onImageFileSelected(event: Event, index: number): void {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file || !this.productForm.images) return;
+
+        this.uploadingImageIndex = index;
+        const fileParameter: FileParameter = { data: file, fileName: file.name };
+        const tenantId = this.tenantService.getTenantId() || 'host';
+
+        this.fileUploadService.file_UploadFile('ProductImage', undefined, undefined, undefined, false, fileParameter).subscribe({
+            next: (result: any) => {
+                const fileId = result?.result?.id;
+                if (fileId && this.productForm.images) {
+                    this.productForm.images[index].imageUrl = `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${fileId}?X-Tenant-ID=${tenantId}`;
+                }
+                this.uploadingImageIndex = null;
+            },
+            error: (_error: any) => {
+                console.error('Error uploading product image');
+                this.uploadingImageIndex = null;
+            }
+        });
+    }
+
+    openCategoryModal(): void {
+        this.categoryForm = { name: '', description: '', isActive: true };
+        this.categoryError = '';
+        this.isCategoryModalOpen = true;
+    }
+
+    closeCategoryModal(): void {
+        this.isCategoryModalOpen = false;
+    }
+
+    saveCategory(): void {
+        if (!this.categoryForm.name?.trim()) {
+            this.categoryError = 'Category name is required.';
+            return;
+        }
+        this.categoryError = '';
+        this.productService.createCategory(this.categoryForm as Category).subscribe({
+            next: () => {
+                this.loadCategories();
+                this.closeCategoryModal();
+            },
+            error: (_error: any) => {
+                this.categoryError = 'Error creating category. Please try again.';
+            }
+        });
+    }
+
     addVariant(): void {
         if (!this.productForm.variants) {
             this.productForm.variants = [];
@@ -207,7 +273,7 @@ export class ProductManagementComponent implements OnInit {
             description: '',
             sku: '',
             price: 0,
-            category: '',
+            categoryId: '',
             tags: [],
             images: [],
             variants: [],

@@ -31,8 +31,18 @@
         <main class="dynamic-page-main flex-1">
             <div class="dynamic-page-shell">
                 <div class="page-content">
-                    @for (widget of getSortedWidgets(); track widget.id) {
-                        <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }"> </ng-container>
+                    @for (widget of getSortedWidgets(); track widget.id; let i = $index) {
+                        @if (i === 0) {
+                            <!-- First widget renders immediately for fast LCP -->
+                            <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }"></ng-container>
+                        } @else {
+                            <!-- Below-fold widgets defer DOM construction until they enter the viewport -->
+                            @defer (on viewport) {
+                                <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }"></ng-container>
+                            } @placeholder {
+                                <div style="min-height: 150px"></div>
+                            }
+                        }
                     }
                 </div>
             </div>

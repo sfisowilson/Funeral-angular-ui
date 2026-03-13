@@ -7,3 +7,13 @@
 @use './assets/demo/demo.scss';
 @use './app/shared/styles/modern-ui.scss';
 @use './styles/theme-buttons.scss';
+
+/* ── FAQ widget: force accordion content to always be readable ── */
+app-faq-widget .p-accordion .p-accordion-content {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+}
+app-faq-widget .p-accordion .p-accordion-tab .p-accordion-content {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+}

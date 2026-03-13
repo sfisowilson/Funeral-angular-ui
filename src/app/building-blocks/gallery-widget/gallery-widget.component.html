@@ -1,11 +1,11 @@
-<div class="gallery-widget" [style.padding.px]="settings.padding">
+<div class="gallery-widget" [style.--widget-outer-padding.px]="settings.padding">
     <!-- Gallery Title -->
     <h2 *ngIf="settings.title" class="gallery-title">{{ settings.title }}</h2>
 
     <!-- Grid Layout -->
     <div *ngIf="settings.layout === 'grid'" class="gallery-grid" [class.rounded-corners]="settings.roundedCorners" [style.gap.px]="settings.gap" [style.grid-template-columns]="'repeat(' + settings.columns + ', 1fr)'">
-        <div *ngFor="let image of settings.images; let i = index" class="gallery-item" [class.hover-effect]="settings.hoverEffect" (click)="settings.enableLightbox ? openLightbox(i) : null">
-            <img [src]="image.src" [alt]="image.alt" class="gallery-image" [class.rounded]="settings.roundedCorners" />
+        <div *ngFor="let image of settings.images; let i = index; trackBy: trackByIndex" class="gallery-item" [class.hover-effect]="settings.hoverEffect" (click)="settings.enableLightbox ? openLightbox(i) : null">
+            <img [src]="image.src" [alt]="image.alt" class="gallery-image" [class.rounded]="settings.roundedCorners" loading="lazy" />
             <div *ngIf="settings.showTitles && (image.title || image.alt)" class="image-overlay">
                 <span class="image-title">{{ image.title || image.alt }}</span>
             </div>
@@ -14,8 +14,8 @@
 
     <!-- Masonry Layout -->
     <div *ngIf="settings.layout === 'masonry'" class="gallery-masonry" [class.rounded-corners]="settings.roundedCorners" [style.gap.px]="settings.gap" [style.column-count]="settings.columns">
-        <div *ngFor="let image of settings.images; let i = index" class="masonry-item" [class.hover-effect]="settings.hoverEffect" (click)="settings.enableLightbox ? openLightbox(i) : null">
-            <img [src]="image.src" [alt]="image.alt" class="masonry-image" [class.rounded]="settings.roundedCorners" />
+        <div *ngFor="let image of settings.images; let i = index; trackBy: trackByIndex" class="masonry-item" [class.hover-effect]="settings.hoverEffect" (click)="settings.enableLightbox ? openLightbox(i) : null">
+            <img [src]="image.src" [alt]="image.alt" class="masonry-image" [class.rounded]="settings.roundedCorners" loading="lazy" />
             <div *ngIf="settings.showTitles && (image.title || image.alt)" class="image-overlay">
                 <span class="image-title">{{ image.title || image.alt }}</span>
             </div>
@@ -30,8 +30,8 @@
             </button>
 
             <div class="carousel-slides">
-                <div *ngFor="let image of settings.images; let i = index" class="carousel-slide" [class.active]="i === currentSlideIndex" [class.rounded]="settings.roundedCorners">
-                    <img [src]="image.src" [alt]="image.alt" class="carousel-image" (click)="settings.enableLightbox ? openLightbox(i) : null" />
+                <div *ngFor="let image of settings.images; let i = index; trackBy: trackByIndex" class="carousel-slide" [class.active]="i === currentSlideIndex" [class.rounded]="settings.roundedCorners">
+                    <img [src]="image.src" [alt]="image.alt" class="carousel-image" loading="lazy" (click)="settings.enableLightbox ? openLightbox(i) : null" />
                     <div *ngIf="settings.showTitles && (image.title || image.alt)" class="carousel-caption">
                         <h3>{{ image.title || image.alt }}</h3>
                     </div>
@@ -61,7 +61,7 @@
             </button>
 
             <div class="lightbox-image-container">
-                <img [src]="settings.images[lightboxIndex]?.src" [alt]="settings.images[lightboxIndex]?.alt" class="lightbox-image" />
+                <img [src]="settings.images[lightboxIndex]?.src" [alt]="settings.images[lightboxIndex]?.alt" class="lightbox-image" loading="lazy" />
                 <div *ngIf="settings.images[lightboxIndex]?.title || settings.images[lightboxIndex]?.alt" class="lightbox-caption">
                     {{ settings.images[lightboxIndex]?.title || settings.images[lightboxIndex]?.alt }}
                 </div>

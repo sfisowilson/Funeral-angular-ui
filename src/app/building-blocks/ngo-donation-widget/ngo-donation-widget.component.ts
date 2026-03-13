@@ -12,10 +12,10 @@ import { PaymentServiceProxy } from '../../core/services/service-proxies';
     imports: [CommonModule, FormsModule, ButtonModule],
     providers: [MessageService],
     template: `
-        <div class="donation-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
+        <div class="donation-widget" [style.background-color]="config.backgroundColor" [style.--widget-outer-padding.px]="config.padding">
             <div class="container mx-auto max-w-3xl">
                 <!-- Header -->
-                <div class="text-center mb-8">
+                <div class="text-center mb-4 sm:mb-8">
                     <h2 class="text-center mb-2" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                         {{ config.title || 'Make a Donation' }}
                     </h2>
@@ -25,16 +25,16 @@ import { PaymentServiceProxy } from '../../core/services/service-proxies';
                 </div>
 
                 <!-- Donation Card -->
-                <div class="donation-card rounded-lg p-8 shadow-lg" [style.background-color]="config.cardBackgroundColor">
+                <div class="donation-card rounded-lg p-4 sm:p-8 shadow-lg" [style.background-color]="config.cardBackgroundColor">
                     <!-- Mission Statement -->
-                    <p class="text-center mb-8 text-lg" [style.color]="config.missionColor">
+                    <p class="text-center mb-4 sm:mb-8 text-lg" [style.color]="config.missionColor">
                         {{ config.missionStatement || 'Your generous donation directly supports our mission to create meaningful change in our community.' }}
                     </p>
 
                     <!-- Preset Amounts -->
-                    <div class="mb-8">
+                    <div class="mb-4 sm:mb-8">
                         <p class="text-sm font-semibold mb-4" [style.color]="config.labelColor">Quick Donation Amounts</p>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             <button
                                 *ngFor="let amount of presetAmounts"
                                 pButton
@@ -50,7 +50,7 @@ import { PaymentServiceProxy } from '../../core/services/service-proxies';
                     </div>
 
                     <!-- Custom Amount -->
-                    <div class="mb-8">
+                    <div class="mb-4 sm:mb-8">
                         <label class="block text-sm font-semibold mb-2" [style.color]="config.labelColor"> Custom Amount (ZAR) </label>
                         <div class="flex gap-2">
                             <input type="number" [(ngModel)]="customAmount" placeholder="Enter amount" class="flex-1 px-4 py-2 border rounded-lg" [style.border-color]="config.inputBorderColor" [style.color]="config.labelColor" min="1" />
@@ -59,20 +59,20 @@ import { PaymentServiceProxy } from '../../core/services/service-proxies';
                     </div>
 
                     <!-- Selected Amount Display -->
-                    <div *ngIf="selectedAmount > 0" class="text-center mb-8 p-4 rounded" [style.background-color]="config.amountDisplayBackgroundColor">
+                    <div *ngIf="selectedAmount > 0" class="text-center mb-4 sm:mb-8 p-4 rounded" [style.background-color]="config.amountDisplayBackgroundColor">
                         <p class="text-sm" [style.color]="config.labelColor">Donation Amount</p>
                         <p class="text-3xl font-bold" [style.color]="config.accentColor">R{{ selectedAmount }}</p>
                     </div>
 
                     <!-- Impact Message -->
-                    <div *ngIf="selectedAmount > 0" class="mb-8 p-4 rounded" [style.background-color]="config.impactBackgroundColor">
+                    <div *ngIf="selectedAmount > 0" class="mb-4 sm:mb-8 p-4 rounded" [style.background-color]="config.impactBackgroundColor">
                         <p class="text-sm" [style.color]="config.impactTextColor">
                             {{ getImpactMessage(selectedAmount) }}
                         </p>
                     </div>
 
                     <!-- Donation Frequency -->
-                    <div class="mb-8">
+                    <div class="mb-4 sm:mb-8">
                         <p class="text-sm font-semibold mb-4" [style.color]="config.labelColor">Donation Frequency</p>
                         <div class="flex gap-2">
                             <button
@@ -95,7 +95,7 @@ import { PaymentServiceProxy } from '../../core/services/service-proxies';
                     </div>
 
                     <!-- Privacy Notice -->
-                    <div class="mb-8 text-xs" [style.color]="config.disclaimerColor">
+                    <div class="mb-4 sm:mb-8 text-xs" [style.color]="config.disclaimerColor">
                         <p>{{ config.privacyNotice || 'Your donation is secure and your privacy is protected. We never share your information.' }}</p>
                     </div>
 
@@ -118,7 +118,7 @@ import { PaymentServiceProxy } from '../../core/services/service-proxies';
                 </div>
 
                 <!-- Donation Impact Stats -->
-                <div *ngIf="config.showImpactStats" class="mt-12 grid grid-cols-3 gap-6 text-center">
+                <div *ngIf="config.showImpactStats" class="mt-6 sm:mt-12 grid grid-cols-3 gap-3 sm:gap-6 text-center">
                     <div>
                         <p class="text-3xl font-bold" [style.color]="config.accentColor">{{ config.totalDonations }}</p>
                         <p class="text-sm" [style.color]="config.labelColor">Total Raised</p>
@@ -137,6 +137,17 @@ import { PaymentServiceProxy } from '../../core/services/service-proxies';
     `,
     styles: [
         `
+            .donation-widget {
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                .donation-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+                }
+                .donation-card {
+                    padding: 16px !important;
+                }
+            }
             .donation-card {
                 transition:
                     transform 0.3s ease,

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { WidgetConfig } from '../widget-config';
 
 export interface SplitScreenContent {
@@ -16,6 +16,7 @@ export interface SplitScreenContent {
 @Component({
     selector: 'app-split-screen-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './split-screen-widget.component.html',
     styleUrl: './split-screen-widget.component.scss'

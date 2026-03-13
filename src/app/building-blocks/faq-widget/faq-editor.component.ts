@@ -2,7 +2,6 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { ColorPickerModule } from 'primeng/colorpicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -12,7 +11,7 @@ import { EditorModule } from 'primeng/editor';
 @Component({
     selector: 'app-faq-editor',
     standalone: true,
-    imports: [CommonModule, FormsModule, InputTextModule, ColorPickerModule, InputNumberModule, ButtonModule, FieldsetModule, CheckboxModule, EditorModule],
+    imports: [CommonModule, FormsModule, InputTextModule, InputNumberModule, ButtonModule, FieldsetModule, CheckboxModule, EditorModule],
     template: `
         <div class="faq-editor p-4">
             <p-fieldset legend="General Settings">
@@ -48,19 +47,19 @@ import { EditorModule } from 'primeng/editor';
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="field">
                         <label for="backgroundColor">Background Color</label>
-                        <p-colorPicker [(ngModel)]="settings.backgroundColor" class="w-full"></p-colorPicker>
+                        <input type="color" pInputText id="backgroundColor" [(ngModel)]="settings.backgroundColor" class="w-full" />
                     </div>
                     <div class="field">
                         <label for="titleColor">Title Color</label>
-                        <p-colorPicker [(ngModel)]="settings.titleColor" class="w-full"></p-colorPicker>
+                        <input type="color" pInputText id="titleColor" [(ngModel)]="settings.titleColor" class="w-full" />
                     </div>
                     <div class="field">
                         <label for="subtitleColor">Subtitle Color</label>
-                        <p-colorPicker [(ngModel)]="settings.subtitleColor" class="w-full"></p-colorPicker>
+                        <input type="color" pInputText id="subtitleColor" [(ngModel)]="settings.subtitleColor" class="w-full" />
                     </div>
                     <div class="field">
                         <label for="answerColor">Answer Text Color</label>
-                        <p-colorPicker [(ngModel)]="settings.answerColor" class="w-full"></p-colorPicker>
+                        <input type="color" pInputText id="answerColor" [(ngModel)]="settings.answerColor" class="w-full" />
                     </div>
                     <div class="field">
                         <label for="answerSize">Answer Text Size</label>
@@ -68,11 +67,11 @@ import { EditorModule } from 'primeng/editor';
                     </div>
                     <div class="field">
                         <label for="accordionHeaderColor">Accordion Header Color</label>
-                        <p-colorPicker [(ngModel)]="settings.accordionHeaderColor" class="w-full"></p-colorPicker>
+                        <input type="color" pInputText id="accordionHeaderColor" [(ngModel)]="settings.accordionHeaderColor" class="w-full" />
                     </div>
                     <div class="field">
                         <label for="accordionTextColor">Accordion Text Color</label>
-                        <p-colorPicker [(ngModel)]="settings.accordionTextColor" class="w-full"></p-colorPicker>
+                        <input type="color" pInputText id="accordionTextColor" [(ngModel)]="settings.accordionTextColor" class="w-full" />
                     </div>
                 </div>
             </p-fieldset>

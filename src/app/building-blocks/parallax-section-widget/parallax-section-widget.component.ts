@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, HostListener, ElementRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, HostListener, ElementRef, OnInit, OnDestroy , ChangeDetectionStrategy} from '@angular/core';
 import { WidgetConfig } from '../widget-config';
 
 @Component({
     selector: 'app-parallax-section-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './parallax-section-widget.component.html',
     styleUrl: './parallax-section-widget.component.scss'

@@ -27,6 +27,25 @@
                             <input id="subtitle" type="text" pInputText [(ngModel)]="settings.subtitle" placeholder="We'd love to hear from you" />
                         </div>
                     </div>
+                    <div class="col-12 col-md-4" *ngIf="settings.showHeader">
+                        <div class="p-field mb-3">
+                            <label for="headerBackgroundColor">Header Background Colour</label>
+                            <input id="headerBackgroundColor" type="color" pInputText [(ngModel)]="settings.headerBackgroundColor" />
+                            <small class="text-muted d-block mt-1">Leave as default (#000000) for no custom background</small>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4" *ngIf="settings.showHeader">
+                        <div class="p-field mb-3">
+                            <label for="headerTextColor">Header Text Colour</label>
+                            <input id="headerTextColor" type="color" pInputText [(ngModel)]="settings.headerTextColor" />
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="p-field mb-3">
+                            <label for="widgetPadding">Section Padding (px)</label>
+                            <input id="widgetPadding" type="number" pInputText [(ngModel)]="settings.padding" min="0" max="200" placeholder="60" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </p-accordionTab>
@@ -62,7 +81,10 @@
                             </ng-template>
                             <ng-template pTemplate="body" let-branch let-rowIndex="rowIndex">
                                 <tr>
-                                    <td>{{ branch.name }}</td>
+                                    <td>
+                                        {{ branch.name }}
+                                        <span *ngIf="branch.isPrimary" class="badge bg-primary ms-1" style="font-size:0.7rem">Main</span>
+                                    </td>
                                     <td>{{ branch.address }}</td>
                                     <td>{{ branch.phone }}</td>
                                     <td>{{ branch.email }}</td>
@@ -256,6 +278,14 @@
                 <label for="branchEmail">Email</label>
                 <input id="branchEmail" type="text" pInputText [(ngModel)]="branch.email" />
             </div>
+            <div class="p-field">
+                <label for="branchHours">Office Hours (Optional)</label>
+                <input id="branchHours" type="text" pInputText [(ngModel)]="branch.hours" placeholder="Mon–Fri: 08:00–17:00 | Sat: 09:00–13:00" />
+            </div>
+            <div class="p-field-checkbox mt-3">
+                <p-checkbox [(ngModel)]="branch.isPrimary" [binary]="true" inputId="branchIsPrimary"></p-checkbox>
+                <label for="branchIsPrimary" class="ms-2">Mark as primary / head office branch</label>
+            </div>
         </div>
         <ng-template pTemplate="footer">
             <p-button label="Cancel" icon="pi pi-times" (click)="displayBranchDialog = false" class="btn-secondary-theme"></p-button>
@@ -267,11 +297,16 @@
         <div class="p-fluid">
             <div class="p-field">
                 <label for="platform">Platform</label>
-                <input id="platform" type="text" pInputText [(ngModel)]="socialMedia.platform" required />
+                <input id="platform" type="text" pInputText [(ngModel)]="socialMedia.platform" placeholder="Facebook" required />
             </div>
             <div class="p-field">
                 <label for="url">URL</label>
-                <input id="url" type="text" pInputText [(ngModel)]="socialMedia.url" required />
+                <input id="url" type="text" pInputText [(ngModel)]="socialMedia.url" placeholder="https://facebook.com/yourpage" required />
+            </div>
+            <div class="p-field">
+                <label for="smIcon">Icon Class (Optional)</label>
+                <input id="smIcon" type="text" pInputText [(ngModel)]="socialMedia.icon" placeholder="pi pi-facebook" />
+                <small class="text-muted d-block mt-1">PrimeIcons class e.g. <code>pi pi-facebook</code>, <code>pi pi-whatsapp</code>, <code>pi pi-instagram</code>. Leave blank to auto-derive from platform name.</small>
             </div>
         </div>
         <ng-template pTemplate="footer">

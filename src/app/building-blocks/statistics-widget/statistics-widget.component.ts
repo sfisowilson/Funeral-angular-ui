@@ -1,15 +1,16 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 
 @Component({
     selector: 'app-statistics-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, CardModule],
     template: `
-        <div class="statistics-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
+        <div class="statistics-widget" [style.background-color]="config.backgroundColor" [style.--widget-outer-padding.px]="config.padding">
             <div class="container mx-auto">
-                <h2 class="text-center mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
+                <h2 class="text-center mb-4 sm:mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                     {{ title }}
                 </h2>
 
@@ -36,6 +37,14 @@ import { CardModule } from 'primeng/card';
     `,
     styles: [
         `
+            .statistics-widget {
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                .statistics-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+                }
+            }
             .stat-card {
                 transition:
                     transform 0.3s ease,

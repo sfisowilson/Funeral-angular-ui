@@ -1,8 +1,13 @@
 <div class="contact-us-widget" [class.with-form]="config.settings.showContactForm" [ngStyle]="customStyles">
     <!-- Header Section -->
-    <div class="contact-header" *ngIf="config.settings.showHeader !== false">
-        <h2>{{ config.settings.title || 'Get In Touch' }}</h2>
-        <p *ngIf="config.settings.subtitle" class="subtitle">{{ config.settings.subtitle }}</p>
+    <div class="contact-header" *ngIf="config.settings.showHeader !== false"
+         [style.background-color]="config.settings.headerBackgroundColor || null"
+         [style.color]="config.settings.headerTextColor || null"
+         [style.padding]="config.settings.headerBackgroundColor ? '30px 20px' : null"
+         [style.border-radius]="config.settings.headerBackgroundColor ? '8px' : null"
+         [style.margin-bottom]="config.settings.headerBackgroundColor ? '40px' : null">
+        <h2 [style.color]="config.settings.headerTextColor || null">{{ config.settings.title || 'Get In Touch' }}</h2>
+        <p *ngIf="config.settings.subtitle" class="subtitle" [style.color]="config.settings.headerTextColor ? (config.settings.headerTextColor + 'cc') : null">{{ config.settings.subtitle }}</p>
     </div>
 
     <div class="contact-content">
@@ -19,8 +24,11 @@
                 >
                     <h3><i class="pi pi-map-marker"></i> Our Locations</h3>
                     <div class="branches-grid">
-                        <div *ngFor="let branch of branches" class="branch-card">
-                            <h4>{{ branch.name }}</h4>
+                        <div *ngFor="let branch of branches" class="branch-card" [class.primary-branch]="branch.isPrimary">
+                            <h4>
+                                {{ branch.name }}
+                                <span *ngIf="branch.isPrimary" class="primary-badge">Main</span>
+                            </h4>
                             <div class="contact-detail">
                                 <i class="pi pi-map-marker"></i>
                                 <span>{{ branch.address }}</span>
@@ -32,6 +40,10 @@
                             <div class="contact-detail" *ngIf="branch.email">
                                 <i class="pi pi-envelope"></i>
                                 <a [href]="'mailto:' + branch.email">{{ branch.email }}</a>
+                            </div>
+                            <div class="contact-detail" *ngIf="branch.hours">
+                                <i class="pi pi-clock"></i>
+                                <span>{{ branch.hours }}</span>
                             </div>
                         </div>
                     </div>
@@ -48,7 +60,7 @@
                     <h3><i class="pi pi-share-alt"></i> Follow Us</h3>
                     <div class="social-icons">
                         <a *ngFor="let handle of socialMediaHandles" [href]="handle.url" target="_blank" class="social-icon" [title]="handle.platform">
-                            <i class="pi pi-{{ handle.platform | lowercase }}"></i>
+                            <i [class]="handle.icon || 'pi pi-' + (handle.platform | lowercase)"></i>
                         </a>
                     </div>
                 </div>

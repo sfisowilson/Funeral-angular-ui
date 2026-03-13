@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { WidgetConfig } from '../widget-config';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
     selector: 'app-image-content-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, ButtonModule],
     template: `
-        <div class="image-content-widget" [style.background-color]="config.settings.backgroundColor" [style.padding.px]="config.settings.padding">
+        <div class="image-content-widget" [style.background-color]="config.settings.backgroundColor" [style.--widget-outer-padding.px]="config.settings.padding">
             <!-- Flex layout based on image position -->
             <div [ngClass]="getContainerClasses()">
                 <!-- Image Section -->
@@ -83,6 +84,12 @@ import { ButtonModule } from 'primeng/button';
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                .image-content-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+                }
             }
 
             /* Container layout variations */

@@ -1,10 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WidgetConfig } from '../widget-config';
 
 @Component({
     selector: 'app-whatsapp-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './whatsapp-widget.component.html',
     styleUrl: './whatsapp-widget.component.css'

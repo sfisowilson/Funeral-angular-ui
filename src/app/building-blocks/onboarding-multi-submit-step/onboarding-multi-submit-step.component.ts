@@ -683,10 +683,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         if (this.configuredSteps.length > 0) {
             this.currentStepIndex = 0;
             this.loadInternalStep(this.configuredSteps[0]);
-            // Pre-populate the aggregator for ALL steps so the global calculator
-            // shows a meaningful total immediately, without the user having to
-            // navigate to each step first.
-            this.preloadAllStepsForCalculator();
+            // preloadAllStepsForCalculator() is now called inside loadContext()'s next
+            // callback to avoid saturating the browser's HTTP connection pool before
+            // the primary step context request completes.
         } else {
             // Legacy fallback: pretend the settings object itself is the step configuration
             this.loadInternalStep(settings);
@@ -815,11 +814,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                         } else {
                             this.error = 'No configured Terms & Conditions step found for this tenant.';
                             this.loading = false;
+                            this.cdr.markForCheck();
                         }
                     },
                     error: () => {
                         this.error = 'Failed to resolve Terms step configuration.';
                         this.loading = false;
+                        this.cdr.markForCheck();
                     }
                 });
                 return;
@@ -875,6 +876,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
                          setTimeout(() => this.initializeCanvas(), 100);
                          this.loading = false;
+                         this.cdr.markForCheck();
                          return;
                      }
                 }
@@ -882,6 +884,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 if (!primaryFormId) {
                     this.error = 'Multi-submit step configuration could not be resolved (missing formId).';
                     this.loading = false;
+                    this.cdr.markForCheck();
                     return;
                 }
 
@@ -892,6 +895,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                         if (!formDynamicKey) {
                             this.error = 'Multi-submit step configuration could not be resolved: selected form is not linked to a dynamic entity type.';
                             this.loading = false;
+                            this.cdr.markForCheck();
                             return;
                         }
 
@@ -937,6 +941,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                                 `Available step dynamicEntityTypeKeys (${distinctKeys.length}): ${preview}${distinctKeys.length > 6 ? ', ...' : ''}` +
                                 (formDynamicTypeId ? ` | Available step dynamicEntityTypeIds (${distinctIds.length}): ${distinctIds.slice(0, 3).join(', ')}${distinctIds.length > 3 ? ', ...' : ''}` : '');
                             this.loading = false;
+                            this.cdr.markForCheck();
                             return;
                         }
 
@@ -946,12 +951,14 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                     error: () => {
                         this.error = 'Failed to resolve onboarding step configuration.';
                         this.loading = false;
+                        this.cdr.markForCheck();
                     }
                 });
             },
             error: () => {
                 this.error = 'Failed to resolve onboarding step configuration.';
                 this.loading = false;
+                this.cdr.markForCheck();
             }
         });
     }
@@ -981,6 +988,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 this.applyListDisplayConfigFromStep((ctx as any)?.step);
 
                 this.loading = false;
+                // Notify Angular's OnPush parent (DynamicPageComponent) that
+                // this view is dirty so the loading-spinner is removed even
+                // when no signal has changed in the parent component.
+                this.cdr.markForCheck();
                 this.resetEditor();
                 this.loadFormDefinition();
                 this.ensureCalculatorInitialized();
@@ -1000,10 +1011,17 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                         setTimeout(() => this.startCreate(), 0);
                     }
                 }
+
+                // Pre-populate the aggregator for all OTHER steps now that the
+                // critical first request has completed and loading = false.
+                // Deferring here prevents the preload requests from saturating the
+                // browser's per-host HTTP connection pool before this step loads.
+                this.preloadAllStepsForCalculator();
             },
             error: () => {
                 this.error = 'Failed to load multi-submit step.';
                 this.loading = false;
+                this.cdr.markForCheck();
             }
         });
     }
@@ -1134,6 +1152,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             error: () => {
                 this.error = 'Failed to save record.';
                 this.loading = false;
+                this.cdr.markForCheck();
             }
         });
     }
@@ -1194,6 +1213,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             error: () => {
                 this.error = 'Failed to delete record.';
                 this.loading = false;
+                this.cdr.markForCheck();
             }
         });
     }
@@ -1359,9 +1379,12 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
                 // Re-evaluate calculator config now that form is loaded
                 this.ensureCalculatorInitialized(true);
+                // Notify OnPush parent that child view has new data to render
+                this.cdr.markForCheck();
             },
             error: () => {
                 this.formLoadError = 'Failed to load form definition for this step.';
+                this.cdr.markForCheck();
             }
         });
     }
@@ -1851,6 +1874,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
      */
     private preloadAllStepsForCalculator(): void {
         const steps: any[] = this.configuredSteps || [];
+        const currentStepKey = this.stepKey;
         for (const stepConfig of steps) {
             if (!stepConfig) continue;
             const t = (stepConfig.type || '').toLowerCase();
@@ -1858,6 +1882,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             let stepKey: string | null = stepConfig.stepKey || null;
             if (!stepKey && stepConfig.formId) stepKey = 'form:' + stepConfig.formId;
             if (!stepKey) continue;
+            // Skip the step that loadContext() already fetched — avoids a duplicate
+            // request and potential race condition on the already-active step.
+            if (stepKey === currentStepKey) continue;
 
             this.multiSubmitService.getStepContext(stepKey).subscribe({
                 next: (ctx: any) => {

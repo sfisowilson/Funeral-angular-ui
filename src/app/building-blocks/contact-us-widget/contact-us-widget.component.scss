@@ -1,7 +1,11 @@
 .contact-us-widget {
-    padding: 60px 20px;
+    padding: var(--widget-padding, 60px) 20px;
     max-width: 1200px;
     margin: 0 auto;
+
+    @media (max-width: 576px) {
+        padding: min(var(--widget-padding, 60px), 24px) 12px;
+    }
 
     .contact-header {
         text-align: center;
@@ -69,13 +73,33 @@
                 transform: translateY(-2px);
             }
 
+            &.primary-branch {
+                border-left: 4px solid var(--widget-primary-color, #007bff);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            }
+
             h4 {
                 font-size: 1.25rem;
                 font-weight: 600;
                 color: #1a1a1a;
                 margin-bottom: 15px;
                 padding-bottom: 12px;
-                border-bottom: 2px solid var(--primary-color, #007bff);
+                border-bottom: 2px solid var(--widget-primary-color, #007bff);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+
+                .primary-badge {
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    background: var(--widget-primary-color, #007bff);
+                    color: #fff;
+                    padding: 2px 8px;
+                    border-radius: 20px;
+                    margin-left: auto;
+                }
             }
 
             .contact-detail {

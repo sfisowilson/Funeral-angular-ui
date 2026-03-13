@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface ComparisonColumn {
@@ -18,6 +18,7 @@ export interface ComparisonItem {
 @Component({
     selector: 'app-comparison-table-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './comparison-table-widget.component.html',
     styleUrls: ['./comparison-table-widget.component.scss']

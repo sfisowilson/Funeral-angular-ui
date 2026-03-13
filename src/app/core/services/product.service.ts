@@ -80,7 +80,7 @@ export class ProductService {
     constructor(private productProxy: ProductServiceProxy) {}
 
     getProducts(isActive?: boolean, categoryId?: string): Observable<Product[]> {
-        return this.productProxy.product_GetAll(isActive, categoryId) as any as Observable<Product[]>;
+        return this.productProxy.product_GetAll(isActive, categoryId).pipe(map((r: any) => r?.result ?? r ?? []));
     }
 
     getActiveProducts(): Observable<Product[]> {
@@ -88,21 +88,23 @@ export class ProductService {
     }
 
     getFeaturedProducts(): Observable<Product[]> {
-        return this.productProxy.product_GetAll(true, undefined) as any as Observable<Product[]>;
+        return this.productProxy.product_GetAll(true, undefined).pipe(map((r: any) => r?.result ?? r ?? []));
     }
 
     getProduct(id: string): Observable<Product> {
-        return this.productProxy.product_GetById(id) as any as Observable<Product>;
+        return this.productProxy.product_GetById(id).pipe(map((r: any) => r?.result ?? r));
     }
 
     createProduct(product: Product): Observable<Product> {
-        const dto = new CreateProductDto(product as any);
-        return this.productProxy.product_Create(dto) as any as Observable<Product>;
+        const mapped = { ...product, categoryId: product.categoryId ?? product.category };
+        const dto = CreateProductDto.fromJS(mapped);
+        return this.productProxy.product_Create(dto).pipe(map((r: any) => r?.result ?? r));
     }
 
     updateProduct(id: string, product: Product): Observable<Product> {
-        const dto = new UpdateProductDto({ ...product, id: id } as any);
-        return this.productProxy.product_Update(dto) as any as Observable<Product>;
+        const mapped = { ...product, id, categoryId: product.categoryId ?? product.category };
+        const dto = UpdateProductDto.fromJS(mapped);
+        return this.productProxy.product_Update(dto).pipe(map((r: any) => r?.result ?? r));
     }
 
     deleteProduct(id: string): Observable<void> {
@@ -118,24 +120,27 @@ export class ProductService {
     }
 
     getCategories(): Observable<Category[]> {
-        return this.productProxy.category_GetAll() as any as Observable<Category[]>;
+        return this.productProxy.category_GetAll().pipe(map((r: any) => r?.result ?? r ?? []));
     }
 
     createCategory(category: Category): Observable<Category> {
         const dto = new CreateCategoryDto(category as any);
-        return this.productProxy.category_Create(dto) as any as Observable<Category>;
+        return this.productProxy.category_Create(dto).pipe(map((r: any) => r?.result ?? r));
     }
 
     getProductStats(): Observable<ProductStats> {
         return this.productProxy.product_GetStats().pipe(
-            map((response: any) => ({
-                totalProducts: response.data?.totalProducts || 0,
-                activeProducts: response.data?.activeProducts || 0,
-                lowStockProducts: response.data?.lowStockProducts || 0,
-                totalInventoryValue: response.data?.totalInventoryValue || 0,
-                featuredProducts: response.data?.featuredProducts || 0,
-                totalCategories: response.data?.totalCategories || 0
-            }))
+            map((response: any) => {
+                const d = response?.result ?? response?.data ?? response ?? {};
+                return {
+                    totalProducts: d.totalProducts || 0,
+                    activeProducts: d.activeProducts || 0,
+                    lowStockProducts: d.lowStockProducts || 0,
+                    totalInventoryValue: d.totalInventoryValue || 0,
+                    featuredProducts: d.featuredProducts || 0,
+                    totalCategories: d.totalCategories || 0
+                };
+            })
         );
     }
 

@@ -12,7 +12,7 @@ import { CalendarModule } from 'primeng/calendar';
     standalone: true,
     imports: [CommonModule, FormsModule, InputTextModule, InputNumberModule, DropdownModule, ButtonModule, CalendarModule],
     template: `
-        <div class="quick-quote-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
+        <div class="quick-quote-widget" [style.background-color]="config.backgroundColor" [style.--widget-outer-padding.px]="config.padding">
             <div class="container mx-auto max-w-2xl">
                 <h2 class="text-center mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                     {{ config.title }}
@@ -90,6 +90,14 @@ import { CalendarModule } from 'primeng/calendar';
     `,
     styles: [
         `
+            .quick-quote-widget {
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                .quick-quote-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+                }
+            }
             .quote-form {
                 transition: box-shadow 0.3s ease;
             }

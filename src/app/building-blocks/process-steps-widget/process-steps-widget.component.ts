@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface ProcessStep {
@@ -11,6 +11,7 @@ export interface ProcessStep {
 @Component({
     selector: 'app-process-steps-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './process-steps-widget.component.html',
     styleUrls: ['./process-steps-widget.component.scss']

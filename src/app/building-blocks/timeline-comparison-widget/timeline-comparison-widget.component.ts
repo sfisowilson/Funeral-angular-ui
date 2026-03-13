@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface TimelineOption {
@@ -27,6 +27,7 @@ export interface TimelineComparisonSettings {
 @Component({
     selector: 'app-timeline-comparison-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './timeline-comparison-widget.component.html',
     styleUrls: ['./timeline-comparison-widget.component.scss']

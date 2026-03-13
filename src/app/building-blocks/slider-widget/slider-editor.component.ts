@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
 import { FileUploadServiceProxy, API_BASE_URL } from '../../core/services/service-proxies';
+import { TenantService } from '../../core/services/tenant.service';
 
 @Component({
     selector: 'app-slider-editor',
@@ -28,7 +29,8 @@ export class SliderEditorComponent implements OnInit {
 
     constructor(
         private fileUploadService: FileUploadServiceProxy,
-        @Inject(API_BASE_URL) private baseUrl: string
+        @Inject(API_BASE_URL) private baseUrl: string,
+        private tenantService: TenantService
     ) {}
 
     ngOnInit(): void {
@@ -135,9 +137,11 @@ export class SliderEditorComponent implements OnInit {
 
             this.fileUploadService.file_UploadFile('SliderImage', '', undefined, undefined, false, fileParameter).subscribe({
                 next: (result: any) => {
-                    if (result?.id) {
-                        // Construct the download URL
-                        this.settings.slides[slideIndex].imageUrl = `${this.baseUrl}/api/FileUpload/File_DownloadFile/${result.id}`;
+                    if (result?.result?.id) {
+                        // Construct the download URL, appending tenant ID so the
+                        // browser can fetch the image without custom request headers
+                        const tenantId = this.tenantService.getTenantId() || 'host';
+                        this.settings.slides[slideIndex].imageUrl = `${this.baseUrl}/api/FileUpload/File_DownloadFile/${result.result.id}?X-Tenant-ID=${tenantId}`;
                     }
                     this.uploadingSlideIndex = null;
                 },

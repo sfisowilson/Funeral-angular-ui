@@ -81,4 +81,8 @@ export class GalleryWidgetComponent implements OnInit {
     goToSlide(index: number): void {
         this.currentSlideIndex = index;
     }
+
+    trackByIndex(index: number): number {
+        return index;
+    }
 }

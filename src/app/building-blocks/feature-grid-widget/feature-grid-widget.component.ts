@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface FeatureGridItem {
@@ -10,6 +10,7 @@ export interface FeatureGridItem {
 @Component({
     selector: 'app-feature-grid-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './feature-grid-widget.component.html',
     styleUrls: ['./feature-grid-widget.component.scss']

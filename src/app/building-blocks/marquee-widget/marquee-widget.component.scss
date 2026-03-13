@@ -1,5 +1,10 @@
 .marquee-widget {
     width: 100%;
+    padding: var(--widget-outer-padding, 20px) 0;
+
+    @media (max-width: 576px) {
+        padding: min(var(--widget-outer-padding, 20px), 12px) 0;
+    }
 
     .container {
         max-width: 100%;

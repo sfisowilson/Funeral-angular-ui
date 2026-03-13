@@ -1,7 +1,7 @@
 .about-us-widget {
   width: 100%;
   overflow: hidden;
-
+  padding: var(--about-outer-padding, 60px) 0;
   /* CSS variables are set dynamically via [ngStyle] in the component. Use them directly below. */
 
   .section-container {
@@ -22,7 +22,7 @@
     .section-badge {
       display: inline-block;
       padding: 0.5rem 1.5rem;
-      background: linear-gradient(135deg, var(--widget-primary-color) 0%, var(--widget-secondary-color) 100%);
+      background: linear-gradient(135deg, var(--widget-primary-color, #428bb9) 0%, var(--widget-secondary-color, #1d4875) 100%);
       color: white;
       border-radius: 50px;
       font-size: 0.875rem;
@@ -35,14 +35,14 @@
     .section-title {
       font-size: 2.5rem;
       font-weight: 700;
-      color: var(--widget-text-color);
+      color: var(--widget-text-color, #1a202c);
       margin: 0.5rem 0;
       line-height: 1.2;
     }
 
     .section-description {
       font-size: 1.125rem;
-      color: var(--widget-text-muted);
+      color: var(--widget-text-muted, #718096);
       max-width: 600px;
       margin: 1rem auto 0;
     }
@@ -52,7 +52,7 @@
   .hero-section {
     position: relative;
     padding: 4rem 0;
-    background: linear-gradient(135deg, var(--widget-primary-color) 0%, var(--widget-secondary-color) 100%);
+    background: linear-gradient(135deg, var(--widget-primary-color, #428bb9) 0%, var(--widget-secondary-color, #1d4875) 100%);
     color: white;
     margin-bottom: 4rem;
 
@@ -98,15 +98,19 @@
 
     .story-content {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 3rem;
       align-items: center;
+
+      &:has(.story-image) {
+        grid-template-columns: 1fr 1fr;
+      }
 
       .story-text {
         p {
           font-size: 1.125rem;
           line-height: 1.8;
-          color: var(--widget-text-muted);
+          color: var(--widget-text-muted, #4a5568);
         }
       }
 
@@ -147,7 +151,7 @@
         .card-icon {
           width: 60px;
           height: 60px;
-          background: linear-gradient(135deg, var(--widget-primary-color) 0%, var(--widget-secondary-color) 100%);
+          background: linear-gradient(135deg, var(--widget-primary-color, #428bb9) 0%, var(--widget-secondary-color, #1d4875) 100%);
           border-radius: 12px;
           display: flex;
           align-items: center;
@@ -163,14 +167,14 @@
         h3 {
           font-size: 1.75rem;
           font-weight: 700;
-          color: var(--widget-text-color);
+          color: var(--widget-text-color, #1a202c);
           margin-bottom: 1rem;
         }
 
         p {
           font-size: 1.125rem;
           line-height: 1.8;
-          color: var(--widget-text-muted);
+          color: var(--widget-text-muted, #4a5568);
         }
       }
     }
@@ -198,13 +202,13 @@
         &:hover {
           transform: translateY(-5px);
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-          border-color: var(--widget-primary-color);
+          border-color: var(--widget-primary-color, #428bb9);
         }
 
         .value-icon {
           width: 70px;
           height: 70px;
-          background: linear-gradient(135deg, var(--widget-primary-color) 0%, var(--widget-secondary-color) 100%);
+          background: linear-gradient(135deg, var(--widget-primary-color, #428bb9) 0%, var(--widget-secondary-color, #1d4875) 100%);
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -220,14 +224,14 @@
         h4 {
           font-size: 1.25rem;
           font-weight: 700;
-          color: var(--widget-text-color);
+          color: var(--widget-text-color, #1a202c);
           margin-bottom: 0.75rem;
         }
 
         p {
           font-size: 1rem;
           line-height: 1.6;
-          color: var(--widget-text-muted);
+          color: var(--widget-text-muted, #4a5568);
         }
       }
     }
@@ -236,7 +240,7 @@
   // Stats Section
   .stats-section {
     padding: 4rem 0;
-    background: linear-gradient(135deg, var(--widget-primary-color) 0%, var(--widget-secondary-color) 100%);
+    background: linear-gradient(135deg, var(--widget-primary-color, #428bb9) 0%, var(--widget-secondary-color, #1d4875) 100%);
     color: white;
 
     .stats-grid {
@@ -494,6 +498,52 @@
           width: 100%;
         }
       }
+    }
+  }
+
+  @media (max-width: 576px) {
+    /* Cap outer padding at 20px on small phones */
+    padding: min(var(--about-outer-padding, 60px), 20px) 0;
+
+    .section-container {
+      padding: 0 12px;
+    }
+
+    .section-header {
+      margin-bottom: 1.25rem;
+
+      .section-title {
+        font-size: 1.5rem;
+      }
+
+      .section-badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 1rem;
+      }
+    }
+
+    .hero-section {
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+
+      .hero-content .hero-title {
+        font-size: 1.75rem;
+      }
+
+      .hero-content .hero-subtitle {
+        font-size: 1rem;
+      }
+    }
+
+    .mission-vision-section .mission-vision-grid {
+      .mission-card,
+      .vision-card {
+        padding: 1.5rem;
+      }
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr !important;
     }
   }
 }

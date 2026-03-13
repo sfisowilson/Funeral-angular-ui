@@ -7,12 +7,12 @@ import { ButtonModule } from 'primeng/button';
     standalone: true,
     imports: [CommonModule, ButtonModule],
     template: `
-        <div class="news-updates-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
+        <div class="news-updates-widget" [style.background-color]="config.backgroundColor" [style.--widget-outer-padding.px]="config.padding">
             <div class="container mx-auto">
-                <h2 class="text-center mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
+                <h2 class="text-center mb-4 sm:mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                     {{ title }}
                 </h2>
-                <p *ngIf="subtitle" class="text-center mb-12" [style.color]="config.subtitleColor" [style.font-size.px]="config.subtitleSize">
+                <p *ngIf="subtitle" class="text-center mb-6 sm:mb-12" [style.color]="config.subtitleColor" [style.font-size.px]="config.subtitleSize">
                     {{ subtitle }}
                 </p>
 
@@ -61,6 +61,14 @@ import { ButtonModule } from 'primeng/button';
     `,
     styles: [
         `
+            .news-updates-widget {
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                .news-updates-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+                }
+            }
             .news-card {
                 transition:
                     transform 0.3s ease,

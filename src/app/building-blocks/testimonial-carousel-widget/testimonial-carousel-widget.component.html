@@ -19,7 +19,7 @@
                     <p class="testimonial-content">{{ testimonial.content }}</p>
 
                     <div class="testimonial-author">
-                        <img *ngIf="showImages && testimonial.imageUrl" [src]="testimonial.imageUrl" [alt]="testimonial.name" class="author-image" />
+                        <img *ngIf="showImages && testimonial.imageUrl" [src]="testimonial.imageUrl" [alt]="testimonial.name" class="author-image" loading="lazy" />
                         <div class="author-placeholder" *ngIf="showImages && !testimonial.imageUrl">
                             <i class="bi bi-person-circle"></i>
                         </div>

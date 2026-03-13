@@ -18,11 +18,14 @@ interface Branch {
     address: string;
     phone: string;
     email: string;
+    hours?: string;
+    isPrimary?: boolean;
 }
 
 interface SocialMedia {
     platform: string;
     url: string;
+    icon?: string;
 }
 
 @Component({
@@ -42,11 +45,11 @@ export class ContactUsEditorComponent implements OnInit {
     socialMediaHandles: SocialMedia[] = [];
 
     displayBranchDialog: boolean = false;
-    branch: Branch = { name: '', address: '', phone: '', email: '' };
+    branch: Branch = { name: '', address: '', phone: '', email: '', hours: '', isPrimary: false };
     branchIndex: number = -1;
 
     displaySocialMediaDialog: boolean = false;
-    socialMedia: SocialMedia = { platform: '', url: '' };
+    socialMedia: SocialMedia = { platform: '', url: '', icon: '' };
     socialMediaIndex: number = -1;
 
     constructor(
@@ -79,6 +82,15 @@ export class ContactUsEditorComponent implements OnInit {
         if (this.settings.showCTA === undefined) {
             this.settings.showCTA = false;
         }
+        if (this.settings.padding == null) {
+            this.settings.padding = 60;
+        }
+        if (!this.settings.headerBackgroundColor) {
+            this.settings.headerBackgroundColor = '';
+        }
+        if (!this.settings.headerTextColor) {
+            this.settings.headerTextColor = '';
+        }
         if (this.settings.showCtaPrimaryButton === undefined) {
             this.settings.showCtaPrimaryButton = true;
         }
@@ -104,9 +116,14 @@ export class ContactUsEditorComponent implements OnInit {
         this.update.emit(this.settings);
     }
 
+    /** Alias so the page-builder's method-name lookup (['onSubmit','save',...]) can discover and call this */
+    save(): void {
+        this.saveSettings();
+    }
+
     // Branch methods
     openNewBranch() {
-        this.branch = { name: '', address: '', phone: '', email: '' };
+        this.branch = { name: '', address: '', phone: '', email: '', hours: '', isPrimary: false };
         this.branchIndex = -1;
         this.displayBranchDialog = true;
     }
@@ -140,7 +157,7 @@ export class ContactUsEditorComponent implements OnInit {
 
     // Social Media methods
     openNewSocialMedia() {
-        this.socialMedia = { platform: '', url: '' };
+        this.socialMedia = { platform: '', url: '', icon: '' };
         this.socialMediaIndex = -1;
         this.displaySocialMediaDialog = true;
     }

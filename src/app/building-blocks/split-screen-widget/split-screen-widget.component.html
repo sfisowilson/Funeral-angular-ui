@@ -21,6 +21,7 @@
                     [src]="leftContent.image" 
                     alt="Split screen image"
                     class="media-image"
+                    loading="lazy"
                 />
             </div>
 
@@ -42,6 +43,7 @@
                     [src]="getCurrentImage()" 
                     alt="Slideshow image"
                     class="media-image"
+                    loading="lazy"
                 />
                 <div class="slideshow-controls">
                     <button class="control-btn prev" (click)="prevImage()">

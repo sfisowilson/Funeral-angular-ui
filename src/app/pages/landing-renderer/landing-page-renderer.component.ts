@@ -130,6 +130,22 @@ import { environment } from '../../../environments/environment';
                     display: none !important;
                 }
             }
+
+            /* ── Mobile: collapse 12-column grid to single-column stack ── */
+            @media (max-width: 576px) {
+                .landing-page-container {
+                    padding: 0 4px;
+                }
+                .widget-grid {
+                    display: flex !important;
+                    flex-direction: column !important;
+                }
+                .widget-item {
+                    grid-column: unset !important;
+                    width: 100% !important;
+                    overflow: visible;
+                }
+            }
         `
     ]
 })
@@ -198,14 +214,13 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             }
         });
 
-        // Load custom pages for navigation
-        this.customPagesService.all().subscribe({
-            next: (response) => {
-                this.navbarPages = response?.result.filter((p: any) => p.isActive && p.showInNavbar).sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
-            },
-            error: (error) => {
-                console.error('Error loading custom pages:', error);
-            }
+        // Load custom pages for navigation using the public navbar endpoint
+        // (navbar() is AllowAnonymous - safe for unauthenticated public visitors)
+        this.customPagesService.navbar().subscribe((response) => {
+            const pages = response?.result || [];
+            this.navbarPages = pages
+                .filter((p: any) => p.isActive && p.showInNavbar)
+                .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
         });
 
         // Use subdomain if present, otherwise use hostSubdomain from environment

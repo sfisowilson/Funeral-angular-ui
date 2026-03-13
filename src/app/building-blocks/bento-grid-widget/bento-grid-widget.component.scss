@@ -1,5 +1,10 @@
 .bento-grid-widget {
     width: 100%;
+    padding: var(--widget-outer-padding, 40px) 16px;
+
+    @media (max-width: 576px) {
+        padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+    }
 
     .container {
         max-width: 1200px;

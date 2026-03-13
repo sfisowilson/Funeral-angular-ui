@@ -90,6 +90,11 @@
                     <small class="text-muted">Leave empty to use default text color</small>
                 </div>
                 <div class="p-field">
+                    <label>Title Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.storyTitleColor" />
+                    <small class="text-muted">Leave empty to inherit section text color</small>
+                </div>
+                <div class="p-field">
                     <label>Story Badge</label>
                     <input type="text" pInputText [(ngModel)]="config.settings.storyBadge" placeholder="Our Story" />
                 </div>
@@ -151,6 +156,11 @@
                     <label>Section Text Color (Optional)</label>
                     <input type="color" pInputText [(ngModel)]="config.settings.valuesTextColor" />
                     <small class="text-muted">Leave empty to use default text color</small>
+                </div>
+                <div class="p-field">
+                    <label>Title Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.valuesTitleColor" />
+                    <small class="text-muted">Leave empty to inherit section text color</small>
                 </div>
                 <div class="p-field">
                     <label>Values Badge</label>
@@ -237,6 +247,11 @@
                     <small class="text-muted">Leave empty to use default text color</small>
                 </div>
                 <div class="p-field">
+                    <label>Title Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.teamTitleColor" />
+                    <small class="text-muted">Leave empty to inherit section text color</small>
+                </div>
+                <div class="p-field">
                     <label>Team Badge</label>
                     <input type="text" pInputText [(ngModel)]="config.settings.teamBadge" placeholder="Our Team" />
                 </div>
@@ -308,6 +323,11 @@
                     <label>Section Text Color (Optional)</label>
                     <input type="color" pInputText [(ngModel)]="config.settings.ctaTextColor" />
                     <small class="text-muted">Leave empty to use default text color</small>
+                </div>
+                <div class="p-field">
+                    <label>Title Color (Optional)</label>
+                    <input type="color" pInputText [(ngModel)]="config.settings.ctaTitleColor" />
+                    <small class="text-muted">Leave empty to inherit section text color</small>
                 </div>
                 <div class="p-field">
                     <label>CTA Title</label>

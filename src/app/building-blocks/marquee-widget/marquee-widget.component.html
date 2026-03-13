@@ -1,6 +1,6 @@
 <div 
     class="marquee-widget" 
-    [style.padding.px]="padding"
+    [style.--widget-outer-padding.px]="padding"
     [style.background-color]="backgroundColor"
 >
     <div class="container">
@@ -34,6 +34,7 @@
                         [src]="item.src" 
                         [alt]="item.alt || 'Marquee item'"
                         class="item-image"
+                        loading="lazy"
                     />
 
                     <!-- Text Item -->

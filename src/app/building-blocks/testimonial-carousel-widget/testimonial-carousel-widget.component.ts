@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface Testimonial {
@@ -23,6 +23,7 @@ export interface TestimonialCarouselSettings {
 @Component({
     selector: 'app-testimonial-carousel-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './testimonial-carousel-widget.component.html',
     styleUrls: ['./testimonial-carousel-widget.component.scss']

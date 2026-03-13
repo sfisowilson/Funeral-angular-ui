@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface PricingFeature {
@@ -35,6 +35,7 @@ export interface PricingCardsConfig {
 @Component({
     selector: 'app-pricing-cards-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './pricing-cards-widget.component.html',
     styleUrl: './pricing-cards-widget.component.scss'

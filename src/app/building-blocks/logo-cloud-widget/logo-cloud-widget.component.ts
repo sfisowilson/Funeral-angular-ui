@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface LogoItem {
@@ -21,6 +21,7 @@ export interface LogoCloudSettings {
 @Component({
     selector: 'app-logo-cloud-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './logo-cloud-widget.component.html',
     styleUrls: ['./logo-cloud-widget.component.scss']
@@ -72,5 +73,9 @@ export class LogoCloudWidgetComponent {
             6: 'col-lg-2 col-md-3'
         };
         return colMap[this.columns] || 'col-md-3';
+    }
+
+    trackByIndex(index: number): number {
+        return index;
     }
 }

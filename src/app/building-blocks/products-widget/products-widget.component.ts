@@ -1,46 +1,76 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ProductService, Product } from '../../core/services/product.service';
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
     selector: 'app-products-widget',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, RouterModule],
     template: `
         <div class="products-widget" [ngStyle]="getContainerStyles()">
             <div class="container">
                 <h2 *ngIf="config.showTitle" [ngStyle]="getTitleStyles()">{{ config.title }}</h2>
                 <p *ngIf="config.showSubtitle" class="subtitle">{{ config.subtitle }}</p>
 
-                <div class="filters" *ngIf="config.showFilters">
-                    <input type="text" class="search-box" placeholder="Search products..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" />
-                    <select class="category-filter" [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()" *ngIf="config.showCategoryFilter">
+                <!-- Filter / Sort bar -->
+                <div class="filters" *ngIf="config.showFilters || config.showSort">
+                    <input *ngIf="config.showFilters" type="text" class="search-box" placeholder="Search products…" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" />
+                    <select *ngIf="config.showFilters && config.showCategoryFilter" class="category-filter" [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()">
                         <option value="">All Categories</option>
                         <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                    </select>
+                    <select *ngIf="config.showSort" class="sort-select" [(ngModel)]="sortOrder" (ngModelChange)="applyFilters()">
+                        <option value="">Sort: Default</option>
+                        <option value="price-asc">Price: Low → High</option>
+                        <option value="price-desc">Price: High → Low</option>
+                        <option value="name-asc">Name A–Z</option>
+                        <option value="name-desc">Name Z–A</option>
                     </select>
                 </div>
 
                 <div class="products-grid" [class.grid-2]="config.columns === 2" [class.grid-3]="config.columns === 3" [class.grid-4]="config.columns === 4">
-                    <div class="product-card" *ngFor="let product of filteredProducts.slice(0, config.productsToShow)" [ngStyle]="getCardStyles()">
-                        <div class="product-image">
-                            <img [src]="(product.images && product.images[0]?.imageUrl) || product.images?.[0]?.url || '/assets/placeholder.png'" [alt]="product.name" />
-                            <span class="sale-badge" *ngIf="product.compareAtPrice && product.compareAtPrice > product.price" [ngStyle]="getBadgeStyles()">SALE</span>
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-name">{{ product.name }}</h3>
-                            <p class="product-description" *ngIf="config.showDescription">{{ product.shortDescription || product.description }}</p>
-                            <div class="product-pricing">
-                                <span class="price" [ngStyle]="getPriceStyles()">\${{ product.price | number: '1.2-2' }}</span>
-                                <span class="compare-price" *ngIf="product.compareAtPrice && product.compareAtPrice > product.price">\${{ product.compareAtPrice | number: '1.2-2' }}</span>
+                    <div class="product-card" *ngFor="let product of filteredProducts.slice(0, config.productsToShow)" [ngStyle]="getCardStyles()" [class.out-of-stock]="product.stockQuantity === 0">
+
+                        <!-- Image -->
+                        <a *ngIf="config.imageMode !== 'none'" [routerLink]="['/product', product.id]" class="product-image-link">
+                            <div class="product-image">
+                                <img [src]="getPrimaryImage(product)" [alt]="product.name" />
+                                <span class="sale-badge" *ngIf="product.compareAtPrice && product.compareAtPrice > product.price" [ngStyle]="getBadgeStyles()">SALE</span>
+                                <span class="oos-badge" *ngIf="product.stockQuantity === 0">Out of Stock</span>
                             </div>
-                            <button class="btn-add-to-cart" [ngStyle]="getButtonStyles()" (click)="addToCart(product)">{{ config.buttonText }}</button>
+                        </a>
+
+                        <div class="product-info">
+                            <p class="product-category" *ngIf="config.showCategory && product.category">{{ product.category }}</p>
+                            <a [routerLink]="['/product', product.id]" class="product-name-link">
+                                <h3 class="product-name">{{ product.name }}</h3>
+                            </a>
+                            <p class="product-sku" *ngIf="config.showSku && product.sku">SKU: {{ product.sku }}</p>
+                            <p class="product-description" *ngIf="config.showDescription">{{ product.shortDescription || product.description }}</p>
+
+                            <div class="product-pricing" *ngIf="config.showPrice">
+                                <span class="price" [ngStyle]="getPriceStyles()">{{ config.currencySymbol || '$' }}{{ product.price | number: '1.2-2' }}</span>
+                                <span class="compare-price" *ngIf="product.compareAtPrice && product.compareAtPrice > product.price">{{ config.currencySymbol || '$' }}{{ product.compareAtPrice | number: '1.2-2' }}</span>
+                            </div>
+
+                            <button
+                                *ngIf="config.showAddToCart"
+                                class="btn-add-to-cart"
+                                [ngStyle]="getButtonStyles()"
+                                (click)="addToCart(product)"
+                                [disabled]="product.stockQuantity === 0"
+                            >
+                                {{ product.stockQuantity === 0 ? 'Out of Stock' : (config.addToCartLabel || 'Add to Cart') }}
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <div class="text-center mt-4" *ngIf="config.showViewAll">
-                    <a [href]="config.viewAllLink" class="btn-view-all" [ngStyle]="getButtonStyles()">View All Products</a>
+                    <a [routerLink]="config.viewAllLink || '/shop'" class="btn-view-all" [ngStyle]="getButtonStyles()">{{ config.viewAllLabel || 'View All Products' }}</a>
                 </div>
             </div>
         </div>
@@ -71,11 +101,18 @@ import { ProductService, Product } from '../../core/services/product.service';
                 justify-content: center;
             }
             .search-box,
-            .category-filter {
+            .category-filter,
+            .sort-select {
                 padding: 0.5rem 1rem;
                 border: 1px solid #ddd;
                 border-radius: 4px;
             }
+            .product-category { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px; }
+            .product-name-link { text-decoration: none; color: inherit; }
+            .product-image-link { display: block; }
+            .product-sku { font-size: 0.75rem; color: #aaa; margin: 0 0 6px; }
+            .oos-badge { position: absolute; top: 10px; left: 10px; background: #718096; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+            .out-of-stock .product-image img { opacity: 0.55; }
             .products-grid {
                 display: grid;
                 gap: 2rem;
@@ -166,12 +203,23 @@ export class ProductsWidgetComponent implements OnInit {
         showSubtitle: true,
         showFilters: true,
         showCategoryFilter: true,
+        showSort: true,
         showDescription: true,
         showViewAll: true,
-        viewAllLink: '/products',
+        viewAllLink: '/shop',
+        viewAllLabel: 'View All Products',
         productsToShow: 8,
         columns: 4,
-        buttonText: 'Add to Cart',
+        // Display toggles
+        showPrice: true,
+        showSku: false,
+        showCategory: false,
+        showAddToCart: true,
+        addToCartLabel: 'Add to Cart',
+        imageMode: 'primary-only',
+        cardStyle: 'card',
+        currencySymbol: '$',
+        // Colours
         backgroundColor: '#ffffff',
         titleColor: '#333333',
         priceColor: '#000000',
@@ -186,8 +234,13 @@ export class ProductsWidgetComponent implements OnInit {
     categories: string[] = [];
     searchTerm = '';
     selectedCategory = '';
+    sortOrder = '';
 
-    constructor(private productService: ProductService) {}
+    constructor(
+        private productService: ProductService,
+        private cartService: CartService,
+        private router: Router
+    ) {}
 
     ngOnInit(): void {
         this.loadProducts();
@@ -205,15 +258,31 @@ export class ProductsWidgetComponent implements OnInit {
     }
 
     applyFilters(): void {
-        this.filteredProducts = this.products.filter((p) => {
+        let result = this.products.filter((p) => {
             const matchesSearch = !this.searchTerm || p.name.toLowerCase().includes(this.searchTerm.toLowerCase());
             const matchesCategory = !this.selectedCategory || p.category === this.selectedCategory;
             return matchesSearch && matchesCategory;
         });
+        // Sort
+        if (this.sortOrder === 'price-asc') result = result.sort((a, b) => a.price - b.price);
+        else if (this.sortOrder === 'price-desc') result = result.sort((a, b) => b.price - a.price);
+        else if (this.sortOrder === 'name-asc') result = result.sort((a, b) => a.name.localeCompare(b.name));
+        else if (this.sortOrder === 'name-desc') result = result.sort((a, b) => b.name.localeCompare(a.name));
+        this.filteredProducts = result;
+    }
+
+    getPrimaryImage(product: Product): string {
+        const primary = product.images?.find(i => i.isPrimary);
+        const first = product.images?.[0];
+        return primary?.imageUrl ?? primary?.url ?? first?.imageUrl ?? first?.url ?? '/assets/placeholder.png';
     }
 
     addToCart(product: Product): void {
-        alert(`${product.name} added to cart!`);
+        this.cartService.addItem(product.id, 1, product.price, product.name, {
+            productImageUrl: (product.images && product.images[0]?.imageUrl) || product.images?.[0]?.url,
+            sku: product.sku,
+            stockQuantity: product.stockQuantity
+        });
     }
 
     getContainerStyles() {

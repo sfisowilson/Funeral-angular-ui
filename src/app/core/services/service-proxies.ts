@@ -1548,6 +1548,346 @@ export class ApiServiceProxy {
 @Injectable({
     providedIn: 'root'
 })
+export class CartServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param sessionId (optional) 
+     * @return OK
+     */
+    cart_Get(sessionId: string | undefined): Observable<SwaggerResponse<CartDto>> {
+        let url_ = this.baseUrl + "/api/Cart/Cart_Get?";
+        if (sessionId === null)
+            throw new globalThis.Error("The parameter 'sessionId' cannot be null.");
+        else if (sessionId !== undefined)
+            url_ += "sessionId=" + encodeURIComponent("" + sessionId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCart_Get(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCart_Get(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<CartDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<CartDto>>;
+        }));
+    }
+
+    protected processCart_Get(response: HttpResponseBase): Observable<SwaggerResponse<CartDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CartDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<CartDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    cart_AddItem(body: AddCartItemDto | undefined): Observable<SwaggerResponse<CartDto>> {
+        let url_ = this.baseUrl + "/api/Cart/Cart_AddItem";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCart_AddItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCart_AddItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<CartDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<CartDto>>;
+        }));
+    }
+
+    protected processCart_AddItem(response: HttpResponseBase): Observable<SwaggerResponse<CartDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CartDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<CartDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    cart_UpdateItem(body: UpdateCartItemDto | undefined): Observable<SwaggerResponse<CartDto>> {
+        let url_ = this.baseUrl + "/api/Cart/Cart_UpdateItem";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCart_UpdateItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCart_UpdateItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<CartDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<CartDto>>;
+        }));
+    }
+
+    protected processCart_UpdateItem(response: HttpResponseBase): Observable<SwaggerResponse<CartDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CartDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<CartDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return No Content
+     */
+    cart_RemoveItem(cartItemId: string): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/Cart/Cart_RemoveItem/{cartItemId}";
+        if (cartItemId === undefined || cartItemId === null)
+            throw new globalThis.Error("The parameter 'cartItemId' must be defined.");
+        url_ = url_.replace("{cartItemId}", encodeURIComponent("" + cartItemId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCart_RemoveItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCart_RemoveItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processCart_RemoveItem(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param sessionId (optional) 
+     * @return No Content
+     */
+    cart_Clear(sessionId: string | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/Cart/Cart_Clear?";
+        if (sessionId === null)
+            throw new globalThis.Error("The parameter 'sessionId' cannot be null.");
+        else if (sessionId !== undefined)
+            url_ += "sessionId=" + encodeURIComponent("" + sessionId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCart_Clear(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCart_Clear(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processCart_Clear(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    cart_MergeGuestCart(body: MergeGuestCartDto | undefined): Observable<SwaggerResponse<CartDto>> {
+        let url_ = this.baseUrl + "/api/Cart/Cart_MergeGuestCart";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCart_MergeGuestCart(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCart_MergeGuestCart(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<CartDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<CartDto>>;
+        }));
+    }
+
+    protected processCart_MergeGuestCart(response: HttpResponseBase): Observable<SwaggerResponse<CartDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CartDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<CartDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
 export class ContactFormServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -4603,6 +4943,72 @@ export class DocumentRequirementServiceProxy {
             }));
         }
         return _observableOf<SwaggerResponse<DocumentRequirement[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class DomainsServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param domain (optional) 
+     * @return OK
+     */
+    validate(domain: string | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/domains/validate?";
+        if (domain === null)
+            throw new globalThis.Error("The parameter 'domain' cannot be null.");
+        else if (domain !== undefined)
+            url_ += "domain=" + encodeURIComponent("" + domain) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processValidate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processValidate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processValidate(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
@@ -14442,6 +14848,233 @@ export class OrderServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    order_CreateCheckoutSession(body: CreateCheckoutSessionDto | undefined): Observable<SwaggerResponse<CheckoutSessionResultDto>> {
+        let url_ = this.baseUrl + "/api/Order/Order_CreateCheckoutSession";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrder_CreateCheckoutSession(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrder_CreateCheckoutSession(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<CheckoutSessionResultDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<CheckoutSessionResultDto>>;
+        }));
+    }
+
+    protected processOrder_CreateCheckoutSession(response: HttpResponseBase): Observable<SwaggerResponse<CheckoutSessionResultDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CheckoutSessionResultDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<CheckoutSessionResultDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    order_UpdateTracking(body: UpdateOrderTrackingDto | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/Order/Order_UpdateTracking";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrder_UpdateTracking(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrder_UpdateTracking(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processOrder_UpdateTracking(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    order_GetByCustomer(customerId: string): Observable<SwaggerResponse<OrderDto[]>> {
+        let url_ = this.baseUrl + "/api/Order/Order_GetByCustomer/{customerId}";
+        if (customerId === undefined || customerId === null)
+            throw new globalThis.Error("The parameter 'customerId' must be defined.");
+        url_ = url_.replace("{customerId}", encodeURIComponent("" + customerId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrder_GetByCustomer(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrder_GetByCustomer(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<OrderDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<OrderDto[]>>;
+        }));
+    }
+
+    protected processOrder_GetByCustomer(response: HttpResponseBase): Observable<SwaggerResponse<OrderDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(OrderDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<OrderDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    order_GetMyOrders(): Observable<SwaggerResponse<OrderDto[]>> {
+        let url_ = this.baseUrl + "/api/Order/Order_GetMyOrders";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processOrder_GetMyOrders(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processOrder_GetMyOrders(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<OrderDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<OrderDto[]>>;
+        }));
+    }
+
+    protected processOrder_GetMyOrders(response: HttpResponseBase): Observable<SwaggerResponse<OrderDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(OrderDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<OrderDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
      * @return OK
      */
     order_GetStats(): Observable<SwaggerResponse<OrderStatsDto>> {
@@ -19961,6 +20594,58 @@ export class TenantServiceProxy {
         }
         return _observableOf<SwaggerResponse<boolean>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @param domain (optional) 
+     * @return OK
+     */
+    tenant_VerifyCustomDomain(domain: string | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/Tenant/Tenant_VerifyCustomDomain?";
+        if (domain === null)
+            throw new globalThis.Error("The parameter 'domain' cannot be null.");
+        else if (domain !== undefined)
+            url_ += "domain=" + encodeURIComponent("" + domain) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenant_VerifyCustomDomain(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenant_VerifyCustomDomain(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processTenant_VerifyCustomDomain(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable({
@@ -24674,6 +25359,54 @@ export interface IAcceptTermsDto {
     userAgent: string | undefined;
 }
 
+export class AddCartItemDto implements IAddCartItemDto {
+    productId!: string;
+    productVariantId!: string | undefined;
+    quantity!: number;
+    sessionId!: string | undefined;
+
+    constructor(data?: IAddCartItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.productId = _data["productId"];
+            this.productVariantId = _data["productVariantId"];
+            this.quantity = _data["quantity"];
+            this.sessionId = _data["sessionId"];
+        }
+    }
+
+    static fromJS(data: any): AddCartItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddCartItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["productId"] = this.productId;
+        data["productVariantId"] = this.productVariantId;
+        data["quantity"] = this.quantity;
+        data["sessionId"] = this.sessionId;
+        return data;
+    }
+}
+
+export interface IAddCartItemDto {
+    productId: string;
+    productVariantId: string | undefined;
+    quantity: number;
+    sessionId: string | undefined;
+}
+
 export class AddressDto implements IAddressDto {
     addressLine1!: string;
     addressLine2!: string | undefined;
@@ -25367,6 +26100,146 @@ export interface ICancelSubscriptionDto {
     cancelImmediately: boolean;
 }
 
+export class CartDto implements ICartDto {
+    id!: string;
+    sessionId!: string | undefined;
+    userId!: string | undefined;
+    items!: CartItemDto[] | undefined;
+    readonly subtotal!: number;
+    readonly totalQuantity!: number;
+
+    constructor(data?: ICartDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.sessionId = _data["sessionId"];
+            this.userId = _data["userId"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CartItemDto.fromJS(item));
+            }
+            (this as any).subtotal = _data["subtotal"];
+            (this as any).totalQuantity = _data["totalQuantity"];
+        }
+    }
+
+    static fromJS(data: any): CartDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CartDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["sessionId"] = this.sessionId;
+        data["userId"] = this.userId;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["subtotal"] = this.subtotal;
+        data["totalQuantity"] = this.totalQuantity;
+        return data;
+    }
+}
+
+export interface ICartDto {
+    id: string;
+    sessionId: string | undefined;
+    userId: string | undefined;
+    items: CartItemDto[] | undefined;
+    subtotal: number;
+    totalQuantity: number;
+}
+
+export class CartItemDto implements ICartItemDto {
+    id!: string;
+    productId!: string;
+    productName!: string | undefined;
+    productImageUrl!: string | undefined;
+    productVariantId!: string | undefined;
+    variantName!: string | undefined;
+    sku!: string | undefined;
+    quantity!: number;
+    unitPrice!: number;
+    readonly lineTotal!: number;
+    stockQuantity!: number;
+
+    constructor(data?: ICartItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.productId = _data["productId"];
+            this.productName = _data["productName"];
+            this.productImageUrl = _data["productImageUrl"];
+            this.productVariantId = _data["productVariantId"];
+            this.variantName = _data["variantName"];
+            this.sku = _data["sku"];
+            this.quantity = _data["quantity"];
+            this.unitPrice = _data["unitPrice"];
+            (this as any).lineTotal = _data["lineTotal"];
+            this.stockQuantity = _data["stockQuantity"];
+        }
+    }
+
+    static fromJS(data: any): CartItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CartItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["productId"] = this.productId;
+        data["productName"] = this.productName;
+        data["productImageUrl"] = this.productImageUrl;
+        data["productVariantId"] = this.productVariantId;
+        data["variantName"] = this.variantName;
+        data["sku"] = this.sku;
+        data["quantity"] = this.quantity;
+        data["unitPrice"] = this.unitPrice;
+        data["lineTotal"] = this.lineTotal;
+        data["stockQuantity"] = this.stockQuantity;
+        return data;
+    }
+}
+
+export interface ICartItemDto {
+    id: string;
+    productId: string;
+    productName: string | undefined;
+    productImageUrl: string | undefined;
+    productVariantId: string | undefined;
+    variantName: string | undefined;
+    sku: string | undefined;
+    quantity: number;
+    unitPrice: number;
+    lineTotal: number;
+    stockQuantity: number;
+}
+
 export class CategoryDto implements ICategoryDto {
     id!: string;
     name!: string | undefined;
@@ -25645,6 +26518,102 @@ export interface ICheckIdNumberResponseDto {
     contactEmail: string | undefined;
     contactPhone: string | undefined;
     message: string | undefined;
+}
+
+export class CheckoutItemDto implements ICheckoutItemDto {
+    productId!: string;
+    productVariantId!: string | undefined;
+    quantity!: number;
+
+    constructor(data?: ICheckoutItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.productId = _data["productId"];
+            this.productVariantId = _data["productVariantId"];
+            this.quantity = _data["quantity"];
+        }
+    }
+
+    static fromJS(data: any): CheckoutItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CheckoutItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["productId"] = this.productId;
+        data["productVariantId"] = this.productVariantId;
+        data["quantity"] = this.quantity;
+        return data;
+    }
+}
+
+export interface ICheckoutItemDto {
+    productId: string;
+    productVariantId: string | undefined;
+    quantity: number;
+}
+
+export class CheckoutSessionResultDto implements ICheckoutSessionResultDto {
+    orderId!: string;
+    orderNumber!: string | undefined;
+    redirectUrl!: string | undefined;
+    requiresRedirect!: boolean;
+    totalAmount!: number;
+
+    constructor(data?: ICheckoutSessionResultDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.orderId = _data["orderId"];
+            this.orderNumber = _data["orderNumber"];
+            this.redirectUrl = _data["redirectUrl"];
+            this.requiresRedirect = _data["requiresRedirect"];
+            this.totalAmount = _data["totalAmount"];
+        }
+    }
+
+    static fromJS(data: any): CheckoutSessionResultDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CheckoutSessionResultDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["orderId"] = this.orderId;
+        data["orderNumber"] = this.orderNumber;
+        data["redirectUrl"] = this.redirectUrl;
+        data["requiresRedirect"] = this.requiresRedirect;
+        data["totalAmount"] = this.totalAmount;
+        return data;
+    }
+}
+
+export interface ICheckoutSessionResultDto {
+    orderId: string;
+    orderNumber: string | undefined;
+    redirectUrl: string | undefined;
+    requiresRedirect: boolean;
+    totalAmount: number;
 }
 
 export class Claim implements IClaim {
@@ -27108,6 +28077,89 @@ export interface ICreateCategoryDto {
     isActive: boolean;
     metaTitle: string | undefined;
     metaDescription: string | undefined;
+}
+
+export class CreateCheckoutSessionDto implements ICreateCheckoutSessionDto {
+    items!: CheckoutItemDto[] | undefined;
+    shippingAddress!: AddressDto;
+    billingAddress!: AddressDto;
+    paymentMethod!: string;
+    couponCode!: string | undefined;
+    guestEmail!: string | undefined;
+    guestName!: string | undefined;
+    customerNote!: string | undefined;
+    successUrl!: string | undefined;
+    cancelUrl!: string | undefined;
+
+    constructor(data?: ICreateCheckoutSessionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+        if (!data) {
+            this.shippingAddress = new AddressDto();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CheckoutItemDto.fromJS(item));
+            }
+            this.shippingAddress = _data["shippingAddress"] ? AddressDto.fromJS(_data["shippingAddress"]) : new AddressDto();
+            this.billingAddress = _data["billingAddress"] ? AddressDto.fromJS(_data["billingAddress"]) : undefined as any;
+            this.paymentMethod = _data["paymentMethod"];
+            this.couponCode = _data["couponCode"];
+            this.guestEmail = _data["guestEmail"];
+            this.guestName = _data["guestName"];
+            this.customerNote = _data["customerNote"];
+            this.successUrl = _data["successUrl"];
+            this.cancelUrl = _data["cancelUrl"];
+        }
+    }
+
+    static fromJS(data: any): CreateCheckoutSessionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCheckoutSessionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["shippingAddress"] = this.shippingAddress ? this.shippingAddress.toJSON() : undefined as any;
+        data["billingAddress"] = this.billingAddress ? this.billingAddress.toJSON() : undefined as any;
+        data["paymentMethod"] = this.paymentMethod;
+        data["couponCode"] = this.couponCode;
+        data["guestEmail"] = this.guestEmail;
+        data["guestName"] = this.guestName;
+        data["customerNote"] = this.customerNote;
+        data["successUrl"] = this.successUrl;
+        data["cancelUrl"] = this.cancelUrl;
+        return data;
+    }
+}
+
+export interface ICreateCheckoutSessionDto {
+    items: CheckoutItemDto[] | undefined;
+    shippingAddress: AddressDto;
+    billingAddress: AddressDto;
+    paymentMethod: string;
+    couponCode: string | undefined;
+    guestEmail: string | undefined;
+    guestName: string | undefined;
+    customerNote: string | undefined;
+    successUrl: string | undefined;
+    cancelUrl: string | undefined;
 }
 
 export class CreateCouponDto implements ICreateCouponDto {
@@ -34008,6 +35060,42 @@ export enum MemberStatus {
     _3 = 3,
 }
 
+export class MergeGuestCartDto implements IMergeGuestCartDto {
+    sessionId!: string;
+
+    constructor(data?: IMergeGuestCartDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.sessionId = _data["sessionId"];
+        }
+    }
+
+    static fromJS(data: any): MergeGuestCartDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MergeGuestCartDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["sessionId"] = this.sessionId;
+        return data;
+    }
+}
+
+export interface IMergeGuestCartDto {
+    sessionId: string;
+}
+
 export class MultiSubmitStepContextDto implements IMultiSubmitStepContextDto {
     step!: OnboardingStepConfigurationDto;
     records!: DynamicEntityRecordDto[] | undefined;
@@ -34709,6 +35797,9 @@ export class OrderDto implements IOrderDto {
     deliveredAt!: DateTime | undefined;
     cancelledAt!: DateTime | undefined;
     cancellationReason!: string | undefined;
+    trackingNumber!: string | undefined;
+    shippingCarrier!: string | undefined;
+    trackingUrl!: string | undefined;
     orderItems!: OrderItemDto[] | undefined;
     createdAt!: DateTime;
     updatedAt!: DateTime;
@@ -34749,6 +35840,9 @@ export class OrderDto implements IOrderDto {
             this.deliveredAt = _data["deliveredAt"] ? DateTime.fromISO(_data["deliveredAt"].toString()) : undefined as any;
             this.cancelledAt = _data["cancelledAt"] ? DateTime.fromISO(_data["cancelledAt"].toString()) : undefined as any;
             this.cancellationReason = _data["cancellationReason"];
+            this.trackingNumber = _data["trackingNumber"];
+            this.shippingCarrier = _data["shippingCarrier"];
+            this.trackingUrl = _data["trackingUrl"];
             if (Array.isArray(_data["orderItems"])) {
                 this.orderItems = [] as any;
                 for (let item of _data["orderItems"])
@@ -34793,6 +35887,9 @@ export class OrderDto implements IOrderDto {
         data["deliveredAt"] = this.deliveredAt ? this.deliveredAt.toString() : undefined as any;
         data["cancelledAt"] = this.cancelledAt ? this.cancelledAt.toString() : undefined as any;
         data["cancellationReason"] = this.cancellationReason;
+        data["trackingNumber"] = this.trackingNumber;
+        data["shippingCarrier"] = this.shippingCarrier;
+        data["trackingUrl"] = this.trackingUrl;
         if (Array.isArray(this.orderItems)) {
             data["orderItems"] = [];
             for (let item of this.orderItems)
@@ -34830,6 +35927,9 @@ export interface IOrderDto {
     deliveredAt: DateTime | undefined;
     cancelledAt: DateTime | undefined;
     cancellationReason: string | undefined;
+    trackingNumber: string | undefined;
+    shippingCarrier: string | undefined;
+    trackingUrl: string | undefined;
     orderItems: OrderItemDto[] | undefined;
     createdAt: DateTime;
     updatedAt: DateTime;
@@ -41208,6 +42308,46 @@ export interface IUpdateBookingStatusDto {
     status: string | undefined;
 }
 
+export class UpdateCartItemDto implements IUpdateCartItemDto {
+    cartItemId!: string;
+    quantity!: number;
+
+    constructor(data?: IUpdateCartItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.cartItemId = _data["cartItemId"];
+            this.quantity = _data["quantity"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCartItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCartItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["cartItemId"] = this.cartItemId;
+        data["quantity"] = this.quantity;
+        return data;
+    }
+}
+
+export interface IUpdateCartItemDto {
+    cartItemId: string;
+    quantity: number;
+}
+
 export class UpdateCouponDto implements IUpdateCouponDto {
     name!: string | undefined;
     description!: string | undefined;
@@ -42318,6 +43458,54 @@ export interface IUpdateOrderStatusDto {
     orderId: string;
     status: OrderStatus;
     note: string | undefined;
+}
+
+export class UpdateOrderTrackingDto implements IUpdateOrderTrackingDto {
+    orderId!: string;
+    trackingNumber!: string | undefined;
+    shippingCarrier!: string | undefined;
+    trackingUrl!: string | undefined;
+
+    constructor(data?: IUpdateOrderTrackingDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.orderId = _data["orderId"];
+            this.trackingNumber = _data["trackingNumber"];
+            this.shippingCarrier = _data["shippingCarrier"];
+            this.trackingUrl = _data["trackingUrl"];
+        }
+    }
+
+    static fromJS(data: any): UpdateOrderTrackingDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateOrderTrackingDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["orderId"] = this.orderId;
+        data["trackingNumber"] = this.trackingNumber;
+        data["shippingCarrier"] = this.shippingCarrier;
+        data["trackingUrl"] = this.trackingUrl;
+        return data;
+    }
+}
+
+export interface IUpdateOrderTrackingDto {
+    orderId: string;
+    trackingNumber: string | undefined;
+    shippingCarrier: string | undefined;
+    trackingUrl: string | undefined;
 }
 
 export class UpdatePageDto implements IUpdatePageDto {

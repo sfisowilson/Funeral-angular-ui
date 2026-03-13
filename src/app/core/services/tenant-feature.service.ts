@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 // NOTE: TenantServiceProxy exists but doesn't include tenant_GetCurrentTenantFeatures method
@@ -15,6 +16,9 @@ export interface TenantFeaturesDto {
     verificationHistory: boolean;
     verificationsUsedThisMonth: number;
     verificationLimitReached: boolean;
+    // E-commerce
+    hasShop: boolean;
+    allowGuestCheckout: boolean;
 }
 
 @Injectable({
@@ -27,5 +31,13 @@ export class TenantFeatureService {
 
     getCurrentTenantFeatures(): Observable<TenantFeaturesDto> {
         return this.http.get<TenantFeaturesDto>(`${this.baseUrl}/api/Tenant/Tenant_GetCurrentTenantFeatures`);
+    }
+
+    hasShop(): Observable<boolean> {
+        return this.getCurrentTenantFeatures().pipe(map((f) => f.hasShop === true));
+    }
+
+    allowGuestCheckout(): Observable<boolean> {
+        return this.getCurrentTenantFeatures().pipe(map((f) => f.allowGuestCheckout === true));
     }
 }

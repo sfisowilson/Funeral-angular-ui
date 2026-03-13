@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterViewInit, ElementRef, ViewChildren, QueryList } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, ElementRef, ViewChildren, QueryList , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface StatCounter {
@@ -12,6 +12,7 @@ export interface StatCounter {
 @Component({
     selector: 'app-stats-counter-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './stats-counter-widget.component.html',
     styleUrls: ['./stats-counter-widget.component.scss']

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { OrderServiceProxy, OrderDto, CreateOrderDto, UpdateOrderStatusDto, OrderStatsDto } from './service-proxies';
+import { map } from 'rxjs/operators';
+import { OrderServiceProxy, OrderDto, CreateOrderDto, UpdateOrderStatusDto, OrderStatsDto, UpdateOrderTrackingDto } from './service-proxies';
 
 export interface Order {
     id: string;
@@ -21,6 +22,8 @@ export interface Order {
     billingAddress: Address;
     notes?: string;
     trackingNumber?: string;
+    shippingCarrier?: string;
+    trackingUrl?: string;
     paymentMethod?: string;
     createdAt: Date;
     updatedAt: Date;
@@ -75,11 +78,11 @@ export class OrderService {
 
     getOrders(status?: string): Observable<Order[]> {
         const statusValue = status ? this.mapStatusToEnum(status) : undefined;
-        return this.orderProxy.order_GetAll(statusValue as any) as any as Observable<Order[]>;
+        return this.orderProxy.order_GetAll(statusValue as any).pipe(map((r: any) => r?.result ?? r ?? []));
     }
 
     getOrder(id: string): Observable<Order> {
-        return this.orderProxy.order_GetById(id) as any as Observable<Order>;
+        return this.orderProxy.order_GetById(id).pipe(map((r: any) => r?.result ?? r));
     }
 
     getOrderByNumber(orderNumber: string): Observable<Order> {
@@ -93,7 +96,7 @@ export class OrderService {
 
     createOrder(order: Partial<Order>): Observable<Order> {
         const dto = new CreateOrderDto(order as any);
-        return this.orderProxy.order_Create(dto) as any as Observable<Order>;
+        return this.orderProxy.order_Create(dto).pipe(map((r: any) => r?.result ?? r));
     }
 
     updateOrder(id: string, order: Partial<Order>): Observable<Order> {
@@ -105,7 +108,7 @@ export class OrderService {
 
     updateOrderStatus(id: string, status: string): Observable<Order> {
         const dto = new UpdateOrderStatusDto({ orderId: id, status: this.mapStatusToEnum(status) as any, note: undefined });
-        return this.orderProxy.order_UpdateStatus(dto) as any as Observable<Order>;
+        return this.orderProxy.order_UpdateStatus(dto).pipe(map((r: any) => r?.result ?? r));
     }
 
     updatePaymentStatus(id: string, paymentStatus: string): Observable<Order> {
@@ -116,9 +119,14 @@ export class OrderService {
         return new Observable((observer) => observer.complete());
     }
 
+    updateTracking(orderId: string, trackingNumber?: string, shippingCarrier?: string, trackingUrl?: string): Observable<void> {
+        const dto = new UpdateOrderTrackingDto({ orderId, trackingNumber, shippingCarrier, trackingUrl });
+        return this.orderProxy.order_UpdateTracking(dto) as any as Observable<void>;
+    }
+
     cancelOrder(id: string, reason?: string): Observable<Order> {
         const dto = new UpdateOrderStatusDto({ orderId: id, status: 3 as any, note: reason });
-        return this.orderProxy.order_UpdateStatus(dto) as any as Observable<Order>;
+        return this.orderProxy.order_UpdateStatus(dto).pipe(map((r: any) => r?.result ?? r));
     }
 
     refundOrder(id: string, amount: number, reason?: string): Observable<Order> {
@@ -126,7 +134,7 @@ export class OrderService {
     }
 
     getOrderStats(): Observable<OrderStats> {
-        return this.orderProxy.order_GetStats() as any as Observable<OrderStats>;
+        return this.orderProxy.order_GetStats().pipe(map((r: any) => r?.result ?? r));
     }
 
     searchOrders(query: string): Observable<Order[]> {

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface CTAButton {
@@ -29,6 +29,7 @@ export interface CTABannerConfig {
 @Component({
     selector: 'app-cta-banner-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './cta-banner-widget.component.html',
     styleUrl: './cta-banner-widget.component.scss'

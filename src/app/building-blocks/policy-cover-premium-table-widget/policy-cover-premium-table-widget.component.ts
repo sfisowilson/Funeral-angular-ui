@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { PremiumCalculationServiceProxy, PolicyCoverPremiumTableDto } from '../../core/services/service-proxies';
@@ -6,6 +6,7 @@ import { PremiumCalculationServiceProxy, PolicyCoverPremiumTableDto } from '../.
 @Component({
     selector: 'app-policy-cover-premium-table-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, TableModule],
     providers: [],
     template: `

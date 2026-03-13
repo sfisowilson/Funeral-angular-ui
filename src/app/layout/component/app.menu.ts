@@ -5,6 +5,7 @@ import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
 import { AuthService } from '../../auth/auth-service';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
+import { TenantFeatureService } from '../../core/services/tenant-feature.service';
 import { CustomPagesServiceProxy, DynamicEntityServiceProxy } from '../../core/services/service-proxies';
 
 @Component({
@@ -24,10 +25,12 @@ export class AppMenu implements OnInit {
     isStaticSite = false;
     hasBookingFeature = false;
     isBasicPlan = false;
+    hasShopFeature = false;
 
     constructor(
         private authService: AuthService,
         private tenantSettingsService: TenantSettingsService,
+        private tenantFeatureService: TenantFeatureService,
         private customPagesService: CustomPagesServiceProxy,
         private dynamicEntityService: DynamicEntityServiceProxy
     ) {}
@@ -48,6 +51,9 @@ export class AppMenu implements OnInit {
 
         // Check if user is on a basic plan
         this.isBasicPlan = this.authService.isBasicPlan();
+
+        // Check shop feature flag
+        this.tenantFeatureService.hasShop().subscribe(v => { this.hasShopFeature = v; });
 
         await this.buildMenu();
     }
@@ -226,6 +232,16 @@ export class AppMenu implements OnInit {
                 label: 'NGO Management',
                 icon: 'pi pi-fw pi-heart',
                 items: [{ label: 'Grant Applications', icon: 'pi pi-fw pi-list-check', routerLink: ['/admin/grant-applications'], visible: isAdmin }]
+            },
+            {
+                label: 'Shop & Commerce',
+                icon: 'pi pi-fw pi-shopping-cart',
+                visible: isAdmin,
+                items: [
+                    { label: 'Products', icon: 'pi pi-fw pi-box', routerLink: ['/admin/pages/products'], visible: isAdmin },
+                    { label: 'Orders', icon: 'pi pi-fw pi-list', routerLink: ['/admin/pages/orders'], visible: isAdmin },
+                    { label: 'Customers', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/customers'], visible: isAdmin }
+                ]
             },
             {
                 label: 'Get Started',

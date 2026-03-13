@@ -129,6 +129,28 @@ export const appRoutes: Routes = [
         ]
     },
 
+    // Shop / e-commerce public routes (before dynamic /:slug catch-all)
+    {
+        path: 'product/:productId',
+        loadComponent: () => import('./app/features/shop/product-detail/product-detail.component').then((m) => m.ProductDetailComponent),
+        data: { skipProfileCheck: true }
+    },
+    {
+        path: 'cart',
+        loadComponent: () => import('./app/features/shop/cart-page/cart-page.component').then((m) => m.CartPageComponent),
+        data: { skipProfileCheck: true }
+    },
+    {
+        path: 'checkout',
+        loadComponent: () => import('./app/features/shop/checkout-page/checkout-page.component').then((m) => m.CheckoutPageComponent),
+        data: { skipProfileCheck: true }
+    },
+    {
+        path: 'customer/orders',
+        loadComponent: () => import('./app/features/shop/order-history-page/order-history-page.component').then((m) => m.OrderHistoryPageComponent),
+        data: { skipProfileCheck: true }
+    },
+
     // Dynamic custom pages (must be near the end, before catch-all)
     {
         path: ':slug',

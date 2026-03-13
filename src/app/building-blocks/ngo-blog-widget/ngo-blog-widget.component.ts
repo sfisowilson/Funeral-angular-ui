@@ -10,7 +10,7 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
     imports: [CommonModule, ButtonModule, TagModule],
     providers: [],
     template: `
-        <div class="ngo-blog-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
+        <div class="ngo-blog-widget" [style.background-color]="config.backgroundColor" [style.--widget-outer-padding.px]="config.padding">
             <div class="container mx-auto">
                 <h2 class="text-center mb-2" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                     {{ config.title || 'Latest Blog Posts' }}
@@ -68,6 +68,14 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
     `,
     styles: [
         `
+            .ngo-blog-widget {
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                .ngo-blog-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+                }
+            }
             .blog-card {
                 transition:
                     transform 0.3s ease,

@@ -7,13 +7,13 @@
 
         <div class="logo-grid" [class.layout-centered]="layout === 'centered'" [class.layout-grid]="layout === 'grid'">
             <div class="row g-4 justify-content-center align-items-center">
-                <div [ngClass]="columnClass" *ngFor="let logo of logos">
+                <div [ngClass]="columnClass" *ngFor="let logo of logos; trackBy: trackByIndex">
                     <div class="logo-item" [class.logo-grayscale]="grayscale" [class.logo-hover-color]="hoverColor" [class.logo-small]="logoSize === 'small'" [class.logo-medium]="logoSize === 'medium'" [class.logo-large]="logoSize === 'large'">
                         <a *ngIf="logo.link; else noLink" [href]="logo.link" target="_blank" rel="noopener noreferrer" class="logo-link">
-                            <img [src]="logo.imageUrl" [alt]="logo.altText || logo.name" [title]="logo.name" class="logo-image" />
+                            <img [src]="logo.imageUrl" [alt]="logo.altText || logo.name" [title]="logo.name" class="logo-image" loading="lazy" />
                         </a>
                         <ng-template #noLink>
-                            <img [src]="logo.imageUrl" [alt]="logo.altText || logo.name" [title]="logo.name" class="logo-image" />
+                            <img [src]="logo.imageUrl" [alt]="logo.altText || logo.name" [title]="logo.name" class="logo-image" loading="lazy" />
                         </ng-template>
                     </div>
                 </div>

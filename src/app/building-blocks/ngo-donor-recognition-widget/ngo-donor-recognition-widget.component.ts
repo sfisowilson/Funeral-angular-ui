@@ -9,7 +9,7 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
     standalone: true,
     imports: [CommonModule, ButtonModule, TagModule],
     template: `
-        <div class="donor-recognition-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
+        <div class="donor-recognition-widget" [style.background-color]="config.backgroundColor" [style.--widget-outer-padding.px]="config.padding">
             <div class="container mx-auto">
                 <h2 class="text-center mb-2" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                     {{ config.title || 'Our Donors' }}
@@ -61,6 +61,14 @@ import { NgoServiceProxy } from '../../core/services/service-proxies';
     `,
     styles: [
         `
+            .donor-recognition-widget {
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                .donor-recognition-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+                }
+            }
             .donor-card {
                 transition:
                     transform 0.3s ease,

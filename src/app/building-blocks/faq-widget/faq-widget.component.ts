@@ -1,23 +1,24 @@
-import { Component, Input, HostBinding } from '@angular/core';
+import { Component, Input, HostBinding , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccordionModule } from 'primeng/accordion';
 
 @Component({
     selector: 'app-faq-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, AccordionModule],
     template: `
         <div class="container mx-auto">
-            <h2 class="text-center mb-8" [style.color]="config.settings?.titleColor" [style.font-size.px]="config.settings?.titleSize">
+            <h2 class="text-center mb-4 sm:mb-8" [style.color]="config.settings?.titleColor" [style.font-size.px]="config.settings?.titleSize">
                 {{ config.settings?.title }}
             </h2>
-            <p *ngIf="config.settings.subtitle" class="text-center mb-12" [style.color]="config.settings.subtitleColor" [style.font-size.px]="config.settings.subtitleSize">
+            <p *ngIf="config.settings.subtitle" class="text-center mb-6 sm:mb-12" [style.color]="config.settings.subtitleColor" [style.font-size.px]="config.settings.subtitleSize">
                 {{ config.settings.subtitle }}
             </p>
             <div class="max-w-4xl mx-auto">
                 <p-accordion [multiple]="config.settings?.allowMultiple" styleClass="custom-faq-accordion">
                     <p-accordionTab *ngFor="let faq of config.settings?.faqs" [header]="faq.question">
-                        <div class="faq-answer" [style.color]="config.settings?.answerColor" [style.font-size.px]="config.settings?.answerSize">
+                        <div class="faq-answer" [style.font-size.px]="config.settings?.answerSize">
                             <div [innerHTML]="faq.answer"></div>
                         </div>
                     </p-accordionTab>
@@ -27,6 +28,19 @@ import { AccordionModule } from 'primeng/accordion';
     `,
     styles: [
         `
+            :host {
+                display: block;
+                padding: var(--faq-outer-padding, 40px) 16px;
+            }
+            @media (max-width: 576px) {
+                :host {
+                    padding: min(var(--faq-outer-padding, 40px), 20px) 10px;
+                }
+                .container {
+                    padding-left: 0;
+                    padding-right: 0;
+                }
+            }
             app-faq-widget ::ng-deep .custom-faq-accordion .p-accordion-header .p-accordion-header-link {
                 background-color: var(--accordion-header-color) !important;
                 font-weight: 600;
@@ -39,6 +53,13 @@ import { AccordionModule } from 'primeng/accordion';
             }
             :host ::ng-deep .p-accordion .p-accordion-content {
                 padding: 1.5rem;
+                background-color: #ffffff !important;
+            }
+            :host ::ng-deep .p-accordion .p-accordion-content .faq-answer {
+                color: var(--answer-color, #333333);
+            }
+            :host ::ng-deep .p-accordion .p-accordion-content .faq-answer * {
+                color: var(--answer-color, #333333);
             }
         `
     ]
@@ -56,7 +77,7 @@ export class FaqWidgetComponent {
         return this.config.settings?.backgroundColor;
     }
 
-    @HostBinding('style.padding.px')
+    @HostBinding('style.--faq-outer-padding.px')
     get padding() {
         return this.config.settings?.padding;
     }
@@ -69,5 +90,10 @@ export class FaqWidgetComponent {
     @HostBinding('style.--accordion-text-color')
     get accordionTextColor() {
         return this.config.settings?.accordionTextColor;
+    }
+
+    @HostBinding('style.--answer-color')
+    get answerColor() {
+        return this.config.settings?.answerColor;
     }
 }

@@ -1,4 +1,4 @@
-<div class="process-steps-widget" [style.background-color]="backgroundColor" [style.padding.px]="padding" [class.layout-horizontal]="layout === 'horizontal'" [class.layout-vertical]="layout === 'vertical'">
+<div class="process-steps-widget" [style.background-color]="backgroundColor" [style.--widget-outer-padding.px]="padding" [class.layout-horizontal]="layout === 'horizontal'" [class.layout-vertical]="layout === 'vertical'">
     <!-- Title Section -->
     <div class="widget-header" *ngIf="title || subtitle">
         <h2 class="widget-title" [style.color]="titleColor" *ngIf="title">{{ title }}</h2>

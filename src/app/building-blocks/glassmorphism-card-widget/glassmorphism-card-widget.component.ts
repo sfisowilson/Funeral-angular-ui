@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, AfterViewInit, QueryList, ViewChildren, ElementRef, OnDestroy } from '@angular/core';
+import { Component, Input, AfterViewInit, QueryList, ViewChildren, ElementRef, OnDestroy , ChangeDetectionStrategy} from '@angular/core';
 import { WidgetConfig } from '../widget-config';
 
 export interface GlassmorphismCard {
@@ -13,6 +13,7 @@ export interface GlassmorphismCard {
 @Component({
     selector: 'app-glassmorphism-card-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './glassmorphism-card-widget.component.html',
     styleUrl: './glassmorphism-card-widget.component.scss'

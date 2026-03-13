@@ -10,11 +10,14 @@ interface Branch {
     address: string;
     phone: string;
     email: string;
+    hours?: string;
+    isPrimary?: boolean;
 }
 
 interface SocialMedia {
     platform: string;
     url: string;
+    icon?: string;
 }
 
 @Component({
@@ -109,6 +112,9 @@ export class ContactUsWidgetComponent implements OnInit {
         cssVariables.push(`--widget-text-color: ${settings.textColor || 'var(--text-color, #1a202c)'}`);
         cssVariables.push(`--widget-bg-color: ${settings.backgroundColor || 'var(--background-color, #ffffff)'}`);
         cssVariables.push(`--widget-text-muted: ${settings.textColor || 'var(--text-color-secondary, #718096)'}`);
+        if (settings.padding != null) {
+            cssVariables.push(`--widget-padding: ${settings.padding}px`);
+        }
 
         this.customStyles = this.sanitizer.bypassSecurityTrustStyle(cssVariables.join('; '));
     }

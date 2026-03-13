@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Inject, OnInit } from '@angular/core';
+import { Component, Input, Inject, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { WidgetConfig } from '../widget-config';
 import { API_BASE_URL } from '../../core/services/service-proxies';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
@@ -7,6 +7,7 @@ import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 @Component({
     selector: 'app-about-us-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './about-us-widget.component.html',
     styleUrls: ['./about-us-widget.component.scss']

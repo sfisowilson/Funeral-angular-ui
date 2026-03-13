@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, AfterViewInit, QueryList, ViewChildren, ElementRef, OnDestroy } from '@angular/core';
+import { Component, Input, AfterViewInit, QueryList, ViewChildren, ElementRef, OnDestroy , ChangeDetectionStrategy} from '@angular/core';
 import { WidgetConfig } from '../widget-config';
 import { ScrollRevealDirective } from '../scroll-reveal.directive';
 
@@ -17,6 +17,7 @@ export interface BentoGridItem {
 @Component({
     selector: 'app-bento-grid-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './bento-grid-widget.component.html',
     styleUrl: './bento-grid-widget.component.scss'

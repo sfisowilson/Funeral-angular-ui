@@ -1,27 +1,28 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
 
 @Component({
     selector: 'app-testimonials-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, CarouselModule],
     template: `
-        <div class="testimonials-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding">
+        <div class="testimonials-widget" [style.background-color]="config.backgroundColor" [style.--widget-outer-padding.px]="config.padding">
             <div class="container mx-auto">
-                <h2 class="text-center mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
+                <h2 class="text-center mb-4 sm:mb-8" [style.color]="config.titleColor" [style.font-size.px]="config.titleSize">
                     {{ title }}
                 </h2>
 
-                <div *ngIf="testimonials.length === 0" class="text-center p-8">
+                <div *ngIf="testimonials.length === 0" class="text-center p-4 sm:p-8">
                     <p class="text-muted">No testimonials available. Configure your widget to display customer testimonials.</p>
                 </div>
 
                 <p-carousel *ngIf="testimonials.length > 0" [value]="testimonials" [numVisible]="config.numVisible || 1" [numScroll]="1" [circular]="true" [autoplayInterval]="config.autoplayInterval || 0">
                     <ng-template let-testimonial pTemplate="item">
-                        <div class="testimonial-item text-center p-6 mx-4">
-                            <div class="testimonial-card bg-white rounded-lg shadow-lg p-6 relative" [style.background-color]="config.cardBackgroundColor">
-                                <div class="quote-icon text-6xl text-gray-300 absolute top-2 left-4">"</div>
+                        <div class="testimonial-item text-center p-3 sm:p-6 mx-1 sm:mx-4">
+                            <div class="testimonial-card bg-white rounded-lg shadow-lg p-4 sm:p-6 relative" [style.background-color]="config.cardBackgroundColor">
+                                <div class="quote-icon text-4xl sm:text-6xl text-gray-300 absolute top-2 left-4">"</div>
                                 <div class="testimonial-content relative z-10 pt-8">
                                     <p class="testimonial-text mb-6 italic" [style.color]="config.textColor" [style.font-size.px]="config.textSize">"{{ testimonial.text || 'Great service!' }}"</p>
                                     <div class="testimonial-author">
@@ -48,6 +49,9 @@ import { CarouselModule } from 'primeng/carousel';
     `,
     styles: [
         `
+            .testimonials-widget {
+                padding: var(--widget-outer-padding, 40px) 16px;
+            }
             .testimonial-card {
                 transition:
                     transform 0.3s ease,
@@ -60,6 +64,11 @@ import { CarouselModule } from 'primeng/carousel';
             .quote-icon {
                 font-family: serif;
                 line-height: 1;
+            }
+            @media (max-width: 576px) {
+                .testimonials-widget {
+                    padding: min(var(--widget-outer-padding, 40px), 20px) 8px;
+                }
             }
         `
     ]

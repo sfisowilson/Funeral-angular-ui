@@ -1,6 +1,11 @@
 .benefits-checklist-widget {
     width: 100%;
     box-sizing: border-box;
+    padding: var(--widget-outer-padding, 40px) 16px;
+
+    @media (max-width: 576px) {
+        padding: min(var(--widget-outer-padding, 40px), 20px) 10px;
+    }
 
     .widget-header {
         text-align: center;

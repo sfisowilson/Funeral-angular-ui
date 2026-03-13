@@ -48,6 +48,7 @@ import { OrderService, Order, OrderStats, OrderStatus, PaymentStatus, Fulfillmen
                             <th>Total</th>
                             <th>Status</th>
                             <th>Payment</th>
+                            <th>Tracking</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -68,13 +69,52 @@ import { OrderService, Order, OrderStats, OrderStatus, PaymentStatus, Fulfillmen
                                 <span class="badge" [ngClass]="getPaymentClass(order.paymentStatus)">{{ order.paymentStatus }}</span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-primary" (click)="viewOrder(order)">View</button>
-                                <select class="form-select form-select-sm d-inline-block w-auto ms-2" [(ngModel)]="order.status" (change)="updateStatus(order)">
+                                <span *ngIf="order.trackingNumber" class="tracking-chip">
+                                    <a *ngIf="order.trackingUrl" [href]="order.trackingUrl" target="_blank">{{ order.trackingNumber }}</a>
+                                    <span *ngIf="!order.trackingUrl">{{ order.trackingNumber }}</span>
+                                    <small *ngIf="order.shippingCarrier"> · {{ order.shippingCarrier }}</small>
+                                </span>
+                                <span *ngIf="!order.trackingNumber" class="text-muted">—</span>
+                            </td>
+                            <td class="actions-cell">
+                                <select class="form-select form-select-sm" [(ngModel)]="order.status" (change)="updateStatus(order)">
                                     <option value="pending">Pending</option>
                                     <option value="processing">Processing</option>
                                     <option value="completed">Completed</option>
                                     <option value="cancelled">Cancelled</option>
                                 </select>
+                                <button class="btn btn-sm btn-outline-secondary mt-1" (click)="openTracking(order)">
+                                    {{ trackingOrder?.id === order.id ? '✕ Close' : '🚚 Tracking' }}
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Inline tracking panel -->
+                        <tr *ngIf="trackingOrder" class="tracking-row">
+                            <td colspan="8">
+                                <div class="tracking-panel" *ngIf="trackingOrder">
+                                    <h4>Set Shipment Tracking — {{ trackingOrder.orderNumber }}</h4>
+                                    <div class="tracking-fields">
+                                        <div class="field-group">
+                                            <label>Tracking Number</label>
+                                            <input type="text" [(ngModel)]="trackingForm.trackingNumber" placeholder="e.g. 1Z999AA10123456784" />
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Shipping Carrier</label>
+                                            <input type="text" [(ngModel)]="trackingForm.shippingCarrier" placeholder="e.g. UPS, FedEx, DHL" />
+                                        </div>
+                                        <div class="field-group">
+                                            <label>Tracking URL</label>
+                                            <input type="url" [(ngModel)]="trackingForm.trackingUrl" placeholder="https://track.example.com/..." />
+                                        </div>
+                                        <div class="tracking-actions">
+                                            <button class="btn btn-primary btn-sm" (click)="saveTracking()" [disabled]="savingTracking">
+                                                {{ savingTracking ? 'Saving…' : 'Save Tracking' }}
+                                            </button>
+                                            <button class="btn btn-secondary btn-sm" (click)="trackingOrder = null">Cancel</button>
+                                            <span class="save-msg" *ngIf="trackingSaveMsg">{{ trackingSaveMsg }}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -116,6 +156,24 @@ import { OrderService, Order, OrderStats, OrderStatus, PaymentStatus, Fulfillmen
                 padding: 0.25rem 0.75rem;
                 border-radius: 4px;
             }
+            .tracking-chip { font-size: 0.8rem; }
+            .tracking-chip a { color: #007bff; text-decoration: none; }
+            .actions-cell { white-space: nowrap; }
+            .tracking-row td { padding: 0; border-top: none; }
+            .tracking-panel {
+                background: #f0f7ff;
+                border: 1px solid #bee3f8;
+                border-radius: 6px;
+                padding: 1.25rem;
+                margin: 4px 0 8px;
+            }
+            .tracking-panel h4 { margin: 0 0 1rem; font-size: 0.95rem; color: #2b6cb0; }
+            .tracking-fields { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+            .field-group { display: flex; flex-direction: column; gap: 4px; min-width: 200px; flex: 1; }
+            .field-group label { font-size: 0.78rem; color: #555; }
+            .field-group input { border: 1px solid #bee3f8; border-radius: 4px; padding: 6px 10px; font-size: 0.85rem; }
+            .tracking-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+            .save-msg { font-size: 0.8rem; color: #38a169; font-weight: 600; }
         `
     ]
 })
@@ -125,6 +183,11 @@ export class OrderManagementComponent implements OnInit {
     stats: OrderStats | null = null;
     searchTerm = '';
     filterStatus = '';
+
+    trackingOrder: Order | null = null;
+    trackingForm = { trackingNumber: '', shippingCarrier: '', trackingUrl: '' };
+    savingTracking = false;
+    trackingSaveMsg = '';
 
     constructor(private orderService: OrderService) {}
 
@@ -162,6 +225,49 @@ export class OrderManagementComponent implements OnInit {
         this.orderService.updateOrderStatus(order.id, order.status).subscribe({
             next: () => this.loadStats(),
             error: (_error: any) => console.error('Error updating status')
+        });
+    }
+
+    openTracking(order: Order): void {
+        if (this.trackingOrder?.id === order.id) {
+            this.trackingOrder = null;
+            return;
+        }
+        this.trackingOrder = order;
+        this.trackingForm = {
+            trackingNumber: order.trackingNumber ?? '',
+            shippingCarrier: order.shippingCarrier ?? '',
+            trackingUrl: order.trackingUrl ?? ''
+        };
+        this.trackingSaveMsg = '';
+    }
+
+    saveTracking(): void {
+        if (!this.trackingOrder) return;
+        this.savingTracking = true;
+        this.trackingSaveMsg = '';
+        this.orderService.updateTracking(
+            this.trackingOrder.id,
+            this.trackingForm.trackingNumber || undefined,
+            this.trackingForm.shippingCarrier || undefined,
+            this.trackingForm.trackingUrl || undefined
+        ).subscribe({
+            next: () => {
+                this.savingTracking = false;
+                this.trackingSaveMsg = '✓ Saved';
+                // Update local order copy
+                const o = this.orders.find(x => x.id === this.trackingOrder!.id);
+                if (o) {
+                    o.trackingNumber = this.trackingForm.trackingNumber || undefined;
+                    o.shippingCarrier = this.trackingForm.shippingCarrier || undefined;
+                    o.trackingUrl = this.trackingForm.trackingUrl || undefined;
+                }
+                setTimeout(() => { this.trackingOrder = null; this.trackingSaveMsg = ''; }, 2000);
+            },
+            error: (_e: any) => {
+                this.savingTracking = false;
+                this.trackingSaveMsg = '✗ Failed to save';
+            }
         });
     }
 

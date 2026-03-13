@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface BenefitItem {
@@ -16,6 +16,7 @@ export interface BenefitCategory {
 @Component({
     selector: 'app-benefits-checklist-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './benefits-checklist-widget.component.html',
     styleUrls: ['./benefits-checklist-widget.component.scss']
@@ -111,5 +112,9 @@ export class BenefitsChecklistWidgetComponent implements OnInit {
         if (this.allowExpand) {
             category.expanded = !category.expanded;
         }
+    }
+
+    trackByIndex(index: number): number {
+        return index;
     }
 }

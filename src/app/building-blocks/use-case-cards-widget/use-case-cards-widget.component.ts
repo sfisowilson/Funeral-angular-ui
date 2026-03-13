@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface UseCaseCard {
@@ -21,6 +21,7 @@ export interface UseCaseSettings {
 @Component({
     selector: 'app-use-case-cards-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './use-case-cards-widget.component.html',
     styleUrls: ['./use-case-cards-widget.component.scss']

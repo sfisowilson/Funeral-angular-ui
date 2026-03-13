@@ -8,7 +8,7 @@ import { Career, CareerService } from '../../core/services/career.service';
     standalone: true,
     imports: [CommonModule, FormsModule],
     template: `
-        <div class="careers-widget" [style.background-color]="config.backgroundColor" [style.padding.px]="config.padding || 60">
+        <div class="careers-widget" [style.background-color]="config.backgroundColor" [style.--widget-outer-padding.px]="config.padding || 60">
             <div class="container mx-auto" [style.max-width.px]="config.containerWidth || 1200">
                 <!-- Header Section -->
                 <div class="text-center mb-5">
@@ -212,6 +212,12 @@ import { Career, CareerService } from '../../core/services/career.service';
         `
             .careers-widget {
                 position: relative;
+                padding: var(--widget-outer-padding, 60px) 16px;
+            }
+            @media (max-width: 576px) {
+                .careers-widget {
+                    padding: min(var(--widget-outer-padding, 60px), 20px) 10px;
+                }
             }
 
             .widget-title {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit , ChangeDetectionStrategy} from '@angular/core';
 import { WidgetConfig } from '../widget-config';
 
 export interface MarqueeItem {
@@ -14,6 +14,7 @@ export interface MarqueeItem {
 @Component({
     selector: 'app-marquee-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './marquee-widget.component.html',
     styleUrl: './marquee-widget.component.scss'

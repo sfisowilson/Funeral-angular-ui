@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface ContactMethod {
@@ -27,6 +27,7 @@ export interface ContactCardConfig {
 @Component({
     selector: 'app-contact-card-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './contact-card-widget.component.html',
     styleUrl: './contact-card-widget.component.scss'

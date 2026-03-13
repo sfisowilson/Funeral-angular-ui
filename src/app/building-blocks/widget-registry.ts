@@ -93,6 +93,14 @@ import { FeaturedProductsWidgetComponent } from './featured-products-widget/feat
 import { FeaturedProductsEditorComponent } from './featured-products-widget/featured-products-editor.component';
 import { ProductCategoriesWidgetComponent } from './product-categories-widget/product-categories-widget.component';
 import { ProductCategoriesEditorComponent } from './product-categories-widget/product-categories-editor.component';
+import { ProductFilterWidgetComponent } from './product-filter-widget/product-filter-widget.component';
+import { ProductFilterEditorComponent } from './product-filter-widget/product-filter-editor.component';
+import { ProductCardWidgetComponent } from './product-card-widget/product-card-widget.component';
+import { ProductCardEditorComponent } from './product-card-widget/product-card-editor.component';
+import { CartSummaryWidgetComponent } from './cart-summary-widget/cart-summary-widget.component';
+import { CartSummaryEditorComponent } from './cart-summary-widget/cart-summary-editor.component';
+import { OrderHistoryWidgetComponent } from './order-history-widget/order-history-widget.component';
+import { OrderHistoryEditorComponent } from './order-history-widget/order-history-editor.component';
 // Booking Widget
 import { BookingWidgetComponent } from './booking-widget/booking-widget.component';
 import { BookingEditorComponent } from './booking-widget/booking-editor.component';
@@ -1852,6 +1860,82 @@ export const WIDGET_TYPES: WidgetType[] = [
             cardBackground: '#f8f9fa'
         },
         icon: 'grid'
+    },
+    {
+        name: 'product-filter',
+        component: ProductFilterWidgetComponent,
+        editorComponent: ProductFilterEditorComponent,
+        defaultConfig: {
+            filterPosition: 'top-bar',
+            showSearch: true,
+            showCategoryFilter: true,
+            showPriceFilter: false,
+            showSort: true,
+            showLabel: false,
+            panelBackground: '#f8f8f8',
+            panelBorderColor: '#eeeeee'
+        },
+        icon: 'filter'
+    },
+    {
+        name: 'product-card',
+        component: ProductCardWidgetComponent,
+        editorComponent: ProductCardEditorComponent,
+        defaultConfig: {
+            productId: null,
+            showPrice: true,
+            showSku: false,
+            showCategory: false,
+            showDescription: true,
+            descriptionLength: 120,
+            imageMode: 'primary-only',
+            showAddToCart: true,
+            addToCartLabel: 'Add to Cart',
+            detailsLabel: 'View Details',
+            currencySymbol: '$',
+            buttonColor: '#007bff',
+            buttonTextColor: '#ffffff',
+            cardBackground: '#ffffff',
+            titleColor: '#222222',
+            priceColor: '#111111'
+        },
+        icon: 'credit-card'
+    },
+    {
+        name: 'cart-summary',
+        component: CartSummaryWidgetComponent,
+        editorComponent: CartSummaryEditorComponent,
+        defaultConfig: {
+            title: 'Your Cart',
+            showThumbnails: true,
+            showCouponField: false,
+            emptyMessage: 'Your cart is empty.',
+            continueShopping: 'Continue Shopping',
+            checkoutLabel: 'Proceed to Checkout',
+            shopLink: '/shop',
+            currencySymbol: '$',
+            buttonColor: '#007bff',
+            buttonTextColor: '#ffffff',
+            backgroundColor: '#ffffff'
+        },
+        icon: 'shopping-cart'
+    },
+    {
+        name: 'order-history',
+        component: OrderHistoryWidgetComponent,
+        editorComponent: OrderHistoryEditorComponent,
+        defaultConfig: {
+            title: 'My Orders',
+            showTitle: true,
+            pageSize: 10,
+            showTracking: true,
+            showStatusBadges: true,
+            currencySymbol: '$',
+            backgroundColor: '#ffffff',
+            titleColor: '#222222',
+            cardBackground: '#f9f9f9'
+        },
+        icon: 'list'
     },
     {
         name: 'booking',

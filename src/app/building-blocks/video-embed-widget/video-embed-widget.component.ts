@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -18,6 +18,7 @@ export interface VideoEmbedSettings {
 @Component({
     selector: 'app-video-embed-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './video-embed-widget.component.html',
     styleUrls: ['./video-embed-widget.component.scss']

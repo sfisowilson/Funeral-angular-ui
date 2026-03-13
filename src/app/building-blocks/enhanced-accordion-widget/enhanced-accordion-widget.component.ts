@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface AccordionItem {
@@ -21,6 +21,7 @@ export interface EnhancedAccordionSettings {
 @Component({
     selector: 'app-enhanced-accordion-widget',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     templateUrl: './enhanced-accordion-widget.component.html',
     styleUrls: ['./enhanced-accordion-widget.component.scss']

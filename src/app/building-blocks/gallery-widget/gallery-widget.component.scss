@@ -2,6 +2,11 @@
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
+  padding: var(--widget-outer-padding, 20px) 12px;
+
+  @media (max-width: 576px) {
+    padding: min(var(--widget-outer-padding, 20px), 16px) 8px;
+  }
 
   .gallery-title {
     text-align: center;
