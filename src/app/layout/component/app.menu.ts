@@ -236,11 +236,13 @@ export class AppMenu implements OnInit {
             {
                 label: 'Shop & Commerce',
                 icon: 'pi pi-fw pi-shopping-cart',
-                visible: isAdmin,
+                visible: isAdmin && this.hasShopFeature,
                 items: [
                     { label: 'Products', icon: 'pi pi-fw pi-box', routerLink: ['/admin/pages/products'], visible: isAdmin },
                     { label: 'Orders', icon: 'pi pi-fw pi-list', routerLink: ['/admin/pages/orders'], visible: isAdmin },
-                    { label: 'Customers', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/customers'], visible: isAdmin }
+                    { label: 'Customers', icon: 'pi pi-fw pi-users', routerLink: ['/admin/pages/customers'], visible: isAdmin },
+                    { label: 'Shop Settings', icon: 'pi pi-fw pi-cog', routerLink: ['/admin/pages/ecommerce-settings'], visible: isAdmin },
+                    { label: 'Payment Gateway', icon: 'pi pi-fw pi-credit-card', routerLink: ['/admin/payment-config'], visible: isAdmin }
                 ]
             },
             {

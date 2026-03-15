@@ -135,6 +135,7 @@ export interface WidgetType {
     icon: string;
     floating?: boolean;
     premiumFeature?: boolean;
+    shopFeature?: boolean;      // Requires the shop/ecommerce plan feature
     tenantTypes?: string[]; // NGO, Funeral, BurialSociety
 }
 
@@ -1806,6 +1807,7 @@ export const WIDGET_TYPES: WidgetType[] = [
     // Ecommerce Widgets
     {
         name: 'products',
+        shopFeature: true,
         component: ProductsWidgetComponent,
         editorComponent: ProductsEditorComponent,
         defaultConfig: {
@@ -1833,6 +1835,7 @@ export const WIDGET_TYPES: WidgetType[] = [
     },
     {
         name: 'featured-products',
+        shopFeature: true,
         component: FeaturedProductsWidgetComponent,
         editorComponent: FeaturedProductsEditorComponent,
         defaultConfig: {
@@ -1849,6 +1852,7 @@ export const WIDGET_TYPES: WidgetType[] = [
     },
     {
         name: 'product-categories',
+        shopFeature: true,
         component: ProductCategoriesWidgetComponent,
         editorComponent: ProductCategoriesEditorComponent,
         defaultConfig: {
@@ -1863,6 +1867,7 @@ export const WIDGET_TYPES: WidgetType[] = [
     },
     {
         name: 'product-filter',
+        shopFeature: true,
         component: ProductFilterWidgetComponent,
         editorComponent: ProductFilterEditorComponent,
         defaultConfig: {
@@ -1879,6 +1884,7 @@ export const WIDGET_TYPES: WidgetType[] = [
     },
     {
         name: 'product-card',
+        shopFeature: true,
         component: ProductCardWidgetComponent,
         editorComponent: ProductCardEditorComponent,
         defaultConfig: {
@@ -1903,6 +1909,7 @@ export const WIDGET_TYPES: WidgetType[] = [
     },
     {
         name: 'cart-summary',
+        shopFeature: true,
         component: CartSummaryWidgetComponent,
         editorComponent: CartSummaryEditorComponent,
         defaultConfig: {
@@ -1922,6 +1929,7 @@ export const WIDGET_TYPES: WidgetType[] = [
     },
     {
         name: 'order-history',
+        shopFeature: true,
         component: OrderHistoryWidgetComponent,
         editorComponent: OrderHistoryEditorComponent,
         defaultConfig: {

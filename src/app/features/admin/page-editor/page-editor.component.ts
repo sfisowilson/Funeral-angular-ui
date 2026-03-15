@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,27 +10,31 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TabViewModule } from 'primeng/tabview';
 import { PageBuilderComponent } from '../../../building-blocks/page-builder/page-builder.component';
 import { WidgetService } from '../../../building-blocks/widget.service';
 import { WidgetConfig } from '../../../building-blocks/widget-config';
 import { WIDGET_TYPES } from '../../../building-blocks/widget-registry';
+import { FooterOverrideEditorComponent } from '../footer-override-editor/footer-override-editor.component';
 import { Subscription, forkJoin, of } from 'rxjs';
 import { debounceTime, skip, concatMap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-page-editor',
     standalone: true,
-    imports: [CommonModule, FormsModule, CardModule, ButtonModule, ToastModule, ProgressSpinnerModule, PageBuilderComponent, ConfirmDialogModule],
+    imports: [CommonModule, FormsModule, CardModule, ButtonModule, ToastModule, ProgressSpinnerModule, PageBuilderComponent, ConfirmDialogModule, TabViewModule, FooterOverrideEditorComponent],
     providers: [MessageService, WidgetService, ConfirmationService],
     templateUrl: './page-editor.component.html',
     styleUrls: ['./page-editor.component.scss']
 })
 export class PageEditorComponent implements OnInit, OnDestroy {
+    @ViewChild(FooterOverrideEditorComponent) footerOverrideEditor?: FooterOverrideEditorComponent;
     page = signal<CustomPageDto | null>(null);
     loading = signal(false);
     saving = signal(false);
     hasUnsavedChanges = signal(false);
     lastSaved = signal<Date | null>(null);
+    activeEditorTab = signal<'content' | 'footer'>('content');
     pageId: string | null = null;
     isCustomPage = true; // Flag to indicate this is a custom page, not landing page
     private widgetSubscription?: Subscription;
@@ -68,6 +72,21 @@ export class PageEditorComponent implements OnInit, OnDestroy {
             });
     }
 
+    private getFooterContent(): any[] {
+        const footerWidgets = this.footerOverrideEditor?.getWidgets() || [];
+        return footerWidgets.map((widget, index) => ({
+            id: widget.id,
+            type: widget.type,
+            config: { settings: widget.settings, layout: widget.layout },
+            order: index
+        }));
+    }
+
+    onFooterChanged(): void {
+        this.hasUnsavedChanges.set(true);
+        this.autoSavePage();
+    }
+
     loadPage(): void {
         if (!this.pageId) return;
 
@@ -98,6 +117,16 @@ export class PageEditorComponent implements OnInit, OnDestroy {
                 }
 
                 this.widgetService.loadWidgetsFromSource(widgets);
+
+                // Load footer override widgets into the scoped footer editor.
+                // Defer by one tick so Angular renders the @if(page()) block first,
+                // making the ViewChild available.
+                setTimeout(() => {
+                    if (this.footerOverrideEditor) {
+                        this.footerOverrideEditor.loadWidgets((page as any).footerContent || []);
+                    }
+                }, 0);
+
                 this.loading.set(false);
             },
             error: (error) => {
@@ -134,6 +163,7 @@ export class PageEditorComponent implements OnInit, OnDestroy {
             title: currentPage.title,
             description: currentPage.description,
             content: content as any,
+            footerContent: this.getFooterContent() as any,
             isPublic: currentPage.isPublic,
             requiresAuth: currentPage.requiresAuth,
             showInNavbar: currentPage.showInNavbar,
@@ -188,6 +218,7 @@ export class PageEditorComponent implements OnInit, OnDestroy {
             title: currentPage.title,
             description: currentPage.description,
             content: content as any,
+            footerContent: this.getFooterContent() as any,
             isPublic: currentPage.isPublic,
             requiresAuth: currentPage.requiresAuth,
             showInNavbar: currentPage.showInNavbar,

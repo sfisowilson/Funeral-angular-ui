@@ -22,6 +22,7 @@ import { WidgetService } from '../widget.service';
 import { PageLayoutService } from '../page-layout.service';
 import { WIDGET_TYPES, WidgetType } from '../widget-registry';
 import { ThemeService } from '../../core/services/theme.service';
+import { TenantFeatureService } from '../../core/services/tenant-feature.service';
 import { LandingPageTemplateService, LandingPageTemplate } from '../../pages/admin/landing-page-generator/landing-page-template.service';
 
 @Component({
@@ -146,11 +147,24 @@ export class PageBuilderComponent implements OnInit {
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private themeService: ThemeService,
-        private landingPageTemplateService: LandingPageTemplateService
+        private landingPageTemplateService: LandingPageTemplateService,
+        private tenantFeatureService: TenantFeatureService
     ) {}
 
     ngOnInit(): void {
         this.loadWidgets();
+        // Filter ecommerce widgets based on plan feature
+        this.tenantFeatureService.hasShop().subscribe({
+            next: (hasShop) => {
+                this.availableWidgets = hasShop
+                    ? WIDGET_TYPES
+                    : WIDGET_TYPES.filter((w) => !w.shopFeature);
+            },
+            error: () => {
+                // On error default to showing all widgets so admins aren't blocked
+                this.availableWidgets = WIDGET_TYPES;
+            }
+        });
     }
 
     loadWidgets(): void {

@@ -24,7 +24,14 @@ export class ThemeService {
             .then((settings: TenantSettingDto) => {
                 if (settings.settings) {
                     try {
-                        const parsedSettings = JSON.parse(settings.settings);
+                        let settingsJson = settings.settings;
+                        // MySQL TO_BASE64 produces base64 with \n every 76 chars.
+                        // If the value is not raw JSON (doesn't start with { or [), decode it.
+                        if (!/^\s*[{\[]/.test(settingsJson)) {
+                            const cleaned = settingsJson.replace(/[\n\r\s]/g, '');
+                            settingsJson = atob(cleaned);
+                        }
+                        const parsedSettings = JSON.parse(settingsJson);
                         this.applyThemeColors(parsedSettings);
 
                         const customCssId = parsedSettings.customCssId;

@@ -141,6 +141,13 @@ import { TenantService } from '../../core/services/tenant.service';
                             </p>
                         </div>
 
+                        <!-- Image Max Width (thumbnail control) -->
+                        <div class="flex flex-col md:col-span-2">
+                            <label for="imageMaxWidth" class="font-medium text-gray-700 mb-2">Image Max Width (px) <span class="text-gray-400 font-normal">— leave empty for default</span></label>
+                            <p-inputNumber id="imageMaxWidth" formControlName="imageMaxWidth" class="w-full" [min]="40" [max]="800" placeholder="e.g. 120 for thumbnail"></p-inputNumber>
+                            <p class="text-xs text-gray-500 mt-1">Set a small value (e.g. 80–150 px) to display the image as a thumbnail alongside the content.</p>
+                        </div>
+
                         <!-- Image Height (for full/above/below) -->
                         <div class="flex flex-col" *ngIf="form.get('imageFillMode')?.value !== 'none'">
                             <label for="imageHeight" class="font-medium text-gray-700 mb-2">Image Height (px)</label>
@@ -361,7 +368,8 @@ export class ImageContentEditorComponent implements OnChanges {
             textMarginBottom: [24],
             imageFillMode: ['none'], // none, half, full
             imageHeight: [300], // for full/above/below layouts
-            imageWidth: [null] // for left/right layouts (percentage or auto)
+            imageWidth: [null], // for left/right layouts (percentage or auto)
+            imageMaxWidth: [null] // thumbnail override in px
         });
     }
 

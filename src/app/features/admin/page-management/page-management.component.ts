@@ -15,17 +15,19 @@ import { FormsModule } from '@angular/forms';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CustomPagesServiceProxy, ApiServiceProxy, PageListItemDto, CreatePageDto, PageLimitsDto } from '../../../core/services/service-proxies';
 import { PageThemeBrowserComponent } from '../page-theme-browser/page-theme-browser.component';
+import { FooterBuilderDialogComponent } from '../footer-builder/footer-builder-dialog.component';
 
 @Component({
     selector: 'app-page-management',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule, ButtonModule, TableModule, CardModule, TagModule, ToastModule, ConfirmDialogModule, DialogModule, InputTextModule, CheckboxModule, TooltipModule, PageThemeBrowserComponent],
+    imports: [CommonModule, RouterModule, FormsModule, ButtonModule, TableModule, CardModule, TagModule, ToastModule, ConfirmDialogModule, DialogModule, InputTextModule, CheckboxModule, TooltipModule, PageThemeBrowserComponent, FooterBuilderDialogComponent],
     providers: [MessageService, ConfirmationService],
     templateUrl: './page-management.component.html',
     styleUrl: './page-management.component.scss'
 })
 export class PageManagementComponent implements OnInit {
     @ViewChild(PageThemeBrowserComponent) themeBrowser!: PageThemeBrowserComponent;
+    @ViewChild(FooterBuilderDialogComponent) footerBuilderDialog!: FooterBuilderDialogComponent;
     pages = signal<PageListItemDto[]>([]);
     loading = signal(false);
     showCreateDialog = signal(false);

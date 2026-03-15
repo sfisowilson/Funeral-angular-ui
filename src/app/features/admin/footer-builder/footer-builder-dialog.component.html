@@ -1,0 +1,36 @@
+<p-toast></p-toast>
+
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [style]="{ width: '95vw', maxWidth: '1400px', height: '90vh' }"
+    [contentStyle]="{ padding: '0', overflow: 'hidden', height: '100%' }"
+    header="Global Footer Widgets"
+    [draggable]="false"
+    [resizable]="false"
+    (onHide)="close()"
+>
+    <div class="footer-builder-wrapper" style="display: flex; flex-direction: column; height: 100%;">
+        <!-- Info bar -->
+        <div class="footer-builder-info p-3 bg-blue-50 border-b flex items-center justify-between" style="border-bottom: 1px solid #e2e8f0;">
+            <div class="flex items-center gap-2 text-sm text-blue-700">
+                <i class="pi pi-info-circle"></i>
+                <span>These widgets appear at the bottom of <strong>every page</strong>. A page can override this by setting its own Footer Override in the page editor.</span>
+            </div>
+            <div class="text-sm text-gray-500">
+                @if (saving) {
+                    <span><i class="pi pi-spin pi-spinner mr-1"></i>Saving...</span>
+                } @else if (lastSaved) {
+                    <span class="text-green-600"><i class="pi pi-check mr-1"></i>Saved {{ getTimeSince(lastSaved) }}</span>
+                } @else {
+                    <span>Changes auto-save after 2 seconds</span>
+                }
+            </div>
+        </div>
+
+        <!-- Page Builder fills remaining space -->
+        <div style="flex: 1; overflow: auto;">
+            <app-page-builder></app-page-builder>
+        </div>
+    </div>
+</p-dialog>

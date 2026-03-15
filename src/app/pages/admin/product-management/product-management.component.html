@@ -3,7 +3,27 @@
         <h1>Product Management</h1>
         <div class="d-flex gap-2">
             <button class="btn-outline-primary-theme" (click)="openCategoryModal()"><i class="bi bi-tags"></i> Manage Categories</button>
-            <button class="btn-primary-theme" (click)="openModal()"><i class="bi bi-plus-circle"></i> Add Product</button>
+            <button class="btn-primary-theme" (click)="openModal()"
+                    [disabled]="atProductLimit"
+                    [title]="atProductLimit ? 'Product limit reached — upgrade your plan to add more' : ''">
+                <i class="bi bi-plus-circle"></i> Add Product
+            </button>
+        </div>
+    </div>
+
+    <!-- Plan usage bar (shown when plan has a product limit) -->
+    <div class="plan-usage-bar mb-3" *ngIf="maxProducts !== null">
+        <div class="d-flex justify-content-between align-items-center mb-1 small">
+            <span><i class="bi bi-box me-1"></i>Products used: <strong>{{ currentProductCount ?? 0 }} / {{ maxProducts }}</strong></span>
+            <a routerLink="/admin/subscription" class="text-primary small" *ngIf="atProductLimit">Upgrade plan &rarr;</a>
+        </div>
+        <div class="progress" style="height:8px;">
+            <div class="progress-bar {{ productUsageClass }}" [style.width.%]="productUsagePercent" role="progressbar"></div>
+        </div>
+        <div class="alert alert-warning mt-2 py-2 small" *ngIf="atProductLimit">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            You have reached your plan limit of <strong>{{ maxProducts }}</strong> products.
+            <a routerLink="/admin/subscription" class="alert-link ms-1">Upgrade your plan</a> to add more.
         </div>
     </div>
 
@@ -156,7 +176,15 @@
                                 <label class="form-check-label small">Primary</label>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-outline-secondary" (click)="addImage()"><i class="bi bi-plus"></i> Add Image</button>
+                        <button class="btn btn-sm btn-outline-secondary"
+                                (click)="addImage()"
+                                [disabled]="maxProductImages !== null && (productForm.images?.length ?? 0) >= maxProductImages"
+                                [title]="maxProductImages !== null && (productForm.images?.length ?? 0) >= maxProductImages ? 'Image limit reached for your plan (' + maxProductImages + ' max). Upgrade to add more.' : ''">
+                            <i class="bi bi-plus"></i> Add Image
+                        </button>
+                        <span class="small text-muted ms-2" *ngIf="maxProductImages !== null">
+                            {{ productForm.images?.length ?? 0 }} / {{ maxProductImages }} images
+                        </span>
                     </div>
                 </div>
                 <div class="modal-footer">

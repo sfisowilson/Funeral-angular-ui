@@ -31,6 +31,7 @@ export class DynamicPageComponent implements OnInit {
     // Memoised sorted-widget list — rebuilt only when page() reference changes
     private _cachedSortedWidgets: any[] | null = null;
     private _cachedPageRef: CustomPageDto | null | undefined = undefined;
+    private _cachedSortedFooterWidgets: any[] | null = null;
     currentYear = new Date().getFullYear();
     isLoggedIn = false;
     mobileMenuOpen = false;
@@ -75,6 +76,11 @@ export class DynamicPageComponent implements OnInit {
             this.tenantSettings = data;
             this._settings = JSON.parse(this.tenantSettings.settings ?? '{}');
             this.isStaticSite = this._settings.isStaticSite || false;
+            // Preload any global footer widget types
+            const globalFooterConfig = this._settings.footerConfig || [];
+            if (globalFooterConfig.length > 0) {
+                this.preloadWidgets(globalFooterConfig);
+            }
         });
 
         // Load custom pages for navigation using public navbar/footer endpoints
@@ -102,6 +108,7 @@ export class DynamicPageComponent implements OnInit {
         // Reset cache so the new page's widgets are re-resolved
         this._cachedSortedWidgets = null;
         this._cachedPageRef = undefined;
+        this._cachedSortedFooterWidgets = null;
 
         this.customPagesService.slug(slug).subscribe({
             next: (response) => {
@@ -111,7 +118,7 @@ export class DynamicPageComponent implements OnInit {
                 // Preload the JS chunks for every widget type on this page in
                 // parallel, then reveal the page.  Keeps loading=true during
                 // the brief network round-trip so there's no empty flash.
-                this.preloadWidgets(page?.content || []).then(() => {
+                this.preloadWidgets([...(page?.content || []), ...((page as any)?.footerContent || [])]).then(() => {
                     this.loading.set(false);
                 });
             },
@@ -186,6 +193,37 @@ export class DynamicPageComponent implements OnInit {
                 };
             });
         return this._cachedSortedWidgets;
+    }
+
+    getSortedFooterWidgets(): any[] {
+        const currentPage = this.page();
+        if (!currentPage) return [];
+
+        // Per-page override takes priority; fall back to global footer config from tenant settings
+        const pageFooter: any[] = (currentPage as any)?.footerContent || [];
+        const rawWidgets: any[] = pageFooter.length > 0 ? pageFooter : (this._settings.footerConfig || []);
+
+        if (rawWidgets.length === 0) return [];
+
+        if (this._cachedSortedFooterWidgets !== null) return this._cachedSortedFooterWidgets;
+
+        this._cachedSortedFooterWidgets = rawWidgets
+            .slice()
+            .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+            .map((w: any, index: number) => {
+                const rawConfig = w.config;
+                const settings =
+                    rawConfig && typeof rawConfig === 'object' && rawConfig.settings
+                        ? rawConfig.settings
+                        : rawConfig ?? {};
+                return {
+                    id: w.id || w.Id || `fw-${index}`,
+                    type: w.type || w.Type,
+                    settings,
+                    layout: rawConfig?.layout
+                };
+            });
+        return this._cachedSortedFooterWidgets;
     }
 
     /** O(1) lookup — component types are resolved into the Map by preloadWidgets() */

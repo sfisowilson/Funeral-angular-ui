@@ -4325,6 +4325,66 @@
         }
       }
     },
+    "/api/EcommerceSettings/GetSettings": {
+      "get": {
+        "tags": [
+          "EcommerceSettings"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcommerceSettingsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcommerceSettingsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcommerceSettingsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/EcommerceSettings/UpdateSettings": {
+      "put": {
+        "tags": [
+          "EcommerceSettings"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EcommerceSettingsDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EcommerceSettingsDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EcommerceSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Email/Email_SendTestEmail": {
       "post": {
         "tags": [
@@ -14087,6 +14147,35 @@
         }
       }
     },
+    "/api/Tenant/Tenant_GetCurrentTenantFeatures": {
+      "get": {
+        "tags": [
+          "Tenant"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFeaturesDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFeaturesDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantFeaturesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Tenant/Tenant_GetTenantTypes": {
       "get": {
         "tags": [
@@ -20897,6 +20986,13 @@
             },
             "nullable": true
           },
+          "footerContent": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageWidgetDto"
+            },
+            "nullable": true
+          },
           "isPublic": {
             "type": "boolean"
           },
@@ -21649,6 +21745,13 @@
             "nullable": true
           },
           "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageWidgetDto"
+            },
+            "nullable": true
+          },
+          "footerContent": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PageWidgetDto"
@@ -22526,6 +22629,15 @@
             "nullable": true
           },
           "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EcommerceSettingsDto": {
+        "type": "object",
+        "properties": {
+          "publicShopEnabled": {
             "type": "boolean"
           }
         },
@@ -28612,6 +28724,59 @@
         },
         "additionalProperties": false
       },
+      "TenantFeaturesDto": {
+        "type": "object",
+        "properties": {
+          "identityVerification": {
+            "type": "boolean"
+          },
+          "maxVerificationsPerMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enhancedVerification": {
+            "type": "boolean"
+          },
+          "quickIdCheck": {
+            "type": "boolean"
+          },
+          "bulkVerification": {
+            "type": "boolean"
+          },
+          "verificationHistory": {
+            "type": "boolean"
+          },
+          "verificationsUsedThisMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "verificationLimitReached": {
+            "type": "boolean"
+          },
+          "hasShop": {
+            "type": "boolean"
+          },
+          "allowGuestCheckout": {
+            "type": "boolean"
+          },
+          "maxProducts": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxProductImagesPerProduct": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "currentProductCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "TenantSettingDto": {
         "type": "object",
         "properties": {
@@ -29818,6 +29983,13 @@
             "nullable": true
           },
           "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageWidgetDto"
+            },
+            "nullable": true
+          },
+          "footerContent": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PageWidgetDto"

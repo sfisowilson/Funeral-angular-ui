@@ -1,0 +1,53 @@
+<p-toast></p-toast>
+
+<div class="p-6 max-w-2xl">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-2">Shop Settings</h1>
+    <p class="text-sm text-gray-500 mb-6">Control how your online shop behaves for visitors.</p>
+
+    <div *ngIf="loading" class="flex justify-center py-10">
+        <p-progressSpinner strokeWidth="4" styleClass="w-12 h-12"></p-progressSpinner>
+    </div>
+
+    <div *ngIf="!loading" class="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+
+        <!-- Public shop toggle -->
+        <div class="flex items-center justify-between px-6 py-5">
+            <div class="pr-6">
+                <p class="font-medium text-gray-800">Public shop (no login required)</p>
+                <p class="text-sm text-gray-500 mt-0.5">
+                    <strong>Default: Enabled.</strong>
+                    When enabled, visitors can browse products and categories without signing in.
+                    Disable to require authentication before any product data is returned.
+                </p>
+                <p class="text-xs text-amber-600 mt-1" *ngIf="!settings.publicShopEnabled">
+                    &#9888; Shop is restricted — visitors must log in to see products.
+                </p>
+            </div>
+            <p-toggleButton
+                [(ngModel)]="settings.publicShopEnabled"
+                onLabel="Public"
+                offLabel="Login required"
+                onIcon="pi pi-lock-open"
+                offIcon="pi pi-lock"
+                styleClass="w-36 shrink-0">
+            </p-toggleButton>
+        </div>
+
+    </div>
+
+    <div class="mt-6 flex justify-end gap-3" *ngIf="!loading">
+        <p-button
+            label="Reload"
+            icon="pi pi-refresh"
+            severity="secondary"
+            (onClick)="loadSettings()"
+            [disabled]="saving">
+        </p-button>
+        <p-button
+            label="Save Settings"
+            icon="pi pi-check"
+            (onClick)="saveSettings()"
+            [loading]="saving">
+        </p-button>
+    </div>
+</div>

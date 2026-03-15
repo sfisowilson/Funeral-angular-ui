@@ -105,9 +105,39 @@
                     </div>
                 </div>
 
-                <!-- Page Builder Component -->
+                <!-- Content Zone Tabs -->
                 <div class="builder-section">
-                    <app-page-builder></app-page-builder>
+                    <!-- Tab bar -->
+                    <div class="editor-zone-tabs flex" style="border-bottom: 2px solid #e2e8f0; background: #fff; padding: 0 1rem;">
+                        <button
+                            type="button"
+                            class="editor-zone-tab px-4 py-2 text-sm font-medium border-b-2 mr-1"
+                            [style.border-bottom-color]="activeEditorTab() === 'content' ? 'var(--primary-color, #3b82f6)' : 'transparent'"
+                            [style.color]="activeEditorTab() === 'content' ? 'var(--primary-color, #3b82f6)' : '#6b7280'"
+                            (click)="activeEditorTab.set('content')"
+                        >
+                            <i class="pi pi-file mr-2"></i>Page Content
+                        </button>
+                        <button
+                            type="button"
+                            class="editor-zone-tab px-4 py-2 text-sm font-medium border-b-2"
+                            [style.border-bottom-color]="activeEditorTab() === 'footer' ? 'var(--primary-color, #3b82f6)' : 'transparent'"
+                            [style.color]="activeEditorTab() === 'footer' ? 'var(--primary-color, #3b82f6)' : '#6b7280'"
+                            (click)="activeEditorTab.set('footer')"
+                        >
+                            <i class="pi pi-clone mr-2"></i>Footer Override
+                        </button>
+                    </div>
+
+                    <!-- Page Content Builder -->
+                    <div [style.display]="activeEditorTab() === 'content' ? 'block' : 'none'">
+                        <app-page-builder></app-page-builder>
+                    </div>
+
+                    <!-- Footer Override Builder -->
+                    <div [style.display]="activeEditorTab() === 'footer' ? 'block' : 'none'">
+                        <app-footer-override-editor (footerChanged)="onFooterChanged()"></app-footer-override-editor>
+                    </div>
                 </div>
             </div>
         }

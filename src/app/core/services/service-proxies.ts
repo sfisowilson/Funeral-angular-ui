@@ -6046,6 +6046,123 @@ export class DynamicEntityServiceProxy {
 @Injectable({
     providedIn: 'root'
 })
+export class EcommerceSettingsServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getSettings(): Observable<SwaggerResponse<EcommerceSettingsDto>> {
+        let url_ = this.baseUrl + "/api/EcommerceSettings/GetSettings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSettings(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSettings(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<EcommerceSettingsDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<EcommerceSettingsDto>>;
+        }));
+    }
+
+    protected processGetSettings(response: HttpResponseBase): Observable<SwaggerResponse<EcommerceSettingsDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = EcommerceSettingsDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<EcommerceSettingsDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateSettings(body: EcommerceSettingsDto | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/EcommerceSettings/UpdateSettings";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateSettings(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateSettings(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processUpdateSettings(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
 export class EmailServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -20256,6 +20373,57 @@ export class TenantServiceProxy {
     /**
      * @return OK
      */
+    tenant_GetCurrentTenantFeatures(): Observable<SwaggerResponse<TenantFeaturesDto>> {
+        let url_ = this.baseUrl + "/api/Tenant/Tenant_GetCurrentTenantFeatures";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenant_GetCurrentTenantFeatures(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenant_GetCurrentTenantFeatures(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<TenantFeaturesDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<TenantFeaturesDto>>;
+        }));
+    }
+
+    protected processTenant_GetCurrentTenantFeatures(response: HttpResponseBase): Observable<SwaggerResponse<TenantFeaturesDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TenantFeaturesDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<TenantFeaturesDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
     tenant_GetTenantTypes(): Observable<SwaggerResponse<TenantTypeDto[]>> {
         let url_ = this.baseUrl + "/api/Tenant/Tenant_GetTenantTypes";
         url_ = url_.replace(/[?&]$/, "");
@@ -29717,6 +29885,7 @@ export class CreatePageDto implements ICreatePageDto {
     title!: string | undefined;
     description!: string | undefined;
     content!: PageWidgetDto[] | undefined;
+    footerContent!: PageWidgetDto[] | undefined;
     isPublic!: boolean;
     requiresAuth!: boolean;
     showInNavbar!: boolean;
@@ -29744,6 +29913,11 @@ export class CreatePageDto implements ICreatePageDto {
                 this.content = [] as any;
                 for (let item of _data["content"])
                     this.content!.push(PageWidgetDto.fromJS(item));
+            }
+            if (Array.isArray(_data["footerContent"])) {
+                this.footerContent = [] as any;
+                for (let item of _data["footerContent"])
+                    this.footerContent!.push(PageWidgetDto.fromJS(item));
             }
             this.isPublic = _data["isPublic"];
             this.requiresAuth = _data["requiresAuth"];
@@ -29773,6 +29947,11 @@ export class CreatePageDto implements ICreatePageDto {
             for (let item of this.content)
                 data["content"].push(item ? item.toJSON() : undefined as any);
         }
+        if (Array.isArray(this.footerContent)) {
+            data["footerContent"] = [];
+            for (let item of this.footerContent)
+                data["footerContent"].push(item ? item.toJSON() : undefined as any);
+        }
         data["isPublic"] = this.isPublic;
         data["requiresAuth"] = this.requiresAuth;
         data["showInNavbar"] = this.showInNavbar;
@@ -29790,6 +29969,7 @@ export interface ICreatePageDto {
     title: string | undefined;
     description: string | undefined;
     content: PageWidgetDto[] | undefined;
+    footerContent: PageWidgetDto[] | undefined;
     isPublic: boolean;
     requiresAuth: boolean;
     showInNavbar: boolean;
@@ -30750,6 +30930,7 @@ export class CustomPageDto implements ICustomPageDto {
     title!: string | undefined;
     description!: string | undefined;
     content!: PageWidgetDto[] | undefined;
+    footerContent!: PageWidgetDto[] | undefined;
     isPublic!: boolean;
     requiresAuth!: boolean;
     showInNavbar!: boolean;
@@ -30784,6 +30965,11 @@ export class CustomPageDto implements ICustomPageDto {
                 this.content = [] as any;
                 for (let item of _data["content"])
                     this.content!.push(PageWidgetDto.fromJS(item));
+            }
+            if (Array.isArray(_data["footerContent"])) {
+                this.footerContent = [] as any;
+                for (let item of _data["footerContent"])
+                    this.footerContent!.push(PageWidgetDto.fromJS(item));
             }
             this.isPublic = _data["isPublic"];
             this.requiresAuth = _data["requiresAuth"];
@@ -30820,6 +31006,11 @@ export class CustomPageDto implements ICustomPageDto {
             for (let item of this.content)
                 data["content"].push(item ? item.toJSON() : undefined as any);
         }
+        if (Array.isArray(this.footerContent)) {
+            data["footerContent"] = [];
+            for (let item of this.footerContent)
+                data["footerContent"].push(item ? item.toJSON() : undefined as any);
+        }
         data["isPublic"] = this.isPublic;
         data["requiresAuth"] = this.requiresAuth;
         data["showInNavbar"] = this.showInNavbar;
@@ -30844,6 +31035,7 @@ export interface ICustomPageDto {
     title: string | undefined;
     description: string | undefined;
     content: PageWidgetDto[] | undefined;
+    footerContent: PageWidgetDto[] | undefined;
     isPublic: boolean;
     requiresAuth: boolean;
     showInNavbar: boolean;
@@ -32195,6 +32387,42 @@ export interface IDynamicEntityTypeDto {
     description: string | undefined;
     fieldsJson: string | undefined;
     isActive: boolean;
+}
+
+export class EcommerceSettingsDto implements IEcommerceSettingsDto {
+    publicShopEnabled!: boolean;
+
+    constructor(data?: IEcommerceSettingsDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.publicShopEnabled = _data["publicShopEnabled"];
+        }
+    }
+
+    static fromJS(data: any): EcommerceSettingsDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new EcommerceSettingsDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["publicShopEnabled"] = this.publicShopEnabled;
+        return data;
+    }
+}
+
+export interface IEcommerceSettingsDto {
+    publicShopEnabled: boolean;
 }
 
 export class ErrorResponse implements IErrorResponse {
@@ -41650,6 +41878,90 @@ export interface ITenantCreateUpdateDto {
     organizationFeatures: { [key: string]: any; } | undefined;
 }
 
+export class TenantFeaturesDto implements ITenantFeaturesDto {
+    identityVerification!: boolean;
+    maxVerificationsPerMonth!: number;
+    enhancedVerification!: boolean;
+    quickIdCheck!: boolean;
+    bulkVerification!: boolean;
+    verificationHistory!: boolean;
+    verificationsUsedThisMonth!: number;
+    verificationLimitReached!: boolean;
+    hasShop!: boolean;
+    allowGuestCheckout!: boolean;
+    maxProducts!: number | undefined;
+    maxProductImagesPerProduct!: number | undefined;
+    currentProductCount!: number | undefined;
+
+    constructor(data?: ITenantFeaturesDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.identityVerification = _data["identityVerification"];
+            this.maxVerificationsPerMonth = _data["maxVerificationsPerMonth"];
+            this.enhancedVerification = _data["enhancedVerification"];
+            this.quickIdCheck = _data["quickIdCheck"];
+            this.bulkVerification = _data["bulkVerification"];
+            this.verificationHistory = _data["verificationHistory"];
+            this.verificationsUsedThisMonth = _data["verificationsUsedThisMonth"];
+            this.verificationLimitReached = _data["verificationLimitReached"];
+            this.hasShop = _data["hasShop"];
+            this.allowGuestCheckout = _data["allowGuestCheckout"];
+            this.maxProducts = _data["maxProducts"];
+            this.maxProductImagesPerProduct = _data["maxProductImagesPerProduct"];
+            this.currentProductCount = _data["currentProductCount"];
+        }
+    }
+
+    static fromJS(data: any): TenantFeaturesDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TenantFeaturesDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["identityVerification"] = this.identityVerification;
+        data["maxVerificationsPerMonth"] = this.maxVerificationsPerMonth;
+        data["enhancedVerification"] = this.enhancedVerification;
+        data["quickIdCheck"] = this.quickIdCheck;
+        data["bulkVerification"] = this.bulkVerification;
+        data["verificationHistory"] = this.verificationHistory;
+        data["verificationsUsedThisMonth"] = this.verificationsUsedThisMonth;
+        data["verificationLimitReached"] = this.verificationLimitReached;
+        data["hasShop"] = this.hasShop;
+        data["allowGuestCheckout"] = this.allowGuestCheckout;
+        data["maxProducts"] = this.maxProducts;
+        data["maxProductImagesPerProduct"] = this.maxProductImagesPerProduct;
+        data["currentProductCount"] = this.currentProductCount;
+        return data;
+    }
+}
+
+export interface ITenantFeaturesDto {
+    identityVerification: boolean;
+    maxVerificationsPerMonth: number;
+    enhancedVerification: boolean;
+    quickIdCheck: boolean;
+    bulkVerification: boolean;
+    verificationHistory: boolean;
+    verificationsUsedThisMonth: number;
+    verificationLimitReached: boolean;
+    hasShop: boolean;
+    allowGuestCheckout: boolean;
+    maxProducts: number | undefined;
+    maxProductImagesPerProduct: number | undefined;
+    currentProductCount: number | undefined;
+}
+
 export class TenantSettingDto implements ITenantSettingDto {
     id!: string;
     settings!: string | undefined;
@@ -43514,6 +43826,7 @@ export class UpdatePageDto implements IUpdatePageDto {
     title!: string | undefined;
     description!: string | undefined;
     content!: PageWidgetDto[] | undefined;
+    footerContent!: PageWidgetDto[] | undefined;
     isPublic!: boolean;
     requiresAuth!: boolean;
     showInNavbar!: boolean;
@@ -43545,6 +43858,11 @@ export class UpdatePageDto implements IUpdatePageDto {
                 this.content = [] as any;
                 for (let item of _data["content"])
                     this.content!.push(PageWidgetDto.fromJS(item));
+            }
+            if (Array.isArray(_data["footerContent"])) {
+                this.footerContent = [] as any;
+                for (let item of _data["footerContent"])
+                    this.footerContent!.push(PageWidgetDto.fromJS(item));
             }
             this.isPublic = _data["isPublic"];
             this.requiresAuth = _data["requiresAuth"];
@@ -43578,6 +43896,11 @@ export class UpdatePageDto implements IUpdatePageDto {
             for (let item of this.content)
                 data["content"].push(item ? item.toJSON() : undefined as any);
         }
+        if (Array.isArray(this.footerContent)) {
+            data["footerContent"] = [];
+            for (let item of this.footerContent)
+                data["footerContent"].push(item ? item.toJSON() : undefined as any);
+        }
         data["isPublic"] = this.isPublic;
         data["requiresAuth"] = this.requiresAuth;
         data["showInNavbar"] = this.showInNavbar;
@@ -43599,6 +43922,7 @@ export interface IUpdatePageDto {
     title: string | undefined;
     description: string | undefined;
     content: PageWidgetDto[] | undefined;
+    footerContent: PageWidgetDto[] | undefined;
     isPublic: boolean;
     requiresAuth: boolean;
     showInNavbar: boolean;

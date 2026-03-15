@@ -13,7 +13,7 @@ import { ButtonModule } from 'primeng/button';
             <!-- Flex layout based on image position -->
             <div [ngClass]="getContainerClasses()">
                 <!-- Image Section -->
-                <div class="image-section" [ngClass]="getImageSectionClasses()" [style]="{ '--image-height': getImageHeight() }">
+                <div class="image-section" [ngClass]="getImageSectionClasses()" [style]="{ '--image-height': getImageHeight() }" [style.max-width.px]="config.settings.imageMaxWidth || null" [style.flex]="config.settings.imageMaxWidth ? '0 0 auto' : null">
                     <img
                         *ngIf="config.settings.imageUrl"
                         [src]="config.settings.imageUrl"

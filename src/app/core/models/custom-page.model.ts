@@ -6,6 +6,7 @@ export interface CustomPage {
     title: string;
     description?: string;
     content: PageWidget[];
+    footerContent?: PageWidget[];
     isPublic: boolean;
     requiresAuth: boolean;
     showInNavbar: boolean;
@@ -68,6 +69,7 @@ export interface CreatePageRequest {
 export interface UpdatePageRequest extends CreatePageRequest {
     id: string;
     content: PageWidget[];
+    footerContent?: PageWidget[];
     isActive: boolean;
     navbarOrder?: number;
     footerOrder?: number;

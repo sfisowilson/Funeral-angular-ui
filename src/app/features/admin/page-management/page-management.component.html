@@ -19,6 +19,13 @@
         <div class="flex gap-2">
             <button 
                 pButton 
+                label="Configure Footer" 
+                icon="pi pi-clone" 
+                class="p-button-outlined" 
+                (click)="footerBuilderDialog.open()"
+            ></button>
+            <button 
+                pButton 
                 label="Browse Themes" 
                 icon="pi pi-palette" 
                 class="p-button-outlined" 
@@ -210,4 +217,7 @@
 
     <!-- Theme Browser Component -->
     <app-page-theme-browser></app-page-theme-browser>
+
+    <!-- Global Footer Builder Dialog -->
+    <app-footer-builder-dialog></app-footer-builder-dialog>
 </div>

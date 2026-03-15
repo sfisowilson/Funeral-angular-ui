@@ -5,6 +5,7 @@ import { tenantMatcher } from './app/core/tenant.matcher';
 import { PermissionGuard } from './app/core/guards/permission-guard';
 import { ProfileCompletionGuard } from './app/core/guards/profile-completion.guard';
 import { pageAuthGuard } from './app/core/guards/page-auth.guard';
+import { shopFeatureGuard } from './app/guards/shop-feature.guard';
 
 export const appRoutes: Routes = [
     // Landing page routes
@@ -133,21 +134,25 @@ export const appRoutes: Routes = [
     {
         path: 'product/:productId',
         loadComponent: () => import('./app/features/shop/product-detail/product-detail.component').then((m) => m.ProductDetailComponent),
+        canActivate: [shopFeatureGuard],
         data: { skipProfileCheck: true }
     },
     {
         path: 'cart',
         loadComponent: () => import('./app/features/shop/cart-page/cart-page.component').then((m) => m.CartPageComponent),
+        canActivate: [shopFeatureGuard],
         data: { skipProfileCheck: true }
     },
     {
         path: 'checkout',
         loadComponent: () => import('./app/features/shop/checkout-page/checkout-page.component').then((m) => m.CheckoutPageComponent),
+        canActivate: [shopFeatureGuard],
         data: { skipProfileCheck: true }
     },
     {
         path: 'customer/orders',
         loadComponent: () => import('./app/features/shop/order-history-page/order-history-page.component').then((m) => m.OrderHistoryPageComponent),
+        canActivate: [shopFeatureGuard],
         data: { skipProfileCheck: true }
     },
 

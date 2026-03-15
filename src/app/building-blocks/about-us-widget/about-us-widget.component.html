@@ -46,7 +46,7 @@
     <div
         class="mission-vision-section"
         *ngIf="config.settings?.showMissionVision"
-        [style.background-color]="config.settings.missionVisionBackgroundColor || 'transparent'"
+        [style.--mv-bg]="config.settings.missionVisionBackgroundColor || null"
         [style.color]="config.settings.missionVisionTextColor || 'inherit'"
         [style.padding]="config.settings.missionVisionBackgroundColor ? '40px 20px' : '0'"
         [style.border-radius]="config.settings.missionVisionBackgroundColor ? '8px' : '0'"

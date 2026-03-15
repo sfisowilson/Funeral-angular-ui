@@ -50,6 +50,19 @@
 
         <!-- Footer -->
         <footer class="dynamic-page-footer mt-8">
+            <!-- Footer widget zone: displays global footer widgets (or per-page override) -->
+            @if (getSortedFooterWidgets().length > 0) {
+                <section class="footer-widget-zone">
+                    @for (widget of getSortedFooterWidgets(); track widget.id) {
+                        @defer (on viewport) {
+                            <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }"></ng-container>
+                        } @placeholder {
+                            <div style="min-height: 100px"></div>
+                        }
+                    }
+                </section>
+            }
+            <!-- Copyright bar — always visible -->
             <div class="dynamic-page-shell py-6">
                 <div class="flex flex-col md:flex-row justify-between items-center text-sm">
                     <p>&copy; {{ currentYear }} {{ _settings.siteTitle || _settings.title || tenantSettings.tenantName || 'Mizo' }}. All rights reserved.</p>

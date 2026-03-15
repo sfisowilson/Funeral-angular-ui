@@ -22,6 +22,7 @@ import { CareersComponent } from './admin/careers/careers.component';
 import { ProductManagementComponent } from './admin/product-management/product-management.component';
 import { OrderManagementComponent } from './admin/order-management/order-management.component';
 import { CustomerManagementComponent } from './admin/customer-management/customer-management.component';
+import { EcommerceSettingsComponent } from './admin/ecommerce-settings/ecommerce-settings.component';
 import { PlanConfigurationComponent } from '../features/admin/plan-configuration/plan-configuration.component';
 import { RegistrationFieldsComponent } from './admin/registration-fields/registration-fields.component';
 import { OnboardingStepListConfigComponent } from './admin/onboarding-step-config/onboarding-step-list-config.component';
@@ -93,6 +94,11 @@ export default [
     {
         path: 'customers',
         component: CustomerManagementComponent,
+        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+    },
+    {
+        path: 'ecommerce-settings',
+        component: EcommerceSettingsComponent,
         data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
     },
     {

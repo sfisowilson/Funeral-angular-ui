@@ -80,7 +80,20 @@ export class ProductService {
     constructor(private productProxy: ProductServiceProxy) {}
 
     getProducts(isActive?: boolean, categoryId?: string): Observable<Product[]> {
-        return this.productProxy.product_GetAll(isActive, categoryId).pipe(map((r: any) => r?.result ?? r ?? []));
+        return this.productProxy.product_GetAll(isActive, categoryId).pipe(
+            map((r: any) => {
+                const raw: any[] = r?.result ?? r ?? [];
+                return raw.map((p: any) => ({
+                    ...p,
+                    // Bridge DTO → Product interface field name differences
+                    category: p.category ?? p.categoryName ?? undefined,
+                    images: (p.images ?? []).map((i: any) => ({
+                        ...i,
+                        url: i.url ?? i.imageUrl
+                    }))
+                } as Product));
+            })
+        );
     }
 
     getActiveProducts(): Observable<Product[]> {
@@ -88,7 +101,7 @@ export class ProductService {
     }
 
     getFeaturedProducts(): Observable<Product[]> {
-        return this.productProxy.product_GetAll(true, undefined).pipe(map((r: any) => r?.result ?? r ?? []));
+        return this.getProducts(true);
     }
 
     getProduct(id: string): Observable<Product> {

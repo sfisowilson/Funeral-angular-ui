@@ -36,6 +36,11 @@ import { FieldsetModule } from 'primeng/fieldset';
                     </div>
 
                     <div class="flex flex-col">
+                        <label for="columns" class="font-medium text-gray-700 mb-2">Columns per row</label>
+                        <input id="columns" type="number" pInputText formControlName="columns" min="1" max="6" class="w-full" />
+                    </div>
+
+                    <div class="flex flex-col">
                         <label for="iconSize" class="font-medium text-gray-700 mb-2">Icon Size (px)</label>
                         <input id="iconSize" type="number" pInputText formControlName="iconSize" class="w-full" />
                     </div>
@@ -91,6 +96,7 @@ export class FeaturesEditorComponent {
             titleColor: ['var(--text-color, #000000)'],
             backgroundColor: ['var(--surface-card, #ffffff)'],
             padding: [20],
+            columns: [null],
             iconSize: [48],
             iconColor: ['var(--primary-color, #007bff)'],
             featureTitleColor: ['var(--text-color, #000000)'],
@@ -106,6 +112,10 @@ export class FeaturesEditorComponent {
             this.config.settings.features?.forEach((feature: any) => {
                 this.features.push(this.fb.group(feature));
             });
+            // Default columns to feature count if not explicitly set
+            if (!this.config.settings.columns) {
+                this.form.patchValue({ columns: this.config.settings.features?.length || 1 });
+            }
         }
     }
 

@@ -128,7 +128,7 @@
   // Mission & Vision
   .mission-vision-section {
     padding: 4rem 0;
-    background: linear-gradient(135deg, var(--widget-bg-color, #f6f8fb) 0%, var(--widget-text-muted, #e9eef5) 100%);
+    background: var(--mv-bg, linear-gradient(135deg, #f6f8fb 0%, #e9eef5 100%));
 
     .mission-vision-grid {
       display: grid;

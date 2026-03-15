@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { ProductService, Product, ProductStats, Category } from '../../../core/services/product.service';
 import { FileUploadServiceProxy, FileParameter } from '../../../core/services/service-proxies';
 import { TenantService } from '../../../core/services/tenant.service';
+import { TenantFeatureService } from '../../../core/services/tenant-feature.service';
 import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-product-management',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, RouterModule],
     templateUrl: './product-management.component.html',
     styleUrls: ['./product-management.component.scss']
 })
@@ -18,6 +20,12 @@ export class ProductManagementComponent implements OnInit {
     filteredProducts: Product[] = [];
     categories: Category[] = [];
     stats: ProductStats | null = null;
+
+    // Plan limits
+    maxProducts: number | null = null;
+    maxProductImages: number | null = null;
+    currentProductCount: number | null = null;
+    atProductLimit = false;
 
     selectedProduct: Product | null = null;
     isModalOpen = false;
@@ -41,13 +49,39 @@ export class ProductManagementComponent implements OnInit {
     constructor(
         private productService: ProductService,
         private fileUploadService: FileUploadServiceProxy,
-        private tenantService: TenantService
+        private tenantService: TenantService,
+        private tenantFeatureService: TenantFeatureService
     ) {}
 
     ngOnInit(): void {
         this.loadProducts();
         this.loadCategories();
         this.loadStats();
+        this.loadPlanLimits();
+    }
+
+    loadPlanLimits(): void {
+        this.tenantFeatureService.getProductLimit().subscribe({
+            next: (limits) => {
+                this.maxProducts = limits.max;
+                this.maxProductImages = limits.imagesPerProduct;
+                this.currentProductCount = limits.current;
+                this.atProductLimit = limits.max !== null && limits.current !== null && limits.current >= limits.max;
+            },
+            error: () => { /* non-critical — keep atProductLimit=false so adding is not blocked */ }
+        });
+    }
+
+    get productUsagePercent(): number {
+        if (this.maxProducts === null || this.currentProductCount === null) return 0;
+        return Math.min(100, Math.round((this.currentProductCount / this.maxProducts) * 100));
+    }
+
+    get productUsageClass(): string {
+        const pct = this.productUsagePercent;
+        if (pct >= 100) return 'bg-danger';
+        if (pct >= 80)  return 'bg-warning';
+        return 'bg-success';
     }
 
     loadProducts(): void {
@@ -118,6 +152,7 @@ export class ProductManagementComponent implements OnInit {
                 next: () => {
                     this.loadProducts();
                     this.loadStats();
+                    this.loadPlanLimits();
                     this.closeModal();
                 },
                 error: (_error: any) => {
@@ -125,10 +160,16 @@ export class ProductManagementComponent implements OnInit {
                 }
             });
         } else {
+            // Block creation when plan limit is reached
+            if (this.atProductLimit) {
+                alert(`You have reached your plan limit of ${this.maxProducts} products. Please upgrade your plan to add more products.`);
+                return;
+            }
             this.productService.createProduct(product).subscribe({
                 next: () => {
                     this.loadProducts();
                     this.loadStats();
+                    this.loadPlanLimits();
                     this.closeModal();
                 },
                 error: (_error: any) => {

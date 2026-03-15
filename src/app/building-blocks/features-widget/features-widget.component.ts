@@ -8,7 +8,7 @@ import { WidgetConfig } from '../widget-config';
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule],
     template: `
-        <div class="features-widget" [style.background-color]="config.settings.backgroundColor" [style.--widget-outer-padding.px]="config.settings.padding">
+        <div class="features-widget" [style.background-color]="config.settings.backgroundColor" [style.--widget-outer-padding.px]="config.settings.padding" [style.--columns]="config.settings.columns || config.settings.features?.length || 1">
             <h2 class="text-center" [style.color]="config.settings.titleColor">{{ config.settings.title }}</h2>
             <div class="grid">
                 <div class="col" *ngFor="let feature of config.settings.features">
@@ -28,22 +28,29 @@ import { WidgetConfig } from '../widget-config';
                 padding: var(--widget-outer-padding, 40px) 16px;
             }
             .grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
                 gap: 20px;
                 margin-top: 20px;
+            }
+            .col {
+                flex: 0 1 calc((100% - (var(--columns, 3) - 1) * 20px) / var(--columns, 3));
+                min-width: min(220px, 100%);
+                box-sizing: border-box;
             }
             .feature-card {
                 padding: 20px;
                 border-radius: 5px;
                 background-color: #f8f9fa;
+                height: 100%;
             }
             @media (max-width: 576px) {
                 .features-widget {
                     padding: min(var(--widget-outer-padding, 40px), 20px) 12px;
                 }
-                .grid {
-                    grid-template-columns: 1fr;
+                .col {
+                    flex: 1 1 100%;
                 }
             }
         `
