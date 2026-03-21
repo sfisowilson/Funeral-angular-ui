@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, Inject, ChangeDetectionStrategy, Type } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CustomPagesServiceProxy, CustomPageDto, PageListItemDto, API_BASE_URL } from '../../core/services/service-proxies';
 import { Meta, Title } from '@angular/platform-browser';
@@ -11,6 +11,8 @@ import { TenantService } from '../../core/services/tenant.service';
 import { HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { PublicHeaderComponent } from '@app/shared/components/public-header/public-header.component';
+import { NavConfigService } from '@app/core/services/nav-config.service';
+import { NavConfigDto } from '@app/core/models/nav-config.model';
 
 @Component({
     selector: 'app-dynamic-page',
@@ -41,6 +43,7 @@ export class DynamicPageComponent implements OnInit {
     isHostTenant = false;
     navbarPages: PageListItemDto[] = [];
     footerPages: PageListItemDto[] = [];
+    navConfig: NavConfigDto | null = null;
     tenantIdHeader!: HttpHeaders;
 
     constructor(
@@ -52,7 +55,9 @@ export class DynamicPageComponent implements OnInit {
         private authService: AuthService,
         private tenantSettingsService: TenantSettingsService,
         private tenantService: TenantService,
-        @Inject(API_BASE_URL) private baseUrl: string
+        @Inject(API_BASE_URL) private baseUrl: string,
+        private navConfigService: NavConfigService,
+        @Inject(DOCUMENT) private document: Document
     ) {}
 
     ngOnInit(): void {
@@ -92,6 +97,16 @@ export class DynamicPageComponent implements OnInit {
         this.customPagesService.footer().subscribe((response) => {
             const pages = response?.result || [];
             this.footerPages = pages.filter((p) => p.isActive && p.showInFooter).sort((a, b) => ((a as any).footerOrder || 999) - ((b as any).footerOrder || 999));
+        });
+
+        // Load structured nav config (mega menu / submenu support)
+        this.navConfigService.get().subscribe({
+            next: (config) => {
+                if (config?.items?.length) {
+                    this.navConfig = config;
+                }
+            },
+            error: () => { /* no config saved yet — fall back to navbarPages */ }
         });
 
         this.route.params.subscribe((params) => {
@@ -148,15 +163,15 @@ export class DynamicPageComponent implements OnInit {
         this.titleService.setTitle(page.title || page.name || '');
 
         // Update meta description
-        if (page.description) {
-            this.metaService.updateTag({ name: 'description', content: page.description });
+        const description = page.description || (page.metaTags as any)?.ogDescription || '';
+        if (description) {
+            this.metaService.updateTag({ name: 'description', content: description });
         }
 
         // Update Open Graph tags if meta tags are provided
         if (page.metaTags) {
-            if (page.metaTags.ogTitle) {
-                this.metaService.updateTag({ property: 'og:title', content: page.metaTags.ogTitle });
-            }
+            const ogTitle = page.metaTags.ogTitle || page.title || page.name || '';
+            this.metaService.updateTag({ property: 'og:title', content: ogTitle });
             if (page.metaTags.ogDescription) {
                 this.metaService.updateTag({ property: 'og:description', content: page.metaTags.ogDescription });
             }
@@ -167,6 +182,21 @@ export class DynamicPageComponent implements OnInit {
                 this.metaService.updateTag({ name: 'keywords', content: page.metaTags.keywords });
             }
         }
+
+        // Canonical URL — use explicit value from page, or derive from current URL
+        const canonical = (page as any).canonicalUrl || this.document.location.href.split('?')[0];
+        this.updateCanonical(canonical);
+        this.metaService.updateTag({ property: 'og:url', content: canonical });
+    }
+
+    private updateCanonical(url: string): void {
+        let link: HTMLLinkElement | null = this.document.querySelector('link[rel="canonical"]');
+        if (!link) {
+            link = this.document.createElement('link');
+            link.setAttribute('rel', 'canonical');
+            this.document.head.appendChild(link);
+        }
+        link.setAttribute('href', url);
     }
 
     getSortedWidgets(): any[] {

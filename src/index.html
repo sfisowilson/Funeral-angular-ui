@@ -2,9 +2,22 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Loading...</title>
+        <title>Mizo | All-in-One Business Platform</title>
         <base href="/" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!-- Default description for the host domain (mizo.co.za). -->
+        <!-- Tenant subdomains have their meta tags updated at runtime by Angular -->
+        <!-- and via the backend /api/seo/* endpoints for bots/crawlers. -->
+        <meta name="description" content="Mizo is the complete platform for businesses — professional website, member management, claims, payments and more. Go live in minutes. No technical knowledge required." />
+        <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
+        <!-- Open Graph — populated at runtime by Angular for each tenant/page -->
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Mizo" />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+
         <link rel="preconnect" href="https://primefaces.org" />
 
         <link href="https://fonts.cdnfonts.com/css/lato" rel="stylesheet" />

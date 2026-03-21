@@ -124,6 +124,12 @@ export class AppMenu implements OnInit {
                             visible: isAdmin
                         },
                         {
+                            label: 'Navigation Builder',
+                            icon: 'pi pi-fw pi-bars',
+                            routerLink: ['/admin/nav-config'],
+                            visible: isAdmin
+                        },
+                        {
                             label: 'Payment Gateway Config',
                             icon: 'pi pi-fw pi-cog',
                             routerLink: ['/admin/payment-config'],
@@ -212,6 +218,7 @@ export class AppMenu implements OnInit {
                             { label: 'Landing Page Generator', icon: 'pi pi-magic', routerLink: ['/admin/pages/landing-page-generator'], visible: isAdmin },
                             { label: 'Landing Page', icon: 'pi pi-fw pi-sitemap', routerLink: ['/admin/pages/page-builder'], visible: isAdmin },
                             { label: 'Custom Pages', icon: 'pi pi-fw pi-file-edit', routerLink: ['/admin/custom-pages'], visible: isAdmin },
+                            { label: 'Navigation Builder', icon: 'pi pi-fw pi-bars', routerLink: ['/admin/nav-config'], visible: isAdmin },
                             { label: 'Careers', icon: 'pi pi-fw pi-briefcase', routerLink: ['/admin/pages/careers'], visible: isAdmin }
                         ]
                     }

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, OnDestroy, Inject } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
+import { Title, Meta } from '@angular/platform-browser';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { WidgetService } from '@app/building-blocks/widget.service';
 import { WidgetConfig } from '@app/building-blocks/widget-config';
@@ -14,6 +14,8 @@ import { TenantSettingServiceProxy, API_BASE_URL, TenantSettingDto, CustomPagesS
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { TenantService } from '../../core/services/tenant.service';
 import { PublicHeaderComponent } from '@app/shared/components/public-header/public-header.component';
+import { NavConfigService } from '@app/core/services/nav-config.service';
+import { NavConfigDto } from '@app/core/models/nav-config.model';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -28,6 +30,7 @@ import { environment } from '../../../environments/environment';
                 [brandTitle]="_settings.siteTitle || _settings.title || tenantSettings?.tenantName || 'Mizo'"
                 [logoUrl]="_settings.logo ? getDownloadUrl(_settings.logo) : null"
                 [navbarPages]="navbarPages"
+                [navConfig]="navConfig"
                 [isLoggedIn]="isLoggedIn"
                 [isStaticSite]="isStaticSite"
                 [homeLink]="'/'"
@@ -161,6 +164,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     isStaticSite = false;
     isHostTenant = false;
     navbarPages: PageListItemDto[] = [];
+    navConfig: NavConfigDto | null = null;
 
     // Separate floating and normal widgets
     get normalWidgets(): WidgetConfig[] {
@@ -184,9 +188,12 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         private authService: AuthService,
         private router: Router,
         private titleService: Title,
+        private metaService: Meta,
         @Inject(API_BASE_URL) private baseUrl: string,
         private pageLayoutService: PageLayoutService,
-        private customPagesService: CustomPagesServiceProxy
+        private customPagesService: CustomPagesServiceProxy,
+        private navConfigService: NavConfigService,
+        @Inject(DOCUMENT) private document: Document
     ) {}
 
     ngOnInit(): void {
@@ -196,7 +203,29 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             this.isStaticSite = this._settings.isStaticSite || false;
             const tenantTitle = this._settings.siteTitle || this._settings.title || this.tenantSettings.tenantName || 'Mizo';
             console.log('Landing page - Setting document title to:', tenantTitle);
-            this.titleService.setTitle(tenantTitle);
+            this.titleService.setTitle(tenantTitle + ' | All-in-One Business Platform');
+
+            // Set meta description from tenant settings or fall back to default
+            const siteDescription = this._settings.siteDescription ||
+                'The complete platform for businesses — professional website, member management, claims and payments. Go live in minutes.';
+            this.metaService.updateTag({ name: 'description', content: siteDescription });
+            this.metaService.updateTag({ property: 'og:title', content: tenantTitle });
+            this.metaService.updateTag({ property: 'og:description', content: siteDescription });
+            this.metaService.updateTag({ name: 'twitter:title', content: tenantTitle });
+            this.metaService.updateTag({ name: 'twitter:description', content: siteDescription });
+
+            // Canonical: use actual origin so tenant subdomains & custom domains
+            // get their own canonical URL instead of pointing at mizo.co.za.
+            const canonicalUrl = this.document.location.origin + '/';
+            this.updateCanonical(canonicalUrl);
+
+            // og:url + og:image (use tenant logo if available)
+            this.metaService.updateTag({ property: 'og:url', content: canonicalUrl });
+            const logoUrl = this._settings.logoUrl || this._settings.logo || '';
+            if (logoUrl) {
+                this.metaService.updateTag({ property: 'og:image', content: logoUrl });
+                this.metaService.updateTag({ name: 'twitter:image', content: logoUrl });
+            }
         });
 
         this.isLoggedIn = this.authService.isAuthenticated();
@@ -221,6 +250,19 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             this.navbarPages = pages
                 .filter((p: any) => p.isActive && p.showInNavbar)
                 .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
+        });
+
+        // Load the structured nav config (mega menu / submenu support).
+        // Falls back gracefully: if no config exists, navbarPages is used instead.
+        this.navConfigService.get().subscribe({
+            next: (config) => {
+                if (config?.items?.length) {
+                    this.navConfig = config;
+                }
+            },
+            error: () => {
+                // no nav config saved yet — public header will fall back to navbarPages
+            }
         });
 
         // Use subdomain if present, otherwise use hostSubdomain from environment
@@ -250,6 +292,16 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         if (this.widgetSubscription) {
             this.widgetSubscription.unsubscribe();
         }
+    }
+
+    private updateCanonical(url: string): void {
+        let link: HTMLLinkElement | null = this.document.querySelector('link[rel="canonical"]');
+        if (!link) {
+            link = this.document.createElement('link');
+            link.setAttribute('rel', 'canonical');
+            this.document.head.appendChild(link);
+        }
+        link.setAttribute('href', url);
     }
 
     logout(): void {

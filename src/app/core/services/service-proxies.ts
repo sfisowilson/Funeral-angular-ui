@@ -1357,6 +1357,113 @@ export class ApiServiceProxy {
     }
 
     /**
+     * @return OK
+     */
+    navConfigGet(): Observable<SwaggerResponse<NavConfigDto>> {
+        let url_ = this.baseUrl + "/api/nav-config";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processNavConfigGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processNavConfigGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NavConfigDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NavConfigDto>>;
+        }));
+    }
+
+    protected processNavConfigGet(response: HttpResponseBase): Observable<SwaggerResponse<NavConfigDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = NavConfigDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NavConfigDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    navConfigPut(body: NavConfigDto | undefined): Observable<SwaggerResponse<NavConfigDto>> {
+        let url_ = this.baseUrl + "/api/nav-config";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processNavConfigPut(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processNavConfigPut(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NavConfigDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NavConfigDto>>;
+        }));
+    }
+
+    protected processNavConfigPut(response: HttpResponseBase): Observable<SwaggerResponse<NavConfigDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = NavConfigDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NavConfigDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
      * @param body (optional) 
      * @return OK
      */
@@ -20064,6 +20171,114 @@ export class RolePermissionServiceProxy {
 @Injectable({
     providedIn: 'root'
 })
+export class SeoServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    robots_txt(): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/seo/robots.txt";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRobots_txt(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRobots_txt(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processRobots_txt(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    sitemap_xml(): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/seo/sitemap.xml";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSitemap_xml(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSitemap_xml(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processSitemap_xml(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
 export class SubscriptionPlanServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -35370,6 +35585,186 @@ export class MultiSubmitStepContextDto implements IMultiSubmitStepContextDto {
 export interface IMultiSubmitStepContextDto {
     step: OnboardingStepConfigurationDto;
     records: DynamicEntityRecordDto[] | undefined;
+}
+
+export class NavConfigDto implements INavConfigDto {
+    items!: NavItemDto[] | undefined;
+
+    constructor(data?: INavConfigDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(NavItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): NavConfigDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new NavConfigDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface INavConfigDto {
+    items: NavItemDto[] | undefined;
+}
+
+export class NavItemDto implements INavItemDto {
+    id!: string | undefined;
+    label!: string | undefined;
+    type!: string | undefined;
+    url!: string | undefined;
+    slug!: string | undefined;
+    openInNewTab!: boolean;
+    order!: number;
+    children!: NavItemDto[] | undefined;
+    megaColumns!: NavMegaColumnDto[] | undefined;
+
+    constructor(data?: INavItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.label = _data["label"];
+            this.type = _data["type"];
+            this.url = _data["url"];
+            this.slug = _data["slug"];
+            this.openInNewTab = _data["openInNewTab"];
+            this.order = _data["order"];
+            if (Array.isArray(_data["children"])) {
+                this.children = [] as any;
+                for (let item of _data["children"])
+                    this.children!.push(NavItemDto.fromJS(item));
+            }
+            if (Array.isArray(_data["megaColumns"])) {
+                this.megaColumns = [] as any;
+                for (let item of _data["megaColumns"])
+                    this.megaColumns!.push(NavMegaColumnDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): NavItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new NavItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["label"] = this.label;
+        data["type"] = this.type;
+        data["url"] = this.url;
+        data["slug"] = this.slug;
+        data["openInNewTab"] = this.openInNewTab;
+        data["order"] = this.order;
+        if (Array.isArray(this.children)) {
+            data["children"] = [];
+            for (let item of this.children)
+                data["children"].push(item ? item.toJSON() : undefined as any);
+        }
+        if (Array.isArray(this.megaColumns)) {
+            data["megaColumns"] = [];
+            for (let item of this.megaColumns)
+                data["megaColumns"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface INavItemDto {
+    id: string | undefined;
+    label: string | undefined;
+    type: string | undefined;
+    url: string | undefined;
+    slug: string | undefined;
+    openInNewTab: boolean;
+    order: number;
+    children: NavItemDto[] | undefined;
+    megaColumns: NavMegaColumnDto[] | undefined;
+}
+
+export class NavMegaColumnDto implements INavMegaColumnDto {
+    id!: string | undefined;
+    header!: string | undefined;
+    items!: NavItemDto[] | undefined;
+
+    constructor(data?: INavMegaColumnDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.header = _data["header"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(NavItemDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): NavMegaColumnDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new NavMegaColumnDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["header"] = this.header;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface INavMegaColumnDto {
+    id: string | undefined;
+    header: string | undefined;
+    items: NavItemDto[] | undefined;
 }
 
 export class NgoBlogPost implements INgoBlogPost {
