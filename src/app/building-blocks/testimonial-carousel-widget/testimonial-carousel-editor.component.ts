@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Testimonial } from './testimonial-carousel-widget.component';
@@ -12,6 +12,7 @@ import { Testimonial } from './testimonial-carousel-widget.component';
 })
 export class TestimonialCarouselEditorComponent implements OnInit {
     @Input() config: any = {};
+    @Output() update = new EventEmitter<any>();
 
     ngOnInit() {
         if (!this.config.settings) {
@@ -86,5 +87,9 @@ export class TestimonialCarouselEditorComponent implements OnInit {
             this.config.testimonials[index] = this.config.testimonials[index + 1];
             this.config.testimonials[index + 1] = temp;
         }
+    }
+
+    onSave() {
+        this.update.emit(this.config.settings);
     }
 }

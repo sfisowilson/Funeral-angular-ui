@@ -70,6 +70,22 @@ export class SplitScreenWidgetComponent {
         return this.settings.textColor || 'var(--text-color, #212529)';
     }
 
+    get stepNumberBgColor(): string {
+        return this.settings.stepNumberBgColor || 'var(--primary-color, #007bff)';
+    }
+
+    get stepNumberTextColor(): string {
+        return this.settings.stepNumberTextColor || '#ffffff';
+    }
+
+    get itemTitleColor(): string {
+        return this.settings.itemTitleColor || 'var(--text-color, #212529)';
+    }
+
+    get itemDescriptionColor(): string {
+        return this.settings.itemDescriptionColor || 'var(--muted-color, #6c757d)';
+    }
+
     getLeftWidth(): string {
         return `${this.splitRatio}%`;
     }

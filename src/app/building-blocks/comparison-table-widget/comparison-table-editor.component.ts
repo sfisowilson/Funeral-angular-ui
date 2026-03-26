@@ -67,15 +67,15 @@ export class ComparisonTableEditorComponent implements OnInit {
         }
 
         if (this.config.settings.titleColor === undefined) {
-            this.config.settings.titleColor = 'var(--text-color, #000000)';
+            this.config.settings.titleColor = '#000000';
         }
 
         if (this.config.settings.subtitleColor === undefined) {
-            this.config.settings.subtitleColor = 'var(--muted-color, #6c757d)';
+            this.config.settings.subtitleColor = '#6c757d';
         }
 
         if (this.config.settings.backgroundColor === undefined) {
-            this.config.settings.backgroundColor = 'var(--surface-card, #ffffff)';
+            this.config.settings.backgroundColor = '#ffffff';
         }
 
         if (this.config.settings.padding === undefined) {
@@ -91,11 +91,35 @@ export class ComparisonTableEditorComponent implements OnInit {
         }
 
         if (this.config.settings.columnHeaderBg === undefined) {
-            this.config.settings.columnHeaderBg = 'var(--surface-ground, #f8f9fa)';
+            this.config.settings.columnHeaderBg = '#f8f9fa';
         }
 
         if (this.config.settings.rowHoverEffect === undefined) {
             this.config.settings.rowHoverEffect = true;
+        }
+
+        if (this.config.settings.backgroundOpacity === undefined) {
+            this.config.settings.backgroundOpacity = 1;
+        }
+
+        if (this.config.settings.columnTitleColor === undefined) {
+            this.config.settings.columnTitleColor = '#000000';
+        }
+
+        if (this.config.settings.columnSubtitleColor === undefined) {
+            this.config.settings.columnSubtitleColor = '#6c757d';
+        }
+
+        if (this.config.settings.cellLabelColor === undefined) {
+            this.config.settings.cellLabelColor = '#333333';
+        }
+
+        if (this.config.settings.cellValueColor === undefined) {
+            this.config.settings.cellValueColor = '#6c757d';
+        }
+
+        if (this.config.settings.totalTextColor === undefined) {
+            this.config.settings.totalTextColor = '#000000';
         }
     }
 

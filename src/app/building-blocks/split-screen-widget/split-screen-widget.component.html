@@ -73,18 +73,18 @@
             <!-- List Items -->
             <div *ngIf="rightContent.type === 'list'" class="content-list">
                 <div *ngFor="let item of rightContent.items" class="list-item">
-                    <h3 class="item-title">{{ item.title }}</h3>
-                    <p class="item-description">{{ item.description }}</p>
+                    <h3 class="item-title" [style.color]="itemTitleColor">{{ item.title }}</h3>
+                    <p class="item-description" [style.color]="itemDescriptionColor">{{ item.description }}</p>
                 </div>
             </div>
 
             <!-- Steps -->
             <div *ngIf="rightContent.type === 'steps'" class="content-steps">
                 <div *ngFor="let item of rightContent.items; let i = index" class="step-item">
-                    <div class="step-number">{{ i + 1 }}</div>
+                    <div class="step-number" [style.background-color]="stepNumberBgColor" [style.color]="stepNumberTextColor">{{ i + 1 }}</div>
                     <div class="step-content">
-                        <h3 class="step-title">{{ item.title }}</h3>
-                        <p class="step-description">{{ item.description }}</p>
+                        <h3 class="step-title" [style.color]="itemTitleColor">{{ item.title }}</h3>
+                        <p class="step-description" [style.color]="itemDescriptionColor">{{ item.description }}</p>
                     </div>
                 </div>
             </div>

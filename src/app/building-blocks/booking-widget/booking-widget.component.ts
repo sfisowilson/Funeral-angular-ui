@@ -12,6 +12,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { BookingService, BookingRequest, TimeSlot, Booking, BookingWidgetConfig } from '../booking-widget/booking.service';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
+import { hexToRgba } from '../widget-color.utils';
 
 @Component({
     selector: 'app-booking-widget',
@@ -122,6 +123,34 @@ export class BookingWidgetComponent implements OnInit {
     ngOnInit() {
         this.loadDefaultConfig();
         this.validateForm();
+    }
+
+    get backgroundColor(): string {
+        return hexToRgba(this.config?.backgroundColor || '#ffffff', this.config?.backgroundOpacity ?? 1);
+    }
+    get textColor(): string { return this.config?.textColor || '#333333'; }
+    get accentColor(): string { return this.config?.accentColor || '#007bff'; }
+    get buttonColor(): string { return this.config?.buttonColor || '#007bff'; }
+    get buttonTextColor(): string { return this.config?.buttonTextColor || '#ffffff'; }
+    get summaryBackgroundColor(): string { return this.config?.summaryBackgroundColor || '#f8f9fa'; }
+
+    getTimeSlotStyle(slot: TimeSlot): any {
+        const isSelected = this.selectedTimeSlot?.time === slot.time;
+        return {
+            'background-color': isSelected ? this.accentColor : '',
+            'border-color': isSelected ? this.accentColor : '#ddd',
+            'color': isSelected ? this.buttonTextColor : this.textColor,
+            'opacity': !slot.available ? '0.5' : '1'
+        };
+    }
+
+    getServiceItemStyle(service: any): any {
+        const isSelected = this.isServiceSelected(service.id);
+        return {
+            'background-color': isSelected ? this.accentColor : '',
+            'border-color': isSelected ? this.accentColor : '#ddd',
+            'color': isSelected ? this.buttonTextColor : this.textColor
+        };
     }
 
     private loadDefaultConfig(): void {

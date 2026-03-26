@@ -24,6 +24,36 @@
 
 
 
+            <!-- SEO Settings -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">SEO &amp; Search</h2>
+                <p class="text-sm text-gray-600 mb-4">Control how your site appears in search engines and social media previews.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex flex-col">
+                        <label for="siteTitle" class="font-medium text-gray-700 mb-2">Site Title</label>
+                        <input type="text" id="siteTitle" [(ngModel)]="_settings.siteTitle" class="form-control" placeholder="e.g. Riverside Funeral Home" />
+                        <small class="text-gray-500 mt-1">Used as the browser tab title and OG title for the home page.</small>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="siteDescription" class="font-medium text-gray-700 mb-2">Site Description</label>
+                        <input type="text" id="siteDescription" [(ngModel)]="_settings.siteDescription" class="form-control" placeholder="Short description shown in search results" />
+                        <small class="text-gray-500 mt-1">Appears in Google search snippets and social link previews (max 160 chars recommended).</small>
+                    </div>
+
+                    <div class="flex flex-col md:col-span-2">
+                        <label for="googleVerificationCode" class="font-medium text-gray-700 mb-2">Google Search Console Verification Code</label>
+                        <input type="text" id="googleVerificationCode" [(ngModel)]="_settings.googleVerificationCode" class="form-control" placeholder="e.g. abc123XYZ..." />
+                        <small class="text-gray-500 mt-1">
+                            Paste only the <strong>content value</strong> from the <code>&lt;meta name="google-site-verification" content="..."&gt;</code> tag.
+                            Leave blank if not needed.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+
+
             <!-- Security & Verification Settings -->
             <div class="bg-white p-6 rounded-lg shadow">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4">Security & Verification</h2>

@@ -13,11 +13,14 @@ export interface BookingWidgetEditorConfig {
     // Display settings
     title: string;
     subtitle: string;
+    // Colors
     backgroundColor: string;
+    backgroundOpacity: number;
     textColor: string;
     accentColor: string;
     buttonColor: string;
     buttonTextColor: string;
+    summaryBackgroundColor: string;
 
     // Booking configuration
     showInDashboard: boolean;
@@ -91,6 +94,10 @@ export interface BookingWidgetEditorConfig {
                                 <p-colorPicker [(ngModel)]="config.textColor" (ngModelChange)="onChange()"></p-colorPicker>
                             </div>
                         </div>
+                        <div class="field">
+                            <label class="block mb-2 font-semibold">Background Opacity ({{ config.backgroundOpacity ?? 1 }})</label>
+                            <input type="range" class="w-full" min="0" max="1" step="0.01" [(ngModel)]="config.backgroundOpacity" (ngModelChange)="onChange()" />
+                        </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="field">
                                 <label class="block mb-2 font-semibold">Accent Color</label>
@@ -99,6 +106,16 @@ export interface BookingWidgetEditorConfig {
                             <div class="field">
                                 <label class="block mb-2 font-semibold">Button Color</label>
                                 <p-colorPicker [(ngModel)]="config.buttonColor" (ngModelChange)="onChange()"></p-colorPicker>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="field">
+                                <label class="block mb-2 font-semibold">Button Text Color</label>
+                                <p-colorPicker [(ngModel)]="config.buttonTextColor" (ngModelChange)="onChange()"></p-colorPicker>
+                            </div>
+                            <div class="field">
+                                <label class="block mb-2 font-semibold">Summary Background Color</label>
+                                <p-colorPicker [(ngModel)]="config.summaryBackgroundColor" (ngModelChange)="onChange()"></p-colorPicker>
                             </div>
                         </div>
                     </div>
@@ -256,10 +273,12 @@ export class BookingEditorComponent {
             title: 'Book an Appointment',
             subtitle: 'Schedule a convenient time to meet with us',
             backgroundColor: '#ffffff',
+            backgroundOpacity: 1,
             textColor: '#333333',
             accentColor: '#007bff',
             buttonColor: '#007bff',
             buttonTextColor: '#ffffff',
+            summaryBackgroundColor: '#f8f9fa',
             showInDashboard: true,
             showOnLandingPage: true,
             requireEmail: true,

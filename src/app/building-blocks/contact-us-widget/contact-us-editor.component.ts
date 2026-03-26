@@ -58,7 +58,13 @@ export class ContactUsEditorComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.settings = JSON.parse(JSON.stringify(this.config.settings || {}));
+        // Use the live reference (not a deep copy) so every field change immediately
+        // updates config.settings – the page-builder can then save without the user
+        // needing to hit the explicit "Save Changes" button first.
+        if (!this.config.settings) {
+            this.config.settings = {};
+        }
+        this.settings = this.config.settings;
 
         // Initialize default values
         if (!this.settings.title) {
@@ -104,8 +110,8 @@ export class ContactUsEditorComponent implements OnInit {
             this.settings.ctaSecondaryButton = { text: '', link: '' };
         }
 
-        this.branches = this.settings.branches ? [...this.settings.branches] : [];
-        this.socialMediaHandles = this.settings.socialMediaHandles ? [...this.settings.socialMediaHandles] : [];
+        this.branches = this.settings.branches = this.settings.branches || [];
+        this.socialMediaHandles = this.settings.socialMediaHandles = this.settings.socialMediaHandles || [];
     }
 
     saveSettings(): void {

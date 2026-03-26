@@ -185,6 +185,16 @@ import { SliderModule } from 'primeng/slider';
                             <label for="ctaLink">Button Link</label>
                             <input pInputText id="ctaLink" [(ngModel)]="config.settings.ctaLink" placeholder="https:// or /page" />
                         </div>
+
+                        <div class="flex flex-column gap-2" *ngIf="config.settings.showCTA">
+                            <label>Button Background Color</label>
+                            <p-colorPicker [(ngModel)]="config.settings.ctaButtonColor"></p-colorPicker>
+                        </div>
+
+                        <div class="flex flex-column gap-2" *ngIf="config.settings.showCTA">
+                            <label>Button Text Color</label>
+                            <p-colorPicker [(ngModel)]="config.settings.ctaButtonTextColor"></p-colorPicker>
+                        </div>
                     </div>
                 </p-fieldset>
 
@@ -248,7 +258,9 @@ export class ParallaxSectionEditorComponent implements OnInit {
             subtitleColor: '#ffffff',
             showCTA: false,
             ctaText: 'Learn More',
-            ctaLink: '#'
+            ctaLink: '#',
+            ctaButtonColor: '#007bff',
+            ctaButtonTextColor: '#ffffff'
         };
 
         this.config.settings = { ...defaults, ...this.config.settings };

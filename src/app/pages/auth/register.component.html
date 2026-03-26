@@ -34,7 +34,7 @@
                 <div>
                     <div class="mb-3">
                         <label for="memberEmail" class="form-label"><i class="bi bi-envelope"></i> Email Address</label>
-                        <input type="email" class="form-control" id="memberEmail" name="member-email" autocomplete="email" placeholder="Enter email address" formControlName="email" />
+                        <input type="email" class="form-control" id="memberEmail" name="member-email" autocomplete="email" placeholder="Enter email address" formControlName="email" (change)="patchEmailFromNativeInput()" />
                     </div>
                     <div class="mb-3">
                         <label for="memberPassword" class="form-label"><i class="bi bi-lock"></i> Password</label>

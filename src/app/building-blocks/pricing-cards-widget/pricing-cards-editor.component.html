@@ -148,6 +148,93 @@
         </div>
     </div>
 
+    <!-- Colors -->
+    <div class="editor-section">
+        <h5>Colors</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Background Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.backgroundColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Background Opacity ({{ config.settings.backgroundOpacity ?? 1 | number:'1.2-2' }})</label>
+                <input type="range" class="form-range" min="0" max="1" step="0.01" [(ngModel)]="config.settings.backgroundOpacity" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Title Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.titleColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Subtitle Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.subtitleColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Card Background Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.cardBackgroundColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Plan Name Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.planNameColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Price Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.priceColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Price Period Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.periodColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Description Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.descriptionColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Feature Text Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.featureTextColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Excluded Feature Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.featureExcludedColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Checkmark Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.checkmarkColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Cross Icon Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.crossColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Button Background Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.buttonColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Button Text Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.buttonTextColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Featured Button Background</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.featuredButtonColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Featured Button Text Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.featuredButtonTextColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Popular Badge Background</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.popularBadgeBackgroundColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Popular Badge Text Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.popularBadgeTextColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Original Price (Strikethrough) Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.originalPriceColor" (ngModelChange)="emitChange()" />
+            </div>
+        </div>
+    </div>
+
     <div class="editor-section d-flex justify-content-end mb-3">
         <button type="button" class="btn-primary-theme" (click)="onSave()"><i class="bi bi-save"></i> Save</button>
     </div>

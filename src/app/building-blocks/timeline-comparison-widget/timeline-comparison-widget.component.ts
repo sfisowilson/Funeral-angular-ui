@@ -1,5 +1,6 @@
 import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { hexToRgba } from '../widget-color.utils';
 
 export interface TimelineOption {
     title: string;
@@ -57,5 +58,43 @@ export class TimelineComparisonWidgetComponent {
 
     get highlightRecommended(): boolean {
         return this.settings.highlightRecommended !== false;
+    }
+
+    get widgetTitleColor(): string {
+        return this.config.settings?.titleColor || 'var(--text-color, #000000)';
+    }
+
+    get widgetSubtitleColor(): string {
+        return this.config.settings?.subtitleColor || 'var(--muted-color, #6c757d)';
+    }
+
+    get cardBackgroundColor(): string {
+        const base = this.config.settings?.cardBackgroundColor || '#ffffff';
+        const opacity = this.config.settings?.cardBackgroundOpacity ?? 1;
+        return hexToRgba(base, opacity);
+    }
+
+    get headerBackgroundColor(): string {
+        return this.config.settings?.headerBackgroundColor || '#f8f9fa';
+    }
+
+    get headerTextColor(): string {
+        return this.config.settings?.headerTextColor || '#000000';
+    }
+
+    get stepLabelColor(): string {
+        return this.config.settings?.stepLabelColor || 'var(--text-color, #333333)';
+    }
+
+    get stepDurationColor(): string {
+        return this.config.settings?.stepDurationColor || 'var(--muted-color, #6c757d)';
+    }
+
+    get recommendedBadgeColor(): string {
+        return this.config.settings?.recommendedBadgeColor || '#28a745';
+    }
+
+    get recommendedBadgeTextColor(): string {
+        return this.config.settings?.recommendedBadgeTextColor || '#ffffff';
     }
 }

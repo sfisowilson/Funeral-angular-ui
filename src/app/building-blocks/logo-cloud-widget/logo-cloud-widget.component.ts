@@ -1,5 +1,6 @@
 import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { hexToRgba } from '../widget-color.utils';
 
 export interface LogoItem {
     name: string;
@@ -36,6 +37,11 @@ export class LogoCloudWidgetComponent {
     get subtitle(): string {
         return this.config.settings?.subtitle || '';
     }
+
+    get backgroundColor(): string { return hexToRgba(this.config.settings?.backgroundColor || '#ffffff', this.config.settings?.backgroundOpacity ?? 1); }
+    get titleColor(): string { return this.config.settings?.titleColor || '#1a1a1a'; }
+    get subtitleColor(): string { return this.config.settings?.subtitleColor || '#6c757d'; }
+    get cardBackgroundColor(): string { return hexToRgba(this.config.settings?.cardBackgroundColor || '#ffffff', this.config.settings?.cardBackgroundOpacity ?? 1); }
 
     get logos(): LogoItem[] {
         return this.config.logos || [];

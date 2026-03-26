@@ -98,6 +98,10 @@ interface Settings extends NotificationSettings {
     requiresOnboardingApproval?: boolean;
     onboardingSubmitButtonLabel?: string;
     memberNumberConfig?: MemberNumberConfig;
+    // SEO
+    siteTitle?: string;
+    siteDescription?: string;
+    googleVerificationCode?: string;
 }
 
 interface TeamMember {

@@ -1,5 +1,6 @@
 import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { hexToRgba } from '../widget-color.utils';
 
 export interface AccordionItem {
     id: string;
@@ -38,6 +39,19 @@ export class EnhancedAccordionWidgetComponent {
     get subtitle(): string {
         return this.config.settings?.subtitle || '';
     }
+
+    get backgroundColor(): string { return hexToRgba(this.config.settings?.backgroundColor || '#ffffff', this.config.settings?.backgroundOpacity ?? 1); }
+    get titleColor(): string { return this.config.settings?.titleColor || '#1a1a1a'; }
+    get subtitleColor(): string { return this.config.settings?.subtitleColor || '#6c757d'; }
+    get headerBackgroundColor(): string { return hexToRgba(this.config.settings?.headerBackgroundColor || '#f8f9fa', this.config.settings?.headerBackgroundOpacity ?? 1); }
+    get headerTextColor(): string { return this.config.settings?.headerTextColor || '#1a1a1a'; }
+    get headerActiveBackgroundColor(): string { return hexToRgba(this.config.settings?.headerActiveBackgroundColor || '#0d6efd', this.config.settings?.headerActiveBackgroundOpacity ?? 1); }
+    get headerActiveTextColor(): string { return this.config.settings?.headerActiveTextColor || '#ffffff'; }
+    get bodyBackgroundColor(): string { return hexToRgba(this.config.settings?.bodyBackgroundColor || '#ffffff', this.config.settings?.bodyBackgroundOpacity ?? 1); }
+    get bodyTextColor(): string { return this.config.settings?.bodyTextColor || '#212529'; }
+    get iconColor(): string { return this.config.settings?.iconColor || '#0d6efd'; }
+    get searchButtonColor(): string { return hexToRgba(this.config.settings?.searchButtonColor || '#0d6efd', 1); }
+    get searchButtonTextColor(): string { return this.config.settings?.searchButtonTextColor || '#ffffff'; }
 
     get items(): AccordionItem[] {
         return this.config.items || [];

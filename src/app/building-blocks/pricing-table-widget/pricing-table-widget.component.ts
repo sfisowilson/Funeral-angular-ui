@@ -18,7 +18,9 @@ import { ButtonModule } from 'primeng/button';
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div *ngFor="let plan of config.pricingPlans" class="pricing-card bg-white rounded-lg shadow-lg overflow-hidden relative" [class.featured]="plan.featured" [style.background-color]="config.cardBackgroundColor">
-                        <div *ngIf="plan.featured" class="featured-badge absolute top-0 right-0 bg-orange-500 text-white px-4 py-1 text-sm">
+                        <div *ngIf="plan.featured" class="featured-badge absolute top-0 right-0 px-4 py-1 text-sm"
+                             [style.background-color]="config.featuredBadgeBackgroundColor || '#f97316'"
+                             [style.color]="config.featuredBadgeTextColor || '#ffffff'">
                             {{ config.featuredBadgeText || 'Most Popular' }}
                         </div>
                         <div class="p-6">

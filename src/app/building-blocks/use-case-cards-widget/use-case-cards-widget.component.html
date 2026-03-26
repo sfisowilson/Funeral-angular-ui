@@ -1,30 +1,30 @@
-<div class="use-case-cards-widget">
+<div class="use-case-cards-widget" [style.background-color]="backgroundColor">
     <div class="container py-5">
         <div class="text-center mb-5" *ngIf="title">
-            <h2 class="widget-title">{{ title }}</h2>
-            <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+            <h2 class="widget-title" [style.color]="titleColor">{{ title }}</h2>
+            <p class="widget-subtitle" [style.color]="subtitleColor" *ngIf="subtitle">{{ subtitle }}</p>
         </div>
 
         <div class="row g-4">
             <div [ngClass]="columnClass" *ngFor="let card of cards">
-                <div class="use-case-card h-100">
+                <div class="use-case-card h-100" [style.background-color]="cardBackgroundColor">
                     <div class="card-icon-wrapper">
-                        <i [class]="'bi bi-' + card.icon + ' card-icon'"></i>
+                        <i [class]="'bi bi-' + card.icon + ' card-icon'" [style.color]="iconColor"></i>
                     </div>
 
-                    <h3 class="card-title">{{ card.title }}</h3>
-                    <p class="card-description">{{ card.description }}</p>
+                    <h3 class="card-title" [style.color]="cardTitleColor">{{ card.title }}</h3>
+                    <p class="card-description" [style.color]="cardTextColor">{{ card.description }}</p>
 
                     <ul class="card-features" *ngIf="showFeatures && card.features?.length">
                         <li *ngFor="let feature of card.features">
-                            <i class="bi bi-check-circle-fill text-success me-2"></i>
-                            <span>{{ feature }}</span>
+                            <i class="bi bi-check-circle-fill me-2" [style.color]="checkmarkColor"></i>
+                            <span [style.color]="cardTextColor">{{ feature }}</span>
                         </li>
                     </ul>
 
-                    <a *ngIf="showCta && card.ctaText" [href]="card.ctaLink || '#'" class="card-cta">
+                    <a *ngIf="showCta && card.ctaText" [href]="card.ctaLink || '#'" class="card-cta" [style.color]="ctaTextColor">
                         {{ card.ctaText }}
-                        <i class="bi bi-arrow-right ms-1"></i>
+                        <i class="bi bi-arrow-right ms-1" [style.color]="ctaTextColor"></i>
                     </a>
                 </div>
             </div>

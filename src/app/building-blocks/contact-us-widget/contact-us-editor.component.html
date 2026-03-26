@@ -3,6 +3,28 @@
     <p-confirmDialog></p-confirmDialog>
 
     <p-accordion [multiple]="true" [activeIndex]="[0]">
+        <!-- Color Settings -->
+        <p-accordionTab header="Color Settings">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Primary Color (buttons, accents)</label>
+                    <input type="color" class="form-control form-control-color" [(ngModel)]="settings.primaryColor" />
+                    <small class="text-muted">Controls buttons and accent colors. Leave empty for theme default.</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Secondary Color</label>
+                    <input type="color" class="form-control form-control-color" [(ngModel)]="settings.secondaryColor" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Text Color</label>
+                    <input type="color" class="form-control form-control-color" [(ngModel)]="settings.textColor" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Widget Background Color</label>
+                    <input type="color" class="form-control form-control-color" [(ngModel)]="settings.backgroundColor" />
+                </div>
+            </div>
+        </p-accordionTab>
         <!-- General Settings -->
         <p-accordionTab header="General Settings">
             <div class="p-fluid contact-us-form-wrapper">

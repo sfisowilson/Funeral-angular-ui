@@ -5,7 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { WidgetConfig } from '../widget-config';
@@ -875,7 +875,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                          }
 
                          setTimeout(() => this.initializeCanvas(), 100);
-                         this.loading = false;
                          this.cdr.markForCheck();
                          return;
                      }
@@ -2208,7 +2207,17 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 url += `?${params.join('&')}`;
             }
 
-            this.http.get(url, { responseType: 'blob' }).subscribe({
+            this.http.get(url, { responseType: 'blob' }).pipe(
+                finalize(() => {
+                    completed += 1;
+                    if (completed === effectiveProfileIds.length) {
+                        this.completionPdfUrl = this.completionPdfPreviews.length > 0 ? this.completionPdfPreviews[0].url : null;
+                        this.error = hasError ? 'Failed to generate one or more completion PDFs.' : '';
+                        this.loading = false;
+                        this.cdr.markForCheck();
+                    }
+                })
+            ).subscribe({
                 next: (blob) => {
                     const objectUrl = URL.createObjectURL(blob);
                     const safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl);
@@ -2217,22 +2226,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                         profileName: this.getCompletionPdfProfileName(profileId),
                         url: safeUrl
                     });
-
-                    completed += 1;
-                    if (completed === effectiveProfileIds.length) {
-                        this.completionPdfUrl = this.completionPdfPreviews.length > 0 ? this.completionPdfPreviews[0].url : null;
-                        this.loading = false;
-                    }
                 },
                 error: (err) => {
                     console.error('PDF Generation failed', err);
                     hasError = true;
-                    completed += 1;
-
-                    if (completed === effectiveProfileIds.length) {
-                        this.error = hasError ? 'Failed to generate one or more completion PDFs.' : '';
-                        this.loading = false;
-                    }
                 }
             });
         });

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Title } from '@angular/platform-browser';
+import { Title, Meta } from '@angular/platform-browser';
 import { ProductService, Product, ProductImage, ProductVariant } from '../../../core/services/product.service';
 import { CartService } from '../../../core/services/cart.service';
 
@@ -146,7 +146,7 @@ import { CartService } from '../../../core/services/cart.service';
         .description { border-top: 1px solid #eee; padding-top: 1rem; margin-top: 0.5rem; font-size: 0.95rem; color: #555; line-height: 1.7; }
     `]
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
     product: Product | null = null;
     selectedImage: ProductImage | null = null;
     selectedVariant: ProductVariant | null = null;
@@ -154,13 +154,16 @@ export class ProductDetailComponent implements OnInit {
     qty = 1;
     addedMsg = '';
     currencySymbol = '$';
+    private _jsonLdScript: HTMLScriptElement | null = null;
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private productService: ProductService,
         private cartService: CartService,
-        private titleService: Title
+        private titleService: Title,
+        private metaService: Meta,
+        @Inject(DOCUMENT) private document: Document
     ) {}
 
     ngOnInit(): void {
@@ -172,13 +175,104 @@ export class ProductDetailComponent implements OnInit {
                 this.product = product;
                 this.loading = false;
                 if (product) {
-                    this.titleService.setTitle(product.name);
+                    const pageTitle = product.metaTitle || product.name;
+                    this.titleService.setTitle(pageTitle);
                     const primary = product.images?.find(i => i.isPrimary) ?? product.images?.[0] ?? null;
                     this.selectedImage = primary;
+
+                    // Meta description — prefer explicit metaDescription, fall back to description
+                    const rawDesc = (product as any).metaDescription || product.description || '';
+                    const description = rawDesc.length > 160 ? rawDesc.substring(0, 157) + '...' : rawDesc;
+
+                    if (description) {
+                        this.metaService.updateTag({ name: 'description', content: description });
+                    }
+                    if ((product as any).metaKeywords) {
+                        this.metaService.updateTag({ name: 'keywords', content: (product as any).metaKeywords });
+                    }
+
+                    // Open Graph
+                    const ogTitle = (product as any).metaTitle || product.name;
+                    const imageUrl = primary?.imageUrl || (primary as any)?.url || '';
+                    const pageUrl = this.document.location.href;
+
+                    this.metaService.updateTag({ property: 'og:title',       content: ogTitle });
+                    this.metaService.updateTag({ property: 'og:type',        content: 'product' });
+                    this.metaService.updateTag({ property: 'og:url',         content: pageUrl });
+                    if (description) {
+                        this.metaService.updateTag({ property: 'og:description', content: description });
+                    }
+                    if (imageUrl) {
+                        this.metaService.updateTag({ property: 'og:image', content: imageUrl });
+                    }
+
+                    // Twitter
+                    this.metaService.updateTag({ name: 'twitter:title',       content: ogTitle });
+                    if (description) {
+                        this.metaService.updateTag({ name: 'twitter:description', content: description });
+                    }
+                    if (imageUrl) {
+                        this.metaService.updateTag({ name: 'twitter:image', content: imageUrl });
+                    }
+
+                    // Canonical link
+                    this.updateCanonical(pageUrl.split('?')[0]);
+
+                    // JSON-LD Product schema
+                    this.injectProductSchema(product, ogTitle, description, imageUrl, pageUrl);
                 }
             },
             error: () => { this.loading = false; }
         });
+    }
+
+    ngOnDestroy(): void {
+        if (this._jsonLdScript) {
+            this._jsonLdScript.remove();
+            this._jsonLdScript = null;
+        }
+    }
+
+    private updateCanonical(url: string): void {
+        let link: HTMLLinkElement | null = this.document.querySelector('link[rel="canonical"]');
+        if (!link) {
+            link = this.document.createElement('link');
+            link.setAttribute('rel', 'canonical');
+            this.document.head.appendChild(link);
+        }
+        link.setAttribute('href', url);
+    }
+
+    private injectProductSchema(product: Product, name: string, description: string, imageUrl: string, url: string): void {
+        if (this._jsonLdScript) {
+            this._jsonLdScript.remove();
+        }
+        const availability = (product.stockQuantity ?? 1) > 0
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock';
+
+        const schema: any = {
+            '@context': 'https://schema.org/',
+            '@type': 'Product',
+            name,
+            url,
+            description: description || undefined,
+            image: imageUrl || undefined,
+            sku: product.sku || undefined,
+            offers: {
+                '@type': 'Offer',
+                price: product.price,
+                priceCurrency: 'ZAR',
+                availability,
+                url
+            }
+        };
+
+        const script = this.document.createElement('script');
+        script.type = 'application/ld+json';
+        script.text = JSON.stringify(schema);
+        this.document.head.appendChild(script);
+        this._jsonLdScript = script;
     }
 
     get activeVariants(): ProductVariant[] {

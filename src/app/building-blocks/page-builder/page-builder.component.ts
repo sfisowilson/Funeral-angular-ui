@@ -470,8 +470,11 @@ export class PageBuilderComponent implements OnInit {
             return payload;
         }
 
-        // Some editors emit the whole widget config object instead of settings.
-        if ('settings' in payload && payload.settings && typeof payload.settings === 'object') {
+        // Some editors mistakenly emit the whole WidgetConfig object instead of just settings.
+        // Only unwrap payload.settings when the payload *looks like* a WidgetConfig wrapper
+        // (i.e. has both an `id` and a `type` field). This avoids incorrectly stripping a
+        // legitimate nested `settings` property from domain-config objects like ContactCardConfig.
+        if (payload.id && payload.type && 'settings' in payload && payload.settings && typeof payload.settings === 'object') {
             return payload.settings;
         }
 

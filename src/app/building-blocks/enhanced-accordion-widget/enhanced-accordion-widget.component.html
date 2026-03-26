@@ -1,8 +1,8 @@
-<div class="enhanced-accordion-widget">
+<div class="enhanced-accordion-widget" [style.background-color]="backgroundColor">
     <div class="container py-5">
         <div class="text-center mb-4" *ngIf="title">
-            <h2 class="widget-title">{{ title }}</h2>
-            <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+            <h2 class="widget-title" [style.color]="titleColor">{{ title }}</h2>
+            <p class="widget-subtitle" [style.color]="subtitleColor" *ngIf="subtitle">{{ subtitle }}</p>
         </div>
 
         <div class="accordion-controls mb-4" *ngIf="enableSearch || expandAllButton">
@@ -11,7 +11,11 @@
                 <input type="text" class="form-control" placeholder="Search questions..." (input)="onSearchChange($event)" [value]="searchQuery" />
             </div>
 
-            <button *ngIf="expandAllButton" class="btn btn-outline-secondary" (click)="allExpanded ? collapseAll() : expandAll()">
+            <button *ngIf="expandAllButton" class="btn btn-outline-secondary"
+                    [style.background-color]="searchButtonColor"
+                    [style.color]="searchButtonTextColor"
+                    [style.border-color]="searchButtonColor"
+                    (click)="allExpanded ? collapseAll() : expandAll()">
                 <i [class]="allExpanded ? 'bi bi-dash-square' : 'bi bi-plus-square'"></i>
                 {{ allExpanded ? 'Collapse All' : 'Expand All' }}
             </button>
@@ -19,16 +23,19 @@
 
         <div class="accordion-container" *ngIf="filteredItems.length > 0">
             <div class="accordion-item" *ngFor="let item of filteredItems" [class.expanded]="item.expanded">
-                <button class="accordion-header" (click)="toggleItem(item)" type="button">
+                <button class="accordion-header"
+                        [style.background-color]="item.expanded ? headerActiveBackgroundColor : headerBackgroundColor"
+                        [style.color]="item.expanded ? headerActiveTextColor : headerTextColor"
+                        (click)="toggleItem(item)" type="button">
                     <div class="header-content">
-                        <i *ngIf="showIcons && item.icon" [class]="'bi bi-' + item.icon + ' item-icon'"></i>
+                        <i *ngIf="showIcons && item.icon" [class]="'bi bi-' + item.icon + ' item-icon'" [style.color]="iconColor"></i>
                         <span class="item-question">{{ item.question }}</span>
                     </div>
                     <i class="bi chevron-icon" [class.bi-chevron-down]="!item.expanded" [class.bi-chevron-up]="item.expanded"></i>
                 </button>
 
                 <div class="accordion-collapse" [class.show]="item.expanded">
-                    <div class="accordion-body" [innerHTML]="item.answer"></div>
+                    <div class="accordion-body" [style.background-color]="bodyBackgroundColor" [style.color]="bodyTextColor" [innerHTML]="item.answer"></div>
                 </div>
             </div>
         </div>
@@ -36,7 +43,10 @@
         <div class="no-results" *ngIf="enableSearch && searchQuery && filteredItems.length === 0">
             <i class="bi bi-search"></i>
             <p>No questions found matching "{{ searchQuery }}"</p>
-            <button class="btn btn-sm btn-primary" (click)="searchQuery = ''; onSearchChange({ target: { value: '' } })">Clear Search</button>
+            <button class="btn btn-sm"
+                    [style.background-color]="searchButtonColor"
+                    [style.color]="searchButtonTextColor"
+                    (click)="searchQuery = ''; onSearchChange({ target: { value: '' } })">Clear Search</button>
         </div>
 
         <div class="accordion-placeholder" *ngIf="items.length === 0">

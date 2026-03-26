@@ -94,6 +94,33 @@
             <button type="button" class="btn btn-sm btn-primary" (click)="addButton()"><i class="bi bi-plus-lg"></i> Add Button</button>
         </div>
 
+        <!-- Text & Button Colors -->
+        <div class="row mb-3">
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Headline Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.headlineColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Subheadline Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.subheadlineColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Primary Button Background</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.primaryButtonColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Primary Button Text</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.primaryButtonTextColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Secondary Button Background</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.secondaryButtonColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Secondary Button Text</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.secondaryButtonTextColor" (ngModelChange)="emitChange()" />
+            </div>
+        </div>
         <div class="buttons-list">
             <div *ngFor="let button of config.buttons; let i = index" class="button-item">
                 <div class="button-header">

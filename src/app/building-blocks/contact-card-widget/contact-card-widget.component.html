@@ -2,8 +2,8 @@
     <div class="container">
         <!-- Header -->
         <div class="text-center mb-5" *ngIf="title || subtitle">
-            <h2 *ngIf="title" class="mb-3">{{ title }}</h2>
-            <p *ngIf="subtitle" class="lead text-muted">{{ subtitle }}</p>
+            <h2 *ngIf="title" class="mb-3" [style.color]="titleColor">{{ title }}</h2>
+            <p *ngIf="subtitle" class="lead" [style.color]="subtitleColor">{{ subtitle }}</p>
         </div>
 
         <!-- Content Layout -->
@@ -16,11 +16,11 @@
                             <i class="bi" [ngClass]="method.icon"></i>
                         </div>
                         <div class="contact-details">
-                            <div class="contact-label">{{ method.label }}</div>
+                            <div class="contact-label" [style.color]="labelColor">{{ method.label }}</div>
                             <a *ngIf="isClickable(method)" [href]="getContactLink(method)" class="contact-value" [style.color]="iconColor">
                                 {{ method.value }}
                             </a>
-                            <div *ngIf="!isClickable(method)" class="contact-value text-muted">
+                            <div *ngIf="!isClickable(method)" class="contact-value" [style.color]="valueTextColor">
                                 {{ method.value }}
                             </div>
                         </div>

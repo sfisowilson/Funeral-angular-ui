@@ -1,13 +1,13 @@
-<div class="gallery-widget" [style.--widget-outer-padding.px]="settings.padding">
+<div class="gallery-widget" [style.background-color]="backgroundColor" [style.--widget-outer-padding.px]="settings.padding">
     <!-- Gallery Title -->
-    <h2 *ngIf="settings.title" class="gallery-title">{{ settings.title }}</h2>
+    <h2 *ngIf="settings.title" class="gallery-title" [style.color]="titleColor">{{ settings.title }}</h2>
 
     <!-- Grid Layout -->
     <div *ngIf="settings.layout === 'grid'" class="gallery-grid" [class.rounded-corners]="settings.roundedCorners" [style.gap.px]="settings.gap" [style.grid-template-columns]="'repeat(' + settings.columns + ', 1fr)'">
         <div *ngFor="let image of settings.images; let i = index; trackBy: trackByIndex" class="gallery-item" [class.hover-effect]="settings.hoverEffect" (click)="settings.enableLightbox ? openLightbox(i) : null">
             <img [src]="image.src" [alt]="image.alt" class="gallery-image" [class.rounded]="settings.roundedCorners" loading="lazy" />
-            <div *ngIf="settings.showTitles && (image.title || image.alt)" class="image-overlay">
-                <span class="image-title">{{ image.title || image.alt }}</span>
+            <div *ngIf="settings.showTitles && (image.title || image.alt)" class="image-overlay" [style.background-color]="overlayBackgroundColor">
+                <span class="image-title" [style.color]="captionColor">{{ image.title || image.alt }}</span>
             </div>
         </div>
     </div>
@@ -16,8 +16,8 @@
     <div *ngIf="settings.layout === 'masonry'" class="gallery-masonry" [class.rounded-corners]="settings.roundedCorners" [style.gap.px]="settings.gap" [style.column-count]="settings.columns">
         <div *ngFor="let image of settings.images; let i = index; trackBy: trackByIndex" class="masonry-item" [class.hover-effect]="settings.hoverEffect" (click)="settings.enableLightbox ? openLightbox(i) : null">
             <img [src]="image.src" [alt]="image.alt" class="masonry-image" [class.rounded]="settings.roundedCorners" loading="lazy" />
-            <div *ngIf="settings.showTitles && (image.title || image.alt)" class="image-overlay">
-                <span class="image-title">{{ image.title || image.alt }}</span>
+            <div *ngIf="settings.showTitles && (image.title || image.alt)" class="image-overlay" [style.background-color]="overlayBackgroundColor">
+                <span class="image-title" [style.color]="captionColor">{{ image.title || image.alt }}</span>
             </div>
         </div>
     </div>
@@ -32,8 +32,8 @@
             <div class="carousel-slides">
                 <div *ngFor="let image of settings.images; let i = index; trackBy: trackByIndex" class="carousel-slide" [class.active]="i === currentSlideIndex" [class.rounded]="settings.roundedCorners">
                     <img [src]="image.src" [alt]="image.alt" class="carousel-image" loading="lazy" (click)="settings.enableLightbox ? openLightbox(i) : null" />
-                    <div *ngIf="settings.showTitles && (image.title || image.alt)" class="carousel-caption">
-                        <h3>{{ image.title || image.alt }}</h3>
+                    <div *ngIf="settings.showTitles && (image.title || image.alt)" class="carousel-caption" [style.background-color]="overlayBackgroundColor">
+                        <h3 [style.color]="captionColor">{{ image.title || image.alt }}</h3>
                     </div>
                 </div>
             </div>

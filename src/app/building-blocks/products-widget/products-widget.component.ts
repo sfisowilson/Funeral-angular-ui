@@ -15,7 +15,7 @@ import { ProductFilterService } from '../../core/services/product-filter.service
         <div class="products-widget" [ngStyle]="getContainerStyles()">
             <div class="pw-container">
                 <h2 *ngIf="config.showTitle" [ngStyle]="getTitleStyles()">{{ config.title }}</h2>
-                <p *ngIf="config.showSubtitle" class="pw-subtitle">{{ config.subtitle }}</p>
+                <p *ngIf="config.showSubtitle" class="pw-subtitle" [ngStyle]="getSubtitleStyles()">{{ config.subtitle }}</p>
 
                 <!-- Filter / Sort bar -->
                 <div class="pw-filters" *ngIf="config.showFilters || config.showSort">
@@ -426,6 +426,7 @@ export class ProductsWidgetComponent implements OnInit, OnDestroy {
         // Colours
         backgroundColor: '#ffffff',
         titleColor: '#333333',
+        subtitleColor: '#666666',
         priceColor: '#000000',
         buttonColor: '#007bff',
         buttonTextColor: '#ffffff',
@@ -591,6 +592,9 @@ export class ProductsWidgetComponent implements OnInit, OnDestroy {
     }
     getTitleStyles() {
         return { color: this.config.titleColor };
+    }
+    getSubtitleStyles() {
+        return { color: this.config.subtitleColor || '#666' };
     }
     getPriceStyles() {
         return { color: this.config.priceColor };

@@ -31,6 +31,26 @@
                 <label class="form-label">Icon Color</label>
                 <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.iconColor" (ngModelChange)="emitChange()" />
             </div>
+            <div class="col-12 mb-3">
+                <label class="form-label">Background Opacity ({{ config.settings.backgroundOpacity ?? 1 | number:'1.2-2' }})</label>
+                <input type="range" class="form-range" min="0" max="1" step="0.01" [(ngModel)]="config.settings.backgroundOpacity" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Title Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.titleColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Subtitle Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.subtitleColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Label Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.labelColor" (ngModelChange)="emitChange()" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Value Text Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.valueTextColor" (ngModelChange)="emitChange()" />
+            </div>
         </div>
     </div>
 

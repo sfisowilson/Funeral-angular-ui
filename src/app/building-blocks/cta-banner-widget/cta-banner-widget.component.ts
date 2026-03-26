@@ -17,6 +17,12 @@ export interface CTABannerSettings {
     textColor?: 'light' | 'dark';
     alignment?: 'left' | 'center' | 'right';
     paddingSize?: 'small' | 'medium' | 'large';
+    headlineColor?: string;
+    subheadlineColor?: string;
+    primaryButtonColor?: string;
+    primaryButtonTextColor?: string;
+    secondaryButtonColor?: string;
+    secondaryButtonTextColor?: string;
 }
 
 export interface CTABannerConfig {
@@ -97,6 +103,30 @@ export class CTABannerWidgetComponent {
 
     get textColor(): string {
         return this.settings.textColor || 'light';
+    }
+
+    get headlineColor(): string {
+        return this.settings.headlineColor || (this.textColor === 'light' ? '#ffffff' : '#212529');
+    }
+
+    get subheadlineColor(): string {
+        return this.settings.subheadlineColor || (this.textColor === 'light' ? 'rgba(255,255,255,0.85)' : '#6c757d');
+    }
+
+    getPrimaryButtonStyle(): any {
+        return {
+            'background-color': this.settings.primaryButtonColor || (this.textColor === 'light' ? '#ffffff' : '#0d6efd'),
+            'color': this.settings.primaryButtonTextColor || (this.textColor === 'light' ? '#0d6efd' : '#ffffff'),
+            'border-color': this.settings.primaryButtonColor || (this.textColor === 'light' ? '#ffffff' : '#0d6efd')
+        };
+    }
+
+    getSecondaryButtonStyle(): any {
+        return {
+            'background-color': this.settings.secondaryButtonColor || 'transparent',
+            'color': this.settings.secondaryButtonTextColor || (this.textColor === 'light' ? '#ffffff' : '#0d6efd'),
+            'border-color': this.settings.secondaryButtonTextColor || (this.textColor === 'light' ? '#ffffff' : '#0d6efd')
+        };
     }
 
     get alignment(): string {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, Inject } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { WidgetConfig } from '../widget-config';
 import { ContactFormServiceProxy } from '../../core/services/service-proxies';
@@ -27,7 +27,7 @@ interface SocialMedia {
     templateUrl: './contact-us-widget.component.html',
     styleUrls: ['./contact-us-widget.component.scss']
 })
-export class ContactUsWidgetComponent implements OnInit {
+export class ContactUsWidgetComponent implements OnInit, OnChanges {
     @Input() config!: WidgetConfig;
     contactForm!: FormGroup;
     isSubmitting = false;
@@ -50,6 +50,12 @@ export class ContactUsWidgetComponent implements OnInit {
             message: ['', Validators.required]
         });
         this.applyCustomColors();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['config']) {
+            this.applyCustomColors();
+        }
     }
 
     get branches(): Branch[] {

@@ -76,6 +76,10 @@ import { TenantService } from '../../core/services/tenant.service';
                             <p-colorPicker id="titleColor" [(ngModel)]="settings.titleColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                         <div class="col-12 col-md-3">
+                            <label for="subtitleColor" class="form-label fw-semibold">Subtitle</label>
+                            <p-colorPicker id="subtitleColor" [(ngModel)]="settings.subtitleColor" [inline]="false" appendTo="body"></p-colorPicker>
+                        </div>
+                        <div class="col-12 col-md-3">
                             <label for="cardBackgroundColor" class="form-label fw-semibold">Card Background</label>
                             <p-colorPicker id="cardBackgroundColor" [(ngModel)]="settings.cardBackgroundColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
@@ -98,6 +102,14 @@ import { TenantService } from '../../core/services/tenant.service';
                         <div class="col-12 col-md-3">
                             <label for="buttonColor" class="form-label fw-semibold">Button</label>
                             <p-colorPicker id="buttonColor" [(ngModel)]="settings.buttonColor" [inline]="false" appendTo="body"></p-colorPicker>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label for="checkmarkColor" class="form-label fw-semibold">Checkmark</label>
+                            <p-colorPicker id="checkmarkColor" [(ngModel)]="settings.checkmarkColor" [inline]="false" appendTo="body"></p-colorPicker>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label for="featureTextColor" class="form-label fw-semibold">Feature Text</label>
+                            <p-colorPicker id="featureTextColor" [(ngModel)]="settings.featureTextColor" [inline]="false" appendTo="body"></p-colorPicker>
                         </div>
                     </div>
                 </p-accordionTab>

@@ -30,6 +30,14 @@ export class ContactCardEditorComponent implements OnInit {
     constructor(private sanitizer: DomSanitizer) {}
 
     ngOnInit() {
+        // When used inside the page builder, the full WidgetConfig is passed as config.
+        // The actual ContactCardConfig lives under config.settings in that case.
+        // Normalize so template bindings (config.title, config.contactMethods, etc.) work correctly.
+        const raw = this.config as any;
+        if (raw.settings && (raw.settings.contactMethods !== undefined || raw.settings.title !== undefined)) {
+            this.config = raw.settings as ContactCardConfig;
+        }
+
         if (!this.config.title) {
             this.config.title = 'Get In Touch';
         }
@@ -88,6 +96,7 @@ export class ContactCardEditorComponent implements OnInit {
     }
 
     emitChange() {
+        // Only live-preview (no close). update is emitted only by onSave().
         this.configChange.emit(this.config);
     }
 
@@ -147,6 +156,8 @@ export class ContactCardEditorComponent implements OnInit {
     }
 
     onSave() {
-        this.update.emit(this.config.settings);
+        // Emit the full ContactCardConfig so title and contactMethods are persisted,
+        // not just the display settings sub-object.
+        this.update.emit(this.config);
     }
 }

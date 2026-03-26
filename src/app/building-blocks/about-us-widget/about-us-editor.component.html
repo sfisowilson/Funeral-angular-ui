@@ -6,7 +6,7 @@
 
     <p-accordion [multiple]="true" [activeIndex]="[0]">
         <!-- Color Settings -->
-        <!-- <p-accordionTab header="Color Settings">
+        <p-accordionTab header="Color Settings">
             <div class="p-field">
                 <label>Primary Color (Leave empty to use theme default)</label>
                 <input type="color" pInputText [(ngModel)]="config.settings.primaryColor" 
@@ -31,7 +31,7 @@
                        placeholder="Use theme background color" />
                 <small *ngIf="!config.settings.backgroundColor" class="text-muted">Will use theme background color</small>
             </div>
-        </p-accordionTab> -->
+        </p-accordionTab>
 
         <!-- General Settings -->
         <p-accordionTab header="General Settings">

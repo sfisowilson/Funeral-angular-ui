@@ -52,8 +52,34 @@
             </div>
 
             <div class="form-group col-md-6">
+                <label>Background Opacity (%)</label>
+                <input type="range" class="form-control" [(ngModel)]="config.settings.backgroundOpacity" min="0" max="1" step="0.01" />
+                <small class="text-muted">{{ ((config.settings.backgroundOpacity ?? 1) * 100) | number:'1.0-0' }}%</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
                 <label>Step Card Background</label>
                 <input type="color" class="form-control" [(ngModel)]="config.settings.stepBackgroundColor" />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Step Card Opacity (%)</label>
+                <input type="range" class="form-control" [(ngModel)]="config.settings.stepBackgroundOpacity" min="0" max="1" step="0.01" />
+                <small class="text-muted">{{ ((config.settings.stepBackgroundOpacity ?? 1) * 100) | number:'1.0-0' }}%</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label>Step Title Color</label>
+                <input type="color" class="form-control" [(ngModel)]="config.settings.stepTitleColor" />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label>Step Description Color</label>
+                <input type="color" class="form-control" [(ngModel)]="config.settings.stepDescriptionColor" />
             </div>
         </div>
 
@@ -149,13 +175,15 @@
                 <input type="text" class="form-control" [(ngModel)]="config.settings.ctaUrl" placeholder="/auth/register (or /auth/tenant-register for host tenant)" />
             </div>
 
-            <div class="form-group">
-                <label>Button Style</label>
-                <select class="form-control" [(ngModel)]="config.settings.ctaStyle">
-                    <option value="primary">Primary (Blue)</option>
-                    <option value="success">Success (Green)</option>
-                    <option value="outline">Outline</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>Button Color</label>
+                    <input type="color" class="form-control" [(ngModel)]="config.settings.ctaButtonColor" />
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Button Text Color</label>
+                    <input type="color" class="form-control" [(ngModel)]="config.settings.ctaButtonTextColor" />
+                </div>
             </div>
         </div>
     </div>

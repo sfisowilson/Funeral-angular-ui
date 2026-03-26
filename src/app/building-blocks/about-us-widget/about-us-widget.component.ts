@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Inject, OnInit , ChangeDetectionStrategy} from '@angular/core';
+import { Component, Input, Inject, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy} from '@angular/core';
 import { WidgetConfig } from '../widget-config';
 import { API_BASE_URL } from '../../core/services/service-proxies';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
@@ -12,7 +12,7 @@ import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
     templateUrl: './about-us-widget.component.html',
     styleUrls: ['./about-us-widget.component.scss']
 })
-export class AboutUsWidgetComponent implements OnInit {
+export class AboutUsWidgetComponent implements OnInit, OnChanges {
     @Input() config!: WidgetConfig;
     customStyles: SafeStyle = '';
 
@@ -23,6 +23,12 @@ export class AboutUsWidgetComponent implements OnInit {
 
     ngOnInit(): void {
         this.applyCustomColors();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['config']) {
+            this.applyCustomColors();
+        }
     }
 
     private applyCustomColors(): void {

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class VideoEmbedEditorComponent implements OnInit {
     @Input() config: any = {};
+    @Output() update = new EventEmitter<any>();
 
     ngOnInit() {
         if (!this.config.settings) {
@@ -55,5 +56,9 @@ export class VideoEmbedEditorComponent implements OnInit {
             return 'https://vimeo.com/YOUR_VIDEO_ID';
         }
         return 'https://example.com/video-embed-url';
+    }
+
+    onSave() {
+        this.update.emit(this.config.settings);
     }
 }

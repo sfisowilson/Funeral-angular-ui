@@ -1,5 +1,6 @@
 import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { hexToRgba } from '../widget-color.utils';
 
 export interface ContactMethod {
     type: 'phone' | 'email' | 'address' | 'whatsapp' | 'hours' | 'custom';
@@ -14,7 +15,12 @@ export interface ContactCardSettings {
     mapEmbedUrl?: string;
     layout?: 'single' | 'split';
     backgroundColor?: string;
+    backgroundOpacity?: number;
     iconColor?: string;
+    titleColor?: string;
+    subtitleColor?: string;
+    labelColor?: string;
+    valueTextColor?: string;
 }
 
 export interface ContactCardConfig {
@@ -79,12 +85,17 @@ export class ContactCardWidgetComponent {
     }
 
     get backgroundColor(): string {
-        return this.settings.backgroundColor || 'var(--surface-ground, #f8f9fa)';
+        return hexToRgba(this.settings.backgroundColor || '#f8f9fa', this.settings.backgroundOpacity ?? 1);
     }
 
     get iconColor(): string {
         return this.settings.iconColor || 'var(--primary-color, #007bff)';
     }
+
+    get titleColor(): string { return this.settings.titleColor || '#212529'; }
+    get subtitleColor(): string { return this.settings.subtitleColor || '#6c757d'; }
+    get labelColor(): string { return this.settings.labelColor || '#495057'; }
+    get valueTextColor(): string { return this.settings.valueTextColor || '#6c757d'; }
 
     getContactLink(method: ContactMethod): string {
         if (method.link) {

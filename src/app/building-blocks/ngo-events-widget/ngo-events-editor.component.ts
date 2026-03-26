@@ -55,6 +55,10 @@ import { DropdownModule } from 'primeng/dropdown';
                         <p-colorPicker [(ngModel)]="settings.titleColor" class="w-full"></p-colorPicker>
                     </div>
                     <div class="field">
+                        <label for="subtitleColor">Subtitle Color</label>
+                        <p-colorPicker [(ngModel)]="settings.subtitleColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
                         <label for="cardBackgroundColor">Card Background</label>
                         <p-colorPicker [(ngModel)]="settings.cardBackgroundColor" class="w-full"></p-colorPicker>
                     </div>
@@ -69,6 +73,39 @@ import { DropdownModule } from 'primeng/dropdown';
                     <div class="field">
                         <label for="buttonColor">Button Color</label>
                         <p-colorPicker [(ngModel)]="settings.buttonColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="buttonTextColor">Button Text Color</label>
+                        <p-colorPicker [(ngModel)]="settings.buttonTextColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="viewAllButtonColor">View All Button Color</label>
+                        <p-colorPicker [(ngModel)]="settings.viewAllButtonColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="viewAllButtonTextColor">View All Text Color</label>
+                        <p-colorPicker [(ngModel)]="settings.viewAllButtonTextColor" class="w-full"></p-colorPicker>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label class="block font-semibold mb-2">Status Badge Colors</label>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="field">
+                            <label>Upcoming</label>
+                            <p-colorPicker [(ngModel)]="settings.statusUpcomingColor" class="w-full"></p-colorPicker>
+                        </div>
+                        <div class="field">
+                            <label>Ongoing</label>
+                            <p-colorPicker [(ngModel)]="settings.statusOngoingColor" class="w-full"></p-colorPicker>
+                        </div>
+                        <div class="field">
+                            <label>Completed</label>
+                            <p-colorPicker [(ngModel)]="settings.statusCompletedColor" class="w-full"></p-colorPicker>
+                        </div>
+                        <div class="field">
+                            <label>Default/Other</label>
+                            <p-colorPicker [(ngModel)]="settings.statusDefaultColor" class="w-full"></p-colorPicker>
+                        </div>
                     </div>
                 </div>
             </p-fieldset>
@@ -123,7 +160,11 @@ export class NgoEventsEditorComponent {
                 viewAllButtonTextColor: '#ffffff',
                 viewAllButtonText: 'View All Events',
                 showViewAllButton: true,
-                eventsUrl: '/ngo/events'
+                eventsUrl: '/ngo/events',
+                statusUpcomingColor: '#3b82f6',
+                statusOngoingColor: '#ef4444',
+                statusCompletedColor: '#10b981',
+                statusDefaultColor: '#6b7280'
             };
         }
     }

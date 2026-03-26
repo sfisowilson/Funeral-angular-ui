@@ -94,6 +94,10 @@ export class PageEditorComponent implements OnInit, OnDestroy {
         this.customPagesService.customPagesGet(this.pageId).subscribe({
             next: (response) => {
                 const page = response.result || null;
+                // Ensure metaTags object exists so the SEO panel can bind to it
+                if (page && !page.metaTags) {
+                    (page as any).metaTags = {};
+                }
                 this.page.set(page);
 
                 // Convert page content to WidgetConfig format and load into WidgetService

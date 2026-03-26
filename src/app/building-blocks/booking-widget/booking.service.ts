@@ -61,6 +61,14 @@ export interface BookingWidgetConfig {
     notificationEmail?: string;
     sendCustomerConfirmation?: boolean;
     sendAdminNotification?: boolean;
+    // Colors
+    backgroundColor?: string;
+    backgroundOpacity?: number;
+    textColor?: string;
+    accentColor?: string;
+    buttonColor?: string;
+    buttonTextColor?: string;
+    summaryBackgroundColor?: string;
 }
 
 @Injectable({

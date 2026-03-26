@@ -20,8 +20,29 @@ export class TimelineComparisonEditorComponent implements OnInit {
                 title: 'Time to Market Comparison',
                 subtitle: 'See how fast you can get your business online',
                 showSteps: true,
-                highlightRecommended: true
+                highlightRecommended: true,
+                titleColor: '#000000',
+                subtitleColor: '#6c757d',
+                cardBackgroundColor: '#ffffff',
+                cardBackgroundOpacity: 1,
+                headerBackgroundColor: '#f8f9fa',
+                headerTextColor: '#000000',
+                stepLabelColor: '#333333',
+                stepDurationColor: '#6c757d',
+                recommendedBadgeColor: '#28a745',
+                recommendedBadgeTextColor: '#ffffff'
             };
+        } else {
+            if (this.config.settings.titleColor === undefined) this.config.settings.titleColor = '#000000';
+            if (this.config.settings.subtitleColor === undefined) this.config.settings.subtitleColor = '#6c757d';
+            if (this.config.settings.cardBackgroundColor === undefined) this.config.settings.cardBackgroundColor = '#ffffff';
+            if (this.config.settings.cardBackgroundOpacity === undefined) this.config.settings.cardBackgroundOpacity = 1;
+            if (this.config.settings.headerBackgroundColor === undefined) this.config.settings.headerBackgroundColor = '#f8f9fa';
+            if (this.config.settings.headerTextColor === undefined) this.config.settings.headerTextColor = '#000000';
+            if (this.config.settings.stepLabelColor === undefined) this.config.settings.stepLabelColor = '#333333';
+            if (this.config.settings.stepDurationColor === undefined) this.config.settings.stepDurationColor = '#6c757d';
+            if (this.config.settings.recommendedBadgeColor === undefined) this.config.settings.recommendedBadgeColor = '#28a745';
+            if (this.config.settings.recommendedBadgeTextColor === undefined) this.config.settings.recommendedBadgeTextColor = '#ffffff';
         }
 
         if (!this.config.options || this.config.options.length === 0) {

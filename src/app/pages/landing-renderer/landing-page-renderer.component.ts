@@ -155,6 +155,7 @@ import { environment } from '../../../environments/environment';
 export class LandingPageRendererComponent implements OnInit, OnDestroy {
     widgets: WidgetConfig[] = [];
     private widgetSubscription!: Subscription;
+    private _jsonLdScript: HTMLScriptElement | null = null;
     currentYear: number = new Date().getFullYear();
     isLoggedIn = false; // replace this with real auth state
     mobileMenuOpen = false;
@@ -209,9 +210,11 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             const siteDescription = this._settings.siteDescription ||
                 'The complete platform for businesses — professional website, member management, claims and payments. Go live in minutes.';
             this.metaService.updateTag({ name: 'description', content: siteDescription });
-            this.metaService.updateTag({ property: 'og:title', content: tenantTitle });
+            this.metaService.updateTag({ property: 'og:type',        content: 'website' });
+            this.metaService.updateTag({ property: 'og:site_name',   content: tenantTitle });
+            this.metaService.updateTag({ property: 'og:title',       content: tenantTitle });
             this.metaService.updateTag({ property: 'og:description', content: siteDescription });
-            this.metaService.updateTag({ name: 'twitter:title', content: tenantTitle });
+            this.metaService.updateTag({ name: 'twitter:title',       content: tenantTitle });
             this.metaService.updateTag({ name: 'twitter:description', content: siteDescription });
 
             // Canonical: use actual origin so tenant subdomains & custom domains
@@ -226,6 +229,15 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
                 this.metaService.updateTag({ property: 'og:image', content: logoUrl });
                 this.metaService.updateTag({ name: 'twitter:image', content: logoUrl });
             }
+
+            // Google Search Console verification (if tenant has code in settings)
+            const verificationCode = this._settings.googleVerificationCode || '';
+            if (verificationCode) {
+                this.metaService.updateTag({ name: 'google-site-verification', content: verificationCode });
+            }
+
+            // JSON-LD Organization schema
+            this.injectOrganizationSchema(tenantTitle, canonicalUrl, logoUrl);
         });
 
         this.isLoggedIn = this.authService.isAuthenticated();
@@ -292,6 +304,10 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         if (this.widgetSubscription) {
             this.widgetSubscription.unsubscribe();
         }
+        if (this._jsonLdScript) {
+            this._jsonLdScript.remove();
+            this._jsonLdScript = null;
+        }
     }
 
     private updateCanonical(url: string): void {
@@ -302,6 +318,26 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             this.document.head.appendChild(link);
         }
         link.setAttribute('href', url);
+    }
+
+    private injectOrganizationSchema(name: string, url: string, logoUrl: string): void {
+        if (this._jsonLdScript) {
+            this._jsonLdScript.remove();
+        }
+        const schema: any = {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name,
+            url
+        };
+        if (logoUrl) {
+            schema.logo = logoUrl;
+        }
+        const script = this.document.createElement('script');
+        script.type = 'application/ld+json';
+        script.text = JSON.stringify(schema);
+        this.document.head.appendChild(script);
+        this._jsonLdScript = script;
     }
 
     logout(): void {

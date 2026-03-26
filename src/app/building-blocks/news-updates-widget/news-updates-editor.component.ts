@@ -51,8 +51,16 @@ import { CalendarModule } from 'primeng/calendar';
                         <p-colorPicker [(ngModel)]="settings.backgroundColor" class="w-full"></p-colorPicker>
                     </div>
                     <div class="field">
-                        <label for="titleColor">Title Color</label>
+                        <label for="titleColor">Section Title Color</label>
                         <p-colorPicker [(ngModel)]="settings.titleColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="subtitleColor">Subtitle Color</label>
+                        <p-colorPicker [(ngModel)]="settings.subtitleColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field col-span-full">
+                        <label>Background Opacity ({{ settings.backgroundOpacity ?? 1 }})</label>
+                        <input type="range" class="w-full" min="0" max="1" step="0.01" [(ngModel)]="settings.backgroundOpacity" />
                     </div>
                     <div class="field">
                         <label for="cardBackgroundColor">Card Background</label>
@@ -67,8 +75,36 @@ import { CalendarModule } from 'primeng/calendar';
                         <p-colorPicker [(ngModel)]="settings.excerptColor" class="w-full"></p-colorPicker>
                     </div>
                     <div class="field">
-                        <label for="buttonColor">Button Color</label>
+                        <label for="dateColor">Date Color</label>
+                        <p-colorPicker [(ngModel)]="settings.dateColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="authorColor">Author Color</label>
+                        <p-colorPicker [(ngModel)]="settings.authorColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="categoryBackgroundColor">Category Badge Background</label>
+                        <p-colorPicker [(ngModel)]="settings.categoryBackgroundColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="categoryTextColor">Category Badge Text</label>
+                        <p-colorPicker [(ngModel)]="settings.categoryTextColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="buttonColor">Read More Button Background</label>
                         <p-colorPicker [(ngModel)]="settings.buttonColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="buttonTextColor">Read More Button Text</label>
+                        <p-colorPicker [(ngModel)]="settings.buttonTextColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="viewAllButtonColor">View All Button Background</label>
+                        <p-colorPicker [(ngModel)]="settings.viewAllButtonColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="viewAllButtonTextColor">View All Button Text</label>
+                        <p-colorPicker [(ngModel)]="settings.viewAllButtonTextColor" class="w-full"></p-colorPicker>
                     </div>
                 </div>
             </p-fieldset>

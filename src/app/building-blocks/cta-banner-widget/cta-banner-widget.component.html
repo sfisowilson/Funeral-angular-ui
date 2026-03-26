@@ -7,10 +7,10 @@
         <div class="row">
             <div class="col-12" [ngClass]="'text-' + alignment">
                 <!-- Headline -->
-                <h2 class="banner-headline mb-3" *ngIf="headline">{{ headline }}</h2>
+                <h2 class="banner-headline mb-3" [style.color]="headlineColor" *ngIf="headline">{{ headline }}</h2>
 
                 <!-- Subheadline -->
-                <p class="banner-subheadline mb-4" *ngIf="subheadline">{{ subheadline }}</p>
+                <p class="banner-subheadline mb-4" [style.color]="subheadlineColor" *ngIf="subheadline">{{ subheadline }}</p>
 
                 <!-- CTA Buttons -->
                 <div class="banner-buttons" *ngIf="buttons.length > 0">
@@ -18,10 +18,7 @@
                         *ngFor="let button of buttons"
                         [href]="button.link"
                         class="btn btn-lg me-3 mb-3"
-                        [class.btn-light]="button.isPrimary && textColor === 'light'"
-                        [class.btn-primary]="button.isPrimary && textColor === 'dark'"
-                        [class.btn-outline-light]="!button.isPrimary && textColor === 'light'"
-                        [class.btn-outline-primary]="!button.isPrimary && textColor === 'dark'"
+                        [ngStyle]="button.isPrimary ? getPrimaryButtonStyle() : getSecondaryButtonStyle()"
                     >
                         {{ button.text }}
                     </a>

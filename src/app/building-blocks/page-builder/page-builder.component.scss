@@ -140,14 +140,22 @@
         ::ng-deep .p-button {
             width: 2rem;
             height: 2rem;
-            color: white;
+            color: white !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            
+            .p-button-icon {
+                color: white !important;
+            }
             
             &:hover {
-                background: rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.3) !important;
+                border-color: white !important;
             }
             
             &.p-button-danger:hover {
-                background: rgba(220, 38, 38, 0.8);
+                background: rgba(220, 38, 38, 0.8) !important;
+                border-color: rgba(220, 38, 38, 0.9) !important;
             }
         }
     }

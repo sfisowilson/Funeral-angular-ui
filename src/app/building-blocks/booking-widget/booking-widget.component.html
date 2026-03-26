@@ -1,8 +1,8 @@
-<div class="booking-widget">
+<div class="booking-widget" [style.background-color]="backgroundColor" [style.color]="textColor">
     <p-card header="Book an Appointment" *ngIf="!bookingComplete()">
         <!-- Step 1: Select Date -->
         <div *ngIf="currentStep() === 1" class="form-section">
-            <h3 class="section-title">Select Date</h3>
+            <h3 class="section-title" [style.color]="textColor">Select Date</h3>
             <p-calendar [(ngModel)]="selectedDate" (onSelect)="onDateSelect()" [disabledDates]="disabledDates" [inline]="true" [showWeek]="true" [minDate]="minDate"> </p-calendar>
 
             <div class="flex justify-content-end mt-3">
@@ -12,7 +12,7 @@
 
         <!-- Step 2: Select Time Slot -->
         <div *ngIf="currentStep() === 2" class="form-section">
-            <h3 class="section-title">Select Time</h3>
+            <h3 class="section-title" [style.color]="textColor">Select Time</h3>
 
             <div class="mb-3"><strong>Selected Date:</strong> {{ selectedDate | date: 'longDate' }}</div>
 
@@ -22,7 +22,10 @@
             </div>
 
             <div *ngIf="!isLoading()" class="time-slots-grid">
-                <div *ngFor="let slot of availableTimeSlots()" class="time-slot" [class.selected]="selectedTimeSlot?.time === slot.time" [class.disabled]="!slot.available" (click)="selectTimeSlot(slot)">
+                <div *ngFor="let slot of availableTimeSlots()" class="time-slot"
+                     [class.disabled]="!slot.available"
+                     [ngStyle]="getTimeSlotStyle(slot)"
+                     (click)="selectTimeSlot(slot)">
                     {{ formatTime(slot.time) }}
                 </div>
             </div>
@@ -35,7 +38,7 @@
 
         <!-- Step 3: Select Services -->
         <div *ngIf="currentStep() === 3" class="form-section">
-            <h3 class="section-title">Select Services</h3>
+            <h3 class="section-title" [style.color]="textColor">Select Services</h3>
 
             <div class="mb-3"><strong>Selected Date:</strong> {{ selectedDate | date: 'longDate' }} at {{ formatTime(selectedTimeSlot!.time) }}</div>
 
@@ -45,7 +48,9 @@
             </div>
 
             <div *ngIf="services.length > 0">
-                <div *ngFor="let service of services" class="service-item" [class.selected]="isServiceSelected(service.id)" (click)="selectService(service)">
+                <div *ngFor="let service of services" class="service-item"
+                     [ngStyle]="getServiceItemStyle(service)"
+                     (click)="selectService(service)">
                     <div class="flex justify-content-between align-items-center">
                         <div>
                             <h5 class="mb-1">{{ service.name }}</h5>
@@ -67,9 +72,9 @@
 
         <!-- Step 4: Customer Information -->
         <div *ngIf="currentStep() === 4" class="form-section">
-            <h3 class="section-title">Your Information</h3>
+            <h3 class="section-title" [style.color]="textColor">Your Information</h3>
 
-            <div class="booking-summary">
+            <div class="booking-summary" [style.background-color]="summaryBackgroundColor">
                 <h5>Booking Summary</h5>
                 <p><strong>Date:</strong> {{ selectedDate | date: 'longDate' }}</p>
                 <p><strong>Time:</strong> {{ formatTime(selectedTimeSlot!.time) }}</p>

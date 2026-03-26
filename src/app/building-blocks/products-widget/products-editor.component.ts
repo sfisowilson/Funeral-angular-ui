@@ -70,6 +70,7 @@ import { FormsModule } from '@angular/forms';
             <div class="form-group"><label>Background</label><input type="color" class="form-control color-input" [(ngModel)]="config.backgroundColor" (ngModelChange)="onConfigChange()" /></div>
             <div class="form-group"><label>Card Background</label><input type="color" class="form-control color-input" [(ngModel)]="config.cardBackground" (ngModelChange)="onConfigChange()" /></div>
             <div class="form-group"><label>Title Color</label><input type="color" class="form-control color-input" [(ngModel)]="config.titleColor" (ngModelChange)="onConfigChange()" /></div>
+            <div class="form-group"><label>Subtitle Color</label><input type="color" class="form-control color-input" [(ngModel)]="config.subtitleColor" (ngModelChange)="onConfigChange()" /></div>
             <div class="form-group"><label>Price Color</label><input type="color" class="form-control color-input" [(ngModel)]="config.priceColor" (ngModelChange)="onConfigChange()" /></div>
             <div class="form-group"><label>Button Color</label><input type="color" class="form-control color-input" [(ngModel)]="config.buttonColor" (ngModelChange)="onConfigChange()" /></div>
             <div class="form-group"><label>Button Text Color</label><input type="color" class="form-control color-input" [(ngModel)]="config.buttonTextColor" (ngModelChange)="onConfigChange()" /></div>

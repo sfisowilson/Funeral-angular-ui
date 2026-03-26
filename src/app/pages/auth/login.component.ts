@@ -167,6 +167,7 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
     }
 
     login() {
+        this.patchFromNativeInputs();
         this.isBusy = true;
         if (!this.form.valid) {
             this.isBusy = false;
@@ -392,5 +393,24 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
 
     getRegisterRoute(): string {
         return this.tenantService.getTenantType() === 'host' ? '/auth/tenant-register' : '/auth/register';
+    }
+
+    patchFromNativeInputs(): void {
+        const emailControl = this.form.get('email');
+        if (emailControl && !emailControl.value) {
+            const emailInput = document.getElementById('email1') as HTMLInputElement | null;
+            if (emailInput?.value) {
+                emailControl.setValue(emailInput.value, { emitEvent: false });
+            }
+        }
+
+        const passwordControl = this.form.get('password');
+        if (passwordControl && !passwordControl.value) {
+            // inputId="loginPasswordInput" on <p-password> renders as the id on the inner <input>
+            const passwordInput = document.getElementById('loginPasswordInput') as HTMLInputElement | null;
+            if (passwordInput?.value) {
+                passwordControl.setValue(passwordInput.value, { emitEvent: false });
+            }
+        }
     }
 }

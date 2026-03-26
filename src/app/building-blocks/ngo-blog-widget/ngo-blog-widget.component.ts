@@ -159,13 +159,13 @@ export class NgoBlogWidgetComponent implements OnInit {
     getStatusColor(status: string): string {
         switch (status?.toLowerCase()) {
             case 'published':
-                return '#10b981';
+                return this.config.statusPublishedColor || '#10b981';
             case 'draft':
-                return '#f59e0b';
+                return this.config.statusDraftColor || '#f59e0b';
             case 'archived':
-                return '#6b7280';
+                return this.config.statusArchivedColor || '#6b7280';
             default:
-                return '#6b7280';
+                return this.config.statusDefaultColor || '#6b7280';
         }
     }
 

@@ -1,6 +1,7 @@
 import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { hexToRgba } from '../widget-color.utils';
 
 export interface VideoEmbedSettings {
     title?: string;
@@ -35,6 +36,13 @@ export class VideoEmbedWidgetComponent {
     get subtitle(): string {
         return this.config.settings?.subtitle || '';
     }
+
+    get backgroundColor(): string { return hexToRgba(this.config.settings?.backgroundColor || '#ffffff', this.config.settings?.backgroundOpacity ?? 1); }
+    get titleColor(): string { return this.config.settings?.titleColor || '#1a1a1a'; }
+    get subtitleColor(): string { return this.config.settings?.subtitleColor || '#6c757d'; }
+    get captionColor(): string { return this.config.settings?.captionColor || '#6c757d'; }
+    get placeholderBackgroundColor(): string { return hexToRgba(this.config.settings?.placeholderBackgroundColor || '#f8f9fa', this.config.settings?.placeholderBackgroundOpacity ?? 1); }
+    get placeholderTextColor(): string { return this.config.settings?.placeholderTextColor || '#6c757d'; }
 
     get settings(): VideoEmbedSettings {
         return this.config.settings || {};

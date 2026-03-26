@@ -127,4 +127,63 @@
         <i class="bi bi-info-circle me-2"></i>
         <strong>Tip:</strong> Use real testimonials with permission. Keep content 2-4 sentences for best readability. Consider asking satisfied clients for a photo to add authenticity.
     </div>
+
+    <!-- Colors -->
+    <div class="editor-section">
+        <h5>Colors</h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Background Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.backgroundColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Background Opacity ({{ config.settings.backgroundOpacity ?? 1 | number:'1.2-2' }})</label>
+                <input type="range" class="form-range" min="0" max="1" step="0.01" [(ngModel)]="config.settings.backgroundOpacity" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Title Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.titleColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Subtitle Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.subtitleColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Card Background Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.cardBackgroundColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Quote Icon Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.quoteIconColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Testimonial Text Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.testimonialTextColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Author Name Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.nameColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Author Role Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.roleColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Star Rating Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.starColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Navigation Button Background</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.navigationColor" (ngModelChange)="onSave()" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Navigation Button Text Color</label>
+                <input type="color" class="form-control form-control-color" [(ngModel)]="config.settings.navigationTextColor" (ngModelChange)="onSave()" />
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-section d-flex justify-content-end mb-3">
+        <button type="button" class="btn-primary-theme" (click)="onSave()"><i class="bi bi-save"></i> Save</button>
+    </div>
 </div>

@@ -42,13 +42,15 @@ export class NgoGrantApplicationsWidgetComponent implements OnInit {
     applications: any[] = [];
     loading = true;
 
-    statusColors: any = {
-        submitted: '#3b82f6',
-        'under-review': '#f59e0b',
-        approved: '#10b981',
-        rejected: '#ef4444',
-        completed: '#8b5cf6'
-    };
+    get statusColors(): any {
+        return {
+            submitted: this.config.statusSubmittedColor || '#3b82f6',
+            'under-review': this.config.statusUnderReviewColor || '#f59e0b',
+            approved: this.config.statusApprovedColor || '#10b981',
+            rejected: this.config.statusRejectedColor || '#ef4444',
+            completed: this.config.statusCompletedColor || '#8b5cf6'
+        };
+    }
 
     constructor(private ngoService: NgoServiceProxy) {}
 

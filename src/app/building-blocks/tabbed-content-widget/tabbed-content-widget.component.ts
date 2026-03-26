@@ -1,5 +1,6 @@
 import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { hexToRgba } from '../widget-color.utils';
 
 export interface TabItem {
     id: string;
@@ -42,6 +43,16 @@ export class TabbedContentWidgetComponent {
     get subtitle(): string {
         return this.config.settings?.subtitle || '';
     }
+
+    get backgroundColor(): string { return hexToRgba(this.config.settings?.backgroundColor || '#ffffff', this.config.settings?.backgroundOpacity ?? 1); }
+    get titleColor(): string { return this.config.settings?.titleColor || '#1a1a1a'; }
+    get subtitleColor(): string { return this.config.settings?.subtitleColor || '#6c757d'; }
+    get tabActiveBackgroundColor(): string { return hexToRgba(this.config.settings?.tabActiveBackgroundColor || '#0d6efd', this.config.settings?.tabActiveBackgroundOpacity ?? 1); }
+    get tabActiveTextColor(): string { return this.config.settings?.tabActiveTextColor || '#ffffff'; }
+    get tabInactiveBackgroundColor(): string { return hexToRgba(this.config.settings?.tabInactiveBackgroundColor || 'transparent', this.config.settings?.tabInactiveBackgroundOpacity ?? 1); }
+    get tabInactiveTextColor(): string { return this.config.settings?.tabInactiveTextColor || '#495057'; }
+    get contentBackgroundColor(): string { return hexToRgba(this.config.settings?.contentBackgroundColor || '#ffffff', this.config.settings?.contentBackgroundOpacity ?? 1); }
+    get contentTextColor(): string { return this.config.settings?.contentTextColor || '#212529'; }
 
     get tabs(): TabItem[] {
         return this.config.tabs || [];

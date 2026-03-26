@@ -1,8 +1,8 @@
-<div class="video-embed-widget">
+<div class="video-embed-widget" [style.background-color]="backgroundColor">
     <div class="container py-5">
         <div class="text-center mb-4" *ngIf="title">
-            <h2 class="widget-title">{{ title }}</h2>
-            <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+            <h2 class="widget-title" [style.color]="titleColor">{{ title }}</h2>
+            <p class="widget-subtitle" [style.color]="subtitleColor" *ngIf="subtitle">{{ subtitle }}</p>
         </div>
 
         <div class="video-container" *ngIf="videoUrl">
@@ -10,12 +10,12 @@
                 <iframe [src]="embedUrl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen> </iframe>
             </div>
 
-            <p class="video-caption text-center mt-3" *ngIf="caption">{{ caption }}</p>
+            <p class="video-caption text-center mt-3" [style.color]="captionColor" *ngIf="caption">{{ caption }}</p>
         </div>
 
-        <div class="video-placeholder" *ngIf="!videoUrl">
-            <i class="bi bi-camera-video"></i>
-            <p>No video configured</p>
+        <div class="video-placeholder" [style.background-color]="placeholderBackgroundColor" *ngIf="!videoUrl">
+            <i class="bi bi-camera-video" [style.color]="placeholderTextColor"></i>
+            <p [style.color]="placeholderTextColor">No video configured</p>
         </div>
     </div>
 </div>

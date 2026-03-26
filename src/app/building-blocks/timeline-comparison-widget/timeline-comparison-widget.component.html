@@ -1,40 +1,40 @@
 <div class="timeline-comparison-widget">
     <div class="container py-5">
         <div class="text-center mb-5" *ngIf="title">
-            <h2 class="widget-title">{{ title }}</h2>
-            <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+            <h2 class="widget-title" [style.color]="widgetTitleColor">{{ title }}</h2>
+            <p class="widget-subtitle" [style.color]="widgetSubtitleColor" *ngIf="subtitle">{{ subtitle }}</p>
         </div>
 
         <div class="row g-4">
             <div class="col-md-6" *ngFor="let option of options">
-                <div class="timeline-card" [class.recommended]="highlightRecommended && option.isRecommended" [style.border-color]="option.isRecommended && option.highlightColor ? option.highlightColor : null">
-                    <div class="timeline-header" [style.background-color]="option.isRecommended && option.highlightColor ? option.highlightColor : null">
-                        <h3 class="timeline-title">{{ option.title }}</h3>
-                        <p class="timeline-subtitle" *ngIf="option.subtitle">{{ option.subtitle }}</p>
+                <div class="timeline-card" [style.background-color]="cardBackgroundColor" [class.recommended]="highlightRecommended && option.isRecommended" [style.border-color]="option.isRecommended && option.highlightColor ? option.highlightColor : null">
+                    <div class="timeline-header" [style.background-color]="option.isRecommended && option.highlightColor ? option.highlightColor : headerBackgroundColor" [style.color]="headerTextColor">
+                        <h3 class="timeline-title" [style.color]="headerTextColor">{{ option.title }}</h3>
+                        <p class="timeline-subtitle" [style.color]="headerTextColor" *ngIf="option.subtitle">{{ option.subtitle }}</p>
 
                         <div class="timeline-duration">
-                            <div class="duration-value">{{ option.duration }}</div>
-                            <div class="duration-unit" *ngIf="option.durationUnit">{{ option.durationUnit }}</div>
+                            <div class="duration-value" [style.color]="headerTextColor">{{ option.duration }}</div>
+                            <div class="duration-unit" [style.color]="headerTextColor" *ngIf="option.durationUnit">{{ option.durationUnit }}</div>
                         </div>
                     </div>
 
                     <div class="timeline-body" *ngIf="showSteps && option.steps?.length">
                         <ul class="timeline-steps">
                             <li *ngFor="let step of option.steps" class="timeline-step">
-                                <div class="step-label">{{ step.label }}</div>
-                                <div class="step-duration">{{ step.duration }}</div>
+                                <div class="step-label" [style.color]="stepLabelColor">{{ step.label }}</div>
+                                <div class="step-duration" [style.color]="stepDurationColor">{{ step.duration }}</div>
                             </li>
                         </ul>
                     </div>
 
                     <div class="timeline-footer" *ngIf="option.totalLabel">
-                        <div class="total-label">
+                        <div class="total-label" [style.color]="stepLabelColor">
                             <i class="bi bi-clock-history me-2"></i>
                             <strong>{{ option.totalLabel }}</strong>
                         </div>
                     </div>
 
-                    <div class="recommended-badge" *ngIf="option.isRecommended">
+                    <div class="recommended-badge" [style.background-color]="recommendedBadgeColor" [style.color]="recommendedBadgeTextColor" *ngIf="option.isRecommended">
                         <i class="bi bi-star-fill me-1"></i>
                         Recommended
                     </div>

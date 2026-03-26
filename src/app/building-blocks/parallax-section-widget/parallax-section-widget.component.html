@@ -54,7 +54,9 @@
 
             <button 
                 *ngIf="showCTA" 
-                class="cta-button btn-theme-primary"
+                class="cta-button"
+                [style.background-color]="ctaButtonColor"
+                [style.color]="ctaButtonTextColor"
                 (click)="onCTAClick()"
             >
                 {{ ctaText }}

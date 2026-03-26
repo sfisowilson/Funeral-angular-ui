@@ -1,5 +1,6 @@
 import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { hexToRgba } from '../widget-color.utils';
 
 export interface ProcessStep {
     number: number;
@@ -71,6 +72,38 @@ export class ProcessStepsWidgetComponent {
         return this.settings.connectorColor || 'var(--surface-border, #dee2e6)';
     }
 
+    get stepTitleColor(): string {
+        return this.settings.stepTitleColor || 'var(--text-color, #1a1a1a)';
+    }
+
+    get stepDescriptionColor(): string {
+        return this.settings.stepDescriptionColor || 'var(--muted-color, #6c757d)';
+    }
+
+    get ctaButtonColor(): string {
+        return this.settings.ctaButtonColor || '#0d6efd';
+    }
+
+    get ctaButtonTextColor(): string {
+        return this.settings.ctaButtonTextColor || '#ffffff';
+    }
+
+    get backgroundOpacity(): number {
+        return this.settings.backgroundOpacity ?? 1;
+    }
+
+    get stepBackgroundOpacity(): number {
+        return this.settings.stepBackgroundOpacity ?? 1;
+    }
+
+    get backgroundColorRgba(): string {
+        return hexToRgba(this.settings.backgroundColor || '#ffffff', this.backgroundOpacity);
+    }
+
+    get stepBackgroundColorRgba(): string {
+        return hexToRgba(this.settings.stepBackgroundColor || '#f8f9fa', this.stepBackgroundOpacity);
+    }
+
     get padding(): number {
         return this.settings.padding || 40;
     }
@@ -87,7 +120,4 @@ export class ProcessStepsWidgetComponent {
         return this.settings.ctaUrl || '#';
     }
 
-    get ctaStyle(): 'primary' | 'success' | 'outline' {
-        return this.settings.ctaStyle || 'primary';
-    }
 }

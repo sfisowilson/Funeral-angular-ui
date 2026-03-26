@@ -20,6 +20,8 @@ import { FormsModule } from '@angular/forms';
             <div class="field"><label>Button Color</label><input type="color" [(ngModel)]="config.buttonColor" (ngModelChange)="changed()" /></div>
             <div class="field"><label>Button Text Color</label><input type="color" [(ngModel)]="config.buttonTextColor" (ngModelChange)="changed()" /></div>
             <div class="field"><label>Background Color</label><input type="color" [(ngModel)]="config.backgroundColor" (ngModelChange)="changed()" /></div>
+            <div class="field"><label>Title Color</label><input type="color" [(ngModel)]="config.titleColor" (ngModelChange)="changed()" /></div>
+            <div class="field"><label>Row Alternate Color</label><input type="color" [(ngModel)]="config.rowAlternateColor" (ngModelChange)="changed()" /></div>
         </div>
     `,
     styles: [`

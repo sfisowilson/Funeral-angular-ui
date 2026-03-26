@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { WidgetConfig } from '../widget-config';
+import { hexToRgba } from '../widget-color.utils';
 
 @Component({
     selector: 'app-gallery-widget',
@@ -22,6 +23,11 @@ export class GalleryWidgetComponent implements OnInit {
         }
         return this.config.settings;
     }
+
+    get backgroundColor(): string { return hexToRgba(this.settings.backgroundColor || '#ffffff', this.settings.backgroundOpacity ?? 1); }
+    get titleColor(): string { return this.settings.titleColor || '#1a1a1a'; }
+    get captionColor(): string { return this.settings.captionColor || '#ffffff'; }
+    get overlayBackgroundColor(): string { return hexToRgba(this.settings.overlayBackgroundColor || '#000000', this.settings.overlayOpacity ?? 0.5); }
 
     ngOnInit(): void {
         // Ensure default values

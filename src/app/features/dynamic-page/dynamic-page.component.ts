@@ -171,12 +171,18 @@ export class DynamicPageComponent implements OnInit {
         // Update Open Graph tags if meta tags are provided
         if (page.metaTags) {
             const ogTitle = page.metaTags.ogTitle || page.title || page.name || '';
-            this.metaService.updateTag({ property: 'og:title', content: ogTitle });
+            const tenantName = this._settings?.siteTitle || this._settings?.title || this.tenantSettings?.tenantName || 'Mizo';
+            this.metaService.updateTag({ property: 'og:type',      content: 'website' });
+            this.metaService.updateTag({ property: 'og:site_name', content: tenantName });
+            this.metaService.updateTag({ property: 'og:title',     content: ogTitle });
+            this.metaService.updateTag({ name: 'twitter:title',    content: ogTitle });
             if (page.metaTags.ogDescription) {
-                this.metaService.updateTag({ property: 'og:description', content: page.metaTags.ogDescription });
+                this.metaService.updateTag({ property: 'og:description',     content: page.metaTags.ogDescription });
+                this.metaService.updateTag({ name: 'twitter:description',    content: page.metaTags.ogDescription });
             }
             if (page.metaTags.ogImage) {
                 this.metaService.updateTag({ property: 'og:image', content: page.metaTags.ogImage });
+                this.metaService.updateTag({ name: 'twitter:image', content: page.metaTags.ogImage });
             }
             if (page.metaTags.keywords) {
                 this.metaService.updateTag({ name: 'keywords', content: page.metaTags.keywords });
@@ -284,7 +290,7 @@ export class DynamicPageComponent implements OnInit {
     }
 
     getRegisterUrl(): string {
-        return '/auth/register';
+        return this.isHostTenant ? '/auth/tenant-register' : '/auth/register';
     }
 
     logout(): void {

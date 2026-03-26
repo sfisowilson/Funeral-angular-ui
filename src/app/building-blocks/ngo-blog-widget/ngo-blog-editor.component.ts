@@ -109,6 +109,40 @@ import { DropdownModule } from 'primeng/dropdown';
                     <input pInputText formControlName="readMoreText" class="w-full" />
                 </div>
 
+                <!-- Status Badge Colors -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Status Text Color</label>
+                        <p-colorPicker formControlName="statusTextColor" appendTo="body"></p-colorPicker>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Published Status Color</label>
+                        <p-colorPicker formControlName="statusPublishedColor" appendTo="body"></p-colorPicker>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Draft Status Color</label>
+                        <p-colorPicker formControlName="statusDraftColor" appendTo="body"></p-colorPicker>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Archived Status Color</label>
+                        <p-colorPicker formControlName="statusArchivedColor" appendTo="body"></p-colorPicker>
+                    </div>
+                </div>
+
+                <!-- View All Button -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">View All Button Color</label>
+                        <p-colorPicker formControlName="viewAllButtonColor" appendTo="body"></p-colorPicker>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">View All Text Color</label>
+                        <p-colorPicker formControlName="viewAllButtonTextColor" appendTo="body"></p-colorPicker>
+                    </div>
+                </div>
+
                 <!-- Links -->
                 <div class="form-group">
                     <label class="block text-sm font-medium mb-2">Blog URL</label>
@@ -156,7 +190,14 @@ export class NgoBlogEditorComponent {
             buttonColor: ['#3b82f6'],
             buttonTextColor: ['#ffffff'],
             readMoreText: ['Read More'],
-            blogUrl: ['/ngo/blog']
+            blogUrl: ['/ngo/blog'],
+            statusTextColor: ['#ffffff'],
+            statusPublishedColor: ['#10b981'],
+            statusDraftColor: ['#f59e0b'],
+            statusArchivedColor: ['#6b7280'],
+            statusDefaultColor: ['#6b7280'],
+            viewAllButtonColor: ['#3b82f6'],
+            viewAllButtonTextColor: ['#ffffff']
         });
 
         if (this.config && Object.keys(this.config).length > 0) {

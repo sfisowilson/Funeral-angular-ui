@@ -154,13 +154,13 @@ export class NgoEventsWidgetComponent implements OnInit {
     getStatusColor(status: string): string {
         switch (status?.toLowerCase()) {
             case 'upcoming':
-                return '#3b82f6';
+                return this.config.statusUpcomingColor || '#3b82f6';
             case 'ongoing':
-                return '#ef4444';
+                return this.config.statusOngoingColor || '#ef4444';
             case 'completed':
-                return '#10b981';
+                return this.config.statusCompletedColor || '#10b981';
             default:
-                return '#6b7280';
+                return this.config.statusDefaultColor || '#6b7280';
         }
     }
 

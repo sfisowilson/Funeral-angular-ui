@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, OnDestroy , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { hexToRgba } from '../widget-color.utils';
 
 export interface Testimonial {
     name: string;
@@ -51,6 +52,18 @@ export class TestimonialCarouselWidgetComponent implements OnInit, OnDestroy {
     get subtitle(): string {
         return this.config.settings?.subtitle || '';
     }
+
+    get backgroundColor(): string { return hexToRgba(this.config.settings?.backgroundColor || '#ffffff', this.config.settings?.backgroundOpacity ?? 1); }
+    get titleColor(): string { return this.config.settings?.titleColor || '#1a1a1a'; }
+    get subtitleColor(): string { return this.config.settings?.subtitleColor || '#6c757d'; }
+    get cardBackgroundColor(): string { return hexToRgba(this.config.settings?.cardBackgroundColor || '#ffffff', this.config.settings?.cardBackgroundOpacity ?? 1); }
+    get quoteIconColor(): string { return this.config.settings?.quoteIconColor || '#dee2e6'; }
+    get testimonialTextColor(): string { return this.config.settings?.testimonialTextColor || '#212529'; }
+    get nameColor(): string { return this.config.settings?.nameColor || '#1a1a1a'; }
+    get roleColor(): string { return this.config.settings?.roleColor || '#6c757d'; }
+    get starColor(): string { return this.config.settings?.starColor || '#f59e0b'; }
+    get navigationColor(): string { return hexToRgba(this.config.settings?.navigationColor || '#ffffff', 1); }
+    get navigationTextColor(): string { return this.config.settings?.navigationTextColor || '#212529'; }
 
     get testimonials(): Testimonial[] {
         return this.config.testimonials || [];

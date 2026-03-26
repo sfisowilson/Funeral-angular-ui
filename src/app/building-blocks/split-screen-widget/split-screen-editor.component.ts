@@ -164,6 +164,26 @@ import { SliderModule } from 'primeng/slider';
                             <label>Text Color</label>
                             <p-colorPicker [(ngModel)]="config.settings.textColor"></p-colorPicker>
                         </div>
+
+                        <div class="flex flex-column gap-2">
+                            <label>Item Title Color</label>
+                            <p-colorPicker [(ngModel)]="config.settings.itemTitleColor"></p-colorPicker>
+                        </div>
+
+                        <div class="flex flex-column gap-2">
+                            <label>Item Description Color</label>
+                            <p-colorPicker [(ngModel)]="config.settings.itemDescriptionColor"></p-colorPicker>
+                        </div>
+
+                        <div class="flex flex-column gap-2">
+                            <label>Step Number Background</label>
+                            <p-colorPicker [(ngModel)]="config.settings.stepNumberBgColor"></p-colorPicker>
+                        </div>
+
+                        <div class="flex flex-column gap-2">
+                            <label>Step Number Text Color</label>
+                            <p-colorPicker [(ngModel)]="config.settings.stepNumberTextColor"></p-colorPicker>
+                        </div>
                     </div>
                 </p-fieldset>
 
@@ -237,6 +257,10 @@ export class SplitScreenEditorComponent implements OnInit {
             leftBackgroundColor: 'transparent',
             rightBackgroundColor: 'transparent',
             textColor: '#212529',
+            stepNumberBgColor: '#007bff',
+            stepNumberTextColor: '#ffffff',
+            itemTitleColor: '#212529',
+            itemDescriptionColor: '#6c757d',
             leftContent: {
                 type: 'image',
                 image: '',

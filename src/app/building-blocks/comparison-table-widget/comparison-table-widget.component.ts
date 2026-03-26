@@ -1,5 +1,6 @@
 import { Component, Input , ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { hexToRgba } from '../widget-color.utils';
 
 export interface ComparisonColumn {
     title: string;
@@ -72,6 +73,40 @@ export class ComparisonTableWidgetComponent {
 
     get rowHoverEffect(): boolean {
         return this.settings.rowHoverEffect !== false;
+    }
+
+    get backgroundOpacity(): number {
+        return this.settings.backgroundOpacity ?? 1;
+    }
+
+    get backgroundColorWithOpacity(): string {
+        const base = this.settings.backgroundColor || '#ffffff';
+        return hexToRgba(base, this.backgroundOpacity);
+    }
+
+    get columnHeaderBgColor(): string {
+        const base = this.settings.columnHeaderBg || '#f8f9fa';
+        return hexToRgba(base, 1);
+    }
+
+    get columnTitleColor(): string {
+        return this.settings.columnTitleColor || 'var(--text-color, #000000)';
+    }
+
+    get columnSubtitleColor(): string {
+        return this.settings.columnSubtitleColor || 'var(--muted-color, #6c757d)';
+    }
+
+    get cellLabelColor(): string {
+        return this.settings.cellLabelColor || 'var(--text-color, #333333)';
+    }
+
+    get cellValueColor(): string {
+        return this.settings.cellValueColor || 'var(--muted-color, #6c757d)';
+    }
+
+    get totalTextColor(): string {
+        return this.settings.totalTextColor || 'var(--text-color, #000000)';
     }
 
     getMaxRows(): number[] {

@@ -37,6 +37,38 @@
             </div>
         </p-fieldset>
 
+        <!-- Colors -->
+        <p-fieldset legend="Colors" [toggleable]="true">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col">
+                    <label class="font-medium text-gray-700 mb-2">Background Color</label>
+                    <input type="color" formControlName="backgroundColor" class="w-full h-10 rounded-md border-gray-300" />
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium text-gray-700 mb-2">Background Opacity</label>
+                    <input type="range" formControlName="backgroundOpacity" min="0" max="1" step="0.01" class="w-full" />
+                    <small class="text-gray-500">{{ (form.get('backgroundOpacity')?.value ?? 1) * 100 | number:'1.0-0' }}%</small>
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium text-gray-700 mb-2">Title Color</label>
+                    <input type="color" formControlName="titleColor" class="w-full h-10 rounded-md border-gray-300" />
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium text-gray-700 mb-2">Caption / Image Title Color</label>
+                    <input type="color" formControlName="captionColor" class="w-full h-10 rounded-md border-gray-300" />
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium text-gray-700 mb-2">Image Overlay Color</label>
+                    <input type="color" formControlName="overlayBackgroundColor" class="w-full h-10 rounded-md border-gray-300" />
+                </div>
+                <div class="flex flex-col">
+                    <label class="font-medium text-gray-700 mb-2">Image Overlay Opacity</label>
+                    <input type="range" formControlName="overlayOpacity" min="0" max="1" step="0.01" class="w-full" />
+                    <small class="text-gray-500">{{ (form.get('overlayOpacity')?.value ?? 0.5) * 100 | number:'1.0-0' }}%</small>
+                </div>
+            </div>
+        </p-fieldset>
+
         <!-- Style Options -->
         <p-fieldset legend="Style Options" [toggleable]="true">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

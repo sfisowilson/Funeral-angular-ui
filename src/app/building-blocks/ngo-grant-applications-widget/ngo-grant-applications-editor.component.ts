@@ -101,6 +101,50 @@ import { ButtonModule } from 'primeng/button';
                     <input pInputText formControlName="applyButtonText" class="w-full" />
                 </div>
 
+                <!-- Status Badge Colors -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Status Text Color</label>
+                        <p-colorPicker formControlName="statusTextColor" appendTo="body"></p-colorPicker>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Submitted Status</label>
+                        <p-colorPicker formControlName="statusSubmittedColor" appendTo="body"></p-colorPicker>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Under Review Status</label>
+                        <p-colorPicker formControlName="statusUnderReviewColor" appendTo="body"></p-colorPicker>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Approved Status</label>
+                        <p-colorPicker formControlName="statusApprovedColor" appendTo="body"></p-colorPicker>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Rejected Status</label>
+                        <p-colorPicker formControlName="statusRejectedColor" appendTo="body"></p-colorPicker>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">Completed Status</label>
+                        <p-colorPicker formControlName="statusCompletedColor" appendTo="body"></p-colorPicker>
+                    </div>
+                </div>
+
+                <!-- View All Button -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">View All Button Color</label>
+                        <p-colorPicker formControlName="viewAllButtonColor" appendTo="body"></p-colorPicker>
+                    </div>
+                    <div class="form-group">
+                        <label class="block text-sm font-medium mb-2">View All Text Color</label>
+                        <p-colorPicker formControlName="viewAllButtonTextColor" appendTo="body"></p-colorPicker>
+                    </div>
+                </div>
+
                 <!-- Links -->
                 <div class="form-group">
                     <label class="block text-sm font-medium mb-2">Grants URL</label>
@@ -148,7 +192,15 @@ export class NgoGrantApplicationsEditorComponent {
             buttonTextColor: ['#ffffff'],
             viewDetailsText: ['View Details'],
             applyButtonText: ['Apply Now'],
-            grantsUrl: ['/ngo/grant-applications']
+            grantsUrl: ['/ngo/grant-applications'],
+            statusTextColor: ['#ffffff'],
+            statusSubmittedColor: ['#3b82f6'],
+            statusUnderReviewColor: ['#f59e0b'],
+            statusApprovedColor: ['#10b981'],
+            statusRejectedColor: ['#ef4444'],
+            statusCompletedColor: ['#8b5cf6'],
+            viewAllButtonColor: ['#7c3aed'],
+            viewAllButtonTextColor: ['#ffffff']
         });
 
         if (this.config && Object.keys(this.config).length > 0) {

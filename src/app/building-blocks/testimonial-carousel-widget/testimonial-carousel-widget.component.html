@@ -1,22 +1,22 @@
-<div class="testimonial-carousel-widget">
+<div class="testimonial-carousel-widget" [style.background-color]="backgroundColor">
     <div class="container py-5">
         <div class="text-center mb-5" *ngIf="title">
-            <h2 class="widget-title">{{ title }}</h2>
-            <p class="widget-subtitle text-muted" *ngIf="subtitle">{{ subtitle }}</p>
+            <h2 class="widget-title" [style.color]="titleColor">{{ title }}</h2>
+            <p class="widget-subtitle" [style.color]="subtitleColor" *ngIf="subtitle">{{ subtitle }}</p>
         </div>
 
         <div class="carousel-container" *ngIf="testimonials.length > 0">
             <div class="testimonials-wrapper" [class.layout-single]="layout === 'single'" [class.layout-grid]="layout === 'grid'">
-                <div class="testimonial-card" *ngFor="let testimonial of visibleTestimonials">
+                <div class="testimonial-card" [style.background-color]="cardBackgroundColor" *ngFor="let testimonial of visibleTestimonials">
                     <div class="quote-icon">
-                        <i class="bi bi-quote"></i>
+                        <i class="bi bi-quote" [style.color]="quoteIconColor"></i>
                     </div>
 
                     <div class="testimonial-rating" *ngIf="showRatings && testimonial.rating">
-                        <i *ngFor="let filled of getStarArray(testimonial.rating)" [class]="filled ? 'bi bi-star-fill' : 'bi bi-star'" class="star-icon"></i>
+                        <i *ngFor="let filled of getStarArray(testimonial.rating)" [class]="filled ? 'bi bi-star-fill' : 'bi bi-star'" class="star-icon" [style.color]="starColor"></i>
                     </div>
 
-                    <p class="testimonial-content">{{ testimonial.content }}</p>
+                    <p class="testimonial-content" [style.color]="testimonialTextColor">{{ testimonial.content }}</p>
 
                     <div class="testimonial-author">
                         <img *ngIf="showImages && testimonial.imageUrl" [src]="testimonial.imageUrl" [alt]="testimonial.name" class="author-image" loading="lazy" />
@@ -24,8 +24,8 @@
                             <i class="bi bi-person-circle"></i>
                         </div>
                         <div class="author-info">
-                            <div class="author-name">{{ testimonial.name }}</div>
-                            <div class="author-role" *ngIf="testimonial.role">
+                            <div class="author-name" [style.color]="nameColor">{{ testimonial.name }}</div>
+                            <div class="author-role" [style.color]="roleColor" *ngIf="testimonial.role">
                                 {{ testimonial.role }}
                                 <span *ngIf="testimonial.company"> at {{ testimonial.company }}</span>
                             </div>
@@ -35,7 +35,7 @@
             </div>
 
             <div class="carousel-controls" *ngIf="testimonials.length > 1">
-                <button class="control-btn prev" (click)="previous()">
+                <button class="control-btn prev" [style.background-color]="navigationColor" [style.color]="navigationTextColor" (click)="previous()">
                     <i class="bi bi-chevron-left"></i>
                 </button>
 
@@ -43,7 +43,7 @@
                     <button *ngFor="let testimonial of testimonials; let i = index" class="dot" [class.active]="i === currentIndex" (click)="goToSlide(i)"></button>
                 </div>
 
-                <button class="control-btn next" (click)="next()">
+                <button class="control-btn next" [style.background-color]="navigationColor" [style.color]="navigationTextColor" (click)="next()">
                     <i class="bi bi-chevron-right"></i>
                 </button>
             </div>

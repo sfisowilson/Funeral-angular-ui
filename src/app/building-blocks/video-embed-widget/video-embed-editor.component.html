@@ -88,4 +88,39 @@
         <i class="bi bi-info-circle me-2"></i>
         <strong>Tip:</strong> For best results, upload your videos to YouTube or Vimeo first, then paste the URL here. This ensures optimal playback across all devices.
     </div>
+
+    <div class="editor-section">
+        <h5>Colors</h5>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Background Color</label>
+                <input type="color" class="form-control" [(ngModel)]="config.settings.backgroundColor" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Background Opacity</label>
+                <input type="range" class="form-range" [(ngModel)]="config.settings.backgroundOpacity" min="0" max="1" step="0.01" />
+                <small class="text-muted">{{ ((config.settings.backgroundOpacity ?? 1) * 100) | number:'1.0-0' }}%</small>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Title Color</label>
+                <input type="color" class="form-control" [(ngModel)]="config.settings.titleColor" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Subtitle Color</label>
+                <input type="color" class="form-control" [(ngModel)]="config.settings.subtitleColor" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Caption Color</label>
+                <input type="color" class="form-control" [(ngModel)]="config.settings.captionColor" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Placeholder Text Color</label>
+                <input type="color" class="form-control" [(ngModel)]="config.settings.placeholderTextColor" />
+            </div>
+        </div>
+    </div>
+
+    <div class="editor-section d-flex justify-content-end mb-3">
+        <button type="button" class="btn-primary-theme" (click)="onSave()"><i class="bi bi-save"></i> Save</button>
+    </div>
 </div>

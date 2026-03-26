@@ -50,17 +50,61 @@ import { CheckboxModule } from 'primeng/checkbox';
                         <label for="subtitleColor">Subtitle Color</label>
                         <p-colorPicker [(ngModel)]="settings.subtitleColor" class="w-full"></p-colorPicker>
                     </div>
+                    <div class="field col-span-full">
+                        <label>Background Opacity ({{ settings.backgroundOpacity ?? 1 }})</label>
+                        <input type="range" class="w-full" min="0" max="1" step="0.01" [(ngModel)]="settings.backgroundOpacity" />
+                    </div>
                     <div class="field">
                         <label for="cardBackgroundColor">Card Background</label>
                         <p-colorPicker [(ngModel)]="settings.cardBackgroundColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="planNameColor">Plan Name Color</label>
+                        <p-colorPicker [(ngModel)]="settings.planNameColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="descriptionColor">Description Color</label>
+                        <p-colorPicker [(ngModel)]="settings.descriptionColor" class="w-full"></p-colorPicker>
                     </div>
                     <div class="field">
                         <label for="priceColor">Price Color</label>
                         <p-colorPicker [(ngModel)]="settings.priceColor" class="w-full"></p-colorPicker>
                     </div>
                     <div class="field">
-                        <label for="buttonColor">Button Color</label>
+                        <label for="periodColor">Period Color</label>
+                        <p-colorPicker [(ngModel)]="settings.periodColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="checkmarkColor">Checkmark Color</label>
+                        <p-colorPicker [(ngModel)]="settings.checkmarkColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="featureTextColor">Feature Text Color</label>
+                        <p-colorPicker [(ngModel)]="settings.featureTextColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="buttonColor">Button Background</label>
                         <p-colorPicker [(ngModel)]="settings.buttonColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="buttonTextColor">Button Text Color</label>
+                        <p-colorPicker [(ngModel)]="settings.buttonTextColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="featuredButtonColor">Featured Button Background</label>
+                        <p-colorPicker [(ngModel)]="settings.featuredButtonColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="featuredButtonTextColor">Featured Button Text</label>
+                        <p-colorPicker [(ngModel)]="settings.featuredButtonTextColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="featuredBadgeBackgroundColor">Badge Background</label>
+                        <p-colorPicker [(ngModel)]="settings.featuredBadgeBackgroundColor" class="w-full"></p-colorPicker>
+                    </div>
+                    <div class="field">
+                        <label for="featuredBadgeTextColor">Badge Text Color</label>
+                        <p-colorPicker [(ngModel)]="settings.featuredBadgeTextColor" class="w-full"></p-colorPicker>
                     </div>
                 </div>
             </p-fieldset>

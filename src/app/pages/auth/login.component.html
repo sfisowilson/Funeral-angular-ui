@@ -52,7 +52,7 @@
                         <i class="pi pi-envelope"></i>
                         Email Address
                     </label>
-                    <input pInputText id="email1" type="email" placeholder="Enter your email address" class="form-input" formControlName="email" autocomplete="email" />
+                    <input pInputText id="email1" type="email" placeholder="Enter your email address" class="form-input" formControlName="email" autocomplete="email" (change)="patchFromNativeInputs()" />
                 </div>
 
                 <!-- Password Field -->
@@ -61,7 +61,7 @@
                         <i class="pi pi-lock"></i>
                         Password
                     </label>
-                    <p-password id="password1" formControlName="password" placeholder="Enter your password" [toggleMask]="true" styleClass="password-field" [fluid]="true" [feedback]="false" autocomplete="current-password"></p-password>
+                    <p-password id="password1" inputId="loginPasswordInput" formControlName="password" placeholder="Enter your password" [toggleMask]="true" styleClass="password-field" [fluid]="true" [feedback]="false" autocomplete="current-password"></p-password>
                 </div>
 
                 <!-- Links Section -->

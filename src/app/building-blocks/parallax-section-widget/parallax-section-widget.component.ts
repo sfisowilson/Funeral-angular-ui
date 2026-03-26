@@ -94,6 +94,14 @@ export class ParallaxSectionWidgetComponent implements OnInit, OnDestroy {
         return this.settings.gradientEnd || '#764ba2';
     }
 
+    get ctaButtonColor(): string {
+        return this.settings.ctaButtonColor || 'var(--primary-color, #007bff)';
+    }
+
+    get ctaButtonTextColor(): string {
+        return this.settings.ctaButtonTextColor || '#ffffff';
+    }
+
     ngOnInit(): void {
         this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (!this.prefersReducedMotion) {

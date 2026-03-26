@@ -68,6 +68,12 @@ export class GalleryEditorComponent implements OnInit {
             enableLightbox: [true],
             roundedCorners: [true],
             hoverEffect: [true],
+            backgroundColor: ['#ffffff'],
+            backgroundOpacity: [1],
+            titleColor: ['#1a1a1a'],
+            captionColor: ['#ffffff'],
+            overlayBackgroundColor: ['#000000'],
+            overlayOpacity: [0.5],
             images: this.fb.array([])
         });
     }
@@ -91,7 +97,13 @@ export class GalleryEditorComponent implements OnInit {
                 showTitles: this.settings.showTitles !== false,
                 enableLightbox: this.settings.enableLightbox !== false,
                 roundedCorners: this.settings.roundedCorners !== false,
-                hoverEffect: this.settings.hoverEffect !== false
+                hoverEffect: this.settings.hoverEffect !== false,
+                backgroundColor: this.settings.backgroundColor || '#ffffff',
+                backgroundOpacity: this.settings.backgroundOpacity ?? 1,
+                titleColor: this.settings.titleColor || '#1a1a1a',
+                captionColor: this.settings.captionColor || '#ffffff',
+                overlayBackgroundColor: this.settings.overlayBackgroundColor || '#000000',
+                overlayOpacity: this.settings.overlayOpacity ?? 0.5
             });
             this.images.clear();
             this.settings.images?.forEach((image: any) => {
