@@ -133,6 +133,13 @@ interface MemberPrefillRuleConfig {
     overwriteExisting?: boolean;
 }
 
+interface CalculatorPrefillRuleConfig {
+    /** The form field (by name/key) that should receive the calculator variable's value. */
+    targetFieldKey: string;
+    /** The key of the calculator variable / formula result to read from (e.g. "totalMonthlyPremium"). */
+    variableKey: string;
+}
+
 interface CalculatorLookupCondition {
     field: string;
     operator: 'eq' | 'lt' | 'lte' | 'gt' | 'gte' | 'between';
@@ -226,7 +233,62 @@ export class FormManagementComponent implements OnInit {
     rowLimitRules: RowLimitRuleConfig[] = [];
     conditionalRules: ConditionalFieldRuleConfig[] = [];
     memberPrefillRules: MemberPrefillRuleConfig[] = [];
-    
+    calculatorPrefillRules: CalculatorPrefillRuleConfig[] = [];
+
+    get availableCalculatorVariables(): string[] {
+        // Well-known keys pushed by the global onboarding-global-calculator widget
+        // (variableTotals from formulas / postRowFormulas / rowMode.formulas) plus
+        // the standard embedded-calculator outputs.
+        const keys = new Set<string>([
+            'totalMonthlyPremium',
+            'basePremium',
+            'coverAmount',
+            'familyTier',
+            'immediateFamilyPremium',
+            'familymonthlypremium',
+            'extendedmonthlypremium',
+            'monthlypremium',
+            'extFamPremium',
+            'extFamMemberPremium',
+            'ExtendedMonthlyPremium',
+            'immediateFamilyTotal'
+        ]);
+        if (this.calculatorConfig.resultKey) {
+            keys.add(this.calculatorConfig.resultKey);
+        }
+        if (this.calculatorConfig.variables) {
+            for (const v of this.calculatorConfig.variables) {
+                if (v.name) keys.add(v.name);
+            }
+        }
+        if (this.calculatorConfig.iterativeVariables) {
+            for (const v of this.calculatorConfig.iterativeVariables) {
+                if (v.variableKey) keys.add(v.variableKey);
+            }
+        }
+        // Formula keys are what actually end up in variableTotals → aggregator globals.
+        // Cast to any because FormCalculatorConfig only models the simple case; the full
+        // embedded-calculator config (rowMode, postRowFormulas, formulas[]) is stored as
+        // free-form JSON and is not reflected in the typed interface.
+        const cfg = this.calculatorConfig as any;
+        if (Array.isArray(cfg.formulas)) {
+            for (const f of cfg.formulas) {
+                if (f?.key) keys.add(f.key);
+            }
+        }
+        if (Array.isArray(cfg.rowMode?.formulas)) {
+            for (const f of cfg.rowMode.formulas) {
+                if (f?.key) keys.add(f.key);
+            }
+        }
+        if (Array.isArray(cfg.postRowFormulas)) {
+            for (const f of cfg.postRowFormulas) {
+                if (f?.key) keys.add(f.key);
+            }
+        }
+        return [...keys];
+    }
+
     parentFields = [
         { label: 'ID Number', value: 'idNumber' },
         { label: 'Policy Number', value: 'policyNumber' },
@@ -318,6 +380,7 @@ export class FormManagementComponent implements OnInit {
         this.rowLimitRules = [];
         this.conditionalRules = [];
         this.memberPrefillRules = [];
+        this.calculatorPrefillRules = [];
         if (!json) {
             this.addField();
             return;
@@ -388,6 +451,15 @@ export class FormManagementComponent implements OnInit {
                             overwriteExisting: !!r.overwriteExisting
                         } as MemberPrefillRuleConfig;
                     });
+                }
+
+                if (Array.isArray((parsed as any).calculatorPrefillRules)) {
+                    this.calculatorPrefillRules = (parsed as any).calculatorPrefillRules
+                        .filter((r: any) => r.targetFieldKey && r.variableKey)
+                        .map((r: any) => ({
+                            targetFieldKey: r.targetFieldKey,
+                            variableKey: r.variableKey
+                        } as CalculatorPrefillRuleConfig));
                 }
             }
 
@@ -492,6 +564,22 @@ export class FormManagementComponent implements OnInit {
         }
 
         this.memberPrefillRules.splice(index, 1);
+    }
+
+    // Calculator prefill rule helpers
+
+    addCalculatorPrefillRule(): void {
+        if (!this.calculatorPrefillRules) {
+            this.calculatorPrefillRules = [];
+        }
+        this.calculatorPrefillRules.push({ targetFieldKey: '', variableKey: '' });
+    }
+
+    removeCalculatorPrefillRule(index: number): void {
+        if (!this.calculatorPrefillRules || index < 0 || index >= this.calculatorPrefillRules.length) {
+            return;
+        }
+        this.calculatorPrefillRules.splice(index, 1);
     }
 
     /**
@@ -682,7 +770,8 @@ export class FormManagementComponent implements OnInit {
             validationRules: this.validationRules,
             rowLimitRules: this.rowLimitRules,
             conditionalRules: this.conditionalRules,
-            memberPrefillRules: this.memberPrefillRules
+            memberPrefillRules: this.memberPrefillRules,
+            calculatorPrefillRules: this.calculatorPrefillRules
         };
 
         this.form.fields = JSON.stringify(finalPayload, null, 2);

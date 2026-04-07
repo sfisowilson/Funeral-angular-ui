@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { AuthServiceProxy, ForgotPasswordRequest } from '../../core/services/service-proxies';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 import { TenantSettingsService } from '@app/core/services/tenant-settings.service';
@@ -11,8 +13,8 @@ import { TenantSettingsService } from '@app/core/services/tenant-settings.servic
 @Component({
     selector: 'app-forgot-password',
     standalone: true,
-    imports: [CommonModule, ButtonModule, InputTextModule, ReactiveFormsModule, RouterModule],
-    providers: [],
+    imports: [CommonModule, ButtonModule, InputTextModule, ReactiveFormsModule, RouterModule, ToastModule],
+    providers: [MessageService],
     templateUrl: './forgot-password.component.html',
     styleUrl: './forgot-password.component.scss'
 })
@@ -28,7 +30,8 @@ export class ForgotPasswordComponent extends TenantBaseComponent {
         private fb: FormBuilder,
         private authServiceProxy: AuthServiceProxy,
         private router: Router,
-        private _tenantSettings: TenantSettingsService
+        private _tenantSettings: TenantSettingsService,
+        private messageService: MessageService
     ) {
         super(injector);
         this.form = this.fb.group({
@@ -88,11 +91,21 @@ export class ForgotPasswordComponent extends TenantBaseComponent {
 
         this.authServiceProxy.auth_ForgotPassword(forgotPasswordRequest).subscribe({
             next: () => {
-                alert('Password reset link sent to your email.');
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Email Sent',
+                    detail: 'If a matching account was found, a reset link has been sent to your email.',
+                    life: 6000
+                });
                 this.router.navigate(['/auth/reset-password']);
             },
-            error: (err) => {
-                alert('Error sending reset link: ' + err.message);
+            error: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Request Failed',
+                    detail: 'Unable to process your request. Please try again later.',
+                    life: 5000
+                });
                 this.isBusy = false;
             },
             complete: () => {

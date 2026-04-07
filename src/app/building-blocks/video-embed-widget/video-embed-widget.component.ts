@@ -63,6 +63,8 @@ export class VideoEmbedWidgetComponent {
                 if (!this.settings.controls) url += 'controls=0&';
                 if (this.settings.loop) url += `loop=1&playlist=${videoId}&`;
                 if (this.settings.muted) url += 'mute=1&';
+            } else {
+                return this.sanitizer.bypassSecurityTrustResourceUrl('');
             }
         } else if (this.settings.provider === 'vimeo') {
             const videoId = this.extractVimeoId(url);
@@ -71,6 +73,18 @@ export class VideoEmbedWidgetComponent {
                 if (this.settings.autoplay) url += 'autoplay=1&';
                 if (this.settings.loop) url += 'loop=1&';
                 if (this.settings.muted) url += 'muted=1&';
+            } else {
+                return this.sanitizer.bypassSecurityTrustResourceUrl('');
+            }
+        } else {
+            // Custom provider: only allow HTTPS URLs
+            try {
+                const parsed = new URL(url);
+                if (parsed.protocol !== 'https:') {
+                    return this.sanitizer.bypassSecurityTrustResourceUrl('');
+                }
+            } catch {
+                return this.sanitizer.bypassSecurityTrustResourceUrl('');
             }
         }
 

@@ -16,12 +16,25 @@
     line-height: 1.5;
 }
 
+.btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
 .btn {
     text-decoration: none;
     border-radius: 5px;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     padding: var(--hero-btn-padding, 12px) calc(var(--hero-btn-padding, 12px) * 1.8);
     font-size: var(--hero-btn-font-size, 1rem);
+}
+
+.btn-outline {
+    background-color: transparent !important;
+    border: 2px solid;
 }
 
 /* ── Mobile ── */

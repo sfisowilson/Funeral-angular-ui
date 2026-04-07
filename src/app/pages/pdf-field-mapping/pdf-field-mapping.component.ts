@@ -16,8 +16,18 @@ import {
     UpdatePdfFieldMappingRequest
 } from '../../core/services/service-proxies';
 
+interface ConditionClause {
+    fieldKey: string;
+    operator: 'equals' | 'notEquals' | 'contains' | 'fileUploaded' | 'fileNotUploaded';
+    value: string;
+}
+
 interface ConditionalRule {
-    condition: string;
+    /** Legacy single-field condition string. Only present for old rules. */
+    condition?: string;
+    /** Multi-field clauses. When present, replaces the legacy condition. */
+    clauses?: ConditionClause[];
+    clauseLogic?: 'AND' | 'OR';
     pdfField: string;
     setValue: string;
 }
@@ -77,7 +87,8 @@ export class PdfFieldMappingComponent implements OnInit {
         { label: 'Transform (Format/Convert)', value: 'Transform' },
         { label: 'Checkbox (Boolean)', value: 'Checkbox' },
         { label: 'Radio Button', value: 'RadioButton' },
-        { label: 'Signature Image', value: 'Signature' }
+        { label: 'Signature Image', value: 'Signature' },
+        { label: 'File Uploaded (Yes/No)', value: 'FileUploaded' }
     ];
 
     transformOptions = [
@@ -917,7 +928,8 @@ export class PdfFieldMappingComponent implements OnInit {
 
     addConditionalRule(): void {
         this.conditionalRules.push({
-            condition: '',
+            clauses: [{ fieldKey: '', operator: 'equals', value: '' }],
+            clauseLogic: 'AND',
             pdfField: '',
             setValue: 'Yes'
         });
@@ -925,6 +937,23 @@ export class PdfFieldMappingComponent implements OnInit {
 
     removeConditionalRule(index: number): void {
         this.conditionalRules.splice(index, 1);
+    }
+
+    addClause(rule: ConditionalRule): void {
+        if (!rule.clauses) rule.clauses = [];
+        rule.clauses.push({ fieldKey: '', operator: 'equals', value: '' });
+    }
+
+    removeClause(rule: ConditionalRule, index: number): void {
+        if (rule.clauses) rule.clauses.splice(index, 1);
+    }
+
+    getClauseFieldValue(group: FieldGroup, item: { label: string; value: string; isCount?: boolean }): string {
+        if (group.type === 'standard') return item.value;
+        if (group.type === 'custom') return `fieldKey:${item.value}`;
+        return item.isCount
+            ? `DynamicEntity:${group.value}_Count`
+            : `DynamicEntity:${group.value}_1_${item.value}`;
     }
 
     createMappingFromTemplate(field: PdfTemplateFieldInfo): void {

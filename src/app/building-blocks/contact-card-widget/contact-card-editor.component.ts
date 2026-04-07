@@ -149,8 +149,15 @@ export class ContactCardEditorComponent implements OnInit {
     }
 
     getSafeMapUrl(): SafeResourceUrl | null {
-        if (this.config.settings.mapEmbedUrl) {
-            return this.sanitizer.bypassSecurityTrustResourceUrl(this.config.settings.mapEmbedUrl);
+        const url = this.config.settings.mapEmbedUrl;
+        if (url) {
+            try {
+                const parsed = new URL(url);
+                if (parsed.protocol !== 'https:') return null;
+            } catch {
+                return null;
+            }
+            return this.sanitizer.bypassSecurityTrustResourceUrl(url);
         }
         return null;
     }

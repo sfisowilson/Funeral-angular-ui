@@ -46,18 +46,16 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
             }
         });
 
-        console.log('RegisterComponent.ngOnInit: CALLED');
         try {
             await super.ngOnInit();
-            console.log('RegisterComponent.ngOnInit: after super.ngOnInit()');
 
             this.form = this.fb.group({
                 email: ['', [Validators.required, Validators.email]],
-                password: ['', Validators.required],
+                password: ['', [Validators.required, Validators.minLength(8)]],
                 confirmPassword: ['', Validators.required],
                 firstName: ['', Validators.required],
                 lastName: ['', Validators.required]
-            });
+            }, { validators: this.passwordMatchValidator });
         } catch (error) {
             console.error('Error in RegisterComponent.ngOnInit:', error);
         }
@@ -146,14 +144,20 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
 
     patchEmailFromNativeInput(): void {
         const emailControl = this.form.get('email');
-        if (!emailControl || emailControl.value) {
+        if (!emailControl) {
             return;
         }
 
         const native = document.getElementById('memberEmail') as HTMLInputElement | null;
-        if (native && native.value) {
+        if (native && native.value !== emailControl.value) {
             emailControl.setValue(native.value);
         }
+    }
+
+    passwordMatchValidator(form: import('@angular/forms').AbstractControl) {
+        const pw = form.get('password')?.value;
+        const cpw = form.get('confirmPassword')?.value;
+        return pw && cpw && pw !== cpw ? { mismatch: true } : null;
     }
 
     private getErrorMessage(error: any): string {

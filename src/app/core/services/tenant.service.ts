@@ -18,24 +18,19 @@ export class TenantService {
         const baseDomain = environment.baseDomain;
         const hostSubdomain = environment.hostSubdomain;
 
-        console.log('Determining tenant:', { hostname, baseDomain, hostSubdomain, parts });
-
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             this.currentTenantType = 'host';
             this.tenantId = 'host';
-            console.log('✅ Detected as HOST (localhost)');
         }
         // Check for host subdomain (host.funeral.com)
         else if (hostname === `${hostSubdomain}.${baseDomain}`) {
             this.currentTenantType = 'host';
             this.tenantId = 'host';
-            console.log('✅ Detected as HOST (subdomain match)');
         }
         // Check for base domain without subdomain (funeral.com)
         else if (hostname === baseDomain) {
             this.currentTenantType = 'host';
             this.tenantId = 'host';
-            console.log('✅ Detected as HOST (base domain)');
         }
         // Check for tenant subdomain (e.g., tenant1.funeral.com)
         else if (hostname.endsWith(`.${baseDomain}`)) {
@@ -44,12 +39,10 @@ export class TenantService {
             if (subdomain && subdomain !== 'www' && subdomain !== hostSubdomain) {
                 this.currentTenantType = 'tenant';
                 this.tenantId = subdomain;
-                console.log('✅ Detected as TENANT:', subdomain);
             } else {
                 // www or empty subdomain = landing page
                 this.currentTenantType = 'landing';
                 this.tenantId = null;
-                console.log('✅ Detected as LANDING (www or empty)');
             }
         }
         // Custom domain: a fully-qualified domain that is not under baseDomain
@@ -58,13 +51,11 @@ export class TenantService {
         else if (hostname.includes('.')) {
             this.currentTenantType = 'tenant';
             this.tenantId = hostname;
-            console.log('✅ Detected as TENANT (custom domain):', hostname);
         }
         // Default to landing page
         else {
             this.currentTenantType = 'landing';
             this.tenantId = null;
-            console.log('✅ Detected as LANDING (default)');
         }
     }
 

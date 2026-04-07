@@ -113,7 +113,7 @@ export class ParallaxSectionWidgetComponent implements OnInit, OnDestroy {
         // Cleanup if needed
     }
 
-    @HostListener('window:scroll', ['$event'])
+    @HostListener('window:scroll')
     onWindowScroll(): void {
         if (!this.prefersReducedMotion) {
             this.updateParallax();

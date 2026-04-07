@@ -343,6 +343,6 @@ export class OnboardingGlobalCalculatorEditorComponent implements OnInit {
     save(): void {
         if (this.jsonError) return;
         this.onStructuredChange();
-        this.update.emit({ settings: { title: this.localTitle, calculatorConfigJson: this.rawJson } });
+        this.update.emit({ title: this.localTitle, calculatorConfigJson: this.rawJson });
     }
 }

@@ -66,15 +66,19 @@ export class OnboardingGlobalCalculatorWidgetComponent implements OnInit, OnDest
         const dependentCount = ((snapshot['dependents'] as any[]) || []).length;
         const familyTier = dependentCount <= 5 ? '1+5' : '1+9';
 
-        // Guard against re-entrance: only emit if values actually changed.
-        if (
-            snapshot['totalMonthlyPremium'] !== result.totalMonthlyPremium ||
-            snapshot['familyTier'] !== familyTier
-        ) {
-            this.aggregator.updateGlobals({
-                totalMonthlyPremium: result.totalMonthlyPremium,
-                familyTier
-            });
+        // Build the globals to write back: total, tier, plus every named
+        // variable/formula result so values like immediateFamilyPremium,
+        // extendedFamilyPremium, etc. are all available for entity writeback.
+        const globalsToWrite: Record<string, any> = {
+            totalMonthlyPremium: result.totalMonthlyPremium,
+            familyTier,
+            ...result.variableTotals
+        };
+
+        // Guard against re-entrance: only emit if at least one value changed.
+        const changed = Object.keys(globalsToWrite).some(k => snapshot[k] !== globalsToWrite[k]);
+        if (changed) {
+            this.aggregator.updateGlobals(globalsToWrite);
         }
     }
 

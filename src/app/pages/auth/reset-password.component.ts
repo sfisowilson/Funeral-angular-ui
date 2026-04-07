@@ -5,14 +5,16 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { AuthServiceProxy, ResetPasswordRequest } from '../../core/services/service-proxies';
 import { TenantBaseComponent } from '../../core/tenant-base.component';
 
 @Component({
     selector: 'app-reset-password',
     standalone: true,
-    imports: [CommonModule, ButtonModule, InputTextModule, PasswordModule, ReactiveFormsModule, RouterModule],
-    providers: [],
+    imports: [CommonModule, ButtonModule, InputTextModule, PasswordModule, ReactiveFormsModule, RouterModule, ToastModule],
+    providers: [MessageService],
     templateUrl: './reset-password.component.html',
     styleUrl: './reset-password.component.scss'
 })
@@ -27,12 +29,13 @@ export class ResetPasswordComponent extends TenantBaseComponent {
         private fb: FormBuilder,
         private authServiceProxy: AuthServiceProxy,
         private router: Router,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private messageService: MessageService
     ) {
         super(injector);
         this.form = this.fb.group(
             {
-                password: ['', [Validators.required, Validators.minLength(6)]],
+                password: ['', [Validators.required, Validators.minLength(8)]],
                 confirmPassword: ['', Validators.required]
             },
             { validators: this.passwordMatchValidator }
@@ -56,7 +59,12 @@ export class ResetPasswordComponent extends TenantBaseComponent {
         }
 
         if (!this.email || !this.code) {
-            alert('Email or code missing.');
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Invalid Link',
+                detail: 'The reset link is invalid or has expired. Please request a new one.',
+                life: 5000
+            });
             this.isBusy = false;
             return;
         }
@@ -68,11 +76,21 @@ export class ResetPasswordComponent extends TenantBaseComponent {
 
         this.authServiceProxy.auth_ResetPassword(resetPasswordRequest).subscribe({
             next: () => {
-                alert('Password has been reset successfully.');
-                this.router.navigate(['/auth/login']);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Password Reset',
+                    detail: 'Your password has been reset successfully.',
+                    life: 4000
+                });
+                setTimeout(() => this.router.navigate(['/auth/login']), 2000);
             },
-            error: (err) => {
-                alert('Error resetting password: ' + err.message);
+            error: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Reset Failed',
+                    detail: 'Invalid or expired reset code. Please request a new reset link.',
+                    life: 5000
+                });
                 this.isBusy = false;
             },
             complete: () => {

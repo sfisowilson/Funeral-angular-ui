@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, OnChanges, Output, EventEmitter, SimpleChanges, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, Output, EventEmitter, SimpleChanges, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { debounceTime, distinctUntilChanged, finalize } from 'rxjs/operators';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { WidgetConfig } from '../widget-config';
 import { OnboardingMultiSubmitService, MultiSubmitStepContextDto, SaveMultiSubmitRecordDto } from '../../core/services/onboarding-multi-submit.service';
@@ -109,6 +109,11 @@ interface DynamicFormField {
     maxValue?: number;
 }
 
+interface CalculatorPrefillRuleConfig {
+    targetFieldKey: string;
+    variableKey: string;
+}
+
 interface CompletionAttachmentFile {
     id: string;
     fileName: string;
@@ -141,7 +146,7 @@ interface CompletionPdfPreview {
     providers: [TenantSettingsService,
         OnboardingMultiSubmitService, OnboardingStepConfigurationClient, PublicFormService]
 })
-export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, AfterViewInit {
+export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     @Input() config!: WidgetConfig | any;
     @Output() next = new EventEmitter<void>();
     @ViewChild('signatureCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -198,6 +203,8 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
     // Conditional field rules loaded from the underlying Form definition
     private conditionalRules: ConditionalFieldRuleConfig[] = [];
+    private calculatorPrefillRules: CalculatorPrefillRuleConfig[] = [];
+    private calculatorPrefillSubscription: import('rxjs').Subscription | null = null;
     private hiddenFieldNames = new Set<string>();
     private recomputeConditionalState: (() => void) | null = null;
 
@@ -275,6 +282,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     ngAfterViewInit(): void {
         // Canvas might not be in DOM initially (hidden by ngIf)
         // We initialize it on demand when isCompleteStep becomes true
+    }
+
+    ngOnDestroy(): void {
+        this.calculatorPrefillSubscription?.unsubscribe();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -394,7 +405,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 }
 
                 if (!sourceValue) {
-                    console.log(`resolveEffectiveLimits: Computed value for field '${this.limitSourceField}' not found.`);
                 } else {
                     const normalizedValue = String(sourceValue).trim().toLowerCase();
 
@@ -578,7 +588,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                          this.memberService.member_GetById(id).subscribe({
                             next: (res) => {
                                 this.memberProfile = res.result;
-                                console.log('Member context loaded for validation rules', this.memberProfile);
                             },
                             error: (err) => console.error('Failed to load member details for validation', err)
                         });
@@ -1100,11 +1109,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.applyDataToActiveForm(this.activeOriginalData);
     }
 
-    saveActive(): void {
+    saveActive(afterSave?: () => void): void {
         if (!this.stepKey) {
             this.error = 'Multi-submit step is not available in this context.';
             return;
         }
+
+        this.applyCalculatorPrefillRules();
 
         if (this.activeFormGroup && this.activeFormGroup.invalid) {
             this.activeFormGroup.markAllAsTouched();
@@ -1141,7 +1152,12 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
         this.multiSubmitService.saveRecord(payload).subscribe({
             next: () => {
-                this.loadContext(this.stepKey);
+                if (afterSave) {
+                    this.loading = false;
+                    afterSave();
+                } else {
+                    this.loadContext(this.stepKey);
+                }
             },
             error: () => {
                 this.error = 'Failed to save record.';
@@ -1270,6 +1286,17 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 } else {
                     this.conditionalRules = [];
                 }
+
+                if (Array.isArray((parsed as any).calculatorPrefillRules)) {
+                    this.calculatorPrefillRules = (parsed as any).calculatorPrefillRules
+                        .filter((r: any) => r.targetFieldKey && r.variableKey)
+                        .map((r: any) => ({
+                            targetFieldKey: r.targetFieldKey as string,
+                            variableKey: r.variableKey as string
+                        }));
+                } else {
+                    this.calculatorPrefillRules = [];
+                }
             }
 
             if (fieldsRaw.length > 0) {
@@ -1371,6 +1398,16 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 // Apply any current editor state (e.g., user clicked Edit before form load completed)
                 this.applyDataToActiveForm(this.activeOriginalData);
 
+                // Subscribe to calculator aggregator so prefill rules react live to recalculations
+                this.calculatorPrefillSubscription?.unsubscribe();
+                if (this.calculatorPrefillRules.length > 0) {
+                    this.calculatorPrefillSubscription = this.calculatorAggregator.formData$.subscribe(() => {
+                        this.applyCalculatorPrefillRules();
+                    });
+                    // Apply immediately with current snapshot
+                    this.applyCalculatorPrefillRules();
+                }
+
                 // Re-evaluate calculator config now that form is loaded
                 this.ensureCalculatorInitialized(true);
                 // Notify OnPush parent that child view has new data to render
@@ -1388,7 +1425,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
         for (const field of this.formFields) {
             const validators = [];
-            if (field.required) {
+            if (field.required && !field.hidden) {
                 validators.push(Validators.required);
             }
             if (field.type === 'email') {
@@ -1589,6 +1626,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             return {};
         }
 
+        // Use getRawValue so that disabled controls (used by calculator prefill) are included
+        const rawValues = this.activeFormGroup.getRawValue();
+
         const data: Record<string, any> = {};
 
         for (const field of this.formFields) {
@@ -1605,7 +1645,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             }
 
             if (field.type === 'file') {
-                const raw = this.activeFormGroup.get(field.name)?.value;
+                const raw = rawValues[field.name];
                 const normalized = Array.isArray(raw)
                     ? raw.filter((v: any) => typeof v === 'string' && !!v)
                     : typeof raw === 'string' && raw
@@ -1615,7 +1655,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 continue;
             }
 
-            const raw = this.activeFormGroup.get(field.name)?.value;
+            const raw = rawValues[field.name];
 
             if (field.type === 'number') {
                 const n = raw === '' || raw === null || raw === undefined ? null : Number(raw);
@@ -1630,6 +1670,27 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         applyDateSplitParts(data, this.formFields);
 
         return data;
+    }
+
+    private applyCalculatorPrefillRules(): void {
+        if (!this.calculatorPrefillRules.length || !this.activeFormGroup) {
+            return;
+        }
+        const snapshot = this.calculatorAggregator.getFormDataSnapshot();
+        for (const rule of this.calculatorPrefillRules) {
+            const value = snapshot[rule.variableKey];
+            if (value === undefined || value === null) {
+                continue;
+            }
+            const control = this.activeFormGroup.get(rule.targetFieldKey);
+            if (!control) {
+                continue;
+            }
+            // Temporarily enable to allow setValue, then lock
+            control.enable({ emitEvent: false });
+            control.setValue(String(value), { emitEvent: false });
+            control.disable({ emitEvent: false });
+        }
     }
 
     private initializeConditionalFieldLogic(): void {
@@ -2067,17 +2128,32 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             return;
         }
 
-        console.log('onNext: CanProceed?', this.canProceed);
-        console.log('onNext: CurrentIndex:', this.currentStepIndex, 'TotalSteps:', this.configuredSteps.length);
 
         if (!this.canProceed) {
-            console.log('onNext: Blocked by validation.');
+            return;
+        }
+
+        // For single-submit form steps with an active form group, auto-save before advancing.
+        // This ensures calculator-prefilled values (and any other form values) are persisted
+        // to the DB even when the user clicks Next without explicitly clicking the Save button.
+        if (!this.isMultiSubmit && this.activeFormGroup && this.stepKey) {
+            if (this.activeFormGroup.invalid) {
+                this.activeFormGroup.markAllAsTouched();
+                return;
+            }
+            this.saveActive(() => {
+                this.stepStates[this.currentStepIndex] = { termsAgreed: this.termsAgreed };
+                this.advanceNextInternal();
+            });
             return;
         }
 
         // Save state before moving
         this.stepStates[this.currentStepIndex] = { termsAgreed: this.termsAgreed };
+        this.advanceNextInternal();
+    }
 
+    private advanceNextInternal(): void {
         if (this.currentStepIndex < this.configuredSteps.length - 1) {
             let nextIndex = this.currentStepIndex + 1;
 
@@ -2168,6 +2244,16 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.completionPdfUrl = null;
 
         if (mode === 'custom' && settings.completionPdfUrl) {
+            try {
+                const parsed = new URL(settings.completionPdfUrl);
+                if (parsed.protocol !== 'https:') {
+                    this.loading = false;
+                    return;
+                }
+            } catch {
+                this.loading = false;
+                return;
+            }
             this.completionPdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(settings.completionPdfUrl);
             this.completionPdfPreviews = [{ url: this.completionPdfUrl }];
             this.loading = false;

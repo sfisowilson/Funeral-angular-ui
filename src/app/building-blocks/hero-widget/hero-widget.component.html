@@ -7,13 +7,28 @@
     [style.--hero-btn-padding.px]="config.settings.buttonPadding">
     <h1 class="hero-title" [style.color]="config.settings.textColor">{{ config.settings.title }}</h1>
     <p class="hero-subtitle" [style.color]="config.settings.textColor">{{ config.settings.subtitle }}</p>
-    <a
-        *ngIf="config.settings.showButton !== false"
-        [href]="config.settings.buttonLink"
-        class="btn"
-        [style.background-color]="config.settings.buttonColor"
-        [style.color]="config.settings.buttonTextColor"
-    >
-        {{ config.settings.buttonText }}
-    </a>
+    <div class="btn-row">
+        <a
+            *ngIf="config.settings.showButton !== false"
+            [href]="config.settings.buttonLink"
+            [target]="config.settings.buttonTarget || '_self'"
+            class="btn"
+            [style.background-color]="config.settings.buttonColor"
+            [style.color]="config.settings.buttonTextColor"
+        >
+            <i *ngIf="config.settings.buttonIcon" [class]="config.settings.buttonIcon" style="margin-right:6px"></i>
+            {{ config.settings.buttonText }}
+        </a>
+        <a
+            *ngIf="config.settings.showSecondButton"
+            [href]="config.settings.secondButtonLink"
+            [target]="config.settings.secondButtonTarget || '_blank'"
+            class="btn btn-outline"
+            [style.border-color]="config.settings.secondButtonColor || config.settings.buttonColor"
+            [style.color]="config.settings.secondButtonTextColor || config.settings.buttonTextColor"
+        >
+            <i *ngIf="config.settings.secondButtonIcon" [class]="config.settings.secondButtonIcon" style="margin-right:6px"></i>
+            {{ config.settings.secondButtonText }}
+        </a>
+    </div>
 </div>
