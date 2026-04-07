@@ -118,9 +118,8 @@ export class TenantInvoicesComponent implements OnInit {
         });
     }
 
-    viewInvoice(invoiceId: string): void {
+    viewInvoice(_invoiceId: string): void {
         // Navigate to invoice detail
-        console.log('View invoice:', invoiceId);
     }
 
     getStatusClass(status: string | undefined): string {

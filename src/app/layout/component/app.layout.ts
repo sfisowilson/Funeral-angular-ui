@@ -41,12 +41,9 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
         public renderer: Renderer2,
         public router: Router
     ) {
-        console.log('AppLayout constructor called');
     }
 
     ngAfterViewInit() {
-        console.log('ngAfterViewInit called');
-        console.log('layoutWrapper available:', !!this.layoutWrapper);
     }
 
     ngDoCheck() {
@@ -59,14 +56,10 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
             const element = this.layoutWrapper.nativeElement;
 
             if (isActive) {
-                console.log('Adding layout-mobile-active class');
                 this.renderer.addClass(element, 'layout-mobile-active');
             } else {
-                console.log('Removing layout-mobile-active class');
                 this.renderer.removeClass(element, 'layout-mobile-active');
             }
-
-            console.log('Current classes:', element.className);
         }
     }
 
@@ -75,14 +68,10 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
             const element = this.layoutWrapper.nativeElement;
 
             if (isInactive) {
-                console.log('Adding layout-static-inactive class');
                 this.renderer.addClass(element, 'layout-static-inactive');
             } else {
-                console.log('Removing layout-static-inactive class');
                 this.renderer.removeClass(element, 'layout-static-inactive');
             }
-
-            console.log('Current classes:', element.className);
         }
     }
 
@@ -91,17 +80,9 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
     }
 
     ngOnInit() {
-        console.log('=== ngOnInit called ===');
-        console.log('Setting up stateChange$ subscription');
-
         // Subscribe to state changes from the service
         this.layoutStateSubscription = this.layoutService.stateChange$.subscribe({
             next: (state) => {
-                console.log('=== State Change Subscription Triggered ===');
-                console.log('New state received:', state);
-                console.log('staticMenuMobileActive:', state.staticMenuMobileActive);
-                console.log('staticMenuDesktopInactive:', state.staticMenuDesktopInactive);
-
                 // Apply mobile class
                 const mobileActive = state.staticMenuMobileActive ?? false;
                 this.updateMobileClass(mobileActive);
@@ -113,10 +94,8 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
                 this.previousDesktopInactive = desktopInactive;
             },
             error: (err) => console.error('State change subscription error:', err),
-            complete: () => console.log('State change subscription completed')
+            complete: () => {}
         });
-
-        console.log('stateChange$ subscription set up successfully');
 
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
@@ -146,7 +125,6 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
     }
 
     hideMenu() {
-        console.log('=== Hiding Menu ===');
         this.layoutService.closeMenu();
 
         if (this.menuOutsideClickListener) {
@@ -154,7 +132,6 @@ export class AppLayout implements OnInit, AfterViewInit, DoCheck, OnDestroy {
             this.menuOutsideClickListener = null;
         }
         this.unblockBodyScroll();
-        console.log('Menu hidden, new state:', this.layoutService.layoutState());
     }
 
     blockBodyScroll(): void {

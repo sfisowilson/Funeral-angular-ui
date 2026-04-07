@@ -21,11 +21,6 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
             }
         });
 
-        if (req.url.includes('Auth_ChangePassword')) {
-            console.log('✅ Authorization header added');
-        }
-    } else if (req.url.includes('Auth_ChangePassword')) {
-        console.log('❌ No token available for Auth_ChangePassword');
     }
 
     // 2. Extract subdomain intelligently for multi-level TLDs like dev.co.za or mizo.co.za

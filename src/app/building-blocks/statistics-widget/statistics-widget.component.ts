@@ -61,12 +61,9 @@ export class StatisticsWidgetComponent implements OnInit {
     @Input() config: any = {};
 
     constructor() {
-        console.log('StatisticsWidgetComponent initialized');
     }
 
     ngOnInit() {
-        console.log('Statistics widget config:', this.config);
-        console.log('Statistics:', this.statistics);
     }
 
     get title(): string {
@@ -75,11 +72,9 @@ export class StatisticsWidgetComponent implements OnInit {
 
     get statistics(): any[] {
         const statistics = this.config.statistics || [];
-        console.log('Getting statistics:', statistics);
 
         // If no statistics provided, show default ones
         if (statistics.length === 0) {
-            console.log('No statistics found, showing defaults');
             return [
                 { icon: 'pi pi-users', value: '10,000+', label: 'Active Members', description: 'Growing monthly' },
                 { icon: 'pi pi-check-circle', value: '5,000+', label: 'Claims Processed', description: 'Successfully paid out' },

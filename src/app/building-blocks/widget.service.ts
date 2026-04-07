@@ -77,9 +77,6 @@ export class WidgetService {
         // Deep clone the widgets to avoid reference issues
         const widgetsToSave = JSON.parse(JSON.stringify(widgets));
 
-        console.log('=== SAVE WIDGETS CALLED ===');
-        console.log('Widgets being saved:', widgetsToSave);
-
         // Update the in-memory state first
         this.widgetsSubject.next(widgetsToSave);
 
@@ -89,7 +86,6 @@ export class WidgetService {
                 if (tenantSettingDto && tenantSettingDto.settings) {
                     try {
                         currentSettings = JSON.parse(tenantSettingDto.settings);
-                        console.log('Current tenant settings loaded:', currentSettings);
                     } catch (e) {
                         console.error('Error parsing tenant settings value for saving:', e);
                     }
@@ -101,8 +97,6 @@ export class WidgetService {
                     [this.SETTINGS_KEY]: widgetsToSave
                 };
 
-                console.log('Updated settings to be saved:', updatedSettings);
-
                 const updateDto = new TenantSettingDto();
                 if (tenantSettingDto) {
                     updateDto.init(tenantSettingDto);
@@ -111,8 +105,6 @@ export class WidgetService {
 
                 return this.tenantSettingServiceProxy.tenantSetting_UpdateTenantSetting(updateDto).pipe(
                     tap(() => {
-                        console.log('✓ Tenant settings updated on backend successfully.');
-                        console.log('✓ Saved widgets count:', widgetsToSave.length);
                         this.tenantSettingsService.refreshSettings();
                     })
                 );
@@ -238,16 +230,12 @@ export class WidgetService {
     }
 
     public saveSeoSettings(seoSettings: any): Observable<any> {
-        console.log('=== SAVE SEO SETTINGS CALLED ===');
-        console.log('SEO settings being saved:', seoSettings);
-
         return from(this.tenantSettingsService.loadSettings()).pipe(
             switchMap((tenantSettingDto: TenantSettingDto) => {
                 let currentSettings: any = {};
                 if (tenantSettingDto && tenantSettingDto.settings) {
                     try {
                         currentSettings = JSON.parse(tenantSettingDto.settings);
-                        console.log('Current tenant settings loaded:', currentSettings);
                     } catch (e) {
                         console.error('Error parsing tenant settings value for saving SEO:', e);
                     }
@@ -259,8 +247,6 @@ export class WidgetService {
                     [this.SEO_SETTINGS_KEY]: seoSettings
                 };
 
-                console.log('Updated settings to be saved:', updatedSettings);
-
                 const updateDto = new TenantSettingDto();
                 if (tenantSettingDto) {
                     updateDto.init(tenantSettingDto);
@@ -269,7 +255,6 @@ export class WidgetService {
 
                 return this.tenantSettingServiceProxy.tenantSetting_UpdateTenantSetting(updateDto).pipe(
                     tap(() => {
-                        console.log('✓ SEO settings updated on backend successfully.');
                     })
                 );
             }),

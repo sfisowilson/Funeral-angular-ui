@@ -536,19 +536,9 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
                     const matches = when.length === 0 ? true : when.every((cond) => this.evaluateCondition(cond, context));
                     if (matches) {
                         resolved = this.toFiniteNumber(c.value, this.toFiniteNumber(d.defaultValue, 0));
-                        console.log(`  [var:${d.key}][${stepScope}${rowIndex != null ? ':row' + rowIndex : ''}] case[${ci}] MATCHED → ${resolved}`);
                         caseMatched = true;
                         break;
-                    } else {
-                        const failDetail = when.map((cond) => {
-                            const ctxVal = context[cond.field] ?? context[(cond.field || '').toLowerCase()];
-                            return `${cond.field}(ctx=${ctxVal})${cond.operator}${cond.value}${cond.value2 != null ? '...' + cond.value2 : ''}=FAIL`;
-                        }).join(', ');
-                        console.log(`  [var:${d.key}][${stepScope}${rowIndex != null ? ':row' + rowIndex : ''}] case[${ci}] NO MATCH: ${failDetail}`);
                     }
-                }
-                if (!caseMatched) {
-                    console.log(`  [var:${d.key}][${stepScope}${rowIndex != null ? ':row' + rowIndex : ''}] no case matched → default ${d.defaultValue ?? 0}`);
                 }
             }
 
@@ -781,8 +771,6 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
 
         // 0-pre. Global aggregations evaluated BEFORE variable derivations so their results
         // are available as context in variables.when conditions (e.g. dependentCount, maxDependentAge).
-        console.group('[Calculator] Global Aggregations');
-        console.log('Collections available:', Object.keys(this.collections), this.collections);
         for (const ga of (this.config().globalAggregations || [])) {
             if (!ga?.key || !ga?.collectionKey) {
                 console.warn('  Skipping aggregation (missing key or collectionKey):', ga);
@@ -790,10 +778,7 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
             }
             const coll = (this.collections[ga.collectionKey] || []).map((c: any) => this.normalizeKeys(c));
             const fieldKeyNorm = (ga.fieldKey || '').toLowerCase();
-            console.log(`  [${ga.key}] collection="${ga.collectionKey}" (${coll.length} records) field="${fieldKeyNorm}" op="${ga.operation}"`);
-            if (coll.length > 0) {
-                console.log(`    raw field values:`, coll.map((c: any) => c[fieldKeyNorm]));
-            } else {
+            if (coll.length === 0) {
                 console.warn(`    collection "${ga.collectionKey}" is EMPTY — check collection key spelling`);
             }
             let gaVal = 0;
@@ -820,10 +805,8 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
                         : 0;
                     break;
             }
-            console.log(`    => ${ga.key} = ${gaVal}`);
             globalVars[ga.key] = gaVal;
         }
-        console.groupEnd();
 
         // Add Base Premium to breakdown ONLY if options exist and a selection is made
         if (this.basePremiumOptions().length > 0) {
@@ -844,8 +827,6 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
             globalVars
         ]);
         Object.assign(globalVars, this.evaluateVariableDerivations(this.config().variables, globalContextForVars, steps, 'global'));
-        console.log('[Calculator] globalVars after aggregations + variable derivations:', { ...globalVars });
-        console.log('[Calculator] globalContextForVars:', { ...globalContextForVars });
 
         // Rebuild context including newly derived globals
         let globalContext = this.buildMergedContext([
@@ -882,20 +863,9 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
         // 0b. Row mode evaluation (multi-submit style)
         if (rowModeCfg?.enabled && rowCollectionKey) {
             const rows = this.collections[rowCollectionKey] || [];
-            console.group('[Calculator] Row Mode');
-            console.log('sourceCollectionKey (config):', rowModeCfg.sourceCollectionKey);
-            console.log('rowCollectionKey (resolved):', rowCollectionKey);
-            console.log('Collections available:', Object.keys(this.collections));
             if (rows.length === 0) {
                 console.warn(`  Collection "${rowCollectionKey}" is EMPTY or not found — check config sourceCollectionKey matches one of the available collections above`);
-            } else {
-                console.log(`  ${rows.length} row(s) to process`);
-                rows.forEach((row, i) => {
-                    const norm = this.normalizeKeys(typeof row === 'object' && row ? row : { value: row });
-                    console.log(`  Row[${i}] normalized keys:`, norm);
-                });
             }
-            console.groupEnd();
             const alias = rowModeCfg.itemAlias;
 
             rows.forEach((row, index) => {
@@ -911,7 +881,6 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
                 ]);
 
                 const rowVars = this.evaluateVariableDerivations(rowModeCfg.variables, rowBaseContext, steps, 'row', index);
-                console.log(`  Row[${index}] vars:`, { ...rowVars }, '| context keys:', Object.keys(rowBaseContext));
                 let rowContext = this.buildMergedContext([
                     rowBuiltIns,
                     this.formData,

@@ -276,7 +276,7 @@ export class BookingWidgetComponent implements OnInit {
                 // Send email notifications if configured
                 if (this.config?.enableEmailNotifications) {
                     this.bookingService.sendBookingNotifications(booking, this.config).subscribe({
-                        next: () => console.log('Notifications sent successfully'),
+                        next: () => {},
                         error: (error) => console.error('Failed to send notifications:', error)
                     });
                 }

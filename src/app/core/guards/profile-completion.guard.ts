@@ -40,20 +40,10 @@ export class ProfileCompletionGuard implements CanActivate {
             map(({ statusResponse, pagesResponse }) => {
                 const status = statusResponse.result;
                 const pages = pagesResponse.result || [];
-                
-                console.log('ProfileCompletionGuard: Status:', status);
-                console.log('ProfileCompletionGuard: Pages found:', pages.length);
 
                 // Find the active page configured as blocking onboarding
                 const onboardingPage = pages.find((p) => p.isActive && p.isOnboardingPage && p.isBlockingOnboarding);
 
-                if (onboardingPage) {
-                    console.log('ProfileCompletionGuard: Found Blocking Onboarding Page:', onboardingPage.slug);
-                } else {
-                    console.warn('ProfileCompletionGuard: NO Blocking Onboarding Page configured.');
-                }
-
-                // If there is no blocking onboarding page configured, do not enforce redirect
                 if (!onboardingPage) {
                     return true;
                 }

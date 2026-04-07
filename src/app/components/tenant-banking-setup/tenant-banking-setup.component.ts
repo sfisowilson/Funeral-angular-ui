@@ -132,9 +132,7 @@ export class TenantBankingSetupComponent implements OnInit {
                 this.existingDetails = details;
                 this.bankingForm.patchValue(details);
             },
-            error: (err) => {
-                console.log('No existing banking details found');
-            }
+            error: (_err: any) => {}
         });
     }
 

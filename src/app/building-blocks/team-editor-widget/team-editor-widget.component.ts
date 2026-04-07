@@ -21,14 +21,10 @@ export class TeamEditorWidgetComponent implements OnInit {
     @Input() config!: WidgetConfig;
 
     ngOnInit(): void {
-        console.log('🏢 Team Editor Widget initialized');
-        console.log('Widget config:', this.config);
-        console.log('Team members:', this.teamMembers);
     }
 
     get teamMembers(): TeamMember[] {
         const members = this.config?.settings?.teamMembers || [];
-        console.log('Getting team members:', members);
         return members;
     }
 

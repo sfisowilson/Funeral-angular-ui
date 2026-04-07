@@ -94,21 +94,16 @@ export class NewsUpdatesWidgetComponent implements OnInit {
     @Input() config: any = {};
 
     constructor() {
-        console.log('NewsUpdatesWidgetComponent initialized');
     }
 
     ngOnInit() {
-        console.log('News widget config:', this.config);
-        console.log('Articles:', this.articles);
     }
 
     get articles(): any[] {
         const articles = this.config.articles || [];
-        console.log('Getting articles:', articles);
 
         // If no articles provided, show default ones
         if (articles.length === 0) {
-            console.log('No articles found, showing defaults');
             return [
                 {
                     title: 'Welcome to Our News Section',

@@ -269,13 +269,12 @@ export class TenantPaymentSettingsComponent implements OnInit {
                 this.existingBanking = details;
                 this.bankingForm.patchValue(details);
             },
-            error: () => console.log('No banking details found')
+            error: () => {}
         });
     }
 
     loadTenantSettings(): void {
         // TODO: Implement with TenantSettingServiceProxy if needed
-        console.log('Tenant settings loaded');
     }
 
     saveBankingDetails(): void {

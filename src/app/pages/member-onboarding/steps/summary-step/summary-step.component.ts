@@ -249,7 +249,6 @@ export {};
    * Clear all form data after successful submission
    */
   clearForm() {
-    console.log('[SummaryStep] Clearing form data...');
     
     // Clear signature
     this.signatureDataUrl.set(null);
@@ -261,7 +260,5 @@ export {};
     
     // Clear PDF
     this.pdfUrl.set(null);
-    
-    console.log('[SummaryStep] Form cleared successfully');
   }
 }

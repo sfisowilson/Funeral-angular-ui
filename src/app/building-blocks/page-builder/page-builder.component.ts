@@ -171,25 +171,18 @@ export class PageBuilderComponent implements OnInit {
         // Only load widgets once to avoid overwriting local changes
         this.widgetService.widgets$.subscribe({
             next: (widgets) => {
-                console.log('=== WIDGETS$ SUBSCRIPTION FIRED ===');
-                console.log('Widgets received from service:', widgets.length);
-                console.log('Current widgets in component:', this.widgets().length);
 
                 // Don't overwrite if we already have widgets and we're in edit mode
                 // This prevents losing changes during editing
                 const currentWidgets = this.widgets();
                 if (currentWidgets.length > 0 && (this.showContentEditor() || this.showLayoutSettings())) {
-                    console.log('⚠️ Skipping widget reload - currently editing');
-                    console.log('=== END WIDGETS$ SUBSCRIPTION (SKIPPED) ===');
                     return;
                 }
 
                 // Initialize layout for widgets that don't have one
                 const widgetsWithLayout = widgets.map((w) => this.pageLayoutService.initializeWidgetLayout(w));
 
-                console.log('Setting widgets in component:', widgetsWithLayout.length);
                 this.widgets.set(widgetsWithLayout);
-                console.log('=== END WIDGETS$ SUBSCRIPTION ===');
             }
         });
     }
@@ -222,11 +215,6 @@ export class PageBuilderComponent implements OnInit {
     }
 
     selectWidget(widget: WidgetConfig): void {
-        console.log('=== SELECT WIDGET ===');
-        console.log('Widget being selected:', widget);
-        console.log('Widget settings:', widget.settings);
-        console.log('Services in widget settings:', widget.settings?.services);
-        console.log('Services count:', widget.settings?.services?.length || 0);
 
         // Ensure layout exists
         if (!widget.layout) {
@@ -291,8 +279,6 @@ export class PageBuilderComponent implements OnInit {
         }
 
         this.selectedWidget.set(widget);
-        console.log('Widget selected and set:', widget);
-        console.log('=== END SELECT WIDGET ===');
         this.showLayoutSettings.set(true);
     }
 
@@ -322,20 +308,13 @@ export class PageBuilderComponent implements OnInit {
     }
 
     editWidgetContent(widget: WidgetConfig): void {
-        console.log('=== EDIT WIDGET CONTENT ===');
-        console.log('Widget to edit:', widget);
-        console.log('Widget settings:', widget.settings);
-        console.log('Services in settings:', widget.settings?.services);
-        console.log('Services count:', widget.settings?.services?.length || 0);
 
         this.selectedWidget.set(widget);
         this.showContentEditor.set(true);
 
-        console.log('Selected widget set, opening content editor');
 
         // Wait for dialog to render, then load editor
         setTimeout(() => {
-            console.log('Loading editor component...');
             this.loadEditor();
         }, 100);
     }
@@ -379,38 +358,23 @@ export class PageBuilderComponent implements OnInit {
     private loadEditor(): void {
         if (!this.editorContainer || !this.selectedWidget()) return;
 
-        console.log('=== LOAD EDITOR ===');
-        console.log('Editor container:', this.editorContainer);
-        console.log('Selected widget:', this.selectedWidget());
 
         // Clear previous editor
         if (this.editorComponentRef) {
-            console.log('Destroying existing editor component');
             this.editorComponentRef.destroy();
         }
 
         const widget = this.selectedWidget()!;
-        console.log('Loading editor for widget:', widget);
-        console.log('Widget type:', widget.type);
-        console.log('Widget settings:', widget.settings);
-        console.log('Services in widget:', widget.settings?.services);
-        console.log('Services count:', widget.settings?.services?.length || 0);
 
         const editorComponent = this.getWidgetEditorComponent(widget.type);
 
         if (editorComponent) {
-            console.log('Creating editor component for:', widget.type);
             this.editorComponentRef = this.editorContainer.createComponent(editorComponent);
 
             // Set inputs
-            console.log('Setting config on editor instance...');
             this.editorComponentRef.instance.config = widget;
-            console.log('Config set on editor. Config object:', widget);
-            console.log('Config.settings:', widget.settings);
-            console.log('Config.settings.services:', widget.settings?.services);
 
             // Manually trigger ngOnChanges since we're setting input programmatically
-            console.log('Manually triggering ngOnChanges...');
             if (this.editorComponentRef.instance.ngOnChanges) {
                 this.editorComponentRef.instance.ngOnChanges({
                     config: {
@@ -421,12 +385,9 @@ export class PageBuilderComponent implements OnInit {
                     }
                 });
             }
-            console.log('ngOnChanges triggered');
 
             // Trigger change detection to update the view
-            console.log('Triggering change detection...');
             this.editorComponentRef.changeDetectorRef.detectChanges();
-            console.log('Change detection triggered');
 
             // Subscribe to outputs (different editors use different output names)
             this.subscribeToEditorOutput('update');
@@ -437,15 +398,11 @@ export class PageBuilderComponent implements OnInit {
             // Subscribe to close/cancel event (different components use different names)
             const closeEmitter = this.editorComponentRef.instance.cancel || this.editorComponentRef.instance.closed;
             if (closeEmitter) {
-                console.log('Subscribing to close/cancel event');
                 closeEmitter.subscribe(() => {
-                    console.log('=== CANCEL/CLOSE EVENT RECEIVED ===');
                     this.handleEditorCancel();
                 });
             }
 
-            console.log('Editor loaded and events wired up');
-            console.log('=== END LOAD EDITOR ===');
         } else {
             console.error('No editor component found for type:', widget.type);
         }
@@ -457,9 +414,7 @@ export class PageBuilderComponent implements OnInit {
             return;
         }
 
-        console.log(`Subscribing to ${outputName} event`);
         emitter.subscribe((payload: any) => {
-            console.log(`=== ${outputName.toUpperCase()} EVENT RECEIVED FROM EDITOR ===`);
             const isLiveChangeEvent = outputName === 'configChange' || outputName === 'settingsChange';
             this.handleEditorUpdate(payload, !isLiveChangeEvent);
         });
@@ -488,11 +443,6 @@ export class PageBuilderComponent implements OnInit {
             return;
         }
 
-        console.log('=== UPDATE WIDGET CONTENT ===');
-        console.log('Selected widget before update:', selected);
-        console.log('Updated settings received:', updatedSettings);
-        console.log('Services in updated settings:', updatedSettings.services);
-        console.log('Services count:', updatedSettings.services?.length || 0);
 
         // Create a new widget object to trigger change detection.
         // Merge with existing settings so editors emitting partial settings
@@ -509,24 +459,16 @@ export class PageBuilderComponent implements OnInit {
             title: (updatedSettings && updatedSettings.title) || (selected.settings && selected.settings.title) || selected.type
         };
 
-        console.log('Updated widget object created:', updatedWidget);
-        console.log('Settings in updated widget:', updatedWidget.settings);
-        console.log('Services in updated widget:', updatedWidget.settings.services);
-        console.log('Services count in updated widget:', updatedWidget.settings.services?.length || 0);
 
         const currentWidgets = this.widgets();
         const index = currentWidgets.findIndex((w) => w.id === selected.id);
 
-        console.log('Widget index in array:', index);
-        console.log('Current widgets array length:', currentWidgets.length);
 
         if (index > -1) {
             currentWidgets[index] = updatedWidget;
             this.widgets.set([...currentWidgets]);
             this.selectedWidget.set(updatedWidget);
 
-            console.log('Widget updated in array at index:', index);
-            console.log('Updated widgets array:', currentWidgets);
 
             // Save to backend
             this.saveWidgets();
@@ -539,8 +481,6 @@ export class PageBuilderComponent implements OnInit {
                 });
             }
 
-            console.log('Widget updated and saved successfully');
-            console.log('=== END UPDATE WIDGET CONTENT ===');
         } else {
             console.error('Widget not found in array');
         }
@@ -642,25 +582,19 @@ export class PageBuilderComponent implements OnInit {
         // Only save if auto-save is enabled (for landing pages)
         // Custom pages have auto-save disabled and handle saving manually
         if (!this.widgetService.isAutoSaveEnabled()) {
-            console.log('⊘ Auto-save disabled - widgets not saved to tenant settings');
             // Just update the in-memory state
             const widgetsToSave = this.widgets();
             this.widgetService.loadWidgetsFromSource(widgetsToSave);
             return;
         }
 
-        console.log('=== SAVING WIDGETS ===');
         const widgetsToSave = this.widgets();
-        console.log('Widgets count:', widgetsToSave.length);
-        console.log('Widgets to save:', JSON.stringify(widgetsToSave, null, 2));
 
         // Deep clone to ensure we're saving a clean copy without references
         const clonedWidgets = JSON.parse(JSON.stringify(widgetsToSave));
 
         this.widgetService.saveWidgets(clonedWidgets).subscribe({
             next: () => {
-                console.log('✓ Widgets saved successfully to backend');
-                console.log('✓ Saved widget count:', clonedWidgets.length);
             },
             error: (error) => {
                 console.error('✗ Error saving widgets:', error);
@@ -692,10 +626,7 @@ export class PageBuilderComponent implements OnInit {
     }
 
     handleEditorUpdate(updatedSettings: any, closeEditor: boolean = true): void {
-        console.log('=== HANDLE EDITOR UPDATE ===');
-        console.log('Updated settings:', updatedSettings);
         const normalizedSettings = this.normalizeEditorPayload(updatedSettings);
-        console.log('ImageUrl in updated settings:', normalizedSettings?.imageUrl);
         this.updateWidgetContent(normalizedSettings, closeEditor);
     }
 
@@ -820,7 +751,6 @@ export class PageBuilderComponent implements OnInit {
                 // Save reset SEO settings
                 this.widgetService.saveSeoSettings(this.seoSettings()).subscribe({
                     next: () => {
-                        console.log('SEO settings reset successfully');
                     },
                     error: (error) => {
                         console.error('Error resetting SEO settings:', error);
@@ -859,7 +789,6 @@ export class PageBuilderComponent implements OnInit {
         // This will trigger the theme service to load default theme
         this.themeService.loadTenantCss();
 
-        console.log('Theme reset to defaults');
     }
 
     startWithBlankPage(): void {
@@ -892,13 +821,11 @@ export class PageBuilderComponent implements OnInit {
     private loadAvailableTemplates(): void {
         // Get funeral-specific templates
         const allTemplates = this.landingPageTemplateService.getStaticTemplates();
-        console.log('All templates available:', allTemplates);
 
         const funeralTemplates = allTemplates.filter(
             (template) => template.category === 'Funeral'
             // Remove tenant type filter temporarily to show all funeral templates
         );
-        console.log('Funeral templates filtered:', funeralTemplates);
         this.availableTemplates.set(funeralTemplates);
     }
 

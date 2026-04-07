@@ -347,7 +347,6 @@ END:VCALENDAR`;
         return this.bookingServiceProxy.sendNotifications(payload as any).pipe(
             map((response: any) => {
                 const result = response?.result ?? response;
-                console.log('Notification response:', response);
                 return result;
             }),
             catchError((error) => {

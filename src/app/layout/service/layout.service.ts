@@ -141,12 +141,6 @@ export class LayoutService {
     }
 
     onMenuToggle() {
-        console.log('=== Menu Toggle Called ===');
-        console.log('isOverlay:', this.isOverlay());
-        console.log('isDesktop:', this.isDesktop());
-        console.log('Window width:', window.innerWidth);
-        console.log('Current state:', this.layoutState());
-
         if (this.isOverlay()) {
             this.layoutState.update((prev) => ({ ...prev, overlayMenuActive: !this.layoutState().overlayMenuActive }));
 
@@ -162,13 +156,10 @@ export class LayoutService {
             const wrapper = document.querySelector('.layout-wrapper');
             if (wrapper) {
                 if (this.layoutState().staticMenuDesktopInactive) {
-                    console.log('Adding layout-static-inactive class (desktop)');
                     wrapper.classList.add('layout-static-inactive');
                 } else {
-                    console.log('Removing layout-static-inactive class (desktop)');
                     wrapper.classList.remove('layout-static-inactive');
                 }
-                console.log('Wrapper classes:', wrapper.className);
             }
         } else {
             this.layoutState.update((prev) => ({ ...prev, staticMenuMobileActive: !this.layoutState().staticMenuMobileActive }));
@@ -181,29 +172,21 @@ export class LayoutService {
             const wrapper = document.querySelector('.layout-wrapper');
             if (wrapper) {
                 if (this.layoutState().staticMenuMobileActive) {
-                    console.log('Adding layout-mobile-active class (mobile)');
                     wrapper.classList.add('layout-mobile-active');
                 } else {
-                    console.log('Removing layout-mobile-active class (mobile)');
                     wrapper.classList.remove('layout-mobile-active');
                 }
-                console.log('Wrapper classes:', wrapper.className);
             }
         }
 
         const newState = this.layoutState();
-        console.log('New state:', newState);
-        console.log('staticMenuMobileActive:', newState.staticMenuMobileActive);
 
         // Emit the state change so components can subscribe
-        console.log('About to emit state change via stateChangeSource.next()');
         this.stateChangeSource.next(newState);
-        console.log('State change emitted');
     }
 
     isDesktop() {
         const width = window.innerWidth;
-        console.log('isDesktop check - window width:', width, 'result:', width > 991);
         return width > 991;
     }
 

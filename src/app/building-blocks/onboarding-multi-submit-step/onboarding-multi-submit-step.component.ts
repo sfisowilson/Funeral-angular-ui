@@ -311,7 +311,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
             this.resolveEffectiveLimits();
             this.ensureMemberContextIfNeeded();
-            console.log('OnboardingMultiSubmitStep config updated:', { minItems: this.minItems, nextUrl: this.nextUrl });
         }
     }
 
@@ -403,11 +402,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                     const rule = this.limitRules.find((r) => r.targetValue && r.targetValue.trim().toLowerCase() === normalizedValue);
 
                     if (rule) {
-                        console.log(`resolveEffectiveLimits: Matched rule for value '${sourceValue}'. Min=${rule.minItems}, Max=${rule.maxItems}`);
                         this.effectiveMin = rule.minItems;
                         this.effectiveMax = rule.maxItems;
                     } else {
-                        console.log(`resolveEffectiveLimits: No rule matched for value '${sourceValue}'. Using defaults.`);
                     }
                 }
             }
@@ -693,7 +690,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     }
 
     private loadInternalStep(stepConfig: any): void {
-        console.log('loadInternalStep called with:', stepConfig);
         const settings = (this.config && this.config.settings) || {};
 
         // Merge validation rules from step config
@@ -719,7 +715,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         // Check if this is a 'complete' step
         if (String(stepConfig.type).toLowerCase() === 'complete') {
             this.isCompleteStep = true;
-            console.log('loadInternalStep: Detected completion step.');
             // Prefer step-level config, fall back to global settings
             this.requireSignature = (stepConfig.requireSignature === true) || (settings.requireSignature === true);
             
@@ -1781,7 +1776,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
         let overrideConfig: Partial<CalculatorConfig> | null = null;
 
-        console.log('ensureCalculatorInitialized: step config:', step.calculatorConfig);
 
         // 1. Prefer direct calculator config from the step (provided by backend)
         if (step.calculatorConfig) {
@@ -1790,7 +1784,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                     ? JSON.parse(step.calculatorConfig) 
                     : step.calculatorConfig;
                 
-                console.log('ensureCalculatorInitialized: parsed config:', parsed);
 
                 if (parsed) {
                     overrideConfig = { ...(overrideConfig || {}), ...parsed };
@@ -2094,7 +2087,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
             if (nextIndex < this.configuredSteps.length) {
                 this.currentStepIndex = nextIndex;
-                console.log('onNext: Advancing to internal step index:', this.currentStepIndex);
                 this.loadInternalStep(this.configuredSteps[this.currentStepIndex]);
                 return;
             }
@@ -2103,11 +2095,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         // Check if we are entering the completion/signature step
         this.checkExistingSignature();
 
-        console.log('onNext: Finished all internal steps. Emitting next event.');
         this.next.emit();
 
         if (this.nextUrl) {
-            console.log('onNext: Navigating to URL:', this.nextUrl);
             this.router.navigateByUrl(this.nextUrl);
         } else {
             console.error('onNext: No NextURL configured.');
@@ -2396,7 +2386,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     // --- Signature Logic ---
 
     private checkExistingSignature(): void {
-        console.log('checkExistingSignature: Checking for existing member signature...');
         const loadSignatureForMember = (memberId: string | null | undefined): void => {
             if (!memberId || memberId === '00000000-0000-0000-0000-000000000000') {
                 this.savedSignatureUrl = null;
@@ -2409,7 +2398,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 next: (memberResponse) => {
                     const signatureUrl = memberResponse.result?.signatureDataUrl;
                     const signedAt = memberResponse.result?.signedAt;
-                    console.log('checkExistingSignature: Signature URL found:', !!signatureUrl);
 
                     this.savedSignatureUrl = signatureUrl || null;
                     this.signatureSignedAtText = signatureUrl ? this.formatSignedAt(signedAt) : null;
@@ -2432,7 +2420,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.memberProfileCompletionService.profileCompletion_GetMyStatus().subscribe({
             next: (statusResponse) => {
                 const memberId = statusResponse.result?.profileCompletion?.memberId;
-                console.log('checkExistingSignature: Member ID found:', memberId);
 
                 if (memberId && memberId !== '00000000-0000-0000-0000-000000000000') {
                     loadSignatureForMember(memberId);

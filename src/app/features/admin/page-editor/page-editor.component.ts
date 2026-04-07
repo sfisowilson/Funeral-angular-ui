@@ -66,7 +66,6 @@ export class PageEditorComponent implements OnInit, OnDestroy {
                 debounceTime(2000) // Wait 2 seconds after last change
             )
             .subscribe(() => {
-                console.log('Widgets changed - auto-saving...');
                 this.hasUnsavedChanges.set(true);
                 this.autoSavePage();
             });
@@ -238,7 +237,6 @@ export class PageEditorComponent implements OnInit, OnDestroy {
 
         this.customPagesService.customPagesPut(currentPage.id, updateRequest).subscribe({
             next: () => {
-                console.log('✓ Auto-saved successfully');
                 this.hasUnsavedChanges.set(false);
                 this.lastSaved.set(new Date());
             },

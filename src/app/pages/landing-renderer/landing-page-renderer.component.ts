@@ -203,7 +203,6 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
             this._settings = JSON.parse(this.tenantSettings.settings ?? '{}');
             this.isStaticSite = this._settings.isStaticSite || false;
             const tenantTitle = this._settings.siteTitle || this._settings.title || this.tenantSettings.tenantName || 'Mizo';
-            console.log('Landing page - Setting document title to:', tenantTitle);
             this.titleService.setTitle(tenantTitle + ' | All-in-One Business Platform');
 
             // Set meta description from tenant settings or fall back to default
@@ -343,13 +342,11 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     logout(): void {
         this.isLoggedIn = false;
         this.mobileMenuOpen = false;
-        console.log('User logged out');
         this.authService.logout();
     }
 
     toggleMobileMenu(): void {
         this.mobileMenuOpen = !this.mobileMenuOpen;
-        console.log('Mobile menu toggled:', this.mobileMenuOpen);
     }
 
     getGridStyles(): any {

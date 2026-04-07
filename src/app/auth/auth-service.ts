@@ -92,21 +92,18 @@ export class AuthService {
         const token = this.getToken();
 
         if (!token) {
-            console.log('- Result: No token found');
             return false;
         }
 
         const isExpired = this.jwtHelper.isTokenExpired(token);
 
         if (isExpired) {
-            console.log('- Result: Token is expired');
             this.decodedUserToken = null; // Clear expired token
             return false;
         }
 
         // If we have a token and it's not expired, ensure decoded token is set
         if (!this.decodedUserToken) {
-            console.log('- Re-decoding token...');
             this.decodedUserToken = this.jwtHelper.decodeToken(token);
         }
 

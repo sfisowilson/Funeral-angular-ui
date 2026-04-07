@@ -209,8 +209,6 @@ export class CouponsComponent {
             const durationValue = this.coupon.durationInMonths;
             createDto.durationInMonths = typeof durationValue === 'number' && !isNaN(durationValue) && durationValue >= 1 ? durationValue : 1;
 
-            console.log('Creating coupon with durationInMonths:', createDto.durationInMonths);
-
             createDto.maxRedemptions = this.coupon.maxRedemptions;
             createDto.validFrom = this.coupon.validFrom;
             createDto.validUntil = this.coupon.validUntil;

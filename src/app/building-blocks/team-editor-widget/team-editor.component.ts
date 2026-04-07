@@ -93,14 +93,8 @@ export class TeamEditorComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        console.log('🏢 Team Editor Component initialized');
-        console.log('Config:', this.config);
-
         if (this.config.settings.teamMembers) {
             this.teamMembers = [...this.config.settings.teamMembers];
-            console.log('Loaded existing team members:', this.teamMembers);
-        } else {
-            console.log('No existing team members found');
         }
 
         this.filteredTeamMembers = [...this.teamMembers];
@@ -180,8 +174,6 @@ export class TeamEditorComponent implements OnInit {
 
     // User Management Methods
     loadUsers(): void {
-        console.log('🔄 Loading users for team selection...');
-
         this.userService.user_GetAllUsers(undefined, undefined, undefined, undefined, undefined).subscribe({
             next: (response) => {
                 this.availableUsers = response.result || [];
@@ -258,14 +250,12 @@ export class TeamEditorComponent implements OnInit {
     }
 
     // Member Actions
-    editMember(member: TeamMember): void {
+    editMember(_member: TeamMember): void {
         // Implementation for editing member
-        console.log('Edit member:', member);
     }
 
-    viewMember(member: TeamMember): void {
+    viewMember(_member: TeamMember): void {
         // Implementation for viewing member details
-        console.log('View member:', member);
     }
 
     deleteMember(member: TeamMember): void {
@@ -348,7 +338,6 @@ export class TeamEditorComponent implements OnInit {
                 if (this.importType === 'csv') {
                     // CSV parsing logic would go here
                     const csvData = e.target.result;
-                    console.log('CSV data:', csvData);
                     // For now, show success message
                     this.messageService.add({
                         severity: 'info',

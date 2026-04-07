@@ -142,8 +142,7 @@ export class DebitOrderManagementComponent implements OnInit {
         });
     }
 
-    viewBatch(batchId: string): void {
-        console.log('View batch:', batchId);
+    viewBatch(_batchId: string): void {
     }
 
     getStatusClass(status: string | undefined): string {

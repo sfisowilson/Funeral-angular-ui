@@ -322,7 +322,6 @@ export class NgoGrantApplicationsAdminComponent implements OnInit {
         this.ngoService.get_GrantApplications().subscribe({
             next: (response: any) => {
                 this.applications = response?.result || response || [];
-                console.log('Loaded applications:', this.applications);
             },
             error: (error) => {
                 console.error('Failed to load grant applications:', error);

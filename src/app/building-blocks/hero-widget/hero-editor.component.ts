@@ -134,15 +134,8 @@ export class HeroEditorComponent implements OnInit, OnChanges {
     }
 
     onSubmit() {
-        console.log('=== HERO EDITOR onSubmit called ===');
-        console.log('Form value:', this.form.value);
-        console.log('Form valid:', this.form.valid);
-        console.log('Update emitter observers:', this.update.observers.length);
-
         if (this.form.valid) {
-            console.log('Emitting update event with:', this.form.value);
             this.update.emit(this.form.value);
-            console.log('Update event emitted');
         } else {
             console.error('Form is invalid:', this.form.errors);
         }

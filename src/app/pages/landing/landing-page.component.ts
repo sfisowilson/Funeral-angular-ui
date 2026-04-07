@@ -153,7 +153,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
     saveLayout(): void {
         this.widgetService.saveWidgets(this.widgets).subscribe(() => {
-            console.log('Layout saved successfully!');
         });
     }
 }

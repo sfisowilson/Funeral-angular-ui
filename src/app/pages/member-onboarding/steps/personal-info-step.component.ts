@@ -114,7 +114,6 @@ export class PersonalInfoStepComponent implements OnInit {
         this.memberService.member_GetById(memberId).subscribe({
             next: (response) => {
                 const member = response?.result;
-                console.log('[PersonalInfo] Loaded member data:', member);
                 this.memberData.set(member);
 
                 // Validate existing ID number
@@ -141,7 +140,6 @@ export class PersonalInfoStepComponent implements OnInit {
 
         this.dynamicFormService.loadFormConfiguration().subscribe({
             next: (categories: DynamicFormCategory[]) => {
-                console.log('[PersonalInfo] Loaded categories:', categories);
                 this.categories.set(categories);
 
                 // Create form group from categories
@@ -173,7 +171,6 @@ export class PersonalInfoStepComponent implements OnInit {
             next: (response) => {
                 const data = response?.result;
                 if (data && data.fieldValues) {
-                    console.log('[PersonalInfo] Loaded existing data:', data);
 
                     // Wait for form to be ready
                     setTimeout(() => {
@@ -237,8 +234,6 @@ export class PersonalInfoStepComponent implements OnInit {
             fieldValues: fieldValues
         });
 
-        console.log('[PersonalInfo] Saving form data:', dto);
-
         // Validate ID number before saving
         const member = this.memberData();
         if (member && member.identificationNumber) {
@@ -265,7 +260,6 @@ export class PersonalInfoStepComponent implements OnInit {
 
             this.memberService.member_UpdateMember(memberDto.id, memberDto).subscribe({
                 next: () => {
-                    console.log('[PersonalInfo] Member basic info saved');
                     // Then save custom form fields
                     this.saveDynamicFormData(dto);
                 },
@@ -331,7 +325,6 @@ export class PersonalInfoStepComponent implements OnInit {
 
         this.profileService.profileCompletion_UpdateStep(dto).subscribe({
             next: () => {
-                console.log('[PersonalInfo] Step marked as complete');
                 this.stepCompleteSubject.next();
             },
             error: (error: any) => {
@@ -353,8 +346,6 @@ export class PersonalInfoStepComponent implements OnInit {
                 console.error('[PersonalInfo] Cannot check completion: memberId not found');
                 return;
             }
-
-            console.log('[PersonalInfo] Form is valid, marking as complete');
             // Don't auto-save, but mark as complete if valid
             const dto = new UpdateProfileCompletionStepDto({
                 memberId: memberId,
@@ -364,7 +355,6 @@ export class PersonalInfoStepComponent implements OnInit {
 
             this.profileService.profileCompletion_UpdateStep(dto).subscribe({
                 next: () => {
-                    console.log('[PersonalInfo] Step auto-marked as complete');
                 },
                 error: (error: any) => {
                     console.error('[PersonalInfo] Error auto-marking step:', error);
@@ -769,7 +759,6 @@ export class PersonalInfoStepComponent implements OnInit {
      * Clear all form data after successful submission
      */
     clearForm() {
-        console.log('[PersonalInfoStep] Clearing form data...');
 
         // Reset the form group
         const form = this.formGroup();
@@ -796,7 +785,5 @@ export class PersonalInfoStepComponent implements OnInit {
         this.idInfo.set(null);
         this.parsedDateOfBirth.set(null);
         this.parsedGender.set(null);
-
-        console.log('[PersonalInfoStep] Form cleared successfully');
     }
 }

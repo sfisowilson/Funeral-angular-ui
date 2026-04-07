@@ -413,9 +413,6 @@ export class TenantSettingsComponent implements OnInit {
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Tenant Settings Updated', life: 3000 });
                     // Refresh widgets to reflect any landing page changes
                     this.widgetService.refreshWidgets().subscribe({
-                        next: () => {
-                            console.log('Widgets refreshed after tenant settings save');
-                        },
                         error: (error) => {
                             console.error('Error refreshing widgets:', error);
                         }

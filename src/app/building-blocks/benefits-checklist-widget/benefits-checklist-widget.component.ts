@@ -25,12 +25,9 @@ export class BenefitsChecklistWidgetComponent implements OnInit {
     @Input() config: any;
 
     constructor() {
-        console.log('BenefitsChecklistWidgetComponent initialized');
     }
 
     ngOnInit() {
-        console.log('Benefits widget config:', this.config);
-        console.log('Benefits:', this.benefits);
     }
 
     get settings() {
@@ -48,11 +45,9 @@ export class BenefitsChecklistWidgetComponent implements OnInit {
 
     get benefits(): BenefitItem[] {
         const benefits = this.settings.benefits || [];
-        console.log('Getting benefits:', benefits);
 
         // If no benefits provided, show default ones
         if (benefits.length === 0) {
-            console.log('No benefits found, showing defaults');
             return [
                 { icon: 'bi bi-check-circle-fill', text: 'Professional website with custom subdomain' },
                 { icon: 'bi bi-check-circle-fill', text: 'Complete member management system' },

@@ -77,21 +77,16 @@ export class TestimonialsWidgetComponent implements OnInit {
     @Input() config: any = {};
 
     constructor() {
-        console.log('TestimonialsWidgetComponent initialized');
     }
 
     ngOnInit() {
-        console.log('Testimonials widget config:', this.config);
-        console.log('Testimonials:', this.testimonials);
     }
 
     get testimonials(): any[] {
         const testimonials = this.config.testimonials || [];
-        console.log('Getting testimonials:', testimonials);
 
         // If no testimonials provided, show default ones
         if (testimonials.length === 0) {
-            console.log('No testimonials found, showing defaults');
             return [
                 {
                     name: 'Sarah Johnson',

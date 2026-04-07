@@ -102,8 +102,6 @@ export class TenantSettingsService {
             return '';
         }
         let url = `${this.baseUrl}/api/FileUpload/File_DownloadFile/${fileId}`;
-        console.log('Download URL:', url);
-        console.log('Tenant ID Header:', this.tenantIdHeader);
         if (this.tenantIdHeader && this.tenantIdHeader.has('X-Tenant-ID')) {
             url += `?X-Tenant-ID=${this.tenantIdHeader.get('X-Tenant-ID')}`;
         }

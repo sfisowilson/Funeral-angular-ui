@@ -277,7 +277,6 @@ export class HelpButtonComponent {
 
     openChat() {
         // Implement your chat widget integration here
-        console.log('Opening chat...');
         this.helpOpen = false;
     }
 

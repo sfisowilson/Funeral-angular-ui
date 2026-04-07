@@ -88,20 +88,6 @@ export class ChangePasswordDialogComponent {
             confirmPassword: this.confirmPassword()
         });
 
-        // Debug: Log token availability
-        console.log('🔐 Attempting password change...');
-        const token = localStorage.getItem('auth_token');
-        console.log('Token available:', !!token);
-        if (token) {
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                console.log('Token payload:', payload);
-                console.log('Token has sub claim:', !!payload.sub);
-            } catch (e) {
-                console.error('Failed to decode token:', e);
-            }
-        }
-
         this.authService.auth_ChangePassword(request).subscribe({
             next: () => {
                 this.messageService.add({

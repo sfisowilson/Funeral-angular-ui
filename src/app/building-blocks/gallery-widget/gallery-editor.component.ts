@@ -123,19 +123,14 @@ export class GalleryEditorComponent implements OnInit {
     }
 
     onFileSelect(event: any, index?: number) {
-        console.log('🎯 onFileSelect triggered!', event);
         const input = event.target as HTMLInputElement;
-        console.log('📁 Input element:', input);
         const files = input.files;
-        console.log('📂 Files object:', files);
 
         if (!files || files.length === 0) {
-            console.log('❌ No files selected');
             this.messageService.add({ severity: 'warn', summary: 'No Files', detail: 'No files were selected' });
             return;
         }
 
-        console.log(`Processing ${files.length} files`);
         this.messageService.add({
             severity: 'info',
             summary: 'Processing',
@@ -145,7 +140,6 @@ export class GalleryEditorComponent implements OnInit {
         // If replacing a specific image
         if (index !== undefined) {
             const file = files[0];
-            console.log('Replacing image at index', index, file.name);
 
             // Show preview immediately
             const reader = new FileReader();
@@ -180,12 +174,10 @@ export class GalleryEditorComponent implements OnInit {
             const totalFiles = files.length;
             const startingIndex = this.images.length;
 
-            console.log('Adding multiple images starting at index', startingIndex);
 
             // Process each file
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                console.log(`Processing image ${i + 1}:`, file.name);
 
                 // Add placeholder
                 const imageIndex = this.images.length;
@@ -200,7 +192,6 @@ export class GalleryEditorComponent implements OnInit {
                 // Show preview
                 const reader = new FileReader();
                 reader.onload = (e: any) => {
-                    console.log(`Preview loaded for image ${i + 1}`);
                     this.images.at(imageIndex).patchValue({ src: e.target.result });
                 };
                 reader.readAsDataURL(file);

@@ -170,7 +170,6 @@ export class PolicyComponent implements OnInit {
     }
 
     savePolicyAttribute() {
-        console.log('Policy.savePolicyAttribute called -> ', this.policyAttribute);
         this.submitted = true;
         if (this.policyAttribute.policyId?.trim() && this.policyAttribute.property?.trim() && this.policyAttribute.value?.trim()) {
             if (this.policyAttribute.id) {

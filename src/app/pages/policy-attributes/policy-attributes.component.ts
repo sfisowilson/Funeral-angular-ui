@@ -178,7 +178,6 @@ export class PolicyAttributesComponent {
 
     savePolicyAttribute() {
         this.submitted = true;
-        console.log('PolicyAttributes.savePolicyAttribute called', this.policyAttribute);
 
         if (
             this.policyAttribute.policyId?.trim() &&
@@ -247,7 +246,6 @@ export class PolicyAttributesComponent {
                 detail: 'Please complete all required fields before saving.',
                 life: 4000
             });
-            console.log('PolicyAttributes.savePolicyAttribute validation failed', this.policyAttribute);
         }
     }
 }

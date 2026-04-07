@@ -141,7 +141,6 @@ export class RolesComponent {
                     }
                 });
             } else {
-                console.log('Creating new role:', this.role.name);
                 this.roleService.role_CreateRole(RoleInput.fromJS({ name: this.role.name || '' })).subscribe({
                     next: (createdRole) => {
                         this.messageService.add({

@@ -23,9 +23,7 @@ export abstract class TenantBaseComponent implements OnInit {
     async ngOnInit() {
         try {
             // Determine tenant from hostname first
-            console.log('TenantBaseComponent.ngOnInit: calling determineTenant...');
             await this.tenantService.determineTenant();
-            console.log('TenantBaseComponent.ngOnInit: determineTenant complete, tenant type =', this.tenantService.getTenantType());
             await this.loadTenantSettings();
         } catch (error) {
             console.error('Error in TenantBaseComponent.ngOnInit:', error);

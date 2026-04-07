@@ -486,13 +486,6 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             // Calculate amount based on selected billing cycle
             const amount = this.billingCycle === 1 ? plan.yearlyPrice || plan.monthlyPrice * 12 : plan.monthlyPrice;
 
-            console.log('Validating coupon:', {
-                code: this.couponCode(),
-                planId: plan.id,
-                amount: amount,
-                billingCycle: this.billingCycle
-            });
-
             const validationResponse = await this.couponService
                 .coupon_Validate({
                     couponCode: this.couponCode(),
@@ -504,7 +497,6 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
                 .toPromise();
             const validation = validationResponse?.result;
 
-            console.log('Coupon validation result:', validation);
             this.couponValidation.set(validation);
 
             if (validation?.isValid) {
@@ -689,13 +681,6 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             const couponValidation = this.couponValidation();
             const hasCoupon = couponValidation?.isValid && this.couponCode();
 
-            console.log('Payment creation - Coupon info:', {
-                couponCode: this.couponCode(),
-                isValid: couponValidation?.isValid,
-                hasCoupon: hasCoupon,
-                discountedAmount: couponValidation?.discountedAmount
-            });
-
             const paymentDto: any = {
                 tenantId: tenantId,
                 subscriptionPlanId: selectedPlan?.subscriptionPlanId || selectedPlan?.id, // Use linked SubscriptionPlan ID
@@ -718,10 +703,7 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
             // Only add couponCode if it's valid and present
             if (hasCoupon) {
                 paymentDto.couponCode = this.couponCode();
-                console.log('Adding coupon code to payment:', paymentDto.couponCode);
             }
-
-            console.log('Final payment DTO:', paymentDto);
 
             const paymentSessionResponse = await this.paymentService.payment_CreateSession(paymentDto as any).toPromise();
             const paymentSession = paymentSessionResponse?.result;

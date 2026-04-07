@@ -195,7 +195,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
     }
 
     loadPremiumSettings(): void {
-        console.log('=== LOADING PREMIUM SETTINGS ===');
         this.premiumService.premiumCalculation_GetSettings().subscribe({
             next: (response) => {
                 this.settings.set(response?.result);
@@ -209,21 +208,15 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
     }
 
     buildCoverOptions(): void {
-        console.log('=== BUILDING COVER OPTIONS ===');
         const rows = this.settings()?.policyCoverTable?.rows || [];
-        console.log('Rows from settings:', rows);
         const currency = this.config?.currency || 'R';
-        console.log('Currency:', currency);
         this.coverOptions = rows.map((row) => ({
             label: `${currency}${row.coverAmount?.toLocaleString()} Cover`,
             value: row
         }));
-        console.log('Cover options built:', this.coverOptions);
     }
 
     onCoverAmountChange(): void {
-        console.log('=== COVER AMOUNT CHANGED ===');
-        console.log('Selected cover row:', this.selectedCoverRow);
 
         this.calculatedPremium.set(null);
         this.breakdown.set([]);
@@ -237,20 +230,15 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
 
         // Build tier options - always auto-select based on dependent count
         const tiers = this.selectedCoverRow.dependentCountTiers || [];
-        console.log('Tiers from cover row:', tiers);
-        console.log('Tiers length:', tiers.length);
 
         if (tiers.length > 0) {
-            console.log('Tiers detected, building unified age brackets from all tiers');
             // Auto-select the first tier initially
             this.selectedTier = tiers[0];
-            console.log('Auto-selected tier:', this.selectedTier);
             // Build unified age brackets from ALL tiers
             this.buildAgeBracketInputsFromAllTiers();
             // Build extended family brackets
             this.buildExtendedFamilyBracketInputs();
         } else {
-            console.log('No tiers - using legacy');
             // Fallback to legacy age brackets
             this.selectedTier = null;
             this.buildLegacyAgeBracketInputs();
@@ -304,23 +292,18 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
         if (tiers.length === 0) return;
 
         const totalDependents = this.getTotalDependentCount();
-        console.log('Auto-selecting tier for', totalDependents, 'dependents');
-        console.log('Available tiers:', tiers);
 
         // Find the tier that matches the dependent count
         const matchingTier = tiers.find((t) => totalDependents >= (t.minDependents || 0) && totalDependents <= (t.maxDependents || 999));
 
         if (matchingTier) {
-            console.log('Found matching tier:', matchingTier);
             this.selectedTier = matchingTier;
         } else {
-            console.log('No matching tier found, using first tier');
             this.selectedTier = tiers[0];
         }
     }
 
     buildAgeBracketInputsFromAllTiers(): void {
-        console.log('=== BUILDING AGE BRACKET INPUTS FROM ALL TIERS ===');
 
         if (!this.selectedCoverRow) {
             this.ageBracketInputs = [];
@@ -328,7 +311,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
         }
 
         const tiers = this.selectedCoverRow.dependentCountTiers || [];
-        console.log('All tiers:', tiers);
 
         if (tiers.length === 0) {
             this.ageBracketInputs = [];
@@ -339,7 +321,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
         const allBracketsMap = new Map<number, { label: string; maxAge: number }>();
 
         tiers.forEach((tier, tierIndex) => {
-            console.log(`Processing tier ${tierIndex}:`, tier);
             const ageBrackets = tier.ageBrackets;
 
             if (ageBrackets && Object.keys(ageBrackets).length > 0) {
@@ -356,7 +337,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
             }
         });
 
-        console.log('Unique age brackets map:', allBracketsMap);
 
         // Convert map to sorted array
         const baseBrackets = Array.from(allBracketsMap.values())
@@ -368,7 +348,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
             }))
             .sort((a, b) => a.maxAge - b.maxAge);
 
-        console.log('Unified age brackets created:', baseBrackets);
         this.ageBracketInputs = baseBrackets;
     }
 
@@ -383,7 +362,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
     }
 
     buildExtendedFamilyBracketInputs(): void {
-        console.log('=== BUILDING EXTENDED FAMILY BRACKET INPUTS ===');
 
         if (!this.selectedCoverRow || !this.settings()) {
             this.extendedFamilyBracketInputs = [];
@@ -393,8 +371,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
         const extendedFamilyRows = this.settings()?.extendedFamilyTable?.rows || [];
         const coverAmount = this.selectedCoverRow.coverAmount;
 
-        console.log('Extended family rows:', extendedFamilyRows);
-        console.log('Cover amount:', coverAmount);
 
         if (extendedFamilyRows.length === 0) {
             this.extendedFamilyBracketInputs = [];
@@ -412,7 +388,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
 
         const premiumField = premiumFieldMap[coverAmount || 0];
         if (!premiumField) {
-            console.log('No premium field found for cover amount:', coverAmount);
             this.extendedFamilyBracketInputs = [];
             return;
         }
@@ -426,7 +401,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
             premium: (row[premiumField] as number) || 0
         }));
 
-        console.log('Extended family bracket inputs created:', this.extendedFamilyBracketInputs);
     }
 
     getMaxAllowedDependents(): number {
@@ -464,20 +438,13 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
         // Calculate base premium based on the highest age bracket with dependents
         const totalDependents = this.ageBracketInputs.reduce((sum, b) => sum + b.count, 0);
 
-        console.log('Total dependents:', totalDependents);
-        console.log('Age bracket inputs:', this.ageBracketInputs);
-        console.log('Selected cover row:', this.selectedCoverRow);
-        console.log('Selected tier:', this.selectedTier);
 
         if (totalDependents > 0) {
             // Auto-select the appropriate tier based on dependent count
             this.selectAppropriateTier();
 
-            console.log('Selected tier AFTER selectAppropriateTier:', this.selectedTier);
-            console.log('Selected tier ageBrackets:', this.selectedTier?.ageBrackets);
 
             const maxBaseAge = Math.max(...this.ageBracketInputs.filter((b) => b.count > 0).map((b) => b.maxAge));
-            console.log('Max base age:', maxBaseAge);
 
             // Add total dependent count to breakdown (informational, no amount shown)
             breakdownItems.push({
@@ -533,37 +500,26 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
             }
 
             if (this.selectedTier?.ageBrackets) {
-                console.log('Using tier-based calculation');
                 // Use tier-based calculation - find the premium for the HIGHEST age bracket
                 const sortedBrackets = Object.entries(this.selectedTier.ageBrackets || {})
                     .map(([key, value]) => ({ key: parseInt(key), value }))
                     .sort((a, b) => a.key - b.key);
 
-                console.log('Sorted brackets:', sortedBrackets);
                 const matchingBracket = sortedBrackets.find((b) => maxBaseAge <= b.key);
-                console.log('Matching bracket:', matchingBracket);
-                console.log('Matching bracket value:', matchingBracket?.value);
-                console.log('Matching bracket value.premium:', matchingBracket?.value?.premium);
 
                 if (matchingBracket) {
                     basePremium = matchingBracket.value.premium || 0;
-                    console.log('Base premium from bracket:', basePremium);
                 }
             } else {
-                console.log('Using legacy calculation');
                 // Legacy calculation - use hardcoded fields
                 if (maxBaseAge <= 64) {
                     basePremium = this.selectedCoverRow.premium_1To5Dependents_Under65 || 0;
-                    console.log('Under 65 premium:', basePremium);
                 } else if (maxBaseAge <= 69) {
                     basePremium = this.selectedCoverRow.premium_1To5Dependents_Under70 || 0;
-                    console.log('Under 70 premium:', basePremium);
                 } else if (maxBaseAge <= 74) {
                     basePremium = this.selectedCoverRow.premium_1To5Dependents_Under75 || 0;
-                    console.log('Under 75 premium:', basePremium);
                 } else {
                     basePremium = this.selectedCoverRow.premium_1To5Dependents_75Plus || 0;
-                    console.log('75+ premium:', basePremium);
                 }
             }
         }
@@ -576,9 +532,6 @@ export class PremiumCalculatorWidgetComponent implements OnInit {
 
         const totalPremium = basePremium + extendedFamilyPremium;
 
-        console.log('Base premium:', basePremium);
-        console.log('Extended family premium:', extendedFamilyPremium);
-        console.log('Total premium:', totalPremium);
 
         // Add the premium totals to breakdown after calculating everything
         if (basePremium > 0) {

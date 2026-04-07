@@ -206,7 +206,6 @@ export class BankingDetailsStepComponent implements OnInit {
    * Clear all form data after successful submission
    */
   clearForm() {
-    console.log('[BankingDetailsStep] Clearing form data...');
     
     // Reset form
     if (this.bankingForm) {
@@ -214,7 +213,5 @@ export class BankingDetailsStepComponent implements OnInit {
     }
     
     // No bankingDetailsId property exists - skipping
-    
-    console.log('[BankingDetailsStep] Form cleared successfully');
   }
 }

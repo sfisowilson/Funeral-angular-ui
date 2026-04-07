@@ -67,7 +67,6 @@ export class PoliciesComponent {
         this.loadPolicies();
         this.tenantSettingsService.loadSettings().then(() => {
             const tenantSettings = this.tenantSettingsService.getSettings();
-            console.log('Tenant settings loaded:', tenantSettings);
             let settings = JSON.parse(tenantSettings?.settings) || '{}';
             if (settings && settings.currency) {
                 this.currency = settings.currency;

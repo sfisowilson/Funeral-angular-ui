@@ -301,14 +301,7 @@ export class ServicesOverviewEditorComponent implements OnChanges {
     ) {}
 
     ngOnChanges(changes: SimpleChanges): void {
-        console.log('=== SERVICES EDITOR ngOnChanges FIRED ===');
-        console.log('changes:', changes);
-        console.log('this.config:', this.config);
-
         if (changes['config'] && this.config) {
-            console.log('Config exists, checking settings...');
-            console.log('this.config.settings:', this.config.settings);
-
             if (this.config.settings) {
                 // Always reload when config changes - deep copy to avoid mutating the original
                 this.settings = JSON.parse(JSON.stringify(this.config.settings));
@@ -316,9 +309,6 @@ export class ServicesOverviewEditorComponent implements OnChanges {
                 if (!this.settings.columns) {
                     this.settings.columns = 3; // Default to 3 columns
                 }
-
-                console.log('Settings after deep copy:', this.settings);
-                console.log('Services in settings:', this.settings.services);
 
                 // Ensure services array exists
                 if (!this.settings.services) {
@@ -344,13 +334,9 @@ export class ServicesOverviewEditorComponent implements OnChanges {
                     }
                 });
 
-                console.log('Final services count:', this.settings.services?.length || 0);
-                console.log('Final settings object:', this.settings);
             } else {
                 console.error('NO SETTINGS FOUND IN CONFIG!');
             }
-        } else {
-            console.log('Config change not detected or config is null');
         }
     }
 
@@ -511,7 +497,6 @@ export class ServicesOverviewEditorComponent implements OnChanges {
                     // Get the uploaded file URL or path with tenant query parameter
                     const imageUrl = response.id ? `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${response.id}?X-Tenant-ID=${tenantId}` : response.filePath;
 
-                    console.log('Service image upload complete:', imageUrl);
 
                     // Set the image URL for this service
                     this.settings.services[serviceIndex].imageUrl = imageUrl;

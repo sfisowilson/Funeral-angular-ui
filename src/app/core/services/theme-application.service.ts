@@ -211,9 +211,8 @@ export class ThemeApplicationService {
         });
     }
 
-    private async applyColorScheme(colors: ThemeColorScheme): Promise<void> {
+    private async applyColorScheme(_colors: ThemeColorScheme): Promise<void> {
         // TODO: Implement when tenant settings service has update method
-        console.log('Color scheme application not yet implemented');
     }
 
     async checkSubscriptionLimits(themePageCount: number): Promise<{ canApply: boolean; limit: number; current: number; remaining: number }> {

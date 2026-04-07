@@ -156,14 +156,11 @@ export class PdfFieldMappingComponent implements OnInit {
         this.pdfFieldMappingService.getAvailableFields().subscribe({
             next: (response) => {
                 const fields = (response?.result as string[]) || [];
-                console.log('=== Available fields from API ===');
-                console.log('Total fields received:', fields.length);
                 if (fields && fields.length > 0) {
                     this.suggestedSourceFields = fields;
                     
                     // Debug: Show all DynamicEntity fields
                     const dynamicFields = fields.filter(f => f.startsWith('DynamicEntity:'));
-                    console.log(`\nDynamic entity fields (${dynamicFields.length}):`, dynamicFields);
                     
                     // Group by type to see patterns
                     const byType = new Map<string, string[]>();
@@ -174,9 +171,7 @@ export class PdfFieldMappingComponent implements OnInit {
                         if (!byType.has(typeGuess)) byType.set(typeGuess, []);
                         byType.get(typeGuess)!.push(f);
                     });
-                    console.log('\nGrouped by apparent type:');
                     byType.forEach((fields, type) => {
-                        console.log(`  ${type}: ${fields.length} fields`, fields.slice(0, 3));
                     });
                     
                     this.organizeFields();
@@ -191,8 +186,6 @@ export class PdfFieldMappingComponent implements OnInit {
     }
 
     organizeFields(): void {
-        console.log('=== Organizing Fields ===');
-        console.log('Total fields to organize:', this.suggestedSourceFields.length);
         
         const standardGroup: FieldGroup = { label: 'Member (Standard)', value: 'standard', type: 'standard', items: [] };
         const customGroup: FieldGroup = { label: 'Member (Custom)', value: 'custom', type: 'custom', items: [] };
@@ -215,7 +208,6 @@ export class PdfFieldMappingComponent implements OnInit {
                             type: 'dynamic',
                             items: []
                         });
-                        console.log(`Created dynamic group: "${label}" (typeKey: ${typeKey})`);
                     }
                     dynamicGroupsMap.get(typeKey)!.items.push({ label: 'Total Count', value: 'Count', isCount: true });
                 }
@@ -223,9 +215,6 @@ export class PdfFieldMappingComponent implements OnInit {
                 standardGroup.items.push({ label: field, value: field });
             }
         });
-
-        console.log(`Pass 1 complete: ${dynamicGroupsMap.size} dynamic entity types found`);
-        console.log('Dynamic type keys:', Array.from(dynamicGroupsMap.keys()));
 
         // Pass 2: Handle Dynamic Entity Fields
         // Match fields like: DynamicEntity:{TypeKey}_{anyNumber}_{Field}
@@ -240,15 +229,11 @@ export class PdfFieldMappingComponent implements OnInit {
                 // Sort by longest key first to avoid partial matches
                 const sortedKeys = Array.from(dynamicGroupsMap.keys()).sort((a, b) => b.length - a.length);
                 
-                console.log(`\nTrying to match field: "${field}"`);
-                console.log(`  Content after prefix: "${content}"`);
-                
                 for (const typeKey of sortedKeys) {
                     // Pattern: {TypeKey}_{Number}_{Field}
                     // Use regex to match any number, not just 1
                     const escapedKey = this.escapeRegex(typeKey);
                     const regex = new RegExp(`^${escapedKey}_(\\d+)_(.+)$`);
-                    console.log(`  Testing against typeKey: "${typeKey}", regex: ^${escapedKey}_(\\d+)_(.+)$`);
                     
                     const match = content.match(regex);
                     
@@ -257,33 +242,23 @@ export class PdfFieldMappingComponent implements OnInit {
                         const fieldName = match[2];
                         const group = dynamicGroupsMap.get(typeKey)!;
                         
-                        console.log(`  ✓ MATCH! Row: ${rowIndex}, Field: ${fieldName}`);
-                        
                         // Only add if not already present
                         if (!group.items.some(item => item.value === fieldName)) {
                             group.items.push({ label: this.formatFieldLabel(fieldName), value: fieldName });
-                            console.log(`  Added field "${fieldName}" to group "${group.label}"`);
                             matchedFields.push(field);
                         } else {
-                            console.log(`  Field "${fieldName}" already exists in group`);
                         }
                         matched = true;
                         break;
                     } else {
-                        console.log(`  ✗ No match`);
                     }
                 }
                 
                 if (!matched) {
                     unmatchedFields.push(field);
-                    console.log(`  ✗ UNMATCHED!`);
                 }
             }
         });
-
-        console.log(`\n=== Pass 2 Results ===`);
-        console.log(`Matched fields: ${matchedFields.length}`);
-        console.log(`Unmatched fields: ${unmatchedFields.length}`);
 
         if (unmatchedFields.length > 0) {
             console.warn(`${unmatchedFields.length} dynamic entity fields could not be matched:`, unmatchedFields.slice(0, 5));
@@ -298,7 +273,6 @@ export class PdfFieldMappingComponent implements OnInit {
 
         // Convert map to array and add
         const dynamicGroups = Array.from(dynamicGroupsMap.values()).sort((a, b) => a.label.localeCompare(b.label));
-        console.log(`Final dynamic groups (${dynamicGroups.length}):`, dynamicGroups.map(g => `${g.label} (${g.items.length} fields)`));
         
         dynamicGroups.forEach((g) => {
             g.items.sort((a, b) => {
@@ -307,11 +281,7 @@ export class PdfFieldMappingComponent implements OnInit {
                 return a.label.localeCompare(b.label);
             });
             this.fieldGroups.push(g);
-            console.log(`  Group "${g.label}" fields:`, g.items.map(i => i.label).join(', '));
         });
-
-        console.log(`Total field groups: ${this.fieldGroups.length}`);
-        console.log('=== Field Organization Complete ===');
     }
 
     /**
@@ -349,10 +319,8 @@ export class PdfFieldMappingComponent implements OnInit {
     }
 
     onEntityGroupChange(): void {
-        console.log('Entity group changed:', this.selectedEntityGroup);
         if (this.selectedEntityGroup) {
             this.availableFieldsForGroup = this.selectedEntityGroup.items;
-            console.log(`Available fields for ${this.selectedEntityGroup.label}:`, this.availableFieldsForGroup);
             this.selectedFieldPart = '';
             this.selectedRowIndex = 1;
             this.updateSourceField();
@@ -364,12 +332,10 @@ export class PdfFieldMappingComponent implements OnInit {
     }
 
     onFieldChange(): void {
-        console.log('Field changed:', this.selectedFieldPart);
         this.updateSourceField();
     }
 
     onRowIndexChange(): void {
-        console.log('Row index changed:', this.selectedRowIndex);
         this.updateSourceField();
     }
 
@@ -397,8 +363,6 @@ export class PdfFieldMappingComponent implements OnInit {
                 this.mappingForm.sourceField = `DynamicEntity:${group.value}_${index}_${field}`;
             }
         }
-        
-        console.log('Updated sourceField to:', this.mappingForm.sourceField);
     }
 
     initializeFormSelectors(): void {
@@ -569,7 +533,6 @@ export class PdfFieldMappingComponent implements OnInit {
     }
 
     loadFileMetadata(fileId: string): void {
-        console.log('Loading file metadata for fileId:', fileId);
         this.fileUploadService.file_GetByFileId(fileId).subscribe({
             next: (response: any) => {
                 this.currentTemplateFile = response?.result || null;

@@ -375,26 +375,13 @@ export class ImageContentEditorComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes['config'] && this.config) {
-            console.log('🔄 ImageContentEditor ngOnChanges triggered');
-            console.log('Config received:', this.config);
-            console.log('Config.settings:', this.config.settings);
-
             if (this.config.settings) {
-                console.log('Patching form with settings:', this.config.settings);
-                console.log('ImageUrl value in settings:', this.config.settings.imageUrl);
 
                 // Reset form first to clear any cached values
                 this.form.reset();
 
                 // Then patch with settings
                 this.form.patchValue(this.config.settings, { emitEvent: false });
-
-                // Log form value after patch to verify
-                setTimeout(() => {
-                    console.log('Form value after patch:', this.form.value);
-                    console.log('Form imageUrl control value:', this.form.get('imageUrl')?.value);
-                    console.log('✅ ImageUrl successfully set to:', this.form.get('imageUrl')?.value);
-                }, 100);
             } else {
                 console.warn('Config has no settings property');
             }
@@ -497,12 +484,7 @@ export class ImageContentEditorComponent implements OnChanges {
                     // Get the uploaded file URL or path with tenant query parameter
                     const imageUrl = response.id ? `${environment.apiUrl}/api/FileUpload/File_DownloadFile/${response.id}?X-Tenant-ID=${tenantId}` : response.filePath;
 
-                    console.log('📤 Upload complete - setting imageUrl:', imageUrl);
                     this.form.patchValue({ imageUrl });
-
-                    // Log immediately after patch
-                    console.log('📄 Form imageUrl after patch:', this.form.get('imageUrl')?.value);
-                    console.log('📄 Full form value after patch:', this.form.value);
 
                     this.messageService.add({
                         severity: 'success',

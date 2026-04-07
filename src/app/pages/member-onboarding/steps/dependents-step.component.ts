@@ -100,7 +100,6 @@ export class DependentsStepComponent implements OnInit {
     }
 
     loadDependents() {
-        console.log('[DependentsStep] Loading dependents...');
         this.loading.set(true);
 
         // Use appropriate method based on whether viewing own or another member's dependents
@@ -109,7 +108,6 @@ export class DependentsStepComponent implements OnInit {
         dependentsObservable.subscribe({
             next: (response) => {
                 const data = response?.result || [];
-                console.log('[DependentsStep] Loaded dependents:', data);
                 this.dependents.set(data);
                 this.checkCompletion();
                 this.loading.set(false);
@@ -251,10 +249,8 @@ export class DependentsStepComponent implements OnInit {
                 }
             });
         } else {
-            console.log('[DependentsStep] Creating new dependent:', this.currentDependent);
             this.dependentService.dependent_CreateDependent(this.currentDependent).subscribe({
                 next: (createdDependent) => {
-                    console.log('[DependentsStep] Dependent created successfully:', createdDependent);
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Success',
@@ -262,7 +258,6 @@ export class DependentsStepComponent implements OnInit {
                     });
 
                     // Reload dependents - this will call checkCompletion automatically
-                    console.log('[DependentsStep] Reloading dependents after creation...');
                     this.loadDependents();
 
                     // Close dialog and clear form to allow adding another dependent
@@ -310,9 +305,7 @@ export class DependentsStepComponent implements OnInit {
 
     checkCompletion() {
         const hasAtLeastOne = this.dependents().length > 0;
-        console.log('[DependentsStep] CheckCompletion - hasAtLeastOne:', hasAtLeastOne, 'dependents count:', this.dependents().length);
         if (hasAtLeastOne) {
-            console.log('[DependentsStep] Emitting stepComplete event (debounced)');
             // Use subject to debounce the emission
             this.stepCompleteSubject.next();
         }
@@ -518,7 +511,6 @@ export class DependentsStepComponent implements OnInit {
     /**the dependent entry form (after individual save)
      */
     clearDependentForm() {
-        console.log('[DependentsStep] Clearing dependent entry form...');
 
         // Reset current dependent
         this.currentDependent = {} as DependentDto;
@@ -536,15 +528,12 @@ export class DependentsStepComponent implements OnInit {
         this.uploading.set(false);
         this.selectedFile = undefined;
         this.selectedDocumentType = undefined;
-
-        console.log('[DependentsStep] Dependent entry form cleared');
     }
 
     /**
      * Clear all form data after successful onboarding completion
      */
     clearForm() {
-        console.log('[DependentsStep] Clearing all form data...');
 
         // Clear dependents array
         this.dependents.set([]);
@@ -554,7 +543,5 @@ export class DependentsStepComponent implements OnInit {
 
         // Clear dialogs and states
         this.displayDialog = false;
-
-        console.log('[DependentsStep] All form data cleared successfully');
     }
 }

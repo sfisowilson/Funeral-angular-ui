@@ -66,14 +66,12 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     register() {
         // Ensure browser autofill updates the reactive control before validation runs.
         this.patchEmailFromNativeInput();
-        console.log('RegisterComponent.register: CALLED', this.form.value, this.form.valid);
         this.isBusy = true;
         if (!this.form.valid) {
             this.isBusy = false;
             this.showAlertMessage('error', 'Please fill in all required fields.');
             return;
         }
-        console.log('RegisterComponent.register: form is valid, proceeding');
         const fv = this.form.value;
         if (fv.password !== fv.confirmPassword) {
             this.showAlertMessage('error', 'Passwords do not match.');
@@ -111,7 +109,6 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
     override async loadTenantSettings() {
         try {
             const settings = await this.tenantSettingsService.loadSettings();
-            console.log('Register component - Full settings object:', settings);
 
             if (settings) {
                 this.tenantName = settings.tenantName || 'Funeral Management System';
@@ -135,8 +132,6 @@ export class RegisterComponent extends TenantBaseComponent implements OnInit {
 
                 if (logoId) {
                     this.tenantLogo = this.tenantSettingsService.getDownloadUrl(logoId);
-                } else {
-                    console.log('Register component - No logo found');
                 }
             }
         } catch (error) {

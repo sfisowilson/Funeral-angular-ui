@@ -104,9 +104,6 @@ export class DocumentsStepComponent implements OnInit {
 
     // Public method that parent can call to refresh files
     public refreshFiles() {
-        console.log('[DocumentsStep] refreshFiles called');
-        console.log('[DocumentsStep] fileUploadService:', this.fileUploadService);
-        console.log('[DocumentsStep] authService.getUserId():', this.authService.getUserId());
         this.loadMyFiles();
         this.loadRequiredDocuments(); // Refresh requirements as well
         this.loadComplianceStatus(); // Refresh compliance status
@@ -125,7 +122,6 @@ export class DocumentsStepComponent implements OnInit {
         // Phase 4: Use new DocumentRequirementService to get conditional requirements
         this.documentRequirementService.documentRequirement_GetRequiredDocuments(memberId).subscribe({
             next: (data: DocumentRequirement[]) => {
-                console.log('[Phase 4] Required documents loaded:', data);
                 this.requiredDocuments.set(data);
                 this.loading.set(false);
             },
@@ -138,7 +134,6 @@ export class DocumentsStepComponent implements OnInit {
 
 export {};
                 this.uploadedDocuments.set(fileDtos);
-                console.log('[DocumentsStep] uploadedDocuments signal updated, count:', fileDtos.length);
                 this.checkCompletion();
             },
             error: (error: any) => {

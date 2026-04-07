@@ -115,12 +115,8 @@ export class CouponListComponent implements OnInit {
         this.loading.set(true);
         this.couponService.coupon_GetAll(undefined, undefined, undefined).subscribe({
             next: (response: any) => {
-                console.log('Raw response:', response);
-                console.log('Response type:', typeof response);
-                console.log('Response keys:', response ? Object.keys(response) : 'null');
                 // Try both casing variants
                 const couponsData = response?.coupons || response?.Coupons || [];
-                console.log('Coupons data:', couponsData);
                 this.coupons.set(couponsData);
                 this.loading.set(false);
             },
@@ -191,16 +187,12 @@ export class CouponListComponent implements OnInit {
     }
 
     async saveCoupon() {
-        console.log('saveCoupon called', this.couponForm);
-
         if (!this.validateForm()) {
-            console.log('Form validation failed');
             return;
         }
 
         try {
             this.saving = true;
-            console.log('Saving coupon...', this.isEditMode ? 'UPDATE' : 'CREATE');
 
             if (this.isEditMode) {
                 const updateDto = {
@@ -234,7 +226,6 @@ export class CouponListComponent implements OnInit {
                     internalNotes: this.couponForm.internalNotes,
                     campaignName: this.couponForm.campaignName
                 };
-                console.log('Create DTO:', createDto);
                 await this.couponService.coupon_Create(createDto as any).toPromise();
                 this.showAlert('Coupon created successfully', 'success');
             }

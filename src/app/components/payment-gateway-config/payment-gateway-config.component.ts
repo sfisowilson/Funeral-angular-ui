@@ -295,7 +295,6 @@ export class PaymentGatewayConfigComponent implements OnInit {
         this.paymentConfigService.providers().subscribe({
             next: (data: any) => {
                 this.providers = data.result;
-                console.log('Loaded providers:', this.providers);
             },
             error: (_err: any) => console.error('Error loading providers', _err)
         });

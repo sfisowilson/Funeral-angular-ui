@@ -347,8 +347,6 @@ export class ThemeService {
             // This ensures custom CSS can override even !important rules from other sources
             style.innerHTML = content;
 
-            // Log for debugging
-            console.log('Custom CSS applied successfully. Length:', content.length);
         };
 
         if (typeof cssContent === 'object' && cssContent instanceof Blob) {
