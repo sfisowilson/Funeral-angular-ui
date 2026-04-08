@@ -16,11 +16,12 @@ export class AuthGuard implements CanActivate {
         const requiredRoles = route.data['roles'] as string[]; // Get required roles from route data
 
         if (!isAuthenticated) {
+            this.router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
             return false;
         }
 
         if (requiredRoles && !this.authService.hasAnyRole(requiredRoles)) {
-            this.authService.removeToken();
+            this.router.navigate(['/auth/login']);
             return false;
         }
 

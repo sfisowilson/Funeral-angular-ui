@@ -29,89 +29,103 @@ import { OnboardingStepListConfigComponent } from './admin/onboarding-step-confi
 import { FieldDefinitionBuilderComponent } from '../admin/onboarding-fields/field-definition-builder/field-definition-builder.component';
 import { EmailTemplatesComponent } from './email-templates/email-templates.component';
 import { EmailSettingsComponent } from './email-settings/email-settings.component';
+import { PermissionGuard } from '../core/guards/permission-guard';
+
+const ADMIN_ROLES = ['TenantAdmin', 'SuperAdmin'];
 
 export default [
-    { path: 'tenant-settings', component: TenantSettingsComponent },
-    { path: 'member-management', component: MemberManagementComponent },
-    { path: 'tenants', component: TenantsComponent },
-    { path: 'users', component: UsersComponent },
-    { path: 'subscription-plans', component: SubscriptionPlansComponent },
-    { path: 'plan-configuration', component: PlanConfigurationComponent },
-    { path: 'dependents', component: DependentsComponent },
-    { path: 'personnel', component: PersonnelComponent },
-    { path: 'timesheets', component: TimesheetsComponent },
-    { path: 'roles', component: RolesComponent },
-    { path: 'tenant-type-permissions', component: TenantTypePermissionsComponent },
-    { path: 'landing-page-generator', component: LandingPageGeneratorComponent },
-    { path: 'booking-management', component: BookingManagementComponent },
-
-    { path: 'dashboard-settings', component: DashboardSettingsComponent },
-    { path: 'pdf-field-mapping', component: PdfFieldMappingComponent },
+    { path: 'tenant-settings', component: TenantSettingsComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'member-management', component: MemberManagementComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'tenants', component: TenantsComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'users', component: UsersComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'subscription-plans', component: SubscriptionPlansComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'plan-configuration', component: PlanConfigurationComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'dependents', component: DependentsComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'personnel', component: PersonnelComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'timesheets', component: TimesheetsComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'roles', component: RolesComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'tenant-type-permissions', component: TenantTypePermissionsComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'landing-page-generator', component: LandingPageGeneratorComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'booking-management', component: BookingManagementComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'dashboard-settings', component: DashboardSettingsComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'pdf-field-mapping', component: PdfFieldMappingComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
     {
         path: 'registration-fields',
         component: RegistrationFieldsComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES }
     },
     {
         path: 'onboarding-step-config',
         component: OnboardingStepListConfigComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES }
     },
     {
         path: 'field-definitions',
         component: FieldDefinitionBuilderComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES }
     },
     {
         path: 'email-templates',
         component: EmailTemplatesComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES }
     },
     {
         path: 'email-settings',
         component: EmailSettingsComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES }
     },
-    { path: 'member-approval', component: MemberApprovalComponent },
-    { path: 'tenant-approval', component: TenantApprovalComponent },
-    { path: 'coupons', component: CouponListComponent },
+    { path: 'member-approval', component: MemberApprovalComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'tenant-approval', component: TenantApprovalComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
+    { path: 'coupons', component: CouponListComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },
     {
         path: 'careers',
         component: CareersComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES, requiredTenantType: 'Premium' }
     },
     // Ecommerce Management (Premium)
     {
         path: 'products',
         component: ProductManagementComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES, requiredTenantType: 'Premium' }
     },
     {
         path: 'orders',
         component: OrderManagementComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES, requiredTenantType: 'Premium' }
     },
     {
         path: 'customers',
         component: CustomerManagementComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES, requiredTenantType: 'Premium' }
     },
     {
         path: 'ecommerce-settings',
         component: EcommerceSettingsComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES, requiredTenantType: 'Premium' }
     },
     {
         path: 'page-builder',
         component: PageBuilderComponent,
-        data: { roles: ['TenantAdmin', 'SuperAdmin'] }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES }
     },
 
     // NGO Premium Features
     {
         path: 'ngo',
         loadChildren: () => import('./admin/ngo/ngo.module').then((m) => m.NgoModule),
-        data: { roles: ['TenantAdmin', 'SuperAdmin'], requiredTenantType: 'Premium' }
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES, requiredTenantType: 'Premium' }
     },
 
     // Legacy Widget Editor - replaced by Visual Page Builder

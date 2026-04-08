@@ -49,7 +49,7 @@ export const appRoutes: Routes = [
         data: { tenantType: 'host' },
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-            { path: 'dashboard', data: { breadcrumb: 'Dashboard' }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
+            { path: 'dashboard', canActivate: [PermissionGuard], data: { breadcrumb: 'Dashboard', permissions: ['Permission.reporting.dashboard.view'] }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
             {
                 path: 'member-onboarding',
                 data: { breadcrumb: 'My Onboarding' },
@@ -59,23 +59,25 @@ export const appRoutes: Routes = [
                     )
             },
             { path: 'pages', data: { breadcrumb: 'Pages' }, loadChildren: () => import('./app/pages/pages.routes') },
-            { path: 'custom-pages', data: { breadcrumb: 'Page Management' }, loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) },
-            { path: 'custom-pages/edit/:id', data: { breadcrumb: 'Edit Page' }, loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) },
-            { path: 'nav-config', data: { breadcrumb: 'Navigation Menu Builder' }, loadComponent: () => import('./app/features/admin/nav-config/nav-config-editor.component').then((m) => m.NavConfigEditorComponent) },
+            { path: 'custom-pages', canActivate: [PermissionGuard], data: { breadcrumb: 'Page Management', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) },
+            { path: 'custom-pages/edit/:id', canActivate: [PermissionGuard], data: { breadcrumb: 'Edit Page', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) },
+            { path: 'nav-config', canActivate: [PermissionGuard], data: { breadcrumb: 'Navigation Menu Builder', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/features/admin/nav-config/nav-config-editor.component').then((m) => m.NavConfigEditorComponent) },
             { path: 'contract-signing/:memberId', data: { breadcrumb: 'Sign Contract', skipProfileCheck: true }, loadComponent: () => import('./app/pages/contract-signing/contract-signing.component').then((m) => m.ContractSigningComponent) },
-            { path: 'payment-config', data: { breadcrumb: 'Payment Gateway Configuration' }, loadComponent: () => import('./app/components/payment-gateway-config/payment-gateway-config.component').then((m) => m.PaymentGatewayConfigComponent) },
-            { path: 'payment-settings', data: { breadcrumb: 'Payment Settings' }, loadComponent: () => import('./app/components/tenant-payment-settings/tenant-payment-settings.component').then((m) => m.TenantPaymentSettingsComponent) },
-            { path: 'debit-orders', data: { breadcrumb: 'Debit Order Management' }, loadComponent: () => import('./app/components/debit-order-management/debit-order-management.component').then((m) => m.DebitOrderManagementComponent) },
-            { path: 'invoices', data: { breadcrumb: 'Invoices' }, loadComponent: () => import('./app/components/tenant-invoices/tenant-invoices.component').then((m) => m.TenantInvoicesComponent) },
+            { path: 'payment-config', canActivate: [PermissionGuard], data: { breadcrumb: 'Payment Gateway Configuration', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/components/payment-gateway-config/payment-gateway-config.component').then((m) => m.PaymentGatewayConfigComponent) },
+            { path: 'payment-settings', canActivate: [PermissionGuard], data: { breadcrumb: 'Payment Settings', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/components/tenant-payment-settings/tenant-payment-settings.component').then((m) => m.TenantPaymentSettingsComponent) },
+            { path: 'debit-orders', canActivate: [PermissionGuard], data: { breadcrumb: 'Debit Order Management', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/components/debit-order-management/debit-order-management.component').then((m) => m.DebitOrderManagementComponent) },
+            { path: 'invoices', canActivate: [PermissionGuard], data: { breadcrumb: 'Invoices', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/components/tenant-invoices/tenant-invoices.component').then((m) => m.TenantInvoicesComponent) },
             {
                 path: 'grant-applications',
-                data: { breadcrumb: 'Grant Applications' },
+                canActivate: [PermissionGuard],
+                data: { breadcrumb: 'Grant Applications', roles: ['TenantAdmin', 'SuperAdmin'] },
                 loadComponent: () => import('./app/building-blocks/ngo-grant-applications-widget/ngo-grant-applications-admin.component').then((m) => m.NgoGrantApplicationsAdminComponent)
             },
-            { path: 'forms', data: { breadcrumb: 'Form Management' }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) },
+            { path: 'forms', canActivate: [PermissionGuard], data: { breadcrumb: 'Form Management', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) },
             {
                 path: 'dynamic-entities',
-                data: { breadcrumb: 'Dynamic Entities' },
+                canActivate: [PermissionGuard],
+                data: { breadcrumb: 'Dynamic Entities', roles: ['TenantAdmin', 'SuperAdmin'] },
                 children: [
                     { path: '', redirectTo: 'types', pathMatch: 'full' },
                     { path: 'types', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-type-management.component').then((m) => m.DynamicEntityTypeManagementComponent) },
@@ -96,7 +98,7 @@ export const appRoutes: Routes = [
         data: { tenantType: 'tenant' },
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-            { path: 'dashboard', data: { breadcrumb: 'Dashboard' }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
+            { path: 'dashboard', canActivate: [PermissionGuard], data: { breadcrumb: 'Dashboard', permissions: ['Permission.reporting.dashboard.view'] }, loadComponent: () => import('./app/pages/dashboard/dashboard').then((m) => m.Dashboard) },
             {
                 path: 'member-onboarding',
                 data: { breadcrumb: 'My Onboarding' },
@@ -106,21 +108,23 @@ export const appRoutes: Routes = [
                     )
             },
             { path: 'pages', data: { breadcrumb: 'Pages' }, loadChildren: () => import('./app/pages/pages.routes') },
-            { path: 'custom-pages', data: { breadcrumb: 'Page Management' }, loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) },
-            { path: 'custom-pages/edit/:id', data: { breadcrumb: 'Edit Page' }, loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) },
-            { path: 'nav-config', data: { breadcrumb: 'Navigation Menu Builder' }, loadComponent: () => import('./app/features/admin/nav-config/nav-config-editor.component').then((m) => m.NavConfigEditorComponent) },
+            { path: 'custom-pages', canActivate: [PermissionGuard], data: { breadcrumb: 'Page Management', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/features/admin/page-management/page-management.component').then((m) => m.PageManagementComponent) },
+            { path: 'custom-pages/edit/:id', canActivate: [PermissionGuard], data: { breadcrumb: 'Edit Page', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/features/admin/page-editor/page-editor.component').then((m) => m.PageEditorComponent) },
+            { path: 'nav-config', canActivate: [PermissionGuard], data: { breadcrumb: 'Navigation Menu Builder', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/features/admin/nav-config/nav-config-editor.component').then((m) => m.NavConfigEditorComponent) },
             { path: 'contract-signing/:memberId', data: { breadcrumb: 'Sign Contract', skipProfileCheck: true }, loadComponent: () => import('./app/pages/contract-signing/contract-signing.component').then((m) => m.ContractSigningComponent) },
-            { path: 'payment-settings', data: { breadcrumb: 'Payment Settings' }, loadComponent: () => import('./app/components/tenant-payment-settings/tenant-payment-settings.component').then((m) => m.TenantPaymentSettingsComponent) },
-            { path: 'invoices', data: { breadcrumb: 'My Invoices' }, loadComponent: () => import('./app/components/tenant-invoices/tenant-invoices.component').then((m) => m.TenantInvoicesComponent) },
+            { path: 'payment-settings', canActivate: [PermissionGuard], data: { breadcrumb: 'Payment Settings', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/components/tenant-payment-settings/tenant-payment-settings.component').then((m) => m.TenantPaymentSettingsComponent) },
+            { path: 'invoices', canActivate: [PermissionGuard], data: { breadcrumb: 'My Invoices', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/components/tenant-invoices/tenant-invoices.component').then((m) => m.TenantInvoicesComponent) },
             {
                 path: 'grant-applications',
-                data: { breadcrumb: 'Grant Applications' },
+                canActivate: [PermissionGuard],
+                data: { breadcrumb: 'Grant Applications', roles: ['TenantAdmin', 'SuperAdmin'] },
                 loadComponent: () => import('./app/building-blocks/ngo-grant-applications-widget/ngo-grant-applications-admin.component').then((m) => m.NgoGrantApplicationsAdminComponent)
             },
-            { path: 'forms', data: { breadcrumb: 'Form Management' }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) },
+            { path: 'forms', canActivate: [PermissionGuard], data: { breadcrumb: 'Form Management', roles: ['TenantAdmin', 'SuperAdmin'] }, loadComponent: () => import('./app/pages/admin/forms/form-management.component').then((m) => m.FormManagementComponent) },
             {
                 path: 'dynamic-entities',
-                data: { breadcrumb: 'Dynamic Entities' },
+                canActivate: [PermissionGuard],
+                data: { breadcrumb: 'Dynamic Entities', roles: ['TenantAdmin', 'SuperAdmin'] },
                 children: [
                     { path: '', redirectTo: 'types', pathMatch: 'full' },
                     { path: 'types', loadComponent: () => import('./app/pages/admin/dynamic-entities/dynamic-entity-type-management.component').then((m) => m.DynamicEntityTypeManagementComponent) },

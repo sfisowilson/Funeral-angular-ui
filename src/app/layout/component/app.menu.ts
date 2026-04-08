@@ -43,7 +43,6 @@ export class AppMenu implements OnInit {
                 const parsedSettings = JSON.parse(settings.settings);
                 this.isStaticSite = parsedSettings.isStaticSite || false;
                 this.hasBookingFeature = parsedSettings.hasBooking === true || parsedSettings.hasBooking === 'true';
-                console.log('Menu - hasBookingFeature:', this.hasBookingFeature, 'parsedSettings.hasBooking:', parsedSettings.hasBooking);
             }
         } catch (error) {
             console.error('Error loading tenant settings:', error);
@@ -151,7 +150,7 @@ export class AppMenu implements OnInit {
                 items: [
                     { label: 'Front Page', icon: 'pi pi-fw pi-home', routerLink: ['/'], visible: this.authService.isAuthenticated() },
                     { label: 'View Profile', icon: 'pi pi-fw pi-user', routerLink: ['/admin/pages/user-profile'], visible: this.authService.hasPermission('Permission.userProfile.view') },
-                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/admin/dashboard'], visible: this.authService.isAuthenticated() },
+                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/admin/dashboard'], visible: this.authService.hasPermission('Permission.reporting.dashboard.view') },
                     { label: 'My Onboarding', icon: 'pi pi-fw pi-id-card', routerLink: ['/admin/member-onboarding'], queryParams: { view: 'true' }, visible: this.authService.hasRole('Member') }
                 ]
             },

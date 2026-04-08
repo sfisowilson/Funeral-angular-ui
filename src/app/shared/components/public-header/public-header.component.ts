@@ -119,7 +119,7 @@ function pageToNavItem(page: PageListItemDto, index: number): NavItem {
                         </a>
                     </ng-container>
                     <ng-container *ngIf="!isStaticSite && isLoggedIn">
-                        <a [routerLink]="['/admin/dashboard']" class="text-gray-300 hover:text-purple-400 transition text-sm font-medium">Dashboard</a>
+                        <a [routerLink]="[adminLink]" class="text-gray-300 hover:text-purple-400 transition text-sm font-medium">Dashboard</a>
                         <button (click)="onLogoutClicked()" class="text-red-400 hover:text-red-300 text-sm font-semibold transition">Logout</button>
                     </ng-container>
                 </nav>
@@ -178,7 +178,7 @@ function pageToNavItem(page: PageListItemDto, index: number): NavItem {
                         <a [href]="registerUrl" class="block px-3 py-3 text-purple-300 font-semibold hover:bg-purple-900/40 rounded transition">Start Free Trial</a>
                     </ng-container>
                     <ng-container *ngIf="!isStaticSite && isLoggedIn">
-                        <a [routerLink]="['/admin/dashboard']" class="block px-3 py-3 text-gray-300 hover:bg-purple-900/30 rounded transition">Dashboard</a>
+                        <a [routerLink]="[adminLink]" class="block px-3 py-3 text-gray-300 hover:bg-purple-900/30 rounded transition">Dashboard</a>
                         <button (click)="onLogoutClicked()" class="block w-full text-left px-3 py-3 text-red-400 hover:bg-red-900/20 rounded transition">Logout</button>
                     </ng-container>
                 </div>
@@ -258,7 +258,7 @@ function pageToNavItem(page: PageListItemDto, index: number): NavItem {
                         <a [routerLink]="['/auth/login']" class="text-blue-600 hover:underline font-semibold">Login</a>
                     </ng-container>
                     <ng-container *ngIf="!isStaticSite && isLoggedIn">
-                        <a [routerLink]="['/admin/dashboard']" class="text-gray-600 hover:text-blue-600 transition">Dashboard</a>
+                        <a [routerLink]="[adminLink]" class="text-gray-600 hover:text-blue-600 transition">Dashboard</a>
                         <button (click)="onLogoutClicked()" class="text-red-600 hover:underline font-semibold">Logout</button>
                     </ng-container>
                 </nav>
@@ -318,7 +318,7 @@ function pageToNavItem(page: PageListItemDto, index: number): NavItem {
                         <a [routerLink]="['/auth/login']" class="block px-3 py-3 text-blue-600 hover:bg-blue-50 font-semibold transition rounded">Login</a>
                     </ng-container>
                     <ng-container *ngIf="!isStaticSite && isLoggedIn">
-                        <a [routerLink]="['/admin/dashboard']" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Dashboard</a>
+                        <a [routerLink]="[adminLink]" class="block px-3 py-3 text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition rounded">Dashboard</a>
                         <button (click)="onLogoutClicked()" class="block w-full text-left px-3 py-3 text-red-600 hover:bg-red-50 font-semibold transition rounded">Logout</button>
                     </ng-container>
                 </div>
@@ -334,6 +334,7 @@ export class PublicHeaderComponent {
     @Input() navConfig: NavConfigDto | null = null;
     @Input() isStaticSite = false;
     @Input() isLoggedIn = false;
+    @Input() adminLink = '/admin/dashboard';
     @Input() homeLink = '/';
     @Input() registerUrl = '/auth/register';
     @Input() showNavbarPagesOnMobile = true;

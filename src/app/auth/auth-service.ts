@@ -198,4 +198,28 @@ export class AuthService {
         const planName = this.getPlanName();
         return planName?.toLowerCase().includes('basic') || false;
     }
+
+    /**
+     * Returns the first admin route the current user is actually permitted to access.
+     * Used by the public header "Dashboard" link and all post-action redirects so that
+     * users who lack the dashboard permission are sent to a page they can use.
+     */
+    getFirstAccessibleAdminRoute(): string {
+        if (this.hasPermission('Permission.reporting.dashboard.view')) {
+            return '/admin/dashboard';
+        }
+        if (this.hasPermission('Permission.member.view')) {
+            return '/admin/pages/member-management';
+        }
+        if (this.hasPermission('Permission.user.view')) {
+            return '/admin/pages/users';
+        }
+        if (this.hasPermission('Permission.role.view')) {
+            return '/admin/pages/roles';
+        }
+        if (this.hasRole('Member')) {
+            return '/admin/member-onboarding';
+        }
+        return '/admin/pages/user-profile';
+    }
 }

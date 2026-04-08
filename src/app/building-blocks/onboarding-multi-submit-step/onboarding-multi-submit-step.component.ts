@@ -2794,7 +2794,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                             if (this.nextUrl) {
                                 this.router.navigateByUrl(this.nextUrl);
                             } else {
-                                this.router.navigate(['/admin/dashboard']);
+                                this.router.navigate([this.authService.getFirstAccessibleAdminRoute()]);
                             }
                         } else {
                             // Not complete - show what's missing

@@ -2,6 +2,7 @@ import { Component, OnInit, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PaymentServiceProxy, InvoiceServiceProxy, TenantSubscriptionServiceProxy } from '../../../core/services/service-proxies';
+import { AuthService } from '../../../auth/auth-service';
 
 @Component({
     selector: 'app-payment-callback',
@@ -26,7 +27,8 @@ export class PaymentCallbackComponent implements OnInit {
         private router: Router,
         private paymentService: PaymentServiceProxy,
         private invoiceService: InvoiceServiceProxy,
-        private subscriptionService: TenantSubscriptionServiceProxy
+        private subscriptionService: TenantSubscriptionServiceProxy,
+        private authService: AuthService
     ) {}
 
     ngOnInit(): void {
@@ -89,7 +91,7 @@ export class PaymentCallbackComponent implements OnInit {
             this.redirectCountdown--;
             if (this.redirectCountdown <= 0) {
                 clearInterval(interval);
-                this.router.navigate(['/admin/dashboard']);
+                this.router.navigate([this.authService.getFirstAccessibleAdminRoute()]);
             }
         }, 1000);
     }
@@ -113,7 +115,7 @@ export class PaymentCallbackComponent implements OnInit {
     }
 
     goToDashboard(): void {
-        this.router.navigate(['/admin/dashboard']);
+        this.router.navigate([this.authService.getFirstAccessibleAdminRoute()]);
     }
 
     tryAgain(): void {

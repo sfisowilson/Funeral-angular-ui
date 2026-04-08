@@ -15,7 +15,7 @@ export class NotAuthenticatedGuard implements CanActivate {
         const isAuthenticated = this.authService.isAuthenticated();
 
         if (isAuthenticated) {
-            // Do not redirect here, let the router continue evaluating routes
+            this.router.navigate(['/admin/dashboard']);
             return false;
         }
 

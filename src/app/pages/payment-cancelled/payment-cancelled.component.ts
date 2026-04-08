@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../auth/auth-service';
 
 @Component({
     selector: 'app-payment-cancelled',
@@ -133,7 +134,8 @@ export class PaymentCancelledComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private authService: AuthService
     ) {}
 
     ngOnInit(): void {
@@ -156,7 +158,7 @@ export class PaymentCancelledComponent implements OnInit {
     }
 
     goToDashboard(): void {
-        this.router.navigate(['/admin/dashboard']);
+        this.router.navigate([this.authService.getFirstAccessibleAdminRoute()]);
     }
 
     contactSupport(): void {

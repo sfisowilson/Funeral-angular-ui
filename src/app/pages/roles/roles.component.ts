@@ -102,9 +102,12 @@ export class RolesComponent {
         this.role = RoleDto.fromJS(role);
         this.originalRolePermissions = (role.permissions || []).map((p) => RolePermission.fromJS({ roleId: role.id, permissionId: p.id }));
 
-        // Use filtered permissions based on tenant type
+        const assignedIds = new Set((role.permissions || []).map((p) => p.id));
+        const assignedNames = new Set((role.permissions || []).map((p) => p.name ?? '').filter((n) => n !== ''));
+
+        // Use filtered permissions based on tenant type; match by ID or name to handle GUID scope differences
         const permissionsToUse = this.filteredPermissions();
-        this.selectedPermissions = permissionsToUse.filter((permission) => this.originalRolePermissions.some((rp) => rp.permissionId === permission.id));
+        this.selectedPermissions = permissionsToUse.filter((permission) => assignedIds.has(permission.id) || assignedNames.has(permission.name ?? ''));
         this.permissionDialog = true;
     }
 

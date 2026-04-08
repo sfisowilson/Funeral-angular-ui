@@ -92,8 +92,8 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
                 if (sessionExpired) {
                     this.sessionExpired.set(true);
 
-                    // Sanitize returnUrl
-                    if (rawReturnUrl && !rawReturnUrl.startsWith('/auth/login')) {
+                    // Sanitize returnUrl: must be a relative path with no protocol-relative URLs
+                    if (rawReturnUrl && rawReturnUrl.startsWith('/') && !rawReturnUrl.startsWith('//')) {
                         this.returnUrl = rawReturnUrl;
                     } else {
                         this.returnUrl = null;
@@ -226,11 +226,14 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
     }
 
     onPasswordChanged() {
-        console.log('Password changed successfully, attempting re-login...');
-
         // After successful password change, attempt to log in again
         if (!this.loginCredentials) {
-            alert('Login credentials not found. Please log in again.');
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Session Error',
+                detail: 'Session expired. Please log in again.',
+                life: 5000
+            });
             return;
         }
 
@@ -240,19 +243,29 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
             next: (response) => {
                 const result = response?.result;
                 if (!result || !result.token) {
-                    alert('Login failed after password change');
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Login Failed',
+                        detail: 'Login failed after password change. Please try logging in manually.',
+                        life: 5000
+                    });
                     this.isBusy = false;
                     return;
                 }
 
                 // Should not require password change again
+                this.loginCredentials = null;
                 this.completeLogin(result.token);
             },
             error: (err) => {
                 console.error('Re-login error:', err);
-                alert('Password changed but auto-login failed. Please log in again manually.');
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Password Changed',
+                    detail: 'Password updated successfully. Please log in with your new password.',
+                    life: 6000
+                });
                 this.isBusy = false;
-                // Clear the form so user can log in again
                 this.form.reset();
                 this.loginCredentials = null;
             },
@@ -274,27 +287,15 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
 
                 // Check if we have a return URL from session expiration
                 if (this.returnUrl && this.returnUrl !== '/auth/login') {
-                    console.log('Login successful, redirecting to return URL:', this.returnUrl);
                     this.router.navigateByUrl(this.returnUrl);
                     return;
                 }
 
-                // Default redirect logic
-                const tenantType = this.tenantService.getTenantType();
-                let redirectUrl = '/admin/dashboard';
+                // Default redirect logic — send to first accessible admin page if authenticated
+                let redirectUrl = this.authService.isAuthenticated()
+                    ? this.authService.getFirstAccessibleAdminRoute()
+                    : '/';
 
-                if (tenantType === 'host' && this.authService.hasRole('HostAdmin')) {
-                    redirectUrl = '/admin/dashboard';
-                } else if (tenantType === 'tenant') {
-                    if (this.authService.hasRole('Member')) {
-                        // Members go to dashboard, ProfileCompletionGuard will redirect to onboarding if needed
-                        redirectUrl = '/admin/dashboard';
-                    } else {
-                        redirectUrl = '/admin/dashboard';
-                    }
-                }
-
-                console.log('Login successful, redirecting to:', redirectUrl);
                 this.router.navigateByUrl(redirectUrl);
             }
         });

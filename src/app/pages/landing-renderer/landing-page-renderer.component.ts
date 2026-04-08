@@ -32,6 +32,7 @@ import { environment } from '../../../environments/environment';
                 [navbarPages]="navbarPages"
                 [navConfig]="navConfig"
                 [isLoggedIn]="isLoggedIn"
+                [adminLink]="adminLink"
                 [isStaticSite]="isStaticSite"
                 [homeLink]="'/'"
                 [registerUrl]="getRegisterUrl()"
@@ -158,6 +159,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     private _jsonLdScript: HTMLScriptElement | null = null;
     currentYear: number = new Date().getFullYear();
     isLoggedIn = false; // replace this with real auth state
+    adminLink = '/admin/dashboard';
     mobileMenuOpen = false;
     tenantIdHeader!: HttpHeaders;
     _settings: any = {};
@@ -240,6 +242,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         });
 
         this.isLoggedIn = this.authService.isAuthenticated();
+        this.adminLink = this.authService.getFirstAccessibleAdminRoute();
         this.isHostTenant = this.tenantService.getTenantType() === 'host';
 
         this.customPagesService.slug('home').subscribe({
