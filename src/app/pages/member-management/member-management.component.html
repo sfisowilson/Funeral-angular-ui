@@ -82,7 +82,10 @@
 
 <p-dialog [(visible)]="memberDialog" [style]="{ width: '800px', maxHeight: '90vh' }" header="Member Details" [modal]="true" class="p-fluid member-dialog">
     <ng-template pTemplate="content">
-        <div class="member-form-grid">
+        <p-tabView>
+            <!-- ===== TAB 1: DETAILS ===== -->
+            <p-tabPanel header="Details">
+                <div class="member-form-grid">
             <!-- Section 1: Personal Information -->
             <div class="form-section">
                 <h3 class="section-title"><i class="pi pi-user"></i> Personal Information</h3>
@@ -296,6 +299,74 @@
             <!-- Legacy Address Field (Hidden but kept for backward compatibility) -->
             <input type="hidden" [(ngModel)]="member.address" />
         </div>
+            </p-tabPanel>
+
+            <!-- ===== TAB 2: DOCUMENTS ===== -->
+            <p-tabPanel header="Documents" *ngIf="member.id">
+                <!-- Upload new document -->
+                <div class="form-section mb-4">
+                    <h3 class="section-title"><i class="pi pi-upload"></i> Attach a Document</h3>
+                    <div class="field">
+                        <label for="documentName">Document Name *</label>
+                        <input type="text" pInputText id="documentName" [(ngModel)]="documentName" placeholder="e.g. Policy Certificate, ID Copy" maxlength="255" />
+                    </div>
+                    <div class="field">
+                        <label for="docFileInput">File *</label>
+                        <input type="file" id="docFileInput" class="p-inputtext w-full" (change)="onDocumentFileSelected($event)" />
+                    </div>
+                    <button
+                        pButton pRipple
+                        label="Upload & Notify Member"
+                        icon="pi pi-upload"
+                        class="btn-primary-theme mt-2"
+                        (click)="uploadDocument()"
+                        [disabled]="!documentName.trim() || !documentFile || uploadingDocument"
+                        [loading]="uploadingDocument">
+                    </button>
+                </div>
+
+                <!-- Existing admin documents -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="pi pi-folder-open"></i> Attached Documents</h3>
+
+                    <div *ngIf="loadingDocuments" class="flex justify-content-center py-4">
+                        <p-progressSpinner styleClass="w-2rem h-2rem"></p-progressSpinner>
+                    </div>
+
+                    <div *ngIf="!loadingDocuments && adminDocuments.length === 0" class="p-3 border-round bg-gray-50 text-color-secondary text-sm">
+                        No documents have been attached to this member yet.
+                    </div>
+
+                    <p-table *ngIf="!loadingDocuments && adminDocuments.length > 0"
+                        [value]="adminDocuments"
+                        responsiveLayout="scroll"
+                        [rows]="10"
+                        [paginator]="adminDocuments.length > 10">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>Name</th>
+                                <th>File</th>
+                                <th>Date</th>
+                                <th style="width:8rem"></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-doc>
+                            <tr>
+                                <td>{{ doc.displayName || doc.fileName }}</td>
+                                <td class="text-sm text-color-secondary">{{ doc.fileName }}</td>
+                                <td class="text-sm">{{ doc.createdAt | date:'dd MMM yyyy' }}</td>
+                                <td>
+                                    <div class="flex gap-1">
+                                        <button pButton pRipple icon="pi pi-download" class="btn-rounded btn-primary-theme" pTooltip="Download" (click)="downloadDocument(doc)"></button>
+                                        <button pButton pRipple icon="pi pi-trash" class="btn-rounded btn-danger-theme" pTooltip="Delete" (click)="deleteDocument(doc)"></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-tabPanel>
+        </p-tabView>
     </ng-template>
 
     <ng-template pTemplate="footer">

@@ -19,7 +19,9 @@ import {
     OnboardingContractDto,
     OnboardingContractServiceProxy,
     OnboardingFieldConfigurationServiceProxy,
-    MemberServiceProxy
+    MemberServiceProxy,
+    PdfFieldMappingServiceProxy,
+    PdfMappingProfileDto
 } from '../../core/services/service-proxies';
 import { OnboardingStepConfigurationClient } from '../../core/services/onboarding-step-configuration.client';
 import { environment } from '../../../environments/environment';
@@ -34,6 +36,15 @@ interface MemberOnboardingDataDto {
 interface LegacyField {
     label: string;
     value: string;
+}
+
+interface PdfDocumentView {
+    profileId: string;
+    profileName: string;
+    displayUrl: SafeResourceUrl | null;
+    objectUrl: string | null;
+    loading: boolean;
+    error: string;
 }
 
 @Component({
@@ -52,7 +63,7 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
 
     loadingMember = false;
     loadingOnboarding = false;
-    loadingPdf = false;
+    loadingDocuments = false;
     errorMessage = '';
 
     legacyFields: LegacyField[] = [];
@@ -60,12 +71,7 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
     submittedAt?: string;
     isViewMode = false;
 
-    pdfErrorMessage = '';
-    pdfDisplayUrl: SafeResourceUrl | null = null;
-    private pdfObjectUrl: string | null = null;
-    pdfTitle = '';
-    pdfSubtitle = '';
-    hasSignedPdf = false;
+    documents: PdfDocumentView[] = [];
 
     constructor(
         private memberContext: MemberContextService,
@@ -76,11 +82,12 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
         private contractService: OnboardingContractServiceProxy,
         private onboardingStepClient: OnboardingStepConfigurationClient,
         private http: HttpClient,
-        private sanitizer: DomSanitizer
+        private sanitizer: DomSanitizer,
+        private pdfFieldMappingService: PdfFieldMappingServiceProxy
     ) {}
 
     ngOnDestroy(): void {
-        this.clearPdfObjectUrl();
+        this.clearAllObjectUrls();
     }
 
     ngOnInit(): void {
@@ -167,13 +174,13 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
 
     private loadOnboardingData(memberId: string, useMemberIdLookup: boolean): void {
         this.loadingOnboarding = true;
-        this.loadingPdf = true;
+        this.loadingDocuments = true;
         this.errorMessage = '';
-        this.pdfErrorMessage = '';
         this.legacyFields = [];
         this.dynamicTables = [];
         this.submittedAt = undefined;
-        this.clearPdfObjectUrl();
+        this.clearAllObjectUrls();
+        this.documents = [];
 
         const fieldData$ = (useMemberIdLookup
             ? this.fieldConfigService.onboardingFieldConfiguration_GetMemberDataById(memberId)
@@ -210,25 +217,35 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
             })
         );
 
+        const profiles$ = this.pdfFieldMappingService.pdfFieldMapping_GetProfiles().pipe(
+            first(),
+            catchError((err) => {
+                console.error('Error loading PDF mapping profiles:', err);
+                return of(null as any);
+            })
+        );
+
         forkJoin({
             fieldData: fieldData$,
             memberDetail: memberDetail$,
             contracts: contracts$,
-            enabledSteps: enabledSteps$
+            enabledSteps: enabledSteps$,
+            profiles: profiles$
         }).subscribe({
-            next: ({ fieldData, memberDetail, contracts, enabledSteps }) => {
+            next: ({ fieldData, memberDetail, contracts, enabledSteps, profiles }) => {
                 try {
                     const dto = (fieldData as any)?.result as MemberOnboardingDataDto | null;
                     const detail = (memberDetail as any)?.result as MemberApprovalDetailDto | null;
                     const contractList = ((contracts as any)?.result as OnboardingContractDto[]) || [];
+                    const profileList = ((profiles as any)?.result as PdfMappingProfileDto[]) || [];
 
                     this.buildLegacyFields(dto, detail);
                     this.buildDynamicTables(detail, enabledSteps || []);
-                    this.resolvePdf(memberId, contractList);
+                    this.resolveDocuments(memberId, profileList, contractList);
                 } catch (err) {
                     console.error('Error building onboarding readonly view:', err);
                     this.errorMessage = 'Failed to build onboarding summary.';
-                    this.loadingPdf = false;
+                    this.loadingDocuments = false;
                 } finally {
                     this.loadingOnboarding = false;
                 }
@@ -237,7 +254,7 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
                 console.error('Error loading onboarding readonly payload:', err);
                 this.errorMessage = 'Failed to load onboarding data.';
                 this.loadingOnboarding = false;
-                this.loadingPdf = false;
+                this.loadingDocuments = false;
             }
         });
     }
@@ -286,73 +303,106 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
         this.dynamicTables = tables.filter((table) => this.matchesOnboardingEntity(table.entityName || '', onboardingDynamicKeys));
     }
 
-    private resolvePdf(memberId: string, contracts: OnboardingContractDto[]): void {
+    private resolveDocuments(memberId: string, profiles: PdfMappingProfileDto[], contracts: OnboardingContractDto[]): void {
+        const enabledProfiles = profiles
+            .filter((p) => p.isEnabled)
+            .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+
+        if (enabledProfiles.length > 0) {
+            this.documents = enabledProfiles.map((profile) => ({
+                profileId: profile.id,
+                profileName: profile.name || 'Unnamed Document',
+                displayUrl: null,
+                objectUrl: null,
+                loading: true,
+                error: ''
+            }));
+            this.loadingDocuments = false;
+
+            this.documents.forEach((doc) => {
+                const url = `${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_PreviewPdf?memberId=${memberId}&mappingProfileId=${doc.profileId}`;
+                this.fetchDocumentBlob(url, doc);
+            });
+            return;
+        }
+
+        // Fallback: no profiles configured — show contracts or generic preview
+        this.loadingDocuments = false;
         const sortedContracts = [...contracts].sort((a, b) => {
             const aMs = this.dateToMs(a.signedAt as any);
             const bMs = this.dateToMs(b.signedAt as any);
             return bMs - aMs;
         });
 
-        const signedContract = sortedContracts.find((contract) => !!contract.signedPdfPath || !!contract.signedAt);
-
-        if (signedContract?.id) {
-            this.hasSignedPdf = true;
-            this.pdfTitle = 'Completed & Signed PDF';
-            this.pdfSubtitle = signedContract.signedAt
-                ? `Signed on ${this.dateTimeToIso(signedContract.signedAt as any)}`
-                : 'Signed contract available';
-            this.fetchPdfBlob(`${environment.apiUrl}/api/OnboardingContract/contract-download/${signedContract.id}`);
+        if (sortedContracts.length > 0) {
+            this.documents = sortedContracts.map((contract, i) => {
+                const isSigned = !!contract.signedPdfPath || !!contract.signedAt;
+                return {
+                    profileId: contract.id,
+                    profileName: isSigned
+                        ? `Signed Document ${i + 1}${contract.signedAt ? ' — ' + this.dateTimeToIso(contract.signedAt as any) : ''}`
+                        : `Document ${i + 1}`,
+                    displayUrl: null,
+                    objectUrl: null,
+                    loading: true,
+                    error: ''
+                };
+            });
+            sortedContracts.forEach((contract, i) => {
+                const url = `${environment.apiUrl}/api/OnboardingContract/contract-download/${contract.id}`;
+                this.fetchDocumentBlob(url, this.documents[i]);
+            });
             return;
         }
 
-        const latestContract = sortedContracts[0];
-        if (latestContract?.id) {
-            this.hasSignedPdf = false;
-            this.pdfTitle = 'Generated PDF Preview';
-            this.pdfSubtitle = 'No signed contract found. Showing latest generated contract.';
-            this.fetchPdfBlob(`${environment.apiUrl}/api/OnboardingContract/contract-download/${latestContract.id}`);
-            return;
-        }
-
-        this.hasSignedPdf = false;
-        this.pdfTitle = 'Generated PDF Preview';
-        this.pdfSubtitle = 'No signed contract found. Showing generated onboarding PDF.';
-        this.fetchPdfBlob(`${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_PreviewPdf?memberId=${memberId}`);
+        // Final fallback: generic generated preview
+        const doc: PdfDocumentView = {
+            profileId: '',
+            profileName: 'Generated PDF Preview',
+            displayUrl: null,
+            objectUrl: null,
+            loading: true,
+            error: ''
+        };
+        this.documents = [doc];
+        this.fetchDocumentBlob(`${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_PreviewPdf?memberId=${memberId}`, doc);
     }
 
-    private fetchPdfBlob(url: string): void {
-        this.loadingPdf = true;
-        this.pdfErrorMessage = '';
+    private fetchDocumentBlob(url: string, doc: PdfDocumentView): void {
+        doc.loading = true;
+        doc.error = '';
 
         this.http.get(url, { responseType: 'blob' }).subscribe({
             next: (blob) => {
-                this.clearPdfObjectUrl();
-                this.pdfObjectUrl = URL.createObjectURL(blob);
-                this.pdfDisplayUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.pdfObjectUrl);
-                this.loadingPdf = false;
+                if (doc.objectUrl) {
+                    URL.revokeObjectURL(doc.objectUrl);
+                }
+                doc.objectUrl = URL.createObjectURL(blob);
+                doc.displayUrl = this.sanitizer.bypassSecurityTrustResourceUrl(doc.objectUrl);
+                doc.loading = false;
             },
             error: (error) => {
-                console.error('Error loading onboarding PDF:', error);
-                this.pdfErrorMessage = 'Failed to load onboarding PDF.';
-                this.loadingPdf = false;
+                console.error('Error loading document PDF:', error);
+                doc.error = 'Failed to load PDF.';
+                doc.loading = false;
             }
         });
     }
 
-    private clearPdfObjectUrl(): void {
-        if (this.pdfObjectUrl) {
-            URL.revokeObjectURL(this.pdfObjectUrl);
-            this.pdfObjectUrl = null;
+    private clearAllObjectUrls(): void {
+        for (const doc of this.documents) {
+            if (doc.objectUrl) {
+                URL.revokeObjectURL(doc.objectUrl);
+                doc.objectUrl = null;
+            }
+            doc.displayUrl = null;
         }
-        this.pdfDisplayUrl = null;
     }
 
-    openPdfInNewTab(): void {
-        if (!this.pdfObjectUrl) {
-            return;
+    openDocumentInNewTab(doc: PdfDocumentView): void {
+        if (doc.objectUrl) {
+            window.open(doc.objectUrl, '_blank');
         }
-
-        window.open(this.pdfObjectUrl, '_blank');
     }
 
     private normalizeKey(value: string): string {

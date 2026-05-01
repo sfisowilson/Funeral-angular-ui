@@ -16,8 +16,10 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextarea } from 'primeng/inputtextarea';
 import { TooltipModule } from 'primeng/tooltip';
+import { TabViewModule } from 'primeng/tabview';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { MemberDto, MemberServiceProxy, MemberStatus, CreateMemberDto } from '../../core/services/service-proxies';
+import { MemberDto, MemberServiceProxy, MemberStatus, CreateMemberDto, FileMetadataDto, FileUploadServiceProxy } from '../../core/services/service-proxies';
 import { unwrap } from '../../core/services/response-unwrapper';
 import { DependentsComponent } from '../dependents/dependents.component';
 
@@ -45,6 +47,8 @@ interface ExtendedMemberDto extends MemberDto {
         InputMaskModule,
         InputTextarea,
         TooltipModule,
+        TabViewModule,
+        ProgressSpinnerModule,
         DependentsComponent
     ],
     providers: [MessageService, ConfirmationService],
@@ -59,6 +63,13 @@ export class MemberManagementComponent implements OnInit {
     dependentsDialog: boolean = false;
     submitted: boolean = false;
     cols: any[] = [];
+
+    // Documents tab state
+    adminDocuments: FileMetadataDto[] = [];
+    loadingDocuments = false;
+    documentName = '';
+    documentFile: File | null = null;
+    uploadingDocument = false;
 
     // Phase 1: Dropdown options
     titleOptions = [
@@ -91,6 +102,7 @@ export class MemberManagementComponent implements OnInit {
 
     constructor(
         private memberService: MemberServiceProxy,
+        private fileUploadService: FileUploadServiceProxy,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private router: Router
@@ -154,7 +166,13 @@ export class MemberManagementComponent implements OnInit {
 
     editMember(member: MemberDto) {
         this.member = MemberDto.fromJS(member); // Cast to ExtendedMemberDto
+        this.adminDocuments = [];
+        this.documentName = '';
+        this.documentFile = null;
         this.memberDialog = true;
+        if (member.id) {
+            this.loadAdminDocuments(member.id);
+        }
     }
 
     deleteMember(member: MemberDto) {
@@ -190,6 +208,9 @@ export class MemberManagementComponent implements OnInit {
     hideDialog() {
         this.memberDialog = false;
         this.submitted = false;
+        this.adminDocuments = [];
+        this.documentName = '';
+        this.documentFile = null;
     }
 
     saveMember() {
@@ -261,5 +282,75 @@ export class MemberManagementComponent implements OnInit {
             default:
                 return 'primary';
         }
+    }
+
+    loadAdminDocuments(memberId: string): void {
+        this.loadingDocuments = true;
+        this.fileUploadService.file_GetAdminDocumentsByMemberId(memberId)
+            .pipe(unwrap<FileMetadataDto[]>())
+            .subscribe({
+                next: (docs) => {
+                    this.adminDocuments = docs || [];
+                    this.loadingDocuments = false;
+                },
+                error: () => {
+                    this.loadingDocuments = false;
+                }
+            });
+    }
+
+    onDocumentFileSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        this.documentFile = input.files?.[0] ?? null;
+    }
+
+    uploadDocument(): void {
+        if (!this.documentFile || !this.documentName.trim() || !this.member.id) return;
+
+        this.uploadingDocument = true;
+        const fileParam = { data: this.documentFile, fileName: this.documentFile.name };
+
+        this.fileUploadService.file_AdminAttachDocument(this.member.id, this.documentName.trim(), fileParam)
+            .pipe(unwrap<FileMetadataDto>())
+            .subscribe({
+                next: (doc) => {
+                    this.adminDocuments = [doc, ...this.adminDocuments];
+                    this.documentName = '';
+                    this.documentFile = null;
+                    const fileInput = document.getElementById('docFileInput') as HTMLInputElement;
+                    if (fileInput) fileInput.value = '';
+                    this.uploadingDocument = false;
+                    this.messageService.add({ severity: 'success', summary: 'Document Attached', detail: 'Document uploaded and member notified by email.', life: 4000 });
+                },
+                error: () => {
+                    this.uploadingDocument = false;
+                    this.messageService.add({ severity: 'error', summary: 'Upload Failed', detail: 'Could not attach document. Please try again.', life: 4000 });
+                }
+            });
+    }
+
+    deleteDocument(doc: FileMetadataDto): void {
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete "${doc.displayName || doc.fileName}"?`,
+            header: 'Delete Document',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                this.fileUploadService.file_DeleteFile(doc.id)
+                    .subscribe({
+                        next: () => {
+                            this.adminDocuments = this.adminDocuments.filter(d => d.id !== doc.id);
+                            this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Document removed.', life: 3000 });
+                        },
+                        error: () => {
+                            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not delete document.', life: 3000 });
+                        }
+                    });
+            }
+        });
+    }
+
+    downloadDocument(doc: FileMetadataDto): void {
+        const url = `/api/FileUpload/File_DownloadFile/${doc.id}`;
+        window.open(url, '_blank');
     }
 }

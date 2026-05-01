@@ -31,7 +31,7 @@ import { EmailTemplatesComponent } from './email-templates/email-templates.compo
 import { EmailSettingsComponent } from './email-settings/email-settings.component';
 import { PermissionGuard } from '../core/guards/permission-guard';
 
-const ADMIN_ROLES = ['TenantAdmin', 'SuperAdmin'];
+const ADMIN_ROLES = ['TenantAdmin', 'SuperAdmin', 'Admin'];
 
 export default [
     { path: 'tenant-settings', component: TenantSettingsComponent, canActivate: [PermissionGuard], data: { roles: ADMIN_ROLES } },

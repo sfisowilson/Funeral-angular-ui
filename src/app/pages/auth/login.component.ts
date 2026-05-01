@@ -308,7 +308,9 @@ export class LoginComponent extends TenantBaseComponent implements OnInit {
                 return;
             }
 
-            const tenantSettings = await this._tenantSettings.refreshSettings();
+            // Use cached settings from APP_INITIALIZER — refreshSettings() would re-fetch
+            // cross-origin which can stall the CORS handler and block navigation entirely.
+            const tenantSettings = await this._tenantSettings.loadSettings();
             const settingsJson = tenantSettings?.settings;
             if (!settingsJson) {
                 return;

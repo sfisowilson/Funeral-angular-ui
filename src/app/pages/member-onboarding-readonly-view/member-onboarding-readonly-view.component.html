@@ -66,40 +66,45 @@
     </div>
 
     <div class="py-3 border-t mt-2">
-        <div class="flex items-center justify-between gap-3 mb-3">
-            <div>
-                <div class="text-sm font-semibold text-gray-700">{{ pdfTitle || 'Completed & Signed PDF' }}</div>
-                <div class="text-xs text-gray-600" *ngIf="pdfSubtitle">{{ pdfSubtitle }}</div>
-            </div>
-            <button
-                type="button"
-                class="px-3 py-1.5 text-xs rounded border border-gray-300 text-gray-700 hover:bg-gray-50"
-                (click)="openPdfInNewTab()"
-                [disabled]="!pdfDisplayUrl || loadingPdf"
-            >
-                Open PDF
-            </button>
-        </div>
+        <div class="text-sm font-semibold text-gray-700 mb-3">Onboarding Documents</div>
 
-        <div *ngIf="loadingPdf" class="flex justify-center py-6">
+        <div *ngIf="loadingDocuments" class="flex justify-center py-6">
             <p-progressSpinner styleClass="w-8 h-8"></p-progressSpinner>
         </div>
 
-        <div *ngIf="!loadingPdf && pdfErrorMessage" class="p-3 rounded bg-red-50 text-red-700 text-sm">
-            {{ pdfErrorMessage }}
+        <div *ngIf="!loadingDocuments && documents.length === 0" class="p-3 rounded bg-gray-50 text-gray-700 text-sm">
+            No onboarding documents available.
         </div>
 
-        <div *ngIf="!loadingPdf && !pdfErrorMessage && !pdfDisplayUrl" class="p-3 rounded bg-gray-50 text-gray-700 text-sm">
-            No completed PDF available.
-        </div>
+        <div *ngFor="let doc of documents" class="border rounded mb-4 overflow-hidden">
+            <div class="flex items-center justify-between px-3 py-2 bg-gray-50 border-b gap-3">
+                <div class="text-sm font-medium text-gray-700">{{ doc.profileName }}</div>
+                <button
+                    type="button"
+                    class="px-3 py-1.5 text-xs rounded border border-gray-300 text-gray-700 hover:bg-gray-50 flex-shrink-0"
+                    (click)="openDocumentInNewTab(doc)"
+                    [disabled]="!doc.displayUrl || doc.loading"
+                >
+                    Open PDF
+                </button>
+            </div>
 
-        <div *ngIf="!loadingPdf && !pdfErrorMessage && pdfDisplayUrl" class="border rounded overflow-hidden">
-            <iframe
-                [src]="pdfDisplayUrl"
-                title="Onboarding PDF"
-                class="w-full"
-                style="height: 75vh"
-            ></iframe>
+            <div *ngIf="doc.loading" class="flex justify-center py-6">
+                <p-progressSpinner styleClass="w-8 h-8"></p-progressSpinner>
+            </div>
+
+            <div *ngIf="!doc.loading && doc.error" class="p-3 rounded bg-red-50 text-red-700 text-sm">
+                {{ doc.error }}
+            </div>
+
+            <div *ngIf="!doc.loading && !doc.error && doc.displayUrl" class="border-t">
+                <iframe
+                    [src]="doc.displayUrl"
+                    [title]="doc.profileName"
+                    class="w-full"
+                    style="height: 75vh"
+                ></iframe>
+            </div>
         </div>
     </div>
 </p-card>

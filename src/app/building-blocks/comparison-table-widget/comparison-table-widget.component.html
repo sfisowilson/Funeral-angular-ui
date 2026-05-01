@@ -19,7 +19,7 @@
             <!-- Comparison Rows -->
             <div class="table-body">
                 <div class="comparison-row" [class.with-hover]="rowHoverEffect" *ngFor="let rowIndex of getMaxRows()">
-                    <div class="column-cell" *ngFor="let column of columns" [class.highlighted-column]="column.isHighlighted">
+                    <div class="column-cell" *ngFor="let column of columns" [class.highlighted-column]="column.isHighlighted" [attr.data-column-title]="column.title">
                         <ng-container *ngIf="column.items[rowIndex]">
                             <div class="cell-label" [style.color]="cellLabelColor">{{ column.items[rowIndex].label }}</div>
                             <div class="cell-value" [style.color]="cellValueColor">{{ column.items[rowIndex].value }}</div>
@@ -30,7 +30,7 @@
 
             <!-- Totals Row -->
             <div class="table-footer" *ngIf="hasAnyTotal()">
-                <div class="column-footer" *ngFor="let column of columns" [class.highlighted]="column.isHighlighted" [style.background-color]="column.isHighlighted ? column.highlightColor : columnHeaderBgColor">
+                <div class="column-footer" *ngFor="let column of columns" [class.highlighted]="column.isHighlighted" [style.background-color]="column.isHighlighted ? column.highlightColor : columnHeaderBgColor" [attr.data-column-title]="column.title">
                     <div class="total-label" [style.color]="totalTextColor" *ngIf="column.total">Total:</div>
                     <div class="total-value" [style.color]="totalTextColor">{{ column.total || '—' }}</div>
                 </div>

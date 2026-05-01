@@ -21,7 +21,7 @@ export class ProfileCompletionGuard implements CanActivate {
         }
 
         // Allow admins to bypass
-        if (this.authService.hasRole('TenantAdmin') || this.authService.hasRole('HostAdmin')) {
+        if (this.authService.hasRole('TenantAdmin') || this.authService.hasRole('HostAdmin') || this.authService.hasRole('Admin')) {
             return of(true);
         }
 

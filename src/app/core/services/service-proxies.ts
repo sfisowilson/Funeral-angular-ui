@@ -6806,6 +6806,133 @@ export class FileUploadServiceProxy {
         }
         return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @param memberId Member to attach the document to
+     * @param displayName Human-readable name for the document
+     * @param file (optional)
+     * @return OK
+     */
+    file_AdminAttachDocument(memberId: string, displayName: string, file: FileParameter | undefined): Observable<SwaggerResponse<FileMetadataDto>> {
+        let url_ = this.baseUrl + "/api/FileUpload/File_AdminAttachDocument?";
+        if (memberId === undefined || memberId === null)
+            throw new globalThis.Error("The parameter 'memberId' must be defined.");
+        url_ += "memberId=" + encodeURIComponent("" + memberId) + "&";
+        if (displayName === undefined || displayName === null)
+            throw new globalThis.Error("The parameter 'displayName' must be defined.");
+        url_ += "displayName=" + encodeURIComponent("" + displayName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (file !== null && file !== undefined)
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processFile_AdminAttachDocument(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processFile_AdminAttachDocument(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<FileMetadataDto>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<FileMetadataDto>>;
+        }));
+    }
+
+    protected processFile_AdminAttachDocument(response: HttpResponseBase): Observable<SwaggerResponse<FileMetadataDto>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = FileMetadataDto.fromJS(resultData200);
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<FileMetadataDto>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param memberId Member whose admin-attached documents to retrieve
+     * @return OK
+     */
+    file_GetAdminDocumentsByMemberId(memberId: string): Observable<SwaggerResponse<FileMetadataDto[]>> {
+        let url_ = this.baseUrl + "/api/FileUpload/File_GetAdminDocumentsByMemberId/{memberId}";
+        if (memberId === undefined || memberId === null)
+            throw new globalThis.Error("The parameter 'memberId' must be defined.");
+        url_ = url_.replace("{memberId}", encodeURIComponent("" + memberId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processFile_GetAdminDocumentsByMemberId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processFile_GetAdminDocumentsByMemberId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<FileMetadataDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<FileMetadataDto[]>>;
+        }));
+    }
+
+    protected processFile_GetAdminDocumentsByMemberId(response: HttpResponseBase): Observable<SwaggerResponse<FileMetadataDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(FileMetadataDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<FileMetadataDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable({
@@ -32803,6 +32930,9 @@ export class FileMetadataDto implements IFileMetadataDto {
     description!: string | undefined;
     entityType!: string | undefined;
     entityId!: string | undefined;
+    displayName!: string | undefined;
+    isAdminAttached!: boolean;
+    createdAt!: string | undefined;
 
     constructor(data?: IFileMetadataDto) {
         if (data) {
@@ -32825,6 +32955,9 @@ export class FileMetadataDto implements IFileMetadataDto {
             this.description = _data["description"];
             this.entityType = _data["entityType"];
             this.entityId = _data["entityId"];
+            this.displayName = _data["displayName"];
+            this.isAdminAttached = _data["isAdminAttached"];
+            this.createdAt = _data["createdAt"];
         }
     }
 
@@ -32847,6 +32980,9 @@ export class FileMetadataDto implements IFileMetadataDto {
         data["description"] = this.description;
         data["entityType"] = this.entityType;
         data["entityId"] = this.entityId;
+        data["displayName"] = this.displayName;
+        data["isAdminAttached"] = this.isAdminAttached;
+        data["createdAt"] = this.createdAt;
         return data;
     }
 }
@@ -32862,6 +32998,9 @@ export interface IFileMetadataDto {
     description: string | undefined;
     entityType: string | undefined;
     entityId: string | undefined;
+    displayName: string | undefined;
+    isAdminAttached: boolean;
+    createdAt: string | undefined;
 }
 
 export class ForgotPasswordRequest implements IForgotPasswordRequest {

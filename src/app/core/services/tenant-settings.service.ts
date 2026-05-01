@@ -12,6 +12,7 @@ import { environment } from '../../../environments/environment';
 })
 export class TenantSettingsService {
     private settings: TenantSettingDto | undefined;
+    private settingsLoaded = false; // true once the first successful load completes (even if result is null)
     private settingsPromise: Promise<any> | null = null;
     tenantIdHeader!: HttpHeaders;
     private parsedSettings: any | null = null;
@@ -45,7 +46,7 @@ export class TenantSettingsService {
             this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', subdomain);
         }
 
-        if (this.settings) {
+        if (this.settingsLoaded) {
             return Promise.resolve(this.settings);
         }
 
@@ -59,6 +60,7 @@ export class TenantSettingsService {
             .toPromise()
             .then((response) => {
                 this.settings = response.result;
+                this.settingsLoaded = true; // Mark as loaded even if result is null
                 this.parsedSettings = null;
                 this.spinnerService.hide();
                 return this.settings;
@@ -66,8 +68,9 @@ export class TenantSettingsService {
             .catch((error) => {
                 console.error('Error loading tenant settings:', error);
                 this.spinnerService.hide();
-                this.router.navigate(['/notfound']);
-                this.settingsPromise = null; // Reset on error to allow retries
+                // Note: do not reset settingsPromise here — keeping the settled (rejected)
+                // promise prevents repeated spinner flashes on subsequent loadSettings() calls.
+                // Callers that need a retry should call refreshSettings() explicitly.
                 throw error;
             });
         return this.settingsPromise;
@@ -80,6 +83,7 @@ export class TenantSettingsService {
     refreshSettings(): Promise<any> {
         // Clear cache to force reload
         this.settings = undefined;
+        this.settingsLoaded = false;
         this.settingsPromise = null;
         this.parsedSettings = null;
         return this.loadSettings();
