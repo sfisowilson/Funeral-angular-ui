@@ -5,8 +5,10 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, finalize, timeout } from 'rxjs/operators';
 import { forkJoin, Subscription } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 import { environment } from '../../../environments/environment';
 import { WidgetConfig } from '../widget-config';
 import { OnboardingMultiSubmitService, MultiSubmitStepContextDto, SaveMultiSubmitRecordDto } from '../../core/services/onboarding-multi-submit.service';
@@ -14,7 +16,7 @@ import { EmbeddedCalculatorComponent, CalculatorConfig, CalculatorResult } from 
 import { OnboardingStepConfigurationClient } from '../../core/services/onboarding-step-configuration.client';
 import { OnboardingCalculatorAggregatorService } from '../../core/services/onboarding-calculator-aggregator.service';
 import { PublicFormService } from '../../core/services/public-form.service';
-import { OnboardingStepType, OnboardingPdfServiceProxy, MemberServiceProxy, SaveSignatureDto, MemberProfileCompletionServiceProxy, PdfFieldMappingServiceProxy, OnboardingMultiSubmitServiceProxy } from '../../core/services/service-proxies';
+import { OnboardingStepType, OnboardingPdfServiceProxy, MemberServiceProxy, SaveSignatureDto, MemberProfileCompletionServiceProxy, PdfFieldMappingServiceProxy, OnboardingMultiSubmitServiceProxy, OnboardingContractServiceProxy, CompleteOnboardingRequest } from '../../core/services/service-proxies';
 import { saIdNumberValidator } from '../../shared/validators/sa-id-number.validator';
 import { DynamicFileUploadComponent } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
@@ -140,11 +142,11 @@ interface CompletionPdfPreview {
 @Component({
     selector: 'app-onboarding-multi-submit-step',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarModule, EmbeddedCalculatorComponent, DynamicFileUploadComponent],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarModule, EmbeddedCalculatorComponent, DynamicFileUploadComponent, ToastModule],
     templateUrl: './onboarding-multi-submit-step.component.html',
     styleUrls: ['./onboarding-multi-submit-step.component.scss'],
     providers: [TenantSettingsService,
-        OnboardingMultiSubmitService, OnboardingStepConfigurationClient, PublicFormService]
+        OnboardingMultiSubmitService, OnboardingStepConfigurationClient, PublicFormService, MessageService]
 })
 export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     @Input() config!: WidgetConfig | any;
@@ -269,7 +271,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         private pdfFieldMappingService: PdfFieldMappingServiceProxy,
         private cdr: ChangeDetectorRef,
         private calculatorAggregator: OnboardingCalculatorAggregatorService,
-        private authService: AuthService
+        private authService: AuthService,
+        private messageService: MessageService,
+        private contractService: OnboardingContractServiceProxy
     ) {}
 
     private initializeButtonLabel(): void {
@@ -2713,6 +2717,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     }
 
     onCompleteFlow(): void {
+        if (!confirm('Are you sure you want to submit your application? This cannot be undone.')) {
+            return;
+        }
+
         if (this.requireSignature && !this.savedSignatureUrl) {
             this.error = 'Please save your signature before continuing.';
             return;
@@ -2721,13 +2729,55 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.isCompletingFlow = true;
         this.error = '';
 
-        if (this.premiumWriteBackStepKey) {
-            this.writePremiumToEntity(this.premiumWriteBackStepKey, this.globalsToWriteBack, () => {
+        // Collect mapping profile IDs from widget settings (same config loadCompletionPdf uses)
+        const settings = (this.config && this.config.settings) || {};
+        const profileIds = this.getCompletionPdfProfileIds(settings);
+        const mode = settings.completionPdfMode || 'system';
+
+        const hasProfiles = profileIds.length > 0 && mode !== 'custom';
+
+        const doFinalize = () => {
+            if (this.premiumWriteBackStepKey) {
+                this.writePremiumToEntity(this.premiumWriteBackStepKey, this.globalsToWriteBack, () => {
+                    this.finalizeCompletion();
+                });
+            } else {
                 this.finalizeCompletion();
-            });
-        } else {
-            this.finalizeCompletion();
+            }
+        };
+
+        // If no mapping profiles are configured (or custom mode), skip contract saving
+        if (!hasProfiles) {
+            doFinalize();
+            return;
         }
+
+        // Build the complete-onboarding request with signature and profile IDs
+        const request = new CompleteOnboardingRequest();
+        request.signatureBase64 = this.savedSignatureUrl ?? undefined;
+        request.mappingProfileIds = profileIds;
+
+        this.contractService.completeOnboarding(request).pipe(
+            timeout(30000),
+            finalize(() => {
+                // Safety net: ensure spinner is cleared on timeout/error
+                if (this.isCompletingFlow) {
+                    // Don't clear here — let finalizeCompletion handle success/error display
+                }
+            })
+        ).subscribe({
+            next: (response) => {
+                const contracts = response?.result;
+                console.log('Onboarding contracts saved:', contracts?.length ?? 0, 'contract(s)');
+                doFinalize();
+            },
+            error: (err) => {
+                console.error('Failed to save onboarding contracts', err);
+                this.isCompletingFlow = false;
+                this.error = 'Failed to finalize your application documents. Please try again.';
+                this.cdr.markForCheck();
+            }
+        });
     }
 
     /**
@@ -2741,7 +2791,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         onDone: () => void
     ): void {
         const snapshot = this.calculatorAggregator.getFormDataSnapshot();
-        this.multiSubmitService.getStepContext(stepKey).subscribe({
+        this.multiSubmitService.getStepContext(stepKey).pipe(timeout(15000)).subscribe({
             next: (ctx: any) => {
                 const records: any[] = ctx?.records || [];
                 if (records.length === 0) {
@@ -2771,7 +2821,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                     displayName: record.displayName ?? undefined,
                     dataJson: JSON.stringify(parsed)
                 };
-                this.multiSubmitService.saveRecord(payload).subscribe({
+                this.multiSubmitService.saveRecord(payload).pipe(timeout(15000)).subscribe({
                     next: () => onDone(),
                     error: () => onDone() // non-fatal — proceed even if writeback fails
                 });
@@ -2781,21 +2831,42 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     }
 
     private finalizeCompletion(): void {
-        this.memberProfileCompletionService.profileCompletion_RecalculateMy().subscribe({
+        this.memberProfileCompletionService.profileCompletion_RecalculateMy().pipe(
+            timeout(30000),
+            finalize(() => {
+                // Safety net: always clear the spinner if it is still showing
+                // (handles timeout, component destroyed mid-flight, etc.)
+                if (this.isCompletingFlow) {
+                    this.isCompletingFlow = false;
+                    this.cdr.markForCheck();
+                }
+            })
+        ).subscribe({
             next: () => {
                 // Now check status to ensure we are actually complete
-                this.memberProfileCompletionService.profileCompletion_GetMyStatus().subscribe({
+                this.memberProfileCompletionService.profileCompletion_GetMyStatus().pipe(
+                    timeout(15000)
+                ).subscribe({
                     next: (statusResponse) => {
                         const status = statusResponse.result;
                         this.isCompletingFlow = false;
 
                         if (status.isComplete) {
-                            this.next.emit();
-                            if (this.nextUrl) {
-                                this.router.navigateByUrl(this.nextUrl);
-                            } else {
-                                this.router.navigate([this.authService.getFirstAccessibleAdminRoute()]);
-                            }
+                            this.messageService.add({
+                                severity: 'success',
+                                summary: 'Submitted Successfully',
+                                detail: 'Your application has been submitted and is now being processed.',
+                                life: 3000
+                            });
+                            // Brief delay so the user sees the success toast before navigation
+                            setTimeout(() => {
+                                this.next.emit();
+                                if (this.nextUrl) {
+                                    this.router.navigateByUrl(this.nextUrl);
+                                } else {
+                                    this.router.navigate([this.authService.getFirstAccessibleAdminRoute()]);
+                                }
+                            }, 1500);
                         } else {
                             // Not complete - show what's missing
                             const missing = (status.remainingSteps || []).join(', ');
@@ -2804,13 +2875,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                     },
                     error: () => {
                         this.isCompletingFlow = false;
-                        this.error = 'Failed to verify completion status.';
+                        this.error = 'Failed to verify completion status. Please try again.';
                     }
                 });
             },
             error: () => {
-                this.error = 'Flow finished but status update failed.';
                 this.isCompletingFlow = false;
+                this.error = 'Submission timed out or failed. Please try again.';
             }
         });
     }

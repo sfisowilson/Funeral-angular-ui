@@ -41,6 +41,7 @@ interface LegacyField {
 interface PdfDocumentView {
     profileId: string;
     profileName: string;
+    contractId: string;
     displayUrl: SafeResourceUrl | null;
     objectUrl: string | null;
     loading: boolean;
@@ -304,29 +305,55 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
     }
 
     private resolveDocuments(memberId: string, profiles: PdfMappingProfileDto[], contracts: OnboardingContractDto[]): void {
+        // Build a lookup of contracts by mapping profile ID (for profiles) and a list of
+        // contracts without a profile (legacy / default).
+        const contractByProfile = new Map<string, OnboardingContractDto>();
+        const legacyContracts: OnboardingContractDto[] = [];
+
+        for (const c of contracts) {
+            if (c.mappingProfileId) {
+                // Only keep the latest (most recently signed) contract per profile
+                if (!contractByProfile.has(c.mappingProfileId)) {
+                    contractByProfile.set(c.mappingProfileId, c);
+                }
+            } else {
+                legacyContracts.push(c);
+            }
+        }
+
         const enabledProfiles = profiles
             .filter((p) => p.isEnabled)
             .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
         if (enabledProfiles.length > 0) {
-            this.documents = enabledProfiles.map((profile) => ({
-                profileId: profile.id,
-                profileName: profile.name || 'Unnamed Document',
-                displayUrl: null,
-                objectUrl: null,
-                loading: true,
-                error: ''
-            }));
+            // Map each enabled profile to its saved contract (if any).
+            this.documents = enabledProfiles.map((profile) => {
+                const contract = contractByProfile.get(profile.id);
+                const isSigned = contract ? (!!contract.signedPdfPath || !!contract.signedAt) : false;
+                return {
+                    profileId: profile.id,
+                    profileName: profile.name || 'Unnamed Document',
+                    contractId: contract?.id ?? '',
+                    displayUrl: null,
+                    objectUrl: null,
+                    loading: !!contract,
+                    error: contract ? '' : 'No signed document available for this profile.'
+                } satisfies PdfDocumentView;
+            });
+
             this.loadingDocuments = false;
 
-            this.documents.forEach((doc) => {
-                const url = `${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_PreviewPdf?memberId=${memberId}&mappingProfileId=${doc.profileId}`;
-                this.fetchDocumentBlob(url, doc);
-            });
+            // Fetch PDF blobs only for profiles that have a matching contract
+            for (const doc of this.documents) {
+                if (doc.contractId) {
+                    const url = `${environment.apiUrl}/api/OnboardingContract/contract-download/${doc.contractId}`;
+                    this.fetchDocumentBlob(url, doc);
+                }
+            }
             return;
         }
 
-        // Fallback: no profiles configured — show contracts or generic preview
+        // No profiles configured — show legacy contracts (or empty state)
         this.loadingDocuments = false;
         const sortedContracts = [...contracts].sort((a, b) => {
             const aMs = this.dateToMs(a.signedAt as any);
@@ -342,11 +369,12 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
                     profileName: isSigned
                         ? `Signed Document ${i + 1}${contract.signedAt ? ' — ' + this.dateTimeToIso(contract.signedAt as any) : ''}`
                         : `Document ${i + 1}`,
+                    contractId: contract.id,
                     displayUrl: null,
                     objectUrl: null,
                     loading: true,
                     error: ''
-                };
+                } satisfies PdfDocumentView;
             });
             sortedContracts.forEach((contract, i) => {
                 const url = `${environment.apiUrl}/api/OnboardingContract/contract-download/${contract.id}`;
@@ -355,17 +383,8 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
             return;
         }
 
-        // Final fallback: generic generated preview
-        const doc: PdfDocumentView = {
-            profileId: '',
-            profileName: 'Generated PDF Preview',
-            displayUrl: null,
-            objectUrl: null,
-            loading: true,
-            error: ''
-        };
-        this.documents = [doc];
-        this.fetchDocumentBlob(`${environment.apiUrl}/api/OnboardingPdf/OnboardingPdf_PreviewPdf?memberId=${memberId}`, doc);
+        // No contracts at all — show empty state (no regeneration fallback)
+        this.documents = [];
     }
 
     private fetchDocumentBlob(url: string, doc: PdfDocumentView): void {

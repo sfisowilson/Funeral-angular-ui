@@ -12417,6 +12417,88 @@ export class OnboardingContractServiceProxy {
         }
         return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
     }
+    /**
+     * Complete onboarding: generate + sign PDFs for the calling member.
+     * Supports multiple mapping profiles (one signed contract per profile).
+     * @param body (optional) 
+     * @return OK
+     */
+    completeOnboarding(body: CompleteOnboardingRequest | undefined): Observable<SwaggerResponse<OnboardingContractDto[]>> {
+        let url_ = this.baseUrl + "/api/OnboardingContract/complete-onboarding";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCompleteOnboarding(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCompleteOnboarding(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<OnboardingContractDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<OnboardingContractDto[]>>;
+        }));
+    }
+
+    protected processCompleteOnboarding(response: HttpResponseBase): Observable<SwaggerResponse<OnboardingContractDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(OnboardingContractDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<OnboardingContractDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable({
@@ -36159,6 +36241,7 @@ export class OnboardingContractDto implements IOnboardingContractDto {
     isLegallyBinding!: boolean;
     documentHash!: string | undefined;
     signedDocumentHash!: string | undefined;
+    mappingProfileId!: string | undefined;
 
     constructor(data?: IOnboardingContractDto) {
         if (data) {
@@ -36183,10 +36266,8 @@ export class OnboardingContractDto implements IOnboardingContractDto {
             this.isLegallyBinding = _data["isLegallyBinding"];
             this.documentHash = _data["documentHash"];
             this.signedDocumentHash = _data["signedDocumentHash"];
+            this.mappingProfileId = _data["mappingProfileId"];
         }
-    }
-
-    static fromJS(data: any): OnboardingContractDto {
         data = typeof data === 'object' ? data : {};
         let result = new OnboardingContractDto();
         result.init(data);
@@ -36207,6 +36288,7 @@ export class OnboardingContractDto implements IOnboardingContractDto {
         data["isLegallyBinding"] = this.isLegallyBinding;
         data["documentHash"] = this.documentHash;
         data["signedDocumentHash"] = this.signedDocumentHash;
+        data["mappingProfileId"] = this.mappingProfileId;
         return data;
     }
 }
@@ -36224,6 +36306,75 @@ export interface IOnboardingContractDto {
     isLegallyBinding: boolean;
     documentHash: string | undefined;
     signedDocumentHash: string | undefined;
+    mappingProfileId: string | undefined;
+}
+
+export class CompleteOnboardingRequest implements ICompleteOnboardingRequest {
+    signatureBase64!: string | undefined;
+    geoLocation!: string | undefined;
+    signatureX!: number;
+    signatureY!: number;
+    signatureWidth!: number;
+    signatureHeight!: number;
+    mappingProfileIds!: string[] | undefined;
+
+    constructor(data?: ICompleteOnboardingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.signatureBase64 = _data["signatureBase64"];
+            this.geoLocation = _data["geoLocation"];
+            this.signatureX = _data["signatureX"];
+            this.signatureY = _data["signatureY"];
+            this.signatureWidth = _data["signatureWidth"];
+            this.signatureHeight = _data["signatureHeight"];
+            if (Array.isArray(_data["mappingProfileIds"])) {
+                this.mappingProfileIds = [] as any;
+                for (let item of _data["mappingProfileIds"])
+                    this.mappingProfileIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): CompleteOnboardingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompleteOnboardingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["signatureBase64"] = this.signatureBase64;
+        data["geoLocation"] = this.geoLocation;
+        data["signatureX"] = this.signatureX;
+        data["signatureY"] = this.signatureY;
+        data["signatureWidth"] = this.signatureWidth;
+        data["signatureHeight"] = this.signatureHeight;
+        if (Array.isArray(this.mappingProfileIds)) {
+            data["mappingProfileIds"] = [];
+            for (let item of this.mappingProfileIds)
+                data["mappingProfileIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface ICompleteOnboardingRequest {
+    signatureBase64: string | undefined;
+    geoLocation: string | undefined;
+    signatureX: number;
+    signatureY: number;
+    signatureWidth: number;
+    signatureHeight: number;
+    mappingProfileIds: string[] | undefined;
 }
 
 export class OnboardingFieldConfigurationDto implements IOnboardingFieldConfigurationDto {
