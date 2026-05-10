@@ -2734,8 +2734,6 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         const profileIds = this.getCompletionPdfProfileIds(settings);
         const mode = settings.completionPdfMode || 'system';
 
-        const hasProfiles = profileIds.length > 0 && mode !== 'custom';
-
         const doFinalize = () => {
             if (this.premiumWriteBackStepKey) {
                 this.writePremiumToEntity(this.premiumWriteBackStepKey, this.globalsToWriteBack, () => {
@@ -2746,16 +2744,17 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             }
         };
 
-        // If no mapping profiles are configured (or custom mode), skip contract saving
-        if (!hasProfiles) {
+        // Custom mode uses an external URL — nothing to save server-side
+        if (mode === 'custom') {
             doFinalize();
             return;
         }
 
-        // Build the complete-onboarding request with signature and profile IDs
+        // Always save contracts: if profile IDs are configured, one contract per profile;
+        // if none are configured, the backend generates a single default contract.
         const request = new CompleteOnboardingRequest();
         request.signatureBase64 = this.savedSignatureUrl ?? undefined;
-        request.mappingProfileIds = profileIds;
+        request.mappingProfileIds = profileIds.length > 0 ? profileIds : undefined;
 
         this.contractService.completeOnboarding(request).pipe(
             timeout(30000),

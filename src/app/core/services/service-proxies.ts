@@ -36268,6 +36268,9 @@ export class OnboardingContractDto implements IOnboardingContractDto {
             this.signedDocumentHash = _data["signedDocumentHash"];
             this.mappingProfileId = _data["mappingProfileId"];
         }
+    }
+
+    static fromJS(data: any): OnboardingContractDto {
         data = typeof data === 'object' ? data : {};
         let result = new OnboardingContractDto();
         result.init(data);

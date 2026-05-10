@@ -326,9 +326,17 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
             .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
         if (enabledProfiles.length > 0) {
-            // Map each enabled profile to its saved contract (if any).
+            // Pick the most recent default (null-profile) signed contract as a fallback
+            // for profiles that don't have their own mapped contract.
+            const defaultContract = legacyContracts
+                .filter((c) => !!c.signedPdfPath || !!c.signedAt)
+                .sort((a, b) => this.dateToMs(b.signedAt as any) - this.dateToMs(a.signedAt as any))[0]
+                ?? null;
+
+            // Map each enabled profile to its saved contract (if any), falling back to
+            // the default contract when no specific mapped contract exists.
             this.documents = enabledProfiles.map((profile) => {
-                const contract = contractByProfile.get(profile.id);
+                const contract = contractByProfile.get(profile.id) ?? defaultContract;
                 const isSigned = contract ? (!!contract.signedPdfPath || !!contract.signedAt) : false;
                 return {
                     profileId: profile.id,
