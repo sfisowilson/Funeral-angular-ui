@@ -27,7 +27,9 @@
                                 [showIcon]="true"
                                 [appendTo]="'body'"
                                 dataType="date"
-                                styleClass="w-full">
+                                styleClass="w-full"
+                                [minDate]="getCalendarMinDate(field)"
+                                [maxDate]="getCalendarMaxDate(field)">
                             </p-calendar>
                             <textarea *ngSwitchCase="'textarea'" class="form-control" [(ngModel)]="formData[field.name]" [name]="'f_' + i"></textarea>
                             <div *ngSwitchCase="'file'" class="mb-3">

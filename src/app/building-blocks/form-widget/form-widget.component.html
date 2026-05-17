@@ -40,6 +40,8 @@
                                     [appendTo]="'body'"
                                     [style]="{ width: '100%' }"
                                     styleClass="w-full"
+                                    [minDate]="getCalendarMinDate(field)"
+                                    [maxDate]="getCalendarMaxDate(field)"
                                 ></p-calendar>
 
                                 <!-- Textarea -->

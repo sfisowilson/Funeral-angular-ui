@@ -8,6 +8,7 @@ import { AuthService } from '../../auth/auth-service';
 import { saIdNumberValidator } from '../../shared/validators/sa-id-number.validator';
 import { DynamicFileUploadComponent, FileUploadConfig, UploadedFile } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
 import { applyDateSplitParts, normalizeDateValue, toDateOnlyString } from '../../core/utils/date-field-utils';
+import { resolveCalendarDate, resolveStaticDate, toDateInputString } from '../../core/utils/date-constraint-utils';
 
 interface DynamicFormField {
     name: string;
@@ -30,6 +31,8 @@ interface DynamicFormField {
         month?: string;
         year?: string;
     };
+    minDate?: string;
+    maxDate?: string;
 }
 
 interface ConditionalFieldConditionConfig {
@@ -226,7 +229,9 @@ export class FormWidgetComponent implements OnInit {
                                                 lookupEntityTypeKey: f.lookupEntityTypeKey,
                                                 hidden: !!f.hidden,
                                                 splitDateParts: !!f.splitDateParts,
-                                                datePartKeys: f.datePartKeys
+                                                datePartKeys: f.datePartKeys,
+                                                minDate: f.minDate ? String(f.minDate) : undefined,
+                                                maxDate: f.maxDate ? String(f.maxDate) : undefined
                                         };
                                 })
                 .sort((a, b) => a.order - b.order);
@@ -257,6 +262,28 @@ export class FormWidgetComponent implements OnInit {
             } else if (field.type === 'file') {
                 group[field.name] = this.fb.control([], validators);
             } else if (field.type === 'date') {
+                if (field.minDate && !field.minDate.startsWith('@')) {
+                    const min = resolveStaticDate(field.minDate);
+                    if (min) validators.push((ctrl: import('@angular/forms').AbstractControl) => {
+                        if (!ctrl.value) return null;
+                        const v = ctrl.value instanceof Date ? ctrl.value : new Date(ctrl.value);
+                        if (isNaN(v.getTime())) return null;
+                        const vd = new Date(v); vd.setHours(0,0,0,0);
+                        const md = new Date(min); md.setHours(0,0,0,0);
+                        return vd < md ? { dateMin: { min: toDateInputString(md), actual: ctrl.value } } : null;
+                    });
+                }
+                if (field.maxDate && !field.maxDate.startsWith('@')) {
+                    const max = resolveStaticDate(field.maxDate);
+                    if (max) validators.push((ctrl: import('@angular/forms').AbstractControl) => {
+                        if (!ctrl.value) return null;
+                        const v = ctrl.value instanceof Date ? ctrl.value : new Date(ctrl.value);
+                        if (isNaN(v.getTime())) return null;
+                        const vd = new Date(v); vd.setHours(0,0,0,0);
+                        const md = new Date(max); md.setHours(0,0,0,0);
+                        return vd > md ? { dateMax: { max: toDateInputString(md), actual: ctrl.value } } : null;
+                    });
+                }
                 group[field.name] = this.fb.control(normalizeDateValue(field.defaultValue), validators);
             } else if (field.type === 'lookup') {
                 // Single-select lookup: store the related record ID
@@ -692,6 +719,16 @@ export class FormWidgetComponent implements OnInit {
 
     getCheckboxControl(field: DynamicFormField): FormArray {
         return this.formGroup.get(field.name) as FormArray;
+    }
+
+    getCalendarMinDate(field: DynamicFormField): Date | null {
+        if (!field.minDate) return null;
+        return resolveCalendarDate(field.minDate, this.formGroup?.value ?? null);
+    }
+
+    getCalendarMaxDate(field: DynamicFormField): Date | null {
+        if (!field.maxDate) return null;
+        return resolveCalendarDate(field.maxDate, this.formGroup?.value ?? null);
     }
 
     getFileUploadConfig(field: DynamicFormField): FileUploadConfig {

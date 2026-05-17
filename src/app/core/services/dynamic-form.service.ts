@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, FormControl, Validators, ValidatorFn, AbstractC
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { OnboardingFieldConfigurationServiceProxy, OnboardingFieldConfigurationDto } from './service-proxies';
+import { parseDateConstraints, resolveStaticDate, toDateInputString, resolveCalendarDate } from '../utils/date-constraint-utils';
 
 export interface DynamicFormField {
     config: OnboardingFieldConfigurationDto;
@@ -178,12 +179,49 @@ export class DynamicFormService {
                 if (rules.max !== undefined) {
                     validators.push(Validators.max(rules.max));
                 }
+                // Date guard rails (only applied to date fields; cross-field constraints
+                // are enforced via [min]/[maxDate] template bindings, not validators)
+                if (config.fieldType === 'date') {
+                    const constraints = parseDateConstraints(config.validationRulesJson);
+                    if (constraints.minDate && !constraints.minDateFromField) {
+                        const min = resolveStaticDate(constraints.minDate);
+                        if (min) validators.push(this.dateMinValidator(min));
+                    }
+                    if (constraints.maxDate && !constraints.maxDateFromField) {
+                        const max = resolveStaticDate(constraints.maxDate);
+                        if (max) validators.push(this.dateMaxValidator(max));
+                    }
+                }
             } catch (e) {
                 console.error(`Error parsing validation rules for ${config.fieldKey}:`, e);
             }
         }
 
         return validators;
+    }
+
+    private dateMinValidator(minDate: Date): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!control.value) return null;
+            const value = new Date(control.value);
+            if (isNaN(value.getTime())) return null;
+            value.setHours(0, 0, 0, 0);
+            const min = new Date(minDate);
+            min.setHours(0, 0, 0, 0);
+            return value < min ? { dateMin: { min: toDateInputString(min), actual: control.value } } : null;
+        };
+    }
+
+    private dateMaxValidator(maxDate: Date): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!control.value) return null;
+            const value = new Date(control.value);
+            if (isNaN(value.getTime())) return null;
+            value.setHours(0, 0, 0, 0);
+            const max = new Date(maxDate);
+            max.setHours(0, 0, 0, 0);
+            return value > max ? { dateMax: { max: toDateInputString(max), actual: control.value } } : null;
+        };
     }
 
     /**
@@ -262,6 +300,14 @@ export class DynamicFormService {
         if (control.hasError('max')) {
             const max = control.getError('max').max;
             return `${config.fieldLabel} must not exceed ${max}`;
+        }
+        if (control.hasError('dateMin')) {
+            const min = control.getError('dateMin').min;
+            return `${config.fieldLabel} must be ${min} or later`;
+        }
+        if (control.hasError('dateMax')) {
+            const max = control.getError('dateMax').max;
+            return `${config.fieldLabel} must be ${max} or earlier`;
         }
 
         return `${config.fieldLabel} is invalid`;

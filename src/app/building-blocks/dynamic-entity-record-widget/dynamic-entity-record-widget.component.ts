@@ -5,6 +5,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { DynamicEntityServiceProxy, CreateDynamicEntityRecordDto, UpdateDynamicEntityRecordDto, DynamicEntityRecordDto, DynamicEntityTypeDto } from '@app/core/services/service-proxies';
 import { DynamicFileUploadComponent } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
 import { applyDateSplitParts, normalizeDateValue, toDateOnlyString } from '@app/core/utils/date-field-utils';
+import { resolveCalendarDate } from '../../core/utils/date-constraint-utils';
 
 @Component({
     selector: 'app-dynamic-entity-record-widget',
@@ -70,6 +71,16 @@ export class DynamicEntityRecordWidgetComponent implements OnInit {
         this.dateValues[field.name] = value;
         this.formData[field.name] = toDateOnlyString(value);
         this.applyDateSplitDerivation();
+    }
+
+    getCalendarMinDate(field: any): Date | null {
+        if (!field?.minDate) return null;
+        return resolveCalendarDate(String(field.minDate), this.formData);
+    }
+
+    getCalendarMaxDate(field: any): Date | null {
+        if (!field?.maxDate) return null;
+        return resolveCalendarDate(String(field.maxDate), this.formData);
     }
 
     isHiddenField(field: any): boolean {

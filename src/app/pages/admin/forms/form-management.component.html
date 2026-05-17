@@ -741,6 +741,10 @@
                                                 <div class="d-grid gap-1">
                                                     <input type="number" class="form-control form-control-sm" [(ngModel)]="field.minValue" name="fieldMinValue{{ i }}" placeholder="Min value" [disabled]="field.type !== 'number'" />
                                                     <input type="number" class="form-control form-control-sm" [(ngModel)]="field.maxValue" name="fieldMaxValue{{ i }}" placeholder="Max value" [disabled]="field.type !== 'number'" />
+                                                    <ng-container *ngIf="field.type === 'date'">
+                                                        <input type="text" class="form-control form-control-sm" [(ngModel)]="field.minDate" name="fieldMinDate{{ i }}" placeholder="Min date: today or YYYY-MM-DD or @fieldKey" />
+                                                        <input type="text" class="form-control form-control-sm" [(ngModel)]="field.maxDate" name="fieldMaxDate{{ i }}" placeholder="Max date: today or YYYY-MM-DD or @fieldKey" />
+                                                    </ng-container>
                                                 </div>
                                             </td>
                                             <td class="text-nowrap">

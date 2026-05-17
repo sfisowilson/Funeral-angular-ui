@@ -23,6 +23,7 @@ import { DynamicFileUploadComponent } from '../../shared/components/dynamic-file
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { AuthService } from '../../auth/auth-service';
 import { applyDateSplitParts, normalizeDateValue, toDateOnlyString } from '../../core/utils/date-field-utils';
+import { resolveCalendarDate, resolveStaticDate, toDateInputString } from '../../core/utils/date-constraint-utils';
 
 export interface StepLimitRule {
     targetValue: string; // The value to match i.e. "Plan A" or "123"
@@ -110,6 +111,8 @@ interface DynamicFormField {
     readOnly?: boolean;
     minValue?: number;
     maxValue?: number;
+    minDate?: string;
+    maxDate?: string;
 }
 
 interface CalculatorPrefillRuleConfig {
@@ -1413,7 +1416,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                                                         datePartKeys: f.datePartKeys,
                                                         readOnly: !!f.readOnly,
                                                         minValue: typeof f.minValue === 'number' ? f.minValue : undefined,
-                                                        maxValue: typeof f.maxValue === 'number' ? f.maxValue : undefined
+                                                        maxValue: typeof f.maxValue === 'number' ? f.maxValue : undefined,
+                                                        minDate: f.minDate ? String(f.minDate) : undefined,
+                                                        maxDate: f.maxDate ? String(f.maxDate) : undefined
                         };
                     })
                     .sort((a, b) => a.order - b.order);
@@ -1504,6 +1509,16 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             }
             if (field.maxValue != null) {
                 validators.push(Validators.max(field.maxValue));
+            }
+            if (field.type === 'date') {
+                if (field.minDate && !field.minDate.startsWith('@')) {
+                    const min = resolveStaticDate(field.minDate);
+                    if (min) validators.push(this.buildDateMinValidator(min));
+                }
+                if (field.maxDate && !field.maxDate.startsWith('@')) {
+                    const max = resolveStaticDate(field.maxDate);
+                    if (max) validators.push(this.buildDateMaxValidator(max));
+                }
             }
 
             if (field.type === 'checkbox' && field.options && field.options.length) {
@@ -3004,6 +3019,40 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 this.cdr.markForCheck();
             }
         });
+    }
+
+    /** Resolves the [minDate] binding for a date p-calendar. Supports "today", fixed dates, and @fieldKey cross-field references. */
+    getCalendarMinDate(field: DynamicFormField): Date | null {
+        if (!field.minDate) return null;
+        return resolveCalendarDate(field.minDate, this.activeFormGroup?.value ?? null);
+    }
+
+    /** Resolves the [maxDate] binding for a date p-calendar. Supports "today", fixed dates, and @fieldKey cross-field references. */
+    getCalendarMaxDate(field: DynamicFormField): Date | null {
+        if (!field.maxDate) return null;
+        return resolveCalendarDate(field.maxDate, this.activeFormGroup?.value ?? null);
+    }
+
+    private buildDateMinValidator(minDate: Date) {
+        return (control: import('@angular/forms').AbstractControl): import('@angular/forms').ValidationErrors | null => {
+            if (!control.value) return null;
+            const value = control.value instanceof Date ? control.value : new Date(control.value);
+            if (isNaN(value.getTime())) return null;
+            const v = new Date(value); v.setHours(0, 0, 0, 0);
+            const m = new Date(minDate); m.setHours(0, 0, 0, 0);
+            return v < m ? { dateMin: { min: toDateInputString(m), actual: control.value } } : null;
+        };
+    }
+
+    private buildDateMaxValidator(maxDate: Date) {
+        return (control: import('@angular/forms').AbstractControl): import('@angular/forms').ValidationErrors | null => {
+            if (!control.value) return null;
+            const value = control.value instanceof Date ? control.value : new Date(control.value);
+            if (isNaN(value.getTime())) return null;
+            const v = new Date(value); v.setHours(0, 0, 0, 0);
+            const m = new Date(maxDate); m.setHours(0, 0, 0, 0);
+            return v > m ? { dateMax: { max: toDateInputString(m), actual: control.value } } : null;
+        };
     }
 
     getFileUploadConfig(field: DynamicFormField): any {

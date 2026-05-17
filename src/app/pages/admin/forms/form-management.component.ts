@@ -35,6 +35,8 @@ interface FormField {
     readOnly?: boolean;
     minValue?: number;
     maxValue?: number;
+    minDate?: string;
+    maxDate?: string;
     order: number;
 }
 
@@ -508,6 +510,8 @@ export class FormManagementComponent implements OnInit {
                         acceptedTypes,
                         minValue: typeof f.minValue === 'number' ? f.minValue : undefined,
                         maxValue: typeof f.maxValue === 'number' ? f.maxValue : undefined,
+                        minDate: f.minDate ? String(f.minDate) : undefined,
+                        maxDate: f.maxDate ? String(f.maxDate) : undefined,
                         order: typeof f.order === 'number' ? f.order : index
                     } as FormField;
                 });
@@ -639,6 +643,8 @@ export class FormManagementComponent implements OnInit {
                           : '.pdf, .jpg, .jpeg, .png, .doc, .docx',
                     minValue: typeof f.minValue === 'number' ? f.minValue : undefined,
                     maxValue: typeof f.maxValue === 'number' ? f.maxValue : undefined,
+                    minDate: f.minDate ? String(f.minDate) : undefined,
+                    maxDate: f.maxDate ? String(f.maxDate) : undefined,
                     order: typeof f.order === 'number' ? f.order : index
                 } as FormField;
             });
@@ -724,6 +730,8 @@ export class FormManagementComponent implements OnInit {
                 readOnly: !!f.readOnly,
                 minValue: f.minValue != null ? f.minValue : undefined,
                 maxValue: f.maxValue != null ? f.maxValue : undefined,
+                minDate: f.type === 'date' && f.minDate ? f.minDate : undefined,
+                maxDate: f.type === 'date' && f.maxDate ? f.maxDate : undefined,
                                 defaultValue:
                                         f.type === 'file'
                                                 ? undefined

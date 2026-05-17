@@ -11,6 +11,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { OnboardingFieldConfigurationServiceProxy, OnboardingFieldConfigurationDto, CreateOnboardingFieldConfigurationDto, UpdateOnboardingFieldConfigurationDto } from '../../../core/services/service-proxies';
+import { parseDateConstraints } from '../../../core/utils/date-constraint-utils';
 
 interface FieldTypeOption {
     label: string;
@@ -39,6 +40,10 @@ export class RegistrationFieldsComponent implements OnInit {
     displayDialog: boolean = false;
     isEditMode: boolean = false;
     selectedField: OnboardingFieldConfigurationDto | null = null;
+
+    // Date constraint helper state (structured UI → merged into validationRulesJson on save)
+    dateMinValue: string = '';
+    dateMaxValue: string = '';
 
     // Form data - using any to avoid class instantiation issues
     fieldForm: any = {
@@ -107,6 +112,8 @@ export class RegistrationFieldsComponent implements OnInit {
     openNewDialog(): void {
         this.isEditMode = false;
         this.selectedField = null;
+        this.dateMinValue = '';
+        this.dateMaxValue = '';
         this.fieldForm = {
             fieldKey: '',
             fieldLabel: '',
@@ -130,6 +137,9 @@ export class RegistrationFieldsComponent implements OnInit {
     openEditDialog(field: OnboardingFieldConfigurationDto): void {
         this.isEditMode = true;
         this.selectedField = field;
+        const constraints = parseDateConstraints(field.validationRulesJson);
+        this.dateMinValue = constraints.minDateFromField ? '@' + constraints.minDateFromField : (constraints.minDate || '');
+        this.dateMaxValue = constraints.maxDateFromField ? '@' + constraints.maxDateFromField : (constraints.maxDate || '');
         this.fieldForm = {
             id: field.id,
             fieldKey: field.fieldKey || '',
@@ -160,6 +170,15 @@ export class RegistrationFieldsComponent implements OnInit {
                 life: 3000
             });
             return;
+        }
+
+        // Merge date constraints into validationRulesJson
+        if (this.fieldForm.fieldType === 'date') {
+            let existing: any = {};
+            try { existing = JSON.parse(this.fieldForm.validationRulesJson || '{}'); } catch { existing = {}; }
+            if (this.dateMinValue) { existing.minDate = this.dateMinValue; } else { delete existing.minDate; }
+            if (this.dateMaxValue) { existing.maxDate = this.dateMaxValue; } else { delete existing.maxDate; }
+            this.fieldForm.validationRulesJson = Object.keys(existing).length ? JSON.stringify(existing) : undefined;
         }
 
         this.loading = true;

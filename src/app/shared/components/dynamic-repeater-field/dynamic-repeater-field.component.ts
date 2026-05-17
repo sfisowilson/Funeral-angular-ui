@@ -10,6 +10,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { resolveCalendarDate } from '../../../core/utils/date-constraint-utils';
 import { ToastModule } from 'primeng/toast';
 
 /**
@@ -22,6 +23,8 @@ export interface RepeaterFieldConfig {
     placeholder?: string;
     options?: string[]; // For select/dropdown fields
     required?: boolean;
+    minDate?: string;
+    maxDate?: string;
 }
 
 /**
@@ -108,7 +111,7 @@ export interface RepeaterConfig {
                         <input *ngIf="field.fieldType === 'number'" [id]="field.fieldKey" [(ngModel)]="currentItem[field.fieldKey]" type="number" [placeholder]="field.placeholder || ''" class="form-control" />
 
                         <!-- Date -->
-                        <p-calendar *ngIf="field.fieldType === 'date'" [id]="field.fieldKey" [(ngModel)]="currentItem[field.fieldKey]" [placeholder]="field.placeholder || 'Select date'" dateFormat="yy-mm-dd" [showIcon]="true" class="w-100">
+                        <p-calendar *ngIf="field.fieldType === 'date'" [id]="field.fieldKey" [(ngModel)]="currentItem[field.fieldKey]" [placeholder]="field.placeholder || 'Select date'" dateFormat="yy-mm-dd" [showIcon]="true" class="w-100" [minDate]="getCalendarMinDate(field)" [maxDate]="getCalendarMaxDate(field)">
                         </p-calendar>
 
                         <!-- Select/Dropdown -->
@@ -303,12 +306,17 @@ export class DynamicRepeaterFieldComponent implements OnInit {
         this.editingIndex = null;
     }
 
-    getDisplayValue(item: any, field: RepeaterFieldConfig): string {
-        const value = item[field.fieldKey];
+    getCalendarMinDate(field: RepeaterFieldConfig): Date | null {
+        if (!field.minDate) return null;
+        return resolveCalendarDate(field.minDate, this.currentItem);
+    }
 
-        if (value === undefined || value === null) {
-            return '-';
-        }
+    getCalendarMaxDate(field: RepeaterFieldConfig): Date | null {
+        if (!field.maxDate) return null;
+        return resolveCalendarDate(field.maxDate, this.currentItem);
+    }
+
+    getDisplayValue(item: any, field: RepeaterFieldConfig): string {
 
         if (field.fieldType === 'checkbox') {
             return value ? 'Yes' : 'No';

@@ -145,6 +145,22 @@
             <small class="text-muted"> Optional JSON object defining validation rules (e.g., minLength, maxLength, pattern) </small>
         </div>
 
+        <!-- Date Constraints (visible only for date fields) -->
+        <div class="form-group mb-4" *ngIf="fieldForm.fieldType === 'date'">
+            <label class="font-semibold mb-2 block">Date Constraints</label>
+            <div class="row g-2">
+                <div class="col-6">
+                    <label class="form-label small">Min date</label>
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="dateMinValue" name="dateMinValue" placeholder="today, YYYY-MM-DD, or @fieldKey" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label small">Max date</label>
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="dateMaxValue" name="dateMaxValue" placeholder="today, YYYY-MM-DD, or @fieldKey" />
+                </div>
+            </div>
+            <small class="text-muted">Use <code>today</code> for current date, a fixed date like <code>2030-12-31</code>, or <code>&#64;fieldKey</code> to reference another date field's value.</small>
+        </div>
+
         <!-- Checkboxes -->
         <div class="flex flex-column gap-3 mb-4">
             <div class="flex align-items-center gap-2">
