@@ -22,12 +22,11 @@ import { environment } from '../../../environments/environment';
     selector: 'app-landing-page-renderer',
     standalone: true,
     imports: [CommonModule, ScrollRevealDirective, RouterModule, PublicHeaderComponent],
-    providers: [TenantSettingsService],
     template: `
         <div class="flex flex-col min-h-screen">
-            <!-- Header -->
-            <app-public-header
-                [brandTitle]="_settings.siteTitle || _settings.title || tenantSettings?.tenantName || 'Mizo'"
+            <!-- Header (only rendered after settings + nav data are fully loaded) -->
+            <app-public-header *ngIf="headerReady"
+                [brandTitle]="brandTitle"
                 [logoUrl]="_settings.logo ? getDownloadUrl(_settings.logo) : null"
                 [navbarPages]="navbarPages"
                 [navConfig]="navConfig"
@@ -166,6 +165,7 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
     tenantSettings!: TenantSettingDto;
     isStaticSite = false;
     isHostTenant = false;
+    headerReady = false;
     navbarPages: PageListItemDto[] = [];
     navConfig: NavConfigDto | null = null;
 
@@ -199,12 +199,19 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
         @Inject(DOCUMENT) private document: Document
     ) {}
 
+    /** Computed brand title from loaded settings, with sensible fallback chain. */
+    get brandTitle(): string {
+        return this._settings.siteTitle || this._settings.title || this.tenantSettings?.tenantName || 'Mizo';
+    }
+
     ngOnInit(): void {
-        this.tenantSettingService.loadSettings().then((data: any) => {
+        // Use the root-singleton TenantSettingsService (already loaded by APP_INITIALIZER).
+        // If for any reason settings aren't cached yet, loadSettings() returns the cached promise.
+        const settingsPromise = this.tenantSettingService.loadSettings().then((data: any) => {
             this.tenantSettings = data;
             this._settings = JSON.parse(this.tenantSettings.settings ?? '{}');
             this.isStaticSite = this._settings.isStaticSite || false;
-            const tenantTitle = this._settings.siteTitle || this._settings.title || this.tenantSettings.tenantName || 'Mizo';
+            const tenantTitle = this.brandTitle;
             this.titleService.setTitle(tenantTitle + ' | All-in-One Business Platform');
 
             // Set meta description from tenant settings or fall back to default
@@ -259,24 +266,37 @@ export class LandingPageRendererComponent implements OnInit, OnDestroy {
 
         // Load custom pages for navigation using the public navbar endpoint
         // (navbar() is AllowAnonymous - safe for unauthenticated public visitors)
-        this.customPagesService.navbar().subscribe((response) => {
-            const pages = response?.result || [];
-            this.navbarPages = pages
-                .filter((p: any) => p.isActive && p.showInNavbar)
-                .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
+        const navbarPromise = new Promise<void>((resolve) => {
+            this.customPagesService.navbar().subscribe({
+                next: (response) => {
+                    const pages = response?.result || [];
+                    this.navbarPages = pages
+                        .filter((p: any) => p.isActive && p.showInNavbar)
+                        .sort((a: any, b: any) => (a.navbarOrder || 999) - (b.navbarOrder || 999));
+                    resolve();
+                },
+                error: () => resolve() // resolve even on error so header still shows
+            });
         });
 
         // Load the structured nav config (mega menu / submenu support).
         // Falls back gracefully: if no config exists, navbarPages is used instead.
-        this.navConfigService.get().subscribe({
-            next: (config) => {
-                if (config?.items?.length) {
-                    this.navConfig = config;
-                }
-            },
-            error: () => {
-                // no nav config saved yet — public header will fall back to navbarPages
-            }
+        const navConfigPromise = new Promise<void>((resolve) => {
+            this.navConfigService.get().subscribe({
+                next: (config) => {
+                    if (config?.items?.length) {
+                        this.navConfig = config;
+                    }
+                    resolve();
+                },
+                error: () => resolve() // no nav config saved yet — fall back to navbarPages
+            });
+        });
+
+        // Gate header rendering until settings + navbar + navConfig are all resolved.
+        // This prevents the header flashing with empty menu or "Mizo" fallback.
+        Promise.all([settingsPromise, navbarPromise, navConfigPromise]).then(() => {
+            this.headerReady = true;
         });
 
         // Use subdomain if present, otherwise use hostSubdomain from environment

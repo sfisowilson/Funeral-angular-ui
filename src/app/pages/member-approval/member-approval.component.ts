@@ -89,9 +89,20 @@ export class MemberApprovalComponent implements OnInit {
     }
 
     loadStats() {
-        // Stats endpoint returns void, commenting out for now
-        // TODO: Update backend to return stats DTO
-        this.stats.set({ totalPending: 0, approvedToday: 0, rejectedToday: 0, waitingMoreThan7Days: 0 });
+        this.http.get<any>(`${environment.apiUrl}/api/MemberApproval/MemberApproval_GetStats`).subscribe({
+            next: (data) => {
+                this.stats.set({
+                    totalPending: data.totalPending ?? 0,
+                    approvedToday: data.approvedToday ?? 0,
+                    rejectedToday: data.rejectedToday ?? 0,
+                    waitingMoreThan7Days: data.waitingOver7Days ?? 0
+                });
+            },
+            error: (error) => {
+                console.error('Error loading approval stats:', error);
+                this.stats.set({ totalPending: 0, approvedToday: 0, rejectedToday: 0, waitingMoreThan7Days: 0 });
+            }
+        });
     }
 
     viewMemberDetails(id: string) {

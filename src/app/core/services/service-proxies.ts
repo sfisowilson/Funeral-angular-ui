@@ -12499,6 +12499,62 @@ export class OnboardingContractServiceProxy {
         }
         return _observableOf<SwaggerResponse<OnboardingContractDto[]>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * Send a notification email to a member informing them that admin has completed
+     * their onboarding. Admin-only endpoint.
+     * @return OK
+     */
+    adminNotifyMember(memberId: string): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/OnboardingContract/admin-notify-member/{memberId}";
+        if (memberId === undefined || memberId === null)
+            throw new globalThis.Error("The parameter 'memberId' must be defined.");
+        url_ = url_.replace("{memberId}", encodeURIComponent("" + memberId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAdminNotifyMember(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAdminNotifyMember(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processAdminNotifyMember(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+        } else if (status === 403 || status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Request failed", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable({
@@ -13883,12 +13939,14 @@ export class OnboardingMultiSubmitServiceProxy {
      * @param stepKey (optional) 
      * @return OK
      */
-    onboardingMultiSubmit_GetStepContext(stepKey: string | undefined): Observable<SwaggerResponse<MultiSubmitStepContextDto>> {
+    onboardingMultiSubmit_GetStepContext(stepKey: string | undefined, targetMemberId?: string): Observable<SwaggerResponse<MultiSubmitStepContextDto>> {
         let url_ = this.baseUrl + "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_GetStepContext?";
         if (stepKey === null)
             throw new globalThis.Error("The parameter 'stepKey' cannot be null.");
         else if (stepKey !== undefined)
             url_ += "stepKey=" + encodeURIComponent("" + stepKey) + "&";
+        if (targetMemberId !== undefined && targetMemberId !== null)
+            url_ += "targetMemberId=" + encodeURIComponent("" + targetMemberId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -36320,6 +36378,8 @@ export class CompleteOnboardingRequest implements ICompleteOnboardingRequest {
     signatureWidth!: number;
     signatureHeight!: number;
     mappingProfileIds!: string[] | undefined;
+    additionalFields!: { [key: string]: string } | undefined;
+    targetMemberId!: string | undefined;
 
     constructor(data?: ICompleteOnboardingRequest) {
         if (data) {
@@ -36343,6 +36403,13 @@ export class CompleteOnboardingRequest implements ICompleteOnboardingRequest {
                 for (let item of _data["mappingProfileIds"])
                     this.mappingProfileIds!.push(item);
             }
+            if (_data["additionalFields"]) {
+                this.additionalFields = {} as any;
+                for (let key in _data["additionalFields"])
+                    if (_data["additionalFields"].hasOwnProperty(key))
+                        (this.additionalFields as any)[key] = _data["additionalFields"][key];
+            }
+            this.targetMemberId = _data["targetMemberId"];
         }
     }
 
@@ -36366,6 +36433,13 @@ export class CompleteOnboardingRequest implements ICompleteOnboardingRequest {
             for (let item of this.mappingProfileIds)
                 data["mappingProfileIds"].push(item);
         }
+        if (this.additionalFields) {
+            data["additionalFields"] = {};
+            for (let key in this.additionalFields)
+                if (this.additionalFields.hasOwnProperty(key))
+                    data["additionalFields"][key] = (this.additionalFields as any)[key];
+        }
+        data["targetMemberId"] = this.targetMemberId;
         return data;
     }
 }
@@ -36378,6 +36452,8 @@ export interface ICompleteOnboardingRequest {
     signatureWidth: number;
     signatureHeight: number;
     mappingProfileIds: string[] | undefined;
+    additionalFields: { [key: string]: string } | undefined;
+    targetMemberId: string | undefined;
 }
 
 export class OnboardingFieldConfigurationDto implements IOnboardingFieldConfigurationDto {
@@ -39837,6 +39913,7 @@ export class ProfileCompletionStatusDto implements IProfileCompletionStatusDto {
     requiredDocumentsCount!: number;
     hasAcceptedLatestTerms!: boolean;
     memberStatus!: string | undefined;
+    updatesRequiredMessage!: string | undefined;
 
     constructor(data?: IProfileCompletionStatusDto) {
         if (data) {
@@ -39869,6 +39946,7 @@ export class ProfileCompletionStatusDto implements IProfileCompletionStatusDto {
             this.requiredDocumentsCount = _data["requiredDocumentsCount"];
             this.hasAcceptedLatestTerms = _data["hasAcceptedLatestTerms"];
             this.memberStatus = _data["memberStatus"];
+            this.updatesRequiredMessage = _data["updatesRequiredMessage"];
         }
     }
 
@@ -39901,6 +39979,7 @@ export class ProfileCompletionStatusDto implements IProfileCompletionStatusDto {
         data["requiredDocumentsCount"] = this.requiredDocumentsCount;
         data["hasAcceptedLatestTerms"] = this.hasAcceptedLatestTerms;
         data["memberStatus"] = this.memberStatus;
+        data["updatesRequiredMessage"] = this.updatesRequiredMessage;
         return data;
     }
 }
@@ -39918,6 +39997,7 @@ export interface IProfileCompletionStatusDto {
     requiredDocumentsCount: number;
     hasAcceptedLatestTerms: boolean;
     memberStatus: string | undefined;
+    updatesRequiredMessage: string | undefined;
 }
 
 export class RefreshTokenRequest implements IRefreshTokenRequest {
@@ -41245,6 +41325,7 @@ export class SaveMultiSubmitRecordDto implements ISaveMultiSubmitRecordDto {
     id!: string | undefined;
     displayName!: string | undefined;
     dataJson!: string | undefined;
+    targetMemberId!: string | undefined;
 
     constructor(data?: ISaveMultiSubmitRecordDto) {
         if (data) {
@@ -41261,6 +41342,7 @@ export class SaveMultiSubmitRecordDto implements ISaveMultiSubmitRecordDto {
             this.id = _data["id"];
             this.displayName = _data["displayName"];
             this.dataJson = _data["dataJson"];
+            this.targetMemberId = _data["targetMemberId"];
         }
     }
 
@@ -41277,6 +41359,7 @@ export class SaveMultiSubmitRecordDto implements ISaveMultiSubmitRecordDto {
         data["id"] = this.id;
         data["displayName"] = this.displayName;
         data["dataJson"] = this.dataJson;
+        data["targetMemberId"] = this.targetMemberId;
         return data;
     }
 }
@@ -41286,6 +41369,7 @@ export interface ISaveMultiSubmitRecordDto {
     id: string | undefined;
     displayName: string | undefined;
     dataJson: string | undefined;
+    targetMemberId: string | undefined;
 }
 
 export class SaveSignatureDto implements ISaveSignatureDto {

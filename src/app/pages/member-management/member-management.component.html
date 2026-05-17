@@ -52,11 +52,10 @@
                 <td>
                     <p-tableCheckbox [value]="member"></p-tableCheckbox>
                 </td>
-                <td><span class="p-column-title">Name</span>{{ member.name }}</td>
-                <td><span class="p-column-title">Email</span>{{ member.email }}</td>
-                <td><span class="p-column-title">ID Number</span>{{ member.identificationNumber }}</td>
+                <td>{{ member.name }}</td>
+                <td>{{ member.email }}</td>
+                <td>{{ member.identificationNumber }}</td>
                 <td>
-                    <span class="p-column-title">Agent</span>
                     <div *ngIf="member.agentName">
                         <span class="font-bold">{{member.agentName}}</span>
                         <div class="text-sm text-500">{{member.agentCode}}</div>
@@ -64,12 +63,12 @@
                     <span *ngIf="!member.agentName">-</span>
                 </td>
                 <td>
-                    <span class="p-column-title">Status</span>
                     <p-tag [value]="getMemberStatusText(member.status)" [severity]="getMemberStatusSeverity(member.status)"></p-tag>
                 </td>
                 <td>
                     <div class="flex">
-                        <button pButton pRipple icon="pi pi-pencil" class="btn-rounded btn-primary-theme mr-2" (click)="editMember(member)" pTooltip="Edit Member" tooltipPosition="top"></button>
+                        <button pButton pRipple icon="pi pi-pencil" class="btn-rounded btn-primary-theme mr-2" (click)="fillOnboarding(member)" pTooltip="Fill Onboarding" tooltipPosition="top"></button>
+                        <button pButton pRipple icon="pi pi-send" class="btn-rounded btn-secondary-theme mr-2" (click)="resendInvite(member)" pTooltip="Resend Invite Email" tooltipPosition="top"></button>
                         <button pButton pRipple icon="pi pi-eye" class="btn-rounded btn-primary-theme mr-2" (click)="viewOnboarding(member)" pTooltip="View Onboarding" tooltipPosition="top"></button>
                         <button pButton pRipple icon="pi pi-users" class="btn-rounded btn-primary-theme mr-2" (click)="manageDependents(member)" pTooltip="Manage Dependents" tooltipPosition="top"></button>
                         <button pButton pRipple icon="pi pi-trash" class="btn-rounded btn-danger-theme" (click)="deleteMember(member)" pTooltip="Delete Member" tooltipPosition="top"></button>
@@ -376,6 +375,28 @@
 </p-dialog>
 
 <p-confirmDialog [style]="{ width: '450px' }"></p-confirmDialog>
+
+<!-- New Member Dialog -->
+<p-dialog [(visible)]="newMemberDialog" [style]="{ width: '440px' }" header="New Member" [modal]="true" class="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="field">
+            <label for="newMemberEmail">Email</label>
+            <input id="newMemberEmail" type="email" pInputText [(ngModel)]="newMemberEmail" placeholder="email@example.com" style="width:100%" />
+        </div>
+        <div class="field">
+            <label for="newMemberFirstName">First Name</label>
+            <input id="newMemberFirstName" type="text" pInputText [(ngModel)]="newMemberFirstName" placeholder="First name" style="width:100%" />
+        </div>
+        <div class="field">
+            <label for="newMemberSurname">Surname</label>
+            <input id="newMemberSurname" type="text" pInputText [(ngModel)]="newMemberSurname" placeholder="Surname" style="width:100%" />
+        </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="newMemberDialog = false" [disabled]="creatingNewMember"></button>
+        <button pButton pRipple label="Create &amp; Fill Onboarding" icon="pi pi-user-plus" class="btn-primary-theme" [loading]="creatingNewMember" (click)="createNewMemberAndFillOnboarding()"></button>
+    </ng-template>
+</p-dialog>
 
 <p-dialog [(visible)]="dependentsDialog" [style]="{ width: '750px' }" header="Dependents" [modal]="true" class="p-fluid">
     <app-dependents [memberId]="member.id"></app-dependents>

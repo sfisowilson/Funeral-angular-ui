@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { TabViewModule } from 'primeng/tabview';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -12,10 +12,12 @@ import { catchError, first, switchMap } from 'rxjs/operators';
 import { MemberContextService } from '../../core/services/member-context.service';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import {
+    CustomPagesServiceProxy,
     MemberApprovalDetailDto,
     MemberApprovalServiceProxy,
     MemberDto,
     MemberDynamicTableDto,
+    MemberProfileCompletionServiceProxy,
     OnboardingContractDto,
     OnboardingContractServiceProxy,
     OnboardingFieldConfigurationServiceProxy,
@@ -74,6 +76,11 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
 
     documents: PdfDocumentView[] = [];
 
+    // Updates-required banner (only shown when admin has requested profile changes)
+    profileIncomplete = false;
+    updatesRequired = '';
+    onboardingPageSlug = '';
+
     constructor(
         private memberContext: MemberContextService,
         private memberService: MemberServiceProxy,
@@ -84,7 +91,10 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
         private onboardingStepClient: OnboardingStepConfigurationClient,
         private http: HttpClient,
         private sanitizer: DomSanitizer,
-        private pdfFieldMappingService: PdfFieldMappingServiceProxy
+        private pdfFieldMappingService: PdfFieldMappingServiceProxy,
+        private profileCompletionService: MemberProfileCompletionServiceProxy,
+        private customPagesService: CustomPagesServiceProxy,
+        private router: Router
     ) {}
 
     ngOnDestroy(): void {
@@ -145,6 +155,7 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
                     if (!hasExplicitMemberId) {
                         this.loadingMember = false;
                         this.loadOnboardingData(memberId, false);
+                        this.loadProfileStatus();
                         return;
                     }
 
@@ -326,19 +337,16 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
             .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
 
         if (enabledProfiles.length > 0) {
-            // Pick the most recent default (null-profile) signed contract as a fallback
-            // for profiles that don't have their own mapped contract.
-            const defaultContract = legacyContracts
-                .filter((c) => !!c.signedPdfPath || !!c.signedAt)
-                .sort((a, b) => this.dateToMs(b.signedAt as any) - this.dateToMs(a.signedAt as any))[0]
-                ?? null;
+            // Build document entries per profile: use the specific mapped contract if available.
+            const docs: PdfDocumentView[] = [];
+            const matchedProfileIds = new Set<string>();
 
-            // Map each enabled profile to its saved contract (if any), falling back to
-            // the default contract when no specific mapped contract exists.
-            this.documents = enabledProfiles.map((profile) => {
-                const contract = contractByProfile.get(profile.id) ?? defaultContract;
-                const isSigned = contract ? (!!contract.signedPdfPath || !!contract.signedAt) : false;
-                return {
+            for (const profile of enabledProfiles) {
+                const contract = contractByProfile.get(profile.id);
+                if (contract) {
+                    matchedProfileIds.add(profile.id);
+                }
+                docs.push({
                     profileId: profile.id,
                     profileName: profile.name || 'Unnamed Document',
                     contractId: contract?.id ?? '',
@@ -346,8 +354,31 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
                     objectUrl: null,
                     loading: !!contract,
                     error: contract ? '' : 'No signed document available for this profile.'
-                } satisfies PdfDocumentView;
-            });
+                });
+            }
+
+            // If no profile had its own mapped contract, show the latest legacy (default)
+            // signed contract as a single generic system-generated document — NOT repeated
+            // under each profile name.
+            if (matchedProfileIds.size === 0 && legacyContracts.length > 0) {
+                const defaultContract = legacyContracts
+                    .filter((c) => !!c.signedPdfPath || !!c.signedAt)
+                    .sort((a, b) => this.dateToMs(b.signedAt as any) - this.dateToMs(a.signedAt as any))[0];
+
+                if (defaultContract) {
+                    docs.push({
+                        profileId: '',
+                        profileName: 'System Generated Document',
+                        contractId: defaultContract.id,
+                        displayUrl: null,
+                        objectUrl: null,
+                        loading: true,
+                        error: ''
+                    });
+                }
+            }
+
+            this.documents = docs;
 
             this.loadingDocuments = false;
 
@@ -414,6 +445,36 @@ export class MemberOnboardingReadonlyViewComponent implements OnInit, OnDestroy 
                 doc.loading = false;
             }
         });
+    }
+
+    private loadProfileStatus(): void {
+        forkJoin({
+            status: this.profileCompletionService.profileCompletion_GetMyStatus().pipe(
+                first(),
+                catchError(() => of(null as any))
+            ),
+            pages: this.customPagesService.all().pipe(
+                first(),
+                catchError(() => of(null as any))
+            )
+        }).subscribe(({ status, pages }) => {
+            const s = (status as any)?.result;
+            if (!s || s.isComplete) {
+                return;
+            }
+            this.profileIncomplete = true;
+            this.updatesRequired = s.updatesRequiredMessage || '';
+
+            const pageList: any[] = (pages as any)?.result || [];
+            const onboardingPage = pageList.find((p: any) => p.isActive && p.isOnboardingPage);
+            this.onboardingPageSlug = onboardingPage?.slug || '';
+        });
+    }
+
+    navigateToUpdateProfile(): void {
+        if (this.onboardingPageSlug) {
+            this.router.navigate(['/', this.onboardingPageSlug]);
+        }
     }
 
     private clearAllObjectUrls(): void {

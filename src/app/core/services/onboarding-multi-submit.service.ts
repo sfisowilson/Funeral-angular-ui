@@ -20,15 +20,16 @@ export interface SaveMultiSubmitRecordDto {
     id?: string | null;
     displayName?: string | null;
     dataJson: string;
+    targetMemberId?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingMultiSubmitService {
     constructor(private onboardingMultiSubmitProxy: OnboardingMultiSubmitServiceProxy) {}
 
-    getStepContext(stepKey?: string): Observable<MultiSubmitStepContextDto> {
+    getStepContext(stepKey?: string, adminMemberId?: string): Observable<MultiSubmitStepContextDto> {
         return this.onboardingMultiSubmitProxy
-            .onboardingMultiSubmit_GetStepContext(stepKey)
+            .onboardingMultiSubmit_GetStepContext(stepKey, adminMemberId || undefined)
             .pipe(map((response) => response.result as MultiSubmitStepContextDto));
     }
 
@@ -42,7 +43,10 @@ export class OnboardingMultiSubmitService {
             .pipe(map((response) => (response.result as string[]) || []));
     }
 
-    saveRecord(dto: SaveMultiSubmitRecordDto): Observable<any> {
+    saveRecord(dto: SaveMultiSubmitRecordDto, adminMemberId?: string): Observable<any> {
+        if (adminMemberId) {
+            dto = { ...dto, targetMemberId: adminMemberId };
+        }
         return this.onboardingMultiSubmitProxy
             .onboardingMultiSubmit_SaveRecord(dto as any)
             .pipe(map((response) => response.result));

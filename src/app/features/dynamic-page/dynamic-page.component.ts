@@ -18,7 +18,6 @@ import { NavConfigDto } from '@app/core/models/nav-config.model';
     selector: 'app-dynamic-page',
     standalone: true,
     imports: [CommonModule, ProgressSpinnerModule, RouterModule, PublicHeaderComponent],
-    providers: [TenantSettingsService],
     templateUrl: './dynamic-page.component.html',
     styleUrls: ['./dynamic-page.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -37,14 +36,20 @@ export class DynamicPageComponent implements OnInit {
     currentYear = new Date().getFullYear();
     isLoggedIn = false;
     mobileMenuOpen = false;
-    tenantSettings: any = {};
-    _settings: any = {};
+    // Signals for async data — required for OnPush change detection to pick up updates
+    tenantSettings = signal<any>({});
+    _settings = signal<any>({});
+    navbarPages = signal<PageListItemDto[]>([]);
+    navConfig = signal<NavConfigDto | null>(null);
+    /** True once navbar + navConfig API calls have settled (success or error). */
+    navReady = signal(false);
+    /** Promise that resolves when navbar + navConfig calls settle — used to gate initial page reveal. */
+    private navDataPromise: Promise<void> | null = null;
     isStaticSite = false;
     isHostTenant = false;
-    navbarPages: PageListItemDto[] = [];
     footerPages: PageListItemDto[] = [];
-    navConfig: NavConfigDto | null = null;
     tenantIdHeader!: HttpHeaders;
+    adminMemberId = '';
 
     constructor(
         private route: ActivatedRoute,
@@ -64,6 +69,7 @@ export class DynamicPageComponent implements OnInit {
         // Check auth state
         this.isLoggedIn = this.authService.isAuthenticated();
         this.isHostTenant = this.tenantService.getTenantType() === 'host';
+        this.adminMemberId = this.route.snapshot.queryParamMap.get('adminMemberId') || '';
 
         // Set up tenant ID header
         const host = window.location.hostname;
@@ -76,22 +82,33 @@ export class DynamicPageComponent implements OnInit {
         }
         this.tenantIdHeader = new HttpHeaders().set('X-Tenant-ID', tenantId);
 
-        // Load tenant settings
-        this.tenantSettingsService.loadSettings().then((data: any) => {
-            this.tenantSettings = data;
-            this._settings = JSON.parse(this.tenantSettings.settings ?? '{}');
-            this.isStaticSite = this._settings.isStaticSite || false;
+        // Use the root-singleton TenantSettingsService (already loaded by APP_INITIALIZER).
+        // If for any reason settings aren't cached yet, loadSettings() returns the cached promise.
+        const settingsPromise = this.tenantSettingsService.loadSettings().then((data: any) => {
+            this.tenantSettings.set(data);
+            const parsed = JSON.parse(data.settings ?? '{}');
+            this._settings.set(parsed);
+            this.isStaticSite = parsed.isStaticSite || false;
             // Preload any global footer widget types
-            const globalFooterConfig = this._settings.footerConfig || [];
+            const globalFooterConfig = parsed.footerConfig || [];
             if (globalFooterConfig.length > 0) {
                 this.preloadWidgets(globalFooterConfig);
             }
         });
 
         // Load custom pages for navigation using public navbar/footer endpoints
-        this.customPagesService.navbar().subscribe((response) => {
-            const pages = response?.result || [];
-            this.navbarPages = pages.filter((p) => p.isActive && p.showInNavbar).sort((a, b) => ((a as any).navbarOrder || 999) - ((b as any).navbarOrder || 999));
+        const navbarPromise = new Promise<void>((resolve) => {
+            this.customPagesService.navbar().subscribe({
+                next: (response) => {
+                    const pages = response?.result || [];
+                    this.navbarPages.set(
+                        pages.filter((p) => p.isActive && p.showInNavbar)
+                            .sort((a, b) => ((a as any).navbarOrder || 999) - ((b as any).navbarOrder || 999))
+                    );
+                    resolve();
+                },
+                error: () => resolve()
+            });
         });
 
         this.customPagesService.footer().subscribe((response) => {
@@ -100,13 +117,22 @@ export class DynamicPageComponent implements OnInit {
         });
 
         // Load structured nav config (mega menu / submenu support)
-        this.navConfigService.get().subscribe({
-            next: (config) => {
-                if (config?.items?.length) {
-                    this.navConfig = config;
-                }
-            },
-            error: () => { /* no config saved yet — fall back to navbarPages */ }
+        const navConfigPromise = new Promise<void>((resolve) => {
+            this.navConfigService.get().subscribe({
+                next: (config) => {
+                    if (config?.items?.length) {
+                        this.navConfig.set(config);
+                    }
+                    resolve();
+                },
+                error: () => resolve() // no config saved yet — fall back to navbarPages
+            });
+        });
+
+        // Mark nav as ready once both navbar and navConfig calls have settled.
+        // Store the promise so loadPage() can await it before revealing the page.
+        this.navDataPromise = Promise.all([navbarPromise, navConfigPromise]).then(() => {
+            this.navReady.set(true);
         });
 
         this.route.params.subscribe((params) => {
@@ -130,10 +156,12 @@ export class DynamicPageComponent implements OnInit {
                 const page = response?.result || null;
                 this.page.set(page);
                 this.updateMetaTags(page);
-                // Preload the JS chunks for every widget type on this page in
-                // parallel, then reveal the page.  Keeps loading=true during
-                // the brief network round-trip so there's no empty flash.
-                this.preloadWidgets([...(page?.content || []), ...((page as any)?.footerContent || [])]).then(() => {
+                // Preload widget chunks AND await nav data (first load only).
+                // This ensures the header never renders with empty menu or missing logo.
+                Promise.all([
+                    this.preloadWidgets([...(page?.content || []), ...((page as any)?.footerContent || [])]),
+                    this.navDataPromise ?? Promise.resolve()
+                ]).then(() => {
                     this.loading.set(false);
                 });
             },
@@ -171,7 +199,9 @@ export class DynamicPageComponent implements OnInit {
         // Update Open Graph tags if meta tags are provided
         if (page.metaTags) {
             const ogTitle = page.metaTags.ogTitle || page.title || page.name || '';
-            const tenantName = this._settings?.siteTitle || this._settings?.title || this.tenantSettings?.tenantName || 'Mizo';
+            const s = this._settings();
+            const ts = this.tenantSettings();
+            const tenantName = s.siteTitle || s.title || ts.tenantName || 'Mizo';
             this.metaService.updateTag({ property: 'og:type',      content: 'website' });
             this.metaService.updateTag({ property: 'og:site_name', content: tenantName });
             this.metaService.updateTag({ property: 'og:title',     content: ogTitle });
@@ -237,7 +267,7 @@ export class DynamicPageComponent implements OnInit {
 
         // Per-page override takes priority; fall back to global footer config from tenant settings
         const pageFooter: any[] = (currentPage as any)?.footerContent || [];
-        const rawWidgets: any[] = pageFooter.length > 0 ? pageFooter : (this._settings.footerConfig || []);
+        const rawWidgets: any[] = pageFooter.length > 0 ? pageFooter : (this._settings().footerConfig || []);
 
         if (rawWidgets.length === 0) return [];
 

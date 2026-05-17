@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { CardModule } from 'primeng/card';
 import { EmailServiceProxy, SendTestEmailRequest, SaveEmailCredentialsRequest } from '../../core/services/service-proxies';
+import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 
 interface SmtpSettings {
     smtpServer?: string;
@@ -42,7 +43,8 @@ export class EmailSettingsComponent implements OnInit {
 
     constructor(
         private messageService: MessageService,
-        private emailService: EmailServiceProxy
+        private emailService: EmailServiceProxy,
+        private tenantSettingsService: TenantSettingsService
     ) {}
 
     ngOnInit(): void {
@@ -51,15 +53,14 @@ export class EmailSettingsComponent implements OnInit {
 
     checkCredentials(): void {
         this.loading = true;
-        this.emailService.email_HasCredentials().subscribe({
-            next: (response: any) => {
-                this.hasCredentials = response.result?.hasCredentials || false;
-                this.loading = false;
-            },
-            error: (error: any) => {
-                console.error('Error checking credentials:', error);
-                this.loading = false;
-            }
+        // The email_HasCredentials proxy discards the response body due to Swagger void type.
+        // Use TenantSettingsService which has hasEmailCredentials from GetCurrentTenantSettings.
+        this.tenantSettingsService.loadSettings().then((settings) => {
+            this.hasCredentials = settings?.hasEmailCredentials === true;
+            this.loading = false;
+        }).catch((error: any) => {
+            console.error('Error checking credentials:', error);
+            this.loading = false;
         });
     }
 

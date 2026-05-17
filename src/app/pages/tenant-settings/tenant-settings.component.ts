@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextarea } from 'primeng/inputtextarea';
@@ -40,7 +41,6 @@ interface ExtendedFamilyColumn {
     coverAmount: number;
 }
 import { WidgetService } from '../../building-blocks/widget.service';
-import { HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 interface NotificationSettings {
@@ -53,6 +53,7 @@ interface MemberNumberConfig {
     prefix?: string;
     separator?: string;
     startingNumber?: number;
+    currentNumber?: number;
     minDigits?: number;
     triggerMode?: string;
 }
@@ -203,6 +204,7 @@ export class TenantSettingsComponent implements OnInit {
         private widgetService: WidgetService,
         private premiumCalculationService: PremiumCalculationServiceProxy,
         private onboardingFieldConfigurationService: OnboardingFieldConfigurationServiceProxy,
+        private http: HttpClient,
         @Inject(API_BASE_URL) private baseUrl: string,
         @Inject(DOCUMENT) private document: Document
     ) {}
@@ -424,6 +426,33 @@ export class TenantSettingsComponent implements OnInit {
                 }
             });
         }
+    }
+
+    resetMemberNumberCounter(): void {
+        const url = `${this.baseUrl}/api/TenantSetting/TenantSetting_ResetMemberNumberCounter`;
+        const headers = this.tenantIdHeader;
+
+        this.http.post(url, {}, { headers }).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Counter Reset',
+                    detail: 'Member number counter has been reset. Next number will start from the configured starting number.',
+                    life: 3000
+                });
+                // Refresh settings to show updated currentNumber
+                this.loadTenantSettings();
+            },
+            error: (error: any) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to reset member number counter',
+                    life: 3000
+                });
+                console.error(error);
+            }
+        });
     }
 
     onLogoUpload(event: any) {

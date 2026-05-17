@@ -19,8 +19,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TabViewModule } from 'primeng/tabview';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { MemberDto, MemberServiceProxy, MemberStatus, CreateMemberDto, FileMetadataDto, FileUploadServiceProxy } from '../../core/services/service-proxies';
+import { MemberDto, MemberServiceProxy, MemberStatus, CreateMemberDto, FileMetadataDto, FileUploadServiceProxy, CustomPagesServiceProxy, AuthServiceProxy, ForgotPasswordRequest, PageListItemDto } from '../../core/services/service-proxies';
 import { unwrap } from '../../core/services/response-unwrapper';
+import { first } from 'rxjs/operators';
 import { DependentsComponent } from '../dependents/dependents.component';
 
 interface ExtendedMemberDto extends MemberDto {
@@ -64,6 +65,13 @@ export class MemberManagementComponent implements OnInit {
     submitted: boolean = false;
     cols: any[] = [];
 
+    // Mini new-member dialog
+    newMemberDialog = false;
+    newMemberEmail = '';
+    newMemberFirstName = '';
+    newMemberSurname = '';
+    creatingNewMember = false;
+
     // Documents tab state
     adminDocuments: FileMetadataDto[] = [];
     loadingDocuments = false;
@@ -105,7 +113,9 @@ export class MemberManagementComponent implements OnInit {
         private fileUploadService: FileUploadServiceProxy,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private router: Router
+        private router: Router,
+        private customPagesService: CustomPagesServiceProxy,
+        private authService: AuthServiceProxy
     ) {}
 
     ngOnInit() {
@@ -136,14 +146,10 @@ export class MemberManagementComponent implements OnInit {
     }
 
     openNew() {
-        this.member = new MemberDto(); // Reset to an empty MemberDto for new entry
-        this.member.policyId = 'defaultPolicyId'; // TODO: Replace with actual policy ID
-        // Initialize Phase 1 fields
-        this.member.isReplacingExistingPolicy = false;
-        // Initialize Phase 2 fields
-        this.member.isForeigner = false;
-        this.submitted = false;
-        this.memberDialog = true;
+        this.newMemberEmail = '';
+        this.newMemberFirstName = '';
+        this.newMemberSurname = '';
+        this.newMemberDialog = true;
     }
 
     deleteSelectedMembers() {
@@ -161,6 +167,82 @@ export class MemberManagementComponent implements OnInit {
                 this.selectedMembers = [];
                 this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Members Deleted', life: 3000 });
             }
+        });
+    }
+
+    createNewMemberAndFillOnboarding(): void {
+        if (!this.newMemberEmail && !this.newMemberFirstName && !this.newMemberSurname) {
+            this.messageService.add({ severity: 'warn', summary: 'Required', detail: 'Please enter at least an email or name.' });
+            return;
+        }
+        this.creatingNewMember = true;
+        const newId = crypto.randomUUID();
+        const dto = new CreateMemberDto();
+        dto.id = newId;
+        dto.email = this.newMemberEmail || undefined;
+        dto.firstNames = this.newMemberFirstName || undefined;
+        dto.surname = this.newMemberSurname || undefined;
+        dto.name = [this.newMemberFirstName, this.newMemberSurname].filter(Boolean).join(' ') || undefined;
+        this.memberService.member_Create(dto).pipe(first()).subscribe({
+            next: () => {
+                this.creatingNewMember = false;
+                this.newMemberDialog = false;
+                this.loadMembers();
+                this.navigateToOnboardingForMember(newId);
+            },
+            error: (err) => {
+                this.creatingNewMember = false;
+                console.error('Failed to create member:', err);
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create member. Please try again.' });
+            }
+        });
+    }
+
+    private navigateToOnboardingForMember(memberId: string): void {
+        this.customPagesService.all().pipe(first()).subscribe({
+            next: (resp) => {
+                const pages: PageListItemDto[] = (resp as any)?.result || [];
+                const onboardingPage = pages.find((p) => p.isActive && p.isOnboardingPage);
+                if (!onboardingPage?.slug) {
+                    this.messageService.add({
+                        severity: 'warn',
+                        summary: 'No Onboarding Page',
+                        detail: 'No page has been marked as the onboarding page. Please set one in Page Management.'
+                    });
+                    return;
+                }
+                this.router.navigate(['/', onboardingPage.slug], {
+                    queryParams: { adminMemberId: memberId }
+                });
+            },
+            error: () => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load pages. Please try again.' });
+            }
+        });
+    }
+
+    fillOnboarding(member: MemberDto): void {
+        this.navigateToOnboardingForMember(member.id as string);
+    }
+
+    // kept for any future use — page picker is removed
+
+    resendInvite(member: MemberDto): void {
+        if (!member.email) {
+            return;
+        }
+        const req = new ForgotPasswordRequest({ email: member.email });
+        this.authService.auth_ForgotPassword(req).pipe(first()).subscribe({
+            next: () => this.messageService.add({
+                severity: 'success',
+                summary: 'Invite Sent',
+                detail: `Welcome email resent to ${member.email}`
+            }),
+            error: () => this.messageService.add({
+                severity: 'error',
+                summary: 'Failed',
+                detail: 'Could not resend invite.'
+            })
         });
     }
 

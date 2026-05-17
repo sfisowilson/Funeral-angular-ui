@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit, OnChanges, Output, EventEmitter, SimpleChanges, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
-import { debounceTime, distinctUntilChanged, finalize, timeout } from 'rxjs/operators';
-import { forkJoin, Subscription } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, first, timeout } from 'rxjs/operators';
+import { forkJoin, of, Subscription } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { environment } from '../../../environments/environment';
@@ -142,7 +143,7 @@ interface CompletionPdfPreview {
 @Component({
     selector: 'app-onboarding-multi-submit-step',
     standalone: true,
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarModule, EmbeddedCalculatorComponent, DynamicFileUploadComponent, ToastModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarModule, EmbeddedCalculatorComponent, DynamicFileUploadComponent, ToastModule, ProgressSpinnerModule],
     templateUrl: './onboarding-multi-submit-step.component.html',
     styleUrls: ['./onboarding-multi-submit-step.component.scss'],
     providers: [TenantSettingsService,
@@ -150,11 +151,13 @@ interface CompletionPdfPreview {
 })
 export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     @Input() config!: WidgetConfig | any;
+    @Input() adminMemberId: string = '';
     @Output() next = new EventEmitter<void>();
     @ViewChild('signatureCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
     loading = false;
     error = '';
+    isCheckingSubmissionStatus = true;
 
     stepKey = '';
     context: MultiSubmitStepContextDto | null = null;
@@ -251,6 +254,8 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
     // Approval Workflow
     submitButtonLabel = 'Finish & Submit';
+    /** Tracks the isActive flag of the target member when running in admin mode. Null until loaded. */
+    adminMemberIsActive: boolean | null = null;
     savedSignatureUrl: string | null = null;
     signatureSignedAtText: string | null = null;
     isSavingSignature = false;
@@ -277,10 +282,32 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     ) {}
 
     private initializeButtonLabel(): void {
+        if (this.adminMemberId) {
+            // Admin filling onboarding on behalf of a member.
+            // Fetch member status so we can show the right label once loaded.
+            this.submitButtonLabel = 'Save & Submit'; // interim label until fetch completes
+            this.loadAdminMemberStatus();
+            return;
+        }
         const settings = this.tenantSettingsService.currentSettings;
         if (settings && settings.requiresOnboardingApproval) {
             this.submitButtonLabel = settings.onboardingSubmitButtonLabel || 'Submit Application';
         }
+    }
+
+    private loadAdminMemberStatus(): void {
+        this.memberService.member_GetById(this.adminMemberId).pipe(first()).subscribe({
+            next: (resp: any) => {
+                const member = resp?.result ?? resp;
+                this.adminMemberIsActive = typeof member?.isActive === 'boolean' ? member.isActive : null;
+                this.submitButtonLabel = this.adminMemberIsActive === false
+                    ? 'Save & Invite Member'
+                    : 'Send for Signature';
+            },
+            error: () => {
+                this.submitButtonLabel = 'Save & Submit';
+            }
+        });
     }
 
     ngAfterViewInit(): void {
@@ -293,6 +320,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+        // Re-compute the finish button label whenever adminMemberId is set or changes.
+        // ngComponentOutlet delivers @Input values via setInput() which can fire ngOnChanges
+        // after ngOnInit in some change-detection cycles.
+        if (changes['adminMemberId'] && this.adminMemberId) {
+            this.loadAdminMemberStatus();
+        }
+
         if (changes['config'] && this.config) {
             const settings = (this.config && this.config.settings) || {};
 
@@ -687,6 +721,33 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 { globalKey: 'familyTier', entityField: 'familyTier' }
               ];
 
+        // In member mode (no admin override): check if the member has already submitted.
+        // If so, redirect them to the read-only view instead of showing the editable form.
+        // Rejected members are exempt — they need to resubmit.
+        if (!this.adminMemberId) {
+            this.memberProfileCompletionService.profileCompletion_GetMyStatus().subscribe({
+                next: (resp) => {
+                    const s = (resp as any)?.result;
+                    if (s?.isComplete && s?.memberStatus !== 'Rejected') {
+                        this.router.navigate(['member-onboarding']);
+                        return;
+                    }
+                    this.isCheckingSubmissionStatus = false;
+                    this.initSteps(settings);
+                },
+                error: () => {
+                    // On error, fall through and show the form normally
+                    this.isCheckingSubmissionStatus = false;
+                    this.initSteps(settings);
+                }
+            });
+        } else {
+            this.isCheckingSubmissionStatus = false;
+            this.initSteps(settings);
+        }
+    }
+
+    private initSteps(settings: any): void {
         this.resolveEffectiveLimits();
         this.ensureMemberContextIfNeeded();
 
@@ -982,7 +1043,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.loading = true;
         this.error = '';
 
-        this.multiSubmitService.getStepContext(stepKey).subscribe({
+        this.multiSubmitService.getStepContext(stepKey, this.adminMemberId || undefined).subscribe({
             next: (ctx) => {
                 this.context = ctx;
                 // Ensure we have a concrete stepKey for subsequent save/delete calls.
@@ -1154,7 +1215,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         this.loading = true;
         this.error = '';
 
-        this.multiSubmitService.saveRecord(payload).subscribe({
+        this.multiSubmitService.saveRecord(payload, this.adminMemberId || undefined).subscribe({
             next: () => {
                 if (afterSave) {
                     this.loading = false;
@@ -1943,7 +2004,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             // request and potential race condition on the already-active step.
             if (stepKey === currentStepKey) continue;
 
-            this.multiSubmitService.getStepContext(stepKey).subscribe({
+            this.multiSubmitService.getStepContext(stepKey, this.adminMemberId || undefined).subscribe({
                 next: (ctx: any) => {
                     const records: any[] = ctx?.records || [];
                     const entityKey: string = ctx?.step?.dynamicEntityTypeKey || stepConfig.dynamicEntityTypeKey || '';
@@ -2069,6 +2130,10 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             }
             return { record: r, parsed };
         });
+    }
+
+    get isSignatureRequired(): boolean {
+        return this.requireSignature && !this.adminMemberId;
     }
 
     get canProceed(): boolean {
@@ -2721,7 +2786,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             return;
         }
 
-        if (this.requireSignature && !this.savedSignatureUrl) {
+        if (this.isSignatureRequired && !this.savedSignatureUrl) {
             this.error = 'Please save your signature before continuing.';
             return;
         }
@@ -2735,6 +2800,15 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         const mode = settings.completionPdfMode || 'system';
 
         const doFinalize = () => {
+            // In admin mode, fire a notification email to the target member regardless of
+            // whether contracts were generated (works even in 'custom' PDF mode).
+            if (this.adminMemberId) {
+                this.contractService.adminNotifyMember(this.adminMemberId).pipe(first()).subscribe({
+                    next: () => console.log('[Admin] Onboarding notification sent to member.'),
+                    error: (err) => console.warn('[Admin] Failed to send onboarding notification:', err)
+                });
+            }
+
             if (this.premiumWriteBackStepKey) {
                 this.writePremiumToEntity(this.premiumWriteBackStepKey, this.globalsToWriteBack, () => {
                     this.finalizeCompletion();
@@ -2755,6 +2829,25 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         const request = new CompleteOnboardingRequest();
         request.signatureBase64 = this.savedSignatureUrl ?? undefined;
         request.mappingProfileIds = profileIds.length > 0 ? profileIds : undefined;
+
+        // When admin is completing onboarding on behalf of a member, pass the target member ID
+        // so the backend generates the contract for that member and sends them a notification email.
+        if (this.adminMemberId) {
+            request.targetMemberId = this.adminMemberId;
+        }
+
+        // Capture calculator-derived globals (e.g. totalMonthlyPremium) and forward them
+        // to the backend so they are merged into the PDF template data at generation time.
+        const snapshot = this.calculatorAggregator.getFormDataSnapshot();
+        const additionalFields: { [key: string]: string } = {};
+        for (const [k, v] of Object.entries(snapshot)) {
+            if (v !== null && v !== undefined && typeof v !== 'object') {
+                additionalFields[k] = String(v);
+            }
+        }
+        if (Object.keys(additionalFields).length > 0) {
+            request.additionalFields = additionalFields;
+        }
 
         this.contractService.completeOnboarding(request).pipe(
             timeout(30000),
@@ -2790,7 +2883,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         onDone: () => void
     ): void {
         const snapshot = this.calculatorAggregator.getFormDataSnapshot();
-        this.multiSubmitService.getStepContext(stepKey).pipe(timeout(15000)).subscribe({
+        this.multiSubmitService.getStepContext(stepKey, this.adminMemberId || undefined).pipe(timeout(15000)).subscribe({
             next: (ctx: any) => {
                 const records: any[] = ctx?.records || [];
                 if (records.length === 0) {
@@ -2820,7 +2913,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                     displayName: record.displayName ?? undefined,
                     dataJson: JSON.stringify(parsed)
                 };
-                this.multiSubmitService.saveRecord(payload).pipe(timeout(15000)).subscribe({
+                this.multiSubmitService.saveRecord(payload, this.adminMemberId || undefined).pipe(timeout(15000)).subscribe({
                     next: () => onDone(),
                     error: () => onDone() // non-fatal — proceed even if writeback fails
                 });
@@ -2830,6 +2923,36 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     }
 
     private finalizeCompletion(): void {
+        // ── Admin mode ────────────────────────────────────────────────────────────
+        // The contract was already saved by completeOnboarding().  Fire the
+        // profile-recalculate call (which triggers the approval flow on the backend)
+        // as best-effort — we show success regardless of its outcome so the admin
+        // is never left with an infinite spinner due to a backend issue.
+        if (this.adminMemberId) {
+            this.memberProfileCompletionService
+                .profileCompletion_Recalculate(this.adminMemberId)
+                .pipe(first(), catchError(() => of(null)))
+                .subscribe();
+
+            this.isCompletingFlow = false;
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Submitted Successfully',
+                detail: 'The member\'s application has been saved and they have been notified.',
+                life: 3000
+            });
+            setTimeout(() => {
+                this.next.emit();
+                if (this.nextUrl) {
+                    this.router.navigateByUrl(this.nextUrl);
+                } else {
+                    this.router.navigate([this.authService.getFirstAccessibleAdminRoute()]);
+                }
+            }, 1500);
+            return;
+        }
+
+        // ── Member (self-service) mode ─────────────────────────────────────────
         this.memberProfileCompletionService.profileCompletion_RecalculateMy().pipe(
             timeout(30000),
             finalize(() => {
@@ -2842,45 +2965,43 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             })
         ).subscribe({
             next: () => {
-                // Now check status to ensure we are actually complete
-                this.memberProfileCompletionService.profileCompletion_GetMyStatus().pipe(
-                    timeout(15000)
-                ).subscribe({
-                    next: (statusResponse) => {
-                        const status = statusResponse.result;
-                        this.isCompletingFlow = false;
+                this.memberProfileCompletionService.profileCompletion_GetMyStatus()
+                    .pipe(timeout(15000))
+                    .subscribe({
+                        next: (statusResponse) => {
+                            const status = statusResponse.result;
+                            this.isCompletingFlow = false;
 
-                        if (status.isComplete) {
-                            this.messageService.add({
-                                severity: 'success',
-                                summary: 'Submitted Successfully',
-                                detail: 'Your application has been submitted and is now being processed.',
-                                life: 3000
-                            });
-                            // Brief delay so the user sees the success toast before navigation
-                            setTimeout(() => {
-                                this.next.emit();
-                                if (this.nextUrl) {
-                                    this.router.navigateByUrl(this.nextUrl);
-                                } else {
-                                    this.router.navigate([this.authService.getFirstAccessibleAdminRoute()]);
-                                }
-                            }, 1500);
-                        } else {
-                            // Not complete - show what's missing
-                            const missing = (status.remainingSteps || []).join(', ');
-                            this.error = `Profile incomplete. Missing: ${missing || 'Unknown requirements'}. Please complete all visible steps.`;
+                            if (status.isComplete) {
+                                this.messageService.add({
+                                    severity: 'success',
+                                    summary: 'Submitted Successfully',
+                                    detail: 'Your application has been submitted and is now being processed.',
+                                    life: 3000
+                                });
+                                setTimeout(() => {
+                                    this.next.emit();
+                                    if (this.nextUrl) {
+                                        this.router.navigateByUrl(this.nextUrl);
+                                    }
+                                }, 1500);
+                            } else {
+                                // Not complete - show what's missing
+                                const missing = (status.remainingSteps || []).join(', ');
+                                this.error = `Profile incomplete. Missing: ${missing || 'Unknown requirements'}. Please complete all visible steps.`;
+                            }
+                        },
+                        error: () => {
+                            this.isCompletingFlow = false;
+                            this.error = 'Failed to verify completion status. Please try again.';
+                            this.cdr.markForCheck();
                         }
-                    },
-                    error: () => {
-                        this.isCompletingFlow = false;
-                        this.error = 'Failed to verify completion status. Please try again.';
-                    }
-                });
+                    });
             },
             error: () => {
                 this.isCompletingFlow = false;
                 this.error = 'Submission timed out or failed. Please try again.';
+                this.cdr.markForCheck();
             }
         });
     }
