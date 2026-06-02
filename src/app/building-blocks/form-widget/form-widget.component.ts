@@ -33,6 +33,10 @@ interface DynamicFormField {
     };
     minDate?: string;
     maxDate?: string;
+    /** Pre-resolved Date for [minDate] binding — stable reference, avoids CD resets. */
+    calendarMinDate?: Date;
+    /** Pre-resolved Date for [maxDate] binding — stable reference, avoids CD resets. */
+    calendarMaxDate?: Date;
 }
 
 interface ConditionalFieldConditionConfig {
@@ -57,6 +61,7 @@ interface ConditionalFieldRuleConfig {
 })
 export class FormWidgetComponent implements OnInit {
     @Input() config!: WidgetConfig;
+    @Input() adminMemberId: string = '';
 
     formDefinition: FormDto | null = null;
     fields: DynamicFormField[] = [];
@@ -231,7 +236,13 @@ export class FormWidgetComponent implements OnInit {
                                                 splitDateParts: !!f.splitDateParts,
                                                 datePartKeys: f.datePartKeys,
                                                 minDate: f.minDate ? String(f.minDate) : undefined,
-                                                maxDate: f.maxDate ? String(f.maxDate) : undefined
+                                                maxDate: f.maxDate ? String(f.maxDate) : undefined,
+                                                calendarMinDate: f.minDate && !String(f.minDate).startsWith('@')
+                                                    ? (resolveStaticDate(String(f.minDate)) ?? undefined)
+                                                    : undefined,
+                                                calendarMaxDate: f.maxDate && !String(f.maxDate).startsWith('@')
+                                                    ? (resolveStaticDate(String(f.maxDate)) ?? undefined)
+                                                    : undefined
                                         };
                                 })
                 .sort((a, b) => a.order - b.order);
@@ -251,7 +262,7 @@ export class FormWidgetComponent implements OnInit {
             if (field.type === 'email') {
                 validators.push(Validators.email);
             }
-            if (field.type === 'idNumber') {
+            if (field.type === 'idNumber' && !this.adminMemberId) {
                 validators.push(saIdNumberValidator());
             }
 
@@ -721,6 +732,32 @@ export class FormWidgetComponent implements OnInit {
         return this.formGroup.get(field.name) as FormArray;
     }
 
+    onCalendarFocus(cal: any): void {
+        setTimeout(() => {
+            const overlay = cal?.overlay;
+            const container = cal?.containerViewChild?.nativeElement;
+            if (!overlay || !container) return;
+            const rect = container.getBoundingClientRect();
+            const scrollTop = window.scrollY || 0;
+            const scrollLeft = window.scrollX || 0;
+            const overlayH = overlay.offsetHeight || 0;
+            const overlayW = overlay.offsetWidth || 0;
+            const winH = window.innerHeight;
+            const winW = window.innerWidth;
+            let top = rect.bottom + scrollTop;
+            if (rect.bottom + overlayH > winH) {
+                const topAbove = rect.top + scrollTop - overlayH;
+                if (topAbove >= scrollTop) top = topAbove;
+            }
+            let left = rect.left + scrollLeft;
+            if (rect.left + overlayW > winW) {
+                left = Math.max(0, rect.right + scrollLeft - overlayW);
+            }
+            overlay.style.top = top + 'px';
+            overlay.style.left = left + 'px';
+        }, 50);
+    }
+
     getCalendarMinDate(field: DynamicFormField): Date | null {
         if (!field.minDate) return null;
         return resolveCalendarDate(field.minDate, this.formGroup?.value ?? null);
@@ -910,7 +947,7 @@ export class FormWidgetComponent implements OnInit {
                 if (field.type === 'email') {
                     validators.push(Validators.email);
                 }
-                if (field.type === 'idNumber') {
+                if (field.type === 'idNumber' && !this.adminMemberId) {
                     validators.push(saIdNumberValidator());
                 }
 

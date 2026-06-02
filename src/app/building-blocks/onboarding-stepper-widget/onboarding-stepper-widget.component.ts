@@ -14,6 +14,7 @@ import { MemberServiceProxy, MemberProfileCompletionServiceProxy, SaveSignatureD
 })
 export class OnboardingStepperWidgetComponent {
     @Input() config!: WidgetConfig;
+    @Input() adminMemberId: string = '';
 
     saving = false;
     errorMessage = '';

@@ -149,6 +149,7 @@
                             <th class="source-field-header">Source Field</th>
                             <th>PDF Field</th>
                             <th>Type</th>
+                            <th>Stage</th>
                             <th>Category</th>
                             <th>Description</th>
                             <th style="width: 120px">Actions</th>
@@ -176,6 +177,16 @@
                                 >
                                     {{ getMappingTypeLabel(mapping.mappingType || 'Simple') }}
                                 </span>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge"
+                                    [ngClass]="{
+                                        'bg-warning text-dark': mapping.fillStage === 'Approval',
+                                        'bg-success': mapping.fillStage === 'Both',
+                                        'bg-secondary': !mapping.fillStage || mapping.fillStage === 'Generation'
+                                    }"
+                                >{{ mapping.fillStage || 'Generation' }}</span>
                             </td>
                             <td>
                                 <span class="text-muted">{{ mapping.category || '-' }}</span>
@@ -343,6 +354,18 @@
                                 <select class="form-select" [(ngModel)]="mappingForm.mappingType" required>
                                     <option *ngFor="let type of mappingTypeOptions" [value]="type.value">{{ type.label }}</option>
                                 </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Fill Stage</label>
+                                <select class="form-select" [(ngModel)]="mappingForm.fillStage">
+                                    <option *ngFor="let stage of fillStageOptions" [value]="stage.value">{{ stage.label }}</option>
+                                </select>
+                                <div class="form-text">
+                                    <strong>Generation</strong>: field is filled &amp; baked in when the member submits.<br>
+                                    <strong>Approval</strong>: PDF field stays live; filled when an admin approves (e.g. policy number, approval date).<br>
+                                    <strong>Both</strong>: filled at both stages.
+                                </div>
                             </div>
 
                             <div class="col-md-6" *ngIf="mappingForm.mappingType !== 'Conditional'">

@@ -30650,6 +30650,7 @@ export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingReque
     sourceArrayPath!: string | undefined;
     fieldNamePrefix!: string | undefined;
     usePrefixInPdfFieldName!: boolean;
+    fillStage!: string | undefined;
 
     constructor(data?: ICreatePdfFieldMappingRequest) {
         if (data) {
@@ -30682,6 +30683,7 @@ export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingReque
             this.sourceArrayPath = _data["sourceArrayPath"];
             this.fieldNamePrefix = _data["fieldNamePrefix"];
             this.usePrefixInPdfFieldName = _data["usePrefixInPdfFieldName"];
+            this.fillStage = _data["fillStage"];
         }
     }
 
@@ -30714,6 +30716,7 @@ export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingReque
         data["sourceArrayPath"] = this.sourceArrayPath;
         data["fieldNamePrefix"] = this.fieldNamePrefix;
         data["usePrefixInPdfFieldName"] = this.usePrefixInPdfFieldName;
+        data["fillStage"] = this.fillStage;
         return data;
     }
 }
@@ -30739,6 +30742,7 @@ export interface ICreatePdfFieldMappingRequest {
     sourceArrayPath: string | undefined;
     fieldNamePrefix: string | undefined;
     usePrefixInPdfFieldName: boolean;
+    fillStage: string | undefined;
 }
 
 export class CreatePdfMappingProfileRequest implements ICreatePdfMappingProfileRequest {
@@ -38075,6 +38079,7 @@ export class PdfFieldMappingDto implements IPdfFieldMappingDto {
     sourceArrayPath!: string | undefined;
     fieldNamePrefix!: string | undefined;
     usePrefixInPdfFieldName!: boolean;
+    fillStage!: string | undefined;
     createdAt!: DateTime;
     updatedAt!: DateTime;
 
@@ -38111,6 +38116,7 @@ export class PdfFieldMappingDto implements IPdfFieldMappingDto {
             this.sourceArrayPath = _data["sourceArrayPath"];
             this.fieldNamePrefix = _data["fieldNamePrefix"];
             this.usePrefixInPdfFieldName = _data["usePrefixInPdfFieldName"];
+            this.fillStage = _data["fillStage"];
             this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
         }
@@ -38147,6 +38153,7 @@ export class PdfFieldMappingDto implements IPdfFieldMappingDto {
         data["sourceArrayPath"] = this.sourceArrayPath;
         data["fieldNamePrefix"] = this.fieldNamePrefix;
         data["usePrefixInPdfFieldName"] = this.usePrefixInPdfFieldName;
+        data["fillStage"] = this.fillStage;
         data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
         return data;
@@ -38176,6 +38183,7 @@ export interface IPdfFieldMappingDto {
     sourceArrayPath: string | undefined;
     fieldNamePrefix: string | undefined;
     usePrefixInPdfFieldName: boolean;
+    fillStage: string | undefined;
     createdAt: DateTime;
     updatedAt: DateTime;
 }
@@ -44793,6 +44801,7 @@ export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingReque
     sourceArrayPath!: string | undefined;
     fieldNamePrefix!: string | undefined;
     usePrefixInPdfFieldName!: boolean | undefined;
+    fillStage!: string | undefined;
 
     constructor(data?: IUpdatePdfFieldMappingRequest) {
         if (data) {
@@ -44825,6 +44834,7 @@ export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingReque
             this.sourceArrayPath = _data["sourceArrayPath"];
             this.fieldNamePrefix = _data["fieldNamePrefix"];
             this.usePrefixInPdfFieldName = _data["usePrefixInPdfFieldName"];
+            this.fillStage = _data["fillStage"];
         }
     }
 
@@ -44857,6 +44867,7 @@ export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingReque
         data["sourceArrayPath"] = this.sourceArrayPath;
         data["fieldNamePrefix"] = this.fieldNamePrefix;
         data["usePrefixInPdfFieldName"] = this.usePrefixInPdfFieldName;
+        data["fillStage"] = this.fillStage;
         return data;
     }
 }
@@ -44882,6 +44893,7 @@ export interface IUpdatePdfFieldMappingRequest {
     sourceArrayPath: string | undefined;
     fieldNamePrefix: string | undefined;
     usePrefixInPdfFieldName: boolean | undefined;
+    fillStage: string | undefined;
 }
 
 export class UpdatePdfMappingProfileRequest implements IUpdatePdfMappingProfileRequest {

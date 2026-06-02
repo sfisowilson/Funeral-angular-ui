@@ -91,6 +91,7 @@ interface StepRuntime {
 })
 export class StepperFormWidgetComponent implements OnInit {
     @Input() config!: WidgetConfig;
+    @Input() adminMemberId: string = '';
 
     @Output() currentStepChanged = new EventEmitter<{ index: number; stepId: string }>();
     @Output() stepCompleted = new EventEmitter<{ index: number; stepId: string }>();
@@ -655,7 +656,7 @@ export class StepperFormWidgetComponent implements OnInit {
             if (field.type === 'email') {
                 validators.push(Validators.email);
             }
-            if (field.type === 'idNumber') {
+            if (field.type === 'idNumber' && !this.adminMemberId) {
                 validators.push(saIdNumberValidator());
             }
 
@@ -920,7 +921,7 @@ export class StepperFormWidgetComponent implements OnInit {
                 if (field.type === 'email') {
                     validators.push(Validators.email);
                 }
-                if (field.type === 'idNumber') {
+                if (field.type === 'idNumber' && !this.adminMemberId) {
                     validators.push(saIdNumberValidator());
                 }
 

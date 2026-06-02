@@ -78,13 +78,28 @@ export function extractDateConstraintRules(raw: any): DateConstraintRules {
  *
  * Returns `null` when the value cannot be resolved.
  */
+
+// Stable cache for "today" — same Date object reference until the calendar day rolls over.
+// This prevents PrimeNG Calendar from treating minDate/maxDate as "changed" on every
+// Angular change-detection cycle, which would otherwise reset the displayed month.
+let _cachedToday: { date: Date; dayKey: string } | null = null;
+
+function getTodayStable(): Date {
+    const now = new Date();
+    const dayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+    if (!_cachedToday || _cachedToday.dayKey !== dayKey) {
+        const d = new Date(now);
+        d.setHours(0, 0, 0, 0);
+        _cachedToday = { date: d, dayKey };
+    }
+    return _cachedToday.date;
+}
+
 export function resolveStaticDate(value: string): Date | null {
     if (!value) return null;
 
     if (value === 'today') {
-        const d = new Date();
-        d.setHours(0, 0, 0, 0);
-        return d;
+        return getTodayStable();
     }
 
     const parsed = new Date(value);

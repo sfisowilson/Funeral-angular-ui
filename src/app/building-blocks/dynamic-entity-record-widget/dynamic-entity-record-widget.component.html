@@ -19,6 +19,7 @@
                             <input *ngSwitchCase="'email'" type="email" class="form-control" [(ngModel)]="formData[field.name]" [name]="'f_' + i" />
                             <input *ngSwitchCase="'number'" type="number" class="form-control" [(ngModel)]="formData[field.name]" [name]="'f_' + i" />
                             <p-calendar
+                                #calRef
                                 *ngSwitchCase="'date'"
                                 [ngModel]="dateValues[field.name]"
                                 (ngModelChange)="onDateChange(field, $event)"
@@ -28,8 +29,10 @@
                                 [appendTo]="'body'"
                                 dataType="date"
                                 styleClass="w-full"
-                                [minDate]="getCalendarMinDate(field)"
-                                [maxDate]="getCalendarMaxDate(field)">
+                                [minDate]="field.calendarMinDate"
+                                [maxDate]="field.calendarMaxDate"
+                                [defaultDate]="field.calendarMinDate"
+                                (onFocus)="onCalendarFocus(calRef)">
                             </p-calendar>
                             <textarea *ngSwitchCase="'textarea'" class="form-control" [(ngModel)]="formData[field.name]" [name]="'f_' + i"></textarea>
                             <div *ngSwitchCase="'file'" class="mb-3">

@@ -68,6 +68,7 @@ export class PdfFieldMappingComponent implements OnInit {
         sourceField: '',
         pdfFieldName: '',
         mappingType: 'Simple',
+        fillStage: 'Generation',
         isEnabled: true,
         displayOrder: 0,
         description: '',
@@ -89,6 +90,12 @@ export class PdfFieldMappingComponent implements OnInit {
         { label: 'Radio Button', value: 'RadioButton' },
         { label: 'Signature Image', value: 'Signature' },
         { label: 'File Uploaded (Yes/No)', value: 'FileUploaded' }
+    ];
+
+    fillStageOptions = [
+        { label: 'Generation — filled when member submits', value: 'Generation' },
+        { label: 'Approval — filled only when admin approves', value: 'Approval' },
+        { label: 'Both — filled at generation and approval', value: 'Both' }
     ];
 
     transformOptions = [
@@ -720,6 +727,7 @@ export class PdfFieldMappingComponent implements OnInit {
             sourceField: mapping.sourceField || '',
             pdfFieldName: mapping.pdfFieldName || '',
             mappingType: mapping.mappingType || 'Simple',
+            fillStage: mapping.fillStage || 'Generation',
             isEnabled: mapping.isEnabled,
             displayOrder: mapping.displayOrder,
             description: mapping.description || '',
@@ -750,6 +758,7 @@ export class PdfFieldMappingComponent implements OnInit {
             sourceField: '',
             pdfFieldName: '',
             mappingType: 'Simple',
+            fillStage: 'Generation',
             isEnabled: true,
             displayOrder: this.mappings.length,
             description: '',
@@ -801,6 +810,7 @@ export class PdfFieldMappingComponent implements OnInit {
             checkedValue: this.mappingForm.checkedValue,
             uncheckedValue: this.mappingForm.uncheckedValue,
             category: this.mappingForm.category,
+            fillStage: this.mappingForm.fillStage,
             isArrayField: false,
             arrayName: undefined,
             arrayFieldPattern: undefined,
@@ -842,6 +852,7 @@ export class PdfFieldMappingComponent implements OnInit {
             checkedValue: this.mappingForm.checkedValue,
             uncheckedValue: this.mappingForm.uncheckedValue,
             category: this.mappingForm.category,
+            fillStage: this.mappingForm.fillStage,
             isArrayField: false,
             arrayName: undefined,
             arrayFieldPattern: undefined,
@@ -905,6 +916,7 @@ export class PdfFieldMappingComponent implements OnInit {
             checkedValue: mapping.checkedValue,
             uncheckedValue: mapping.uncheckedValue,
             category: mapping.category,
+            fillStage: mapping.fillStage,
             isArrayField: mapping.isArrayField || false,
             arrayName: mapping.arrayName,
             arrayFieldPattern: mapping.arrayFieldPattern,

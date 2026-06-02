@@ -150,6 +150,7 @@ export class DynamicPageComponent implements OnInit {
         this._cachedSortedWidgets = null;
         this._cachedPageRef = undefined;
         this._cachedSortedFooterWidgets = null;
+        this._widgetInputsCache.clear();
 
         this.customPagesService.slug(slug).subscribe({
             next: (response) => {
@@ -295,6 +296,24 @@ export class DynamicPageComponent implements OnInit {
     /** O(1) lookup — component types are resolved into the Map by preloadWidgets() */
     getWidgetComponent(widgetType: string): Type<any> | null {
         return this.componentCache.get(widgetType) ?? null;
+    }
+
+    // Stable reference cache — prevents ngComponentOutlet from triggering unnecessary
+    // setInput / ngOnChanges on child widgets when the underlying values haven't changed.
+    private _widgetInputsCache = new Map<string, Record<string, any>>();
+
+    getWidgetInputs(widget: any): Record<string, any> {
+        const widgetId = widget?.id || widget?.Id || '';
+        const cacheKey = widgetId + '|' + (this.adminMemberId || '');
+        let cached = this._widgetInputsCache.get(cacheKey);
+        if (!cached) {
+            cached = { config: widget };
+            if (this.adminMemberId) {
+                cached['adminMemberId'] = this.adminMemberId;
+            }
+            this._widgetInputsCache.set(cacheKey, cached);
+        }
+        return cached;
     }
 
     /**

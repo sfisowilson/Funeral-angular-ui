@@ -1,8 +1,9 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { MemberApprovalServiceProxy, PendingMemberDto, MemberApprovalDetailDto, ApproveMemberRequest, RejectMemberRequest, RequestMemberUpdatesRequest } from '../../core/services/service-proxies';
+import { MemberApprovalServiceProxy, PendingMemberDto, MemberApprovalDetailDto, ApproveMemberRequest, RejectMemberRequest, RequestMemberUpdatesRequest, UserProfileServiceProxy } from '../../core/services/service-proxies';
 import { TenantSettingsService } from '../../core/services/tenant-settings.service';
 import { environment } from '../../../environments/environment';
 
@@ -25,7 +26,7 @@ interface AdminMappedAttachmentGroup {
 @Component({
     selector: 'app-member-approval',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, RouterLink],
     providers: [],
     templateUrl: './member-approval.component.html',
     styleUrl: './member-approval.component.scss'
@@ -52,17 +53,20 @@ export class MemberApprovalComponent implements OnInit {
     mappedAttachmentsError = '';
 
     alert = signal<{ type: 'success' | 'danger' | 'warning'; message: string } | null>(null);
+    adminHasSignature = signal<boolean | null>(null);
 
     memberNumberLabel = 'Member Number';
 
     constructor(
         private memberApprovalService: MemberApprovalServiceProxy,
-        private tenantSettingsService: TenantSettingsService
+        private tenantSettingsService: TenantSettingsService,
+        private userProfileService: UserProfileServiceProxy
     ) {}
 
     ngOnInit() {
         this.loadPendingMembers();
         this.loadStats();
+        this.checkAdminSignature();
 
          // Load configurable label for member number
         try {
@@ -71,6 +75,19 @@ export class MemberApprovalComponent implements OnInit {
             console.error('Error getting member number label from tenant settings:', error);
             this.memberNumberLabel = 'Member Number';
         }
+    }
+
+    private checkAdminSignature(): void {
+        this.userProfileService.userProfile_GetCurrentUserProfile().subscribe({
+            next: (response) => {
+                const profile = (response as any)?.result;
+                this.adminHasSignature.set(!!(profile?.signatureDataUrl));
+            },
+            error: () => {
+                // If the call fails, default to true to avoid a false warning
+                this.adminHasSignature.set(true);
+            }
+        });
     }
 
     loadPendingMembers() {

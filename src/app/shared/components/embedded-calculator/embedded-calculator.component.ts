@@ -868,6 +868,10 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
             }
             const alias = rowModeCfg.itemAlias;
 
+            // Accumulate per-row variable values so they are available to
+            // post-row global formulas (e.g. monthlypremium = extFamPremium + immediateFamilyPremium).
+            const rowVarTotals: Record<string, number> = {};
+
             rows.forEach((row, index) => {
                 const rowFields = this.normalizeKeys(typeof row === 'object' && row ? row : { value: row });
                 const rowBuiltIns = { ...globalBuiltInsWithCounts, rowIndex: index };
@@ -881,6 +885,13 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
                 ]);
 
                 const rowVars = this.evaluateVariableDerivations(rowModeCfg.variables, rowBaseContext, steps, 'row', index);
+
+                // Accumulate each row variable into cross-row totals so
+                // post-row global formulas can reference them by name.
+                for (const [varKey, varValue] of Object.entries(rowVars)) {
+                    rowVarTotals[varKey] = (rowVarTotals[varKey] || 0) + varValue;
+                }
+
                 let rowContext = this.buildMergedContext([
                     rowBuiltIns,
                     this.formData,
@@ -928,6 +939,10 @@ export class EmbeddedCalculatorComponent implements OnInit, OnChanges {
                     }
                 }
             });
+
+            // Merge row variable totals into variableTotals so post-row formulas
+            // can reference them (e.g., extFamPremium, extFamPremiumTotal, etc.)
+            Object.assign(variableTotals, rowVarTotals);
 
             // Refresh global context after row-mode accumulated variableTotals
             Object.assign(globalVars, variableTotals);

@@ -113,6 +113,10 @@ interface DynamicFormField {
     maxValue?: number;
     minDate?: string;
     maxDate?: string;
+    /** Pre-resolved Date for [minDate] template binding — stable reference, avoids CD resets. */
+    calendarMinDate?: Date;
+    /** Pre-resolved Date for [maxDate] template binding — stable reference, avoids CD resets. */
+    calendarMaxDate?: Date;
 }
 
 interface CalculatorPrefillRuleConfig {
@@ -1058,6 +1062,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 // Apply any admin-configured list display settings (columns, actions, constraints)
                 this.applyListDisplayConfigFromStep((ctx as any)?.step);
 
+                console.log('[loadContext] received records count:', (ctx?.records || []).length, 'records:', (ctx?.records || []).map((r: any) => ({ id: r.id, displayName: r.displayName })));
                 this.loading = false;
                 // Notify Angular's OnPush parent (DynamicPageComponent) that
                 // this view is dirty so the loading-spinner is removed even
@@ -1068,6 +1073,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 this.ensureCalculatorInitialized();
                 this.updateCalculatorFormData();
                 this.buildViewRecords();
+                console.log('[loadContext] viewRecords count after build:', this.viewRecords.length);
 
                 // If this is NOT a multi-submit step, we enforce single record mode
                 if (!this.isMultiSubmit) {
@@ -1185,6 +1191,11 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
         this.applyCalculatorPrefillRules();
 
+        // Force-compute derived age/gender fields from ID numbers before building
+        // the form payload. This guards against the 300ms debounce on the ID field
+        // valueChanges subscription not having fired yet when the user saves quickly.
+        this.ensureDerivedIdFieldsPopulated();
+
         if (this.activeFormGroup && this.activeFormGroup.invalid) {
             this.activeFormGroup.markAllAsTouched();
             return;
@@ -1192,6 +1203,8 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
         const formValues = this.buildDataFromActiveForm();
         const merged = { ...(this.activeOriginalData || {}), ...formValues };
+
+        console.log('[saveActive] saving record — stepKey:', this.stepKey, 'has idnumber_age:', merged['idnumber_age'] !== undefined && merged['idnumber_age'] !== null && merged['idnumber_age'] !== '', 'idnumber_age value:', merged['idnumber_age']);
 
         // Run Custom Validation Rules
         const validationError = this.validateRecord(merged);
@@ -1220,14 +1233,17 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
         this.multiSubmitService.saveRecord(payload, this.adminMemberId || undefined).subscribe({
             next: () => {
+                console.log('[saveActive] save successful, afterSave:', !!afterSave);
                 if (afterSave) {
                     this.loading = false;
                     afterSave();
                 } else {
+                    console.log('[saveActive] calling loadContext with stepKey:', this.stepKey);
                     this.loadContext(this.stepKey);
                 }
             },
-            error: () => {
+            error: (err) => {
+                console.error('[saveActive] save failed:', err);
                 this.error = 'Failed to save record.';
                 this.loading = false;
                 this.cdr.markForCheck();
@@ -1418,7 +1434,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                                                         minValue: typeof f.minValue === 'number' ? f.minValue : undefined,
                                                         maxValue: typeof f.maxValue === 'number' ? f.maxValue : undefined,
                                                         minDate: f.minDate ? String(f.minDate) : undefined,
-                                                        maxDate: f.maxDate ? String(f.maxDate) : undefined
+                                                        maxDate: f.maxDate ? String(f.maxDate) : undefined,
+                                                        calendarMinDate: f.minDate && !String(f.minDate).startsWith('@')
+                                                            ? (resolveStaticDate(String(f.minDate)) ?? undefined)
+                                                            : undefined,
+                                                        calendarMaxDate: f.maxDate && !String(f.maxDate).startsWith('@')
+                                                            ? (resolveStaticDate(String(f.maxDate)) ?? undefined)
+                                                            : undefined
                         };
                     })
                     .sort((a, b) => a.order - b.order);
@@ -1501,7 +1523,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             if (field.type === 'email') {
                 validators.push(Validators.email);
             }
-            if (field.type === 'idNumber') {
+            if (field.type === 'idNumber' && !this.adminMemberId) {
                 validators.push(saIdNumberValidator());
             }
             if (field.minValue != null) {
@@ -1604,6 +1626,42 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
             if (genderTarget) {
                 this.activeFormGroup.get(genderTarget.name)?.setValue(gender);
             }
+        }
+    }
+
+    /**
+     * Synchronously ensures that every idNumber-type form field has its derived
+     * _age, _gender, and _dateOfBirth fields populated in the active form before
+     * the record payload is built. This mitigates the 300ms debounce race
+     * condition on the ID field valueChanges subscription.
+     */
+    private ensureDerivedIdFieldsPopulated(): void {
+        if (!this.activeFormGroup) {
+            return;
+        }
+
+        const idFields = this.formFields.filter((f) => f.type === 'idNumber');
+        for (const idField of idFields) {
+            const idCtrl = this.activeFormGroup.get(idField.name);
+            const rawId = idCtrl?.value;
+            if (!rawId || typeof rawId !== 'string' || rawId.length !== 13) {
+                continue;
+            }
+
+            // Check if the _age field is already populated (non-empty, non-zero)
+            const ageTarget = this.formFields.find(
+                (f) => f.name.toLowerCase() === `${idField.name}_age`.toLowerCase() || f.name.toLowerCase() === 'age'
+            );
+            if (ageTarget) {
+                const currentAge = this.activeFormGroup.get(ageTarget.name)?.value;
+                if (currentAge !== null && currentAge !== undefined && currentAge !== '' && Number(currentAge) > 0) {
+                    // Already has a valid age — no need to recompute
+                    continue;
+                }
+            }
+
+            // Populate the derived fields now
+            this.populateDerivedIdFields(idField.name, rawId);
         }
     }
 
@@ -1850,7 +1908,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 if (field.type === 'email') {
                     validators.push(Validators.email);
                 }
-                if (field.type === 'idNumber') {
+                if (field.type === 'idNumber' && !this.adminMemberId) {
                     validators.push(saIdNumberValidator());
                 }
 
@@ -2996,9 +3054,7 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                                 });
                                 setTimeout(() => {
                                     this.next.emit();
-                                    if (this.nextUrl) {
-                                        this.router.navigateByUrl(this.nextUrl);
-                                    }
+                                    this.router.navigateByUrl(this.nextUrl ?? '/admin/member-onboarding');
                                 }, 1500);
                             } else {
                                 // Not complete - show what's missing
@@ -3022,6 +3078,36 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     }
 
     /** Resolves the [minDate] binding for a date p-calendar. Supports "today", fixed dates, and @fieldKey cross-field references. */
+    onCalendarFocus(cal: any): void {
+        // (onFocus) fires after overlayVisible=true but before Angular CD creates the overlay.
+        // Wait 50ms for the overlay to be created and appended to body, then directly
+        // position it using containerViewChild (always non-null) to bypass
+        // PrimeNG's alignOverlay() which may throw due to null inputfieldViewChild.
+        setTimeout(() => {
+            const overlay = cal?.overlay;
+            const container = cal?.containerViewChild?.nativeElement;
+            if (!overlay || !container) return;
+            const rect = container.getBoundingClientRect();
+            const scrollTop = window.scrollY || 0;
+            const scrollLeft = window.scrollX || 0;
+            const overlayH = overlay.offsetHeight || 0;
+            const overlayW = overlay.offsetWidth || 0;
+            const winH = window.innerHeight;
+            const winW = window.innerWidth;
+            let top = rect.bottom + scrollTop;
+            if (rect.bottom + overlayH > winH) {
+                const topAbove = rect.top + scrollTop - overlayH;
+                if (topAbove >= scrollTop) top = topAbove;
+            }
+            let left = rect.left + scrollLeft;
+            if (rect.left + overlayW > winW) {
+                left = Math.max(0, rect.right + scrollLeft - overlayW);
+            }
+            overlay.style.top = top + 'px';
+            overlay.style.left = left + 'px';
+        }, 50);
+    }
+
     getCalendarMinDate(field: DynamicFormField): Date | null {
         if (!field.minDate) return null;
         return resolveCalendarDate(field.minDate, this.activeFormGroup?.value ?? null);

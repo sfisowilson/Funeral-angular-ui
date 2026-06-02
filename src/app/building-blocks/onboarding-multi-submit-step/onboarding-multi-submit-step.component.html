@@ -353,6 +353,7 @@
                                     />
 
                                     <p-calendar
+                                        #calRef
                                         *ngIf="field.type === 'date'"
                                         [formControlName]="field.name"
                                         [inputId]="field.name"
@@ -361,8 +362,10 @@
                                         [appendTo]="'body'"
                                         [style]="{ width: '100%' }"
                                         styleClass="w-full"
-                                        [minDate]="getCalendarMinDate(field)"
-                                        [maxDate]="getCalendarMaxDate(field)"
+                                        [minDate]="field.calendarMinDate"
+                                        [maxDate]="field.calendarMaxDate"
+                                        [defaultDate]="field.calendarMinDate"
+                                        (onFocus)="onCalendarFocus(calRef)"
                                     ></p-calendar>
 
                                     <textarea

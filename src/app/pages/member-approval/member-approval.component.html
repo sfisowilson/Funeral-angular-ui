@@ -7,6 +7,17 @@
         </div>
     }
 
+    <!-- No signature warning -->
+    @if (adminHasSignature() === false) {
+        <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+            <span>
+                You have not saved a signature on your profile. Approved PDF documents will be stamped without your signature.
+                <a [routerLink]="['/user-profile']" class="alert-link ms-1">Go to Profile &rarr;</a>
+            </span>
+        </div>
+    }
+
     <!-- Statistics Cards -->
     @if (stats(); as statsData) {
         <div class="row g-3 mb-4">
@@ -345,6 +356,14 @@
                         <label for="approvalNotes" class="form-label">Notes (optional)</label>
                         <textarea class="form-control" id="approvalNotes" rows="3" [(ngModel)]="approvalNotes" placeholder="Add any internal notes about this approval..."></textarea>
                     </div>
+
+                    @if (adminHasSignature() === false) {
+                        <div class="alert alert-warning py-2 small mb-0" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                            Your profile has no signature saved. The approved document will be missing your signature.
+                            <a [routerLink]="['/user-profile']" class="alert-link">Save signature &rarr;</a>
+                        </div>
+                    }
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary-theme" (click)="closeAllModals()">Cancel</button>

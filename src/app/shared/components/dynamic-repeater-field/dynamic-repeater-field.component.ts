@@ -25,6 +25,10 @@ export interface RepeaterFieldConfig {
     required?: boolean;
     minDate?: string;
     maxDate?: string;
+    /** Pre-resolved Date for [minDate] — set by caller for stable CD binding. */
+    calendarMinDate?: Date;
+    /** Pre-resolved Date for [maxDate] — set by caller for stable CD binding. */
+    calendarMaxDate?: Date;
 }
 
 /**
@@ -111,7 +115,7 @@ export interface RepeaterConfig {
                         <input *ngIf="field.fieldType === 'number'" [id]="field.fieldKey" [(ngModel)]="currentItem[field.fieldKey]" type="number" [placeholder]="field.placeholder || ''" class="form-control" />
 
                         <!-- Date -->
-                        <p-calendar *ngIf="field.fieldType === 'date'" [id]="field.fieldKey" [(ngModel)]="currentItem[field.fieldKey]" [placeholder]="field.placeholder || 'Select date'" dateFormat="yy-mm-dd" [showIcon]="true" class="w-100" [minDate]="getCalendarMinDate(field)" [maxDate]="getCalendarMaxDate(field)">
+                        <p-calendar *ngIf="field.fieldType === 'date'" [id]="field.fieldKey" [(ngModel)]="currentItem[field.fieldKey]" [placeholder]="field.placeholder || 'Select date'" dateFormat="yy-mm-dd" [showIcon]="true" class="w-100" [minDate]="field.calendarMinDate ?? getCalendarMinDate(field)" [maxDate]="field.calendarMaxDate ?? getCalendarMaxDate(field)" [defaultDate]="field.calendarMinDate ?? getCalendarMinDate(field)">
                         </p-calendar>
 
                         <!-- Select/Dropdown -->

@@ -5,7 +5,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { DynamicEntityServiceProxy, CreateDynamicEntityRecordDto, UpdateDynamicEntityRecordDto, DynamicEntityRecordDto, DynamicEntityTypeDto } from '@app/core/services/service-proxies';
 import { DynamicFileUploadComponent } from '../../shared/components/dynamic-file-upload/dynamic-file-upload.component';
 import { applyDateSplitParts, normalizeDateValue, toDateOnlyString } from '@app/core/utils/date-field-utils';
-import { resolveCalendarDate } from '../../core/utils/date-constraint-utils';
+import { resolveCalendarDate, resolveStaticDate } from '../../core/utils/date-constraint-utils';
 
 @Component({
     selector: 'app-dynamic-entity-record-widget',
@@ -51,6 +51,15 @@ export class DynamicEntityRecordWidgetComponent implements OnInit {
                         } catch {
                             this.dynamicFields = [];
                         }
+                        // Pre-resolve static date constraints for stable template bindings.
+                        for (const f of this.dynamicFields) {
+                            if (f?.minDate && !String(f.minDate).startsWith('@')) {
+                                f.calendarMinDate = resolveStaticDate(String(f.minDate)) ?? undefined;
+                            }
+                            if (f?.maxDate && !String(f.maxDate).startsWith('@')) {
+                                f.calendarMaxDate = resolveStaticDate(String(f.maxDate)) ?? undefined;
+                            }
+                        }
                         this.initializeDateValues();
                         this.applyDateSplitDerivation();
                         this.loadLookupOptions();
@@ -65,6 +74,32 @@ export class DynamicEntityRecordWidgetComponent implements OnInit {
 
     onFormChange(data: any) {
         this.formData = data;
+    }
+
+    onCalendarFocus(cal: any): void {
+        setTimeout(() => {
+            const overlay = cal?.overlay;
+            const container = cal?.containerViewChild?.nativeElement;
+            if (!overlay || !container) return;
+            const rect = container.getBoundingClientRect();
+            const scrollTop = window.scrollY || 0;
+            const scrollLeft = window.scrollX || 0;
+            const overlayH = overlay.offsetHeight || 0;
+            const overlayW = overlay.offsetWidth || 0;
+            const winH = window.innerHeight;
+            const winW = window.innerWidth;
+            let top = rect.bottom + scrollTop;
+            if (rect.bottom + overlayH > winH) {
+                const topAbove = rect.top + scrollTop - overlayH;
+                if (topAbove >= scrollTop) top = topAbove;
+            }
+            let left = rect.left + scrollLeft;
+            if (rect.left + overlayW > winW) {
+                left = Math.max(0, rect.right + scrollLeft - overlayW);
+            }
+            overlay.style.top = top + 'px';
+            overlay.style.left = left + 'px';
+        }, 50);
     }
 
     onDateChange(field: any, value: Date | null): void {

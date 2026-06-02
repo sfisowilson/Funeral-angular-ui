@@ -35,11 +35,11 @@
                     @for (widget of getSortedWidgets(); track widget.id; let i = $index) {
                         @if (i === 0) {
                             <!-- First widget renders immediately for fast LCP -->
-                            <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget, adminMemberId: adminMemberId }"></ng-container>
+                            <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: getWidgetInputs(widget)"></ng-container>
                         } @else {
                             <!-- Below-fold widgets defer DOM construction until they enter the viewport -->
                             @defer (on viewport) {
-                                <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget, adminMemberId: adminMemberId }"></ng-container>
+                                <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: getWidgetInputs(widget)"></ng-container>
                             } @placeholder {
                                 <div style="min-height: 150px"></div>
                             }
@@ -56,7 +56,7 @@
                 <section class="footer-widget-zone">
                     @for (widget of getSortedFooterWidgets(); track widget.id) {
                         @defer (on viewport) {
-                            <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: { config: widget }"></ng-container>
+                            <ng-container *ngComponentOutlet="getWidgetComponent(widget.type); inputs: getWidgetInputs(widget)"></ng-container>
                         } @placeholder {
                             <div style="min-height: 100px"></div>
                         }
