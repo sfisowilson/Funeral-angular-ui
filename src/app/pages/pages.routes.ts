@@ -29,6 +29,7 @@ import { OnboardingStepListConfigComponent } from './admin/onboarding-step-confi
 import { FieldDefinitionBuilderComponent } from '../admin/onboarding-fields/field-definition-builder/field-definition-builder.component';
 import { EmailTemplatesComponent } from './email-templates/email-templates.component';
 import { EmailSettingsComponent } from './email-settings/email-settings.component';
+import { WhatsAppSettingsComponent } from './whatsapp-settings/whatsapp-settings.component';
 import { PermissionGuard } from '../core/guards/permission-guard';
 
 const ADMIN_ROLES = ['TenantAdmin', 'SuperAdmin', 'Admin'];
@@ -76,6 +77,12 @@ export default [
     {
         path: 'email-settings',
         component: EmailSettingsComponent,
+        canActivate: [PermissionGuard],
+        data: { roles: ADMIN_ROLES }
+    },
+    {
+        path: 'whatsapp-settings',
+        component: WhatsAppSettingsComponent,
         canActivate: [PermissionGuard],
         data: { roles: ADMIN_ROLES }
     },

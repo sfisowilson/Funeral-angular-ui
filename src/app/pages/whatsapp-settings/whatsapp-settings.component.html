@@ -1,0 +1,99 @@
+<p-toast></p-toast>
+
+<div class="whatsapp-settings-container bg-white p-6 rounded-lg shadow">
+    <div class="flex justify-between items-center mb-4">
+        <div>
+            <h2 class="text-xl font-semibold text-gray-700">WhatsApp Settings</h2>
+            <p class="text-sm text-gray-600 mt-1">Configure your Meta WhatsApp Business API settings. Messages are sent using your own Meta account — you are billed directly by Meta.</p>
+        </div>
+        <button pButton type="button" label="Test Message" icon="pi pi-send" class="btn-secondary-theme"
+            (click)="openTestDialog()" [disabled]="!hasCredentials || loading"></button>
+    </div>
+
+    <!-- Info Banner -->
+    <div *ngIf="hasCredentials && whatsAppEnabled" class="info-message p-3 mb-4" style="background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 4px;">
+        <i class="pi pi-check-circle mr-2" style="color: #4caf50;"></i>
+        <span style="color: #2e7d32;"><strong>WhatsApp notifications are active.</strong> Messages will be sent alongside emails for all notifications. You can deactivate this at any time.</span>
+    </div>
+
+    <div *ngIf="hasCredentials && !whatsAppEnabled" class="info-message p-3 mb-4" style="background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 4px;">
+        <i class="pi pi-exclamation-triangle mr-2" style="color: #ff9800;"></i>
+        <span style="color: #e65100;">Credentials are configured but WhatsApp notifications are <strong>turned off</strong>. Use the toggle below to activate.</span>
+    </div>
+
+    <div *ngIf="!hasCredentials && !loading" class="warning-message p-3 mb-4" style="background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 4px;">
+        <i class="pi pi-exclamation-triangle mr-2" style="color: #ff9800;"></i>
+        <span style="color: #e65100;">No WhatsApp credentials configured. Please set up your Meta WhatsApp Business API settings below.</span>
+    </div>
+
+    <div *ngIf="loading" class="text-center py-4">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        <p class="mt-2 mb-0">Checking WhatsApp settings...</p>
+    </div>
+
+    <!-- Enable/Disable Toggle -->
+    <div *ngIf="hasCredentials" class="toggle-section mb-4 p-3" style="background: #f5f5f5; border-radius: 8px;">
+        <div class="flex justify-between items-center">
+            <div>
+                <h4 class="font-semibold text-gray-700">Send WhatsApp Notifications</h4>
+                <p class="text-sm text-gray-600">When enabled, WhatsApp messages will be sent alongside emails for all notifications.</p>
+            </div>
+            <p-inputSwitch [(ngModel)]="whatsAppEnabled" (onChange)="toggleWhatsApp()"></p-inputSwitch>
+        </div>
+    </div>
+
+    <!-- Credentials Form -->
+    <div class="credentials-form mt-4">
+        <h4 class="font-semibold text-gray-700 mb-3">{{ hasCredentials ? 'Update WhatsApp Credentials' : 'Configure WhatsApp Credentials' }}</h4>
+        <p class="text-sm text-gray-600 mb-3">
+            You need a Meta Business Account with WhatsApp Business App set up. Get your credentials from the 
+            <a href="https://business.facebook.com/" target="_blank" class="text-blue-600">Meta Business Dashboard</a>.
+        </p>
+
+        <div class="form-group mb-3">
+            <label class="block text-sm font-medium mb-1">Phone Number ID *</label>
+            <input type="text" pInputText class="w-full" [(ngModel)]="whatsAppConfig.phoneNumberId"
+                placeholder="e.g., 123456789012345" />
+            <small class="text-gray-500">Your WhatsApp Business phone number ID from Meta</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="block text-sm font-medium mb-1">Access Token *</label>
+            <input type="password" pInputText class="w-full" [(ngModel)]="whatsAppConfig.accessToken"
+                placeholder="Enter your permanent access token" />
+            <small class="text-gray-500">Your WhatsApp Cloud API permanent access token. This is stored securely and never displayed after saving.</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="block text-sm font-medium mb-1">Business Account ID (optional)</label>
+            <input type="text" pInputText class="w-full" [(ngModel)]="whatsAppConfig.businessAccountId"
+                placeholder="e.g., 987654321098765" />
+            <small class="text-gray-500">Your WhatsApp Business Account ID (WABA ID)</small>
+        </div>
+
+        <div class="flex gap-3 mt-4">
+            <button pButton type="button" label="Save Credentials" icon="pi pi-save" class="btn-primary-theme"
+                (click)="save()" [disabled]="saving"></button>
+            <button pButton type="button" label="Delete Credentials" icon="pi pi-trash" class="btn-danger-theme"
+                *ngIf="hasCredentials" (click)="deleteCredentials()"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Test Message Dialog -->
+<p-dialog [(visible)]="showTestDialog" header="Send Test WhatsApp Message" [modal]="true" [style]="{width: '450px'}">
+    <div class="test-dialog-content">
+        <p class="mb-3">Enter a phone number in international format to receive a test WhatsApp message.</p>
+        <div class="form-group">
+            <label class="block text-sm font-medium mb-1">Phone Number</label>
+            <input type="text" pInputText class="w-full" [(ngModel)]="testPhone"
+                placeholder="+27821234567" />
+            <small class="text-gray-500">Include country code (e.g., +27 for South Africa)</small>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton type="button" label="Cancel" class="btn-secondary-theme" (click)="showTestDialog = false"></button>
+        <button pButton type="button" label="Send Test" icon="pi pi-send" class="btn-primary-theme"
+            (click)="sendTestMessage()" [disabled]="sendingTest"></button>
+    </ng-template>
+</p-dialog>

@@ -448,6 +448,11 @@
                     </div>
 
                     <div class="flex items-center gap-3">
+                        <p-checkbox [(ngModel)]="formData.canUseWhatsAppNotifications" [binary]="true" inputId="canUseWhatsAppNotifications"></p-checkbox>
+                        <label for="canUseWhatsAppNotifications">Can Use WhatsApp Notifications</label>
+                    </div>
+
+                    <div class="flex items-center gap-3">
                         <p-checkbox [(ngModel)]="formData.canDowngrade" [binary]="true" inputId="canDowngrade"></p-checkbox>
                         <label for="canDowngrade">Can Downgrade</label>
                     </div>

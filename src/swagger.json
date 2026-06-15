@@ -18457,6 +18457,123 @@
           }
         }
       }
+    },
+    "/api/WhatsApp/WhatsApp_SendTestMessage": {
+      "post": {
+        "tags": [
+          "WhatsApp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendTestWhatsAppRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendTestWhatsAppRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendTestWhatsAppRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/WhatsApp/WhatsApp_SaveCredentials": {
+      "post": {
+        "tags": [
+          "WhatsApp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveWhatsAppCredentialsRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveWhatsAppCredentialsRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveWhatsAppCredentialsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/WhatsApp/WhatsApp_HasCredentials": {
+      "get": {
+        "tags": [
+          "WhatsApp"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/WhatsApp/WhatsApp_DeleteCredentials": {
+      "post": {
+        "tags": [
+          "WhatsApp"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/WhatsApp/WhatsApp_ToggleEnable": {
+      "post": {
+        "tags": [
+          "WhatsApp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleWhatsAppRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleWhatsAppRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToggleWhatsAppRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -21866,6 +21983,9 @@
             "type": "boolean"
           },
           "hasPrioritySupport": {
+            "type": "boolean"
+          },
+          "canUseWhatsAppNotifications": {
             "type": "boolean"
           },
           "allowOverage": {
@@ -28496,6 +28616,24 @@
         },
         "additionalProperties": false
       },
+      "SaveWhatsAppCredentialsRequest": {
+        "type": "object",
+        "properties": {
+          "phoneNumberId": {
+            "type": "string",
+            "nullable": true
+          },
+          "accessToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "businessAccountId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "SendBookingNotificationDto": {
         "type": "object",
         "properties": {
@@ -28512,6 +28650,16 @@
         "type": "object",
         "properties": {
           "recipientEmail": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SendTestWhatsAppRequest": {
+        "type": "object",
+        "properties": {
+          "recipientPhone": {
             "type": "string",
             "nullable": true
           }
@@ -28819,6 +28967,9 @@
             "type": "boolean"
           },
           "hasPrioritySupport": {
+            "type": "boolean"
+          },
+          "canUseWhatsAppNotifications": {
             "type": "boolean"
           },
           "allowOverage": {
@@ -29459,6 +29610,12 @@
           "hasPaymentCredentials": {
             "type": "boolean"
           },
+          "hasWhatsAppCredentials": {
+            "type": "boolean"
+          },
+          "enableWhatsAppNotifications": {
+            "type": "boolean"
+          },
           "requiresOnboardingApproval": {
             "type": "boolean"
           },
@@ -29783,6 +29940,15 @@
         "type": "object",
         "properties": {
           "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ToggleWhatsAppRequest": {
+        "type": "object",
+        "properties": {
+          "enabled": {
             "type": "boolean"
           }
         },
@@ -30974,6 +31140,9 @@
             "type": "boolean"
           },
           "hasPrioritySupport": {
+            "type": "boolean"
+          },
+          "canUseWhatsAppNotifications": {
             "type": "boolean"
           },
           "allowOverage": {

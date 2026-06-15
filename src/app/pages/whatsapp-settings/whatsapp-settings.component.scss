@@ -1,0 +1,54 @@
+.whatsapp-settings-container {
+    max-width: 800px;
+}
+
+.form-group {
+    input {
+        width: 100%;
+    }
+}
+
+.toggle-section {
+    border: 1px solid #e0e0e0;
+}
+
+.info-message,
+.warning-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    i {
+        margin-top: 2px;
+    }
+}
+
+.btn-primary-theme {
+    background-color: #25D366; // WhatsApp green
+    border: none;
+    color: white;
+
+    &:hover {
+        background-color: #128C7E;
+    }
+}
+
+.btn-secondary-theme {
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    color: #333;
+
+    &:hover {
+        background-color: #e0e0e0;
+    }
+}
+
+.btn-danger-theme {
+    background-color: #ef4444;
+    border: none;
+    color: white;
+
+    &:hover {
+        background-color: #dc2626;
+    }
+}

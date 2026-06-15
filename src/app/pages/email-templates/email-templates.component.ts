@@ -6,6 +6,7 @@ import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
 import { NotificationTemplateServiceProxy } from '../../core/services/service-proxies';
@@ -22,7 +23,7 @@ export interface EmailTemplateDto {
 @Component({
     selector: 'app-email-templates',
     standalone: true,
-    imports: [CommonModule, FormsModule, ToastModule, TableModule, DialogModule, InputTextModule, CheckboxModule, ButtonModule],
+    imports: [CommonModule, FormsModule, ToastModule, TableModule, DialogModule, InputTextModule, DropdownModule, CheckboxModule, ButtonModule],
     providers: [MessageService],
     templateUrl: './email-templates.component.html',
     styleUrl: './email-templates.component.scss'
@@ -34,6 +35,12 @@ export class EmailTemplatesComponent implements OnInit {
     showDialog = signal(false);
     isEditing = signal(false);
     currentTemplate: EmailTemplateDto = this.createEmptyTemplate();
+
+    channelOptions = [
+        { label: 'Email', value: 'Email' },
+        { label: 'SMS', value: 'Sms' },
+        { label: 'WhatsApp', value: 'WhatsApp' }
+    ];
 
     constructor(
         private notificationTemplateService: NotificationTemplateServiceProxy,

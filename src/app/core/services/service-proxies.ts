@@ -26094,6 +26094,270 @@ export class WebhookServiceProxy {
     }
 }
 
+@Injectable({
+    providedIn: 'root'
+})
+export class WhatsAppServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    whatsApp_SendTestMessage(body: SendTestWhatsAppRequest | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/WhatsApp/WhatsApp_SendTestMessage";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processWhatsApp_SendTestMessage(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processWhatsApp_SendTestMessage(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processWhatsApp_SendTestMessage(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    whatsApp_SaveCredentials(body: SaveWhatsAppCredentialsRequest | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/WhatsApp/WhatsApp_SaveCredentials";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processWhatsApp_SaveCredentials(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processWhatsApp_SaveCredentials(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processWhatsApp_SaveCredentials(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    whatsApp_HasCredentials(): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/WhatsApp/WhatsApp_HasCredentials";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processWhatsApp_HasCredentials(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processWhatsApp_HasCredentials(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processWhatsApp_HasCredentials(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    whatsApp_DeleteCredentials(): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/WhatsApp/WhatsApp_DeleteCredentials";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processWhatsApp_DeleteCredentials(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processWhatsApp_DeleteCredentials(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processWhatsApp_DeleteCredentials(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    whatsApp_ToggleEnable(body: ToggleWhatsAppRequest | undefined): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/WhatsApp/WhatsApp_ToggleEnable";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processWhatsApp_ToggleEnable(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processWhatsApp_ToggleEnable(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processWhatsApp_ToggleEnable(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
 export class AcceptTermsDto implements IAcceptTermsDto {
     memberId!: string;
     termsAndConditionsId!: string;
@@ -31044,6 +31308,7 @@ export class CreatePlanConfigurationDto implements ICreatePlanConfigurationDto {
     canAccessAdvancedReports!: boolean;
     canUseWhiteLabel!: boolean;
     hasPrioritySupport!: boolean;
+    canUseWhatsAppNotifications!: boolean;
     allowOverage!: boolean;
     sendUsageAlerts!: boolean;
     usageAlertThresholdPercent!: number;
@@ -31096,6 +31361,7 @@ export class CreatePlanConfigurationDto implements ICreatePlanConfigurationDto {
             this.canAccessAdvancedReports = _data["canAccessAdvancedReports"];
             this.canUseWhiteLabel = _data["canUseWhiteLabel"];
             this.hasPrioritySupport = _data["hasPrioritySupport"];
+            this.canUseWhatsAppNotifications = _data["canUseWhatsAppNotifications"];
             this.allowOverage = _data["allowOverage"];
             this.sendUsageAlerts = _data["sendUsageAlerts"];
             this.usageAlertThresholdPercent = _data["usageAlertThresholdPercent"];
@@ -31160,6 +31426,7 @@ export class CreatePlanConfigurationDto implements ICreatePlanConfigurationDto {
         data["canAccessAdvancedReports"] = this.canAccessAdvancedReports;
         data["canUseWhiteLabel"] = this.canUseWhiteLabel;
         data["hasPrioritySupport"] = this.hasPrioritySupport;
+        data["canUseWhatsAppNotifications"] = this.canUseWhatsAppNotifications;
         data["allowOverage"] = this.allowOverage;
         data["sendUsageAlerts"] = this.sendUsageAlerts;
         data["usageAlertThresholdPercent"] = this.usageAlertThresholdPercent;
@@ -31217,6 +31484,7 @@ export interface ICreatePlanConfigurationDto {
     canAccessAdvancedReports: boolean;
     canUseWhiteLabel: boolean;
     hasPrioritySupport: boolean;
+    canUseWhatsAppNotifications: boolean;
     allowOverage: boolean;
     sendUsageAlerts: boolean;
     usageAlertThresholdPercent: number;
@@ -41567,6 +41835,50 @@ export interface ISaveSignatureDto {
     signatureDataUrl: string;
 }
 
+export class SaveWhatsAppCredentialsRequest implements ISaveWhatsAppCredentialsRequest {
+    phoneNumberId!: string | undefined;
+    accessToken!: string | undefined;
+    businessAccountId!: string | undefined;
+
+    constructor(data?: ISaveWhatsAppCredentialsRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.phoneNumberId = _data["phoneNumberId"];
+            this.accessToken = _data["accessToken"];
+            this.businessAccountId = _data["businessAccountId"];
+        }
+    }
+
+    static fromJS(data: any): SaveWhatsAppCredentialsRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SaveWhatsAppCredentialsRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["phoneNumberId"] = this.phoneNumberId;
+        data["accessToken"] = this.accessToken;
+        data["businessAccountId"] = this.businessAccountId;
+        return data;
+    }
+}
+
+export interface ISaveWhatsAppCredentialsRequest {
+    phoneNumberId: string | undefined;
+    accessToken: string | undefined;
+    businessAccountId: string | undefined;
+}
+
 export class SendBookingNotificationDto implements ISendBookingNotificationDto {
     booking!: BookingDto;
     config!: BookingNotificationConfigDto;
@@ -41641,6 +41953,42 @@ export class SendTestEmailRequest implements ISendTestEmailRequest {
 
 export interface ISendTestEmailRequest {
     recipientEmail: string | undefined;
+}
+
+export class SendTestWhatsAppRequest implements ISendTestWhatsAppRequest {
+    recipientPhone!: string | undefined;
+
+    constructor(data?: ISendTestWhatsAppRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.recipientPhone = _data["recipientPhone"];
+        }
+    }
+
+    static fromJS(data: any): SendTestWhatsAppRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SendTestWhatsAppRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["recipientPhone"] = this.recipientPhone;
+        return data;
+    }
+}
+
+export interface ISendTestWhatsAppRequest {
+    recipientPhone: string | undefined;
 }
 
 export class SetRelationsForRecordDto implements ISetRelationsForRecordDto {
@@ -41955,6 +42303,7 @@ export class SubscriptionPlanConfigurationDto implements ISubscriptionPlanConfig
     canAccessAdvancedReports!: boolean;
     canUseWhiteLabel!: boolean;
     hasPrioritySupport!: boolean;
+    canUseWhatsAppNotifications!: boolean;
     allowOverage!: boolean;
     sendUsageAlerts!: boolean;
     usageAlertThresholdPercent!: number;
@@ -42011,6 +42360,7 @@ export class SubscriptionPlanConfigurationDto implements ISubscriptionPlanConfig
             this.canAccessAdvancedReports = _data["canAccessAdvancedReports"];
             this.canUseWhiteLabel = _data["canUseWhiteLabel"];
             this.hasPrioritySupport = _data["hasPrioritySupport"];
+            this.canUseWhatsAppNotifications = _data["canUseWhatsAppNotifications"];
             this.allowOverage = _data["allowOverage"];
             this.sendUsageAlerts = _data["sendUsageAlerts"];
             this.usageAlertThresholdPercent = _data["usageAlertThresholdPercent"];
@@ -42079,6 +42429,7 @@ export class SubscriptionPlanConfigurationDto implements ISubscriptionPlanConfig
         data["canAccessAdvancedReports"] = this.canAccessAdvancedReports;
         data["canUseWhiteLabel"] = this.canUseWhiteLabel;
         data["hasPrioritySupport"] = this.hasPrioritySupport;
+        data["canUseWhatsAppNotifications"] = this.canUseWhatsAppNotifications;
         data["allowOverage"] = this.allowOverage;
         data["sendUsageAlerts"] = this.sendUsageAlerts;
         data["usageAlertThresholdPercent"] = this.usageAlertThresholdPercent;
@@ -42140,6 +42491,7 @@ export interface ISubscriptionPlanConfigurationDto {
     canAccessAdvancedReports: boolean;
     canUseWhiteLabel: boolean;
     hasPrioritySupport: boolean;
+    canUseWhatsAppNotifications: boolean;
     allowOverage: boolean;
     sendUsageAlerts: boolean;
     usageAlertThresholdPercent: number;
@@ -42916,6 +43268,8 @@ export class TenantSettingDto implements ITenantSettingDto {
     requireIdVerificationForRegistration!: boolean;
     hasEmailCredentials!: boolean;
     hasPaymentCredentials!: boolean;
+    hasWhatsAppCredentials!: boolean;
+    enableWhatsAppNotifications!: boolean;
     requiresOnboardingApproval!: boolean;
     onboardingSubmitButtonLabel!: string | undefined;
 
@@ -42940,6 +43294,8 @@ export class TenantSettingDto implements ITenantSettingDto {
             this.requireIdVerificationForRegistration = _data["requireIdVerificationForRegistration"];
             this.hasEmailCredentials = _data["hasEmailCredentials"];
             this.hasPaymentCredentials = _data["hasPaymentCredentials"];
+            this.hasWhatsAppCredentials = _data["hasWhatsAppCredentials"];
+            this.enableWhatsAppNotifications = _data["enableWhatsAppNotifications"];
             this.requiresOnboardingApproval = _data["requiresOnboardingApproval"];
             this.onboardingSubmitButtonLabel = _data["onboardingSubmitButtonLabel"];
         }
@@ -42964,6 +43320,8 @@ export class TenantSettingDto implements ITenantSettingDto {
         data["requireIdVerificationForRegistration"] = this.requireIdVerificationForRegistration;
         data["hasEmailCredentials"] = this.hasEmailCredentials;
         data["hasPaymentCredentials"] = this.hasPaymentCredentials;
+        data["hasWhatsAppCredentials"] = this.hasWhatsAppCredentials;
+        data["enableWhatsAppNotifications"] = this.enableWhatsAppNotifications;
         data["requiresOnboardingApproval"] = this.requiresOnboardingApproval;
         data["onboardingSubmitButtonLabel"] = this.onboardingSubmitButtonLabel;
         return data;
@@ -42981,6 +43339,8 @@ export interface ITenantSettingDto {
     requireIdVerificationForRegistration: boolean;
     hasEmailCredentials: boolean;
     hasPaymentCredentials: boolean;
+    hasWhatsAppCredentials: boolean;
+    enableWhatsAppNotifications: boolean;
     requiresOnboardingApproval: boolean;
     onboardingSubmitButtonLabel: string | undefined;
 }
@@ -43477,6 +43837,42 @@ export class ToggleStatusDto implements IToggleStatusDto {
 
 export interface IToggleStatusDto {
     isActive: boolean;
+}
+
+export class ToggleWhatsAppRequest implements IToggleWhatsAppRequest {
+    enabled!: boolean;
+
+    constructor(data?: IToggleWhatsAppRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.enabled = _data["enabled"];
+        }
+    }
+
+    static fromJS(data: any): ToggleWhatsAppRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ToggleWhatsAppRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["enabled"] = this.enabled;
+        return data;
+    }
+}
+
+export interface IToggleWhatsAppRequest {
+    enabled: boolean;
 }
 
 export class TopCouponDto implements ITopCouponDto {
@@ -45141,6 +45537,7 @@ export class UpdatePlanConfigurationDto implements IUpdatePlanConfigurationDto {
     canAccessAdvancedReports!: boolean;
     canUseWhiteLabel!: boolean;
     hasPrioritySupport!: boolean;
+    canUseWhatsAppNotifications!: boolean;
     allowOverage!: boolean;
     sendUsageAlerts!: boolean;
     usageAlertThresholdPercent!: number;
@@ -45194,6 +45591,7 @@ export class UpdatePlanConfigurationDto implements IUpdatePlanConfigurationDto {
             this.canAccessAdvancedReports = _data["canAccessAdvancedReports"];
             this.canUseWhiteLabel = _data["canUseWhiteLabel"];
             this.hasPrioritySupport = _data["hasPrioritySupport"];
+            this.canUseWhatsAppNotifications = _data["canUseWhatsAppNotifications"];
             this.allowOverage = _data["allowOverage"];
             this.sendUsageAlerts = _data["sendUsageAlerts"];
             this.usageAlertThresholdPercent = _data["usageAlertThresholdPercent"];
@@ -45259,6 +45657,7 @@ export class UpdatePlanConfigurationDto implements IUpdatePlanConfigurationDto {
         data["canAccessAdvancedReports"] = this.canAccessAdvancedReports;
         data["canUseWhiteLabel"] = this.canUseWhiteLabel;
         data["hasPrioritySupport"] = this.hasPrioritySupport;
+        data["canUseWhatsAppNotifications"] = this.canUseWhatsAppNotifications;
         data["allowOverage"] = this.allowOverage;
         data["sendUsageAlerts"] = this.sendUsageAlerts;
         data["usageAlertThresholdPercent"] = this.usageAlertThresholdPercent;
@@ -45317,6 +45716,7 @@ export interface IUpdatePlanConfigurationDto {
     canAccessAdvancedReports: boolean;
     canUseWhiteLabel: boolean;
     hasPrioritySupport: boolean;
+    canUseWhatsAppNotifications: boolean;
     allowOverage: boolean;
     sendUsageAlerts: boolean;
     usageAlertThresholdPercent: number;

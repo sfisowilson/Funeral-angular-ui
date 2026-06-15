@@ -89,6 +89,7 @@ export class PlanConfigurationComponent implements OnInit {
         canAccessAdvancedReports: false,
         canUseWhiteLabel: false,
         hasPrioritySupport: false,
+        canUseWhatsAppNotifications: false,
 
         // Alerts & Trial
         sendUsageAlerts: true,
@@ -221,6 +222,7 @@ export class PlanConfigurationComponent implements OnInit {
             canAccessAdvancedReports: false,
             canUseWhiteLabel: false,
             hasPrioritySupport: false,
+            canUseWhatsAppNotifications: false,
             sendUsageAlerts: true,
             usageAlertThresholdPercent: 80,
             trialDays: 14,
@@ -267,6 +269,7 @@ export class PlanConfigurationComponent implements OnInit {
             canAccessAdvancedReports: config.canAccessAdvancedReports,
             canUseWhiteLabel: config.canUseWhiteLabel,
             hasPrioritySupport: config.hasPrioritySupport,
+            canUseWhatsAppNotifications: config.canUseWhatsAppNotifications,
             sendUsageAlerts: config.sendUsageAlerts,
             usageAlertThresholdPercent: config.usageAlertThresholdPercent,
             trialDays: config.trialDays,
