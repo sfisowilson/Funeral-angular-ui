@@ -184,19 +184,18 @@
                             </div>
                         </div>
                         <button
-                            *ngIf="actions.add"
+                            *ngIf="actions.add && !isAtLimit"
                             type="button"
                             class="btn btn-sm btn-primary"
                             (click)="startCreate()"
-                            [disabled]="effectiveMax > 0 && records.length >= effectiveMax"
                         >
                             Add
                         </button>
                     </div>
 
-                    <div *ngIf="effectiveMax > 0 && records.length >= effectiveMax" class="alert alert-warning py-2 mb-2 small">
+                    <div *ngIf="isAtLimit" class="alert alert-warning py-2 mb-2 small d-flex align-items-center gap-2">
                         <i class="pi pi-info-circle me-1"></i>
-                        Maximum of {{ effectiveMax }} {{ pluralLabel.toLowerCase() }} reached.
+                        <span>Maximum of {{ effectiveMax }} {{ pluralLabel.toLowerCase() }} reached. <strong>Delete an existing {{ singularLabel.toLowerCase() }} to add more.</strong></span>
                     </div>
 
                     <div *ngIf="records.length === 0" class="text-muted small mb-3">No records yet. Use the Add button to create one.</div>
@@ -434,7 +433,7 @@
                                 This form has no fields configured.
                             </div>
 
-                            <button type="button" class="btn btn-primary" (click)="saveActive()" [disabled]="loading || (!!activeFormGroup && activeFormGroup.invalid)">
+                            <button type="button" class="btn btn-primary" (click)="saveActive()" [disabled]="loading || (!!activeFormGroup && activeFormGroup.invalid) || (!activeRecordId && isAtLimit)">
                                 Save
                             </button>
                         </div>

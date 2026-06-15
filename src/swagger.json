@@ -4778,6 +4778,121 @@
         }
       }
     },
+    "/api/FileUpload/File_AdminAttachDocument": {
+      "post": {
+        "tags": [
+          "FileUpload"
+        ],
+        "parameters": [
+          {
+            "name": "memberId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "displayName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileMetadataDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileMetadataDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileMetadataDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/FileUpload/File_GetAdminDocumentsByMemberId/{memberId}": {
+      "get": {
+        "tags": [
+          "FileUpload"
+        ],
+        "parameters": [
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FileMetadataDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FileMetadataDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FileMetadataDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Form/Form_GetAll": {
       "get": {
         "tags": [
@@ -8554,6 +8669,169 @@
         }
       }
     },
+    "/api/OnboardingContract/complete-onboarding": {
+      "post": {
+        "tags": [
+          "OnboardingContract"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteOnboardingRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteOnboardingRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteOnboardingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OnboardingContractDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OnboardingContractDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OnboardingContractDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/OnboardingContract/admin-notify-member/{memberId}": {
+      "post": {
+        "tags": [
+          "OnboardingContract"
+        ],
+        "parameters": [
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/OnboardingContract/contract-by-id/{contractId}": {
       "get": {
         "tags": [
@@ -9561,6 +9839,14 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "targetMemberId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -12549,6 +12835,18 @@
       "post": {
         "tags": [
           "PlanConfiguration"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Portfolio/PortfolioCv_Download": {
+      "get": {
+        "tags": [
+          "Portfolio"
         ],
         "responses": {
           "200": {
@@ -15687,6 +15985,49 @@
               "text/json": {
                 "schema": {
                   "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TenantSetting/TenantSetting_ResetMemberNumberCounter": {
+      "post": {
+        "tags": [
+          "TenantSetting"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              },
+              "text/json": {
+                "schema": {}
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -19361,6 +19702,56 @@
         "type": "integer",
         "format": "int32"
       },
+      "CompleteOnboardingRequest": {
+        "type": "object",
+        "properties": {
+          "signatureBase64": {
+            "type": "string",
+            "nullable": true
+          },
+          "geoLocation": {
+            "type": "string",
+            "nullable": true
+          },
+          "signatureX": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "signatureY": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "signatureWidth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "signatureHeight": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mappingProfileIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "additionalFields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "targetMemberId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CompletionAttachmentMappingRequestDto": {
         "type": "object",
         "properties": {
@@ -20623,7 +21014,7 @@
           },
           "policyId": {
             "type": "string",
-            "format": "uuid"
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -21278,6 +21669,10 @@
             "type": "string",
             "nullable": true
           },
+          "fillStage": {
+            "type": "string",
+            "nullable": true
+          },
           "isArrayField": {
             "type": "boolean"
           },
@@ -21335,8 +21730,6 @@
       },
       "CreatePlanConfigurationDto": {
         "required": [
-          "maxStorageMB",
-          "maxUsers",
           "monthlyPrice",
           "planName",
           "yearlyPrice"
@@ -21355,68 +21748,72 @@
             "nullable": true
           },
           "monthlyPrice": {
-            "maximum": 10000,
+            "maximum": 1000000,
             "minimum": 0,
             "type": "number",
             "format": "double"
           },
           "yearlyPrice": {
-            "maximum": 100000,
+            "maximum": 10000000,
             "minimum": 0,
             "type": "number",
             "format": "double"
           },
           "maxUsers": {
-            "maximum": 1000,
-            "minimum": 1,
+            "maximum": 1000000,
+            "minimum": 0,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "maxStorageMB": {
-            "maximum": 1000000,
-            "minimum": 100,
+            "maximum": 100000000,
+            "minimum": 0,
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "maxProducts": {
-            "maximum": 100000,
+            "maximum": 10000000,
             "minimum": 0,
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
           "maxMembers": {
-            "maximum": 100000,
+            "maximum": 10000000,
             "minimum": 0,
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
           "maxProductImagesPerProduct": {
-            "maximum": 20,
-            "minimum": 1,
+            "maximum": 100,
+            "minimum": 0,
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
           "maxActiveOrders": {
-            "maximum": 100000,
+            "maximum": 10000000,
             "minimum": 0,
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
           "apiRateLimitPerMinute": {
-            "maximum": 1000,
-            "minimum": 10,
+            "maximum": 100000,
+            "minimum": 0,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "apiRateLimitPerDay": {
-            "maximum": 1000000,
-            "minimum": 100,
+            "maximum": 100000000,
+            "minimum": 0,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "overageUserPrice": {
             "maximum": 100,
@@ -21499,22 +21896,25 @@
             "type": "boolean"
           },
           "maxLandingPages": {
-            "maximum": 100,
+            "maximum": 1000000,
             "minimum": 1,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "maxEmailTemplates": {
-            "maximum": 100,
+            "maximum": 1000000,
             "minimum": 1,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "maxCustomForms": {
-            "maximum": 100,
+            "maximum": 1000000,
             "minimum": 1,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "displayOrder": {
             "type": "integer",
@@ -21531,6 +21931,13 @@
             "nullable": true
           },
           "widgetKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "allowedTemplateCategories": {
             "type": "array",
             "items": {
               "type": "string"
@@ -22843,6 +23250,18 @@
             "type": "string",
             "format": "uuid",
             "nullable": true
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAdminAttached": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -23964,6 +24383,12 @@
           "isOnboardingComplete": {
             "type": "boolean"
           },
+          "updatesRequiredMessage": {
+            "maxLength": 2000,
+            "minLength": 0,
+            "type": "string",
+            "nullable": true
+          },
           "existingPolicyNumber": {
             "maxLength": 100,
             "minLength": 0,
@@ -25052,6 +25477,11 @@
           },
           "signedDocumentHash": {
             "type": "string",
+            "nullable": true
+          },
+          "mappingProfileId": {
+            "type": "string",
+            "format": "uuid",
             "nullable": true
           }
         },
@@ -26210,6 +26640,10 @@
             "type": "string",
             "nullable": true
           },
+          "fillStage": {
+            "type": "string",
+            "nullable": true
+          },
           "isArrayField": {
             "type": "boolean"
           },
@@ -27341,6 +27775,10 @@
           "memberStatus": {
             "type": "string",
             "nullable": true
+          },
+          "updatesRequiredMessage": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -27682,19 +28120,24 @@
         "format": "int32"
       },
       "ResetPasswordRequest": {
+        "required": [
+          "code",
+          "email",
+          "newPassword"
+        ],
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "code": {
-            "type": "string",
-            "nullable": true
+            "minLength": 1,
+            "type": "string"
           },
           "newPassword": {
-            "type": "string",
-            "nullable": true
+            "minLength": 8,
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -28031,6 +28474,11 @@
           "dataJson": {
             "type": "string",
             "nullable": true
+          },
+          "targetMemberId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -28290,11 +28738,13 @@
           },
           "maxUsers": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "maxStorageMB": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "maxProducts": {
             "type": "integer",
@@ -28318,11 +28768,13 @@
           },
           "apiRateLimitPerMinute": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "apiRateLimitPerDay": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "overageUserPrice": {
             "type": "number",
@@ -28394,15 +28846,18 @@
           },
           "maxLandingPages": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "maxEmailTemplates": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "maxCustomForms": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "permissionNames": {
             "type": "array",
@@ -28412,6 +28867,13 @@
             "nullable": true
           },
           "widgetKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "allowedTemplateCategories": {
             "type": "array",
             "items": {
               "type": "string"
@@ -30305,6 +30767,10 @@
             "type": "string",
             "nullable": true
           },
+          "fillStage": {
+            "type": "string",
+            "nullable": true
+          },
           "isArrayField": {
             "type": "boolean",
             "nullable": true
@@ -30372,8 +30838,6 @@
       "UpdatePlanConfigurationDto": {
         "required": [
           "id",
-          "maxStorageMB",
-          "maxUsers",
           "monthlyPrice",
           "planName",
           "yearlyPrice"
@@ -30392,68 +30856,72 @@
             "nullable": true
           },
           "monthlyPrice": {
-            "maximum": 10000,
+            "maximum": 1000000,
             "minimum": 0,
             "type": "number",
             "format": "double"
           },
           "yearlyPrice": {
-            "maximum": 100000,
+            "maximum": 10000000,
             "minimum": 0,
             "type": "number",
             "format": "double"
           },
           "maxUsers": {
-            "maximum": 1000,
-            "minimum": 1,
+            "maximum": 1000000,
+            "minimum": 0,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "maxStorageMB": {
-            "maximum": 1000000,
-            "minimum": 100,
+            "maximum": 100000000,
+            "minimum": 0,
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "nullable": true
           },
           "maxProducts": {
-            "maximum": 100000,
+            "maximum": 10000000,
             "minimum": 0,
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
           "maxMembers": {
-            "maximum": 100000,
+            "maximum": 10000000,
             "minimum": 0,
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
           "maxProductImagesPerProduct": {
-            "maximum": 20,
-            "minimum": 1,
+            "maximum": 100,
+            "minimum": 0,
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
           "maxActiveOrders": {
-            "maximum": 100000,
+            "maximum": 10000000,
             "minimum": 0,
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
           "apiRateLimitPerMinute": {
-            "maximum": 1000,
-            "minimum": 10,
+            "maximum": 100000,
+            "minimum": 0,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "apiRateLimitPerDay": {
-            "maximum": 1000000,
-            "minimum": 100,
+            "maximum": 100000000,
+            "minimum": 0,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "overageUserPrice": {
             "maximum": 100,
@@ -30536,22 +31004,25 @@
             "type": "boolean"
           },
           "maxLandingPages": {
-            "maximum": 100,
+            "maximum": 1000000,
             "minimum": 1,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "maxEmailTemplates": {
-            "maximum": 100,
+            "maximum": 1000000,
             "minimum": 1,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "maxCustomForms": {
-            "maximum": 100,
+            "maximum": 1000000,
             "minimum": 1,
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "displayOrder": {
             "type": "integer",
@@ -30568,6 +31039,13 @@
             "nullable": true
           },
           "widgetKeys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "allowedTemplateCategories": {
             "type": "array",
             "items": {
               "type": "string"

@@ -4,6 +4,14 @@ export interface WidgetConfig {
     title?: string;
     settings: any;
     layout?: WidgetLayoutConfig;
+    /** v3 document block-level wrapper styles */
+    blockStyles?: any;
+    /** v3 document responsive visibility config */
+    visibility?: any;
+    /** v3 document per-breakpoint style overrides */
+    styleOverrides?: any;
+    /** v3 document child blocks (container widgets) */
+    children?: WidgetConfig[];
 }
 
 export interface WidgetLayoutConfig {

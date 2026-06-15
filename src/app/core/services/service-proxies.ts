@@ -6808,23 +6808,27 @@ export class FileUploadServiceProxy {
     }
 
     /**
-     * @param memberId Member to attach the document to
-     * @param displayName Human-readable name for the document
-     * @param file (optional)
+     * @param memberId (optional) 
+     * @param displayName (optional) 
+     * @param file (optional) 
      * @return OK
      */
-    file_AdminAttachDocument(memberId: string, displayName: string, file: FileParameter | undefined): Observable<SwaggerResponse<FileMetadataDto>> {
+    file_AdminAttachDocument(memberId: string | undefined, displayName: string | undefined, file: FileParameter | undefined): Observable<SwaggerResponse<FileMetadataDto>> {
         let url_ = this.baseUrl + "/api/FileUpload/File_AdminAttachDocument?";
-        if (memberId === undefined || memberId === null)
-            throw new globalThis.Error("The parameter 'memberId' must be defined.");
-        url_ += "memberId=" + encodeURIComponent("" + memberId) + "&";
-        if (displayName === undefined || displayName === null)
-            throw new globalThis.Error("The parameter 'displayName' must be defined.");
-        url_ += "displayName=" + encodeURIComponent("" + displayName) + "&";
+        if (memberId === null)
+            throw new globalThis.Error("The parameter 'memberId' cannot be null.");
+        else if (memberId !== undefined)
+            url_ += "memberId=" + encodeURIComponent("" + memberId) + "&";
+        if (displayName === null)
+            throw new globalThis.Error("The parameter 'displayName' cannot be null.");
+        else if (displayName !== undefined)
+            url_ += "displayName=" + encodeURIComponent("" + displayName) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
-        if (file !== null && file !== undefined)
+        if (file === null || file === undefined)
+            throw new globalThis.Error("The parameter 'file' cannot be null.");
+        else
             content_.append("file", file.data, file.fileName ? file.fileName : "file");
 
         let options_ : any = {
@@ -6873,7 +6877,6 @@ export class FileUploadServiceProxy {
     }
 
     /**
-     * @param memberId Member whose admin-attached documents to retrieve
      * @return OK
      */
     file_GetAdminDocumentsByMemberId(memberId: string): Observable<SwaggerResponse<FileMetadataDto[]>> {
@@ -12226,6 +12229,151 @@ export class OnboardingContractServiceProxy {
     }
 
     /**
+     * @param body (optional) 
+     * @return OK
+     */
+    completeOnboarding(body: CompleteOnboardingRequest | undefined): Observable<SwaggerResponse<OnboardingContractDto[]>> {
+        let url_ = this.baseUrl + "/api/OnboardingContract/complete-onboarding";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCompleteOnboarding(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCompleteOnboarding(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<OnboardingContractDto[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<OnboardingContractDto[]>>;
+        }));
+    }
+
+    protected processCompleteOnboarding(response: HttpResponseBase): Observable<SwaggerResponse<OnboardingContractDto[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(OnboardingContractDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<OnboardingContractDto[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    adminNotifyMember(memberId: string): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/OnboardingContract/admin-notify-member/{memberId}";
+        if (memberId === undefined || memberId === null)
+            throw new globalThis.Error("The parameter 'memberId' must be defined.");
+        url_ = url_.replace("{memberId}", encodeURIComponent("" + memberId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAdminNotifyMember(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAdminNotifyMember(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processAdminNotifyMember(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
      * @return OK
      */
     contractById(contractId: string): Observable<SwaggerResponse<OnboardingContractDto>> {
@@ -12409,144 +12557,6 @@ export class OnboardingContractServiceProxy {
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
-    }
-    /**
-     * Complete onboarding: generate + sign PDFs for the calling member.
-     * Supports multiple mapping profiles (one signed contract per profile).
-     * @param body (optional) 
-     * @return OK
-     */
-    completeOnboarding(body: CompleteOnboardingRequest | undefined): Observable<SwaggerResponse<OnboardingContractDto[]>> {
-        let url_ = this.baseUrl + "/api/OnboardingContract/complete-onboarding";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processCompleteOnboarding(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processCompleteOnboarding(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<OnboardingContractDto[]>>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<OnboardingContractDto[]>>;
-        }));
-    }
-
-    protected processCompleteOnboarding(response: HttpResponseBase): Observable<SwaggerResponse<OnboardingContractDto[]>> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(OnboardingContractDto.fromJS(item));
-            }
-            else {
-                result200 = null as any;
-            }
-            return _observableOf(new SwaggerResponse(status, _headers, result200));
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("Internal Server Error", status, _responseText, _headers);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<SwaggerResponse<OnboardingContractDto[]>>(new SwaggerResponse(status, _headers, null as any));
-    }
-
-    /**
-     * Send a notification email to a member informing them that admin has completed
-     * their onboarding. Admin-only endpoint.
-     * @return OK
-     */
-    adminNotifyMember(memberId: string): Observable<SwaggerResponse<void>> {
-        let url_ = this.baseUrl + "/api/OnboardingContract/admin-notify-member/{memberId}";
-        if (memberId === undefined || memberId === null)
-            throw new globalThis.Error("The parameter 'memberId' must be defined.");
-        url_ = url_.replace("{memberId}", encodeURIComponent("" + memberId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processAdminNotifyMember(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processAdminNotifyMember(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
-        }));
-    }
-
-    protected processAdminNotifyMember(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
-        } else if (status === 403 || status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("Request failed", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -13937,15 +13947,18 @@ export class OnboardingMultiSubmitServiceProxy {
 
     /**
      * @param stepKey (optional) 
+     * @param targetMemberId (optional) 
      * @return OK
      */
-    onboardingMultiSubmit_GetStepContext(stepKey: string | undefined, targetMemberId?: string): Observable<SwaggerResponse<MultiSubmitStepContextDto>> {
+    onboardingMultiSubmit_GetStepContext(stepKey: string | undefined, targetMemberId: string | undefined): Observable<SwaggerResponse<MultiSubmitStepContextDto>> {
         let url_ = this.baseUrl + "/api/OnboardingMultiSubmit/OnboardingMultiSubmit_GetStepContext?";
         if (stepKey === null)
             throw new globalThis.Error("The parameter 'stepKey' cannot be null.");
         else if (stepKey !== undefined)
             url_ += "stepKey=" + encodeURIComponent("" + stepKey) + "&";
-        if (targetMemberId !== undefined && targetMemberId !== null)
+        if (targetMemberId === null)
+            throw new globalThis.Error("The parameter 'targetMemberId' cannot be null.");
+        else if (targetMemberId !== undefined)
             url_ += "targetMemberId=" + encodeURIComponent("" + targetMemberId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -18482,6 +18495,67 @@ export class PlanConfigurationServiceProxy {
 @Injectable({
     providedIn: 'root'
 })
+export class PortfolioServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    portfolioCv_Download(): Observable<SwaggerResponse<void>> {
+        let url_ = this.baseUrl + "/api/Portfolio/PortfolioCv_Download";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPortfolioCv_Download(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPortfolioCv_Download(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<void>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<void>>;
+        }));
+    }
+
+    protected processPortfolioCv_Download(response: HttpResponseBase): Observable<SwaggerResponse<void>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<void>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable({
+    providedIn: 'root'
+})
 export class PremiumCalculationServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -22496,6 +22570,65 @@ export class TenantSettingServiceProxy {
             }));
         }
         return _observableOf<SwaggerResponse<boolean>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @return OK
+     */
+    tenantSetting_ResetMemberNumberCounter(): Observable<SwaggerResponse<any>> {
+        let url_ = this.baseUrl + "/api/TenantSetting/TenantSetting_ResetMemberNumberCounter";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTenantSetting_ResetMemberNumberCounter(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTenantSetting_ResetMemberNumberCounter(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<any>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<any>>;
+        }));
+    }
+
+    protected processTenantSetting_ResetMemberNumberCounter(response: HttpResponseBase): Observable<SwaggerResponse<any>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : null as any;
+    
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ErrorResponse.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<any>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
@@ -27885,6 +28018,94 @@ export enum ClaimantType {
     _8 = 8,
 }
 
+export class CompleteOnboardingRequest implements ICompleteOnboardingRequest {
+    signatureBase64!: string | undefined;
+    geoLocation!: string | undefined;
+    signatureX!: number;
+    signatureY!: number;
+    signatureWidth!: number;
+    signatureHeight!: number;
+    mappingProfileIds!: string[] | undefined;
+    additionalFields!: { [key: string]: string; } | undefined;
+    targetMemberId!: string | undefined;
+
+    constructor(data?: ICompleteOnboardingRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.signatureBase64 = _data["signatureBase64"];
+            this.geoLocation = _data["geoLocation"];
+            this.signatureX = _data["signatureX"];
+            this.signatureY = _data["signatureY"];
+            this.signatureWidth = _data["signatureWidth"];
+            this.signatureHeight = _data["signatureHeight"];
+            if (Array.isArray(_data["mappingProfileIds"])) {
+                this.mappingProfileIds = [] as any;
+                for (let item of _data["mappingProfileIds"])
+                    this.mappingProfileIds!.push(item);
+            }
+            if (_data["additionalFields"]) {
+                this.additionalFields = {} as any;
+                for (let key in _data["additionalFields"]) {
+                    if (_data["additionalFields"].hasOwnProperty(key))
+                        (this.additionalFields as any)![key] = _data["additionalFields"][key];
+                }
+            }
+            this.targetMemberId = _data["targetMemberId"];
+        }
+    }
+
+    static fromJS(data: any): CompleteOnboardingRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CompleteOnboardingRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["signatureBase64"] = this.signatureBase64;
+        data["geoLocation"] = this.geoLocation;
+        data["signatureX"] = this.signatureX;
+        data["signatureY"] = this.signatureY;
+        data["signatureWidth"] = this.signatureWidth;
+        data["signatureHeight"] = this.signatureHeight;
+        if (Array.isArray(this.mappingProfileIds)) {
+            data["mappingProfileIds"] = [];
+            for (let item of this.mappingProfileIds)
+                data["mappingProfileIds"].push(item);
+        }
+        if (this.additionalFields) {
+            data["additionalFields"] = {};
+            for (let key in this.additionalFields) {
+                if (this.additionalFields.hasOwnProperty(key))
+                    (data["additionalFields"] as any)[key] = (this.additionalFields as any)[key];
+            }
+        }
+        data["targetMemberId"] = this.targetMemberId;
+        return data;
+    }
+}
+
+export interface ICompleteOnboardingRequest {
+    signatureBase64: string | undefined;
+    geoLocation: string | undefined;
+    signatureX: number;
+    signatureY: number;
+    signatureWidth: number;
+    signatureHeight: number;
+    mappingProfileIds: string[] | undefined;
+    additionalFields: { [key: string]: string; } | undefined;
+    targetMemberId: string | undefined;
+}
+
 export class CompletionAttachmentMappingRequestDto implements ICompletionAttachmentMappingRequestDto {
     sourceType!: string | undefined;
     dynamicEntityTypeKey!: string | undefined;
@@ -29630,7 +29851,7 @@ export class CreateMemberDto implements ICreateMemberDto {
     nationality!: string | undefined;
     isForeigner!: boolean;
     workPermitNumber!: string | undefined;
-    policyId!: string;
+    policyId!: string | undefined;
 
     constructor(data?: ICreateMemberDto) {
         if (data) {
@@ -29761,7 +29982,7 @@ export interface ICreateMemberDto {
     nationality: string | undefined;
     isForeigner: boolean;
     workPermitNumber: string | undefined;
-    policyId: string;
+    policyId: string | undefined;
 }
 
 export class CreateOnboardingFieldConfigurationDto implements ICreateOnboardingFieldConfigurationDto {
@@ -30643,6 +30864,7 @@ export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingReque
     checkedValue!: string | undefined;
     uncheckedValue!: string | undefined;
     category!: string | undefined;
+    fillStage!: string | undefined;
     isArrayField!: boolean;
     arrayName!: string | undefined;
     arrayFieldPattern!: string | undefined;
@@ -30650,7 +30872,6 @@ export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingReque
     sourceArrayPath!: string | undefined;
     fieldNamePrefix!: string | undefined;
     usePrefixInPdfFieldName!: boolean;
-    fillStage!: string | undefined;
 
     constructor(data?: ICreatePdfFieldMappingRequest) {
         if (data) {
@@ -30676,6 +30897,7 @@ export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingReque
             this.checkedValue = _data["checkedValue"];
             this.uncheckedValue = _data["uncheckedValue"];
             this.category = _data["category"];
+            this.fillStage = _data["fillStage"];
             this.isArrayField = _data["isArrayField"];
             this.arrayName = _data["arrayName"];
             this.arrayFieldPattern = _data["arrayFieldPattern"];
@@ -30683,7 +30905,6 @@ export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingReque
             this.sourceArrayPath = _data["sourceArrayPath"];
             this.fieldNamePrefix = _data["fieldNamePrefix"];
             this.usePrefixInPdfFieldName = _data["usePrefixInPdfFieldName"];
-            this.fillStage = _data["fillStage"];
         }
     }
 
@@ -30709,6 +30930,7 @@ export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingReque
         data["checkedValue"] = this.checkedValue;
         data["uncheckedValue"] = this.uncheckedValue;
         data["category"] = this.category;
+        data["fillStage"] = this.fillStage;
         data["isArrayField"] = this.isArrayField;
         data["arrayName"] = this.arrayName;
         data["arrayFieldPattern"] = this.arrayFieldPattern;
@@ -30716,7 +30938,6 @@ export class CreatePdfFieldMappingRequest implements ICreatePdfFieldMappingReque
         data["sourceArrayPath"] = this.sourceArrayPath;
         data["fieldNamePrefix"] = this.fieldNamePrefix;
         data["usePrefixInPdfFieldName"] = this.usePrefixInPdfFieldName;
-        data["fillStage"] = this.fillStage;
         return data;
     }
 }
@@ -30735,6 +30956,7 @@ export interface ICreatePdfFieldMappingRequest {
     checkedValue: string | undefined;
     uncheckedValue: string | undefined;
     category: string | undefined;
+    fillStage: string | undefined;
     isArrayField: boolean;
     arrayName: string | undefined;
     arrayFieldPattern: string | undefined;
@@ -30742,7 +30964,6 @@ export interface ICreatePdfFieldMappingRequest {
     sourceArrayPath: string | undefined;
     fieldNamePrefix: string | undefined;
     usePrefixInPdfFieldName: boolean;
-    fillStage: string | undefined;
 }
 
 export class CreatePdfMappingProfileRequest implements ICreatePdfMappingProfileRequest {
@@ -30802,14 +31023,14 @@ export class CreatePlanConfigurationDto implements ICreatePlanConfigurationDto {
     description!: string | undefined;
     monthlyPrice!: number;
     yearlyPrice!: number;
-    maxUsers!: number;
-    maxStorageMB!: number;
+    maxUsers!: number | undefined;
+    maxStorageMB!: number | undefined;
     maxProducts!: number | undefined;
     maxMembers!: number | undefined;
     maxProductImagesPerProduct!: number | undefined;
     maxActiveOrders!: number | undefined;
-    apiRateLimitPerMinute!: number;
-    apiRateLimitPerDay!: number;
+    apiRateLimitPerMinute!: number | undefined;
+    apiRateLimitPerDay!: number | undefined;
     overageUserPrice!: number;
     overageStoragePricePerGB!: number;
     overageProductPricePer100!: number | undefined;
@@ -30830,13 +31051,14 @@ export class CreatePlanConfigurationDto implements ICreatePlanConfigurationDto {
     requiresCreditCard!: boolean;
     canDowngrade!: boolean;
     canUpgrade!: boolean;
-    maxLandingPages!: number;
-    maxEmailTemplates!: number;
-    maxCustomForms!: number;
+    maxLandingPages!: number | undefined;
+    maxEmailTemplates!: number | undefined;
+    maxCustomForms!: number | undefined;
     displayOrder!: number;
     isActive!: boolean;
     permissionNames!: string[] | undefined;
     widgetKeys!: string[] | undefined;
+    allowedTemplateCategories!: string[] | undefined;
 
     constructor(data?: ICreatePlanConfigurationDto) {
         if (data) {
@@ -30895,6 +31117,11 @@ export class CreatePlanConfigurationDto implements ICreatePlanConfigurationDto {
                 this.widgetKeys = [] as any;
                 for (let item of _data["widgetKeys"])
                     this.widgetKeys!.push(item);
+            }
+            if (Array.isArray(_data["allowedTemplateCategories"])) {
+                this.allowedTemplateCategories = [] as any;
+                for (let item of _data["allowedTemplateCategories"])
+                    this.allowedTemplateCategories!.push(item);
             }
         }
     }
@@ -30955,6 +31182,11 @@ export class CreatePlanConfigurationDto implements ICreatePlanConfigurationDto {
             for (let item of this.widgetKeys)
                 data["widgetKeys"].push(item);
         }
+        if (Array.isArray(this.allowedTemplateCategories)) {
+            data["allowedTemplateCategories"] = [];
+            for (let item of this.allowedTemplateCategories)
+                data["allowedTemplateCategories"].push(item);
+        }
         return data;
     }
 }
@@ -30964,14 +31196,14 @@ export interface ICreatePlanConfigurationDto {
     description: string | undefined;
     monthlyPrice: number;
     yearlyPrice: number;
-    maxUsers: number;
-    maxStorageMB: number;
+    maxUsers: number | undefined;
+    maxStorageMB: number | undefined;
     maxProducts: number | undefined;
     maxMembers: number | undefined;
     maxProductImagesPerProduct: number | undefined;
     maxActiveOrders: number | undefined;
-    apiRateLimitPerMinute: number;
-    apiRateLimitPerDay: number;
+    apiRateLimitPerMinute: number | undefined;
+    apiRateLimitPerDay: number | undefined;
     overageUserPrice: number;
     overageStoragePricePerGB: number;
     overageProductPricePer100: number | undefined;
@@ -30992,13 +31224,14 @@ export interface ICreatePlanConfigurationDto {
     requiresCreditCard: boolean;
     canDowngrade: boolean;
     canUpgrade: boolean;
-    maxLandingPages: number;
-    maxEmailTemplates: number;
-    maxCustomForms: number;
+    maxLandingPages: number | undefined;
+    maxEmailTemplates: number | undefined;
+    maxCustomForms: number | undefined;
     displayOrder: number;
     isActive: boolean;
     permissionNames: string[] | undefined;
     widgetKeys: string[] | undefined;
+    allowedTemplateCategories: string[] | undefined;
 }
 
 export class CreateProductDto implements ICreateProductDto {
@@ -33076,7 +33309,7 @@ export class FileMetadataDto implements IFileMetadataDto {
     entityId!: string | undefined;
     displayName!: string | undefined;
     isAdminAttached!: boolean;
-    createdAt!: string | undefined;
+    createdAt!: DateTime | undefined;
 
     constructor(data?: IFileMetadataDto) {
         if (data) {
@@ -33101,7 +33334,7 @@ export class FileMetadataDto implements IFileMetadataDto {
             this.entityId = _data["entityId"];
             this.displayName = _data["displayName"];
             this.isAdminAttached = _data["isAdminAttached"];
-            this.createdAt = _data["createdAt"];
+            this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
         }
     }
 
@@ -33126,7 +33359,7 @@ export class FileMetadataDto implements IFileMetadataDto {
         data["entityId"] = this.entityId;
         data["displayName"] = this.displayName;
         data["isAdminAttached"] = this.isAdminAttached;
-        data["createdAt"] = this.createdAt;
+        data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
         return data;
     }
 }
@@ -33144,7 +33377,7 @@ export interface IFileMetadataDto {
     entityId: string | undefined;
     displayName: string | undefined;
     isAdminAttached: boolean;
-    createdAt: string | undefined;
+    createdAt: DateTime | undefined;
 }
 
 export class ForgotPasswordRequest implements IForgotPasswordRequest {
@@ -34719,6 +34952,7 @@ export class Member implements IMember {
     agentId!: string | undefined;
     agent!: User;
     isOnboardingComplete!: boolean;
+    updatesRequiredMessage!: string | undefined;
     existingPolicyNumber!: string | undefined;
     existingInsurerName!: string | undefined;
     existingPolicyPaidUpToDate!: boolean | undefined;
@@ -34787,6 +35021,7 @@ export class Member implements IMember {
             this.agentId = _data["agentId"];
             this.agent = _data["agent"] ? User.fromJS(_data["agent"]) : undefined as any;
             this.isOnboardingComplete = _data["isOnboardingComplete"];
+            this.updatesRequiredMessage = _data["updatesRequiredMessage"];
             this.existingPolicyNumber = _data["existingPolicyNumber"];
             this.existingInsurerName = _data["existingInsurerName"];
             this.existingPolicyPaidUpToDate = _data["existingPolicyPaidUpToDate"];
@@ -34863,6 +35098,7 @@ export class Member implements IMember {
         data["agentId"] = this.agentId;
         data["agent"] = this.agent ? this.agent.toJSON() : undefined as any;
         data["isOnboardingComplete"] = this.isOnboardingComplete;
+        data["updatesRequiredMessage"] = this.updatesRequiredMessage;
         data["existingPolicyNumber"] = this.existingPolicyNumber;
         data["existingInsurerName"] = this.existingInsurerName;
         data["existingPolicyPaidUpToDate"] = this.existingPolicyPaidUpToDate;
@@ -34932,6 +35168,7 @@ export interface IMember {
     agentId: string | undefined;
     agent: User;
     isOnboardingComplete: boolean;
+    updatesRequiredMessage: string | undefined;
     existingPolicyNumber: string | undefined;
     existingInsurerName: string | undefined;
     existingPolicyPaidUpToDate: boolean | undefined;
@@ -36372,92 +36609,6 @@ export interface IOnboardingContractDto {
     documentHash: string | undefined;
     signedDocumentHash: string | undefined;
     mappingProfileId: string | undefined;
-}
-
-export class CompleteOnboardingRequest implements ICompleteOnboardingRequest {
-    signatureBase64!: string | undefined;
-    geoLocation!: string | undefined;
-    signatureX!: number;
-    signatureY!: number;
-    signatureWidth!: number;
-    signatureHeight!: number;
-    mappingProfileIds!: string[] | undefined;
-    additionalFields!: { [key: string]: string } | undefined;
-    targetMemberId!: string | undefined;
-
-    constructor(data?: ICompleteOnboardingRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.signatureBase64 = _data["signatureBase64"];
-            this.geoLocation = _data["geoLocation"];
-            this.signatureX = _data["signatureX"];
-            this.signatureY = _data["signatureY"];
-            this.signatureWidth = _data["signatureWidth"];
-            this.signatureHeight = _data["signatureHeight"];
-            if (Array.isArray(_data["mappingProfileIds"])) {
-                this.mappingProfileIds = [] as any;
-                for (let item of _data["mappingProfileIds"])
-                    this.mappingProfileIds!.push(item);
-            }
-            if (_data["additionalFields"]) {
-                this.additionalFields = {} as any;
-                for (let key in _data["additionalFields"])
-                    if (_data["additionalFields"].hasOwnProperty(key))
-                        (this.additionalFields as any)[key] = _data["additionalFields"][key];
-            }
-            this.targetMemberId = _data["targetMemberId"];
-        }
-    }
-
-    static fromJS(data: any): CompleteOnboardingRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CompleteOnboardingRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["signatureBase64"] = this.signatureBase64;
-        data["geoLocation"] = this.geoLocation;
-        data["signatureX"] = this.signatureX;
-        data["signatureY"] = this.signatureY;
-        data["signatureWidth"] = this.signatureWidth;
-        data["signatureHeight"] = this.signatureHeight;
-        if (Array.isArray(this.mappingProfileIds)) {
-            data["mappingProfileIds"] = [];
-            for (let item of this.mappingProfileIds)
-                data["mappingProfileIds"].push(item);
-        }
-        if (this.additionalFields) {
-            data["additionalFields"] = {};
-            for (let key in this.additionalFields)
-                if (this.additionalFields.hasOwnProperty(key))
-                    data["additionalFields"][key] = (this.additionalFields as any)[key];
-        }
-        data["targetMemberId"] = this.targetMemberId;
-        return data;
-    }
-}
-
-export interface ICompleteOnboardingRequest {
-    signatureBase64: string | undefined;
-    geoLocation: string | undefined;
-    signatureX: number;
-    signatureY: number;
-    signatureWidth: number;
-    signatureHeight: number;
-    mappingProfileIds: string[] | undefined;
-    additionalFields: { [key: string]: string } | undefined;
-    targetMemberId: string | undefined;
 }
 
 export class OnboardingFieldConfigurationDto implements IOnboardingFieldConfigurationDto {
@@ -38072,6 +38223,7 @@ export class PdfFieldMappingDto implements IPdfFieldMappingDto {
     checkedValue!: string | undefined;
     uncheckedValue!: string | undefined;
     category!: string | undefined;
+    fillStage!: string | undefined;
     isArrayField!: boolean;
     arrayName!: string | undefined;
     arrayFieldPattern!: string | undefined;
@@ -38079,7 +38231,6 @@ export class PdfFieldMappingDto implements IPdfFieldMappingDto {
     sourceArrayPath!: string | undefined;
     fieldNamePrefix!: string | undefined;
     usePrefixInPdfFieldName!: boolean;
-    fillStage!: string | undefined;
     createdAt!: DateTime;
     updatedAt!: DateTime;
 
@@ -38109,6 +38260,7 @@ export class PdfFieldMappingDto implements IPdfFieldMappingDto {
             this.checkedValue = _data["checkedValue"];
             this.uncheckedValue = _data["uncheckedValue"];
             this.category = _data["category"];
+            this.fillStage = _data["fillStage"];
             this.isArrayField = _data["isArrayField"];
             this.arrayName = _data["arrayName"];
             this.arrayFieldPattern = _data["arrayFieldPattern"];
@@ -38116,7 +38268,6 @@ export class PdfFieldMappingDto implements IPdfFieldMappingDto {
             this.sourceArrayPath = _data["sourceArrayPath"];
             this.fieldNamePrefix = _data["fieldNamePrefix"];
             this.usePrefixInPdfFieldName = _data["usePrefixInPdfFieldName"];
-            this.fillStage = _data["fillStage"];
             this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
         }
@@ -38146,6 +38297,7 @@ export class PdfFieldMappingDto implements IPdfFieldMappingDto {
         data["checkedValue"] = this.checkedValue;
         data["uncheckedValue"] = this.uncheckedValue;
         data["category"] = this.category;
+        data["fillStage"] = this.fillStage;
         data["isArrayField"] = this.isArrayField;
         data["arrayName"] = this.arrayName;
         data["arrayFieldPattern"] = this.arrayFieldPattern;
@@ -38153,7 +38305,6 @@ export class PdfFieldMappingDto implements IPdfFieldMappingDto {
         data["sourceArrayPath"] = this.sourceArrayPath;
         data["fieldNamePrefix"] = this.fieldNamePrefix;
         data["usePrefixInPdfFieldName"] = this.usePrefixInPdfFieldName;
-        data["fillStage"] = this.fillStage;
         data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
         return data;
@@ -38176,6 +38327,7 @@ export interface IPdfFieldMappingDto {
     checkedValue: string | undefined;
     uncheckedValue: string | undefined;
     category: string | undefined;
+    fillStage: string | undefined;
     isArrayField: boolean;
     arrayName: string | undefined;
     arrayFieldPattern: string | undefined;
@@ -38183,7 +38335,6 @@ export interface IPdfFieldMappingDto {
     sourceArrayPath: string | undefined;
     fieldNamePrefix: string | undefined;
     usePrefixInPdfFieldName: boolean;
-    fillStage: string | undefined;
     createdAt: DateTime;
     updatedAt: DateTime;
 }
@@ -40706,9 +40857,9 @@ export enum RequiredDocumentType {
 }
 
 export class ResetPasswordRequest implements IResetPasswordRequest {
-    email!: string | undefined;
-    code!: string | undefined;
-    newPassword!: string | undefined;
+    email!: string;
+    code!: string;
+    newPassword!: string;
 
     constructor(data?: IResetPasswordRequest) {
         if (data) {
@@ -40744,9 +40895,9 @@ export class ResetPasswordRequest implements IResetPasswordRequest {
 }
 
 export interface IResetPasswordRequest {
-    email: string | undefined;
-    code: string | undefined;
-    newPassword: string | undefined;
+    email: string;
+    code: string;
+    newPassword: string;
 }
 
 export class ResourceBookingDto implements IResourceBookingDto {
@@ -41783,14 +41934,14 @@ export class SubscriptionPlanConfigurationDto implements ISubscriptionPlanConfig
     monthlyPrice!: number;
     yearlyPrice!: number;
     displayOrder!: number;
-    maxUsers!: number;
-    maxStorageMB!: number;
+    maxUsers!: number | undefined;
+    maxStorageMB!: number | undefined;
     maxProducts!: number | undefined;
     maxMembers!: number | undefined;
     maxProductImagesPerProduct!: number | undefined;
     maxActiveOrders!: number | undefined;
-    apiRateLimitPerMinute!: number;
-    apiRateLimitPerDay!: number;
+    apiRateLimitPerMinute!: number | undefined;
+    apiRateLimitPerDay!: number | undefined;
     overageUserPrice!: number;
     overageStoragePricePerGB!: number;
     overageProductPricePer100!: number | undefined;
@@ -41811,11 +41962,12 @@ export class SubscriptionPlanConfigurationDto implements ISubscriptionPlanConfig
     requiresCreditCard!: boolean;
     canDowngrade!: boolean;
     canUpgrade!: boolean;
-    maxLandingPages!: number;
-    maxEmailTemplates!: number;
-    maxCustomForms!: number;
+    maxLandingPages!: number | undefined;
+    maxEmailTemplates!: number | undefined;
+    maxCustomForms!: number | undefined;
     permissionNames!: string[] | undefined;
     widgetKeys!: string[] | undefined;
+    allowedTemplateCategories!: string[] | undefined;
     createdAt!: DateTime | undefined;
     updatedAt!: DateTime | undefined;
 
@@ -41878,6 +42030,11 @@ export class SubscriptionPlanConfigurationDto implements ISubscriptionPlanConfig
                 this.widgetKeys = [] as any;
                 for (let item of _data["widgetKeys"])
                     this.widgetKeys!.push(item);
+            }
+            if (Array.isArray(_data["allowedTemplateCategories"])) {
+                this.allowedTemplateCategories = [] as any;
+                for (let item of _data["allowedTemplateCategories"])
+                    this.allowedTemplateCategories!.push(item);
             }
             this.createdAt = _data["createdAt"] ? DateTime.fromISO(_data["createdAt"].toString()) : undefined as any;
             this.updatedAt = _data["updatedAt"] ? DateTime.fromISO(_data["updatedAt"].toString()) : undefined as any;
@@ -41942,6 +42099,11 @@ export class SubscriptionPlanConfigurationDto implements ISubscriptionPlanConfig
             for (let item of this.widgetKeys)
                 data["widgetKeys"].push(item);
         }
+        if (Array.isArray(this.allowedTemplateCategories)) {
+            data["allowedTemplateCategories"] = [];
+            for (let item of this.allowedTemplateCategories)
+                data["allowedTemplateCategories"].push(item);
+        }
         data["createdAt"] = this.createdAt ? this.createdAt.toString() : undefined as any;
         data["updatedAt"] = this.updatedAt ? this.updatedAt.toString() : undefined as any;
         return data;
@@ -41957,14 +42119,14 @@ export interface ISubscriptionPlanConfigurationDto {
     monthlyPrice: number;
     yearlyPrice: number;
     displayOrder: number;
-    maxUsers: number;
-    maxStorageMB: number;
+    maxUsers: number | undefined;
+    maxStorageMB: number | undefined;
     maxProducts: number | undefined;
     maxMembers: number | undefined;
     maxProductImagesPerProduct: number | undefined;
     maxActiveOrders: number | undefined;
-    apiRateLimitPerMinute: number;
-    apiRateLimitPerDay: number;
+    apiRateLimitPerMinute: number | undefined;
+    apiRateLimitPerDay: number | undefined;
     overageUserPrice: number;
     overageStoragePricePerGB: number;
     overageProductPricePer100: number | undefined;
@@ -41985,11 +42147,12 @@ export interface ISubscriptionPlanConfigurationDto {
     requiresCreditCard: boolean;
     canDowngrade: boolean;
     canUpgrade: boolean;
-    maxLandingPages: number;
-    maxEmailTemplates: number;
-    maxCustomForms: number;
+    maxLandingPages: number | undefined;
+    maxEmailTemplates: number | undefined;
+    maxCustomForms: number | undefined;
     permissionNames: string[] | undefined;
     widgetKeys: string[] | undefined;
+    allowedTemplateCategories: string[] | undefined;
     createdAt: DateTime | undefined;
     updatedAt: DateTime | undefined;
 }
@@ -44794,6 +44957,7 @@ export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingReque
     checkedValue!: string | undefined;
     uncheckedValue!: string | undefined;
     category!: string | undefined;
+    fillStage!: string | undefined;
     isArrayField!: boolean | undefined;
     arrayName!: string | undefined;
     arrayFieldPattern!: string | undefined;
@@ -44801,7 +44965,6 @@ export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingReque
     sourceArrayPath!: string | undefined;
     fieldNamePrefix!: string | undefined;
     usePrefixInPdfFieldName!: boolean | undefined;
-    fillStage!: string | undefined;
 
     constructor(data?: IUpdatePdfFieldMappingRequest) {
         if (data) {
@@ -44827,6 +44990,7 @@ export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingReque
             this.checkedValue = _data["checkedValue"];
             this.uncheckedValue = _data["uncheckedValue"];
             this.category = _data["category"];
+            this.fillStage = _data["fillStage"];
             this.isArrayField = _data["isArrayField"];
             this.arrayName = _data["arrayName"];
             this.arrayFieldPattern = _data["arrayFieldPattern"];
@@ -44834,7 +44998,6 @@ export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingReque
             this.sourceArrayPath = _data["sourceArrayPath"];
             this.fieldNamePrefix = _data["fieldNamePrefix"];
             this.usePrefixInPdfFieldName = _data["usePrefixInPdfFieldName"];
-            this.fillStage = _data["fillStage"];
         }
     }
 
@@ -44860,6 +45023,7 @@ export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingReque
         data["checkedValue"] = this.checkedValue;
         data["uncheckedValue"] = this.uncheckedValue;
         data["category"] = this.category;
+        data["fillStage"] = this.fillStage;
         data["isArrayField"] = this.isArrayField;
         data["arrayName"] = this.arrayName;
         data["arrayFieldPattern"] = this.arrayFieldPattern;
@@ -44867,7 +45031,6 @@ export class UpdatePdfFieldMappingRequest implements IUpdatePdfFieldMappingReque
         data["sourceArrayPath"] = this.sourceArrayPath;
         data["fieldNamePrefix"] = this.fieldNamePrefix;
         data["usePrefixInPdfFieldName"] = this.usePrefixInPdfFieldName;
-        data["fillStage"] = this.fillStage;
         return data;
     }
 }
@@ -44886,6 +45049,7 @@ export interface IUpdatePdfFieldMappingRequest {
     checkedValue: string | undefined;
     uncheckedValue: string | undefined;
     category: string | undefined;
+    fillStage: string | undefined;
     isArrayField: boolean | undefined;
     arrayName: string | undefined;
     arrayFieldPattern: string | undefined;
@@ -44893,7 +45057,6 @@ export interface IUpdatePdfFieldMappingRequest {
     sourceArrayPath: string | undefined;
     fieldNamePrefix: string | undefined;
     usePrefixInPdfFieldName: boolean | undefined;
-    fillStage: string | undefined;
 }
 
 export class UpdatePdfMappingProfileRequest implements IUpdatePdfMappingProfileRequest {
@@ -44957,14 +45120,14 @@ export class UpdatePlanConfigurationDto implements IUpdatePlanConfigurationDto {
     description!: string | undefined;
     monthlyPrice!: number;
     yearlyPrice!: number;
-    maxUsers!: number;
-    maxStorageMB!: number;
+    maxUsers!: number | undefined;
+    maxStorageMB!: number | undefined;
     maxProducts!: number | undefined;
     maxMembers!: number | undefined;
     maxProductImagesPerProduct!: number | undefined;
     maxActiveOrders!: number | undefined;
-    apiRateLimitPerMinute!: number;
-    apiRateLimitPerDay!: number;
+    apiRateLimitPerMinute!: number | undefined;
+    apiRateLimitPerDay!: number | undefined;
     overageUserPrice!: number;
     overageStoragePricePerGB!: number;
     overageProductPricePer100!: number | undefined;
@@ -44985,13 +45148,14 @@ export class UpdatePlanConfigurationDto implements IUpdatePlanConfigurationDto {
     requiresCreditCard!: boolean;
     canDowngrade!: boolean;
     canUpgrade!: boolean;
-    maxLandingPages!: number;
-    maxEmailTemplates!: number;
-    maxCustomForms!: number;
+    maxLandingPages!: number | undefined;
+    maxEmailTemplates!: number | undefined;
+    maxCustomForms!: number | undefined;
     displayOrder!: number;
     isActive!: boolean;
     permissionNames!: string[] | undefined;
     widgetKeys!: string[] | undefined;
+    allowedTemplateCategories!: string[] | undefined;
     id!: string;
 
     constructor(data?: IUpdatePlanConfigurationDto) {
@@ -45051,6 +45215,11 @@ export class UpdatePlanConfigurationDto implements IUpdatePlanConfigurationDto {
                 this.widgetKeys = [] as any;
                 for (let item of _data["widgetKeys"])
                     this.widgetKeys!.push(item);
+            }
+            if (Array.isArray(_data["allowedTemplateCategories"])) {
+                this.allowedTemplateCategories = [] as any;
+                for (let item of _data["allowedTemplateCategories"])
+                    this.allowedTemplateCategories!.push(item);
             }
             this.id = _data["id"];
         }
@@ -45112,6 +45281,11 @@ export class UpdatePlanConfigurationDto implements IUpdatePlanConfigurationDto {
             for (let item of this.widgetKeys)
                 data["widgetKeys"].push(item);
         }
+        if (Array.isArray(this.allowedTemplateCategories)) {
+            data["allowedTemplateCategories"] = [];
+            for (let item of this.allowedTemplateCategories)
+                data["allowedTemplateCategories"].push(item);
+        }
         data["id"] = this.id;
         return data;
     }
@@ -45122,14 +45296,14 @@ export interface IUpdatePlanConfigurationDto {
     description: string | undefined;
     monthlyPrice: number;
     yearlyPrice: number;
-    maxUsers: number;
-    maxStorageMB: number;
+    maxUsers: number | undefined;
+    maxStorageMB: number | undefined;
     maxProducts: number | undefined;
     maxMembers: number | undefined;
     maxProductImagesPerProduct: number | undefined;
     maxActiveOrders: number | undefined;
-    apiRateLimitPerMinute: number;
-    apiRateLimitPerDay: number;
+    apiRateLimitPerMinute: number | undefined;
+    apiRateLimitPerDay: number | undefined;
     overageUserPrice: number;
     overageStoragePricePerGB: number;
     overageProductPricePer100: number | undefined;
@@ -45150,13 +45324,14 @@ export interface IUpdatePlanConfigurationDto {
     requiresCreditCard: boolean;
     canDowngrade: boolean;
     canUpgrade: boolean;
-    maxLandingPages: number;
-    maxEmailTemplates: number;
-    maxCustomForms: number;
+    maxLandingPages: number | undefined;
+    maxEmailTemplates: number | undefined;
+    maxCustomForms: number | undefined;
     displayOrder: number;
     isActive: boolean;
     permissionNames: string[] | undefined;
     widgetKeys: string[] | undefined;
+    allowedTemplateCategories: string[] | undefined;
     id: string;
 }
 

@@ -257,7 +257,7 @@ export class TenantSettingsComponent implements OnInit {
 
                 if (this.tenantSettings.settings) {
                     try {
-                        this._settings = JSON.parse(this.tenantSettings.settings);
+                        this._settings = this.parseSettingsJson(this.tenantSettings.settings);
                     } catch (e) {
                         console.error('Error parsing existing tenant settings JSON:', e);
                         this._settings = {}; // Initialize to empty if parsing fails
@@ -353,7 +353,7 @@ export class TenantSettingsComponent implements OnInit {
             let existingSettings: Settings = {};
             if (this.tenantSettings.settings) {
                 try {
-                    existingSettings = JSON.parse(this.tenantSettings.settings);
+                    existingSettings = this.parseSettingsJson(this.tenantSettings.settings);
                 } catch (e) {
                     console.error('Error parsing existing tenant settings JSON for merging:', e);
                 }
@@ -522,6 +522,21 @@ export class TenantSettingsComponent implements OnInit {
     }
 
 
+
+    /**
+     * Safely parses tenant settings JSON, handling base64-encoded values
+     * from MySQL TO_BASE64(). Mirrors the logic in ThemeService.loadTenantCss().
+     */
+    private parseSettingsJson(raw: string): any {
+        if (!raw) return {};
+        // Plain JSON — parse directly
+        if (/^\s*[{\[]/.test(raw)) {
+            return JSON.parse(raw);
+        }
+        // Base64-encoded JSON (MySQL TO_BASE64 wraps at 76 chars)
+        const cleaned = raw.replace(/[\n\r\s]/g, '');
+        return JSON.parse(atob(cleaned));
+    }
 
     syncFieldConfigurations() {
         this.onboardingFieldConfigurationService.onboardingFieldConfiguration_InitializeDefaults().subscribe({

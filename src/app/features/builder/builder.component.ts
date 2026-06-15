@@ -35,22 +35,56 @@ import { RightPanelComponent } from '../../builder/right-panel/right-panel.compo
 
             <!-- Builder UI (rendered immediately to avoid layout shift, hidden via opacity) -->
             <div class="builder-ui" [class.builder-ui--hidden]="loading() || !!error()">
-                <!-- Top bar -->
+                <!-- Top bar — all global controls consolidated here -->
                 <div class="builder-topbar">
                     <div class="topbar-left">
-                        <button class="btn-icon" (click)="goBack()" title="Back to page management">
+                        <button class="topbar-back" (click)="goBack()" title="Back to page management">
                             <i class="pi pi-arrow-left"></i>
                         </button>
-                        <span class="page-name-label">{{ store.pageSettings()?.name || pageName() }}</span>
+                        <span class="topbar-page-name">{{ store.pageSettings()?.name || pageName() }}</span>
+                    </div>
+
+                    <div class="topbar-center">
+                        <!-- Breakpoint switcher -->
+                        <div class="breakpoint-group">
+                            <button class="bp-btn" [class.active]="store.activeBreakpoint() === 'desktop'" (click)="store.activeBreakpoint.set('desktop')" title="Desktop (1200px+)">
+                                <i class="pi pi-desktop"></i>
+                            </button>
+                            <button class="bp-btn" [class.active]="store.activeBreakpoint() === 'tablet'" (click)="store.activeBreakpoint.set('tablet')" title="Tablet (768px)">
+                                <i class="pi pi-tablet"></i>
+                            </button>
+                            <button class="bp-btn" [class.active]="store.activeBreakpoint() === 'mobile'" (click)="store.activeBreakpoint.set('mobile')" title="Mobile (375px)">
+                                <i class="pi pi-mobile"></i>
+                            </button>
+                        </div>
+
+                        <!-- Undo / Redo -->
+                        <div class="action-group">
+                            <button class="topbar-action" [disabled]="!store.canUndo()" (click)="store.undo()" [title]="store.undoLabel()">
+                                <i class="pi pi-undo"></i>
+                            </button>
+                            <button class="topbar-action" [disabled]="!store.canRedo()" (click)="store.redo()" [title]="store.redoLabel()">
+                                <i class="pi pi-refresh"></i>
+                            </button>
+                        </div>
+
+                        <!-- Preview toggle -->
+                        <button class="preview-toggle" [class.active]="store.previewMode()" (click)="togglePreview()">
+                            <i class="pi pi-eye"></i>
+                            <span>{{ store.previewMode() ? 'Editing' : 'Preview' }}</span>
+                        </button>
                     </div>
 
                     <div class="topbar-right">
                         @if (saveError()) {
                             <span class="save-error">Save failed — retry</span>
                         }
+                        <button class="topbar-settings" (click)="showPageSettings.set(!showPageSettings())" title="Page Settings">
+                            <i class="pi pi-cog"></i>
+                        </button>
                         <button
-                            class="btn-secondary"
-                            [class.btn-secondary--dirty]="hasUnsaved()"
+                            class="topbar-save"
+                            [class.topbar-save--dirty]="hasUnsaved()"
                             [disabled]="saving()"
                             (click)="savePage()"
                             title="Save (Ctrl+S)"
@@ -94,7 +128,6 @@ import { RightPanelComponent } from '../../builder/right-panel/right-panel.compo
                 background: #f0f2f5;
             }
 
-            /* Full-screen overlays */
             .builder-overlay {
                 position: absolute;
                 inset: 0;
@@ -117,7 +150,6 @@ import { RightPanelComponent } from '../../builder/right-panel/right-panel.compo
                 margin: 0;
             }
 
-            /* Full-height flex column */
             .builder-ui {
                 display: flex;
                 flex-direction: column;
@@ -130,105 +162,174 @@ import { RightPanelComponent } from '../../builder/right-panel/right-panel.compo
                 pointer-events: none;
             }
 
-            /* Top bar */
+            /* ── Top bar ──────────────────────────────── */
             .builder-topbar {
-                height: 48px;
+                height: 52px;
                 flex-shrink: 0;
-                background: white;
-                border-bottom: 1px solid #e5e7eb;
+                background: #1e293b;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 0 16px;
-                z-index: 10;
+                padding: 0 12px;
+                z-index: 20;
+                gap: 12px;
             }
 
             .topbar-left {
                 display: flex;
                 align-items: center;
-                gap: 12px;
-            }
-
-            .topbar-right {
-                display: flex;
-                align-items: center;
                 gap: 10px;
+                min-width: 0;
             }
 
-            .page-name-label {
-                font-size: 14px;
-                font-weight: 500;
-                color: #111827;
-            }
-
-            .save-error {
-                font-size: 12px;
-                color: #ef4444;
-            }
-
-            /* 3-panel layout */
-            .builder-layout {
-                flex: 1;
-                overflow: hidden;
-                display: grid;
-                grid-template-columns: 250px 1fr 320px;
-            }
-
-            /* Buttons */
-            .btn-icon {
+            .topbar-back {
                 width: 32px;
                 height: 32px;
                 border: none;
-                background: none;
+                background: rgba(255,255,255,0.08);
                 cursor: pointer;
                 border-radius: 6px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: #6b7280;
-                font-size: 16px;
+                color: #94a3b8;
+                flex-shrink: 0;
+            }
+            .topbar-back:hover { background: rgba(255,255,255,0.15); color: #e2e8f0; }
+
+            .topbar-page-name {
+                font-size: 14px;
+                font-weight: 600;
+                color: #f1f5f9;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
-            .btn-icon:hover {
-                background: #f3f4f6;
-                color: #111827;
+            .topbar-center {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
             }
 
-            .btn-secondary {
+            .breakpoint-group {
+                display: flex;
+                background: rgba(255,255,255,0.06);
+                border-radius: 6px;
+                padding: 2px;
+                gap: 1px;
+            }
+
+            .bp-btn {
+                width: 32px;
+                height: 28px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #64748b;
+                font-size: 14px;
+            }
+            .bp-btn:hover { color: #cbd5e1; }
+            .bp-btn.active { background: #3b82f6; color: white; }
+
+            .action-group {
+                display: flex;
+                gap: 2px;
+            }
+
+            .topbar-action {
+                width: 30px;
+                height: 30px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #94a3b8;
+            }
+            .topbar-action:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+            .topbar-action:disabled { opacity: 0.3; cursor: not-allowed; }
+
+            .preview-toggle {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                padding: 5px 12px;
+                border: 1px solid rgba(255,255,255,0.12);
+                background: transparent;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 12px;
+                color: #94a3b8;
+            }
+            .preview-toggle:hover { border-color: rgba(255,255,255,0.25); color: #e2e8f0; }
+            .preview-toggle.active { background: #3b82f6; border-color: #3b82f6; color: white; }
+
+            .topbar-right {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .save-error {
+                font-size: 11px;
+                color: #fca5a5;
+            }
+
+            .topbar-settings {
+                width: 32px;
+                height: 32px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #94a3b8;
+            }
+            .topbar-settings:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+
+            .topbar-save {
                 display: flex;
                 align-items: center;
                 gap: 6px;
                 padding: 6px 16px;
-                border: 1px solid #d1d5db;
-                background: white;
+                border: none;
+                background: #3b82f6;
                 border-radius: 6px;
                 cursor: pointer;
                 font-size: 13px;
-                color: #374151;
-                height: 32px;
+                font-weight: 500;
+                color: white;
+                height: 34px;
             }
-
-            .btn-secondary:hover {
-                border-color: #9ca3af;
-            }
-
-            .btn-secondary:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-
-            .btn-secondary--dirty {
-                border-color: #f59e0b;
-            }
+            .topbar-save:hover { background: #2563eb; }
+            .topbar-save:disabled { opacity: 0.5; cursor: not-allowed; }
+            .topbar-save--dirty { background: #f59e0b; }
+            .topbar-save--dirty:hover { background: #d97706; }
 
             .unsaved-dot {
                 width: 7px;
                 height: 7px;
                 border-radius: 50%;
-                background: #f59e0b;
+                background: white;
                 display: inline-block;
-                margin-left: 2px;
-                flex-shrink: 0;
+            }
+
+            /* ── 3-panel layout ──────────────────────── */
+            .builder-layout {
+                flex: 1;
+                overflow: hidden;
+                display: grid;
+                grid-template-columns: 260px 1fr 340px;
             }
         `
     ]
@@ -245,6 +346,7 @@ export class BuilderComponent implements OnInit, OnDestroy {
     readonly error = signal<string | null>(null);
     readonly saveError = signal(false);
     readonly pageName = signal('Untitled Page');
+    readonly showPageSettings = signal(false);
 
     private savedMutationCount = 0;
     readonly hasUnsaved = computed(() => this.store.mutationCount() !== this.savedMutationCount);
@@ -376,6 +478,10 @@ export class BuilderComponent implements OnInit, OnDestroy {
 
     goBack(): void {
         this.router.navigate(['/admin/custom-pages']);
+    }
+
+    togglePreview(): void {
+        this.store.previewMode.set(!this.store.previewMode());
     }
 
     @HostListener('window:keydown', ['$event'])

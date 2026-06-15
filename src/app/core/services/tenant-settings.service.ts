@@ -90,7 +90,11 @@ export class TenantSettingsService {
     }
 
     downloadFile(fileId: string, fileType: string): Observable<Blob> {
-        const url = `${this.baseUrl}/api/FileUpload/File_DownloadFile/${fileId}`;
+        let url = `${this.baseUrl}/api/FileUpload/File_DownloadFile/${fileId}`;
+        // Include tenant header for multi-tenant file access (same as getDownloadUrl)
+        if (this.tenantIdHeader && this.tenantIdHeader.has('X-Tenant-ID')) {
+            url += `?X-Tenant-ID=${this.tenantIdHeader.get('X-Tenant-ID')}`;
+        }
         let acceptHeader = 'application/octet-stream';
         if (fileType === 'css') {
             acceptHeader = 'text/css';

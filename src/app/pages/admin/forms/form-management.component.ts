@@ -233,6 +233,8 @@ export class FormManagementComponent implements OnInit {
     formFields: FormField[] = [];
     validationRules: DataValidationRule[] = [];
     rowLimitRules: RowLimitRuleConfig[] = [];
+    /** Static maximum rows per submission for this form (0 = unlimited). Overridden by matching conditional rowLimitRules. */
+    maxItems: number = 0;
     conditionalRules: ConditionalFieldRuleConfig[] = [];
     memberPrefillRules: MemberPrefillRuleConfig[] = [];
     calculatorPrefillRules: CalculatorPrefillRuleConfig[] = [];
@@ -380,6 +382,7 @@ export class FormManagementComponent implements OnInit {
         this.formFields = [];
         this.validationRules = [];
         this.rowLimitRules = [];
+        this.maxItems = 0;
         this.conditionalRules = [];
         this.memberPrefillRules = [];
         this.calculatorPrefillRules = [];
@@ -422,6 +425,11 @@ export class FormManagementComponent implements OnInit {
                             r.errorMessage ||
                             'You have reached the maximum number of rows allowed for this step. Please remove a row or change your previous selections.'
                     }));
+                }
+                if (typeof (parsed as any).maxItems === 'number') {
+                    this.maxItems = (parsed as any).maxItems;
+                } else {
+                    this.maxItems = 0;
                 }
                 if (Array.isArray((parsed as any).conditionalRules)) {
                     this.conditionalRules = (parsed as any).conditionalRules.map((r: any) => {
@@ -777,6 +785,7 @@ export class FormManagementComponent implements OnInit {
             fields: payload,
             validationRules: this.validationRules,
             rowLimitRules: this.rowLimitRules,
+            maxItems: this.maxItems || 0,
             conditionalRules: this.conditionalRules,
             memberPrefillRules: this.memberPrefillRules,
             calculatorPrefillRules: this.calculatorPrefillRules

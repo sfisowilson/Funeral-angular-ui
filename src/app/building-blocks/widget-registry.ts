@@ -1898,7 +1898,7 @@ export const WIDGET_TYPES: WidgetType[] = [
             showAddToCart: true,
             addToCartLabel: 'Add to Cart',
             detailsLabel: 'View Details',
-            currencySymbol: '$',
+            currencySymbol: 'R',
             buttonColor: '#007bff',
             buttonTextColor: '#ffffff',
             cardBackground: '#ffffff',
@@ -1920,7 +1920,7 @@ export const WIDGET_TYPES: WidgetType[] = [
             continueShopping: 'Continue Shopping',
             checkoutLabel: 'Proceed to Checkout',
             shopLink: '/shop',
-            currencySymbol: '$',
+            currencySymbol: 'R',
             buttonColor: '#007bff',
             buttonTextColor: '#ffffff',
             backgroundColor: '#ffffff'
@@ -1938,7 +1938,7 @@ export const WIDGET_TYPES: WidgetType[] = [
             pageSize: 10,
             showTracking: true,
             showStatusBadges: true,
-            currencySymbol: '$',
+            currencySymbol: 'R',
             backgroundColor: '#ffffff',
             titleColor: '#222222',
             cardBackground: '#f9f9f9'

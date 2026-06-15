@@ -2,9 +2,9 @@ import { Component, effect, inject, Type } from '@angular/core';
 import { CommonModule, DOCUMENT, NgComponentOutlet } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { PageDocumentStore } from '../core/page-document.store';
-import { BlockNode, BlockStyles, Breakpoint, ColumnNode, SectionSettings } from '../core/document.model';
+import { BlockNode, BlockStyles, Breakpoint, ColumnNode, SectionNode, SectionSettings } from '../core/document.model';
 import { WIDGET_TYPES } from '../../building-blocks/widget-registry';
-import { DeleteBlockCommand, DeleteSectionCommand, MoveSectionCommand, MoveBlockCommand, AddBlockCommand, AddColumnCommand, RemoveColumnCommand } from '../core/commands/commands';
+import { DeleteBlockCommand, DeleteSectionCommand, MoveSectionCommand, MoveBlockCommand, AddBlockCommand, AddColumnCommand, RemoveColumnCommand, AddSectionCommand } from '../core/commands/commands';
 import { BlockAttrsDirective } from './block-attrs.directive';
 import { buildRenderableWidgetConfig, getBackgroundCss, getBlockWrapperRenderStyles, getSectionRenderStyles, isBlockHiddenForBreakpoint } from '../core/render/block-render.util';
 
@@ -19,74 +19,19 @@ function getWidgetComponent(type: string): Type<any> | null {
     imports: [CommonModule, NgComponentOutlet, DragDropModule, BlockAttrsDirective],
     template: `
         <div class="canvas-area">
-            <!-- Toolbar -->
-            <div class="canvas-toolbar">
-                <div class="toolbar-group">
-                    <button
-                        class="bp-btn"
-                        [class.active]="store.activeBreakpoint() === 'desktop'"
-                        (click)="setBreakpoint('desktop')"
-                        title="Desktop (1200px+)"
-                    >
-                        <i class="pi pi-desktop"></i>
-                    </button>
-                    <button
-                        class="bp-btn"
-                        [class.active]="store.activeBreakpoint() === 'tablet'"
-                        (click)="setBreakpoint('tablet')"
-                        title="Tablet (768px)"
-                    >
-                        <i class="pi pi-tablet"></i>
-                    </button>
-                    <button
-                        class="bp-btn"
-                        [class.active]="store.activeBreakpoint() === 'mobile'"
-                        (click)="setBreakpoint('mobile')"
-                        title="Mobile (375px)"
-                    >
-                        <i class="pi pi-mobile"></i>
-                    </button>
-                </div>
-
-                <div class="toolbar-group">
-                    <button
-                        class="toolbar-btn"
-                        [disabled]="!store.canUndo()"
-                        (click)="store.undo()"
-                        [title]="store.undoLabel()"
-                    >
-                        <i class="pi pi-undo"></i>
-                    </button>
-                    <button
-                        class="toolbar-btn"
-                        [disabled]="!store.canRedo()"
-                        (click)="store.redo()"
-                        [title]="store.redoLabel()"
-                    >
-                        <i class="pi pi-refresh"></i>
-                    </button>
-                </div>
-
-                <div class="toolbar-group">
-                    <button
-                        class="preview-btn"
-                        [class.active]="store.previewMode()"
-                        (click)="togglePreview()"
-                    >
-                        <i class="pi pi-eye"></i>
-                        <span>{{ store.previewMode() ? 'Exit Preview' : 'Preview' }}</span>
-                    </button>
-                </div>
-            </div>
-
             <!-- Canvas viewport -->
             <div class="canvas-viewport" (click)="onViewportClick($event)">
                 <div class="canvas-frame" [class]="'canvas-frame--' + store.activeBreakpoint()">
-                    @if (!store.document()) {
+                    @if (!store.document() || (store.document()?.sections?.length ?? 0) === 0) {
                         <div class="canvas-empty">
-                            <i class="pi pi-file" style="font-size: 2.5rem; color: #d1d5db;"></i>
-                            <p>No content yet.</p>
-                            <p class="canvas-empty-hint">Add blocks from the left panel.</p>
+                            <div class="canvas-empty-icon">
+                                <i class="pi pi-plus-circle"></i>
+                            </div>
+                            <h3>Start building your page</h3>
+                            <p>Drag a block from the left panel, or click <strong>Add Section</strong> below to get started.</p>
+                            <button class="canvas-empty-btn" (click)="addFirstSection()">
+                                <i class="pi pi-plus"></i> Add Section
+                            </button>
                         </div>
                     }
 
@@ -100,61 +45,18 @@ function getWidgetComponent(type: string): Type<any> | null {
                             [ngStyle]="getSectionStyles(section.settings)"
                             (click)="onSectionClick($event, section.id)"
                         >
-                            <!-- Section label badge -->
-                            <button
-                                type="button"
-                                class="section-badge"
-                                (click)="selectSectionFromChrome($event, section.id, 'badge')"
-                                title="Select section"
-                            >
-                                Section {{ si + 1 }}
-                            </button>
-
                             @if (!store.previewMode()) {
-                                <!-- Section action bar -->
-                                <div class="section-actions" (click)="$event.stopPropagation()">
-                                    <button
-                                        class="section-action-btn section-action-btn--primary"
-                                        (click)="selectSectionFromChrome($event, section.id, 'toolbar')"
-                                        title="Section settings in right sidebar"
-                                    >
-                                        <i class="pi pi-cog"></i>
-                                    </button>
-                                    <button
-                                        class="section-action-btn"
-                                        [disabled]="si === 0"
-                                        (click)="moveSectionUp(section.id, si)"
-                                        title="Move section up"
-                                    >
-                                        <i class="pi pi-chevron-up"></i>
-                                    </button>
-                                    <button
-                                        class="section-action-btn"
-                                        [disabled]="si === sCount - 1"
-                                        (click)="moveSectionDown(section.id, si, sCount)"
-                                        title="Move section down"
-                                    >
-                                        <i class="pi pi-chevron-down"></i>
-                                    </button>
-                                    <button
-                                        class="section-action-btn section-action-btn--danger"
-                                        (click)="deleteSection(section.id)"
-                                        title="Delete section"
-                                    >
-                                        <i class="pi pi-trash"></i>
-                                    </button>
-                                    <span class="section-action-divider"></span>
-                                    <button
-                                        class="section-action-btn"
-                                        (click)="addColumn(section.id, section)"
-                                        title="Add column"
-                                    >
-                                        <i class="pi pi-plus"></i>
-                                    </button>
+                                <div class="section-chrome">
+                                    <span class="section-badge" (click)="selectSectionFromChrome($event, section.id, 'badge')">Section {{ si + 1 }}</span>
+                                    <div class="section-actions">
+                                        <button class="chrome-btn" [disabled]="si === 0" (click)="moveSectionUp(section.id, si)" title="Move up"><i class="pi pi-chevron-up"></i></button>
+                                        <button class="chrome-btn" [disabled]="si === sCount - 1" (click)="moveSectionDown(section.id, si, sCount)" title="Move down"><i class="pi pi-chevron-down"></i></button>
+                                        <button class="chrome-btn chrome-btn--add" (click)="addColumn(section.id, section)" title="Add column"><i class="pi pi-plus"></i></button>
+                                        <button class="chrome-btn chrome-btn--danger" (click)="deleteSection(section.id)" title="Delete section"><i class="pi pi-trash"></i></button>
+                                    </div>
                                 </div>
                             }
 
-                            <!-- Columns -->
                             <div class="section-columns">
                                 @for (column of section.columns; track column.id) {
                                     <div
@@ -168,18 +70,10 @@ function getWidgetComponent(type: string): Type<any> | null {
                                         (dragover)="onColumnDragOver($event)"
                                         (drop)="onLibraryDrop($event, column)"
                                     >
-                                        @if (!store.previewMode()) {
+                                        @if (!store.previewMode() && section.columns.length > 1) {
                                             <div class="column-header">
-                                                <span class="col-width-label">{{ (column.widthFraction * 100).toFixed(0) }}%</span>
-                                                @if (section.columns.length > 1) {
-                                                    <button
-                                                        class="col-remove-btn"
-                                                        (click)="$event.stopPropagation(); removeColumn(section.id, column.id)"
-                                                        title="Remove column"
-                                                    >
-                                                        <i class="pi pi-times"></i>
-                                                    </button>
-                                                }
+                                                <span>{{ (column.widthFraction * 100).toFixed(0) }}%</span>
+                                                <button class="chrome-btn chrome-btn--sm" (click)="$event.stopPropagation(); removeColumn(section.id, column.id)" title="Remove column"><i class="pi pi-times"></i></button>
                                             </div>
                                         }
                                         @for (block of column.blocks; track block.id) {
@@ -199,24 +93,11 @@ function getWidgetComponent(type: string): Type<any> | null {
                                                 (mouseleave)="store.hoveredId.set(null)"
                                             >
                                                 @if (!store.previewMode()) {
-                                                    <div class="block-header">
+                                                    <div class="block-chrome">
                                                         <span class="block-type-label">{{ block.type }}</span>
                                                         <div class="block-actions">
-                                                            <button
-                                                                class="block-action-btn block-drag-handle"
-                                                                cdkDragHandle
-                                                                title="Drag to reorder"
-                                                                (click)="$event.stopPropagation()"
-                                                            >
-                                                                <i class="pi pi-bars"></i>
-                                                            </button>
-                                                            <button
-                                                                class="block-action-btn block-action-btn--danger"
-                                                                title="Delete block"
-                                                                (click)="$event.stopPropagation(); deleteBlock(block.id)"
-                                                            >
-                                                                <i class="pi pi-trash"></i>
-                                                            </button>
+                                                            <span class="block-drag-handle" cdkDragHandle title="Drag to reorder"><i class="pi pi-bars"></i></span>
+                                                            <button class="chrome-btn chrome-btn--sm chrome-btn--danger" (click)="$event.stopPropagation(); deleteBlock(block.id)" title="Delete"><i class="pi pi-trash"></i></button>
                                                         </div>
                                                     </div>
                                                 }
@@ -264,88 +145,6 @@ function getWidgetComponent(type: string): Type<any> | null {
                 flex-direction: column;
                 flex: 1;
                 min-height: 0;
-            }
-
-            /* Toolbar */
-            .canvas-toolbar {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                padding: 6px 12px;
-                background: white;
-                border-bottom: 1px solid #e5e7eb;
-                flex-shrink: 0;
-            }
-
-            .toolbar-group {
-                display: flex;
-                align-items: center;
-                gap: 2px;
-                padding: 0 8px;
-                border-right: 1px solid #e5e7eb;
-            }
-
-            .toolbar-group:last-child {
-                border-right: none;
-            }
-
-            .bp-btn,
-            .toolbar-btn {
-                width: 32px;
-                height: 32px;
-                border: none;
-                background: none;
-                cursor: pointer;
-                border-radius: 6px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #6b7280;
-                font-size: 14px;
-            }
-
-            .bp-btn:hover,
-            .toolbar-btn:hover {
-                background: #f3f4f6;
-                color: #111827;
-            }
-
-            .bp-btn.active {
-                background: #eff6ff;
-                color: #2563eb;
-            }
-
-            .toolbar-btn:disabled {
-                opacity: 0.4;
-                cursor: not-allowed;
-            }
-
-            .toolbar-btn:disabled:hover {
-                background: none;
-            }
-
-            .preview-btn {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                padding: 5px 12px;
-                border: 1px solid #d1d5db;
-                background: white;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 13px;
-                color: #374151;
-                height: 32px;
-            }
-
-            .preview-btn:hover {
-                border-color: #9ca3af;
-            }
-
-            .preview-btn.active {
-                background: #eff6ff;
-                border-color: #2563eb;
-                color: #2563eb;
             }
 
             /* Viewport */
@@ -438,7 +237,7 @@ function getWidgetComponent(type: string): Type<any> | null {
             }
 
             /* Section action bar */
-            .section-actions {
+            .section-chrome, .section-actions {
                 position: absolute;
                 top: 4px;
                 right: 4px;
@@ -540,7 +339,7 @@ function getWidgetComponent(type: string): Type<any> | null {
             }
 
             /* Block header row */
-            .block-header {
+            .block-header, .block-chrome {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -568,7 +367,7 @@ function getWidgetComponent(type: string): Type<any> | null {
                 opacity: 1;
             }
 
-            .block-action-btn {
+            .block-action-btn, .chrome-btn {
                 width: 22px;
                 height: 22px;
                 border: none;
@@ -583,7 +382,7 @@ function getWidgetComponent(type: string): Type<any> | null {
                 transition: background 0.1s, color 0.1s;
             }
 
-            .block-action-btn:hover {
+            .block-action-btn:hover, .chrome-btn:hover {
                 background: #e5e7eb;
                 color: #374151;
             }
@@ -657,7 +456,7 @@ function getWidgetComponent(type: string): Type<any> | null {
                 font-family: monospace;
             }
 
-            .col-remove-btn {
+            .col-remove-btn, .chrome-btn--sm {
                 width: 18px;
                 height: 18px;
                 border: none;
@@ -827,6 +626,17 @@ export class CanvasAreaComponent {
     }
 
     // ── Section controls ──────────────────────────────────────
+
+    addFirstSection(): void {
+        const sectionId = this.makeId();
+        const columnId = this.makeId();
+        const section: SectionNode = {
+            id: sectionId,
+            settings: { fullWidth: true } as any,
+            columns: [{ id: columnId, widthFraction: 1, blocks: [] }]
+        };
+        this.store.dispatch(new AddSectionCommand(section));
+    }
 
     deleteSection(sectionId: string): void {
         this.store.dispatch(new DeleteSectionCommand(sectionId));

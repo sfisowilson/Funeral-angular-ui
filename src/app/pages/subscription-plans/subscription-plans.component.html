@@ -72,7 +72,7 @@
             </td>
             <td>{{ plan.name }}</td>
             <td>{{ plan.description }}</td>
-            <td>{{ plan.monthlyPrice | currency }}</td>
+            <td>{{ plan.monthlyPrice | currency : 'ZAR' : 'symbol-narrow' }}</td>
             <td>{{ getTenantTypeName(plan.allowedTenantType) }}</td>
             <td>
                 <button type="button" class="btn-outline-primary-theme btn-theme-sm me-2 rounded-circle" (click)="editSubscriptionPlan(plan)">
@@ -101,7 +101,7 @@
             </div>
             <div>
                 <label for="monthlyPrice" class="block font-bold mb-3">Monthly Price</label>
-                <p-inputNumber id="monthlyPrice" [(ngModel)]="subscriptionPlan.monthlyPrice" mode="currency" currency="USD" locale="en-US" required fluid></p-inputNumber>
+                <p-inputNumber id="monthlyPrice" [(ngModel)]="subscriptionPlan.monthlyPrice" mode="currency" currency="ZAR" locale="en-ZA" required fluid></p-inputNumber>
                 <small class="text-red-500" *ngIf="submitted && subscriptionPlan.monthlyPrice === undefined">Monthly Price is required.</small>
             </div>
             <div>

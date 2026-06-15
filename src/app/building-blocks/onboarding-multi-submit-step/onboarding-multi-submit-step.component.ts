@@ -202,6 +202,8 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     rowLimitRules: RowLimitRuleConfig[] = [];
     private activeRowLimitRule: RowLimitRuleConfig | null = null;
     private rowLimitSourceValues: Record<string, string[]> = {};
+    /** Static max rows from the form definition (0 = unlimited). Set via parseFormSchema. */
+    formMaxItems = 0;
     effectiveMin = 0;
     effectiveMax = 0;
     nextUrl: string | undefined;
@@ -468,6 +470,11 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         // Row-limit rules (configured on the form) are evaluated after simple/dynamic limits
         // and can further reduce the effectiveMax for this step based on previous answers.
         this.applyRowLimitRules();
+
+        // Clamp by form-level static max (applies even when no conditional rules exist)
+        if (this.formMaxItems > 0 && (this.effectiveMax <= 0 || this.effectiveMax > this.formMaxItems)) {
+            this.effectiveMax = this.formMaxItems;
+        }
     }
 
     private getSessionValue(key: string): string | null {
@@ -564,12 +571,39 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         }
 
         // When row-limit rules exist, defaults (static/dynamic) should only apply if there are no rules at all.
-        // If no rule matched, treat as unlimited for max-items; otherwise use the matched rule's max.
+        // If no rule matched, fall back to the static limits (step-level maxItems, form-level maxItems).
+        // The most restrictive (lowest non-zero) value wins.
         if (matchedMax != null) {
-            this.effectiveMax = matchedMax;
+            // Conditional rule matched — use its max, but don't exceed static limits if they're set
+            this.effectiveMax = this.clampByStaticLimits(matchedMax);
         } else {
-            this.effectiveMax = 0; // unlimited when rules exist but none match
+            // No conditional rule matched — fall back to static limits only
+            this.effectiveMax = this.resolveStaticMaxFallback();
         }
+    }
+
+    /**
+     * Clamp a given max by any static limits (step-level, form-level).
+     * The most restrictive (lowest non-zero) limit wins. Returns 0 if unlimited.
+     */
+    private clampByStaticLimits(value: number): number {
+        if (value <= 0) return 0;
+        let result = value;
+        if (this.maxItems > 0) result = Math.min(result, this.maxItems);
+        if (this.formMaxItems > 0) result = Math.min(result, this.formMaxItems);
+        return result <= 0 ? 0 : result;
+    }
+
+    /**
+     * Resolve the static fallback max when no conditional rule matches.
+     * Returns the most restrictive (lowest non-zero) of step-level and form-level limits, or 0 if unlimited.
+     */
+    private resolveStaticMaxFallback(): number {
+        const limits: number[] = [];
+        if (this.maxItems > 0) limits.push(this.maxItems);
+        if (this.formMaxItems > 0) limits.push(this.formMaxItems);
+        if (limits.length === 0) return 0;
+        return Math.min(...limits);
     }
 
     private loadRowLimitSourceValues(): void {
@@ -772,6 +806,21 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
     private loadInternalStep(stepConfig: any): void {
         const settings = (this.config && this.config.settings) || {};
+
+        // Reset form-scoped limits before loading a new internal step, so stale
+        // values from the previous step's form don't bleed into the current one.
+        // (parseFormSchema also resets these, but resolveEffectiveLimits below
+        // runs BEFORE loadContext/parseFormSchema, so we need an early reset here.)
+        this.formMaxItems = 0;
+        this.rowLimitRules = [];
+        this.activeRowLimitRule = null;
+        this.rowLimitSourceValues = {};
+        this.conditionalRules = [];
+        this.calculatorPrefillRules = [];
+        // Re-apply widget-level defaults (step-level listDisplayConfig will
+        // override these later in applyListDisplayConfigFromStep if present).
+        this.minItems = typeof settings.minItems === 'number' ? settings.minItems : 0;
+        this.maxItems = typeof settings.maxItems === 'number' ? settings.maxItems : 0;
 
         // Merge validation rules from step config
         const globalValidationRules = Array.isArray(settings.validationRules) ? settings.validationRules : [];
@@ -1046,6 +1095,11 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
         return this.context?.records || [];
     }
 
+    /** Whether the member has reached the maximum number of rows allowed. */
+    get isAtLimit(): boolean {
+        return this.effectiveMax > 0 && this.records.length >= this.effectiveMax;
+    }
+
     loadContext(stepKey: string): void {
         this.loading = true;
         this.error = '';
@@ -1157,11 +1211,12 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     }
 
     startCreate(): void {
-        if (this.effectiveMax > 0 && this.records.length >= this.effectiveMax) {
-            this.error = `You have reached the maximum limit of ${this.effectiveMax} items.`;
+        if (this.isAtLimit) {
+            this.error = `You have reached the maximum limit of ${this.effectiveMax} ${this.pluralLabel.toLowerCase()}. Delete an existing ${this.singularLabel.toLowerCase()} to add more.`;
             return;
         }
 
+        this.error = '';
         this.activeRecordId = null;
         this.activeDisplayName = '';
         this.activeOriginalData = {};
@@ -1186,6 +1241,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
     saveActive(afterSave?: () => void): void {
         if (!this.stepKey) {
             this.error = 'Multi-submit step is not available in this context.';
+            return;
+        }
+
+        // Block saving a NEW record when the limit is already reached.
+        // Editing an existing record is always allowed.
+        if (!this.activeRecordId && this.isAtLimit) {
+            this.error = `You have reached the maximum limit of ${this.effectiveMax} ${this.pluralLabel.toLowerCase()}. Delete an existing ${this.singularLabel.toLowerCase()} to add more.`;
             return;
         }
 
@@ -1321,6 +1383,16 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
 
     private parseFormSchema(json: string | undefined | null): { fields: DynamicFormField[]; validationRules: DataValidationRule[] } {
         const result = { fields: [] as DynamicFormField[], validationRules: [] as DataValidationRule[] };
+
+        // Reset form-scoped limits before parsing a new form, so stale values
+        // from a previous internal step's form don't bleed into the current one.
+        this.rowLimitRules = [];
+        this.activeRowLimitRule = null;
+        this.rowLimitSourceValues = {};
+        this.formMaxItems = 0;
+        this.conditionalRules = [];
+        this.calculatorPrefillRules = [];
+
         if (!json) return result;
 
         try {
@@ -1334,6 +1406,13 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                 if (Array.isArray(parsed.validationRules)) {
                     result.validationRules = parsed.validationRules;
                 }
+                // Read form-level static maxItems (simple limit, no conditions)
+                if (typeof (parsed as any).maxItems === 'number') {
+                    this.formMaxItems = (parsed as any).maxItems;
+                } else {
+                    this.formMaxItems = 0;
+                }
+
                 if (Array.isArray((parsed as any).rowLimitRules)) {
                     this.rowLimitRules = (parsed as any).rowLimitRules as RowLimitRuleConfig[];
                     // Ensure a stable order field and sane defaults, then load dynamic sources and apply row-limit effect.
@@ -1345,6 +1424,9 @@ export class OnboardingMultiSubmitStepComponent implements OnInit, OnChanges, Af
                     }));
 
                     this.loadRowLimitSourceValues();
+                } else {
+                    // No conditional rules — still apply form-level max via resolveEffectiveLimits
+                    this.resolveEffectiveLimits();
                 }
                 if (Array.isArray((parsed as any).conditionalRules)) {
                     this.conditionalRules = (parsed as any).conditionalRules.map((r: any) => {

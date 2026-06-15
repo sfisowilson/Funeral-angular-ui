@@ -35,6 +35,7 @@ export class PlanConfigurationComponent implements OnInit {
     planGroups = signal<PlanGroup[]>([]);
     availablePermissions: Permission[] = [];
     availableWidgets: WidgetType[] = WIDGET_TYPES;
+    readonly templateCategories: string[] = ['funeral', 'ngo', 'ecommerce', 'services'];
     loadingPermissions = false;
     missingPermissions: string[] = [];
     private normalizedSelectedPermissionSet = new Set<string>();
@@ -56,20 +57,20 @@ export class PlanConfigurationComponent implements OnInit {
         isActive: true,
         displayOrder: 0,
 
-        // Limits
-        maxUsers: 10,
-        maxStorageMB: 1024,
-        maxProducts: 100,
-        maxMembers: 100,
-        maxProductImagesPerProduct: 10,
-        maxActiveOrders: 50,
-        maxLandingPages: 5,
-        maxEmailTemplates: 10,
-        maxCustomForms: 5,
+        // Limits (null = unlimited in UI, cleared input = null)
+        maxUsers: null as number | null,
+        maxStorageMB: null as number | null,
+        maxProducts: null as number | null,
+        maxMembers: null as number | null,
+        maxProductImagesPerProduct: null as number | null,
+        maxActiveOrders: null as number | null,
+        maxLandingPages: null as number | null,
+        maxEmailTemplates: null as number | null,
+        maxCustomForms: null as number | null,
 
         // API Limits
-        apiRateLimitPerMinute: 60,
-        apiRateLimitPerDay: 10000,
+        apiRateLimitPerMinute: null as number | null,
+        apiRateLimitPerDay: null as number | null,
 
         // Overage
         allowOverage: false,
@@ -97,7 +98,8 @@ export class PlanConfigurationComponent implements OnInit {
         canDowngrade: true,
         canUpgrade: true,
         permissionNames: [] as string[],
-        widgetKeys: [] as string[]
+        widgetKeys: [] as string[],
+        allowedTemplateCategories: [] as string[]
     };
 
     constructor(
@@ -194,17 +196,17 @@ export class PlanConfigurationComponent implements OnInit {
             yearlyPrice: 0,
             isActive: true,
             displayOrder: 0,
-            maxUsers: 10,
-            maxStorageMB: 1024,
-            maxProducts: 100,
-            maxMembers: 100,
-            maxProductImagesPerProduct: 10,
-            maxActiveOrders: 50,
-            maxLandingPages: 5,
-            maxEmailTemplates: 10,
-            maxCustomForms: 5,
-            apiRateLimitPerMinute: 60,
-            apiRateLimitPerDay: 10000,
+            maxUsers: null,
+            maxStorageMB: null,
+            maxProducts: null,
+            maxMembers: null,
+            maxProductImagesPerProduct: null,
+            maxActiveOrders: null,
+            maxLandingPages: null,
+            maxEmailTemplates: null,
+            maxCustomForms: null,
+            apiRateLimitPerMinute: null,
+            apiRateLimitPerDay: null,
             allowOverage: false,
             overageUserPrice: 5,
             overageStoragePricePerGB: 2,
@@ -226,7 +228,8 @@ export class PlanConfigurationComponent implements OnInit {
             canDowngrade: true,
             canUpgrade: true,
             permissionNames: [],
-            widgetKeys: []
+            widgetKeys: [],
+            allowedTemplateCategories: []
         };
         this.recomputeMissingPermissions();
     }
@@ -239,17 +242,17 @@ export class PlanConfigurationComponent implements OnInit {
             yearlyPrice: config.yearlyPrice,
             isActive: config.isActive,
             displayOrder: config.displayOrder,
-            maxUsers: config.maxUsers,
-            maxStorageMB: config.maxStorageMB,
-            maxProducts: config.maxProducts || 100,
-            maxMembers: config.maxMembers || 100,
-            maxProductImagesPerProduct: config.maxProductImagesPerProduct || 10,
-            maxActiveOrders: config.maxActiveOrders || 50,
-            maxLandingPages: config.maxLandingPages,
-            maxEmailTemplates: config.maxEmailTemplates,
-            maxCustomForms: config.maxCustomForms,
-            apiRateLimitPerMinute: config.apiRateLimitPerMinute,
-            apiRateLimitPerDay: config.apiRateLimitPerDay,
+            maxUsers: config.maxUsers ?? null,
+            maxStorageMB: config.maxStorageMB ?? null,
+            maxProducts: config.maxProducts ?? null,
+            maxMembers: config.maxMembers ?? null,
+            maxProductImagesPerProduct: config.maxProductImagesPerProduct ?? null,
+            maxActiveOrders: config.maxActiveOrders ?? null,
+            maxLandingPages: config.maxLandingPages ?? null,
+            maxEmailTemplates: config.maxEmailTemplates ?? null,
+            maxCustomForms: config.maxCustomForms ?? null,
+            apiRateLimitPerMinute: config.apiRateLimitPerMinute ?? null,
+            apiRateLimitPerDay: config.apiRateLimitPerDay ?? null,
             allowOverage: config.allowOverage,
             overageUserPrice: config.overageUserPrice,
             overageStoragePricePerGB: config.overageStoragePricePerGB,
@@ -271,7 +274,8 @@ export class PlanConfigurationComponent implements OnInit {
             canDowngrade: config.canDowngrade,
             canUpgrade: config.canUpgrade,
             permissionNames: config.permissionNames ? [...config.permissionNames] : [],
-            widgetKeys: config.widgetKeys ? [...config.widgetKeys] : []
+            widgetKeys: config.widgetKeys ? [...config.widgetKeys] : [],
+            allowedTemplateCategories: config.allowedTemplateCategories ? [...config.allowedTemplateCategories] : []
         };
         this.recomputeMissingPermissions();
     }
@@ -295,7 +299,8 @@ export class PlanConfigurationComponent implements OnInit {
 
     createConfiguration(): void {
         const dto = CreatePlanConfigurationDto.fromJS({
-            ...this.formData
+            ...this.formData,
+            allowedTemplateCategories: this.formData.allowedTemplateCategories
         });
 
         this.planConfigService.planConfiguration_Create(dto).subscribe({
@@ -324,7 +329,8 @@ export class PlanConfigurationComponent implements OnInit {
 
         const dto = UpdatePlanConfigurationDto.fromJS({
             id: this.currentConfig.id,
-            ...this.formData
+            ...this.formData,
+            allowedTemplateCategories: this.formData.allowedTemplateCategories
         });
 
         this.planConfigService.planConfiguration_Update(dto).subscribe({
@@ -490,7 +496,21 @@ export class PlanConfigurationComponent implements OnInit {
 
         this.formData.widgetKeys = Array.from(updated);
     }
+isTemplateCategorySelected(category: string): boolean {
+        return this.formData.allowedTemplateCategories.includes(category);
+    }
 
+    toggleTemplateCategory(category: string): void {
+        const updated = new Set(this.formData.allowedTemplateCategories);
+        if (updated.has(category)) {
+            updated.delete(category);
+        } else {
+            updated.add(category);
+        }
+        this.formData.allowedTemplateCategories = Array.from(updated);
+    }
+
+    
     formatWidgetLabel(key?: string): string {
         if (!key) {
             return '';

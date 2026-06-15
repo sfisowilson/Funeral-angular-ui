@@ -153,7 +153,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     loading = true;
     qty = 1;
     addedMsg = '';
-    currencySymbol = '$';
+    currencySymbol = 'R';
     private _jsonLdScript: HTMLScriptElement | null = null;
 
     constructor(

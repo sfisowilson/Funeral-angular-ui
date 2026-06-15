@@ -19,43 +19,50 @@ export class ThemeService {
     ) {}
 
     loadTenantCss() {
+        console.log('[ThemeService] loadTenantCss() started');
         this.tenantSettingsService
             .loadSettings()
             .then((settings: TenantSettingDto) => {
-                if (settings.settings) {
-                    try {
-                        let settingsJson = settings.settings;
-                        // MySQL TO_BASE64 produces base64 with \n every 76 chars.
-                        // If the value is not raw JSON (doesn't start with { or [), decode it.
-                        if (!/^\s*[{\[]/.test(settingsJson)) {
-                            const cleaned = settingsJson.replace(/[\n\r\s]/g, '');
-                            settingsJson = atob(cleaned);
-                        }
-                        const parsedSettings = JSON.parse(settingsJson);
-                        this.applyThemeColors(parsedSettings);
-
-                        const customCssId = parsedSettings.customCssId;
-                        if (customCssId) {
-                            this.tenantSettingsService.downloadFile(customCssId, 'css').subscribe({
-                                next: (cssContent: any) => {
-                                    if (cssContent) {
-                                        this.applyCss(cssContent);
-                                    } else {
-                                        console.error('CSS content is null/undefined. Cannot load custom CSS.');
-                                    }
-                                },
-                                error: (error) => {
-                                    console.error('Error loading custom CSS:', error);
-                                }
-                            });
-                        }
-                    } catch (e) {
-                        console.error('Error parsing tenant settings JSON:', e);
+                if (!settings?.settings) {
+                    console.log('[ThemeService] No tenant settings found, skipping CSS load');
+                    return;
+                }
+                try {
+                    let settingsJson = settings.settings;
+                    // MySQL TO_BASE64 produces base64 with \n every 76 chars.
+                    // If the value is not raw JSON (doesn't start with { or [), decode it.
+                    if (!/^\s*[{\[]/.test(settingsJson)) {
+                        const cleaned = settingsJson.replace(/[\n\r\s]/g, '');
+                        settingsJson = atob(cleaned);
+                        console.log('[ThemeService] Decoded base64-encoded settings');
                     }
+                    const parsedSettings = JSON.parse(settingsJson);
+                    this.applyThemeColors(parsedSettings);
+
+                    const customCssId = parsedSettings.customCssId;
+                    console.log('[ThemeService] customCssId from settings:', customCssId || '(none)');
+                    if (customCssId) {
+                        console.log('[ThemeService] Downloading custom CSS file:', customCssId);
+                        this.tenantSettingsService.downloadFile(customCssId, 'css').subscribe({
+                            next: (cssContent: any) => {
+                                console.log('[ThemeService] CSS download complete, content type:', typeof cssContent, cssContent?.constructor?.name || 'unknown');
+                                if (cssContent) {
+                                    this.applyCss(cssContent);
+                                } else {
+                                    console.error('[ThemeService] CSS content is null/undefined, cannot load custom CSS');
+                                }
+                            },
+                            error: (error) => {
+                                console.error('[ThemeService] Error downloading custom CSS:', error);
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error('[ThemeService] Error parsing tenant settings JSON:', e);
                 }
             })
             .catch((error) => {
-                console.error('Error loading tenant settings:', error);
+                console.error('[ThemeService] Error loading tenant settings:', error);
             });
     }
 
@@ -327,38 +334,66 @@ export class ThemeService {
     }
 
     private applyCss(cssContent: any) {
-        // Remove existing custom CSS if present to avoid duplicates
-        const existingStyle = document.getElementById('tenant-custom-css');
-        if (existingStyle) {
-            existingStyle.remove();
+        console.log('[ThemeService] applyCss() called, typeof:', typeof cssContent, 'constructor:', cssContent?.constructor?.name || 'N/A');
+
+        // Remove ALL existing custom CSS style tags (handle duplicates robustly)
+        const existingStyles = document.querySelectorAll('#tenant-custom-css');
+        if (existingStyles.length > 0) {
+            console.log('[ThemeService] Removing', existingStyles.length, 'existing tenant-custom-css tag(s)');
+            existingStyles.forEach((el) => el.remove());
         }
 
         const head = document.getElementsByTagName('head')[0];
+        if (!head) {
+            console.error('[ThemeService] document.head not available, cannot inject custom CSS');
+            return;
+        }
+
         let style = document.createElement('style');
         style.id = 'tenant-custom-css';
         style.type = 'text/css';
 
-        // Add high priority by appending at the end of head (loaded last = highest priority)
-        // Also ensure it overrides everything with higher specificity
-        head.appendChild(style);
-
         const applyStyleContent = (content: string) => {
-            // Wrap all rules in :root to increase specificity if needed
-            // This ensures custom CSS can override even !important rules from other sources
+            if (!content?.trim()) {
+                console.warn('[ThemeService] CSS content is empty after trimming, not injecting');
+                return;
+            }
             style.innerHTML = content;
-
+            // Only append to head after content is set, avoiding a race condition
+            // where a subsequent loadTenantCss() call removes an empty style element
+            // before its Blob content arrives, causing the CSS to be lost.
+            if (!style.parentNode) {
+                head.appendChild(style);
+                console.log('[ThemeService] Custom CSS injected into <head>, rules length:', content.length, 'chars');
+            } else {
+                console.log('[ThemeService] Custom CSS updated (style already in <head>)');
+            }
         };
 
         if (typeof cssContent === 'object' && cssContent instanceof Blob) {
+            console.log('[ThemeService] CSS content is Blob, size:', cssContent.size, 'bytes, type:', cssContent.type);
+            if (cssContent.size === 0) {
+                console.warn('[ThemeService] CSS Blob is empty (0 bytes), nothing to inject');
+                return;
+            }
             const reader = new FileReader();
             reader.onload = (event) => {
                 if (event.target && typeof event.target.result === 'string') {
+                    console.log('[ThemeService] FileReader loaded CSS, length:', event.target.result.length, 'chars');
                     applyStyleContent(event.target.result);
+                } else {
+                    console.error('[ThemeService] FileReader result is not a string, type:', typeof event.target?.result);
                 }
+            };
+            reader.onerror = (event) => {
+                console.error('[ThemeService] FileReader failed to read CSS Blob:', reader.error);
             };
             reader.readAsText(cssContent);
         } else if (typeof cssContent === 'string') {
+            console.log('[ThemeService] CSS content is string, length:', cssContent.length, 'chars');
             applyStyleContent(cssContent);
+        } else {
+            console.error('[ThemeService] Unexpected CSS content type, cannot apply. Type:', typeof cssContent, 'Value preview:', String(cssContent).substring(0, 200));
         }
     }
 

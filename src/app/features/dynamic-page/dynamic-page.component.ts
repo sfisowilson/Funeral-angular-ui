@@ -86,7 +86,7 @@ export class DynamicPageComponent implements OnInit {
         // If for any reason settings aren't cached yet, loadSettings() returns the cached promise.
         const settingsPromise = this.tenantSettingsService.loadSettings().then((data: any) => {
             this.tenantSettings.set(data);
-            const parsed = JSON.parse(data.settings ?? '{}');
+            const parsed = this.parseSettingsJson(data.settings ?? '{}');
             this._settings.set(parsed);
             this.isStaticSite = parsed.isStaticSite || false;
             // Preload any global footer widget types
@@ -151,12 +151,17 @@ export class DynamicPageComponent implements OnInit {
         this._cachedPageRef = undefined;
         this._cachedSortedFooterWidgets = null;
         this._widgetInputsCache.clear();
+        // Remove any previously injected block CSS to prevent accumulation
+        this.removeBlockCssTags();
 
         this.customPagesService.slug(slug).subscribe({
             next: (response) => {
                 const page = response?.result || null;
                 this.page.set(page);
                 this.updateMetaTags(page);
+                // Inject block-level custom CSS from the page content
+                this.injectBlockCustomCss(page?.content ?? []);
+                this.injectBlockCustomCss((page as any)?.footerContent ?? []);
                 // Preload widget chunks AND await nav data (first load only).
                 // This ensures the header never renders with empty menu or missing logo.
                 Promise.all([
@@ -356,5 +361,108 @@ export class DynamicPageComponent implements OnInit {
             url += `?X-Tenant-ID=${this.tenantIdHeader.get('X-Tenant-ID')}`;
         }
         return url;
+    }
+
+    // ─── Block-level custom CSS injection ──────────────────────
+
+    /**
+     * Removes all previously injected block-css-* style tags from <head>
+     * to prevent stale styles from accumulating across page navigations.
+     */
+    private removeBlockCssTags(): void {
+        const tags = this.document.querySelectorAll('style[id^="block-css-"]');
+        tags.forEach((el) => el.remove());
+    }
+
+    /**
+     * Walks the widget content array and injects <style> tags for any
+     * block that has a customCss value in its BlockStyles.
+     * Handles both the legacy flat format and the v3 __v3_document format.
+     * Uses the same & → #block-{id} substitution as the builder canvas.
+     */
+    private injectBlockCustomCss(content: any[]): void {
+        if (!content || !Array.isArray(content)) return;
+
+        for (const widget of content) {
+            const config = widget?.config;
+            if (!config) continue;
+
+            // v3 document format: walk sections → columns → blocks
+            if (widget.type === '__v3_document' && config.sections) {
+                for (const section of config.sections) {
+                    for (const column of section.columns ?? []) {
+                        for (const block of column.blocks ?? []) {
+                            this.injectSingleBlockCss(block.id, block.blockStyles?.customCss);
+                            // Recurse into child blocks (container widgets)
+                            if (block.children?.length) {
+                                this.walkChildBlocks(block.children);
+                            }
+                        }
+                    }
+                }
+                continue;
+            }
+
+            // Legacy flat format: check blockStyles directly on the widget config
+            // Some widgets store blockStyles at the top level of config
+            if (config.blockStyles?.customCss) {
+                this.injectSingleBlockCss(widget.id, config.blockStyles.customCss);
+            }
+
+            // Also check nested settings.blockStyles (alternative pattern)
+            if (config.settings?.blockStyles?.customCss) {
+                this.injectSingleBlockCss(widget.id, config.settings.blockStyles.customCss);
+            }
+
+            // Recurse into children
+            if (config.children?.length) {
+                this.walkChildBlocks(config.children);
+            }
+        }
+    }
+
+    /** Recursively walks child block arrays for nested container widgets. */
+    private walkChildBlocks(children: any[]): void {
+        if (!children || !Array.isArray(children)) return;
+        for (const child of children) {
+            if (child.blockStyles?.customCss) {
+                this.injectSingleBlockCss(child.id, child.blockStyles.customCss);
+            }
+            if (child.children?.length) {
+                this.walkChildBlocks(child.children);
+            }
+        }
+    }
+
+    /**
+     * Creates or updates a <style id="block-css-{blockId}"> element.
+     * Substitutes & with #block-{blockId} (same pattern as the builder canvas).
+     */
+    private injectSingleBlockCss(blockId: string, customCss?: string | null): void {
+        if (!blockId || !customCss?.trim()) return;
+
+        const styleId = `block-css-${blockId}`;
+        const resolvedCss = customCss.replace(/&/g, `#block-${blockId}`);
+
+        let styleEl = this.document.getElementById(styleId) as HTMLStyleElement | null;
+        if (!styleEl) {
+            styleEl = this.document.createElement('style') as HTMLStyleElement;
+            styleEl.id = styleId;
+            this.document.head.appendChild(styleEl);
+        }
+        styleEl.textContent = resolvedCss;
+    }
+
+    /**
+     * Safely parses tenant settings JSON, handling base64-encoded values
+     * from MySQL TO_BASE64().
+     */
+    private parseSettingsJson(raw: string): any {
+        if (!raw) return {};
+        if (/^\s*[{\[]/.test(raw)) {
+            return JSON.parse(raw);
+        }
+        const cleaned = raw.replace(/[\n\r\s]/g, '');
+        return JSON.parse(atob(cleaned));
     }
 }

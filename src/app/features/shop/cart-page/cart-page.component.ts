@@ -22,7 +22,7 @@ export class CartPageComponent {
         continueShopping: 'Continue Shopping',
         checkoutLabel: 'Proceed to Checkout',
         shopLink: '/shop',
-        currencySymbol: '$',
+        currencySymbol: 'R',
         buttonColor: '#007bff',
         buttonTextColor: '#ffffff',
         backgroundColor: '#ffffff'

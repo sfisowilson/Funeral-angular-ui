@@ -43,11 +43,24 @@ export class AppComponent implements OnInit {
         }
     }
 
+    /**
+     * Safely parses tenant settings JSON, handling base64-encoded values
+     * from MySQL TO_BASE64().
+     */
+    private parseSettingsJson(raw: string): any {
+        if (!raw) return {};
+        if (/^\s*[{\[]/.test(raw)) {
+            return JSON.parse(raw);
+        }
+        const cleaned = raw.replace(/[\n\r\s]/g, '');
+        return JSON.parse(atob(cleaned));
+    }
+
     private loadFavicon(): void {
         this.tenantSettingsService
             .loadSettings()
             .then((settings: TenantSettingDto) => {
-                this.jsonSettings = JSON.parse(settings.settings || '{}');
+                this.jsonSettings = this.parseSettingsJson(settings.settings || '{}');
                 if (this.jsonSettings.favicon) {
                     let faviconUrl = this.tenantSettingsService.getDownloadUrl(this.jsonSettings.favicon);
 

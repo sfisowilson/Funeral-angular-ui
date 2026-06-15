@@ -463,12 +463,21 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
         }
     }
 
-    loadAvailableThemes(): void {
-        const templates = this.customPageTemplateService.getAllTemplates();
+    loadAvailableThemes(plan?: any): void {
+        const templates = plan?.allowedTemplateCategories?.length
+            ? this.customPageTemplateService.getTemplatesForCategories(plan.allowedTemplateCategories)
+            : this.customPageTemplateService.getAllTemplates();
         this.availableThemes.set(templates);
 
-        if (!this.selectedThemeId() && templates.length > 0) {
-            this.selectedThemeId.set(templates[0].id);
+        // Only auto-select first theme if the current selection is no longer valid
+        if (templates.length > 0) {
+            const currentId = this.selectedThemeId();
+            const stillAvailable = currentId && templates.some(t => t.id === currentId);
+            if (!stillAvailable) {
+                this.selectedThemeId.set(templates[0].id);
+            }
+        } else {
+            this.selectedThemeId.set(null);
         }
     }
 
@@ -514,6 +523,9 @@ export class TenantRegisterWizardComponent extends TenantBaseComponent implement
 
     selectPlan(plan: any): void {
         this.selectedPlan.set(plan);
+
+        // Filter available themes based on the selected plan's allowed template categories
+        this.loadAvailableThemes(plan);
 
         // If there's a coupon from URL and this is the first plan selection, validate it
         if (this.couponFromUrl() && this.couponCode() && !this.couponValidation()) {

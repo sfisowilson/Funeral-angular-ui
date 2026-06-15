@@ -104,8 +104,20 @@ export class CustomPageTemplateService {
    */
   getTemplatesForTenantType(tenantType: string): CustomPageTemplate[] {
     return this.getAllTemplates().filter(t => 
-      !t.tenantTypes || t.tenantTypes.includes(tenantType)
+      !t.tenantTypes || t.tenantTypes.length === 0 || t.tenantTypes.includes(tenantType)
     );
+  }
+
+  /**
+   * Get templates filtered by allowed categories (from plan configuration).
+   * Returns all templates if categories is null/empty (backward compatible).
+   */
+  getTemplatesForCategories(categories: string[] | null | undefined): CustomPageTemplate[] {
+    if (!categories || categories.length === 0) {
+      return this.getAllTemplates();
+    }
+    const normalized = categories.map(c => c.toLowerCase().trim());
+    return this.getAllTemplates().filter(t => normalized.includes(t.category));
   }
 
   /**
@@ -1746,7 +1758,7 @@ export class CustomPageTemplateService {
         description: 'Contemporary ecommerce design with clean product showcases',
         category: 'ecommerce',
         isPremium: false,
-        tenantTypes: [],
+        tenantTypes: ['Ecommerce'],
         colorScheme: {
           primary: '#000000',
           secondary: '#1a1a1a',
@@ -1888,7 +1900,7 @@ export class CustomPageTemplateService {
         description: 'Elegant, high-end ecommerce design for premium brands',
         category: 'ecommerce',
         isPremium: true,
-        tenantTypes: [],
+        tenantTypes: ['Ecommerce'],
         colorScheme: {
           primary: '#1a1a1a',
           secondary: '#8b7355',
@@ -2023,7 +2035,7 @@ export class CustomPageTemplateService {
         description: 'Ultra-clean, minimalist ecommerce design',
         category: 'ecommerce',
         isPremium: false,
-        tenantTypes: [],
+        tenantTypes: ['Ecommerce'],
         colorScheme: {
           primary: '#2d3436',
           secondary: '#636e72',
@@ -2143,7 +2155,7 @@ export class CustomPageTemplateService {
         description: 'Professional design for consulting and advisory firms',
         category: 'services',
         isPremium: false,
-        tenantTypes: [],
+        tenantTypes: ['Services'],
         colorScheme: {
           primary: '#0052cc',
           secondary: '#0747a6',
@@ -2313,7 +2325,7 @@ export class CustomPageTemplateService {
         description: 'Clean, professional design for medical and healthcare practices',
         category: 'services',
         isPremium: false,
-        tenantTypes: [],
+        tenantTypes: ['Services'],
         colorScheme: {
           primary: '#005eb8',
           secondary: '#003087',
@@ -2454,7 +2466,7 @@ export class CustomPageTemplateService {
         description: 'Bold, creative design for design studios and marketing agencies',
         category: 'services',
         isPremium: true,
-        tenantTypes: [],
+        tenantTypes: ['Services'],
         colorScheme: {
           primary: '#ff6b6b',
           secondary: '#4ecdc4',
@@ -2612,7 +2624,7 @@ export class CustomPageTemplateService {
         description: 'Professional, authoritative design for legal practices',
         category: 'services',
         isPremium: true,
-        tenantTypes: [],
+        tenantTypes: ['Services'],
         colorScheme: {
           primary: '#1c3a57',
           secondary: '#2c5282',

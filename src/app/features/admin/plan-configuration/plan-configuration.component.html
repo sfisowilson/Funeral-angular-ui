@@ -59,12 +59,12 @@
 
                             <!-- Pricing -->
                             <div class="mb-3">
-                                <div class="text-3xl font-bold text-blue-600">${{ config.monthlyPrice }}</div>
+                                <div class="text-3xl font-bold text-blue-600">R {{ config.monthlyPrice }}</div>
                                 <div class="text-sm text-gray-600">per month</div>
                                 @if (config.yearlyPrice > 0) {
                                     <div class="text-sm text-gray-600 mt-1">
-                                        ${{ config.yearlyPrice }}/year
-                                        <span class="text-green-600 text-xs ml-1"> (Save ${{ (config.monthlyPrice * 12 - config.yearlyPrice).toFixed(0) }}) </span>
+                                        R {{ config.yearlyPrice }}/year
+                                        <span class="text-green-600 text-xs ml-1"> (Save R {{ (config.monthlyPrice * 12 - config.yearlyPrice).toFixed(0) }}) </span>
                                     </div>
                                 }
                             </div>
@@ -73,19 +73,19 @@
                             <div class="space-y-1 text-sm">
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Users:</span>
-                                    <span class="font-semibold">{{ config.maxUsers }}</span>
+                                    <span class="font-semibold">{{ config.maxUsers != null ? config.maxUsers : 'Unlimited' }}</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Storage:</span>
-                                    <span class="font-semibold">{{ (config.maxStorageMB / 1024).toFixed(1) }} GB</span>
+                                    <span class="font-semibold">{{ config.maxStorageMB != null ? (config.maxStorageMB / 1024).toFixed(1) + ' GB' : 'Unlimited' }}</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Members:</span>
-                                    <span class="font-semibold">{{ config.maxMembers || 'Unlimited' }}</span>
+                                    <span class="font-semibold">{{ config.maxMembers != null ? config.maxMembers : 'Unlimited' }}</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Landing Pages:</span>
-                                    <span class="font-semibold">{{ config.maxLandingPages }}</span>
+                                    <span class="font-semibold">{{ config.maxLandingPages != null ? config.maxLandingPages : 'Unlimited' }}</span>
                                 </div>
                             </div>
 
@@ -108,6 +108,9 @@
                             <div class="mt-3 flex flex-wrap gap-2 text-xs">
                                 <span class="px-2 py-1 rounded-full bg-blue-50 text-blue-600"> {{ config.permissionNames?.length || 0 }} Permissions </span>
                                 <span class="px-2 py-1 rounded-full bg-purple-50 text-purple-600"> {{ config.widgetKeys?.length || 0 }} Widgets </span>
+                                @if (config.allowedTemplateCategories?.length) {
+                                    <span class="px-2 py-1 rounded-full bg-teal-50 text-teal-600"> {{ config.allowedTemplateCategories.length }} Themes </span>
+                                }
                             </div>
 
                             @if (config.description) {
@@ -143,8 +146,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Monthly Price ($) *</label>
-                        <p-inputNumber [(ngModel)]="formData.monthlyPrice" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                        <label class="block text-sm font-medium mb-2">Monthly Price (R) *</label>
+                        <p-inputNumber [(ngModel)]="formData.monthlyPrice" mode="currency" currency="ZAR" locale="en-ZA" [minFractionDigits]="2" class="w-full"></p-inputNumber>
                     </div>
 
                     <div class="md:col-span-2">
@@ -153,8 +156,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Yearly Price ($)</label>
-                        <p-inputNumber [(ngModel)]="formData.yearlyPrice" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                        <label class="block text-sm font-medium mb-2">Yearly Price (R)</label>
+                        <p-inputNumber [(ngModel)]="formData.yearlyPrice" mode="currency" currency="ZAR" locale="en-ZA" [minFractionDigits]="2" class="w-full"></p-inputNumber>
                     </div>
 
                     <div>
@@ -289,55 +292,94 @@
                             }
                         </div>
                     </section>
+
+                    <section class="border rounded-lg p-4 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <div>
+                                <h4 class="text-lg font-semibold">Template Categories</h4>
+                                <p class="text-xs text-gray-500">Choose which website theme categories this plan allows during registration.</p>
+                            </div>
+                            <span class="text-xs text-gray-500">{{ formData.allowedTemplateCategories.length }} selected</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            @for (category of templateCategories; track category) {
+                                <div
+                                    class="border rounded-lg p-3 cursor-pointer transition"
+                                    [ngClass]="{
+                                        'border-teal-500 shadow-lg bg-teal-50': isTemplateCategorySelected(category),
+                                        'border-gray-200 hover:border-teal-200': !isTemplateCategorySelected(category)
+                                    }"
+                                    (click)="toggleTemplateCategory(category)"
+                                >
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <i class="pi text-xl"
+                                               [class.pi-heart-fill]="category === 'funeral'"
+                                               [class.pi-globe]="category === 'ngo'"
+                                               [class.pi-shopping-cart]="category === 'ecommerce'"
+                                               [class.pi-briefcase]="category === 'services'"
+                                            ></i>
+                                            <span class="font-semibold capitalize">{{ category }}</span>
+                                        </div>
+                                        @if (isTemplateCategorySelected(category)) {
+                                            <i class="pi pi-check-circle text-green-600 text-xl"></i>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </section>
                 </div>
             </p-tabPanel>
 
             <!-- Limits Tab -->
             <p-tabPanel header="Limits">
+                <p class="text-xs text-gray-500 mb-3 px-4">Clear any field to set it as <strong>unlimited</strong>. Set to <strong>0</strong> to allow none.</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
                     <div>
                         <label class="block text-sm font-medium mb-2">Max Users</label>
-                        <p-inputNumber [(ngModel)]="formData.maxUsers" [showButtons]="true" class="w-full"></p-inputNumber>
+                        <p-inputNumber [(ngModel)]="formData.maxUsers" [showButtons]="true" class="w-full" placeholder="Unlimited"></p-inputNumber>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">Max Storage (MB)</label>
-                        <p-inputNumber [(ngModel)]="formData.maxStorageMB" [showButtons]="true" [step]="1024" class="w-full"></p-inputNumber>
+                        <p-inputNumber [(ngModel)]="formData.maxStorageMB" [showButtons]="true" [step]="1024" class="w-full" placeholder="Unlimited"></p-inputNumber>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">Max Products</label>
-                        <p-inputNumber [(ngModel)]="formData.maxProducts" [showButtons]="true" class="w-full"></p-inputNumber>
+                        <p-inputNumber [(ngModel)]="formData.maxProducts" [showButtons]="true" class="w-full" placeholder="Unlimited"></p-inputNumber>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">Max Members</label>
-                        <p-inputNumber [(ngModel)]="formData.maxMembers" [showButtons]="true" class="w-full"></p-inputNumber>
+                        <p-inputNumber [(ngModel)]="formData.maxMembers" [showButtons]="true" class="w-full" placeholder="Unlimited"></p-inputNumber>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">Max Active Orders</label>
-                        <p-inputNumber [(ngModel)]="formData.maxActiveOrders" [showButtons]="true" class="w-full"></p-inputNumber>
+                        <p-inputNumber [(ngModel)]="formData.maxActiveOrders" [showButtons]="true" class="w-full" placeholder="Unlimited"></p-inputNumber>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">Max Landing Pages</label>
-                        <p-inputNumber [(ngModel)]="formData.maxLandingPages" [showButtons]="true" class="w-full"></p-inputNumber>
+                        <p-inputNumber [(ngModel)]="formData.maxLandingPages" [showButtons]="true" class="w-full" placeholder="Unlimited"></p-inputNumber>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">Max Email Templates</label>
-                        <p-inputNumber [(ngModel)]="formData.maxEmailTemplates" [showButtons]="true" class="w-full"></p-inputNumber>
+                        <p-inputNumber [(ngModel)]="formData.maxEmailTemplates" [showButtons]="true" class="w-full" placeholder="Unlimited"></p-inputNumber>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">Max Custom Forms</label>
-                        <p-inputNumber [(ngModel)]="formData.maxCustomForms" [showButtons]="true" class="w-full"></p-inputNumber>
+                        <p-inputNumber [(ngModel)]="formData.maxCustomForms" [showButtons]="true" class="w-full" placeholder="Unlimited"></p-inputNumber>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">Images Per Product</label>
-                        <p-inputNumber [(ngModel)]="formData.maxProductImagesPerProduct" [showButtons]="true" class="w-full"></p-inputNumber>
+                        <p-inputNumber [(ngModel)]="formData.maxProductImagesPerProduct" [showButtons]="true" class="w-full" placeholder="Unlimited"></p-inputNumber>
                     </div>
                 </div>
 
@@ -346,12 +388,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">Per Minute</label>
-                            <p-inputNumber [(ngModel)]="formData.apiRateLimitPerMinute" [showButtons]="true" class="w-full"></p-inputNumber>
+                            <p-inputNumber [(ngModel)]="formData.apiRateLimitPerMinute" [showButtons]="true" class="w-full" placeholder="Unlimited"></p-inputNumber>
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium mb-2">Per Day</label>
-                            <p-inputNumber [(ngModel)]="formData.apiRateLimitPerDay" [showButtons]="true" [step]="1000" class="w-full"></p-inputNumber>
+                            <p-inputNumber [(ngModel)]="formData.apiRateLimitPerDay" [showButtons]="true" [step]="1000" class="w-full" placeholder="Unlimited"></p-inputNumber>
                         </div>
                     </div>
                 </div>
@@ -429,23 +471,23 @@
                         @if (formData.allowOverage) {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 ml-8">
                                 <div>
-                                    <label class="block text-sm font-medium mb-2">Overage User Price ($)</label>
-                                    <p-inputNumber [(ngModel)]="formData.overageUserPrice" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                                    <label class="block text-sm font-medium mb-2">Overage User Price (R)</label>
+                                    <p-inputNumber [(ngModel)]="formData.overageUserPrice" mode="currency" currency="ZAR" locale="en-ZA" [minFractionDigits]="2" class="w-full"></p-inputNumber>
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium mb-2">Overage Storage Price per GB ($)</label>
-                                    <p-inputNumber [(ngModel)]="formData.overageStoragePricePerGB" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                                    <label class="block text-sm font-medium mb-2">Overage Storage Price per GB (R)</label>
+                                    <p-inputNumber [(ngModel)]="formData.overageStoragePricePerGB" mode="currency" currency="ZAR" locale="en-ZA" [minFractionDigits]="2" class="w-full"></p-inputNumber>
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium mb-2">Overage Product Price per 100 ($)</label>
-                                    <p-inputNumber [(ngModel)]="formData.overageProductPricePer100" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                                    <label class="block text-sm font-medium mb-2">Overage Product Price per 100 (R)</label>
+                                    <p-inputNumber [(ngModel)]="formData.overageProductPricePer100" mode="currency" currency="ZAR" locale="en-ZA" [minFractionDigits]="2" class="w-full"></p-inputNumber>
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium mb-2">Overage Member Price per 100 ($)</label>
-                                    <p-inputNumber [(ngModel)]="formData.overageMemberPricePer100" mode="currency" currency="USD" [minFractionDigits]="2" class="w-full"></p-inputNumber>
+                                    <label class="block text-sm font-medium mb-2">Overage Member Price per 100 (R)</label>
+                                    <p-inputNumber [(ngModel)]="formData.overageMemberPricePer100" mode="currency" currency="ZAR" locale="en-ZA" [minFractionDigits]="2" class="w-full"></p-inputNumber>
                                 </div>
                             </div>
                         }

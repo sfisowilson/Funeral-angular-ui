@@ -183,6 +183,10 @@ export class PageManagementComponent implements OnInit {
         this.router.navigate(['/admin/custom-pages/edit', page.id]);
     }
 
+    editPageVisual(page: PageListItemDto) {
+        this.router.navigate(['/admin/custom-pages/edit-v3', page.id]);
+    }
+
     togglePageStatus(page: PageListItemDto) {
         // Toggle status implementation using status endpoint
         const newStatus = !page.isActive;

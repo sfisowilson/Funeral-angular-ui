@@ -118,6 +118,7 @@
                     <td>{{ page.updatedAt | date: 'short' }}</td>
                     <td>
                         <div class="flex gap-2">
+                            <button pButton icon="pi pi-paint-brush" class="p-button-sm p-button-text p-button-rounded" pTooltip="Edit in Visual Builder" (click)="editPageVisual(page)"></button>
                             <button pButton icon="pi pi-pencil" class="p-button-sm p-button-text p-button-rounded" pTooltip="Edit page" (click)="editPage(page)"></button>
                             <button pButton [icon]="page.isActive ? 'pi pi-eye-slash' : 'pi pi-eye'" class="p-button-sm p-button-text p-button-rounded" [pTooltip]="page.isActive ? 'Deactivate' : 'Activate'" (click)="togglePageStatus(page)"></button>
                             <button pButton icon="pi pi-copy" class="p-button-sm p-button-text p-button-rounded" pTooltip="Duplicate page" (click)="duplicatePage(page)"></button>

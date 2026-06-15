@@ -64,247 +64,71 @@ function categorise(widgets: WidgetType[]): WidgetCategory[] {
     imports: [CommonModule, FormsModule],
     template: `
         <div class="left-panel">
-            <div class="icon-strip">
-                <button
-                    class="icon-btn"
-                    [class.active]="activeTab() === 'blocks'"
-                    (click)="setTab('blocks')"
-                    title="Blocks"
-                >
-                    <i class="pi pi-th-large"></i>
-                </button>
-                <button
-                    class="icon-btn"
-                    [class.active]="activeTab() === 'layers'"
-                    (click)="setTab('layers')"
-                    title="Layers"
-                >
+            <div class="panel-header">
+                <h3 class="panel-title">Add Blocks</h3>
+                <button class="panel-layers-btn" (click)="showLayers.set(!showLayers())" [class.active]="showLayers()" title="Toggle layers panel">
                     <i class="pi pi-list"></i>
-                </button>
-                <button
-                    class="icon-btn"
-                    [class.active]="activeTab() === 'settings'"
-                    (click)="setTab('settings')"
-                    title="Page Settings"
-                >
-                    <i class="pi pi-cog"></i>
                 </button>
             </div>
 
             <div class="panel-content">
-                @if (activeTab() === 'blocks') {
-                    <div class="panel-section">
-                        <input
-                            class="search-input"
-                            type="text"
-                            placeholder="Search blocks…"
-                            [(ngModel)]="searchQuery"
-                        />
-                        @for (cat of filteredCategories(); track cat.label) {
-                            <div class="cat-group">
-                                <p class="panel-heading">{{ cat.label }}</p>
-                                <div class="widget-grid">
-                                    @for (w of cat.widgets; track w.name) {
-                                        <button
-                                            class="widget-tile"
-                                            (click)="addWidget(w)"
-                                            [title]="w.name"
-                                            draggable="true"
-                                            (dragstart)="onDragStart($event, w)"
-                                        >
-                                            <i class="bi bi-{{ w.icon }} widget-tile__icon"></i>
-                                            <span class="widget-tile__label">{{ widgetLabel(w.name) }}</span>
-                                        </button>
-                                    }
-                                </div>
-                            </div>
-                        }
-                        @if (filteredCategories().length === 0) {
-                            <p class="panel-placeholder">No blocks match "{{ searchQuery }}"</p>
-                        }
+                <input class="search-input" type="text" placeholder="Search blocks…" [(ngModel)]="searchQuery" />
+
+                @for (cat of filteredCategories(); track cat.label) {
+                    <div class="cat-group">
+                        <p class="cat-heading">{{ cat.label }}</p>
+                        <div class="widget-grid">
+                            @for (w of cat.widgets; track w.name) {
+                                <button
+                                    class="widget-tile"
+                                    (click)="addWidget(w)"
+                                    [title]="widgetLabel(w.name)"
+                                    draggable="true"
+                                    (dragstart)="onDragStart($event, w)"
+                                >
+                                    <i class="pi pi-{{ w.icon || 'box' }} widget-tile__icon"></i>
+                                    <span class="widget-tile__label">{{ widgetLabel(w.name) }}</span>
+                                </button>
+                            }
+                        </div>
                     </div>
                 }
-                @if (activeTab() === 'layers') {
-                    <div class="panel-section">
-                        @if (layerNodes().length === 0) {
-                            <p class="panel-placeholder">No content on this page yet.</p>
-                        }
+                @if (filteredCategories().length === 0) {
+                    <p class="panel-placeholder">No blocks match "{{ searchQuery }}"</p>
+                }
+            </div>
+
+            <!-- Layers slide-out overlay -->
+            @if (showLayers()) {
+                <div class="layers-overlay">
+                    <div class="layers-header">
+                        <span>Layers</span>
+                        <button class="chrome-btn chrome-btn--sm" (click)="showLayers.set(false)"><i class="pi pi-times"></i></button>
+                    </div>
+                    <div class="layers-content">
                         @for (node of layerNodes(); track node.id + node.kind) {
                             @if (node.kind === 'section') {
-                                <div
-                                    class="layer-section"
-                                    [class.selected]="store.selectedId() === node.id"
-                                    (click)="store.selectElement(node.id)"
-                                >
-                                    <button
-                                        class="layer-collapse-btn"
-                                        (click)="$event.stopPropagation(); toggleCollapse(node.id)"
-                                        [title]="collapsedSections().has(node.id) ? 'Expand' : 'Collapse'"
-                                    >
-                                        <i class="pi" [class.pi-chevron-right]="collapsedSections().has(node.id)" [class.pi-chevron-down]="!collapsedSections().has(node.id)"></i>
-                                    </button>
+                                <div class="layer-row" [class.selected]="store.selectedId() === node.id" (click)="store.selectElement(node.id)">
+                                    <i class="pi pi-chevron-down layer-chevron" (click)="$event.stopPropagation(); toggleCollapse(node.id)"></i>
                                     <i class="pi pi-table layer-icon"></i>
                                     <span class="layer-label">{{ node.label }}</span>
                                     <span class="layer-count">{{ node.blockCount }}</span>
-                                    <button
-                                        class="layer-del-btn"
-                                        (click)="$event.stopPropagation(); deleteSection(node.id)"
-                                        title="Delete section"
-                                    >
-                                        <i class="pi pi-trash"></i>
-                                    </button>
+                                    <button class="chrome-btn chrome-btn--sm chrome-btn--danger" (click)="$event.stopPropagation(); deleteSection(node.id)" title="Delete"><i class="pi pi-trash"></i></button>
                                 </div>
                             } @else {
-                                <div
-                                    class="layer-item"
-                                    [class.selected]="store.selectedId() === node.id"
-                                    [style.padding-left.px]="12 + node.depth * 16"
-                                    (click)="store.selectElement(node.id)"
-                                >
+                                <div class="layer-row layer-row--block" [class.selected]="store.selectedId() === node.id" [style.padding-left.px]="12 + node.depth * 16" (click)="store.selectElement(node.id)">
                                     <i class="pi pi-box layer-icon"></i>
                                     <span class="layer-label">{{ node.label }}</span>
-                                    <button
-                                        class="layer-del-btn"
-                                        (click)="$event.stopPropagation(); deleteBlock(node.id)"
-                                        title="Delete block"
-                                    >
-                                        <i class="pi pi-trash"></i>
-                                    </button>
+                                    <button class="chrome-btn chrome-btn--sm chrome-btn--danger" (click)="$event.stopPropagation(); deleteBlock(node.id)" title="Delete"><i class="pi pi-trash"></i></button>
                                 </div>
                             }
                         }
-                    </div>
-                }
-                @if (activeTab() === 'settings') {
-                    <div class="panel-section">
-                        @if (!store.pageSettings()) {
-                            <p class="panel-placeholder">No page loaded.</p>
-                        } @else {
-                            <!-- General -->
-                            <p class="panel-heading">General</p>
-                            <div class="sf-group">
-                                <label class="sf-label">Page Name</label>
-                                <input class="sf-input" type="text"
-                                    [value]="store.pageSettings()!.name"
-                                    (input)="store.updatePageSettings({ name: $any($event.target).value })" />
-                            </div>
-                            <div class="sf-group">
-                                <label class="sf-label">Slug</label>
-                                <div class="sf-slug-row">
-                                    <span class="sf-slug-pre">/</span>
-                                    <input class="sf-input sf-input--slug" type="text"
-                                        [value]="store.pageSettings()!.slug"
-                                        (input)="store.updatePageSettings({ slug: $any($event.target).value })" />
-                                </div>
-                            </div>
-
-                            <!-- Visibility & Status -->
-                            <p class="panel-heading sf-section-heading">Visibility & Status</p>
-                            <div class="sf-toggle-row">
-                                <span class="sf-toggle-label">Active</span>
-                                <label class="sf-toggle">
-                                    <input type="checkbox" [checked]="store.pageSettings()!.isActive"
-                                        (change)="store.updatePageSettings({ isActive: $any($event.target).checked })">
-                                    <span class="sf-toggle-track"></span>
-                                </label>
-                            </div>
-                            <div class="sf-toggle-row">
-                                <span class="sf-toggle-label">Public</span>
-                                <label class="sf-toggle">
-                                    <input type="checkbox" [checked]="store.pageSettings()!.isPublic"
-                                        (change)="store.updatePageSettings({ isPublic: $any($event.target).checked })">
-                                    <span class="sf-toggle-track"></span>
-                                </label>
-                            </div>
-                            <div class="sf-toggle-row">
-                                <span class="sf-toggle-label">Requires Auth</span>
-                                <label class="sf-toggle">
-                                    <input type="checkbox" [checked]="store.pageSettings()!.requiresAuth"
-                                        (change)="store.updatePageSettings({ requiresAuth: $any($event.target).checked })">
-                                    <span class="sf-toggle-track"></span>
-                                </label>
-                            </div>
-
-                            <!-- Navigation -->
-                            <p class="panel-heading sf-section-heading">Navigation</p>
-                            <div class="sf-toggle-row">
-                                <span class="sf-toggle-label">Show in Navbar</span>
-                                <label class="sf-toggle">
-                                    <input type="checkbox" [checked]="store.pageSettings()!.showInNavbar"
-                                        (change)="store.updatePageSettings({ showInNavbar: $any($event.target).checked })">
-                                    <span class="sf-toggle-track"></span>
-                                </label>
-                            </div>
-                            @if (store.pageSettings()!.showInNavbar) {
-                                <div class="sf-group">
-                                    <label class="sf-label">Navbar Order</label>
-                                    <input class="sf-input sf-input--sm" type="number" min="0"
-                                        [value]="store.pageSettings()!.navbarOrder ?? ''"
-                                        (input)="store.updatePageSettings({ navbarOrder: toNum($any($event.target).value) })" />
-                                </div>
-                            }
-                            <div class="sf-toggle-row">
-                                <span class="sf-toggle-label">Show in Footer</span>
-                                <label class="sf-toggle">
-                                    <input type="checkbox" [checked]="store.pageSettings()!.showInFooter"
-                                        (change)="store.updatePageSettings({ showInFooter: $any($event.target).checked })">
-                                    <span class="sf-toggle-track"></span>
-                                </label>
-                            </div>
-                            @if (store.pageSettings()!.showInFooter) {
-                                <div class="sf-group">
-                                    <label class="sf-label">Footer Order</label>
-                                    <input class="sf-input sf-input--sm" type="number" min="0"
-                                        [value]="store.pageSettings()!.footerOrder ?? ''"
-                                        (input)="store.updatePageSettings({ footerOrder: toNum($any($event.target).value) })" />
-                                </div>
-                            }
-
-                            <!-- SEO -->
-                            <p class="panel-heading sf-section-heading">SEO</p>
-                            <div class="sf-group">
-                                <label class="sf-label">Page Title</label>
-                                <input class="sf-input" type="text"
-                                    [value]="store.pageSettings()!.title"
-                                    (input)="store.updatePageSettings({ title: $any($event.target).value })" />
-                            </div>
-                            <div class="sf-group">
-                                <label class="sf-label">Description</label>
-                                <textarea class="sf-textarea" rows="3"
-                                    [value]="store.pageSettings()!.description"
-                                    (input)="store.updatePageSettings({ description: $any($event.target).value })"></textarea>
-                            </div>
-                            <div class="sf-group">
-                                <label class="sf-label">Keywords</label>
-                                <input class="sf-input" type="text"
-                                    [value]="store.pageSettings()!.metaKeywords"
-                                    (input)="store.updatePageSettings({ metaKeywords: $any($event.target).value })" />
-                            </div>
-                            <div class="sf-group">
-                                <label class="sf-label">OG Title</label>
-                                <input class="sf-input" type="text"
-                                    [value]="store.pageSettings()!.metaOgTitle"
-                                    (input)="store.updatePageSettings({ metaOgTitle: $any($event.target).value })" />
-                            </div>
-                            <div class="sf-group">
-                                <label class="sf-label">OG Description</label>
-                                <textarea class="sf-textarea" rows="2"
-                                    [value]="store.pageSettings()!.metaOgDescription"
-                                    (input)="store.updatePageSettings({ metaOgDescription: $any($event.target).value })"></textarea>
-                            </div>
-                            <div class="sf-group">
-                                <label class="sf-label">OG Image URL</label>
-                                <input class="sf-input" type="text"
-                                    [value]="store.pageSettings()!.metaOgImage"
-                                    (input)="store.updatePageSettings({ metaOgImage: $any($event.target).value })" />
-                            </div>
-                            <div class="sf-save-hint">
-                                <i class="pi pi-info-circle"></i> Changes are saved when you click Save
-                            </div>
+                        @if (layerNodes().length === 0) {
+                            <p class="panel-placeholder">No content yet</p>
                         }
                     </div>
-                }
-            </div>
+                </div>
+            }
         </div>
     `,
     styles: [
@@ -726,6 +550,7 @@ function categorise(widgets: WidgetType[]): WidgetCategory[] {
 export class LeftPanelComponent {
     readonly store = inject(PageDocumentStore);
     readonly activeTab = signal<PanelTab>('blocks');
+    readonly showLayers = signal(false);
     searchQuery = '';
 
     private readonly allCategories = categorise(WIDGET_TYPES);

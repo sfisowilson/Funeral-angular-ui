@@ -217,7 +217,7 @@ export class CheckoutPageComponent implements OnInit {
     errorMsg = '';
     guestBlocked = false;
     isLoggedIn = false;
-    currencySymbol = '$';
+    currencySymbol = 'R';
 
     private readonly baseUrl = environment.apiUrl;
 

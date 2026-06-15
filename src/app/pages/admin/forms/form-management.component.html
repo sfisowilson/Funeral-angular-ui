@@ -1125,8 +1125,27 @@
                         </div>
 
                         <div class="card card-body p-3">
+                            <!-- Static max rows (simple, no conditions) -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label" for="formMaxItems">Default max rows per submission</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="formMaxItems"
+                                        [(ngModel)]="maxItems"
+                                        name="formMaxItems"
+                                        min="0"
+                                        placeholder="0 = unlimited"
+                                    />
+                                    <div class="form-text">Set 0 for unlimited. This is the default limit — conditional rules below can override it.</div>
+                                </div>
+                            </div>
+
+                            <hr class="my-2" />
+
                             <p class="text-muted small mb-2">
-                                These rules limit how many rows a member can add in onboarding multi-submit steps
+                                <strong>Conditional rules:</strong> These rules limit how many rows a member can add in onboarding multi-submit steps
                                 based on values captured in previous steps (for example, selected transport type).
                                 Rules are evaluated in order; the first rule whose conditions all match will apply.
                             </p>

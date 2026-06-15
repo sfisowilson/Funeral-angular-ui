@@ -18,7 +18,7 @@ export class OrderHistoryPageComponent {
         pageSize: 20,
         showTracking: true,
         showStatusBadges: true,
-        currencySymbol: '$',
+        currencySymbol: 'R',
         backgroundColor: '#ffffff',
         titleColor: '#222222',
         cardBackground: '#f9f9f9'
